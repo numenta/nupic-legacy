@@ -31,7 +31,8 @@ from optparse import OptionParser
 
 from nupic.data.file_record_stream import FileRecordStream
 
-###########################################################################
+
+
 def _generateSimple(filename="simple.csv", numSequences=1, elementsPerSeq=3, 
                     numRepeats=10):
   """ Generate a simple dataset. This contains a bunch of non-overlapping
@@ -111,7 +112,6 @@ def _generateSimple(filename="simple.csv", numSequences=1, elementsPerSeq=3,
 
 
 
-##############################################################################
 if __name__ == '__main__':
 
   helpString = \

@@ -35,9 +35,6 @@ from collections import namedtuple
 
 
 
-
-
-###############################################################################
 class PredictionLoggerIface(object):
   """ This class defines the interface for OPF prediction logger implementations.
   """
@@ -94,7 +91,7 @@ class PredictionLoggerIface(object):
     """
 
 
-###############################################################################
+
 # PredictionLoggingElement class
 #
 # This named tuple class defines an element in the sequence of predictions

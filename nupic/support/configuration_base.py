@@ -41,9 +41,8 @@ def _getLogger():
     logger.setLevel(logging.DEBUG)
   return logger
 
-###############################################################################
-# Configuration class
-###############################################################################
+
+
 class Configuration(object):
   """ This class can be used to fetch NuPic configuration settings which are
   stored in one or more XML files.

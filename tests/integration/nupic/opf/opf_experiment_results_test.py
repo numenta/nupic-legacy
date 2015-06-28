@@ -31,6 +31,8 @@ import shutil
 from subprocess import call
 import time
 import unittest2 as unittest
+from pkg_resources import resource_filename
+
 
 from nupic.data.file_record_stream import FileRecordStream
 
@@ -55,9 +57,8 @@ class OPFExperimentResultsTest(unittest.TestCase):
     examples/prediction directory in the install tree (same as predictionDir)
 
     """
-    nupicDir = os.environ['NUPIC']
 
-    opfDir = os.path.join(nupicDir, "examples", "opf")
+    opfDir = resource_filename("nupic", os.path.join("..", "examples", "opf"))
 
     testDir = opfDir
 
@@ -95,7 +96,8 @@ class OPFExperimentResultsTest(unittest.TestCase):
     # Run from the test directory so that we can find our experiments
     os.chdir(testDir)
 
-    runExperiment = os.path.join(nupicDir, 'scripts',  'run_opf_experiment.py')
+    runExperiment = resource_filename("nupic", os.path.join("..", 
+                                "scripts", "run_opf_experiment.py"))
 
     # A list of experiments to run.  Valid attributes:
     #   experimentDir - Required, path to the experiment directory containing

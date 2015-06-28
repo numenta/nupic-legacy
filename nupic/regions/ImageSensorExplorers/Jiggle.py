@@ -53,7 +53,6 @@ class Jiggle(SpiralSweep):
     self.index = 0
 
 
-  ##################################################################################
   def _generateOffsets(self, shift, radius):
     """
     Generate the list of offsets we will visit for each image/filter combination

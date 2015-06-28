@@ -1523,7 +1523,7 @@ class HsState(object):
 
     return success
 
-  ##########################################################################
+
   def getEncoderNameFromKey(self, key):
     """ Given an encoder dictionary key, get the encoder name. 
     
@@ -1536,7 +1536,6 @@ class HsState(object):
     return key.split('|')[-1]
     
 
-  ##########################################################################
   def getEncoderKeyFromName(self, name):
     """ Given an encoder name, get the key. 
     
@@ -1547,9 +1546,8 @@ class HsState(object):
     The encoderName is the last word in the | separated key name
     """
     return 'modelParams|sensorParams|encoders|%s' % (name)
-    
-    
-  ##########################################################################
+
+
   def getFieldContributions(self):
     """Return the field contributions statistics.
 

@@ -78,6 +78,39 @@ class AnomalyRegion(PyRegion):
     self.prevPredictedColumns = numpy.zeros([], dtype="float32")
 
 
+  def __eq__(self, other):
+    for k, v1 in self.__dict__.iteritems():
+      if not k in other.__dict__:
+        return False
+      v2 = getattr(other, k)
+      if isinstance(v1, numpy.ndarray):
+        if v1.dtype != v2.dtype:
+          return False
+        if not numpy.isclose(v1, v2).all():
+          return False
+      else:
+        if type(v1) != type(v2):
+          return False
+        if v1 != v2:
+          return False
+    return True
+
+
+  def __ne__(self, other):
+    return not self == other
+
+
+  @classmethod
+  def read(cls, proto):
+    anomalyRegion = object.__new__(cls)
+    anomalyRegion.prevPredictedColumns = numpy.array(proto.prevPredictedColumns)
+    return anomalyRegion
+
+
+  def write(self, proto):
+    proto.prevPredictedColumns = self.prevPredictedColumns.tolist()
+
+
   def initialize(self, inputs, outputs):
     pass
 

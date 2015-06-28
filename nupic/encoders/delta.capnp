@@ -1,6 +1,6 @@
 @0xdf5bd1fedf76298f;
 
-using import "/nupic/encoders/adaptivescalar.capnp".AdaptiveScalarEncoderProto;
+using import "adaptivescalar.capnp".AdaptiveScalarEncoderProto;
 
 struct DeltaEncoderProto {
   width @0 :UInt32;

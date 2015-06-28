@@ -50,27 +50,22 @@ class LogEncoderTest(unittest.TestCase):
                     name="amount",
                     forced=True)
 
-    #######################################################################
     # Verify we're setting the description properly
     self.assertEqual(le.getDescription(), [("amount", 0)])
 
-    #######################################################################
     # Verify we're getting the correct field types
     types = le.getDecoderOutputFieldTypes()
     self.assertEqual(types[0], FieldMetaType.float)
 
-    #######################################################################
     # Verify the encoder ends up with the correct width
     #
     # 10^0 -> 10^4 => 0 -> 4; With a resolution of 0.1
     # 41 possible values plus padding = 4 = width 45
     self.assertEqual(le.getWidth(), 45)
 
-    #######################################################################
     # Verify we have the correct number of possible values
     self.assertEqual(len(le.getBucketValues()), 41)
 
-    #######################################################################
     # Verify closeness calculations
     testTuples = [([1], [10000], 0.0),
                   ([1], [1000], 0.25),
@@ -86,7 +81,6 @@ class LogEncoderTest(unittest.TestCase):
                                                      str(actual),
                                                      str(expectedResult)))
 
-    #######################################################################
     # Verify a value of 1.0 is encoded as expected
     value = 1.0
     output = le.encode(value)
@@ -99,7 +93,6 @@ class LogEncoderTest(unittest.TestCase):
 
     self.assertTrue(numpy.array_equal(output, expected))
 
-    #######################################################################
     # Test reverse lookup
     decoded = le.decode(output)
     (fieldsDict, _) = decoded
@@ -108,12 +101,10 @@ class LogEncoderTest(unittest.TestCase):
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [1, 1]))
 
-    #######################################################################
     # Verify an input representing a missing value is handled properly
     mvOutput = le.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
     self.assertEqual(sum(mvOutput), 0)
 
-    #######################################################################
     # Test top-down for all values
     value = le.minval
     while value <= le.maxval:
@@ -158,7 +149,6 @@ class LogEncoderTest(unittest.TestCase):
       scaledVal += le.encoder.resolution / 4.0
       value = math.pow(10, scaledVal)
 
-    #######################################################################
     # Verify next power of 10 encoding
     output = le.encode(100)
     # increase of 2 decades = 20 decibels
@@ -175,7 +165,6 @@ class LogEncoderTest(unittest.TestCase):
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [100, 100]))
 
-    #######################################################################
     # Verify next power of 10 encoding
     output = le.encode(10000)
     expected = 40 * [0] + [1, 1, 1, 1, 1]
@@ -236,7 +225,6 @@ class LogEncoderTest(unittest.TestCase):
 
     self.assertEqual(le.encoder.n, 5)
 
-    #######################################################################
     # Verify a a couple powers of 10 are encoded as expected
     value = 1.0
     output = le.encode(value)
