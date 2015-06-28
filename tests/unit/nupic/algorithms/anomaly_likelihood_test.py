@@ -580,7 +580,7 @@ class AnomalyLikelihoodTest(TestCaseBase):
     l.anomalyProbability("hi", 0.1) # burn in
     l.anomalyProbability("hi", 0.1)
     l.anomalyProbability("hello", 0.3)
-    self.assertEqual(l, l2)
+    self.assertEqual(l, l2, "equal? \n%s\n vs. \n%s" % (l, l2))
 
 
 if __name__ == "__main__":

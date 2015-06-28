@@ -113,6 +113,16 @@ class AnomalyLikelihood(object):
             self._reestimationPeriod == o._reestimationPeriod)
 
 
+  def __str__(self):
+    return ("AnomalyLikelihood: %s %s %s %s %s %s" % (
+            self._iteration,
+            self._historicalScores,
+            self._distribution,
+            self._probationaryPeriod,
+            self._claLearningPeriod,
+            self._reestimationPeriod) )
+
+
   @staticmethod
   def computeLogLikelihood(likelihood):
     """
