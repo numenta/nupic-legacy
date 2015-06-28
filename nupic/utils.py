@@ -86,14 +86,10 @@ class MovingAverage(object):
 
 
   def __eq__(self, o):
-    if not isinstance(o, MovingAverage):
-      return False
-    if (o.slidingWindow == self.slidingWindow and
-        o.total == self.total and
-        o.windowSize == self.windowSize):
-      return True
-    else: 
-      return False
+    return (isinstance(o, MovingAverage) and
+            o.slidingWindow == self.slidingWindow and
+            o.total == self.total and
+            o.windowSize == self.windowSize)
 
 
   def __call__(self, value):

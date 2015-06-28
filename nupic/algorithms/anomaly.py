@@ -169,15 +169,11 @@ class Anomaly(object):
 
 
   def __eq__(self, other):
-    if not isinstance(other, Anomaly): 
-      return False
-    if (other._mode == self._mode and
-        other._binaryThreshold == self._binaryThreshold and
-        other._movingAverage == self._movingAverage and
-        other._likelihood == self._likelihood):
-      return True #equal
-    else:
-      return False
+    return (isinstance(other, Anomaly) and
+            other._mode == self._mode and
+            other._binaryThreshold == self._binaryThreshold and
+            other._movingAverage == self._movingAverage and
+            other._likelihood == self._likelihood)
 
 
   def __setstate__(self, state):
