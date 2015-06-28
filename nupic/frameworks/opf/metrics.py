@@ -1481,7 +1481,7 @@ class MetricMulti(MetricsIface):
 
 
 ###################################
-class MetricSpeed(MetricAltMAPE):
+class MetricSpeed(MetricsIface):
   """ 
   This metric optimizes for speed - time per iteraton.
   Time is measured between each call of the metric's addInstance() method.
@@ -1494,8 +1494,7 @@ class MetricSpeed(MetricAltMAPE):
     return {'value': self.err, "stats" : {"weights" : self.weights}}
 
   def addInstance(self, groundTruth, prediction, record = None):
-    elapsed = time.time() - float(self._last) # compute diff
-    self._last = time.time()
-    self.err = elapsed
-    return elapsed
-
+    now = time.time()
+    self.err = now - float(self._last) # elapsed time = compute diff
+    self._last = now
+    return self.err
