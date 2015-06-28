@@ -109,7 +109,8 @@ class AnomalyLikelihood(object):
             self._historicalScores == o._historicalScores and
             self._distribution == o._distribution and
             self._probationaryPeriod == o._probationaryPeriod and
-            self._claLearningPeriod == o._claLearningPeriod)
+            self._claLearningPeriod == o._claLearningPeriod and
+            self._reestimationPeriod == o._reestimationPeriod)
 
 
   @staticmethod
