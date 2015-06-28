@@ -135,7 +135,9 @@ class Anomaly(object):
       if callable(customComputeFn):
         self._computeAnomaly = customComputeFn
       else:
-        raise ValueError("Anomaly: with mode='custom' a callable must be provided as 'customComputeFn' param")
+        raise ValueError("Anomaly: with mode='custom' a callable must be "
+                         "provided as 'customComputeFn' param, but got %r" % 
+                         (customComputeFn,))
     elif mode == Anomaly.MODE_PURE:
       self._computeAnomaly =  self._computeRaw
     elif mode == Anomaly.MODE_LIKELIHOOD:
@@ -146,7 +148,7 @@ class Anomaly(object):
       self._computeAnomaly = self._computeWeighted
     else:
       raise ValueError("Anomaly: mode has to be one of '%s' but is '%r' "
-                         % (Anomaly.supportedModes, mode) )
+                         % (self.supportedModes, mode) )
 
 
 
