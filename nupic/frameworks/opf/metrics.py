@@ -509,7 +509,6 @@ class MetricSubmetric(AggregateMetric):
 
 
 
-
 class MetricRMSE(AggregateMetric):
   """
       computes root-mean-square error
@@ -716,7 +715,7 @@ class MetricPassThruPrediction(MetricsIface):
 
 
 
-class MetricMovingMean(AggregateMetric):
+class MetricMovingMean(MetricSubmetric):
   """
       computes error metric based on moving mean prediction
   """
@@ -748,7 +747,7 @@ class MetricMovingMean(AggregateMetric):
     return super(MetricMovingMean, self).addInstance(groundTruth, mean, record)
 
 
-############ 
+
 def evalCustomErrorMetric(expr, prediction, groundTruth, tools):
   sandbox = SafeInterpreter(writer=StringIO())
   if isinstance(prediction, dict):
@@ -761,6 +760,8 @@ def evalCustomErrorMetric(expr, prediction, groundTruth, tools):
   sandbox.symtable['tools'] = tools
   error = sandbox(expr)
   return error
+
+
 
 class CustomErrorMetric(MetricsIface):
   """

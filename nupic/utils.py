@@ -115,9 +115,9 @@ class MovingAverage(object):
     proto.windowSize = self.windowSize
     proto.slidingWindow = self.slidingWindow
     proto.total = self.total
+
                                                 
 
-#######################################################################
 class GlobalDict(MutableMapping):
   """
   a dict{} storing its content globally. 
