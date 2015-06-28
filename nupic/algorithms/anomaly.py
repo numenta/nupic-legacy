@@ -72,7 +72,10 @@ class Anomaly(object):
   _supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
 
 
-  def __init__(self, slidingWindowSize=None, mode=MODE_PURE, binaryAnomalyThreshold=None):
+  def __init__(self, 
+               slidingWindowSize=None, 
+               mode=MODE_PURE, 
+               binaryAnomalyThreshold=None):
     """
     @param slidingWindowSize (optional) - how many elements are summed up;
         enables moving average on final anomaly score; int >= 0
@@ -86,7 +89,7 @@ class Anomaly(object):
               (anomaly * likelihood)
     @param binaryAnomalyThreshold (optional) - if set [0,1] anomaly score
          will be discretized to 1/0 (1 if >= binaryAnomalyThreshold)
-         The transformation is applied after moving average is computed and updated.
+         The transformation is applied after moving average is computed.
     """
     self._mode = mode
     if slidingWindowSize is not None:
@@ -94,7 +97,8 @@ class Anomaly(object):
     else:
       self._movingAverage = None
 
-    if self._mode == Anomaly.MODE_LIKELIHOOD or self._mode == Anomaly.MODE_WEIGHTED:
+    if (self._mode == Anomaly.MODE_LIKELIHOOD or 
+        self._mode == Anomaly.MODE_WEIGHTED):
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
     else:
       self._likelihood = None
