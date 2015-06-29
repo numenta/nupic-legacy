@@ -59,38 +59,38 @@ class AnomalyTest(unittest.TestCase):
 
 
   def testComputeAnomalyScoreNoActiveOrPredicted(self):
-    anomalyComputer = anomaly.Anomaly()
+    anomalyComputer = anomaly.Anomaly(claBurnInPeriod=0)
     score = anomalyComputer.compute(array([]), array([]))
     self.assertAlmostEqual(score, 0.0)
 
 
   def testComputeAnomalyScoreNoActive(self):
-    anomalyComputer = anomaly.Anomaly()
+    anomalyComputer = anomaly.Anomaly(claBurnInPeriod=0)
     score = anomalyComputer.compute(array([]), array([3, 5]))
     self.assertAlmostEqual(score, 0.0)
 
 
   def testComputeAnomalyScorePerfectMatch(self):
-    anomalyComputer = anomaly.Anomaly()
+    anomalyComputer = anomaly.Anomaly(claBurnInPeriod=0)
     score = anomalyComputer.compute(array([3, 5, 7]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 0.0)
 
 
   def testComputeAnomalyScoreNoMatch(self):
-    anomalyComputer = anomaly.Anomaly()
+    anomalyComputer = anomaly.Anomaly(claBurnInPeriod=0)
     score = anomalyComputer.compute(array([2, 4, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 1.0)
 
 
   def testComputeAnomalyScorePartialMatch(self):
-    anomalyComputer = anomaly.Anomaly()
+    anomalyComputer = anomaly.Anomaly(claBurnInPeriod=0) # disable the burn-in period for the tests
     score = anomalyComputer.compute(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
   def testAnomalyCumulative(self):
     """Test cumulative anomaly scores."""
-    anomalyComputer = anomaly.Anomaly(slidingWindowSize=3)
+    anomalyComputer = anomaly.Anomaly(slidingWindowSize=3, claBurnInPeriod=0)
     predicted = (array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]),
                  array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]),
                  array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]))
@@ -99,6 +99,11 @@ class AnomalyTest(unittest.TestCase):
               array([10, 11, 12]), array([1, 2, 6]), array([1, 2, 6]))
     anomalyExpected = (0.0, 0.0, 1.0/9.0, 3.0/9.0, 2.0/3.0, 8.0/9.0, 1.0,
                        2.0/3.0, 1.0/3.0)
+
+    # burn-in MovingAverage in Anomaly instance:
+    for _ in [1,2]:
+      score = anomalyComputer.compute([0], [0])
+      self.assertEqual(score, 0.5) # default burn-in value
 
     for act, pred, expected in zip(actual, predicted, anomalyExpected):
       score = anomalyComputer.compute(act, pred)
@@ -109,7 +114,7 @@ class AnomalyTest(unittest.TestCase):
 
 
   def testComputeAnomalySelectModePure(self):
-    anomalyComputer = anomaly.Anomaly(mode=anomaly.Anomaly.MODE_PURE)
+    anomalyComputer = anomaly.Anomaly(mode=anomaly.Anomaly.MODE_PURE, claBurnInPeriod=0)
     score = anomalyComputer.compute(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
