@@ -421,7 +421,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     # If the trace contains ConnectionsCell, convert them to int
     cellTrace = self._mmTraces[activityType].data
     for i in xrange(len(cellTrace)):
-        cellTrace[i] = self.getCellIndices(cellTrace[i])
+      cellTrace[i] = self.getCellIndices(cellTrace[i])
 
     return self.mmGetCellTracePlot(cellTrace, self.numberOfCells(),
                                    activityType, title, showReset, resetShading)
