@@ -30,7 +30,7 @@ from nupic.algorithms.KNNClassifier import KNNClassifier
 class KNNClassifierTest(unittest.TestCase):
 
 
-  def testOverlapDistanceMethod_Standard(self):
+  def testOverlapDistanceMethodStandard(self):
     """Tests standard learning case for raw overlap"""
     params = {"distanceMethod": "rawOverlap"}
     classifier = KNNClassifier(**params)
@@ -56,7 +56,7 @@ class KNNClassifierTest(unittest.TestCase):
     self.assertEquals(cat, 1)
 
 
-  def testOverlapDistanceMethod_BadSparsity(self):
+  def testOverlapDistanceMethodBadSparsity(self):
     """Sparsity (input dimensionality) less than input array"""
     params = {"distanceMethod": "rawOverlap"}
     classifier = KNNClassifier(**params)
@@ -69,7 +69,7 @@ class KNNClassifierTest(unittest.TestCase):
       classifier.learn(a, 0, isSparse=20)
 
 
-  def testOverlapDistanceMethod_InconsistentDimensionality(self):
+  def testOverlapDistanceMethodInconsistentDimensionality(self):
     """Inconsistent sparsity (input dimensionality)"""
     params = {"distanceMethod": "rawOverlap"}
     classifier = KNNClassifier(**params)
@@ -90,7 +90,7 @@ class KNNClassifierTest(unittest.TestCase):
 
 
 
-  def testOverlapDistanceMethod_StandardUnsorted(self):
+  def testOverlapDistanceMethodStandardUnsorted(self):
     """If sparse representation indices are unsorted expect error."""
     params = {"distanceMethod": "rawOverlap"}
     classifier = KNNClassifier(**params)
@@ -106,7 +106,7 @@ class KNNClassifierTest(unittest.TestCase):
       classifier.learn(b, 1, isSparse=dimensionality)
 
 
-  def testOverlapDistanceMethod_EmptyArray(self):
+  def testOverlapDistanceMethodEmptyArray(self):
     """Tests case where pattern has no ON bits"""
     params = {"distanceMethod": "rawOverlap"}
     classifier = KNNClassifier(**params)
@@ -123,24 +123,28 @@ class KNNClassifierTest(unittest.TestCase):
     self.assertEquals(cat, 0)
 
 
-  # def testOverlapDistanceMethod_ClassifySparse(self):
-  #   params = {"distanceMethod": "rawOverlap"}
-  #   classifier = KNNClassifier(**params)
-  #
-  #   dimensionality = 40
-  #   a = np.array([1, 3, 7, 11, 13, 17, 19, 23, 29], dtype=np.int32)
-  #   b = np.array([2, 4, 8, 12, 14, 18, 20, 28, 30], dtype=np.int32)
-  #
-  #   classifier.learn(a, 0, isSparse=dimensionality)
-  #   classifier.learn(b, 1, isSparse=dimensionality)
-  #
-  #   # TODO Test case where infer is passed a sparse representation after
-  #   # infer() has been extended to handle sparse and dense
-  #   cat, _, _, _ = classifier.infer(a)
-  #   self.assertEquals(cat, 0)
-  #
-  #   cat, _, _, _ = classifier.infer(b)
-  #   self.assertEquals(cat, 1)
+  @unittest.skip("Finish when infer has options for sparse and dense "
+                 "https://github.com/numenta/nupic/issues/2198")
+  def testOverlapDistanceMethod_ClassifySparse(self):
+    params = {"distanceMethod": "rawOverlap"}
+    classifier = KNNClassifier(**params)
+
+    dimensionality = 40
+    a = np.array([1, 3, 7, 11, 13, 17, 19, 23, 29], dtype=np.int32)
+    b = np.array([2, 4, 8, 12, 14, 18, 20, 28, 30], dtype=np.int32)
+
+    classifier.learn(a, 0, isSparse=dimensionality)
+    classifier.learn(b, 1, isSparse=dimensionality)
+
+    # TODO Test case where infer is passed a sparse representation after
+    # infer() has been extended to handle sparse and dense
+    cat, _, _, _ = classifier.infer(a)
+    self.assertEquals(cat, 0)
+
+    cat, _, _, _ = classifier.infer(b)
+    self.assertEquals(cat, 1)
+
+
 
 if __name__ == "__main__":
   unittest.main()
