@@ -93,7 +93,10 @@ class Anomaly(object):
          The transformation is applied after moving average is computed and updated.
     @param claBurnInPeriod (optional, default=300) - iterations for HTM to burn-in,
              until then the anomaly predictions are inaccurate and should be ignored.
-             Value 0 means no burn-in checks are done and values are computer right away.
+             Value '0' means no burn-in checks are done and values are computed
+                       right away.
+             Value 'None' means ignoring resets, no internal state changes 
+                       for new sequence, this is the "old" behavior.
     """
     self._mode = mode
     self._movingAverage = None
@@ -101,7 +104,10 @@ class Anomaly(object):
     if slidingWindowSize is not None:
       self._movingAverage = MovingAverage(windowSize=slidingWindowSize)
     if self._mode == Anomaly.MODE_LIKELIHOOD or self._mode == Anomaly.MODE_WEIGHTED:
-      self._likelihood = AnomalyLikelihood(claLearningPeriod=claBurnInPeriod) # probabilistic anomaly
+      if claBurnInPeriod is not None:
+        self._likelihood = AnomalyLikelihood(claLearningPeriod=claBurnInPeriod) # probabilistic anomaly
+      else:
+        self._likelihood = AnomalyLikelihood()
     if not self._mode in Anomaly._supportedModes:
       raise ValueError("Invalid anomaly mode; only supported modes are: "
                        "Anomaly.MODE_PURE, Anomaly.MODE_LIKELIHOOD, "
@@ -173,6 +179,8 @@ class Anomaly(object):
     reset internal state on sequence end ('r' signal in OPF, 
     or CLAModel.sequenceReset())
     """
+    if self._burnIn is None:
+      pass # ignore the reset() command
     if self._movingAverage is not None:
       self._movingAverage.reset()
     if self._likelihood is not None:
@@ -183,6 +191,8 @@ class Anomaly(object):
     """
     @return True when anomaly predictions should be accurate (after burn-in)
     """
+    if self._burnIn == 0 or self._burnIn is None: # ignoring burn-in after resets
+      return True
     bMA = (self._movingAverage is None) or self._movingAverage.isReady()
     bLike = (self._likelihood is None) or self._likelihood.isReady()
     bCla = self._iteration > self._burnIn
