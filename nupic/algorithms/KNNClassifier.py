@@ -1032,9 +1032,10 @@ class KNNClassifier(object):
 
 
   def remapCategories(self, mapping):
-    """Change the category indices. Used by the Network Builder to keep the
-    category indices in sync with the ImageSensor categoryInfo when the user
-    renames or removes categories.
+    """Change the category indices.
+
+    Used by the Network Builder to keep the category indices in sync with the
+    ImageSensor categoryInfo when the user renames or removes categories.
 
     @param mapping List of new category indices. For example, mapping=[2,0,1]
         would change all vectors of category 0 to be category 2, category 1 to
@@ -1049,8 +1050,9 @@ class KNNClassifier(object):
 
 
   def setCategoryOfVectors(self, vectorIndices, categoryIndices):
-    """Change the category associated with this vector(s). Used by the
-    Network Builder to move vectors between categories, to enable
+    """Change the category associated with this vector(s).
+
+    Used by the Network Builder to move vectors between categories, to enable
     categories, and to invalidate vectors by setting the category to -1.
 
     @param vectorIndices Single index or list of indices
@@ -1076,8 +1078,9 @@ class KNNClassifier(object):
 
 
   def __getstate__(self):
-    """Return serializable state. This function will return a version of the
-    __dict__.
+    """Return serializable state.
+
+    This function will return a version of the __dict__.
     """
     state = self.__dict__.copy()
     return state
