@@ -39,7 +39,7 @@ metrics.py file:
 import numpy as np
 
 
-##############################################################################
+
 def ROCCurve(y_true, y_score):
     """compute Receiver operating characteristic (ROC)
 
@@ -136,7 +136,7 @@ def ROCCurve(y_true, y_score):
     return fpr, tpr, thresholds
 
 
-##############################################################################
+
 def AreaUnderCurve(x, y):
     """Compute Area Under the Curve (AUC) using the trapezoidal rule
 
@@ -183,7 +183,7 @@ def AreaUnderCurve(x, y):
     return area
 
 
-################################################################################
+
 def _printNPArray(x, precision=2):
   format = "%%.%df" % (precision)
   for elem in x:
@@ -191,7 +191,7 @@ def _printNPArray(x, precision=2):
   print
 
 
-################################################################################
+
 def _test():
   """
   This is a toy example, to show the basic functionality:
@@ -273,6 +273,5 @@ def _test():
 
 
 
-################################################################################
 if __name__=='__main__':
   _test()

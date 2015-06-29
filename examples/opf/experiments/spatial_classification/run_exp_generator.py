@@ -32,7 +32,7 @@ from optparse import OptionParser
 from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 
 
-##############################################################################
+
 if __name__ == '__main__':
 
   helpString = \

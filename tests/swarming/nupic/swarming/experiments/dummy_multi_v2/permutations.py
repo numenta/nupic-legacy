@@ -78,7 +78,7 @@ report = [
 minimize = 'prediction:rmse:field=consumption'
 
 
-#############################################################################
+
 def permutationFilter(perm):
   """ This function can be used to selectively filter out specific permutation
   combinations. It is called by RunPermutations for every possible permutation

@@ -31,7 +31,8 @@ Required Metadata:
   author          Who came up with this crazy scheme?
 
 '''
-###############################################################################
+
+
 
 FEATURES_LIST = [
   {'name': 'base_feature',
@@ -66,7 +67,6 @@ FEATURES_LIST = [
 ]
 
 
-###############################################################################
 
 required_fields = ['name', 'description', 'dateAdded', 'author']
 for feature in FEATURES_LIST:
