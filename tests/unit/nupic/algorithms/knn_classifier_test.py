@@ -20,9 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import unittest
-
 import numpy as np
+import unittest
 
 from nupic.algorithms.KNNClassifier import KNNClassifier
 
@@ -48,12 +47,12 @@ class KNNClassifierTest(unittest.TestCase):
 
     denseA = np.zeros(dimensionality)
     denseA[a] = 1.0
-    cat, inferenceResult, dist, categoryDist = classifier.infer(denseA)
+    cat, _, _, _ = classifier.infer(denseA)
     self.assertEquals(cat, 0)
 
     denseB = np.zeros(dimensionality)
     denseB[b] = 1.0
-    cat, inferenceResult, dist, categoryDist = classifier.infer(denseB)
+    cat, _, _, _ = classifier.infer(denseB)
     self.assertEquals(cat, 1)
 
 
@@ -70,7 +69,7 @@ class KNNClassifierTest(unittest.TestCase):
       classifier.learn(a, 0, isSparse=20)
 
 
-  def testOverlapDistanceMethod_InconsistentSparsity(self):
+  def testOverlapDistanceMethod_InconsistentDimensionality(self):
     """Inconsistent sparsity (input dimensionality)"""
     params = {"distanceMethod": "rawOverlap"}
     classifier = KNNClassifier(**params)
@@ -86,7 +85,7 @@ class KNNClassifierTest(unittest.TestCase):
     denseA = np.zeros(dimensionality)
     denseA[a] = 1.0
 
-    cat, inferenceResult, dist, categoryDist = classifier.infer(denseA)
+    cat, _, _, _ = classifier.infer(denseA)
     self.assertEquals(cat, 0)
 
 
@@ -120,7 +119,7 @@ class KNNClassifierTest(unittest.TestCase):
 
     denseA = np.zeros(dimensionality)
     denseA[a] = 1.0
-    cat, inferenceResult, dist, categoryDist = classifier.infer(denseA)
+    cat, _, _, _ = classifier.infer(denseA)
     self.assertEquals(cat, 0)
 
 
@@ -137,10 +136,10 @@ class KNNClassifierTest(unittest.TestCase):
   #
   #   # TODO Test case where infer is passed a sparse representation after
   #   # infer() has been extended to handle sparse and dense
-  #   cat, inferenceResult, dist, categoryDist = classifier.infer(a)
+  #   cat, _, _, _ = classifier.infer(a)
   #   self.assertEquals(cat, 0)
   #
-  #   cat, inferenceResult, dist, categoryDist = classifier.infer(b)
+  #   cat, _, _, _ = classifier.infer(b)
   #   self.assertEquals(cat, 1)
 
 if __name__ == "__main__":
