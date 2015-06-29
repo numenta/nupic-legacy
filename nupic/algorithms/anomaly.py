@@ -72,7 +72,11 @@ class Anomaly(object):
   _supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
 
 
-  def __init__(self, slidingWindowSize=None, mode=MODE_PURE, binaryAnomalyThreshold=None):
+  def __init__(self, 
+               slidingWindowSize=None,
+               mode=MODE_PURE,
+               binaryAnomalyThreshold=None,
+               claBurnInPeriod=300):
     """
     @param slidingWindowSize (optional) - how many elements are summed up;
         enables moving average on final anomaly score; int >= 0
@@ -87,13 +91,14 @@ class Anomaly(object):
     @param binaryAnomalyThreshold (optional) - if set [0,1] anomaly score
          will be discretized to 1/0 (1 if >= binaryAnomalyThreshold)
          The transformation is applied after moving average is computed and updated.
+    @param claBurnInPeriod (optional, default=300) - iterations for HTM to burn-in,
+             until then the anomaly predictions are inaccurate and should be ignored.
     """
     self._mode = mode
+    self._movingAverage = None
+    self._likelihood = None
     if slidingWindowSize is not None:
       self._movingAverage = MovingAverage(windowSize=slidingWindowSize)
-    else:
-      self._movingAverage = None
-
     if self._mode == Anomaly.MODE_LIKELIHOOD or self._mode == Anomaly.MODE_WEIGHTED:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
     if not self._mode in Anomaly._supportedModes:
@@ -107,6 +112,8 @@ class Anomaly(object):
           binaryAnomalyThreshold <= 0.0 ):
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
                        "or None if disabled.")
+    self._burnIn = claBurnInPeriod
+    self._iteration = 0
 
 
   def compute(self, activeColumns, predictedColumns, 
@@ -154,7 +161,31 @@ class Anomaly(object):
       else:
         score = 0.0
 
+    self._iteration += 1
+    if not self.isReady():
+      score = 0.5
     return score
+
+
+  def reset(self):
+    """
+    reset internal state on sequence end ('r' signal in OPF, 
+    or CLAModel.sequenceReset())
+    """
+    if self._movingAverage is not None:
+      self._movingAverage.reset()
+    if self._likelihood is not None:
+      self._likelihood.reset()
+
+
+  def isReady(self):
+    """
+    @return True when anomaly predictions should be accurate (after burn-in)
+    """
+    bMA = (self._movingAverage is None) or self._movingAverage.isReady()
+    bLike = (self._likelihood is None) or self._likelihood.isReady()
+    bCla = self._iteration > self._burnIn
+    return bCla and bMA and bLike
 
 
   def __str__(self):

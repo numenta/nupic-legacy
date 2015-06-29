@@ -81,6 +81,20 @@ class MovingAverage(object):
     return newAverage
 
 
+  def reset(self):
+    """reset internal state to empty"""
+    self.slidingWindow = []
+    self.total = 0.0
+
+
+  def isReady(self):
+    """
+    Use after init and sequence reset() calls.
+    @return boolean - moving average is accurate if buffer is full.
+    """
+    return len(self.slidingWindow)==self.windowSize
+
+
   def getSlidingWindow(self):
     return self.slidingWindow
 
