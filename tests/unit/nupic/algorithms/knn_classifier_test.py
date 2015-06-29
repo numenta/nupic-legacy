@@ -31,26 +31,116 @@ from nupic.algorithms.KNNClassifier import KNNClassifier
 class KNNClassifierTest(unittest.TestCase):
 
 
-  def setup(self):
-    self.intDtype = np.int32
-
-
-  def test1(self):
+  def testOverlapDistanceMethod_Standard(self):
+    """Tests standard learning case for raw overlap"""
     params = {"distanceMethod": "rawOverlap"}
     classifier = KNNClassifier(**params)
 
-    a = np.array([1, 3, 7, 11, 13, 17, 19, 23, 29], dtype=self.intDtype)
-    b = np.array([2, 4, 8, 12, 14, 18, 20, 28, 30], dtype=self.intDtype)
     dimensionality = 40
+    a = np.array([1, 3, 7, 11, 13, 17, 19, 23, 29], dtype=np.int32)
+    b = np.array([2, 4, 8, 12, 14, 18, 20, 28, 30], dtype=np.int32)
 
-    patterns = classifier.learn(a, 0, isSparse=dimensionality)
-    print "{0} stored patterns".format(patterns)
+    numPatterns = classifier.learn(a, 0, isSparse=dimensionality)
+    self.assertEquals(numPatterns, 1)
 
-    patterns = classifier.learn(b, 1, isSparse=dimensionality)
+    numPatterns = classifier.learn(b, 1, isSparse=dimensionality)
+    self.assertEquals(numPatterns, 2)
 
-    # self.assertEquals(len(result), 1)
-    # self.assertEquals(result[0], 4)
+    denseA = np.zeros(dimensionality)
+    denseA[a] = 1.0
+    cat, inferenceResult, dist, categoryDist = classifier.infer(denseA)
+    self.assertEquals(cat, 0)
 
+    denseB = np.zeros(dimensionality)
+    denseB[b] = 1.0
+    cat, inferenceResult, dist, categoryDist = classifier.infer(denseB)
+    self.assertEquals(cat, 1)
+
+
+  def testOverlapDistanceMethod_BadSparsity(self):
+    """Sparsity (input dimensionality) less than input array"""
+    params = {"distanceMethod": "rawOverlap"}
+    classifier = KNNClassifier(**params)
+
+    dimensionality = 40
+    a = np.array([1, 3, 7, 11, 13, 17, 19, 23, 29], dtype=np.int32)
+
+    # Learn with incorrect dimensionality, less than some bits (23, 29)
+    with self.assertRaises(RuntimeError):
+      classifier.learn(a, 0, isSparse=20)
+
+
+  def testOverlapDistanceMethod_InconsistentSparsity(self):
+    """Inconsistent sparsity (input dimensionality)"""
+    params = {"distanceMethod": "rawOverlap"}
+    classifier = KNNClassifier(**params)
+
+    dimensionality = 40
+    a = np.array([1, 3, 7, 11, 13, 17, 19, 23, 29], dtype=np.int32)
+
+    # Learn with incorrect dimensionality, greater than largest ON bit, but
+    # inconsistent when inferring
+    numPatterns = classifier.learn(a, 0, isSparse=31)
+    self.assertEquals(numPatterns, 1)
+
+    denseA = np.zeros(dimensionality)
+    denseA[a] = 1.0
+
+    cat, inferenceResult, dist, categoryDist = classifier.infer(denseA)
+    self.assertEquals(cat, 0)
+
+
+
+  def testOverlapDistanceMethod_StandardUnsorted(self):
+    """If sparse representation indices are unsorted expect error."""
+    params = {"distanceMethod": "rawOverlap"}
+    classifier = KNNClassifier(**params)
+
+    dimensionality = 40
+    a = np.array([29, 3, 7, 11, 13, 17, 19, 23, 1], dtype=np.int32)
+    b = np.array([2, 4, 20, 12, 14, 18, 8, 28, 30], dtype=np.int32)
+
+    with self.assertRaises(RuntimeError):
+      classifier.learn(a, 0, isSparse=dimensionality)
+
+    with self.assertRaises(RuntimeError):
+      classifier.learn(b, 1, isSparse=dimensionality)
+
+
+  def testOverlapDistanceMethod_EmptyArray(self):
+    """Tests case where pattern has no ON bits"""
+    params = {"distanceMethod": "rawOverlap"}
+    classifier = KNNClassifier(**params)
+
+    dimensionality = 40
+    a = np.array([], dtype=np.int32)
+
+    numPatterns = classifier.learn(a, 0, isSparse=dimensionality)
+    self.assertEquals(numPatterns, 1)
+
+    denseA = np.zeros(dimensionality)
+    denseA[a] = 1.0
+    cat, inferenceResult, dist, categoryDist = classifier.infer(denseA)
+    self.assertEquals(cat, 0)
+
+
+  # def testOverlapDistanceMethod_ClassifySparse(self):
+  #   params = {"distanceMethod": "rawOverlap"}
+  #   classifier = KNNClassifier(**params)
+  #
+  #   dimensionality = 40
+  #   a = np.array([1, 3, 7, 11, 13, 17, 19, 23, 29], dtype=np.int32)
+  #   b = np.array([2, 4, 8, 12, 14, 18, 20, 28, 30], dtype=np.int32)
+  #
+  #   classifier.learn(a, 0, isSparse=dimensionality)
+  #   classifier.learn(b, 1, isSparse=dimensionality)
+  #
+  #   # TODO detect and throw error
+  #   cat, inferenceResult, dist, categoryDist = classifier.infer(a)
+  #   self.assertEquals(cat, 0)
+  #
+  #   cat, inferenceResult, dist, categoryDist = classifier.infer(b)
+  #   self.assertEquals(cat, 1)
 
   # winner: The category with the greatest number of nearest neighbors within
   #               the kth nearest neighbors
@@ -63,48 +153,6 @@ class KNNClassifierTest(unittest.TestCase):
   # categoryDist: A list of length numCategories. Each entry is the distance
   #               from the unknown to the nearest prototype of that category. All
   #               distances are between 0 and 1.0.
-
-
-def main(self):
-    params = {"k": 1,
-              "distanceMethod": "rawOverlap",
-              "distThreshold": 0.01,
-              "verbosity": 0}
-    classifier = KNNClassifier(**params)
-
-    intDType = np.int32
-    a = np.array([1, 3, 7, 11, 13, 17, 19, 23, 29], dtype=intDType)
-    b = np.array([2, 4, 8, 12, 14, 18, 20, 28, 30], dtype=intDType)
-    # c = np.array([2, 4, 8, 12, 14, 18, 20, 28, 30]).astype(intDType)
-
-    dimensionality = 40
-
-    print "\nLearn {0} is {1}".format(a, 0)
-    patterns = classifier.learn(a, 0, isSparse=dimensionality)
-    print "{0} stored patterns".format(patterns)
-
-    print "\nLearn {0} is {1}".format(b, 1)
-    patterns = classifier.learn(b, 1, isSparse=dimensionality)
-    print "{0} stored patterns".format(patterns)
-
-    print "\nExample classifications"
-    denseA = np.zeros(dimensionality)
-    denseA[a] = 1.0
-
-    denseB = np.zeros(dimensionality)
-    denseB[b] = 1.0
-
-    self.classifyAndPrint(classifier, denseA)
-    self.classifyAndPrint(classifier, denseB)
-
-
-
-def classifyAndPrint(self, classifier, pattern):
-    winningCategory, inferenceResult, dist, categoryDist = classifier.infer(
-      pattern)
-    print ("\nPattern: {0}\nWinner: {1}\ninferenceResult: {1}\ndist: "
-           "{1}\ncategoryDist: {1}\n").format(pattern, winningCategory,
-                                            inferenceResult, dist, categoryDist)
 
 
 if __name__ == "__main__":

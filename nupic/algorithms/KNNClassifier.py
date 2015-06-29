@@ -349,7 +349,8 @@ class KNNClassifier(object):
                                   isSparse is 0, this should be a dense array
                                   (both ON and OFF bits present).
                                   Otherwise, if isSparse > 0, this should be a
-                                  list of the indices of non-zero bits.
+                                  list of the indices of the non-zero bits in
+                                  sorted order.
     @param inputCategory: (int)   The category to be associated to the training
                                   pattern.
     @param partitionId:   (int)   UNKNOWN
@@ -359,6 +360,8 @@ class KNNClassifier(object):
                                   isSparse is the length of the dense
                                   representation.
     @param rowID:         (int)   UNKNOWN
+
+    @return The number of patterns currently stored in the classifier.
     """
     if self.verbosity >= 1:
       print "%s learn:" % g_debugPrefix
