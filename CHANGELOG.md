@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.5
+
+* Fix MANIFEST.in capnp include.
+* Update documentation related to PyRegion serialization introduction.
+* Updates nupic.core and adds function definitions for read/write in PyRegion
+
 ## 0.2.4
 
 * Fix a minor bug in the algorithm
