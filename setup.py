@@ -625,8 +625,8 @@ def postProcess():
   shutil.copy(
     nupicCoreReleaseDir + "/bin/py_region_test", REPO_DIR + "/bin"
   )
-  # Copy cpp_region located at build dir into source dir
-  shutil.copy(buildDir + "/nupic/" + getLibPrefix(platform) + "cpp_region" +
+  # Copy py_region located at build dir into source dir
+  shutil.copy(buildDir + "/nupic/" + getLibPrefix(platform) + "py_region" +
               getSharedLibExtension(platform), REPO_DIR + "/nupic")
 
 options = getCommandLineOptions()
