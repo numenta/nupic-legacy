@@ -94,6 +94,9 @@ class AnomalyRegion(PyRegion):
     self.prevPredictedColumns = numpy.zeros([], dtype="float32")
 
 
+  def __str__(self):
+    return "AnomalyRegion: %s" % self.__dict__
+
   def __eq__(self, other):
     for k, v1 in self.__dict__.iteritems():
       if not k in other.__dict__:
