@@ -25,6 +25,8 @@
 This file contains k Nearest Neighbor classifier.
 """
 
+import numbers
+
 import numpy
 
 from nupic.bindings.math import (NearestNeighbor, min_score_per_category)
@@ -149,6 +151,236 @@ class KNNClassifier(object):
     self.maxStoredPatterns = maxStoredPatterns
     self.clear()
 
+
+  def __eq__(self, other):
+    for k, v1 in self.__dict__.iteritems():
+      if not k in other.__dict__:
+        print 'not found: ', k
+        return False
+      v2 = getattr(other, k)
+      if isinstance(v1, numpy.ndarray):
+        if v1.dtype != v2.dtype:
+          print v1, v2, k, 'v1.dtype != v2.dtype'
+          return False
+        if not numpy.isclose(v1, v2).all():
+          print v1, v2, k, 'not numpy.isclose(v1, v2).all()'
+          return False
+      elif isinstance(v1, float):
+        if abs(v1 - v2) > 0.00000001:
+          print v1, v2, k, 'abs(v1 - v2) > 0.00000001'
+          return False
+      elif isinstance(v1, numbers.Integral):
+        if long(v1) != long(v2):
+          print v1, v2, k, 'long(v1) != long(v2)'
+          return False
+      else:
+        if type(v1) != type(v2):
+          print v1, v2, k, 'type(v1) != type(v2)'
+          return False
+        if v1 != v2:
+          print v1, v2, k, 'v1 != v2'
+          return False
+    return True
+
+
+  def __ne__(self, other):
+    return not self == other
+
+
+  @classmethod
+  def read(cls, proto):
+    knn = object.__new__(cls)
+
+    knn.version = KNNCLASSIFIER_VERSION
+    knn.verbosity = proto.verbosity
+
+    knn.cellsPerCol = proto.cellsPerCol
+    knn.k = proto.k
+    knn.exact = proto.exact
+    knn.distanceNorm = proto.distanceNorm
+    knn.distanceMethod = proto.distanceMethod
+    knn.distThreshold = proto.distanceThreshold
+    knn.doBinarization = proto.doBinarization
+    knn.binarizationThreshold = proto.binarizationThreshold
+    knn.useSparseMemory = proto.useSparseMemory
+    knn.sparseThreshold = proto.sparseThreshold
+    knn.relativeThreshold = proto.relativeThreshold
+    knn.numWinners = proto.numWinners
+    if proto.numSVDSamples != -1:
+      knn.numSVDSamples = proto.numSVDSamples
+    else:
+      knn.numSVDSamples = None
+    if proto.numSVDDims == 0:
+      knn._adaptiveSVDDims = True
+      knn.numSVDDims = 'adaptive'
+    else:
+      knn._adaptiveSVDDims = False
+      if proto.numSVDDims == -1:
+        knn.numSVDDims = None
+      else:
+        knn.numSVDDims = proto.numSVDDims
+    if int(proto.fractionOfMax) != -1:
+      knn.fractionOfMax = proto.fractionOfMax
+    else:
+      knn.fractionOfMax = None
+    knn.replaceDuplicates = proto.replaceDuplicates
+    knn.maxStoredPatterns = proto.maxStoredPatterns
+
+    knn.clear()
+
+    knn._iterationIdx = proto.iterationIdx
+
+    memory = numpy.array(proto.memory)
+    numRows = memory.shape[0]
+    numCols = memory.shape[1]
+    if knn.useSparseMemory:
+      knn._Memory = NearestNeighbor(numRows, numCols)
+    else:
+      knn._Memory = numpy.zeros((numRows, numCols))
+    for i in xrange(numRows):
+      for j in xrange(numCols):
+        knn._Memory[i,j] = memory[i][j]
+
+    if not knn.useSparseMemory:
+      m = numpy.array(proto.m)
+      numRows = m.shape[0]
+      numCols = m.shape[1]
+      knn._M = numpy.zeros((numRows, numCols))
+      for i in xrange(numRows):
+        for j in xrange(numCols):
+          knn._M[i,j] = m[i][j]
+
+    knn._numPatterns = proto.numPatterns
+    knn._categoryList = list(proto.categoryList)
+    knn._partitionIdList = list(proto.partitionIdList)
+    if list(proto.partitionIdArray) != [-2] and list(proto.partitionIdArray) != [-1]:
+      knn._partitionIdArray = list(proto.partitionIdArray)
+
+    if knn.maxStoredPatterns > 0:
+      knn.fixedCapacity = True
+      knn._categoryRecencyList = list(proto.categoryRecencyList)
+    else:
+      knn.fixedCapacity = False
+
+    if list(proto.s) != [-1]:
+      knn._s = numpy.array(proto.s)
+    if len(proto.vt) > 0 and list(proto.vt)[0][0] != -1:
+      vt = numpy.array(proto.vt)
+      numRows = vt.shape[0]
+      numCols = vt.shape[1]
+      knn._vt = numpy.zeros((numRows, numCols))
+      for i in xrange(numRows):
+        for j in xrange(numCols):
+          knn._vt[i][j] = vt[i][j]
+    if list(proto.mean) != [-1]:
+      knn._mean = numpy.array(proto.mean)
+
+    knn._specificIndexTraining = proto.specificIndexTraining
+    if list(proto.nextTrainingIndices) != [-1]:
+      knn._nextTrainingIndices = list(proto.nextTrainingIndices)
+
+    return knn
+
+
+  def write(self, proto):
+    proto.verbosity = self.verbosity
+
+    proto.cellsPerCol = self.cellsPerCol
+    proto.k = self.k
+    proto.exact = self.exact
+    proto.distanceNorm = self.distanceNorm
+    proto.distanceMethod = self.distanceMethod
+    proto.distanceThreshold = self.distThreshold
+    proto.doBinarization = self.doBinarization
+    proto.binarizationThreshold = self.binarizationThreshold
+    proto.useSparseMemory = self.useSparseMemory
+    proto.sparseThreshold = self.sparseThreshold
+    proto.relativeThreshold = self.relativeThreshold
+    proto.numWinners = self.numWinners
+    if self.numSVDSamples is not None:
+      proto.numSVDSamples = self.numSVDSamples
+    else:
+      proto.numSVDSamples = -1
+    if self._adaptiveSVDDims:
+      proto.numSVDDims = 0
+    else:
+      if self.numSVDDims is not None:
+        proto.numSVDDims = self.numSVDDims
+      else:
+        proto.numSVDDims = -1
+    if self.fractionOfMax is not None:
+      proto.fractionOfMax = self.fractionOfMax
+    else:
+      proto.fractionOfMax = -1.
+    proto.replaceDuplicates = self.replaceDuplicates
+    proto.maxStoredPatterns = self.maxStoredPatterns
+
+    proto.iterationIdx = self._iterationIdx
+
+    if proto.useSparseMemory:
+      numRows = self._Memory.nRows()
+      numCols = self._Memory.nCols()
+    else:
+      numRows = self._Memory.shape[0]
+      numCols = self._Memory.shape[1]
+    memory = numpy.zeros((numRows, numCols))
+    for i in xrange(numRows):
+      for j in xrange(numCols):
+        memory[i][j] = float(self._Memory[i,j])
+    proto.memory = memory.tolist()
+
+    if not proto.useSparseMemory:
+      numRows = self._M.shape[0]
+      numCols = self._M.shape[1]
+      m = numpy.zeros((numRows, numCols))
+      for i in xrange(numRows):
+        for j in xrange(numCols):
+          m[i][j] = float(self._M[i,j])
+      proto.m = m.tolist()
+    else:
+      proto.m = []
+
+    proto.numPatterns = self._numPatterns
+    proto.categoryList = self._categoryList
+    if hasattr(self, '_categoryRecencyList'):
+      proto.categoryRecencyList = self._categoryRecencyList
+    else:
+      proto.categoryRecencyList = [-1]
+    proto.partitionIdList = self._partitionIdList
+    if hasattr(self, '_partitionIdArray'):
+      if self._partitionIdArray is not None:
+        proto.partitionIdArray = self._partitionIdArray
+      else:
+        proto.partitionIdArray = [-1]
+    else:
+      proto.partitionIdArray = [-2]
+
+    if self._s is not None:
+      proto.s = self._s.tolist()
+    else:
+      proto.s = [-1]
+    if self._vt is not None:
+      numRows = self._vt.shape[0]
+      numCols = self._vt.shape[1]
+      vt = numpy.zeros((numRows, numCols))
+      for i in xrange(numRows):
+        for j in xrange(numCols):
+          vt[i][j] = float(self._vt[i,j])
+      proto.vt = vt.tolist()
+    else:
+      proto.vt = [[-1]]
+    if self._mean is not None:
+      proto.mean = self._mean.tolist()
+    else:
+      proto.mean = [-1]
+
+    proto.specificIndexTraining = self._specificIndexTraining
+    if self._nextTrainingIndices is not None:
+      proto.nextTrainingIndices = self._nextTrainingIndices
+    else:
+      proto.nextTrainingIndices = [-1]
+
+
   ##########################################################################
   def clear(self):
 
@@ -174,6 +406,7 @@ class KNNClassifier(object):
     self._protoSizes = None
 
     # Used by PCA
+    self._a = None
     self._s = None
     self._vt = None
     self._nc = None
@@ -845,9 +1078,11 @@ class KNNClassifier(object):
     else:
       self._a = self._Memory.toDense()[:self._numPatterns]
 
-    self._mean = numpy.mean(self._a, axis=0)
+    self._mean = numpy.mean(self._a, axis=0).astype('float64')
     self._a -= self._mean
-    u,self._s,self._vt = numpy.linalg.svd(self._a[:numSVDSamples])
+    _,self._s,self._vt = numpy.linalg.svd(self._a[:numSVDSamples])
+    self._s = self._s.astype('float64')
+    self._vt = self._vt.astype('float64')
 
     if finalize:
       self.finalizeSVD()
