@@ -412,18 +412,18 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
 
   extensions = []
 
-  libDynamicCppRegion = Extension(
-    "nupic." + getLibPrefix(platform) + "cpp_region",
+  libDynamicPyRegion = Extension(
+    "nupic." + getLibPrefix(platform) + "py_region",
     extra_compile_args=commonCompileFlags,
     define_macros=commonDefines,
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
     sources=pythonSupportSources +
-      ["extensions/cpp_region/PyRegion.cpp",
-       "extensions/cpp_region/unittests/PyHelpersTest.cpp"],
+      ["extensions/py_region/PyRegion.cpp",
+       "extensions/py_region/unittests/PyHelpersTest.cpp"],
     extra_objects=commonObjects)
-  extensions.append(libDynamicCppRegion)
+  extensions.append(libDynamicPyRegion)
 
   #
   # SWIG
