@@ -235,19 +235,18 @@ class CLAModel(Model):
         (paramName))
 
 
-  def resetSequenceStates(self):
+  def resetSequenceStates(self, resetAnomaly=False):
     """ [virtual method override] Resets the model's sequence states. Normally
     called to force the delineation of a sequence, such as between OPF tasks.
+    @param resetAnomaly - do reset in anomaly and related parts (MovingAverage, Likelihood)
     """
-
+    self.__logger.debug("CLAModel.resetSequenceStates(): reset temporal "
+                         "pooler's sequence states")
     if self._hasTP:
       # Reset TP's sequence states
       self._getTPRegion().executeCommand(['resetSequenceStates'])
-
-      self.__logger.debug("CLAModel.resetSequenceStates(): reset temporal "
-                         "pooler's sequence states")
-
-      return
+    if resetAnomaly and self._anomalyInst is not None:
+      self._anomalyInst.reset() 
 
 
   def finishLearning(self):
