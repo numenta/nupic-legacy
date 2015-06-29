@@ -30,6 +30,7 @@ implementation.
 import copy
 import cPickle as pickle
 import itertools
+import numbers
 
 import numpy
 from nupic.bindings.math import Random
@@ -304,6 +305,84 @@ class TP(ConsolePrinterMixin):
     self._initEphemerals()
 
 
+  def __eq__(self, other):
+    membersToIgnore = self._getEphemeralMembers() +\
+                      ['currentOutput']
+    for k, v1 in self.__dict__.iteritems():
+      if k in membersToIgnore:
+        pass
+      else:
+        if not k in other.__dict__:
+          print 'not found: ', k
+          return False
+        v2 = getattr(other, k)
+        if isinstance(v1, Random):
+          pass
+        elif isinstance(v1, numpy.ndarray):
+          if v1.dtype != v2.dtype:
+            print v1, v2, k, 'v1.dtype != v2.dtype'
+            return False
+          if not numpy.isclose(v1, v2).all():
+            print v1, v2, k, 'not numpy.isclose(v1, v2).all()'
+            return False
+        elif isinstance(v1, float):
+          if abs(v1 - v2) > 0.00000001:
+            print v1, v2, k, 'abs(v1 - v2) > 0.00000001'
+            return False
+        elif isinstance(v1, numbers.Integral):
+          if long(v1) != long(v2):
+            print v1, v2, k, 'long(v1) != long(v2)'
+            return False
+        elif isinstance(v1, dict):
+          if v1.keys().sort() != v2.keys().sort():
+            print v1, v2, k, 'v1.keys().sort() != v2.keys().sort()'
+            return False
+          for i in v1.keys():
+            if isinstance(v1[i], numpy.ndarray):
+              if v1[i].dtype != v2[i].dtype:
+                print v1, v2, k, 'v1[i].dtype != v2[i].dtype'
+                return False
+              if not numpy.isclose(v1[i], v2[i]).all():
+                print v1, v2, k, ' not numpy.isclose(v1[i], v2[i]).all()'
+                return False
+            elif isinstance(v1[i], float):
+              if abs(v1[i] - v2[i]) > 0.0000001:
+                print v1, v2, k, 'abs(v1[i] - v2[i]) > 0.0000001'
+                return False
+            else:
+              if v1[i] != v2[i]:
+                print v1, v2, k, 'v1[i] != v2[i]'
+                return False
+        elif isinstance(v1, list):
+          if len(v1) != len(v2):
+            print v1, v2, k, 'len(v1) != len(v2)'
+            return False
+          for i in xrange(len(v1)):
+            if isinstance(v1[i], numpy.ndarray):
+              if v1[i].dtype != v2[i].dtype:
+                print v1, v2, k, 'v1[i].dtype != v2[i].dtype'
+                return False
+              if not numpy.isclose(v1[i], v2[i]).all():
+                print v1, v2, k, 'not numpy.isclose(v1[i], v2[i]).all()'
+                return False
+            else:
+              if v1[i] != v2[i]:
+                print v1, v2, k, 'v1[i] != v2[i]'
+                return False
+        else:
+          if type(v1) != type(v2):
+            print v1, v2, k, 'type(v1) != type(v2)'
+            return False
+          if v1 != v2:
+            print v1, v2, k, 'v1 != v2'
+            return False
+    return True
+
+
+  def __ne__(self, other):
+    return not self == other
+
+
   def _getEphemeralMembers(self):
     """
     List of our member variables that we don't need to be saved.
@@ -429,55 +508,277 @@ class TP(ConsolePrinterMixin):
     pass
 
 
-  def __ne__(self, tp):
-    return not self == tp
+  @classmethod
+  def read(cls, proto):
+    tp = object.__new__(cls)
 
+    tp.version = TP_VERSION
+    tp.verbosity = proto.verbosity
+    tp.consolePrinterVerbosity = proto.verbosity
 
-  def __eq__(self, tp):
-    return not self.diff(tp)
+    tp._random = Random()
+    tp._random.read(proto.random)
+    tp.seed = proto.random.seed
 
+    tp.numberOfCols = proto.numberOfCols
+    tp.cellsPerColumn = proto.cellsPerColumn
+    tp._numberOfCells = proto.numberOfCols * proto.cellsPerColumn
+    tp.maxSegmentsPerCell = proto.maxSegmentsPerCell
 
-  def diff(self, tp):
-    diff = []
-    toCheck = [((), self.__getstate__(), tp.__getstate__())]
-    while toCheck:
-      keys, a, b = toCheck.pop()
-      if type(a) != type(b):
-        diff.append((keys, a, b))
-      elif isinstance(a, dict):
-        keys1 = set(a.keys())
-        keys2 = set(b.keys())
-        # If there are missing keys, add them to the diff.
-        if keys1 != keys2:
-          for k in keys1 - keys2:
-            diff.append((keys + (k,), d[k], None))
-          for k in keys2 - keys1:
-            diff.append((keys + (k,), None, b[k]))
-        # For matching keys, add the values to the list of things to check.
-        for k in keys1.union(keys2):
-          toCheck.append((keys + (k,), a[k], b[k]))
-      elif (isinstance(a, numpy.ndarray) or isinstance(a, list) or
-            isinstance(a, tuple)):
-        if len(a) != len(b):
-          diff.append((keys + (k, 'len'), len(a), len(b)))
-        elif not numpy.array_equal(a, b):
-          diff.append((keys + (k,), a, b))
-        #for i in xrange(len(a)):
-        #  toCheck.append((keys + (k, i), a[i], b[i]))
-      elif isinstance(a, Random):
-        if a.getState() != b.getState():
-          diff.append((keys + (k,), a.getState(), b.getState()))
-      elif (a.__class__.__name__ == 'Cells4' and
-            b.__class__.__name__ == 'Cells4'):
-        continue
+    tp.activationThreshold = proto.activationThreshold
+    tp.minThreshold = proto.minThreshold
+    tp.segUpdateValidDuration = proto.segUpdateValidDuration
+    tp.newSynapseCount = proto.newSynapseCount
+    tp.maxSynapsesPerSegment = proto.maxSynapsesPerSegment
+    tp.segID = 0
+
+    tp.initialPerm = numpy.float32(proto.initialPerm)
+    tp.connectedPerm = numpy.float32(proto.connectedPerm)
+    tp.permanenceMax = numpy.float32(proto.permanenceMax)
+    tp.permanenceDec = numpy.float32(proto.permanenceDec)
+    tp.permanenceInc = numpy.float32(proto.permanenceInc)
+
+    tp.doPooling = proto.doPooling
+    tp.globalDecay = numpy.float32(proto.globalDecay)
+    tp.maxAge = proto.maxAge
+    tp.maxInfBacktrack = proto.maxInfBacktrack
+    tp.maxLrnBacktrack = proto.maxLrnBacktrack
+    tp.pamLength = proto.pamLength
+    tp.pamCounter = proto.pamCounter
+    tp.learnedSeqLength = proto.learnedSeqLength
+    tp.avgLearnedSeqLength = proto.avgLearnedSeqLength
+    tp.maxSeqLength = proto.maxSeqLength
+    if proto.avgInputDensity != -1:
+      tp.avgInputDensity = proto.avgInputDensity
+    else:
+      tp.avgInputDensity = None
+    tp.outputType = proto.outputType
+    tp.burnIn = proto.burnIn
+    tp.collectStats = proto.collectStats
+    tp.collectSequenceStats = proto.collectSequenceStats
+
+    tp.iterationIdx = proto.iterationIdx
+    tp.lrnIterationIdx = proto.lrnIterationIdx
+    tp.resetCalled = proto.resetCalled
+    tp.segID = proto.nextSegIdx
+    tp.activeColumns = []
+
+    tp._initEphemerals()
+
+    lrnActiveStateT1Proto = proto.lrnActiveStateT1
+    lrnActiveStateTProto = proto.lrnActiveStateT
+    lrnPredictedStateT1Proto = proto.lrnPredictedStateT1
+    lrnPredictedStateTProto = proto.lrnPredictedStateT
+    infActiveStateT1Proto = proto.infActiveStateT1
+    infActiveStateTProto = proto.infActiveStateT
+    infActiveStateBackupProto = proto.infActiveStateBackup
+    infActiveStateCandidateProto = proto.infActiveStateCandidate
+    infPredictedStateT1Proto = proto.infPredictedStateT1
+    infPredictedStateTProto = proto.infPredictedStateT
+    cellConfidenceT1Proto = proto.cellConfidenceT1
+    cellConfidenceTProto = proto.cellConfidenceT
+    colConfidenceT1Proto = proto.colConfidenceT1
+    colConfidenceTProto = proto.colConfidenceT
+    cellsProto = proto.cells
+
+    tp.cells = []
+    for i in xrange(tp.numberOfCols):
+      tp.cells.append([])
+      for j in xrange(tp.cellsPerColumn):
+        tp.cells[i].append([])
+        cellAbsIdx = (i * tp.cellsPerColumn) + j
+        for segmentProto in cellsProto[cellAbsIdx].segments:
+          segment = Segment.read(segmentProto, tp)
+          tp.cells[i][j].append(segment)
+
+        tp.lrnActiveState['t-1'][i][j] = numpy.int32(lrnActiveStateT1Proto[cellAbsIdx])
+        tp.lrnActiveState['t'][i][j] = numpy.int32(lrnActiveStateTProto[cellAbsIdx])
+        tp.lrnPredictedState['t-1'][i][j] = numpy.int32(lrnPredictedStateT1Proto[cellAbsIdx])
+        tp.lrnPredictedState['t'][i][j] = numpy.int32(lrnPredictedStateTProto[cellAbsIdx])
+        tp.infActiveState['t-1'][i][j] = numpy.int32(infActiveStateT1Proto[cellAbsIdx])
+        tp.infActiveState['t'][i][j] = numpy.int32(infActiveStateTProto[cellAbsIdx])
+        tp.infActiveState['backup'][i][j] = numpy.int32(infActiveStateBackupProto[cellAbsIdx])
+        tp.infActiveState['candidate'][i][j] = numpy.int32(infActiveStateCandidateProto[cellAbsIdx])
+        tp.infPredictedState['t-1'][i][j] = numpy.int32(infPredictedStateT1Proto[cellAbsIdx])
+        tp.infPredictedState['t'][i][j] = numpy.int32(infPredictedStateTProto[cellAbsIdx])
+        tp.cellConfidence['t-1'][i][j] = numpy.float32(cellConfidenceT1Proto[cellAbsIdx])
+        tp.cellConfidence['t'][i][j] = numpy.float32(cellConfidenceTProto[cellAbsIdx])
+
+      tp.colConfidence['t-1'][i] = numpy.float32(colConfidenceT1Proto[i])
+      tp.colConfidence['t'][i] = numpy.float32(colConfidenceTProto[i])
+
+    tp.segmentUpdates = {}
+    for segmentUpdateProto in proto.segmentUpdates:
+      segmentUpdate = SegmentUpdate.read(segmentUpdateProto, tp)
+      lrnIterationIdx = segmentUpdateProto.lrnIterationIdx
+      key = (segmentUpdate.columnIdx, segmentUpdate.cellIdx)
+      if tp.segmentUpdates.has_key(key):
+        tp.segmentUpdates[key] += [(lrnIterationIdx, segmentUpdate)]
       else:
-        try:
-          _ = a != b
-        except ValueError:
-          raise ValueError(type(a))
-        if a != b:
-          diff.append((keys + (k,), a, b))
-    return diff
+        tp.segmentUpdates[key] = [(lrnIterationIdx, segmentUpdate)]
+
+    tp._prevLrnPatterns = []
+    for pattern in proto.prevLrnPatterns:
+      tp._prevLrnPatterns.append(numpy.array(pattern))
+
+    tp._prevInfPatterns = []
+    for pattern in proto.prevInfPatterns:
+      tp._prevInfPatterns.append(numpy.array(pattern))
+
+    tp._internalStats['nInfersSinceReset'] = proto.statsNumInfersSinceReset
+    tp._internalStats['nPredictions'] = proto.statsNumPredictions
+    tp._internalStats['curPredictionScore2'] = proto.statsCurPredictionScore2
+    tp._internalStats['predictionScoreTotal2'] = proto.statsPredictionScoreTotal2
+    tp._internalStats['curFalseNegativeScore'] = proto.statsCurFalseNegativeScore
+    tp._internalStats['falseNegativeScoreTotal'] = proto.statsFalseNegativeScoreTotal
+    tp._internalStats['curFalsePositiveScore'] = proto.statsCurFalsePositiveScore
+    tp._internalStats['falsePositiveScoreTotal'] = proto.statsFalsePositiveScoreTotal
+    tp._internalStats['pctExtraTotal'] = proto.statsPctExtraTotal
+    tp._internalStats['pctMissingTotal'] = proto.statsPctMissingTotal
+    tp._internalStats['curMissing'] = proto.statsCurMissing
+    tp._internalStats['curExtra'] = proto.statsCurExtra
+    tp._internalStats['totalMissing'] = proto.statsTotalMissing
+    tp._internalStats['totalExtra'] = proto.statsTotalExtra
+    if list(proto.statsPrevSequenceSignature) != [-1]:
+      tp._internalStats['prevSequenceSignature'] = proto.statsPrevSequenceSignature
+    else:
+      tp._internalStats['prevSequenceSignature'] = None
+    if list(proto.statsConfHistogram) != [-2]:
+      if list(proto.statsConfHistogram) != [-1]:
+        tp._internalStats['confHistogram'] = numpy.array(proto.statsConfHistogram, dtype="float32")
+      else:
+        tp._internalStats['confHistogram'] = None
+
+    return tp
+
+
+  def write(self, proto):
+    proto.verbosity = self.verbosity
+
+    self._random.write(proto.random)
+
+    proto.numberOfCols = self.numberOfCols
+    proto.cellsPerColumn = self.cellsPerColumn
+    proto.maxSegmentsPerCell = self.maxSegmentsPerCell
+
+    proto.activationThreshold = self.activationThreshold
+    proto.minThreshold = self.minThreshold
+    proto.segUpdateValidDuration = self.segUpdateValidDuration
+    proto.newSynapseCount = self.newSynapseCount
+    proto.maxSynapsesPerSegment = self.maxSynapsesPerSegment
+
+    proto.initialPerm = float(self.initialPerm)
+    proto.connectedPerm = float(self.connectedPerm)
+    proto.permanenceMax = float(self.permanenceMax)
+    proto.permanenceDec = float(self.permanenceDec)
+    proto.permanenceInc = float(self.permanenceInc)
+
+    proto.doPooling = self.doPooling
+    proto.globalDecay = float(self.globalDecay)
+    proto.maxAge = self.maxAge
+    proto.maxInfBacktrack = self.maxInfBacktrack
+    proto.maxLrnBacktrack = self.maxLrnBacktrack
+    proto.pamLength = self.pamLength
+    proto.pamCounter = self.pamCounter
+    proto.learnedSeqLength = int(self.learnedSeqLength)
+    proto.avgLearnedSeqLength = self.avgLearnedSeqLength
+    proto.maxSeqLength = self.maxSeqLength
+    if self.avgInputDensity is not None:
+      proto.avgInputDensity = self.avgInputDensity
+    else:
+      proto.avgInputDensity = -1
+    proto.outputType = self.outputType
+    proto.burnIn = self.burnIn
+    proto.collectStats = self.collectStats
+    proto.collectSequenceStats = self.collectSequenceStats
+
+    proto.iterationIdx = self.iterationIdx
+    proto.lrnIterationIdx = self.lrnIterationIdx
+    proto.resetCalled = self.resetCalled
+    proto.nextSegIdx = self.segID
+
+    numCells = self.numberOfCols * self.cellsPerColumn
+    cellsProto = proto.init("cells", numCells)
+    lrnActiveStateT1Proto = proto.init("lrnActiveStateT1", numCells)
+    lrnActiveStateTProto = proto.init("lrnActiveStateT", numCells)
+    lrnPredictedStateT1Proto = proto.init("lrnPredictedStateT1", numCells)
+    lrnPredictedStateTProto = proto.init("lrnPredictedStateT", numCells)
+    infActiveStateT1Proto = proto.init("infActiveStateT1", numCells)
+    infActiveStateTProto = proto.init("infActiveStateT", numCells)
+    infActiveStateBackupProto = proto.init("infActiveStateBackup", numCells)
+    infActiveStateCandidateProto = proto.init("infActiveStateCandidate", numCells)
+    infPredictedStateT1Proto = proto.init("infPredictedStateT1", numCells)
+    infPredictedStateTProto = proto.init("infPredictedStateT", numCells)
+    cellConfidenceT1Proto = proto.init("cellConfidenceT1", numCells)
+    cellConfidenceTProto = proto.init("cellConfidenceT", numCells)
+    colConfidenceT1Proto = proto.init("colConfidenceT1", self.numberOfCols)
+    colConfidenceTProto = proto.init("colConfidenceT", self.numberOfCols)
+    for i in xrange(self.numberOfCols):
+      for j in xrange(self.cellsPerColumn):
+        cellAbsIdx = (i * self.cellsPerColumn) + j
+        segments = self.cells[i][j]
+        segmentsProto = cellsProto[cellAbsIdx].init("segments", len(segments))
+        for k in xrange(len(segments)):
+          segments[k].write(segmentsProto[k], self)
+
+        lrnActiveStateT1Proto[cellAbsIdx] = int(self.lrnActiveState['t-1'][i][j])
+        lrnActiveStateTProto[cellAbsIdx] = int(self.lrnActiveState['t'][i][j])
+        lrnPredictedStateT1Proto[cellAbsIdx] = int(self.lrnPredictedState['t-1'][i][j])
+        lrnPredictedStateTProto[cellAbsIdx] = int(self.lrnPredictedState['t'][i][j])
+        infActiveStateT1Proto[cellAbsIdx] = int(self.infActiveState['t-1'][i][j])
+        infActiveStateTProto[cellAbsIdx] = int(self.infActiveState['t'][i][j])
+        infActiveStateBackupProto[cellAbsIdx] = int(self.infActiveState['backup'][i][j])
+        infActiveStateCandidateProto[cellAbsIdx] = int(self.infActiveState['candidate'][i][j])
+        infPredictedStateT1Proto[cellAbsIdx] = int(self.infPredictedState['t-1'][i][j])
+        infPredictedStateTProto[cellAbsIdx] = int(self.infPredictedState['t'][i][j])
+        cellConfidenceT1Proto[cellAbsIdx] = float(self.cellConfidence['t-1'][i][j])
+        cellConfidenceTProto[cellAbsIdx] = float(self.cellConfidence['t'][i][j])
+
+      colConfidenceT1Proto[i] = float(self.colConfidence['t-1'][i])
+      colConfidenceTProto[i] = float(self.colConfidence['t'][i])
+
+    segmentUpdatesProto = proto.init("segmentUpdates", len(self.segmentUpdates.values()))
+    i = 0
+    for key, segmentUpdateList in self.segmentUpdates.iteritems():
+      for lrnIterationIdx, segmentUpdate in segmentUpdateList:
+        segmentUpdate.write(segmentUpdatesProto[i], self, lrnIterationIdx)
+        i += 1
+
+    prevLrnPatternsProto = proto.init("prevLrnPatterns", len(self._prevLrnPatterns))
+    for i in xrange(len(self._prevLrnPatterns)):
+      prevLrnPatternsProto[i] = self._prevLrnPatterns[i].tolist()
+
+    prevInfPatternsProto = proto.init("prevInfPatterns", len(self._prevInfPatterns))
+    for i in xrange(len(self._prevInfPatterns)):
+      prevInfPatternsProto[i] = self._prevInfPatterns[i].tolist()
+
+    proto.statsNumInfersSinceReset = self._internalStats['nInfersSinceReset']
+    proto.statsNumPredictions = self._internalStats['nPredictions']
+    proto.statsCurPredictionScore2 = self._internalStats['curPredictionScore2']
+    proto.statsPredictionScoreTotal2 = self._internalStats['predictionScoreTotal2']
+    proto.statsCurFalseNegativeScore = self._internalStats['curFalseNegativeScore']
+    proto.statsFalseNegativeScoreTotal = self._internalStats['falseNegativeScoreTotal']
+    proto.statsCurFalsePositiveScore = self._internalStats['curFalsePositiveScore']
+    proto.statsFalsePositiveScoreTotal = self._internalStats['falsePositiveScoreTotal']
+    proto.statsPctExtraTotal = self._internalStats['pctExtraTotal']
+    proto.statsPctMissingTotal = self._internalStats['pctMissingTotal']
+    proto.statsCurMissing = self._internalStats['curMissing']
+    proto.statsCurExtra = self._internalStats['curExtra']
+    proto.statsTotalMissing = self._internalStats['totalMissing']
+    proto.statsTotalExtra = self._internalStats['totalExtra']
+    if self._internalStats['prevSequenceSignature'] is not None:
+      proto.statsPrevSequenceSignature = self._internalStats['prevSequenceSignature']
+    else:
+      proto.statsPrevSequenceSignature = [-1]
+    if self._internalStats.has_key('confHistogram'):
+      if self._internalStats['confHistogram'] is not None:
+        confHistogramProto = proto.init('statsConfHistogram', len(self._internalStats['confHistogram']))
+        for i in xrange(len(self._internalStats['confHistogram'])):
+          confHistogramProto[i] = self._internalStats['confHistogram'][i].tolist()
+      else:
+        proto.statsConfHistogram = [[-1]]
+    else:
+      proto.statsConfHistogram = [[-2]]
 
 
   def getLearnActiveStateT(self):
@@ -1160,13 +1461,18 @@ class TP(ConsolePrinterMixin):
       #  not fully connected synapses.
       self.weaklyPredicting = False
 
+
     def __eq__(self, other):
-      if set(self.__dict__.keys()) != set(other.__dict__.keys()):
-        return False
-      for k in self.__dict__:
-        if self.__dict__[k] != other.__dict__[k]:
+      for k, v1 in self.__dict__.iteritems():
+        if not k in other.__dict__:
           return False
-      return True
+        v2 = getattr(other, k)
+        if type(v1) != type(v2):
+          print v1, v2, k, 'type(v1) != type(v2)'
+          return False
+        if v1 != v2:
+          print v1, v2, k, 'v1 != v2'
+          return False
 
     def __ne__(self, other):
       return not self == other
@@ -1177,6 +1483,53 @@ class TP(ConsolePrinterMixin):
               ", seq seg=" + str(self.sequenceSegment) +
               ", seg=" + str(self.segment) +
               ", synapses=" + str(self.activeSynapses))
+
+
+    @classmethod
+    def read(cls, proto, tp):
+      segmentUpdate = object.__new__(SegmentUpdate)
+
+      segmentUpdate.columnIdx = proto.cellIdx // tp.cellsPerColumn
+      segmentUpdate.cellIdx = proto.cellIdx % tp.cellsPerColumn
+      for segment in tp.cells[segmentUpdate.columnIdx][segmentUpdate.cellIdx]:
+        if segment.segID == proto.segIdx:
+          segmentUpdate.segment = segment
+      segmentUpdate.sequenceSegment = proto.sequenceSegment
+
+      segmentUpdate.activeSynapses = []
+      for synapse in proto.synapses:
+        segmentUpdate.activeSynapses.append(synapse)
+      for newSynapse in proto.newSynapses:
+        columnIdx = newSynapse // tp.cellsPerColumn
+        cellIdx = newSynapse % tp.cellsPerColumn
+        segmentUpdate.activeSynapses.append([columnIdx, cellIdx])
+
+      segmentUpdate.phase1Flag = proto.phase1
+      segmentUpdate.weaklyPredicting = proto.weaklyPredicting
+
+      return segmentUpdate
+
+
+    def write(self, proto, tp, lrnIterationIdx):
+      proto.cellIdx = (self.columnIdx * tp.cellsPerColumn)\
+                                       + self.cellIdx
+      proto.segIdx = self.segment.segID
+      proto.sequenceSegment = self.sequenceSegment
+
+      synapses = []
+      newSynapses = []
+      for synapse in self.activeSynapses:
+        if type(synapse) == int:
+          synapses.append(synapse)
+        else:
+          cellAbsIdx = int((synapse[0] * tp.cellsPerColumn) + synapse[1])
+          newSynapses.append(cellAbsIdx)
+      proto.synapses = synapses
+      proto.newSynapses = newSynapses
+
+      proto.lrnIterationIdx = lrnIterationIdx
+      proto.phase1 = self.phase1Flag
+      proto.weaklyPredicting = self.weaklyPredicting
 
 
   def addToSegmentUpdates(self, c, i, segUpdate):
@@ -3280,21 +3633,75 @@ class Segment(object):
     self.syns = []
 
 
-  def __ne__(self, s):
-    return not self == s
-
-
-  def __eq__(self, s):
-    d1 = self.__dict__
-    d2 = s.__dict__
-    if set(d1) != set(d2):
-      return False
-    for k, v in d1.iteritems():
-      if k in ('tp',):
-        continue
-      elif v != d2[k]:
-        return False
+  def __eq__(self, other):
+    membersToIgnore = ['tp']
+    for k, v1 in self.__dict__.iteritems():
+      if k in membersToIgnore:
+        pass
+      else:
+        if not k in other.__dict__:
+          print 'not found', k
+          return False
+        v2 = getattr(other, k)
+        if isinstance(v1, float):
+          if abs(v1 - v2) > 0.00000001:
+            print v1, v2, k, 'abs(v1 - v2) > 0.00000001'
+            return False
+        elif isinstance(v1, numbers.Integral):
+          if long(v1) != long(v2):
+            print v1, v2, k, 'long(v1) != long(v2)'
+            return False
+        else:
+          if type(v1) != type(v2):
+            print v1, v2, k, 'type(v1) != type(v2)'
+            return False
+          if v1 != v2:
+            print v1, v2, k, 'v1 != v2'
+            return False
     return True
+
+
+  def __ne__(self, other):
+    return not self == other
+
+
+  @classmethod
+  def read(cls, proto, tp):
+    segment = object.__new__(Segment)
+
+    segment.tp = tp
+    segment.segID = proto.segIdx
+    segment.isSequenceSeg = proto.sequenceSegment
+    segment.totalActivations = proto.totalActivations
+    segment.positiveActivations = proto.positiveActivations
+    segment.lastActiveIteration = proto.lastActiveIteration
+    segment._lastPosDutyCycle = proto.lastPosDutyCycle
+    segment._lastPosDutyCycleIteration = proto.lastPosDutyCycleIteration
+    segment.syns = []
+    for synapseProto in proto.synapses:
+      srcCellCol = synapseProto.srcCellIdx // tp.cellsPerColumn
+      srcCellIdx = synapseProto.srcCellIdx % tp.cellsPerColumn
+      permanence = numpy.float32(synapseProto.permanence)
+      segment.syns.append([srcCellCol, srcCellIdx, permanence])
+
+    return segment
+
+
+  def write(self, proto, tp):
+    proto.segIdx = self.segID
+    proto.sequenceSegment = self.isSequenceSeg
+    proto.totalActivations = self.totalActivations
+    proto.positiveActivations = self.positiveActivations
+    proto.lastActiveIteration = self.lastActiveIteration
+    proto.lastPosDutyCycle = self._lastPosDutyCycle
+    proto.lastPosDutyCycleIteration = self._lastPosDutyCycleIteration
+
+    synapses = self.syns
+    synapsesProto = proto.init("synapses", len(synapses))
+    for l in xrange(len(synapses)):
+      srcCellCol, srcCellIdx, permanence = synapses[l]
+      synapsesProto[l].srcCellIdx = (srcCellCol * tp.cellsPerColumn) + srcCellIdx
+      synapsesProto[l].permanence = float(permanence)
 
 
   def dutyCycle(self, active=False, readOnly=False):

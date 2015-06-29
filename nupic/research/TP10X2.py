@@ -19,14 +19,15 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+import numbers
 
 import numpy
 from numpy import *
 
 import nupic.math
-from nupic.research.TP import TP
-
 from nupic.bindings.algorithms import Cells4
+from nupic.bindings.math import Random
+from nupic.research.TP import TP
 
 
 # Default verbosity while running unit tests
@@ -150,6 +151,89 @@ class TP10X2(TP):
                outputType = outputType,
                )
 
+
+  def __eq__(self, other):
+    membersToIgnore = self._getEphemeralMembers() +\
+                      ['_initArgsDict', 'currentOutput']
+    for k, v1 in self.__dict__.iteritems():
+      if k in membersToIgnore:
+        pass
+      else:
+        if not k in other.__dict__:
+          return False
+        v2 = getattr(other, k)
+        if isinstance(v1, Random):
+          pass
+        elif isinstance(v1, numpy.ndarray):
+          if v1.dtype != v2.dtype:
+            return False
+          if not numpy.isclose(v1, v2).all():
+            return False
+        elif isinstance(v1, float):
+          if abs(v1 - v2) > 0.00000001:
+            return False
+        elif isinstance(v1, numbers.Integral):
+          if long(v1) != long(v2):
+            return False
+        elif isinstance(v1, dict):
+          if v1.keys().sort() != v2.keys().sort():
+            return False
+          for i in v1.keys():
+            if isinstance(v1[i], numpy.ndarray):
+              if v1[i].dtype != v2[i].dtype:
+                return False
+              if not numpy.isclose(v1[i], v2[i]).all():
+                return False
+            elif isinstance(v1[i], float):
+              if abs(v1[i] - v2[i]) > 0.00001:
+                return False
+            else:
+              if v1[i] != v2[i]:
+                return False
+        elif isinstance(v1, list):
+          if len(v1) != len(v2):
+            return False
+          for i in xrange(len(v1)):
+            if isinstance(v1[i], numpy.ndarray):
+              if v1[i].dtype != v2[i].dtype:
+                return False
+              if not numpy.isclose(v1[i], v2[i]).all():
+                return False
+            else:
+              if v1[i] != v2[i]:
+                return False
+        else:
+          if type(v1) != type(v2):
+            return False
+          if v1 != v2:
+            return False
+    return True
+
+
+  def __ne__(self, other):
+    return not self == other
+
+
+  @classmethod
+  def read(cls, proto):
+    fastTP = object.__new__(cls)
+
+    tp = TP.read(proto)
+    for k in tp.__dict__.keys():
+      fastTP.__dict__[k] = tp.__dict__[k]
+
+    fastTP.checkSynapseConsistency = proto.checkSynapseConsistency
+    fastTP.makeCells4Ephemeral = True
+    fastTP._initEphemerals()
+    for k in tp.__dict__.keys():
+      fastTP.__dict__[k] = tp.__dict__[k]
+
+    return fastTP
+
+
+  def write(self, proto):
+    TP.write(self, proto)
+    proto.checkSynapseConsistency = self.checkSynapseConsistency
 
 
   #############################################################################
