@@ -93,6 +93,7 @@ class Anomaly(object):
          The transformation is applied after moving average is computed and updated.
     @param claBurnInPeriod (optional, default=300) - iterations for HTM to burn-in,
              until then the anomaly predictions are inaccurate and should be ignored.
+             Value 0 means no burn-in checks are done and values are computer right away.
     """
     self._mode = mode
     self._movingAverage = None
@@ -100,7 +101,7 @@ class Anomaly(object):
     if slidingWindowSize is not None:
       self._movingAverage = MovingAverage(windowSize=slidingWindowSize)
     if self._mode == Anomaly.MODE_LIKELIHOOD or self._mode == Anomaly.MODE_WEIGHTED:
-      self._likelihood = AnomalyLikelihood() # probabilistic anomaly
+      self._likelihood = AnomalyLikelihood(claLearningPeriod=claBurnInPeriod) # probabilistic anomaly
     if not self._mode in Anomaly._supportedModes:
       raise ValueError("Invalid anomaly mode; only supported modes are: "
                        "Anomaly.MODE_PURE, Anomaly.MODE_LIKELIHOOD, "
