@@ -135,25 +135,13 @@ class KNNClassifierTest(unittest.TestCase):
   #   classifier.learn(a, 0, isSparse=dimensionality)
   #   classifier.learn(b, 1, isSparse=dimensionality)
   #
-  #   # TODO detect and throw error
+  #   # TODO Test case where infer is passed a sparse representation after
+  #   # infer() has been extended to handle sparse and dense
   #   cat, inferenceResult, dist, categoryDist = classifier.infer(a)
   #   self.assertEquals(cat, 0)
   #
   #   cat, inferenceResult, dist, categoryDist = classifier.infer(b)
   #   self.assertEquals(cat, 1)
-
-  # winner: The category with the greatest number of nearest neighbors within
-  #               the kth nearest neighbors
-  # inferenceResult: A list of length numCategories, each entry contains the
-  #               number of neighbors within the top K neighbors that are in that
-  #               category
-  # dist: A list of length numPrototypes. Each entry is the distance from
-  #               the unknown to that prototype. All distances are between 0 and
-  #               1.0
-  # categoryDist: A list of length numCategories. Each entry is the distance
-  #               from the unknown to the nearest prototype of that category. All
-  #               distances are between 0 and 1.0.
-
 
 if __name__ == "__main__":
   unittest.main()
