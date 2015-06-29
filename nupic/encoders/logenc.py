@@ -34,8 +34,8 @@ class LogEncoder(Encoder):
 
   A Log encoder represents a floating point value on a logarithmic scale.
 
-  valueToEncode = log10(input) 
-  
+  valueToEncode = log10(input)
+
     w -- number of bits to set in output
     minval -- minimum input value. must be greater than 0. Lower values are
               reset to this value
@@ -43,7 +43,7 @@ class LogEncoder(Encoder):
     periodic -- If true, then the input value "wraps around" such that minval =
               maxval For a periodic value, the input must be strictly less than
               maxval, otherwise maxval is a true upper bound.
-    
+
     Exactly one of n, radius, resolution must be set. "0" is a special
     value that means "not set".
 
@@ -94,11 +94,11 @@ class LogEncoder(Encoder):
     # Scale values for calculations within the class
     self.minScaledValue = math.log10(minval)
     self.maxScaledValue = math.log10(maxval)
-    
+
     if not self.maxScaledValue > self.minScaledValue:
       raise ValueError("Max val must be larger, in log space, than min val.")
 
-    self.clipInput = clipInput    
+    self.clipInput = clipInput
     self.minval = minval
     self.maxval = maxval
 
@@ -120,22 +120,22 @@ class LogEncoder(Encoder):
     #  and re-created whenever our buckets would be re-arranged.
     self._bucketValues = None
 
-  ############################################################################
+
   def getWidth(self):
     return self.width
 
-  ############################################################################
+
   def getDescription(self):
     return self.description
 
-  ############################################################################
+
   def getDecoderOutputFieldTypes(self):
     """
     Encoder class virtual method override
     """
     return (FieldMetaType.float, )
 
-  ############################################################################
+
   def _getScaledValue(self, inpt):
     """
     Convert the input, which is in normal space, into log space
@@ -152,7 +152,7 @@ class LogEncoder(Encoder):
       scaledVal = math.log10(val)
       return scaledVal
 
-  ############################################################################
+
   def getBucketIndices(self, inpt):
     """
     See the function description in base.py
@@ -166,7 +166,7 @@ class LogEncoder(Encoder):
     else:
       return self.encoder.getBucketIndices(scaledVal)
 
-  ############################################################################
+
   def encodeIntoArray(self, inpt, output):
     """
     See the function description in base.py
@@ -184,7 +184,7 @@ class LogEncoder(Encoder):
         print "input:", inpt, "scaledVal:", scaledVal, "output:", output
         print "decoded:", self.decodedToStr(self.decode(output))
 
-  ############################################################################
+
   def decode(self, encoded, parentFieldName=''):
     """
     See the function description in base.py
@@ -223,7 +223,7 @@ class LogEncoder(Encoder):
       fieldName = self.name
     return ({fieldName: (outRanges, desc)}, [fieldName])
 
-  ############################################################################
+
   def getBucketValues(self):
     """
     See the function description in base.py
@@ -239,7 +239,7 @@ class LogEncoder(Encoder):
 
     return self._bucketValues
 
-  ############################################################################
+
   def getBucketInfo(self, buckets):
     """
     See the function description in base.py
@@ -252,7 +252,7 @@ class LogEncoder(Encoder):
     return [EncoderResult(value=value, scalar=value,
                          encoding = scaledResult.encoding)]
 
-  ############################################################################
+
   def topDownCompute(self, encoded):
     """
     See the function description in base.py
@@ -265,7 +265,7 @@ class LogEncoder(Encoder):
     return EncoderResult(value=value, scalar=value,
                          encoding = scaledResult.encoding)
 
-  ############################################################################
+
   def closenessScores(self, expValues, actValues, fractional=True):
     """
     See the function description in base.py
@@ -295,3 +295,31 @@ class LogEncoder(Encoder):
     #      "closeness", closeness
     #import pdb; pdb.set_trace()
     return numpy.array([closeness])
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = object.__new__(cls)
+    encoder.verbosity = proto.verbosity
+    encoder.minScaledValue = proto.minScaledValue
+    encoder.maxScaledValue = proto.maxScaledValue
+    encoder.clipInput = proto.clipInput
+    encoder.minval = proto.minval
+    encoder.maxval = proto.maxval
+    encoder.encoder = ScalarEncoder.read(proto.encoder)
+    encoder.name = proto.name
+    encoder.width = encoder.encoder.getWidth()
+    encoder.description = [(encoder.name, 0)]
+    encoder._bucketValues = None
+    return encoder
+
+
+  def write(self, proto):
+    proto.verbosity = self.verbosity
+    proto.minScaledValue = self.minScaledValue
+    proto.maxScaledValue = self.maxScaledValue
+    proto.clipInput = self.clipInput
+    proto.minval = self.minval
+    proto.maxval = self.maxval
+    self.encoder.write(proto.encoder)
+    proto.name = self.name

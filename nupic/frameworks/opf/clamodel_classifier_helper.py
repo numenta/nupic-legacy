@@ -97,7 +97,7 @@ class CLAModelClassifierHelper(object):
       self._vectorType = anomalyParams['anomalyVectorType']
 
     self._activeColumnCount = \
-      self.clamodel._getSPRegion().getSelf().getParameter('numActivePerInhArea')
+      self.clamodel._getSPRegion().getSelf().getParameter('numActiveColumnsPerInhArea')
 
     # Storage for last run
     self._anomalyVectorLength = None
@@ -499,7 +499,6 @@ class CLAModelClassifierHelper(object):
     return result
 
 
-  #############################################################################
   def compute(self):
     """
     Run an iteration of this anomaly classifier
@@ -578,6 +577,7 @@ class CLAModelClassifierHelper(object):
     if label not in self.saved_categories:
       self.saved_categories.append(label)
     return pow(2, self.saved_categories.index(label))
+
 
   def _labelListToCategoryNumber(self, labelList):
     """

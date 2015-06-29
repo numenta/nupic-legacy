@@ -29,7 +29,6 @@ from abc import ABCMeta, abstractmethod
 import nupic.frameworks.opf.opfutils as opfutils
 
 
-###############################################################
 
 class Model(object):
   """ This is the base class that all OPF Model implementations should
@@ -75,7 +74,7 @@ class Model(object):
 
   @abstractmethod
   def finishLearning(self):
-    """ Places the model in a permanent "finished learning" mode.
+    """ Place the model in a permanent "finished learning" mode.
     In such a mode the model will not be able to learn from subsequent input
     records.
 
@@ -90,7 +89,7 @@ class Model(object):
 
   @abstractmethod
   def getFieldInfo(self, includeClassifierOnlyField=False):
-    """ Returns the sequence of FieldMetaInfo objects specifying the format of
+    """ Return the sequence of FieldMetaInfo objects specifying the format of
     Model's output.
     This may be different than the list of FieldMetaInfo objects supplied at
     initialization (e.g., due to the transcoding of some input fields into
@@ -104,7 +103,7 @@ class Model(object):
 
   @abstractmethod
   def setFieldStatistics(self,fieldStats):
-    """ Propagates field statistics to the model in case some of its machinery
+    """ Propagate field statistics to the model in case some of its machinery
     needs it.
     @param fieldStats (dict)
            A dict of dicts with first key being the fieldname and the second
@@ -131,7 +130,7 @@ class Model(object):
   ###############################################################################
 
   def getInferenceType(self):
-    """ Returns the InferenceType of this model.
+    """ Return the InferenceType of this model.
     This is immutable.
     @returns (nupic.frameworks.opf.opfutils.InferenceType) An inference type
     """
@@ -181,11 +180,16 @@ class Model(object):
   ###############################################################################
   # Implementation of common save/load functionality
   ###############################################################################
+
   def save(self, saveModelDir):
     """ Save the model in the given directory.
     @param saveModelDir (string)
-           Absolute directory path for saving the experiment. If the directory
-            already exists, it MUST contain a VALID local checkpoint of a model
+           Absolute directory path for saving the model. This directory should
+           only be used to store a saved model. If the directory does not exist,
+           it will be created automatically and populated with model data. A
+           pre-existing directory will only be accepted if it contains previously
+           saved model data. If such a directory is given, the full contents of
+           the directory will be deleted and replaced with current model data.
     """
     logger = self._getLogger()
     logger.debug("(%s) Creating local checkpoint in %r...",
@@ -274,7 +278,7 @@ class Model(object):
 
   @staticmethod
   def _getModelPickleFilePath(saveModelDir):
-    """ Return the absolute path ot the model's pickle file.
+    """ Return the absolute path of the model's pickle file.
     @param saveModelDir (string)
            Directory of where the experiment is to be or was saved
     @returns (string) An absolute path.
@@ -298,7 +302,7 @@ class Model(object):
 
   @staticmethod
   def __makeDirectoryFromAbsolutePath(absDirPath):
-    """ Makes directory for the given directory path if it doesn't already
+    """ Make directory for the given directory path if it doesn't already
     exist in the filesystem.
     @param absDirPath (string) Absolute path of the directory to create
     @exception (Exception) OSError if directory creation fails

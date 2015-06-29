@@ -40,7 +40,7 @@ class AnomalyTest(unittest.TestCase):
 
   def testComputeRawAnomalyScoreNoActive(self):
     score = anomaly.computeRawAnomalyScore(array([]), array([3, 5]))
-    self.assertAlmostEqual(score, 1.0)
+    self.assertAlmostEqual(score, 0.0)
 
 
   def testComputeRawAnomalyScorePerfectMatch(self):
@@ -57,7 +57,7 @@ class AnomalyTest(unittest.TestCase):
     score = anomaly.computeRawAnomalyScore(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
-###################
+
   def testComputeAnomalyScoreNoActiveOrPredicted(self):
     anomalyComputer = anomaly.Anomaly()
     score = anomalyComputer.compute(array([]), array([]))
@@ -67,7 +67,7 @@ class AnomalyTest(unittest.TestCase):
   def testComputeAnomalyScoreNoActive(self):
     anomalyComputer = anomaly.Anomaly()
     score = anomalyComputer.compute(array([]), array([3, 5]))
-    self.assertAlmostEqual(score, 1.0)
+    self.assertAlmostEqual(score, 0.0)
 
 
   def testComputeAnomalyScorePerfectMatch(self):

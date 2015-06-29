@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -19,19 +19,18 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+"""Classes for encoding different types into SDRs for HTM input."""
+
 from collections import namedtuple
 
 import numpy
-from utils import bitsToString
 
+from nupic.encoders.utils import bitsToString
 
 defaultDtype = numpy.uint8
 
-"""Classes for encoding different types of values into bitstrings for HTM input"""
 
-################################################################################
-# EncoderResult class
-# -----------------------------------------------------------------------
+
 # Tuple to represent the results of computations in different forms.
 # value:    A representation of the encoded value in the same format as the input
 #           (i.e. float for scalars, string for categories)
@@ -39,78 +38,74 @@ defaultDtype = numpy.uint8
 #           are represented as some form of numeric value before being encoded
 #           (e.g. for categories, this is the internal index used by the encoder)
 # encoding: The bit-string representation of the value
-EncoderResult = namedtuple("EncoderResult", ['value', 'scalar','encoding'])
+EncoderResult = namedtuple("EncoderResult", ['value', 'scalar', 'encoding'])
 
-################################################################################
+
+
 def _isSequence(obj):
-  """ Helper function to determine if a function is a list or sequence """
+  """Helper function to determine if a function is a list or sequence."""
   mType = type(obj)
   return mType is list or mType is tuple
 
-################################################################################
+
+
 class Encoder(object):
-  """
-  An encoder takes a value and encodes it with a partial sparse representation
-  of bits.  The Encoder superclass implements:
+  """An encoder converts a value to a sparse distributed representation.
+
+  This is the base class for encoders that are compatible with the OPF. The OPF
+  requires that values can be represented as a scalar value for use in places
+  like the CLA Classifier. The Encoder superclass implements:
+
   - encode() - returns a numpy array encoding the input; syntactic sugar
     on top of encodeIntoArray. If pprint, prints the encoding to the terminal
-  - pprintHeader() -- prints a header describing the encoding to the terminal
-  - pprint() -- prints an encoding to the terminal
+  - pprintHeader() - prints a header describing the encoding to the terminal
+  - pprint() - prints an encoding to the terminal
 
   Methods/properties that must be implemented by subclasses:
-  - getDecoderOutputFieldTypes() -- must be implemented by leaf encoders; returns
-    \[`nupic.data.fieldmeta.FieldMetaType.XXXXX`\] (e.g., \[nupic.data.fieldmetaFieldMetaType.float\])
-  - getWidth() -- returns the output width, in bits
-  - encodeIntoArray() -- encodes input and puts the encoded value
-    into the numpy output array, which is a 1-D array of length returned
-    by getWidth()
-  - getDescription() -- returns a list of (name, offset) pairs describing the
-    encoded output
+  - getDecoderOutputFieldTypes() - must be implemented by leaf encoders
+      returns \[`nupic.data.fieldmeta.FieldMetaType.XXXXX`\]
+      (e.g., \[nupic.data.fieldmetaFieldMetaType.float\])
+  - getWidth() - returns the output width, in bits
+  - encodeIntoArray() - encodes input and puts the encoded value into the
+      numpy output array, which is a 1-D array of length returned by getWidth()
+  - getDescription() - returns a list of (name, offset) pairs describing the
+      encoded output
   """
 
-  ############################################################################
-  def __init__(self):
-    pass
 
-
-  ############################################################################
   def getWidth(self):
-    """
-    Should return the output width, in bits.
-
-    **Must be overridden by subclasses.**
+    """Should return the output width, in bits.
 
     @returns output width in bits
     """
-    raise Exception("getWidth must be implemented by all subclasses")
+    raise NotImplementedError()
 
-  ############################################################################
+
   def encodeIntoArray(self, inputData, output):
     """
     Encodes inputData and puts the encoded value into the numpy output array,
     which is a 1-D array of length returned by getWidth().
-
-    **Must be overridden by subclasses.**
 
     Note: The numpy output array is reused, so clear it before updating it.
 
     @param inputData Data to encode. This should be validated by the encoder.
     @param output numpy 1-D array of same length returned by getWidth()
     """
-    raise Exception("encodeIntoArray must be implemented by all subclasses")
+    raise NotImplementedError()
 
-  ############################################################################
+
   def setLearning(self, learningEnabled):
-    """
-    Set whether learning is enabled.
+    """Set whether learning is enabled.
 
     @param learningEnabled whether learning should be enabled
     """
-    if hasattr(self,"_learningEnabled"):
+    # TODO: (#1943) Make sure subclasses don't rely on this and remove it.
+    # Default behavior should be a noop.
+    if hasattr(self, "_learningEnabled"):
       self._learningEnabled = learningEnabled
 
-  ############################################################################
-  def setFieldStats(self, fieldName, fieldStatistics ):
+
+  def setFieldStats(self, fieldName, fieldStatistics):
     """
     This method is called by the model to set the statistics like min and
     max for the underlying encoders if this information is available.
@@ -124,7 +119,7 @@ class Encoder(object):
     """
     pass
 
-  ############################################################################
+
   def encode(self, inputData):
     """Convenience wrapper for encodeIntoArray.
 
@@ -138,19 +133,18 @@ class Encoder(object):
     self.encodeIntoArray(inputData, output)
     return output
 
-  ############################################################################
+
   def getScalarNames(self, parentFieldName=''):
     """
     Return the field names for each of the scalar values returned by
     getScalars.
 
-    @param parentFieldName The name of the encoder which is our parent. This name
-           is prefixed to each of the field names within this encoder to form the
-           keys of the dict() in the retval.
+    @param parentFieldName The name of the encoder which is our parent. This
+        name is prefixed to each of the field names within this encoder to
+        form the keys of the dict() in the retval.
 
     @returns array of field names
     """
-
     names = []
 
     if self.encoders is not None:
@@ -168,7 +162,6 @@ class Encoder(object):
     return names
 
 
-  ############################################################################
   def getDecoderOutputFieldTypes(self):
     """
     Returns a sequence of field types corresponding to the elements in the
@@ -194,7 +187,6 @@ class Encoder(object):
     return fieldTypes
 
 
-  ############################################################################
   def setStateLock(self,lock):
     """
     Setting this to true freezes the state of the encoder
@@ -203,7 +195,7 @@ class Encoder(object):
     """
     pass
 
-  ############################################################################
+
   def _getInputValue(self, obj, fieldName):
     """
     Gets the value of a given field from the input record
@@ -224,7 +216,7 @@ class Encoder(object):
     else:
       return getattr(obj, fieldName)
 
-  ############################################################################
+
   def getEncoderList(self):
     """
     @returns a reference to each sub-encoder in this encoder. They are
@@ -250,7 +242,6 @@ class Encoder(object):
     return encoders
 
 
-  ############################################################################
   def getScalars(self, inputData):
     """
     Returns a numpy array containing the sub-field scalar value(s) for
@@ -284,7 +275,6 @@ class Encoder(object):
     return retVals
 
 
-  ############################################################################
   def getEncodedValues(self, inputData):
     """
     Returns the input in the same format as is returned by topDownCompute().
@@ -320,7 +310,7 @@ class Encoder(object):
 
     return tuple(retVals)
 
-  ############################################################################
+
   def getBucketIndices(self, inputData):
     """
     Returns an array containing the sub-field bucket indices for
@@ -345,7 +335,6 @@ class Encoder(object):
     return retVals
 
 
-  ############################################################################
   def scalarsToStr(self, scalarValues, scalarNames=None):
     """
     Return a pretty print string representing the return values from
@@ -370,8 +359,6 @@ class Encoder(object):
     return desc
 
 
-
-  ############################################################################
   def getDescription(self):
     """
     This returns a list of tuples, each containing (name, offset).
@@ -388,7 +375,6 @@ class Encoder(object):
     raise Exception("getDescription must be implemented by all subclasses")
 
 
-  ############################################################################
   def getFieldDescription(self, fieldName):
     """
     Return the offset and length of a given field within the encoded output.
@@ -411,7 +397,6 @@ class Encoder(object):
     return (offset, description[i+1][1] - offset)
 
 
-  ############################################################################
   def encodedBitDescription(self, bitOffset, formatted=False):
     """
     Return a description of the given bit in the encoded output.
@@ -449,8 +434,6 @@ class Encoder(object):
     return (prevFieldName, bitOffset - prevFieldOffset)
 
 
-
-  ############################################################################
   def pprintHeader(self, prefix=""):
     """
     Pretty-print a header that labels the sub-fields of the encoded
@@ -472,7 +455,7 @@ class Encoder(object):
     print
     print prefix, "-" * (self.getWidth() + (len(description) - 1)*3 - 1)
 
-  ############################################################################
+
   def pprint(self, output, prefix=""):
     """
     Pretty-print the encoded output using ascii art.
@@ -489,7 +472,6 @@ class Encoder(object):
     print
 
 
-  ############################################################################
   def decode(self, encoded, parentFieldName=''):
     """
     Takes an encoded output and does its best to work backwards and generate
@@ -562,28 +544,27 @@ class Encoder(object):
     else:
       parentName = "%s.%s" % (parentFieldName, self.name)
 
-    # Merge decodings of all child encoders together
-    for i in xrange(len(self.encoders)):
+    if self.encoders is not None:
+      # Merge decodings of all child encoders together
+      for i in xrange(len(self.encoders)):
 
-      # Get the encoder and the encoded output
-      (name, encoder, offset) = self.encoders[i]
-      if i < len(self.encoders)-1:
-        nextOffset = self.encoders[i+1][2]
-      else:
-        nextOffset = self.width
-      fieldOutput = encoded[offset:nextOffset]
-      (subFieldsDict, subFieldsOrder) = encoder.decode(fieldOutput,
-                                            parentFieldName=parentName)
+        # Get the encoder and the encoded output
+        (name, encoder, offset) = self.encoders[i]
+        if i < len(self.encoders)-1:
+          nextOffset = self.encoders[i+1][2]
+        else:
+          nextOffset = self.width
+        fieldOutput = encoded[offset:nextOffset]
+        (subFieldsDict, subFieldsOrder) = encoder.decode(fieldOutput,
+                                              parentFieldName=parentName)
 
-      fieldsDict.update(subFieldsDict)
-      fieldsOrder.extend(subFieldsOrder)
+        fieldsDict.update(subFieldsDict)
+        fieldsOrder.extend(subFieldsOrder)
 
 
     return (fieldsDict, fieldsOrder)
 
 
-
-  ############################################################################
   def decodedToStr(self, decodeResults):
     """
     Return a pretty print string representing the return value from decode().
@@ -604,7 +585,6 @@ class Encoder(object):
     return desc
 
 
-  ############################################################################
   def getBucketValues(self):
     """
     Returns a list of items, one for each bucket defined by this encoder.
@@ -624,7 +604,6 @@ class Encoder(object):
     raise Exception("getBucketValues must be implemented by all subclasses")
 
 
-  ############################################################################
   def getBucketInfo(self, buckets):
     """
     Returns a list of EncoderResult namedtuples describing the inputs for
@@ -653,14 +632,10 @@ class Encoder(object):
                               bit-array should be returned
 
     """
-
-
-    # ---------------------------------------------------------------------
     # Fall back topdown compute
     if self.encoders is None:
       raise RuntimeError("Must be implemented in sub-class")
 
-    # ---------------------------------------------------------------------
     # Concatenate the results from bucketInfo on each child encoder
     retVals = []
     bucketOffset = 0
@@ -681,7 +656,6 @@ class Encoder(object):
     return retVals
 
 
-  ############################################################################
   def topDownCompute(self, encoded):
     """
     Returns a list of EncoderResult namedtuples describing the top-down
@@ -714,14 +688,10 @@ class Encoder(object):
                                encode(), an identical bit-array should be
                                returned.
     """
-
-
-    # ---------------------------------------------------------------------
     # Fallback topdown compute
     if self.encoders is None:
       raise RuntimeError("Must be implemented in sub-class")
 
-    # ---------------------------------------------------------------------
     # Concatenate the results from topDownCompute on each child encoder
     retVals = []
     for i in xrange(len(self.encoders)):
@@ -743,7 +713,6 @@ class Encoder(object):
     return retVals
 
 
-  ############################################################################
   def closenessScores(self, expValues, actValues, fractional=True):
     """
     Compute closeness scores between the expected scalar value(s) and actual
@@ -771,10 +740,6 @@ class Encoder(object):
     @returns Array of closeness scores, one per item in expValues (or
              actValues).
     """
-
-
-
-    # ---------------------------------------------------------------------
     # Fallback closenss is a percentage match
     if self.encoders is None:
       err = abs(expValues[0] - actValues[0])
@@ -790,8 +755,6 @@ class Encoder(object):
 
       return numpy.array([closeness])
 
-
-    # ---------------------------------------------------------------------
     # Concatenate the results from closeness scores on each child encoder
     scalarIdx = 0
     retVals = numpy.array([])
@@ -804,8 +767,6 @@ class Encoder(object):
     return retVals
 
 
-
-  ############################################################################
   def getDisplayWidth(self):
     """
     Calculate width of display for bits plus blanks between fields.
@@ -815,7 +776,7 @@ class Encoder(object):
     width = self.getWidth() + len(self.getDescription()) - 1
     return width
 
-  ############################################################################
+
   def formatBits(self, inarray, outarray, scale=1, blank=255, leftpad=0):
     """
     Copy one array to another, inserting blanks
@@ -839,5 +800,3 @@ class Encoder(object):
       outarray[start+i+leftpad:end+i+leftpad] = inarray[(start+leftpad):(end+leftpad)] * scale
       if end < self.getWidth():
         outarray[end+i+leftpad] = blank
-
-################################################################################

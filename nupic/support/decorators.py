@@ -30,7 +30,6 @@ import traceback
 
 
 
-###############################################################################
 def logExceptions(getLoggerCallback=None):
   """ Returns a closure suitable for use as function/method decorator for
   logging exceptions that leave the scope of the decorated function. Exceptions
@@ -70,7 +69,7 @@ def logExceptions(getLoggerCallback=None):
   return exceptionLoggingDecorator
 
 
-###############################################################################
+
 def logEntryExit(getLoggerCallback=logging.getLogger,
                  entryExitLogLevel=logging.DEBUG, logArgs=False,
                  logTraceback=False):
@@ -142,7 +141,7 @@ def logEntryExit(getLoggerCallback=logging.getLogger,
   return entryExitLoggingDecorator
 
 
-###############################################################################
+
 def retry(timeoutSec, initialRetryDelaySec, maxRetryDelaySec,
           retryExceptions=(Exception,),
           retryFilter=lambda e, args, kwargs: True,

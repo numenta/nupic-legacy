@@ -94,10 +94,7 @@ _ALGORITHMS = _algorithms
 #include <nupic/math/SparseBinaryMatrix.hpp>
 #include <nupic/algorithms/Svm.hpp>
 #include <nupic/algorithms/Linear.hpp>
-#include <nupic/algorithms/FDRSpatial.hpp>
-#include <nupic/algorithms/FDRCSpatial.hpp>
 #include <nupic/algorithms/SpatialPooler.hpp>
-#include <nupic/algorithms/FlatSpatialPooler.hpp>
 
 #include <nupic/algorithms/Cell.hpp>
 #include <nupic/algorithms/Cells4.hpp>
@@ -134,100 +131,6 @@ using namespace nupic;
 #define CHECKSIZE(var) \
   NTA_ASSERT((var)->descr->elsize == 4) << " elsize:" << (var)->descr->elsize
 
-
-// TODO: This __really__ belongs somewhere else, but no other good place for it.
-
-/* FDRCSpatialInfer
-   ----------------
-   This runs core FDRCSpatial inference algorithm for the pynode version.
-
-   Roughly, this is a right-vector product with the coincidence matrix and
-   the input vector.  We can't use a normal matrix multiply, though, because
-   we support cloning.
-
-   This is called via ctypes.
-
-   @param  input                         The input array.  Should be 0/1.
-                                         Should be inputWidth*inputHeight big.
-   @param  inputWidth                    The width of the input array.
-   @param  inputHeight                   The height of the input array.
-   @param  cloneMap                      A map that is numColumns big indicating
-                                         which clone master should be used for
-                                         each column.
-   @param  tlYXArr                       A map that is numColumns*2 big that
-                                         can be used to find (y, x) for each
-                                         column.
-   @param  numColumns                    The number of columns.
-   @param  masterLearnedCoincidencesArr  An array that is (numMasterCoincs *
-                                         2 * coincSize) big that indicates
-                                         where the mater coinc matrices should
-                                         have 1's.  Else, they have 0.  For
-                                         each master coincidence, we have an
-                                         array of coincSize y values, then
-                                         coincSize x values.  If a given
-                                         master is less than coincSize big,
-                                         it will be passed with -1.
-   @param  coincSize                     The number of non-zeros in each coinc.
-   @param  denseOutput                   We'll place the dense output here.
-   @param  masterBoredomFactors          An array of floats, one per master,
-                                         that indicates how bored that master
-                                         is.  All coincidences with that master
-                                         will have their outputs multiplied by
-                                         this number.  If you don't want to use
-                                         the "boredom" features, set all to 1.0
-*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif  // __cplusplus
-
-NTA_EXPORT
-void FDRCSpatialInfer(const float* input, int inputWidth, int inputHeight,
-                      const int* cloneMap,
-                      const int* tlYXArr, int numColumns,
-                      const int* masterLearnedCoincidencesArr, int coincSize,
-                      float* denseOutput,
-                      float* masterBoredomFactors)
-{
-  for (int columnNum = numColumns-1; columnNum >= 0; columnNum--) {
-
-    int masterNum = *(cloneMap++);
-    int tlY = *(tlYXArr++);
-    int tlX = *(tlYXArr++);
-    const int* yArr = masterLearnedCoincidencesArr + (masterNum * 2 * coincSize);
-    const int* xArr = yArr + coincSize;
-    float columnSum = 0;
-    float boredomFactor = masterBoredomFactors[masterNum];
-
-    for (int i = coincSize-1; i >= 0; i--) {
-
-      int dx = *(xArr++);
-
-      if (dx == -1) {
-
-        break;
-
-      } else {
-
-        int dy = *(yArr++);
-        int x = tlX + dx;
-        int y = tlY + dy;
-
-        //std::cout << x << "/" << y << "/" << (y*inputWidth + x) << " ";
-
-        columnSum += input[(y * inputWidth) + x];
-      }
-    }
-    //std::cout << std::endl;
-
-    (*denseOutput++) = columnSum * boredomFactor;
-  }
-}
-
-#ifdef __cplusplus
-}
-#endif  // __cplusplus
-
 %}
 
 // %pythoncode %{
@@ -237,13 +140,6 @@ void FDRCSpatialInfer(const float* input, int inputWidth, int inputHeight,
 
 %naturalvar;
 
-
-// Hack to keep the linker from stripping (I think this is needed)...
-%inline {
-void forceRetentionOfFDRCSpatialInfer(void) {
-  FDRCSpatialInfer(NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, NULL);
-}
-}
 
 // This dummy inline function exists only to force the linker
 // to keep the gaborCompute() function in the resulting
@@ -794,269 +690,6 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 }
 
 //--------------------------------------------------------------------------------
-// FDR
-//--------------------------------------------------------------------------------
-%include <nupic/algorithms/FDRSpatial.hpp>
-
- // Functions to speed-up Python continuous FDR SP and TP
-%inline {
-
-  // Continuous cell sweep found in FDR continuous SP
-  inline PyObject* CSPSweep(nupic::UInt32 cfx, nupic::UInt32 cfy,
-                            nupic::UInt32 stimulusThreshold,
-                            nupic::UInt32 inhibitionRadius,
-                            PyObject* py_denseOutput,
-                            PyObject* py_afterInhibition)
-  {
-    PyArrayObject* denseOutput = (PyArrayObject*) py_denseOutput;
-    CHECKSIZE(denseOutput);
-    nupic::Real32* denseOutput_begin = (nupic::Real32*)(denseOutput->data);
-    nupic::Real32* denseOutput_end = denseOutput_begin + denseOutput->dimensions[0];
-
-    PyArrayObject* afterInhibition = (PyArrayObject*) py_afterInhibition;
-    CHECKSIZE(afterInhibition);
-    nupic::Real32* afterInhibition_begin = (nupic::Real32*)(afterInhibition->data);
-    nupic::Real32* afterInhibition_end = afterInhibition_begin + afterInhibition->dimensions[0];
-
-    std::vector<nupic::UInt32> activeElements;
-
-    nupic::algorithms::csp_sweep(cfx, cfy, stimulusThreshold, inhibitionRadius,
-                               denseOutput_begin, denseOutput_end,
-                               activeElements,
-                               afterInhibition_begin, afterInhibition_end);
-
-    nupic::NumpyVectorT<nupic::UInt32> ae(activeElements.size());
-    for (size_t i = 0; i != activeElements.size(); ++i)
-      ae.set(i, activeElements[i]);
-    return ae.forPython();
-  }
-}
-
-//--------------------------------------------------------------------------------
-%extend nupic::algorithms::FDRSpatial
-{
-  %pythoncode %{
-    def __init__(self, *args):
-        self.this = _ALGORITHMS.new_FDRSpatial(*args)
-
-    def __getstate__(self):
-      """
-      Used by the pickling mechanism to get state that will be saved.
-      """
-      return (self.toPyString(),)
-
-    def __setstate__(self, tup):
-      """
-      Used by the pickling mechanism to restore state that was saved.
-      """
-      self.this = _ALGORITHMS.new_FDRSpatial()
-      self.thisown = 1
-      self.fromPyString(tup[0])
-  %}
-
-  inline void setCMFromDense(PyObject* py_dense)
-  {
-    PyArrayObject* x = (PyArrayObject*)py_dense;
-    CHECKSIZE(x);
-    nupic::Real32* x_data = (nupic::Real32*) x->data;
-    self->set_cm_from_dense(x_data, x_data + x->dimensions[0] * x->dimensions[1]);
-  }
-
-  inline void compute(nupic::UInt32 i, PyObject* py_x, PyObject* py_y,
-                      bool doLearn, bool doInfer)
-  {
-    PyArrayObject* x = (PyArrayObject*)py_x;
-    CHECKSIZE(x);
-    PyArrayObject* y = (PyArrayObject*)py_y;
-    CHECKSIZE(y);
-    nupic::Real32* x_data = (nupic::Real32*) x->data;
-    nupic::Real32* y_res = (nupic::Real32*) y->data;
-
-    self->compute(i,
-                  x_data, x_data + x->dimensions[0],
-                  y_res, y_res + y->dimensions[0],
-                  doLearn, doInfer);
-  }
-
-  inline PyObject* getDenseCoincidence(nupic::UInt32 row) const
-  {
-    nupic::NumpyVectorT<nupic::Real32> c(self->nCols());
-    self->get_cm_row_dense(row, c.begin(), c.end());
-    return c.forPython();
-  }
-
-  inline PyObject* getSparseCoincidence(nupic::UInt32 row) const
-  {
-    nupic::NumpyVectorT<nupic::UInt32> cpp_ind(self->nNonZerosPerRow());
-    nupic::NumpyVectorT<nupic::Real32> cpp_nz(self->nNonZerosPerRow());
-    self->get_cm_row_sparse(row, cpp_ind.begin(), cpp_nz.begin());
-    PyObject *toReturn = PyTuple_New(2);
-    PyTuple_SET_ITEM(toReturn, 0, cpp_ind.forPython());
-    PyTuple_SET_ITEM(toReturn, 1, cpp_nz.forPython());
-    return toReturn;
-  }
-
-  inline PyObject* overlaps(PyObject* py_x, PyObject* py_output)
-  {
-    PyArrayObject* x = (PyArrayObject*)py_x;
-    CHECKSIZE(x);
-    nupic::Real32* x_data = (nupic::Real32*) x->data;
-    PyArrayObject* output = (PyArrayObject*)py_output;
-    CHECKSIZE(output);
-    nupic::Real32* output_data = (nupic::Real32*) output->data;
-    std::vector<nupic::Real32> y(self->nRows());
-    size_t n = self->overlaps(x_data, output_data, y.begin());
-    nupic::NumpyVectorT<nupic::Real32> py_y(n);
-    for (size_t i = 0; i != n; ++i)
-      py_y.set(i, y[i]);
-    return py_y.forPython();
-  }
-
-  inline PyObject* toPyString() const
-  {
-    SharedPythonOStream py_s(self->persistent_size());
-    std::ostream& s = py_s.getStream();
-    self->save(s);
-    return py_s.close();
-  }
-
-  inline bool fromPyString(PyObject *s)
-  {
-    Py_ssize_t n = 0;
-    char *buf = 0;
-    int res = PyString_AsStringAndSize(s, &buf, &n); // Reference-neutral.
-    if((res == 0) && (n > 0)) {
-      std::istringstream s(std::string(buf, n));
-      self->load(s);
-      return true;
-    } else {
-      throw std::runtime_error("Failed to load FDRSpatial");
-      return false;
-    }
-  }
-}
-
-//--------------------------------------------------------------------------------
-// Continuous FDR
-//--------------------------------------------------------------------------------
-%include <nupic/algorithms/FDRCSpatial.hpp>
-
-//--------------------------------------------------------------------------------
-%extend nupic::algorithms::FDRCSpatial
-{
-  %pythoncode %{
-    def __init__(self, *args):
-        self.this = _ALGORITHMS.new_FDRCSpatial(*args)
-
-    def __getstate__(self):
-      """
-      Used by the pickling mechanism to get state that will be saved.
-      """
-      return (self.toPyString(),)
-
-    def __setstate__(self, tup):
-      """
-      Used by the pickling mechanism to restore state that was saved.
-      """
-      self.this = _ALGORITHMS.new_FDRCSpatial()
-      self.thisown = 1
-      self.fromPyString(tup[0])
-  %}
-
-  inline void compute(PyObject* py_x, PyObject* py_y, bool doLearn, bool doInfer)
-  {
-    PyArrayObject* x = (PyArrayObject*)py_x;
-    CHECKSIZE(x);
-    PyArrayObject* y = (PyArrayObject*)py_y;
-    CHECKSIZE(y);
-    nupic::Real32* x_data = (nupic::Real32*) x->data;
-    nupic::Real32* y_data = (nupic::Real32*) y->data;
-
-    self->compute(x_data, x_data + x->dimensions[0],
-                  y_data, y_data + y->dimensions[0],
-                  doLearn, doInfer);
-  }
-
-  inline PyObject* getSparseCoincidence(nupic::UInt32 row, bool learnt =false) const
-  {
-    nupic::UInt32 n = learnt ?
-      self->getNSamplingBitsPerCoincidence() :
-      self->getBitPoolSizePerCoincidence();
-
-    nupic::NumpyVectorT<nupic::UInt32> cpp_ind(n);
-    nupic::NumpyVectorT<nupic::Real32> cpp_nz(n);
-    self->get_cm_row_sparse(row, cpp_ind.begin(), cpp_nz.begin(), learnt);
-
-    PyObject *toReturn = PyTuple_New(2);
-    PyTuple_SET_ITEM(toReturn, 0, cpp_ind.forPython());
-    PyTuple_SET_ITEM(toReturn, 1, cpp_nz.forPython());
-    return toReturn;
-  }
-
-  inline PyObject* getHistogram(nupic::UInt32 c) const
-  {
-    nupic::NumpyVectorT<nupic::UInt32> cpp_ind(self->getBitPoolSizePerCoincidence());
-    nupic::NumpyVectorT<nupic::Real32> cpp_nz(self->getBitPoolSizePerCoincidence());
-    self->get_cm_row_sparse(c, cpp_ind.begin(), cpp_nz.begin());
-    return cpp_nz.forPython();
-  }
-
-  inline PyObject* getMasterLearnedCoincidence(nupic::UInt32 m)
-  {
-    nupic::UInt32 n = self->getNSamplingBitsPerCoincidence();
-    nupic::NumpyVectorT<nupic::UInt32> py_rows(n);
-    nupic::NumpyVectorT<nupic::UInt32> py_cols(n);
-    self->getMasterLearnedCoincidence(m, py_rows.begin(), py_cols.begin());
-    PyObject* toReturn = PyTuple_New(2);
-    PyTuple_SET_ITEM(toReturn, 0, py_rows.forPython());
-    PyTuple_SET_ITEM(toReturn, 1, py_cols.forPython());
-    return toReturn;
-  }
-
-  inline PyObject* getMasterHistogram(nupic::UInt32 m)
-  {
-    nupic::UInt32 n = self->getBitPoolSizePerCoincidence();
-    std::vector<nupic::UInt32> rows(n), cols(n);
-    std::vector<nupic::Real32> vals(n);
-    self->getMasterHistogram(m, rows.begin(), cols.begin(), vals.begin());
-    nupic::NumpyVectorT<nupic::Real32> mat(self->getRFSide() * self->getRFSide());
-    for (size_t i = 0; i != n; ++i)
-      mat.set(rows[i] * self->getRFSide() + cols[i], vals[i]);
-    return mat.forPython();
-  }
-
-  inline PyObject* getDenseOutput() const
-  {
-    nupic::NumpyVectorT<nupic::Real32> y(self->getNColumns());
-    self->get_dense_output(y.begin());
-    return y.forPython();
-  }
-
-  inline PyObject* toPyString() const
-  {
-    SharedPythonOStream py_s(self->persistent_size());
-    std::ostream& s = py_s.getStream();
-    self->save(s);
-    return py_s.close();
-  }
-
-  inline bool fromPyString(PyObject *s)
-  {
-    Py_ssize_t n = 0;
-    char *buf = 0;
-    int res = PyString_AsStringAndSize(s, &buf, &n); // Reference-neutral.
-    if((res == 0) && (n > 0)) {
-      std::istringstream s(std::string(buf, n));
-      self->load(s);
-      return true;
-    } else {
-      throw std::runtime_error("Failed to load FDRCSpatial");
-      return false;
-    }
-  }
-}
-
-//--------------------------------------------------------------------------------
 // LearningSet for continuous FDR TP
 //--------------------------------------------------------------------------------
 %extend nupic::algorithms::Inhibition
@@ -1142,357 +775,8 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
 }
 
 //--------------------------------------------------------------------------------
-// Optimizations for FDRCSpatial2
+// Optimizations for FDR
 %inline {
-
-  // Compute overlaps
-  inline void cpp_overlap(PyObject* py_cloneMapFlat,
-                          PyObject* py_inputSlices,
-                          PyObject* py_coincSlices,
-                          PyObject* py_inputShaped,
-                          PyObject* py_masterConnectedM,
-                          nupic::Real32 stimulusThreshold,
-                          PyObject* py_overlaps)
-  {
-    PyArrayObject* _cloneMap = (PyArrayObject*) py_cloneMapFlat;
-    CHECKSIZE(_cloneMap);
-    nupic::UInt32* cloneMap = (nupic::UInt32*)(_cloneMap->data);
-    nupic::UInt32 nColumns = _cloneMap->dimensions[0];
-
-    PyArrayObject* _inputSlices = (PyArrayObject*) py_inputSlices;
-    CHECKSIZE(_inputSlices);
-    nupic::UInt32* inputSlices = (nupic::UInt32*)(_inputSlices->data);
-
-    PyArrayObject* _coincSlices = (PyArrayObject*) py_coincSlices;
-    CHECKSIZE(_coincSlices);
-    nupic::UInt32* coincSlices = (nupic::UInt32*)(_coincSlices->data);
-    //nupic::UInt32 coincNCols = _coincSlices->dimensions[1];
-
-    PyArrayObject* _inputShaped = (PyArrayObject*) py_inputShaped;
-    CHECKSIZE(_inputShaped);
-    nupic::Real32* inputShaped = (nupic::Real32*)(_inputShaped->data);
-    nupic::UInt32 inputNCols = _inputShaped->dimensions[1];
-
-    PyArrayObject* _masterConnectedM = (PyArrayObject*) py_masterConnectedM;
-    // A bool's size is one byte both in Python and C++
-    bool* masterConnectedM = (bool*)(_masterConnectedM->data);
-    nupic::UInt32 masterNRows = _masterConnectedM->dimensions[1];
-    nupic::UInt32 masterNCols = _masterConnectedM->dimensions[2];
-    nupic::UInt32 masterSize = masterNRows * masterNCols;
-
-    PyArrayObject* _overlaps = (PyArrayObject*) py_overlaps;
-    CHECKSIZE(_overlaps);
-    nupic::Real32* overlaps = (nupic::Real32*)(_overlaps->data);
-
-    nupic::UInt32 inputStartC_p = 0, inputStopC_p = 0;
-    nupic::Real32 inputSum = 0.0;
-
-    for (nupic::UInt32 columnNum = 0; columnNum != nColumns; ++columnNum) {
-
-      nupic::UInt32 masterNum = cloneMap[columnNum];
-
-      nupic::UInt32 inputStartR = inputSlices[4*columnNum];
-      nupic::UInt32 inputStopR = inputSlices[4*columnNum+1];
-      nupic::UInt32 inputStartC = inputSlices[4*columnNum+2];
-      nupic::UInt32 inputStopC = inputSlices[4*columnNum+3];
-
-      nupic::UInt32 coincStartR = coincSlices[4*columnNum];
-      //nupic::UInt32 coincStopR = coincSlices[4*columnNum+1];
-      nupic::UInt32 coincStartC = coincSlices[4*columnNum+2];
-      //nupic::UInt32 coincStopC = coincSlices[4*columnNum+3];
-
-      bool* masterConnected = masterConnectedM + masterNum * masterSize;
-
-      overlaps[columnNum] = 0;
-
-      nupic::UInt32 r_input, c_input, r_coinc, c_coinc;
-
-      if (inputStartC == 0) {
-
-        inputSum = 0;
-
-        for (r_input = inputStartR; r_input != inputStopR; ++r_input)
-          for (c_input = inputStartC; c_input != inputStopC; ++c_input)
-            inputSum += inputShaped[r_input*inputNCols+c_input];
-
-      } else {
-
-        for (r_input = inputStartR; r_input != inputStopR; ++r_input)
-          for (c_input = inputStartC_p; c_input < inputStartC; ++c_input)
-            inputSum -= inputShaped[r_input*inputNCols+c_input];
-
-        for (r_input = inputStartR; r_input != inputStopR; ++r_input)
-          for (c_input = inputStopC_p; c_input < inputStopC; ++c_input)
-            inputSum += inputShaped[r_input*inputNCols+c_input];
-      }
-
-      inputStartC_p = inputStartC;
-      inputStopC_p = inputStopC;
-
-      if (inputSum < stimulusThreshold)
-        continue;
-
-      nupic::Real32 sum = 0.0;
-
-      for (r_input = inputStartR, r_coinc = coincStartR;
-           r_input != inputStopR; ++r_input, ++r_coinc)
-        for (c_input = inputStartC, c_coinc = coincStartC;
-             c_input != inputStopC; ++c_input, ++c_coinc)
-          sum += inputShaped[r_input*inputNCols+c_input]
-            * masterConnected[r_coinc*masterNCols+c_coinc];
-
-      if (sum >= stimulusThreshold)
-        overlaps[columnNum] = sum;
-    }
-  }
-
-
-
-  // Compute overlaps taking an array of SparseBinaryMatrices
-  // WORK IN PROGRESS..NOT DONE YET....
-  inline void cpp_overlap_sbm(PyObject* py_cloneMapFlat,
-                          PyObject* py_inputSlices,
-                          PyObject* py_coincSlices,
-                          PyObject* py_inputShaped,
-                          PyObject* py_masterConnectedM,
-                          nupic::Real32 stimulusThreshold,
-                          PyObject* py_overlaps)
-  {
-
-    /*
-    static int attach = 1;
-    if (attach) {
-      pid_t pid = ::getpid();
-      std::cout << "Waiting for connect to process ID " <<  pid << "...";
-      std::string str;
-      std::cin >> str;
-      std::cout << "Connected.";
-      attach = 0;
-    }
-
-    PyArrayObject* _cloneMap = (PyArrayObject*) py_cloneMapFlat;
-    CHECKSIZE(_cloneMap);
-    nupic::UInt32* cloneMap = (nupic::UInt32*)(_cloneMap->data);
-    nupic::UInt32 nColumns = _cloneMap->dimensions[0];
-
-    PyArrayObject* _inputSlices = (PyArrayObject*) py_inputSlices;
-    CHECKSIZE(_inputSlices);
-    nupic::UInt32* inputSlices = (nupic::UInt32*)(_inputSlices->data);
-
-    PyArrayObject* _coincSlices = (PyArrayObject*) py_coincSlices;
-    CHECKSIZE(_coincSlices);
-    nupic::UInt32* coincSlices = (nupic::UInt32*)(_coincSlices->data);
-    //nupic::UInt32 coincNCols = _coincSlices->dimensions[1];
-
-    PyArrayObject* _inputShaped = (PyArrayObject*) py_inputShaped;
-    CHECKSIZE(_inputShaped);
-    nupic::Real32* inputShaped = (nupic::Real32*)(_inputShaped->data);
-    nupic::UInt32 inputNCols = _inputShaped->dimensions[1];
-
-
-    typedef nupic::SparseBinaryMatrix<nupic::UInt32,nupic::UInt32>* SBM32Ptr;
-
-    PyObject* p = PyList_GET_ITEM(py_masterConnectedM, 0);
-
-
-    nupic::UInt32 masterNRows = masterConnectedM->nRows();
-    masterConnectedM = (SBM32Ptr)(PyList_GET_ITEM(_masterConnectedM, 1))
-    nupic::UInt32 masterNRows2 = masterConnectedM->nRows();
-
-
-    PyArrayObject* _overlaps = (PyArrayObject*) py_overlaps;
-    CHECKSIZE(_overlaps);
-    nupic::Real32* overlaps = (nupic::Real32*)(_overlaps->data);
-
-    nupic::UInt32 inputStartC_p = 0, inputStopC_p = 0;
-    nupic::Real32 inputSum = 0.0;
-
-    for (nupic::UInt32 columnNum = 0; columnNum != nColumns; ++columnNum) {
-
-      nupic::UInt32 masterNum = cloneMap[columnNum];
-
-      nupic::UInt32 inputStartR = inputSlices[4*columnNum];
-      nupic::UInt32 inputStopR = inputSlices[4*columnNum+1];
-      nupic::UInt32 inputStartC = inputSlices[4*columnNum+2];
-      nupic::UInt32 inputStopC = inputSlices[4*columnNum+3];
-
-      nupic::UInt32 coincStartR = coincSlices[4*columnNum];
-      //nupic::UInt32 coincStopR = coincSlices[4*columnNum+1];
-      nupic::UInt32 coincStartC = coincSlices[4*columnNum+2];
-      //nupic::UInt32 coincStopC = coincSlices[4*columnNum+3];
-
-      SBM32Ptr masterConnected = masterConnectedM[masterNum];
-
-      overlaps[columnNum] = 0;
-
-      nupic::UInt32 r_input, c_input, r_coinc, c_coinc;
-      nupic::Real32 sum = 0.0;
-
-      for (r_input = inputStartR, r_coinc = coincStartR;
-           r_input != inputStopR; ++r_input, ++r_coinc)
-        for (c_input = inputStartC, c_coinc = coincStartC;
-             c_input != inputStopC; ++c_input, ++c_coinc)
-          sum += inputShaped[r_input*inputNCols+c_input]
-                 * masterConnected[r_coinc*masterNCols+c_coinc];
-
-      if (sum >= stimulusThreshold)
-        overlaps[columnNum] = sum;
-    }
-    */
-  }
-
-
-
-  // Update duty cycles
-  inline void cpp_updateDutyCycles(nupic::UInt32 dutyCyclePeriod,
-                                   PyObject* py_cloneMapFlat,
-                                   PyObject* py_onCells,
-                                   PyObject* py_dutyCycles)
-  {
-    PyArrayObject* _cloneMap = (PyArrayObject*) py_cloneMapFlat;
-    CHECKSIZE(_cloneMap);
-    nupic::UInt32* cloneMap = (nupic::UInt32*)(_cloneMap->data);
-
-    PyArrayObject* _onCells = (PyArrayObject*) py_onCells;
-    CHECKSIZE(_onCells);
-    nupic::UInt32* onCells = (nupic::UInt32*)(_onCells->data);
-    nupic::UInt32 nColumns = _onCells->dimensions[0];
-
-    PyArrayObject* _dutyCycles = (PyArrayObject*) py_dutyCycles;
-    CHECKSIZE(_dutyCycles);
-    nupic::Real32* dutyCycles = (nupic::Real32*)(_dutyCycles->data);
-
-    nupic::Real32 dcp = (nupic::Real32) dutyCyclePeriod;
-    nupic::Real32 dcp_1 = dcp - 1.0;
-
-    for (nupic::UInt32 columnNum = 0; columnNum != nColumns; ++columnNum) {
-      nupic::UInt32 masterNum = cloneMap[columnNum];
-      dutyCycles[masterNum] =
-        (dcp_1 * dutyCycles[masterNum] + onCells[columnNum]) / dcp;
-    }
-  }
-
-  // Adjust master valid permanence
-  // This code implements a bit more, commented out for now
-  inline void adjustMasterValidPermanence(nupic::UInt32 columnNum,
-                                          nupic::UInt32 masterNum,
-                                          nupic::UInt32 inputNCols,
-                                          nupic::UInt32 masterNCols,
-                                          //nupic::Real32 stimulusThreshold,
-                                          nupic::Real32 synPermActiveInc,
-                                          nupic::Real32 synPermInactiveDec,
-                                          nupic::Real32 synPermActiveSharedDec,
-                                          //nupic::Real32 synPermBelowStimulusInc,
-                                          //nupic::Real32 synPermConnected,
-                                          //nupic::Real32 synPermMin,
-                                          //nupic::Real32 synPermMax,
-                                          PyObject* py_inputShaped,
-                                          PyObject* py_inputUse,
-                                          PyObject* py_inputSlices,
-                                          PyObject* py_coincSlices,
-                                          PyObject* py_synPermBoostFactors,
-                                          PyObject* py_masterPermanence)
-                                          //PyObject* py_masterPotential)
-  {
-    PyArrayObject* _input = (PyArrayObject*) py_inputShaped;
-    nupic::Real32* input = (nupic::Real32*)(_input->data);
-
-    PyArrayObject* _inputUse = (PyArrayObject*) py_inputUse;
-    nupic::UInt32* inputUse = (nupic::UInt32*)(_inputUse->data);
-
-    PyArrayObject* _inputSlices = (PyArrayObject*) py_inputSlices;
-    nupic::UInt32* inputSlices = (nupic::UInt32*)(_inputSlices->data);
-
-    PyArrayObject* _coincSlices = (PyArrayObject*) py_coincSlices;
-    nupic::UInt32* coincSlices = (nupic::UInt32*)(_coincSlices->data);
-
-    PyArrayObject* _spbf = (PyArrayObject*) py_synPermBoostFactors;
-    nupic::Real32* spbf = (nupic::Real32*)(_spbf->data);
-
-    PyArrayObject* _mpe = (PyArrayObject*) py_masterPermanence;
-    nupic::Real32* perm = (nupic::Real32*)(_mpe->data);
-
-    //PyArrayObject* _mpo = (PyArrayObject*) py_masterPotential;
-    //bool* potential = (bool*)(_mpo->data);
-
-    nupic::UInt32 inputStartR = inputSlices[4*columnNum];
-    nupic::UInt32 inputStopR = inputSlices[4*columnNum+1];
-    nupic::UInt32 inputStartC = inputSlices[4*columnNum+2];
-    nupic::UInt32 inputStopC = inputSlices[4*columnNum+3];
-
-    nupic::UInt32 coincStartR = coincSlices[4*columnNum];
-    //nupic::UInt32 coincStopR = coincSlices[4*columnNum+1];
-    nupic::UInt32 coincStartC = coincSlices[4*columnNum+2];
-    //nupic::UInt32 coincStopC = coincSlices[4*columnNum+3];
-
-    nupic::UInt32 r_input = inputStartR, c_input = inputStartC;
-    nupic::UInt32 r_coinc = coincStartR, c_coinc = coincStartC;
-
-    // Vectors to remember the indices of the potential synapses
-    // and which syns are connected
-    //std::vector<nupic::UInt32> potentialV;
-    //std::vector<nupic::UInt32> connectedSyns;
-
-    for (; r_input != inputStopR; ++r_input, ++r_coinc) {
-
-      c_input = inputStartC;
-      c_coinc = coincStartC;
-
-      for (; c_input != inputStopC; ++c_input, ++c_coinc) {
-
-        nupic::UInt32 mp_idx = r_coinc*masterNCols + c_coinc;
-
-        // Skip updates of permanence based on input
-        // if not even a potential synapse
-        //if (potential[mp_idx]) {
-
-          // Remember index of potential synapes for later
-          //potentialV.push_back(mp_idx);
-          nupic::UInt32 input_idx = r_input*inputNCols + c_input;
-
-          // Decrease permanence on inactive inputs
-          if (input[input_idx] == 0.0) {
-
-            perm[mp_idx] -= synPermInactiveDec;
-
-          } else { // Active inputs
-
-            // Increase permanence on active inputs
-            perm[mp_idx] += spbf[masterNum] * synPermActiveInc;
-
-            // Decrease dupe inputs
-            if (inputUse[input_idx] > 1)
-              perm[mp_idx] -= synPermActiveSharedDec;
-          }
-
-          // Clip
-          //if (perm[mp_idx] < synPermMin)
-          //  perm[mp_idx] = synPermMin;
-
-          //if (perm[mp_idx] > synPermMax)
-          //  perm[mp_idx] = synPermMax;
-
-          //} // End permanence updates based on inputs
-
-        // Find connected synapses
-        //if (perm[mp_idx] >= synPermConnected)
-        //  connectedSyns.push_back(mp_idx);
-
-      }
-    } // End loops on this master
-
-    // Bump up all (potential) permanences a bit if the number of connected
-    // synapes is below stimulusThreshold
-    /* while (connectedSyns.size() < stimulusThreshold) { */
-
-    /*   for (size_t k = 0; k != potentialV.size(); ++k) { */
-    /*     bool isCandidate = perm[potentialV[k]] < stimulusThreshold; */
-    /*     perm[potentialV[k]] += synPermBelowStimulusInc; */
-    /*     if (isCandidate && perm[potentialV[k]] >= synPermConnected) */
-    /*       connectedSyns.push_back(potentialV[k]); */
-    /*   } */
-    /* } */
-  }
 
   //--------------------------------------------------------------------------------
   inline nupic::UInt32 getSegmentActivityLevel(PyObject* py_seg, PyObject* py_state,
@@ -1529,57 +813,6 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
       }
 
     return activity;
-  }
-
-  //--------------------------------------------------------------------------------
-  inline nupic::Real32
-    getSegmentAvgPermanence(PyObject* py_seg, nupic::Real32 connectedPerm)
-  {
-     nupic::py::List seg;
-     seg.assign(py_seg);
-     Py_ssize_t n = seg.getCount();
-     nupic::Real32 avg_p = 0;
-     nupic::UInt32 count = 0;
-
-     for (Py_ssize_t i = 0; i < n; ++i) {
-       nupic::py::List syn;
-       syn.assign(seg.fastGetItem(i));
-       nupic::Real32 p = (nupic::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
-       if (p >= connectedPerm) {
-        ++count;
-        avg_p += p;
-       }
-     }
-
-    return avg_p / count;
-  }
-
-  //--------------------------------------------------------------------------------
-  inline nupic::Real32
-    getSegmentSumActivePermanence(PyObject* py_seg, PyObject* py_state,
-                                  nupic::Real32 connectedPerm)
-  {
-    PyArrayObject* _state = (PyArrayObject*) py_state;
-    nupic::Byte* state = (nupic::Byte*) _state->data;
-    nupic::UInt32 stride0 = _state->strides[0];
-
-    nupic::py::List seg;
-    seg.assign(py_seg);
-    Py_ssize_t n = seg.getCount();
-    nupic::Real32 sum_p = 0;
-
-    for (Py_ssize_t i = 0; i < n; ++i) {
-      nupic::py::List syn;
-      syn.assign(seg.fastGetItem(i));
-      nupic::Real32 p = (nupic::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
-      if (p >= connectedPerm) {
-        nupic::UInt32 c = (nupic::UInt32) PyLong_AsLong(syn.fastGetItem(0));
-        nupic::UInt32 j = (nupic::UInt32) PyLong_AsLong(syn.fastGetItem(1));
-        sum_p += state[c * stride0 + j]*p;
-      }
-    }
-
-    return sum_p;
   }
 
   //--------------------------------------------------------------------------------
@@ -1855,10 +1088,10 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
                  spVerbosity=0):
       self.this = _ALGORITHMS.new_SpatialPooler()
       _ALGORITHMS.SpatialPooler_initialize(
-        self, inputDimensions, columnDimensions, potentialRadius, potentialPct, 
-        globalInhibition, localAreaDensity, numActiveColumnsPerInhArea, 
-        stimulusThreshold, synPermInactiveDec, synPermActiveInc, synPermConnected, 
-        minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost, 
+        self, inputDimensions, columnDimensions, potentialRadius, potentialPct,
+        globalInhibition, localAreaDensity, numActiveColumnsPerInhArea,
+        stimulusThreshold, synPermInactiveDec, synPermActiveInc, synPermConnected,
+        minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost,
         seed, spVerbosity)
 
     def __getstate__(self):
@@ -1881,15 +1114,6 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
         del state["this"]
         self.__dict__.update(state)
   %}
-
-  inline void compute(PyObject *py_x, bool learn, PyObject *py_y,
-                      bool stripNeverLearned)
-  {
-    PyArrayObject* x = (PyArrayObject*) py_x;
-    PyArrayObject* y = (PyArrayObject*) py_y;
-    self->compute((nupic::UInt*) x->data, (bool)learn, (nupic::UInt*) y->data,
-                  (bool)stripNeverLearned);
-  }
 
   inline void compute(PyObject *py_x, bool learn, PyObject *py_y)
   {
@@ -1969,7 +1193,7 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
     self->getActiveDutyCycles((nupic::Real*) x->data);
-  }  
+  }
 
 
   inline void setMinOverlapDutyCycles(PyObject* py_x)
@@ -1994,7 +1218,7 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
     self->getMinActiveDutyCycles((nupic::Real*) x->data);
-  }  
+  }
 
   inline void setPotential(UInt column, PyObject* py_x)
   {
@@ -2035,110 +1259,6 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
 }
 
 
-%include <nupic/algorithms/FlatSpatialPooler.hpp>
-
-%extend nupic::algorithms::spatial_pooler::FlatSpatialPooler
-{
-  %pythoncode %{ 
-    import numpy
-
-    def __init__(self,
-                 inputShape=(32, 32),
-                 inputBorder=8,
-                 inputDensity=1.0,
-                 coincidencesShape=(48, 48),
-                 coincInputRadius=16,
-                 coincInputPoolPct=0.5,
-                 gaussianDist=False,
-                 commonDistributions=False,
-                 localAreaDensity=-1.0,
-                 numActivePerInhArea=10.0,
-                 stimulusThreshold=0,
-                 synPermInactiveDec=0.01,
-                 synPermActiveInc=0.1,
-                 synPermActiveSharedDec=0.0,
-                 synPermOrphanDec=0.0,
-                 synPermConnected=0.10,
-                 minPctDutyCycleBeforeInh=0.001,
-                 minPctDutyCycleAfterInh=0.001,
-                 dutyCyclePeriod=1000,
-                 maxFiringBoost=10.0,
-                 maxSSFiringBoost=2.0,
-                 maxSynPermBoost=10.0,
-                 minDistance=0.0,
-                 cloneMap=None,
-                 numCloneMasters=-1,
-                 seed=-1,
-                 spVerbosity=0,
-                 printPeriodicStats=0,
-                 testMode=False,
-                 globalInhibition=False,
-                 spReconstructionParam="unweighted_mean",
-                 useHighTier=True,
-                 randomSP=False,
-              ):
-      
-      self.this = _ALGORITHMS.new_FlatSpatialPooler()
-      _ALGORITHMS.FlatSpatialPooler_initializeFlat(
-        self,
-        numInputs=numpy.prod(inputShape),
-        numColumns=numpy.prod(coincidencesShape),
-        potentialPct = coincInputPoolPct,
-        localAreaDensity=localAreaDensity,
-        numActiveColumnsPerInhArea=numActivePerInhArea,
-        stimulusThreshold=stimulusThreshold,
-        synPermInactiveDec=synPermInactiveDec,
-        synPermActiveInc=synPermActiveInc,
-        synPermConnected=synPermConnected,
-        minPctOverlapDutyCycles=minPctDutyCycleBeforeInh,
-        minPctActiveDutyCycles=minPctDutyCycleAfterInh,
-        dutyCyclePeriod=dutyCyclePeriod,
-        maxBoost=maxFiringBoost,
-        minDistance=minDistance,
-        randomSP=randomSP,
-        seed=seed,
-        spVerbosity=spVerbosity
-      )
-
-    def __getstate__(self):
-      # Save the local attributes but override the C++ flat spatial pooler with
-      # the string representation.
-      d = dict(self.__dict__)
-      d["this"] = self.getCState()
-      return d
-
-    def __setstate__(self, state):
-      # Create an empty C++ flat spatial pooler and populate it from the
-      # serialized string.
-      self.this = _ALGORITHMS.new_FlatSpatialPooler()
-      if isinstance(state, str):
-        self.loadFromString(state)
-        self.valueToCategory = {}
-      else:
-        self.loadFromString(state["this"])
-        # Use the rest of the state to set local Python attributes.
-        del state["this"]
-        self.__dict__.update(state)
-  %}
-
-  inline void compute(PyObject *py_x, bool learn, PyObject *py_y,
-                      bool stripNeverLearned)
-  {
-    PyArrayObject* x = (PyArrayObject*) py_x;
-    PyArrayObject* y = (PyArrayObject*) py_y;
-    self->compute((nupic::UInt*) x->data, (bool)learn, (nupic::UInt*) y->data,
-                  (bool)stripNeverLearned);
-  }
-
-  inline void compute(PyObject *py_x, bool learn, PyObject *py_y)
-  {
-    PyArrayObject* x = (PyArrayObject*) py_x;
-    PyArrayObject* y = (PyArrayObject*) py_y;
-    self->compute((nupic::UInt*) x->data, (bool)learn, (nupic::UInt*) y->data);
-  }
-
-}
-
 %include <nupic/algorithms/FastClaClassifier.hpp>
 
 %pythoncode %{
@@ -2159,6 +1279,7 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
     def compute(self, recordNum, patternNZ, classification, learn, infer):
       isNone = False
       noneSentinel = 3.14159
+
       if type(classification["actValue"]) in (int, float):
         actValue = classification["actValue"]
         category = False
@@ -2175,21 +1296,27 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
       else:
         actValue = int(classification["bucketIdx"])
         category = True
+
       result = self.convertedCompute(
           recordNum, patternNZ, int(classification["bucketIdx"]),
           actValue, category, learn, infer)
+
       if isNone:
         for i, v in enumerate(result["actualValues"]):
           if v - noneSentinel < 0.00001:
             result["actualValues"][i] = None
       arrayResult = dict((k, numpy.array(v)) if k != "actualValues" else (k, v)
                          for k, v in result.iteritems())
-      if category:
+
+      if self.valueToCategory or isinstance(classification["actValue"], basestring):
         # Convert the bucketIdx back to the original value.
         for i in xrange(len(arrayResult["actualValues"])):
-          arrayResult["actualValues"][i] = self.valueToCategory.get(int(
-              arrayResult["actualValues"][i]), classification["actValue"])
+          if arrayResult["actualValues"][i] is not None:
+            arrayResult["actualValues"][i] = self.valueToCategory.get(int(
+                arrayResult["actualValues"][i]), classification["actValue"])
+
         self.valueToCategory[actValue] = classification["actValue"]
+
       return arrayResult
 
     def __getstate__(self):

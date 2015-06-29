@@ -23,7 +23,6 @@ import os
 
 import numpy
 from nupic.bindings.math import GetNTAReal
-from nupic.research.FDRCSpatial2 import FDRCSpatial2
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 from nupic.research.spatial_pooler import SpatialPooler as PYSpatialPooler
 import nupic.research.fdrutilities as fdru
@@ -32,7 +31,6 @@ from PyRegion import PyRegion
 
 
 
-##############################################################################
 def getDefaultSPImp():
   """
   Return the default spatial pooler implementation for this region.
@@ -40,7 +38,7 @@ def getDefaultSPImp():
   return 'cpp'
 
 
-##############################################################################
+
 def getSPClass(spatialImp):
   """ Return the class corresponding to the given spatialImp string
   """
@@ -49,13 +47,12 @@ def getSPClass(spatialImp):
     return PYSpatialPooler
   elif spatialImp == 'cpp':
     return CPPSpatialPooler
-  elif spatialImp == 'oldpy':
-    return FDRCSpatial2
   else:
     raise RuntimeError("Invalid spatialImp '%s'. Legal values are: 'py', "
-          "'cpp', 'oldpy'" % (spatialImp))
+          "'cpp'" % (spatialImp))
 
-##############################################################################
+
+
 def _buildArgs(f, self=None, kwargs={}):
   """
   Get the default arguments from the function and assign as instance vars.
@@ -106,15 +103,6 @@ def _buildArgs(f, self=None, kwargs={}):
         argValue = argTuple[2]
       # Set as an instance variable if 'self' was passed in
       setattr(self, argName, argValue)
-      
-  # Translate some parameters for backward compatibility
-  if kwargs.has_key('numActivePerInhArea'):
-    setattr(self, 'numActiveColumnsPerInhArea', kwargs['numActivePerInhArea'])
-    kwargs.pop('numActivePerInhArea')
-    
-  if kwargs.has_key('coincInputPoolPct'):
-    setattr(self, 'potentialPct', kwargs['coincInputPoolPct'])
-    kwargs.pop('coincInputPoolPct')
 
   return argTuples
 
@@ -126,7 +114,7 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
   to 'Byte' for None and complex types
 
   Determines the spatial parameters based on the selected implementation.
-  It defaults to FDRCSpatial.
+  It defaults to SpatialPooler.
   """
   typeNames = {int: 'UInt32', float: 'Real32', str: 'Byte', bool: 'bool', tuple: 'tuple'}
 
@@ -150,15 +138,10 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
       return ''
 
   # Get arguments from spatial pooler constructors, figure out types of
-  # variables and populate spatialSpec. The old FDRCSpatialPooler and
-  # the new SpatialPooler classes have slightly different constructor argument
-  # names, so include them all as possible arguments.
+  # variables and populate spatialSpec.
+  SpatialClass = getSPClass(spatialImp)
+  sArgTuples = _buildArgs(SpatialClass.__init__)
   spatialSpec = {}
-  FDRSpatialClass = getSPClass('oldpy')
-  sArgTuples = _buildArgs(FDRSpatialClass.__init__)
-  argTuplesNew = _buildArgs(CPPSpatialPooler.__init__)
-  sArgTuples.extend(argTuplesNew)
-
   for argTuple in sArgTuples:
     d = dict(
       description=argTuple[1],
@@ -166,7 +149,6 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
       dataType=getArgType(argTuple[2])[0],
       count=getArgType(argTuple[2])[1],
       constraints=getConstraints(argTuple[2]))
-
     spatialSpec[argTuple[0]] = d
 
   # Add special parameters that weren't handled automatically
@@ -239,7 +221,7 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
         accessMode='ReadWrite',
         dataType='Byte',
         count=0,
-        constraints='enum: py, cpp, oldpy'),
+        constraints='enum: py, cpp'),
   ))
 
 
@@ -317,22 +299,22 @@ class SPRegion(PyRegion):
   SPRegion is designed to implement the spatial pooler compute for a given
   HTM level.
 
-  Uses the FDRCSpatial2 class to do most of the work. This node has just one
-  FDRCSpatial instance for the enitire level and does *not* support the concept
+  Uses the SpatialPooler class to do most of the work. This node has just one
+  SpatialPooler instance for the enitire level and does *not* support the concept
   of "baby nodes" within it.
 
   Automatic parameter handling:
 
   Parameter names, default values, and descriptions are retrieved automatically
-  from FDRCSpatial2. Thus, there are only a few hardcoded arguments in __init__,
+  from SpatialPooler. Thus, there are only a few hardcoded arguments in __init__,
   and the rest are passed to the appropriate underlying class. The NodeSpec is
   mostly built automatically from these parameters, too.
 
-  If you add a parameter to FDRCSpatial2, it will be exposed through SPRegion
+  If you add a parameter to SpatialPooler, it will be exposed through SPRegion
   automatically as if it were in SPRegion.__init__, with the right default
   value. Add an entry in the __init__ docstring for it too, and that will be
   brought into the NodeSpec. SPRegion will maintain the parameter as its own
-  instance variable and also pass it to FDRCSpatial2. If the parameter is
+  instance variable and also pass it to SpatialPooler. If the parameter is
   changed, SPRegion will propagate the change.
 
   If you want to do something different with the parameter, add it as an
@@ -342,7 +324,7 @@ class SPRegion(PyRegion):
   def __init__(self,
                columnCount,   # Number of columns in the SP, a required parameter
                inputWidth,    # Size of inputs to the SP, a required parameter
-               spatialImp=getDefaultSPImp(),   #'py', 'cpp', or 'oldpy'
+               spatialImp=getDefaultSPImp(),   #'py', 'cpp'
                **kwargs):
 
     if columnCount <= 0 or inputWidth <=0:
@@ -350,8 +332,8 @@ class SPRegion(PyRegion):
 
     # Pull out the spatial arguments automatically
     # These calls whittle down kwargs and create instance variables of SPRegion
-    self._FDRCSpatialClass = getSPClass(spatialImp)
-    sArgTuples = _buildArgs(self._FDRCSpatialClass.__init__, self, kwargs)
+    self.SpatialClass = getSPClass(spatialImp)
+    sArgTuples = _buildArgs(self.SpatialClass.__init__, self, kwargs)
 
     # Make a list of automatic spatial arg names for later use
     self._spatialArgNames = [t[0] for t in sArgTuples]
@@ -389,7 +371,7 @@ class SPRegion(PyRegion):
     # Variables set up in initInNetwork()
     #
 
-    # FDRCSpatial instance
+    # Spatial instance
     self._sfdr                = None
 
     # Spatial pooler's bottom-up output value: hang on to this  output for
@@ -406,6 +388,7 @@ class SPRegion(PyRegion):
   # Initialization code
   #
   #############################################################################
+
   def _initializeEphemeralMembers(self):
     """
     Initialize all ephemeral data members, and give the derived class the
@@ -443,7 +426,7 @@ class SPRegion(PyRegion):
     self._initEphemerals()
     self._checkEphemeralMembers()
 
-  #############################################################################
+
   def initialize(self, dims, splitterMaps):
     """"""
 
@@ -459,7 +442,6 @@ class SPRegion(PyRegion):
     self._allocateSpatialFDR(None)
 
 
-  #############################################################################
   def _allocateSpatialFDR(self, rfInput):
     """Allocate the spatial pooler instance."""
     if self._sfdr:
@@ -470,50 +452,16 @@ class SPRegion(PyRegion):
                      for name in self._spatialArgNames)
     
     # Instantiate the spatial pooler class.
-    if ( (self._FDRCSpatialClass == CPPSpatialPooler) or
-         (self._FDRCSpatialClass == PYSpatialPooler) ):
+    if ( (self.SpatialClass == CPPSpatialPooler) or
+         (self.SpatialClass == PYSpatialPooler) ):
       
       autoArgs['columnDimensions'] = [self.columnCount]
       autoArgs['inputDimensions'] = [self.inputWidth]
       autoArgs['potentialRadius'] = self.inputWidth
     
-      self._sfdr = self._FDRCSpatialClass(
+      self._sfdr = self.SpatialClass(
         **autoArgs
       )
-      
-    else:
-      # Backward compatibility
-      autoArgs.pop('coincidencesShape')
-      autoArgs.pop('inputShape')
-      autoArgs.pop('inputBorder')
-      autoArgs.pop('coincInputRadius')
-      autoArgs.pop('cloneMap')
-      autoArgs.pop('numCloneMasters')
-  
-      coincidencesShape = (self.columnCount, 1)
-      inputShape = (1, self.inputWidth)
-      inputBorder = inputShape[1]/2
-      if inputBorder*2 >= inputShape[1]:
-        inputBorder -= 1
-      coincInputRadius = inputShape[1]/2
-  
-      cloneMap, numCloneMasters = fdru.makeCloneMap(
-          columnsShape=coincidencesShape,
-          outputCloningWidth=coincidencesShape[1],
-          outputCloningHeight=coincidencesShape[0]
-        )
-  
-      self._sfdr = self._FDRCSpatialClass(
-                                # These parameters are standard defaults for SPRegion
-                                # They can be overridden by explicit calls to
-                                # getParameter
-                                cloneMap=cloneMap,
-                                numCloneMasters=numCloneMasters,
-                                coincidencesShape=coincidencesShape,
-                                inputShape=inputShape,
-                                inputBorder=inputBorder,
-                                coincInputRadius = coincInputRadius,
-                                **autoArgs)
   
 
   #############################################################################
@@ -523,7 +471,6 @@ class SPRegion(PyRegion):
   #############################################################################
 
 
-  #############################################################################
   def compute(self, inputs, outputs):
     """
     Run one iteration of SPRegion's compute, profiling it if requested.
@@ -616,7 +563,7 @@ class SPRegion(PyRegion):
       #print "SPRegion input: ", buInputVector.nonzero()[0]
       #print "SPRegion output: ", rfOutput.nonzero()[0]
 
-  #############################################################################
+
   def _doBottomUpCompute(self, rfInput, resetSignal):
     """
     Do one iteration of inference and/or learning and return the result
@@ -640,24 +587,17 @@ class SPRegion(PyRegion):
 
     # Run SFDR bottom-up compute and cache output in self._spatialPoolerOutput
     
-    if (self._FDRCSpatialClass == FDRCSpatial2):
-      # Backwards compatibility
-      self._spatialPoolerOutput = self._sfdr.compute(rfInput[0],
-                                                     learn=self.learningMode,
-                                                     infer=self.inferenceMode,
-                                                     computeAnomaly=self.anomalyMode)
+    inputVector = numpy.array(rfInput[0]).astype('uint32')
+    outputVector = numpy.zeros(self._sfdr.getNumColumns()).astype('uint32')
+
+    # Switch to using a random SP if learning mode is off and the SP hasn't
+    # learned anything yet.
+    if (not self.learningMode) and (self._sfdr.getIterationLearnNum() == 0):
+      self._sfdr.compute(inputVector, self.learningMode, outputVector, False)
     else:
-      inputVector = numpy.array(rfInput[0]).astype('uint32')
-      outputVector = numpy.zeros(self._sfdr.getNumColumns()).astype('uint32')
+      self._sfdr.compute(inputVector, self.learningMode, outputVector)
 
-      # Switch to using a random SP if learning mode is off and the SP hasn't
-      # learned anything yet.
-      if (not self.learningMode) and (self._sfdr.getIterationLearnNum() == 0):
-        self._sfdr.compute(inputVector, self.learningMode, outputVector, False)
-      else:
-        self._sfdr.compute(inputVector, self.learningMode, outputVector)
-
-      self._spatialPoolerOutput[:] = outputVector[:]
+    self._spatialPoolerOutput[:] = outputVector[:]
 
     # Direct logging of SP outputs if requested
     if self._fpLogSP:
@@ -676,7 +616,6 @@ class SPRegion(PyRegion):
     return self._spatialPoolerOutput
 
 
-  #############################################################################
   def _doTopDownInfer(self, topDownInput = None):
     """
     Do one iteration of top-down inference.
@@ -701,7 +640,6 @@ class SPRegion(PyRegion):
   #
   #############################################################################
 
-  #############################################################################
   @classmethod
   def getBaseSpec(cls):
     """Return the base Spec for SPRegion.
@@ -823,7 +761,6 @@ class SPRegion(PyRegion):
     return spec
 
 
-  #############################################################################
   def getParameter(self, parameterName, index=-1):
     """
       Get the value of a NodeSpec parameter. Most parameters are handled
@@ -855,7 +792,6 @@ class SPRegion(PyRegion):
       return PyRegion.getParameter(self, parameterName, index)
 
 
-  #############################################################################
   def setParameter(self, parameterName, index, parameterValue):
     """
       Set the value of a Spec parameter. Most parameters are handled
@@ -908,7 +844,6 @@ class SPRegion(PyRegion):
   #############################################################################
 
 
-  #############################################################################
   def __getstate__(self):
     """
     Return serializable state.  This function will return a version of the
@@ -923,7 +858,7 @@ class SPRegion(PyRegion):
 
     return state
 
-  #############################################################################
+
   def __setstate__(self, state):
     """
     Set the state of ourself from a serialized state.
@@ -932,15 +867,14 @@ class SPRegion(PyRegion):
     self.__dict__.update(state)
     self._loaded = True
     # Backwards compatibility
-    if not hasattr(self, "_FDRCSpatialClass"):
-      self._FDRCSpatialClass = self._sfdr.__class__
+    if not hasattr(self, "SpatialClass"):
+      self.SpatialClass = self._sfdr.__class__
     # Initialize all non-persistent base members, as well as give
     # derived class an opportunity to do the same.
     self._initializeEphemeralMembers()
     self._allocateSpatialFDR(None)
 
 
-  #############################################################################
   def _initEphemerals(self):
     """
     Initialize all ephemerals used by derived classes.
@@ -960,7 +894,7 @@ class SPRegion(PyRegion):
     self.logPathOutput = ""
     self.logPathOutputDense = ""
 
-  #############################################################################
+
   def _getEphemeralMembers(self):
     """
     Callback that returns a list of all "ephemeral" members (i.e., data members
@@ -971,7 +905,6 @@ class SPRegion(PyRegion):
             'logPathInput', 'logPathOutput', 'logPathOutputDense'
         ]
 
-  #############################################################################
 
   def _getEphemeralMembersBase(self):
     """
@@ -991,7 +924,6 @@ class SPRegion(PyRegion):
     """
     return self._getEphemeralMembersBase() + self._getEphemeralMembers()
 
-  #############################################################################
 
   def _checkEphemeralMembers(self):
     for attrName in self._getEphemeralMembersBase():
@@ -1012,7 +944,6 @@ class SPRegion(PyRegion):
   #
   #############################################################################
 
-  #########################################################################################
   def _conditionalBreak(self):
     if self.breakKomodo:
       import dbgp.client; dbgp.client.brk()
@@ -1025,6 +956,7 @@ class SPRegion(PyRegion):
   #    These methods are required by NuPIC 2
   #
   #############################################################################
+
   def getOutputElementCount(self, name):
     if name == 'bottomUpOut':
       return self.columnCount

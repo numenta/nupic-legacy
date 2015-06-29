@@ -133,7 +133,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
 
           activeColumnCount=dict(
             description="""Number of active columns in a given step. Typically
-            equivalent to SP.numActivePerInhArea""",
+            equivalent to SP.numActiveColumnsPerInhArea""",
             dataType='UInt32',
             count=1,
             constraints='',
@@ -798,7 +798,6 @@ class KNNAnomalyClassifierRegion(PyRegion):
   #############################################################################
 
 
-  #############################################################################
   def __getstate__(self):
     """
     Return serializable state.  This function will return a version of the
@@ -813,7 +812,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
     state.pop('_knnclassifier')
     return state
 
-  #############################################################################
+
   def __setstate__(self, state):
     """
     Set the state of ourself from a serialized state.
@@ -893,6 +892,8 @@ class KNNAnomalyClassifierRegion(PyRegion):
   #    These methods are required by NuPIC 2
   #
   #############################################################################
+
+
   def getOutputElementCount(self, name):
     if name == 'labels':
       return self._maxLabelOutputs

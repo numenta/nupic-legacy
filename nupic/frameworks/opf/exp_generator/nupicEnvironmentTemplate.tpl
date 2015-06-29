@@ -33,7 +33,7 @@ control = {
   'loggedMetrics': $LOGGED_METRICS,
 }
 
-################################################################################
-################################################################################
+
+
 descriptionInterface = ExperimentDescriptionAPI(modelConfig=config,
                                                 control=control)

@@ -29,7 +29,7 @@ import numpy
 from nupic.math import GetNTAReal
 from nupic.research.TP import TP
 from nupic.research.TP10X2 import TP10X2
-from nupic.research.temporal_memory import Connections
+from nupic.research.connections import Connections
 
 
 
@@ -46,7 +46,6 @@ class TemporalMemoryShim(TPClass):
                columnDimensions=(2048,),
                cellsPerColumn=32,
                activationThreshold=13,
-               learningRadius=2048,
                initialPermanence=0.21,
                connectedPermanence=0.50,
                minThreshold=10,
@@ -76,7 +75,7 @@ class TemporalMemoryShim(TPClass):
       activationThreshold=activationThreshold,
       seed=seed)
 
-    self.connections = Connections(columnDimensions, cellsPerColumn)
+    self.connections = Connections(numberOfCols * cellsPerColumn)
     self.predictiveCells = set()
 
 

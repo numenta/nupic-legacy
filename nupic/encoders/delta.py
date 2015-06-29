@@ -75,19 +75,23 @@ class DeltaEncoder(AdaptiveScalarEncoder):
         self._prevDelta = delta
       return output
 
-  ############################################################################
+
   def setStateLock(self, lock):
     self._stateLock = lock
-  ############################################################################
+
+
   def setFieldStats(self, fieldName, fieldStatistics):
     pass
-  ############################################################################
+
+
   def getBucketIndices(self, input, learn=None):
     return self._adaptiveScalarEnc.getBucketIndices(input, learn)
-  ############################################################################
+
+
   def getBucketInfo(self, buckets):
     return self._adaptiveScalarEnc.getBucketInfo(buckets)
-  ############################################################################
+
+
   def topDownCompute(self, encoded):
     """[ScalarEncoder class method override]"""
 
@@ -103,3 +107,28 @@ class DeltaEncoder(AdaptiveScalarEncoder):
 #      ret[0].value+=self._prevAbsolute
 #      ret[0].scalar+=self._prevAbsolute
     return ret
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = object.__new__(cls)
+    encoder.width = proto.width
+    encoder.name = proto.name or None
+    encoder.n = proto.n
+    encoder._adaptiveScalarEnc = (
+      AdaptiveScalarEncoder.read(proto.adaptiveScalarEnc)
+    )
+    encoder._prevAbsolute = proto.prevAbsolute
+    encoder._prevDelta = proto.prevDelta
+    encoder._stateLock = proto.stateLock
+    return encoder
+
+
+  def write(self, proto):
+    proto.width = self.width
+    proto.name = self.name or ""
+    proto.n = self.n
+    self._adaptiveScalarEnc.write(proto.adaptiveScalarEnc)
+    proto.prevAbsolute = self._prevAbsolute
+    proto.prevDelta = self._prevDelta
+    proto.stateLock = self._stateLock

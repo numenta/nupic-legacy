@@ -30,7 +30,8 @@ import numpy
 
 from nupic.data.file_record_stream import FileRecordStream
 
-###########################################################################
+
+
 def _generateModel0(numCategories):
   """ Generate the initial, first order, and second order transition
   probabilities for 'model0'. For this model, we generate the following
@@ -129,7 +130,7 @@ def _generateModel0(numCategories):
   return (initProb, firstOrder, secondOrder, 3)
 
 
-###########################################################################
+
 def _generateModel1(numCategories):
   """ Generate the initial, first order, and second order transition
   probabilities for 'model1'. For this model, we generate the following
@@ -256,7 +257,8 @@ def _generateModel1(numCategories):
   
   return (initProb, firstOrder, secondOrder, 3)
 
-###########################################################################
+
+
 def _generateModel2(numCategories, alpha=0.25):
   """ Generate the initial, first order, and second order transition
   probabilities for 'model2'. For this model, we generate peaked random 
@@ -335,7 +337,6 @@ def _generateModel2(numCategories, alpha=0.25):
 
 
 
-###########################################################################
 def _generateFile(filename, numRecords, categoryList, initProb, 
       firstOrderProb, secondOrderProb, seqLen, numNoise=0, resetsEvery=None):
   """ Generate a set of records reflecting a set of probabilities.
@@ -455,7 +456,6 @@ def _generateFile(filename, numRecords, categoryList, initProb,
 
 
 
-########################################################################
 def generate(model, filenameTrain, filenameTest, filenameCategory,
               numCategories=178, numTrainingRecords=1000,
               numTestingRecords=100, numNoise=5, resetsEvery=None):

@@ -21,11 +21,13 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+import tempfile
 import unittest
 from mock import patch
 
 from nupic.encoders.base import defaultDtype
 from nupic.encoders.coordinate import CoordinateEncoder
+from nupic.encoders.coordinate_capnp import CoordinateEncoderProto
 
 # Disable warnings about accessing protected members
 # pylint: disable=W0212
@@ -36,9 +38,7 @@ class CoordinateEncoderTest(unittest.TestCase):
   """Unit tests for CoordinateEncoder class"""
 
   def setUp(self):
-    self.encoder = CoordinateEncoder(name="coordinate",
-                                     n=33,
-                                     w=3)
+    self.encoder = CoordinateEncoder(name="coordinate", n=33, w=3)
 
 
   def testInvalidW(self):
@@ -112,8 +112,8 @@ class CoordinateEncoderTest(unittest.TestCase):
     top = self.encoder._topWCoordinates(coordinates, 2).tolist()
 
     self.assertEqual(len(top), 2)
-    self.assertTrue([5] in top)
-    self.assertTrue([4] in top)
+    self.assertIn([5], top)
+    self.assertIn([4], top)
 
 
   def testNeighbors1D(self):
@@ -122,9 +122,9 @@ class CoordinateEncoderTest(unittest.TestCase):
     neighbors = self.encoder._neighbors(coordinate, radius).tolist()
 
     self.assertEqual(len(neighbors), 11)
-    self.assertTrue([95] in neighbors)
-    self.assertTrue([100] in neighbors)
-    self.assertTrue([105] in neighbors)
+    self.assertIn([95], neighbors)
+    self.assertIn([100], neighbors)
+    self.assertIn([105], neighbors)
 
 
   def testNeighbors2D(self):
@@ -133,11 +133,11 @@ class CoordinateEncoderTest(unittest.TestCase):
     neighbors = self.encoder._neighbors(coordinate, radius).tolist()
 
     self.assertEqual(len(neighbors), 121)
-    self.assertTrue([95, 195] in neighbors)
-    self.assertTrue([95, 205] in neighbors)
-    self.assertTrue([100, 200] in neighbors)
-    self.assertTrue([105, 195] in neighbors)
-    self.assertTrue([105, 205] in neighbors)
+    self.assertIn([95, 195], neighbors)
+    self.assertIn([95, 205], neighbors)
+    self.assertIn([100, 200], neighbors)
+    self.assertIn([105, 195], neighbors)
+    self.assertIn([105, 205], neighbors)
 
 
   def testNeighbors0Radius(self):
@@ -146,15 +146,13 @@ class CoordinateEncoderTest(unittest.TestCase):
     neighbors = self.encoder._neighbors(coordinate, radius).tolist()
 
     self.assertEqual(len(neighbors), 1)
-    self.assertTrue([100, 200, 300] in neighbors)
+    self.assertIn([100, 200, 300], neighbors)
 
 
   def testEncodeIntoArray(self):
     n = 33
     w = 3
-    encoder = CoordinateEncoder(name="coordinate",
-                                n=n,
-                                w=w)
+    encoder = CoordinateEncoder(name="coordinate", n=n, w=w)
 
     coordinate = np.array([100, 200])
     radius = 5
@@ -170,9 +168,7 @@ class CoordinateEncoderTest(unittest.TestCase):
   def testEncodeSaturateArea(self):
     n = 1999
     w = 25
-    encoder = CoordinateEncoder(name="coordinate",
-                                n=n,
-                                w=w)
+    encoder = CoordinateEncoder(name="coordinate", n=n, w=w)
 
     outputA = encode(encoder, np.array([0, 0]), 2)
     outputB = encode(encoder, np.array([0, 1]), 2)
@@ -220,23 +216,23 @@ class CoordinateEncoderTest(unittest.TestCase):
 
     maxThreshold = 0.12
     overlaps = overlapsForUnrelatedAreas(1499, 37, 5)
-    self.assertTrue(np.max(overlaps) < maxThreshold)
-    self.assertTrue(np.average(overlaps) < avgThreshold)
+    self.assertLess(np.max(overlaps), maxThreshold)
+    self.assertLess(np.average(overlaps), avgThreshold)
 
     maxThreshold = 0.12
     overlaps = overlapsForUnrelatedAreas(1499, 37, 10)
-    self.assertTrue(np.max(overlaps) < maxThreshold)
-    self.assertTrue(np.average(overlaps) < avgThreshold)
+    self.assertLess(np.max(overlaps), maxThreshold)
+    self.assertLess(np.average(overlaps), avgThreshold)
 
     maxThreshold = 0.17
     overlaps = overlapsForUnrelatedAreas(999, 25, 10)
-    self.assertTrue(np.max(overlaps) < maxThreshold)
-    self.assertTrue(np.average(overlaps) < avgThreshold)
+    self.assertLess(np.max(overlaps), maxThreshold)
+    self.assertLess(np.average(overlaps), avgThreshold)
 
     maxThreshold = 0.25
     overlaps = overlapsForUnrelatedAreas(499, 13, 10)
-    self.assertTrue(np.max(overlaps) < maxThreshold)
-    self.assertTrue(np.average(overlaps) < avgThreshold)
+    self.assertLess(np.max(overlaps), maxThreshold)
+    self.assertLess(np.average(overlaps), avgThreshold)
 
 
   def testEncodeAdjacentPositions(self, verbose=False):
@@ -255,8 +251,8 @@ class CoordinateEncoderTest(unittest.TestCase):
                                           num=1)
       allOverlaps[i] = overlaps[0]
 
-    self.assertTrue(np.min(allOverlaps) > minThreshold)
-    self.assertTrue(np.average(allOverlaps) > avgThreshold)
+    self.assertGreater(np.min(allOverlaps), minThreshold)
+    self.assertGreater(np.average(allOverlaps), avgThreshold)
 
     if verbose:
       print ("===== Adjacent positions overlap "
@@ -270,6 +266,34 @@ class CoordinateEncoderTest(unittest.TestCase):
     self.assertEqual((np.diff(overlaps) >= 0).sum(), 0)
 
 
+  def testReadWrite(self):
+    coordinate = np.array([100, 200])
+    radius = 5
+    output1 = encode(self.encoder, coordinate, radius)
+
+    proto1 = CoordinateEncoderProto.new_message()
+    self.encoder.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = CoordinateEncoderProto.read(f)
+
+    encoder = CoordinateEncoder.read(proto2)
+
+    self.assertIsInstance(encoder, CoordinateEncoder)
+    self.assertEqual(encoder.w, self.encoder.w)
+    self.assertEqual(encoder.n, self.encoder.n)
+    self.assertEqual(encoder.name, self.encoder.name)
+    self.assertEqual(encoder.verbosity, self.encoder.verbosity)
+
+    coordinate = np.array([100, 200])
+    radius = 5
+    output2 = encode(encoder, coordinate, radius)
+
+    self.assertTrue(np.array_equal(output1, output2))
+
 
 def encode(encoder, coordinate, radius):
   output = np.zeros(encoder.getWidth(), dtype=defaultDtype)
@@ -282,10 +306,8 @@ def overlap(sdr1, sdr2):
   return float((sdr1 & sdr2).sum()) / sdr1.sum()
 
 
-def overlapsForRelativeAreas(n, w,
-                             initPosition, initRadius,
-                             dPosition=None, dRadius=0,
-                             num=100, verbose=False):
+def overlapsForRelativeAreas(n, w, initPosition, initRadius, dPosition=None,
+                             dRadius=0, num=100, verbose=False):
   """
   Return overlaps between an encoding and other encodings relative to it
 
@@ -298,9 +320,7 @@ def overlapsForRelativeAreas(n, w,
   :param num: the number of encodings to generate
   :param verbose: whether to print verbose output
   """
-  encoder = CoordinateEncoder(name="coordinate",
-                              n=n,
-                              w=w)
+  encoder = CoordinateEncoder(name="coordinate", n=n, w=w)
 
   overlaps = np.empty(num)
   outputA = encode(encoder, np.array(initPosition), initRadius)

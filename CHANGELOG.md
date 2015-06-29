@@ -1,5 +1,73 @@
 # Changelog
 
+## 0.2.4
+
+* Fix a minor bug in the algorithm
+* Implement orphan synapse decay
+* register python regions in Region class method
+* moved registration of python regions to nupic.core
+* date encoder bug fix
+* Implement orphan synapse decay
+* changed default regions to tuples
+* fill predictedActiveCells with 0
+* removing irrelevant files
+* removing old network api demo 2
+* modified PyRegion to accept custom classes
+* renamed unionMode to computePredictedActiveCellIndices
+* set the output size for active indices and predicted+active indices to max possible size
+* converting union pooler input to right format
+* Port AnomalyRegion serialization
+* Rename "enc" to "encoder"
+
+## 0.2.3
+
+* updated custom region methods and example to be static
+* demo for custom regions
+* Improve docstring for 'save' method and others.
+* allows custom regions
+* moved encoder changes to network_api_demo
+* updated network_api_demo in new file to make swapping out encoders easier
+* bit more explanation for MultiEncoder
+* Use different logic for determining whether or not to translate back into actual values from bucket indices
+* Switch over to C++ SpatialPooler where possible to speed up tests/build.
+* Finish implementation of TemporalMemory serialization
+
+## 0.2.2
+
+* Fixed equality test for Connections class
+* Removing learning radius parameter from nupic
+* Add Cap'n Proto serialization to Python Connections
+* Remove FDRCSpatial2.py
+* Replace the use of FDRCSpatial2 to SpatialPooler
+* SP profile implemented from tp_large
+* TP profile: can use args from command-line, random data used
+* Adds AnomalyRegion for computing the raw anomaly score. Updates the network api example to use the new anomaly region. Updates PyRegion to have better error messages.
+* Remove FlatSpatialPooler
+* Add delete segment/synapse functionality to Connections data structure
+* Adding dependency listing with licenses.
+* Bump pycapnp to latest (0.5.5) for security update
+* Remove redundant encoderMap operations
+* Remove redundant index, and EncoderDetails in favor of using the outer union directly
+* Use union in capnp schema per feedback
+* MultiEncoder capnp implementation, including a switch to relative imports as a workaround for an issue described in https://github.com/jparyani/pycapnp/issues/59
+* SparsePassThroughEncoder capnp implementation
+* PassThroughEncoder capnp implementation
+* LogEncoder capnproto implementation
+* GeospatialCoordinateEncoder capnp implementation
+* DeltaEncoder capnp implementation
+* CoordinateEncoder capnp implementation
+* AdaptiveScalarEncoder capnp implementation
+* SDRCategoryEncoder capnproto implementation
+* CategoryEncoder capnproto serialization, fixes #1964
+* Change anomaly score to always be zero when there are no active columns.
+* Date encoder capnproto implementation
+* RDSE capnproto implementation w/ bugfix in encoder base
+* Remove redundant radius and resolution in favor of relying on them to be recalculated based on n.
+* Remove explicit int casts and update tests to allow ints or longs.
+* Integrate capnproto serialization into ScalarEncoder re: #1715
+* Allowing relative paths for input files in swarm desc.
+* accepts anomaly records as both lists and tuples
+
 ## 0.2.1
 
 * Moved data pkg_resource data into nupic/datafiles.

@@ -46,7 +46,8 @@ def not_implemented(f):
   decorated.__doc__ == f.__doc__
   return decorated
 
-#---------------------------------------------------------------------------------
+
+
 class PyRegion(object):
   """
   PyRegion provides services to its sub-classes (the actual regions):
@@ -97,7 +98,7 @@ class PyRegion(object):
   """
   __metaclass__ = ABCMeta
 
-  #---------------------------------------------------------------------------------
+
   @classmethod
   @not_implemented
   def getSpec(cls):
@@ -119,7 +120,6 @@ class PyRegion(object):
 
     outputs -- a dictionary with similar structure to inputs. The keys
     are:
-         categoriesOut
          description
          dataType
          count
@@ -130,7 +130,7 @@ class PyRegion(object):
          description
          dataType
          count
-         constraints
+         constraints (optional)
          accessMode (one of "ReadWrite", "Read", "Create")
 
     This class method is called by NuPIC before creating a Region.

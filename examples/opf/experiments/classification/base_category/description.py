@@ -104,7 +104,7 @@ config = {
         'seconds': 0,
         'weeks': 0,
         'years': 0},
-    
+
     'predictAheadTime': None,
 
     # Model parameter dictionary.
@@ -152,7 +152,7 @@ config = {
             # 0: silent; >=1: some info; >=2: more info;
             'spVerbosity' : 0,
 
-            'spatialImp' : 'oldpy',
+            'spatialImp' : 'cpp',
 
             'globalInhibition': 1,
 
@@ -166,15 +166,15 @@ config = {
             # SP inhibition control (absolute value);
             # Maximum number of active columns in the SP region's output (when
             # there are more, the weaker ones are suppressed)
-            'numActivePerInhArea': 40,
+            'numActiveColumnsPerInhArea': 40,
 
             'seed': 1956,
 
-            # coincInputPoolPct
+            # potentialPct
             # What percent of the columns's receptive field is available
             # for potential synapses. At initialization time, we will
-            # choose coincInputPoolPct * (2*coincInputRadius+1)^2
-            'coincInputPoolPct': 1.0,
+            # choose potentialPct * (2*potentialRadius+1)^2
+            'potentialPct': 1.0,
 
             # The default connected threshold. Any synapse whose
             # permanence value is above the connected threshold is
@@ -187,9 +187,9 @@ config = {
             # is correct here as opposed to 'columns')
             'synPermConnected': 0.1,
 
-            'synPermActiveInc': 0.1,
+            'synPermActiveInc': 0.05,
 
-            'synPermInactiveDec': 0.01,
+            'synPermInactiveDec': 0.008,
         },
 
         # Controls whether TP is enabled or disabled;
@@ -299,8 +299,8 @@ config = {
 
         'trainSPNetOnlyIfRequested': False,
     },
-          
-  
+
+
   'claTrainSPNetOnlyIfRequested': True,
   'dataSource': 'fillInBySubExperiment',
 }
@@ -331,11 +331,11 @@ if not config['modelParams']['tpEnable']:
   config['modelParams']['clParams']['cellsPerCol'] = 0
 
 
-################################################################################
+
 control = {
   # The environment that the current model is being run in
   "environment": 'opfExperiment',
-  
+
   # [optional] A sequence of one or more tasks that describe what to do with the
   # model. Each task consists of a task label, an input spec., iteration count,
   # and a task-control spec per opfTaskSchema.json
@@ -343,24 +343,24 @@ control = {
   # NOTE: The tasks are intended for OPF clients that make use of OPFTaskDriver.
   #       Clients that interact with OPF Model directly do not make use of
   #       the tasks specification.
-  #       
+  #
   "tasks":[
     {
       # Task label; this label string may be used for diagnostic logging and for
       # constructing filenames or directory pathnames for task-specific files, etc.
       'taskLabel' : "OnlineLearning",
-  
-  
+
+
       # Input stream specification per py/nupic/cluster/database/StreamDef.json.
       #
       'dataset' : {   u'info': u'test_NoProviders',
-        u'streams': [   {   
+        u'streams': [   {
               u'columns': [u'*'],
               u'info': u'simple.csv',
               'source':  config['dataSource'],
           }],
         u'version': 1},
-  
+
       # Iteration count: maximum number of iterations.  Each iteration corresponds
       # to one record from the (possibly aggregated) dataset.  The task is
       # terminated when either number of iterations reaches iterationCount or
@@ -369,11 +369,11 @@ control = {
       #
       # iterationCount of -1 = iterate over the entire dataset
       'iterationCount' : -1,
-  
-      
+
+
       # Task Control parameters for OPFTaskDriver (per opfTaskControlSchema.json)
       'taskControl' : {
-          
+
         # Iteration cycle list consisting of opftaskdriver.IterationPhaseSpecXXXXX
         # instances.
         'iterationCycle' : [
@@ -381,45 +381,45 @@ control = {
           IterationPhaseSpecLearnAndInfer(1000),
           #IterationPhaseSpecInferOnly(10),
         ],
-          
+
         # Metrics: A list of MetricSpecs that instantiate the metrics that are
         # computed for this experiment
         'metrics':[
-          MetricSpec(metric='avg_err', inferenceElement='classification', 
+          MetricSpec(metric='avg_err', inferenceElement='classification',
                      params={'window': 200}),
-          MetricSpec(metric='neg_auc', inferenceElement='classConfidences', 
+          MetricSpec(metric='neg_auc', inferenceElement='classConfidences',
                      params={'window': 200, 'computeEvery': 10}),
         ],
-          
+
         # Logged Metrics: A sequence of regular expressions that specify which of
         # the metrics from the Inference Specifications section MUST be logged for
         # every prediction. The regex's correspond to the automatically generated
         # metric labels. This is similar to the way the optimization metric is
         # specified in permutations.py.
         'loggedMetrics': ['.*avg_err.*', '.*auc.*'],
-        
+
         # Callbacks for experimentation/research (optional)
         'callbacks' : {
           # Callbacks to be called at the beginning of a task, before model iterations.
           # Signature: callback(<reference to OPF Model>); returns nothing
           'setup' : [],
-          
+
           # Callbacks to be called after every learning/inference iteration
           # Signature: callback(<reference to OPF Model>); returns nothing
           'postIter' : [],
-          
+
           # Callbacks to be called when the experiment task is finished
           # Signature: callback(<reference to OPF Model>); returns nothing
           'finish' : []
         }
       } # End of taskControl
     }, # End of task
-    
+
   ]
 }
 
 
-################################################################################
+
 descriptionInterface = ExperimentDescriptionAPI(modelConfig=config,
                                                 control=control)
 

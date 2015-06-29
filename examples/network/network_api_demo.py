@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -30,7 +30,7 @@ from pkg_resources import resource_filename
 from nupic.algorithms.anomaly import computeRawAnomalyScore
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
-from nupic.encoders import MultiEncoder
+from nupic.encoders import MultiEncoder, ScalarEncoder, DateEncoder
 
 _VERBOSITY = 0  # how chatty the demo should be
 _SEED = 1956  # the random seed used throughout
@@ -83,25 +83,13 @@ TP_PARAMS = {
 
 def createEncoder():
   """Create the encoder instance for our test and return it."""
+  consumption_encoder = ScalarEncoder(21, 0.0, 100.0, n=50, name="consumption",
+      clipInput=True)
+  time_encoder = DateEncoder(timeOfDay=(21, 9.5), name="timestamp_timeOfDay")
+
   encoder = MultiEncoder()
-  encoder.addMultipleEncoders({
-      "consumption": {
-          "clipInput": True,
-          "fieldname": u"consumption",
-          "maxval": 100.0,
-          "minval": 0.0,
-          "n": 50,
-          "name": u"consumption",
-          "type": "ScalarEncoder",
-          "w": 21,
-      },
-      "timestamp_timeOfDay": {
-          "fieldname": u"timestamp",
-          "name": u"timestamp_timeOfDay",
-          "timeOfDay": (21, 9.5),
-          "type": "DateEncoder",
-      },
-  })
+  encoder.addEncoder("consumption", consumption_encoder)
+  encoder.addEncoder("timestamp", time_encoder)
 
   return encoder
 
@@ -151,7 +139,13 @@ def createNetwork(dataSource):
   network.link("temporalPoolerRegion", "spatialPoolerRegion", "UniformLink", "",
                srcOutput="topDownOut", destInput="topDownIn")
 
-  network.initialize()
+  # Add the AnomalyRegion on top of the TPRegion
+  network.addRegion("anomalyRegion", "py.AnomalyRegion", json.dumps({}))
+
+  network.link("spatialPoolerRegion", "anomalyRegion", "UniformLink", "",
+               srcOutput="bottomUpOut", destInput="activeColumns")
+  network.link("temporalPoolerRegion", "anomalyRegion", "UniformLink", "",
+               srcOutput="topDownOut", destInput="predictedColumns")
 
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
 
@@ -186,33 +180,19 @@ def runNetwork(network, writer):
   sensorRegion = network.regions["sensor"]
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
   temporalPoolerRegion = network.regions["temporalPoolerRegion"]
+  anomalyRegion = network.regions["anomalyRegion"]
 
   prevPredictedColumns = []
 
-  i = 0
-  for _ in xrange(_NUM_RECORDS):
+  for i in xrange(_NUM_RECORDS):
     # Run the network for a single iteration
     network.run(1)
 
-    activeColumns = spatialPoolerRegion.getOutputData(
-        "bottomUpOut").nonzero()[0]
-
-    # Calculate the anomaly score using the active columns
-    # and previous predicted columns
-    anomalyScore = computeRawAnomalyScore(activeColumns, prevPredictedColumns)
-
     # Write out the anomaly score along with the record number and consumption
     # value.
+    anomalyScore = anomalyRegion.getOutputData("rawAnomalyScore")[0]
     consumption = sensorRegion.getOutputData("sourceOut")[0]
     writer.writerow((i, consumption, anomalyScore))
-
-    # Store the predicted columns for the next timestep
-    predictedColumns = temporalPoolerRegion.getOutputData(
-        "topDownOut").nonzero()[0]
-    prevPredictedColumns = copy.deepcopy(predictedColumns)
-
-    i += 1
-
 
 
 if __name__ == "__main__":

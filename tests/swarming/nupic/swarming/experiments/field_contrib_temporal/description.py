@@ -188,15 +188,15 @@ config = {
             # SP inhibition control (absolute value);
             # Maximum number of active columns in the SP region's output (when
             # there are more, the weaker ones are suppressed)
-            'numActivePerInhArea': 40,
+            'numActiveColumnsPerInhArea': 40,
 
             'seed': 1956,
 
-            # coincInputPoolPct
+            # potentialPct
             # What percent of the columns's receptive field is available
             # for potential synapses. At initialization time, we will
-            # choose coincInputPoolPct * (2*coincInputRadius+1)^2
-            'coincInputPoolPct': 0.5,
+            # choose potentialPct * (2*potentialRadius+1)^2
+            'potentialPct': 0.5,
 
             # The default connected threshold. Any synapse whose
             # permanence value is above the connected threshold is
@@ -351,9 +351,6 @@ applyValueGettersToContainer(config)
 
 
 
-
-################################################################################
-
 control = {
   # The environment that the current model is being run in
   "environment": 'nupic',
@@ -394,7 +391,5 @@ control = {
 
 
 
-################################################################################
-################################################################################
 descriptionInterface = ExperimentDescriptionAPI(modelConfig=config,
                                                 control=control)

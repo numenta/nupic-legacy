@@ -27,6 +27,11 @@ from nupic.encoders.base import Encoder, EncoderResult
 from nupic.encoders.scalar import ScalarEncoder
 
 
+
+UNKNOWN = "<UNKNOWN>"
+
+
+
 class CategoryEncoder(Encoder):
   """Encodes a list of discrete categories (described by strings), that aren't
   related to each other, so we never emit a mixture of categories.
@@ -40,7 +45,7 @@ class CategoryEncoder(Encoder):
 
 
   def __init__(self, w, categoryList, name="category", verbosity=0, forced=False):
-    """params: 
+    """params:
        forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
     """
 
@@ -52,7 +57,7 @@ class CategoryEncoder(Encoder):
 
     self.categoryToIndex = dict()
     self.indexToCategory = dict()
-    self.indexToCategory[0] = "<UNKNOWN>"
+    self.indexToCategory[0] = UNKNOWN
     for i in xrange(len(categoryList)):
       self.categoryToIndex[categoryList[i]] = i+1
       self.indexToCategory[i+1] = categoryList[i]
@@ -72,7 +77,6 @@ class CategoryEncoder(Encoder):
     self._bucketValues = None
 
 
-  ############################################################################
   def getDecoderOutputFieldTypes(self):
     """ [Encoder class virtual method override]
     """
@@ -82,15 +86,14 @@ class CategoryEncoder(Encoder):
     return (FieldMetaType.integer,)
 
 
-  ############################################################################
   def getWidth(self):
     return self.width
 
-  ############################################################################
+
   def getDescription(self):
     return self.description
 
-  ############################################################################
+
   def getScalars(self, input):
     """ See method description in base.py """
     if input == SENTINEL_VALUE_FOR_MISSING_DATA:
@@ -99,7 +102,6 @@ class CategoryEncoder(Encoder):
       return numpy.array([self.categoryToIndex.get(input, 0)])
 
 
-  ############################################################################
   def getBucketIndices(self, input):
     """ See method description in base.py """
 
@@ -110,8 +112,6 @@ class CategoryEncoder(Encoder):
       return self.encoder.getBucketIndices(self.categoryToIndex.get(input, 0))
 
 
-
-  ############################################################################
   def encodeIntoArray(self, input, output):
     # if not found, we encode category 0
     if input == SENTINEL_VALUE_FOR_MISSING_DATA:
@@ -126,7 +126,6 @@ class CategoryEncoder(Encoder):
       print "decoded:", self.decodedToStr(self.decode(output))
 
 
-  ############################################################################
   def decode(self, encoded, parentFieldName=''):
     """ See the function description in base.py
     """
@@ -162,7 +161,6 @@ class CategoryEncoder(Encoder):
     return ({fieldName: (outRanges, desc)}, [fieldName])
 
 
-  ############################################################################
   def closenessScores(self, expValues, actValues, fractional=True,):
     """ See the function description in base.py
 
@@ -180,15 +178,9 @@ class CategoryEncoder(Encoder):
     if not fractional:
       closeness = 1.0 - closeness
 
-    #print "category::", "expValue:", expValue, "actValue:", actValue, \
-    #      "closeness", closeness
-    #import pdb; pdb.set_trace()
-
     return numpy.array([closeness])
 
 
-
-  ############################################################################
   def getBucketValues(self):
     """ See the function description in base.py """
 
@@ -200,7 +192,7 @@ class CategoryEncoder(Encoder):
 
     return self._bucketValues
 
-  ############################################################################
+
   def getBucketInfo(self, buckets):
     """ See the function description in base.py
     """
@@ -215,8 +207,6 @@ class CategoryEncoder(Encoder):
                          encoding=bucketInfo.encoding)]
 
 
-
-  ############################################################################
   def topDownCompute(self, encoded):
     """ See the function description in base.py
     """
@@ -228,3 +218,35 @@ class CategoryEncoder(Encoder):
 
     return EncoderResult(value=category, scalar=categoryIndex,
                          encoding=encoderResult.encoding)
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = object.__new__(cls)
+
+    encoder.verbosity = proto.verbosity
+    encoder.encoder = ScalarEncoder.read(proto.encoder)
+    encoder.width = proto.width
+    encoder.description = [(proto.name, 0)]
+    encoder.name = proto.name
+    encoder.indexToCategory = {x.index: x.category
+                               for x in proto.indexToCategory}
+    encoder.categoryToIndex = {category: index
+                               for index, category
+                               in encoder.indexToCategory.items()
+                               if category != UNKNOWN}
+    encoder._topDownMappingM = None
+    encoder._bucketValues = None
+
+    return encoder
+
+
+  def write(self, proto):
+    proto.width = self.width
+    proto.indexToCategory = [
+      {"index": index, "category": category}
+      for index, category in self.indexToCategory.items()
+    ]
+    proto.name = self.name
+    proto.verbosity = self.verbosity
+    self.encoder.write(proto.encoder)

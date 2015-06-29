@@ -78,7 +78,7 @@ report = [
 minimize = 'prediction:aae:window=1000:field=attendance'
 
 
-#############################################################################
+
 def dummyModelParams(perm):
   """ This function can be used for Hypersearch algorithm development. When
   present, we don't actually run the CLA model in the OPF, but instead run
@@ -123,7 +123,6 @@ def dummyModelParams(perm):
 
 
 
-#############################################################################
 def permutationFilter(perm):
   """ This function can be used to selectively filter out specific permutation
   combinations. It is called by RunPermutations for every possible permutation

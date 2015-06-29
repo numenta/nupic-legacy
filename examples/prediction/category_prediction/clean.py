@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -19,16 +19,14 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+import os
 
-
-import unittest2 as unittest
-
-from nupic.bindings.algorithms import FlatSpatialPooler as CPPFlatSpatialPooler
-
-import flat_spatial_pooler_py_api_test
-
-flat_spatial_pooler_py_api_test.SpatialPooler = CPPFlatSpatialPooler
-FlatSpatialPoolerCPPAPITest = flat_spatial_pooler_py_api_test.FlatSpatialPoolerAPITest
-
+def cleanup(filename):
+  if os.path.exists(filename):
+    os.remove(filename)
+  
 if __name__ == "__main__":
-  unittest.main()
+  cleanup("tokens.txt")
+  cleanup("results.csv")
+  
+
