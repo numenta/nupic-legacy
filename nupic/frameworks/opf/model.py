@@ -29,7 +29,6 @@ from abc import ABCMeta, abstractmethod
 import nupic.frameworks.opf.opfutils as opfutils
 
 
-###############################################################
 
 class Model(object):
   """ This is the base class that all OPF Model implementations should
@@ -181,6 +180,7 @@ class Model(object):
   ###############################################################################
   # Implementation of common save/load functionality
   ###############################################################################
+
   def save(self, saveModelDir):
     """ Save the model in the given directory.
     @param saveModelDir (string)

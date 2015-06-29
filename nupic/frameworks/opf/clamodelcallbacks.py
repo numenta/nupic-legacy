@@ -29,7 +29,7 @@ from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
 from clamodel import CLAModel
 
 
-################################################################################
+
 def claModelControlEnableSPLearningCb(claModel):
   """ Enables learning in the CLA model's Spatial Pooler
 
@@ -46,7 +46,7 @@ def claModelControlEnableSPLearningCb(claModel):
   return
 
 
-################################################################################
+
 def claModelControlDisableSPLearningCb(claModel):
   """ Disables learning in the CLA model's Spatial Pooler, while retaining
   the ability to re-enable SP learning in the future.
@@ -65,7 +65,7 @@ def claModelControlDisableSPLearningCb(claModel):
   return
 
 
-################################################################################
+
 def claModelControlEnableTPLearningCb(claModel):
   """ Enables learning in the CLA model's Temporal Pooler
 
@@ -82,7 +82,7 @@ def claModelControlEnableTPLearningCb(claModel):
   return
 
 
-################################################################################
+
 def claModelControlDisableTPLearningCb(claModel):
   """ Disables learning in the CLA model's Temporal Pooler, while retaining
   the ability to re-enable TP learning in the future.
@@ -102,7 +102,6 @@ def claModelControlDisableTPLearningCb(claModel):
 
 
 
-################################################################################
 class CLAModelPickleSPInitArgs(object):
   """ Saves SP initialization args
   """
@@ -143,7 +142,6 @@ class CLAModelPickleSPInitArgs(object):
 
 
 
-################################################################################
 class CLAModelPickleTPInitArgs(object):
   """ Saves TP10X2 initialization args
   """

@@ -30,7 +30,7 @@ import sys
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 
-#########################################################
+
 
 def patientLoop(logger, maxWaitExponent, finalErrorString, acceptableError,
                 acceptErrorString, callable, argumentList, email = False,

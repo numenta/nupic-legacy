@@ -25,30 +25,28 @@ from abc import ABCMeta, abstractmethod
 import datetime
 
 
-##############################################################################
-##############################################################################
+
 class RecordStreamIface(object):
   """This is the interface for the record input/output storage classes."""
 
   __metaclass__ = ABCMeta
 
 
-  ##############################################################################
   def __init__(self):
     self._sequenceId = -1
-  
-  ##############################################################################
+
+
   @abstractmethod
   def close(self):
     """ Close the stream
     """
 
-  ##############################################################################
+
   def rewind(self):
     """Put us back at the beginning of the file again) """
     self._sequenceId = -1
 
-  ##############################################################################
+
   @abstractmethod
   def getNextRecord(self, useCache=True):
     """Returns next available data record from the storage. If useCache is
@@ -62,7 +60,7 @@ class RecordStreamIface(object):
              when timing out while waiting for the next record.
     """
 
-  ##############################################################################
+
   def getNextRecordDict(self):
     """Returns next available data record from the storage as a dict, with the
     keys being the field names. This also adds in some meta fields:
@@ -143,7 +141,6 @@ class RecordStreamIface(object):
     return result
 
 
-  ##############################################################################
   def _computeTimestampRecordIdx(self, recordTS):
     """ Give the timestamp of a record (a datetime object), compute the record's
     timestamp index - this is the timestamp divided by the aggregation period. 
@@ -180,8 +177,6 @@ class RecordStreamIface(object):
     return result
 
 
-
-  ##############################################################################
   def getAggregationMonthsAndSeconds(self):
     """ Returns the aggregation period of the record stream as a dict 
     containing 'months' and 'seconds'. The months is always an integer and
@@ -203,7 +198,7 @@ class RecordStreamIface(object):
     """
     return None
 
-  ##############################################################################
+
   @abstractmethod
   def getRecordsRange(self, bookmark=None, range=None):
     """Returns a range of records, starting from the bookmark. If 'bookmark'
@@ -212,13 +207,13 @@ class RecordStreamIface(object):
     a lot of records and require a lot of memory).
     """
 
-  ##############################################################################
+
   @abstractmethod
   def getNextRecordIdx(self):
     """Returns the index of the record that will be read next from getNextRecord()
     """
 
-  ##############################################################################
+
   @abstractmethod
   def getLastRecords(self, numRecords):
     """Returns a tuple (successCode, recordsArray), where
@@ -229,22 +224,22 @@ class RecordStreamIface(object):
                    call to either getNextRecord() or getLastRecords()
     """
 
-  ##############################################################################
+
   @abstractmethod
   def removeOldData(self):
     """Deletes all rows from the table if any data was found."""
 
-  ##############################################################################
+
   @abstractmethod
   def appendRecord(self, record, inputRef=None):
     """Saves the record in the underlying storage."""
 
-  ##############################################################################
+
   @abstractmethod
   def appendRecords(self, records, inputRef=None, progressCB=None):
     """Saves multiple records in the underlying storage."""
 
-  ##############################################################################
+
   @abstractmethod
   def getBookmark(self):
     """Returns an anchor to the current position in the data. Passing this
@@ -253,22 +248,22 @@ class RecordStreamIface(object):
     after it will be returned.
     """
 
-  ##############################################################################
+
   @abstractmethod
   def recordsExistAfter(self, bookmark):
     """Returns True iff there are records left after the  bookmark."""
 
-  ##############################################################################
+
   @abstractmethod
   def seekFromEnd(self, numRecords):
     """Returns a bookmark numRecords from the end of the stream."""
 
-  ##############################################################################
+
   @abstractmethod
   def getStats(self):
     """Returns storage stats (like min and max values of the fields)."""
 
-  ##############################################################################
+
   def getFieldMin(self, fieldName):
     """ Returns current minimum value for the field 'fieldName'.
 
@@ -286,7 +281,6 @@ class RecordStreamIface(object):
     return minValues[index]
 
 
-  ##############################################################################
   def getFieldMax(self, fieldName):
     """ Returns current maximum value for the field 'fieldName'.
 
@@ -304,39 +298,38 @@ class RecordStreamIface(object):
     return maxValues[index]
 
 
-  ##############################################################################
   @abstractmethod
   def clearStats(self):
     """Resets stats collected so far."""
 
-  ##############################################################################
+
   @abstractmethod
   def getError(self):
     """Returns errors saved in the storage."""
 
-  ##############################################################################
+
   @abstractmethod
   def setError(self, error):
     """Saves specified error in the storage."""
 
-  ##############################################################################
+
   @abstractmethod
   def isCompleted(self):
     """Returns True if all records are already in the storage or False
     if more records is expected.
     """
 
-  ##############################################################################
+
   @abstractmethod
   def setCompleted(self, completed):
     """Marks the stream completed (True or False)."""
 
-  ##############################################################################
+
   @abstractmethod
   def getFieldNames(self):
     """Returns an array of field names associated with the data."""
 
-  ##############################################################################
+
   @abstractmethod
   def getFields(self):
     """Returns a sequence of nupic.data.fieldmeta.FieldMetaInfo
@@ -344,7 +337,7 @@ class RecordStreamIface(object):
     that information is provided externally (thru stream def, for example).
     """
 
-  #############################################################################
+
   def getResetFieldIdx(self):
     """ Index of the 'reset' field. """
     for i, field in enumerate(self.getFields()):
@@ -353,7 +346,6 @@ class RecordStreamIface(object):
     return None
 
 
-  #############################################################################
   def getTimestampFieldIdx(self):
     """ Index of the 'timestamp' field. """
     for i, field in enumerate(self.getFields()):
@@ -362,24 +354,22 @@ class RecordStreamIface(object):
     return None
 
 
-  #############################################################################
   def getSequenceIdFieldIdx(self):
     """ Index of the 'sequenceId' field. """
     for i, field in enumerate(self.getFields()):
       if field[2] == 'S' or field[2] == 's':
         return i
     return None
-      
-      
-  #############################################################################
+
+
   def getCategoryFieldIdx(self):
     """ Index of the 'category' field. """
     for i, field in enumerate(self.getFields()):
       if field[2] == 'C' or field[2] == 'c':
         return i
     return None
-  
-  #############################################################################
+
+
   def getLearningFieldIdx(self):
     """ Index of the 'learning' field. """
     for i, field in enumerate(self.getFields()):
@@ -388,12 +378,11 @@ class RecordStreamIface(object):
     return None
 
 
-  ##############################################################################
   @abstractmethod
   def setTimeout(self, timeout):
     """ Set the read timeout in seconds (int or floating point) """
 
-  #############################################################################
+
   @abstractmethod
   def flush(self):
     """ Flush the file to disk """

@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.2.5
+
+* Fix MANIFEST.in capnp include.
+* Update documentation related to PyRegion serialization introduction.
+* Updates nupic.core and adds function definitions for read/write in PyRegion
+
+## 0.2.4
+
+* Fix a minor bug in the algorithm
+* Implement orphan synapse decay
+* register python regions in Region class method
+* moved registration of python regions to nupic.core
+* date encoder bug fix
+* Implement orphan synapse decay
+* changed default regions to tuples
+* fill predictedActiveCells with 0
+* removing irrelevant files
+* removing old network api demo 2
+* modified PyRegion to accept custom classes
+* renamed unionMode to computePredictedActiveCellIndices
+* set the output size for active indices and predicted+active indices to max possible size
+* converting union pooler input to right format
+* Port AnomalyRegion serialization
+* Rename "enc" to "encoder"
+
 ## 0.2.3
 
 * updated custom region methods and example to be static
