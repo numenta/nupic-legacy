@@ -219,14 +219,6 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
       defaultValue=0,
       constraints='bool'),
 
-    anomalyMode=dict(
-      description='1 if an anomaly score is being computed',
-      accessMode='Create',
-      dataType='UInt32',
-      count=1,
-      defaultValue=0,
-      constraints='bool'),
-
     topDownMode=dict(
       description='1 if the node should do top down compute on the next call '
                   'to compute into topDownOut (default 0).',
@@ -305,7 +297,6 @@ class TPRegion(PyRegion):
                orColumnOutputs=False,
                cellsSavePath='',
                temporalImp=gDefaultTemporalImp,
-               anomalyMode=False,
                computePredictedActiveCellIndices=False,
 
                **kwargs):
@@ -322,7 +313,6 @@ class TPRegion(PyRegion):
 
     self.learningMode   = True      # Start out with learning enabled
     self.inferenceMode  = False
-    self.anomalyMode    = anomalyMode
     self.computePredictedActiveCellIndices = computePredictedActiveCellIndices
     self.topDownMode    = False
     self.columnCount    = columnCount
@@ -514,12 +504,6 @@ class TPRegion(PyRegion):
       # Top-down compute
       outputs['topDownOut'][:] = self._tfdr.topDownCompute().copy()
 
-    # Set output for use with anomaly classification region if in anomalyMode
-    if self.anomalyMode:
-      activeLearnCells = self._tfdr.getLearnActiveStateT()
-      size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
-      outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
-
     if self.computePredictedActiveCellIndices:
       # Reshape so we are dealing with 1D arrays
       activeState = self._tfdr.getActiveState().reshape(-1).astype('float32')
@@ -604,15 +588,6 @@ class TPRegion(PyRegion):
           count=0,
           regionLevel=True,
           isDefaultOutput=False),
-
-        lrnActiveStateT = dict(
-          description="""Active cells during learn phase at time t.  This is
-                        used for anomaly classification.""",
-          dataType='Real32',
-          count=0,
-          regionLevel=True,
-          isDefaultOutput=False),
-
       ),
 
       parameters=dict(
@@ -856,8 +831,6 @@ class TPRegion(PyRegion):
       return self.outputWidth
     elif name == 'topDownOut':
       return self.columnCount
-    elif name == 'lrnActiveStateT':
-      return self.outputWidth
     elif name == "activeCells":
       return self.outputWidth
     elif name == "predictedActiveCells":
