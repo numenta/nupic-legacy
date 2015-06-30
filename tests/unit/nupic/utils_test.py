@@ -145,7 +145,25 @@ class UtilsTest(unittest.TestCase):
     self.assertListEqual(ma.getSlidingWindow(),
                          resurrectedMa.getSlidingWindow())
     self.assertEqual(ma.total, resurrectedMa.total)
+    self.assertTrue(ma, resurrectedMa) #using the __eq__ method
 
+
+  def testEquals(self):
+    ma = MovingAverage(windowSize=3)
+    maP = MovingAverage(windowSize=3)
+    self.assertEqual(ma, maP)
+    
+    maN = MovingAverage(windowSize=10)
+    self.assertNotEqual(ma, maN)
+
+    ma = MovingAverage(windowSize=2, existingHistoricalValues=[3.0, 4.0, 5.0])
+    maP = MovingAverage(windowSize=2, existingHistoricalValues=[3.0, 4.0, 5.0])
+    self.assertEqual(ma, maP)
+    maP.next(6)
+    self.assertNotEqual(ma, maP)
+    ma.next(6)
+    self.assertEqual(ma, maP)
+    
 
 
 

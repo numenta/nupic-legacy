@@ -567,5 +567,21 @@ class AnomalyLikelihoodTest(TestCaseBase):
       msg="Failure in case (iii), list 3")
 
 
+  def testEquals(self):
+    l = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
+    l2 = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
+    self.assertEqual(l, l2)
+
+    l2.anomalyProbability("hi", 0.1, timestamp=1) # burn in
+    l2.anomalyProbability("hi", 0.1, timestamp=2)
+    l2.anomalyProbability("hello", 0.3, timestamp=3)
+    self.assertNotEqual(l, l2)
+
+    l.anomalyProbability("hi", 0.1, timestamp=1) # burn in
+    l.anomalyProbability("hi", 0.1, timestamp=2)
+    l.anomalyProbability("hello", 0.3, timestamp=3)
+    self.assertEqual(l, l2, "equal? \n%s\n vs. \n%s" % (l, l2))
+
+
 if __name__ == "__main__":
   unittest.main()
