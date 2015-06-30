@@ -71,5 +71,5 @@ nupic/bindings/proto/*.capnp
 # Pip stuff
 dist/
 nupic.egg-info/
-nupic/*cpp_region.*
+nupic/*py_region.*
 temp/
