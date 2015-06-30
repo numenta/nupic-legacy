@@ -60,12 +60,6 @@ class SpatialPoolerComputeTest(unittest.TestCase):
     y = numpy.zeros(columnDimensions, dtype = uintType)
     dutyCycles = numpy.zeros(columnDimensions, dtype = uintType)
 
-    # With learning off and no prior training we should get no winners
-    for v in inputMatrix:
-      y.fill(0)
-      sp.compute(v, False, y)
-      self.assertEqual(0,y.sum())
-
     # With learning on we should get the requested number of winners
     for v in inputMatrix:
       y.fill(0)
