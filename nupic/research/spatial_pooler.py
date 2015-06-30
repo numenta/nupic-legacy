@@ -724,9 +724,9 @@ class SpatialPooler(object):
     since you would end up with no active columns.
 
     @param activeArray: An array whose size is equal to the number of columns.
-        Each column in this array will be checked to see if it has been active
-        before. If a column is active but it hasn't been learned, it will be
-        disabled.
+        Any columns marked as active with an activeDutyCycle of 0 have
+        never been activated before and therefore are not active due to
+        learning. Any of these (unlearned) columns will be disabled (set to 0).
     """
     neverLearned = numpy.where(self._activeDutyCycles == 0)[0]
     activeArray[neverLearned] = 0
