@@ -20,7 +20,7 @@
  * ---------------------------------------------------------------------
  */
 
-#include <cpp_region/PyRegion.hpp>
+#include <py_region/PyRegion.hpp>
 #include <numpy/arrayobject.h>
 #include <iostream>
 #include <sstream>

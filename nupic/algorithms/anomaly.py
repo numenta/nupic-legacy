@@ -98,7 +98,7 @@ class Anomaly(object):
                        and used directly to compute score
     @param binaryAnomalyThreshold (optional) - if set [0,1] anomaly score
          will be discretized to 1/0 (1 if >= binaryAnomalyThreshold)
-         The transformation is applied after moving average is computed and updated.
+         The transformation is applied after moving average is computed.
     @param customComputeFn (optional) - required with mode="custom", a callable
                        used for user-defined anomaly computation.
                        Requirements on this callable are:
@@ -114,7 +114,6 @@ class Anomaly(object):
     self._mode = mode
     self._likelihood = None
     self._movingAverage = None
-    self._likelihood = None
     self._binaryThreshold = binaryAnomalyThreshold
     self._computeAnomaly = None
 
@@ -122,6 +121,15 @@ class Anomaly(object):
     if slidingWindowSize is not None:
       self._movingAverage = MovingAverage(windowSize=slidingWindowSize)
 
+    if (self._mode == Anomaly.MODE_LIKELIHOOD or 
+        self._mode == Anomaly.MODE_WEIGHTED):
+      self._likelihood = AnomalyLikelihood() # probabilistic anomaly
+
+    if not self._mode in self.supportedModes:
+      raise ValueError("Invalid anomaly mode; only supported modes are: "
+                       "Anomaly.MODE_PURE, Anomaly.MODE_LIKELIHOOD, "
+                       "Anomaly.MODE_WEIGHTED, Anomaly.MODE_CUSTOM; "
+                       "you used: %r" % self._mode)
     # binarization
     if binaryAnomalyThreshold is not None and ( 
           not isinstance(binaryAnomalyThreshold, float) or
@@ -237,15 +245,11 @@ class Anomaly(object):
 
 
   def __eq__(self, other):
-    if not isinstance(other, Anomaly): 
-      return False
-    if (other._mode == self._mode and
-        other._binaryThreshold == self._binaryThreshold and
-        other._movingAverage == self._movingAverage and
-        other._likelihood == self._likelihood):
-      return True #equal
-    else:
-      return False
+    return (isinstance(other, Anomaly) and
+            other._mode == self._mode and
+            other._binaryThreshold == self._binaryThreshold and
+            other._movingAverage == self._movingAverage and
+            other._likelihood == self._likelihood)
 
 
   def __setstate__(self, state):
