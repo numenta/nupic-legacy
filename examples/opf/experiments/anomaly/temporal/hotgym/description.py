@@ -317,6 +317,7 @@ config = {
         'anomalyParams': {
            'mode': 'likelihood', # pure(=default) / weighted / likelihood
            'slidingWindowSize': 5, # >=0 / None
+           'claBurnInPeriod': 100, # num steps to wait for burn in after reset(), or None to ignore resets in Anomaly()
         },
 
         'trainSPNetOnlyIfRequested': False,

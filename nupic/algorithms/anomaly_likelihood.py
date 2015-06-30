@@ -100,8 +100,10 @@ class AnomalyLikelihood(object):
     # re-estimate every iteration but this is a performance hit. In general the
     # system is not very sensitive to this number as long as it is small
     # relative to the total number of records processed.
-    self._reestimationPeriod = 100 
-
+    self._reestimationPeriod = 100
+    # burn-in iteration steps after reset (=end of sequence)
+    # meant is Nth iteration step after which estimate is ready
+    self._burninIterationStep = self._iteration + self._probationaryPeriod
 
   @staticmethod
   def computeLogLikelihood(likelihood):
@@ -130,31 +132,41 @@ class AnomalyLikelihood(object):
       
     dataPoint = (timestamp, value, anomalyScore)
     # We ignore the first probationaryPeriod data points
-    if len(self._historicalScores) < self._probationaryPeriod:
-      likelihood = 0.5
+    if not self.isReady():
+      likelihoods = [0.5]
     else:
       # On a rolling basis we re-estimate the distribution
-      if ( (self._distribution is None) or
-           (self._iteration % self._reestimationPeriod == 0) ):
-        _, _, self._distribution = (
-          estimateAnomalyLikelihoods(
-            self._historicalScores,
-            skipRecords = self._claLearningPeriod)
-          )
+      if ( self._distribution is None or
+           self._iteration % self._reestimationPeriod == 0 or
+           self._iteration == self._burninIterationStep ):
+        _, _, self._distribution = estimateAnomalyLikelihoods(
+                                      self._historicalScores, 
+                                      skipRecords = self._claLearningPeriod)
 
-      likelihoods, _, self._distribution = (
-        updateAnomalyLikelihoods([dataPoint],
-          self._distribution)
-      )
-      likelihood = 1.0 - likelihoods[0]
+      likelihoods, _, self._distribution = updateAnomalyLikelihoods(
+                                              [dataPoint],
+                                              self._distribution)
 
     # Before we exit update historical scores and iteration
     self._historicalScores.append(dataPoint)
     self._iteration += 1
 
-    return likelihood
+    return 1.0 - likelihoods[0] # likelihood
 
 
+  def isReady(self):
+    """
+    @return True when likelihood estimations should be accurate (after burn-in period)
+    """
+    return (len(self._historicalScores) >= self._probationaryPeriod and
+            self._iteration >= self._burninIterationStep)
+
+
+  def reset(self):
+    """
+    reset internal state after sequence reset
+    """
+    self._burninIterationStep = self._iteration + self._probationaryPeriod
 #
 # USAGE FOR LOW-LEVEL FUNCTIONS
 # -----------------------------

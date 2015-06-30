@@ -191,8 +191,11 @@ class CLAModel(Model):
     windowSize = anomalyParams.get("slidingWindowSize", None)
     mode = anomalyParams.get("mode", "pure")
     anomalyThreshold = anomalyParams.get("autoDetectThreshold", None)
-    self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode,
-                                binaryAnomalyThreshold=anomalyThreshold)
+    claBurnIn = anomalyParams.get("claBurnInPeriod", None) # old behavior, ignores resets
+    self._anomalyInst = Anomaly(slidingWindowSize=windowSize, 
+                                mode=mode,
+                                binaryAnomalyThreshold=anomalyThreshold,
+                                claBurnInPeriod=claBurnIn)
 
     # -----------------------------------------------------------------------
     # Create the network
@@ -238,16 +241,16 @@ class CLAModel(Model):
   def resetSequenceStates(self):
     """ [virtual method override] Resets the model's sequence states. Normally
     called to force the delineation of a sequence, such as between OPF tasks.
+    If anomaly param 'claBurnInPeriod' is given (>=0) then reset anomaly and 
+    related parts (MovingAverage, Likelihood) too.
     """
-
+    self.__logger.debug("CLAModel.resetSequenceStates(): reset temporal "
+                         "pooler's sequence states")
     if self._hasTP:
       # Reset TP's sequence states
       self._getTPRegion().executeCommand(['resetSequenceStates'])
-
-      self.__logger.debug("CLAModel.resetSequenceStates(): reset temporal "
-                         "pooler's sequence states")
-
-      return
+    if self._anomalyInst is not None and self._anomalyInst._burnIn is not None:
+      self._anomalyInst.reset() 
 
 
   def finishLearning(self):
