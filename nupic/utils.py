@@ -85,6 +85,11 @@ class MovingAverage(object):
     return self.slidingWindow
 
 
+  def getCurrentAvg(self):
+    """get current average"""
+    return float(self.total) / len(self.slidingWindow)
+
+
   def __setstate__(self, state):
     """ for loading this object"""
     self.__dict__.update(state)
