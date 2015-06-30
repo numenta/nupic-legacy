@@ -68,7 +68,7 @@ class Anomaly(object):
         anomaly scores
     MODE_WEIGHTED - multiplies the likelihood result with the raw anomaly score
         that was used to generate the likelihood
-    MODE_CUSTOM - user defined callable used in compute()
+    MODE_CUSTOM - user-defined callable used in compute()
   """
 
   # anomaly modes supported
