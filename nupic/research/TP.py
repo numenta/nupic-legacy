@@ -123,7 +123,8 @@ class TP(ConsolePrinterMixin):
                   is used to turn on "fixed size CLA" mode. When in effect,
                   globalDecay is not applicable and must be set to 0 and
                   maxAge must be set to 0. When this is used (> 0),
-                  maxSynapsesPerSegment must also be > 0.
+                  maxSynapsesPerSegment must also be > 0. For not fixed-sized HTM
+                  use 0.
 
     @param maxSynapsesPerSegment The maximum number of synapses allowed in a segment.
                   This is used to turn on "fixed size CLA" mode. When in effect,
@@ -158,7 +159,8 @@ class TP(ConsolePrinterMixin):
     assert pamLength > 0, "This implementation must have pamLength > 0"
 
     # Fixed size CLA mode?
-    if maxSegmentsPerCell != -1 or maxSynapsesPerSegment != -1:
+    if (maxSegmentsPerCell != 0 or maxSynapsesPerSegment != 0):
+      print maxSegmentsPerCell, maxSynapsesPerSegment
       assert (maxSegmentsPerCell > 0 and maxSynapsesPerSegment > 0)
       assert (globalDecay == 0.0)
       assert (maxAge == 0)
@@ -2837,7 +2839,7 @@ class TP(ConsolePrinterMixin):
     @returns cell index
     """
     # Not fixed size CLA, just choose a cell randomly
-    if self.maxSegmentsPerCell < 0:
+    if self.maxSegmentsPerCell <= 0:
       if self.cellsPerColumn > 1:
         # Don't ever choose the start cell (cell # 0) in each column
         i = self._random.getUInt32(self.cellsPerColumn-1) + 1
