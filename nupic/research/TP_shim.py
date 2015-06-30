@@ -79,7 +79,7 @@ class TPShim(TemporalMemory):
     """
     super(TPShim, self).compute(set(bottomUpInput.nonzero()[0]),
                                             learn=enableLearn)
-    numberOfCells = self.connections.numberOfCells()
+    numberOfCells = self.connections.numCells
 
     activeState = numpy.zeros(numberOfCells)
     activeState[list(self.activeCells)] = 1
