@@ -103,6 +103,26 @@ class AnomalyLikelihood(object):
     self._reestimationPeriod = 100 
 
 
+  def __eq__(self, o):
+    return (isinstance(o, AnomalyLikelihood) and
+            self._iteration == o._iteration and
+            self._historicalScores == o._historicalScores and
+            self._distribution == o._distribution and
+            self._probationaryPeriod == o._probationaryPeriod and
+            self._claLearningPeriod == o._claLearningPeriod and
+            self._reestimationPeriod == o._reestimationPeriod)
+
+
+  def __str__(self):
+    return ("AnomalyLikelihood: %s %s %s %s %s %s" % (
+            self._iteration,
+            self._historicalScores,
+            self._distribution,
+            self._probationaryPeriod,
+            self._claLearningPeriod,
+            self._reestimationPeriod) )
+
+
   @staticmethod
   def computeLogLikelihood(likelihood):
     """
@@ -118,12 +138,16 @@ class AnomalyLikelihood(object):
 
   def anomalyProbability(self, value, anomalyScore, timestamp=None):
     """
-    Return the probability that the current value plus anomaly score represents
+    Compute the probability that the current value plus anomaly score represents
     an anomaly given the historical distribution of anomaly scores. The closer
     the number is to 1, the higher the chance it is an anomaly.
 
-    Given the current metric value, plus the current anomaly score, output the
-    anomalyLikelihood for this record.
+    @param value - the current metric ("raw") input value, eg. "orange", or 
+                   '21.2' (deg. Celsius), ...
+    @param anomalyScore - the current anomaly score
+    @param timestamp - (optional) timestamp of the ocurrence, 
+                       default (None) results in datetime.now()
+    @return theanomalyLikelihood for this record.
     """
     if timestamp is None:
       timestamp = datetime.datetime.now()
