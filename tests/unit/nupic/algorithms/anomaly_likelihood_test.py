@@ -26,6 +26,7 @@ import copy
 import datetime
 import math
 import numpy
+import pickle
 import unittest2 as unittest
 
 from nupic.algorithms import anomaly_likelihood as an
@@ -512,7 +513,8 @@ class AnomalyLikelihoodTest(TestCaseBase):
     [self.assertAlmostEqual(n2[i], filtered[i],
       msg="Input of type numpy array returns incorrect result")
       for i in range(len(n))]
-  
+
+
   def testFilterLikelihoods(self):
     """
     Tests _filterLikelihoods function for several cases:
@@ -581,6 +583,22 @@ class AnomalyLikelihoodTest(TestCaseBase):
     l.anomalyProbability("hi", 0.1, timestamp=2)
     l.anomalyProbability("hello", 0.3, timestamp=3)
     self.assertEqual(l, l2, "equal? \n%s\n vs. \n%s" % (l, l2))
+
+
+  def testSerialization(self):
+    """serialization using pickle"""
+    l = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
+
+    l.anomalyProbability("hi", 0.1, timestamp=1) # burn in
+    l.anomalyProbability("hi", 0.1, timestamp=2)
+    l.anomalyProbability("hello", 0.3, timestamp=3)
+
+    stored = pickle.dumps(l)
+    restored = pickle.loads(stored)
+
+    self.assertEqual(l, restored)
+
+ 
 
 
 if __name__ == "__main__":
