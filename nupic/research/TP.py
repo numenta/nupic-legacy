@@ -85,8 +85,8 @@ class TP(ConsolePrinterMixin):
                maxLrnBacktrack=5,
                maxAge=100000,
                maxSeqLength=32,
-               maxSegmentsPerCell=-1,
-               maxSynapsesPerSegment=-1,
+               maxSegmentsPerCell=0,
+               maxSynapsesPerSegment=0,
                outputType='normal',
               ):
     """
