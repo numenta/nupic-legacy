@@ -98,8 +98,8 @@ class TP10X2(TP):
                maxSeqLength = 32,
 
                # Fixed size mode params
-               maxSegmentsPerCell = -1,
-               maxSynapsesPerSegment = -1,
+               maxSegmentsPerCell = 0,
+               maxSynapsesPerSegment = 0,
 
                # Output control
                outputType = 'normal',
