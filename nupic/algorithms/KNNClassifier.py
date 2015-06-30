@@ -85,57 +85,81 @@ class KNNClassifier(object):
                      cellsPerCol=0):
     """Constructor for the kNN classifier.
 
-    @param k                      The number of nearest neighbors used in the
-                                  classification of patterns
-    @param exact                  If true, patterns must match exactly when
-                                  assigning class labels
-    @param distanceNorm           When distance method is "norm", this specifies
-                                  the degree of the distance norm
-    @param distanceMethod         The method used to compute distance
-                                  Possible options are:
+    @param k (int) The number of nearest neighbors used in the classification of
+        patterns. Must be odd
 
-      "norm": When distanceNorm is 2, this is the euclidean distance,
-              When distanceNorm is 1, this is the manhattan distance
-              In general: sum(abs(x-proto) ^ distanceNorm) ^ (1/distanceNorm)
-      "rawOverlap": Only appropriate when inputs are binary. This computes:
-              (width of the input) - (# bits of overlap between input
-              and prototype).
-      "pctOverlapOfLarger": Only appropriate for binary inputs. This computes
-              1.0 - (# bits overlap between input and prototype) /
-                      max(# bits in input, # bits in prototype)
-      "pctOverlapOfProto": Only appropriate for binary inputs. This computes
-              1.0 - (# bits overlap between input and prototype) /
-                      (# bits in prototype)
+    @param exact (boolean) If true, patterns must match exactly when assigning
+        class labels
 
-    @param distThreshold          If a pattern that is less than distThreshold
-                                  away from the input pattern already exists in
-                                  the kNN's memory, then the input pattern is
-                                  not added to kNN's memory
-    @param doBinarization         If True, then scalar inputs will be binarized
-    @param binarizationThreshold  Threshold for binarization of inputs
-    @param useSparseMemory        If True, use a sparse memory matrix
-    @param sparseThreshold        Anything below this threshold is considered
-                                  zero
-    @param relativeThreshold      Multiply the threshold by the max input value
-    @param numWinners             Only numWinners elements of input are stored
-    @param numSVDSamples          Number of samples to do SVD after
-    @param numSVDDims             Percentage of dimensions to keep after SVD
-    @param fractionOfMax          The cut-off fraction in relation to the
-                                  largest singular value when adaptive
-                                  dimension selection is used
-    @param verbosity              Console verbosity level where 0 is no
-                                  output and larger integers provide
-                                  increasing levels of verbosity
-    @param maxStoredPatterns      Limits the maximum number of the training
-                                  patterns stored. When KNN learns in a fixed
-                                  capacity mode, the unused patterns are
-                                  deleted once the number of stored patterns
-                                  is greater than maxStoredPatterns
-    @param replaceDuplicates      If true, during learning, replace existing
-                                  entries that match exactly, even if
-                                  distThreshold is 0.
-    @param cellsPerCol            If >= 1, then only store the start cell in
-                                  any columns which are bursting
+    @param distanceNorm (int) When distance method is "norm", this specifies
+        the p value of the Lp-norm
+
+    @param distanceMethod (string) The method used to compute distance between
+        patterns. The possible options are:
+        "norm": When distanceNorm is 2, this is the euclidean distance,
+                When distanceNorm is 1, this is the manhattan distance
+                In general: sum(abs(x-proto) ^ distanceNorm) ^ (1/distanceNorm)
+        "rawOverlap": Only appropriate when inputs are binary. This computes:
+                (width of the input) - (# bits of overlap between input
+                and prototype).
+        "pctOverlapOfLarger": Only appropriate for binary inputs. This computes
+                1.0 - (# bits overlap between input and prototype) /
+                        max(# bits in input, # bits in prototype)
+        "pctOverlapOfProto": Only appropriate for binary inputs. This computes
+                1.0 - (# bits overlap between input and prototype) /
+                        (# bits in prototype)
+
+    @param distThreshold (float) A threshold on the distance between learned
+        patterns and a new pattern proposed to be learned. The distance must be
+        greater than this threshold in order for the new pattern to be added to
+        the classifier's memory
+
+    @param doBinarization (boolean) If True, then scalar inputs will be
+        binarized.
+
+    @param binarizationThreshold (float) If doBinarization is True, this
+        specifies the threshold for the binarization of inputs
+
+    @param useSparseMemory (boolean) If True, classifier will use a sparse
+        memory matrix
+
+    @param sparseThreshold (float) If useSparseMemory is True, input variables
+        whose absolute values are less than this threshold will be stored as
+        zero
+
+    @param relativeThreshold (boolean) Flag specifying whether to multiply
+        sparseThreshold by max value in input
+
+    @param numWinners (int) Number of elements of the input that are stored. If
+        0, all elements are stored
+
+    @param numSVDSamples (int) Number of samples the must occur before a SVD
+        (Singular Value Decomposition) transformation will be performed. If 0,
+        the transformation will never be performed
+
+    @param numSVDDims (string) Controls dimensions kept after SVD
+        transformation. If "adaptive", the number is chosen automatically
+
+    @param fractionOfMax (float) If numSVDDims is "adaptive", this controls the
+        smallest singular value that is retained as a fraction of the largest
+        singular value
+
+    @param verbosity (int) Console verbosity level where 0 is no output and
+        larger integers provide increasing levels of verbosity
+
+    @param maxStoredPatterns (int) Limits the maximum number of the training
+        patterns stored. When KNN learns in a fixed capacity mode, the unused
+        patterns are deleted once the number of stored patterns is greater than
+        maxStoredPatterns. A value of -1 is no limit
+
+    @param replaceDuplicates (bool) A boolean flag that determines whether,
+        during learning, the classifier replaces duplicates that match exactly,
+        even if distThreshold is 0. Should be True for online learning
+
+    @param cellsPerCol (int) If >= 1, input is assumed to be organized into
+        columns, in the same manner as the temporal pooler AND whenever a new
+        prototype is stored, only the start cell (first cell) is stored in any
+        bursting column
     """
     self.version = KNNCLASSIFIER_VERSION
 
@@ -324,22 +348,23 @@ class KNNClassifier(object):
     """Train the classifier to associate specified input pattern with a
     particular category.
 
-    Parameters:
-    ------------------------------------------------------------------------
-    @param inputPattern   (list)  The pattern to be assigned a category. If
-                                  isSparse is 0, this should be a dense array
-                                  (both ON and OFF bits present).
-                                  Otherwise, if isSparse > 0, this should be a
-                                  list of the indices of non-zero bits.
-    @param inputCategory: (int)   The category to be associated to the training
-                                  pattern.
-    @param partitionId:   (int)   UNKNOWN
-    @param isSparse:      (int)   If 0, the input pattern is a dense
-                                  representation. If isSparse > 0, the input
-                                  pattern is a list of non-zero indices and
-                                  isSparse is the length of the dense
-                                  representation.
-    @param rowID:         (int)   UNKNOWN
+    @param inputPattern (list) The pattern to be assigned a category. If
+        isSparse is 0, this should be a dense array (both ON and OFF bits
+        present). Otherwise, if isSparse > 0, this should be a list of the
+        indices of the non-zero bits in sorted order
+
+    @param inputCategory (int) The category to be associated to the training
+        pattern
+
+    @param partitionId (int) UNKNOWN
+
+    @param isSparse (int) If 0, the input pattern is a dense representation. If
+        isSparse > 0, the input pattern is a list of non-zero indices and
+        isSparse is the length of the dense representation
+
+    @param rowID (int) UNKNOWN
+
+    @return The number of patterns currently stored in the classifier
     """
     if self.verbosity >= 1:
       print "%s learn:" % g_debugPrefix
@@ -519,19 +544,14 @@ class KNNClassifier(object):
 
   def getOverlaps(self, inputPattern):
     """Return the degree of overlap between an input pattern and each category
-    stored in the classifier.
-
-    The overlap is computed by compuing:
+    stored in the classifier. The overlap is computed by compuing:
       logical_and(inputPattern != 0, trainingPattern != 0).sum()
 
-    Parameters:
-    -------------------------------------------------------------------
-    inputPattern:   pattern to check overlap of
+    @param inputPattern pattern to check overlap of
 
-
-    retval:         (overlaps, categories) numpy arrays of the same length.
-                    overlaps: an integer overlap amount for each category
-                    categories: category index for each element of overlaps
+    @return (overlaps, categories) Two numpy arrays of the same length:
+        overlaps: an integer overlap amount for each category
+        categories: category index for each element of overlaps
     """
     assert self.useSparseMemory, "Not implemented yet for dense storage"
 
@@ -543,13 +563,11 @@ class KNNClassifier(object):
     """Return the distances between the input pattern and all other
     stored patterns.
 
-    Parameters:
-    -------------------------------------------------------------------
-    inputPattern:   pattern to check distance with
+    @param inputPattern pattern to check distance with
 
-    retval:         (distances, categories) numpy arrays of the same length
-                    overlaps: an integer overlap amount for each category
-                    categories: category index for each element of distances
+    @return (distances, categories) numpy arrays of the same length:
+        overlaps: an integer overlap amount for each category
+        categories: category index for each element of distances
     """
     dist = self._getDistances(inputPattern)
     return (dist, self._categoryList)
@@ -560,12 +578,13 @@ class KNNClassifier(object):
     """Finds the category that best matches the input pattern. Returns the
     winning category index as well as a distribution over all categories.
 
-    Parameters:
-    ----------------------------------------------------------------------
-    @param inputPattern     (list)    A pattern to be classified.
-    @param computeScores              NO EFFECT
-    @param overCategories             NO EFFECT
-    @param partitionId      (int)     UNKNOWN
+    @param inputPattern (list) A pattern to be classified
+
+    @param computeScores NO EFFECT
+
+    @param overCategories NO EFFECT
+
+    @param partitionId (int) UNKNOWN
 
     This method returns a 4-tuple: (winner, inferenceResult, dist, categoryDist)
       winner:           The category with the greatest number of nearest
@@ -658,11 +677,12 @@ class KNNClassifier(object):
     """Returns the closest training pattern to inputPattern that belongs to
     category "cat".
 
-    @param inputPattern:  The pattern whose closest neighbor is sought.
-    @param cat:           The required category of closest neighbor.
+    @param inputPattern The pattern whose closest neighbor is sought
 
-    @return:              A dense version of the closest training pattern, or
-                          None if no such patterns exist.
+    @param cat The required category of closest neighbor
+
+    @return A dense version of the closest training pattern, or None if no such
+        patterns exist
     """
     dist = self._getDistances(inputPattern)
     sorted = dist.argsort()
@@ -687,11 +707,13 @@ class KNNClassifier(object):
     """Return the closest training pattern that is *not* of the given
     category "cat".
 
-    @param inputPattern:  The pattern whose closest neighbor is sought.
-    @param cat:           Training patterns of this category will be ignored no
-                          matter their distance to inputPattern
-    @return:              A dense version of the closest training pattern, or
-                          None if no such patterns exist.
+    @param inputPattern The pattern whose closest neighbor is sought
+
+    @param cat Training patterns of this category will be ignored no matter
+        their distance to inputPattern
+
+    @return A dense version of the closest training pattern, or None if no such
+        patterns exist
     """
     dist = self._getDistances(inputPattern)
     sorted = dist.argsort()
@@ -714,14 +736,15 @@ class KNNClassifier(object):
   def getPattern(self, idx, sparseBinaryForm=False, cat=None):
     """Gets a training pattern either by index or category number.
 
-    @param idx:                Index of the training pattern
-    @param sparseBinaryForm:   If true, returns a list of the indices of the
-                               non-zero bits in the training pattern.
-    @param cat:                If not None, get the first pattern belonging to
-                               category cat. If this is specified, idx must be
-                               None
+    @param idx Index of the training pattern
 
-    @returns The training pattern with specified index.
+    @param sparseBinaryForm If true, returns a list of the indices of the
+        non-zero bits in the training pattern
+
+    @param cat If not None, get the first pattern belonging to category cat. If
+        this is specified, idx must be None.
+
+    @return The training pattern with specified index
     """
     if cat is not None:
       assert idx is None
@@ -747,9 +770,10 @@ class KNNClassifier(object):
     """Calculate the distances from inputPattern to all stored patterns. All
     distances are between 0.0 and 1.0
 
-    @param inputPattern   The pattern from which distances to all other
-                          patterns are calculated
-    @param distanceNorm   Degree of the distance norm
+    @param inputPattern The pattern from which distances to all other patterns
+        are calculated
+
+    @param distanceNorm Degree of the distance norm
     """
     if distanceNorm is None:
       distanceNorm = self.distanceNorm
@@ -802,8 +826,9 @@ class KNNClassifier(object):
   def _getDistances(self, inputPattern, partitionId=None):
     """Return the distances from inputPattern to all stored patterns.
 
-    @param inputPattern   The pattern from which distances to all other
-                          patterns are returned
+    @param inputPattern The pattern from which distances to all other patterns
+        are returned
+
     @param partitionId    UNKNOWN
     """
     if not self._finishedLearning:
@@ -862,7 +887,6 @@ class KNNClassifier(object):
 
 
   def computeSVD(self, numSVDSamples=None, finalize=True):
-
     if numSVDSamples is None:
       numSVDSamples = self._numPatterns
 
@@ -893,7 +917,6 @@ class KNNClassifier(object):
 
 
   def finalizeSVD(self, numSVDDims=None):
-
     if numSVDDims is not None:
       self.numSVDDims = numSVDDims
 
@@ -1014,9 +1037,9 @@ class KNNClassifier(object):
     Used by the Network Builder to keep the category indices in sync with the
     ImageSensor categoryInfo when the user renames or removes categories.
 
-    @param mapping  List of new category indices. For example, mapping=[2,0,1]
-                    would change all vectors of category 0 to be category 2,
-                    category 1 to 0, and category 2 to 1.
+    @param mapping List of new category indices. For example, mapping=[2,0,1]
+        would change all vectors of category 0 to be category 2, category 1 to
+        0, and category 2 to 1
     """
     categoryArray = numpy.array(self._categoryList)
     newCategoryArray = numpy.zeros(categoryArray.shape[0])
@@ -1032,11 +1055,11 @@ class KNNClassifier(object):
     Used by the Network Builder to move vectors between categories, to enable
     categories, and to invalidate vectors by setting the category to -1.
 
-    @param vectorIndices      Single index or list of indices.
-    @param categoryIndices    Single index or list of indices. Can also be a
-                              single index when vectorIndices is a list, in
-                              which case the same category will be used for all
-                              vectors.
+    @param vectorIndices Single index or list of indices
+
+    @param categoryIndices Single index or list of indices. Can also be a
+        single index when vectorIndices is a list, in which case the same
+        category will be used for all vectors
     """
     if not hasattr(vectorIndices, "__iter__"):
       vectorIndices = [vectorIndices]
@@ -1055,8 +1078,9 @@ class KNNClassifier(object):
 
 
   def __getstate__(self):
-    """Return serializable state.  This function will return a version of the
-    __dict__.
+    """Return serializable state.
+
+    This function will return a version of the __dict__.
     """
     state = self.__dict__.copy()
     return state
