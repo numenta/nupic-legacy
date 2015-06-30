@@ -23,7 +23,7 @@
 """This module implements a k nearest neighbor classifier."""
 
 import numpy
-
+import warnings
 from nupic.bindings.math import (NearestNeighbor, min_score_per_category)
 
 
@@ -442,6 +442,7 @@ class KNNClassifier(object):
         if partitionId is not None:
           self._partitionIdList.append(partitionId)
 
+
     # Sparse vectors
     else:
 
@@ -539,6 +540,10 @@ class KNNClassifier(object):
           and self._numPatterns == self.numSVDSamples:
         self.computeSVD()
 
+    #print "Category List: ", self._categoryList
+    #print "Num Patterns: ", self._numPatterns
+    #print "Memory: ", self._Memory
+    #print "-" * 100
     return self._numPatterns
 
 
@@ -625,7 +630,6 @@ class KNNClassifier(object):
       if inferenceResult.any():
         #Perform argsort in descending order and return top `n`
         winners = inferenceResult.argsort()[::-1][:numWinners]
-        winner = inferenceResult.argmax()
         inferenceResult /= inferenceResult.sum()
       else:
         winners = None
@@ -643,6 +647,17 @@ class KNNClassifier(object):
       print "  dist of each category:", categoryDist
 
     result = (winners, inferenceResult, dist, categoryDist)
+    numCategories = len(self._categoryList)
+
+    if numWinners > numCategories:
+          warnings.warn("Your requested number of categories exceeds the "
+                         "total number of categories learned. Returning %d "
+                         "categories..." %(numCategories))
+    if numWinners > self.k:
+          warnings.warn("Your requested number of categories exceeds the"
+                         "total number of neighbors considered. Returning %d "
+                         "categories..." %(numWinners))
+
     return result
 
 
