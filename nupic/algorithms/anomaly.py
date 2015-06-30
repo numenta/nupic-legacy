@@ -238,10 +238,7 @@ class Anomaly(object):
 
 # support functions
   def __str__(self):
-    windowSize = 0
-    if self._movingAverage is not None:
-      windowSize = self._movingAverage.windowSize
-    return "Anomaly:\tmode=%s\twindowSize=%r" % (self._mode, windowSize)
+    return "Anomaly:\t%r" % (self.__dict__)
 
 
   def __eq__(self, other):
