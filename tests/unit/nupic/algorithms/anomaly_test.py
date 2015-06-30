@@ -25,9 +25,10 @@
 import unittest
 
 from numpy import array
+import pickle
 
 from nupic.algorithms import anomaly
-
+from nupic.algorithms.anomaly import Anomaly
 
 class AnomalyTest(unittest.TestCase):
   """Tests for anomaly score functions and classes."""
@@ -114,6 +115,41 @@ class AnomalyTest(unittest.TestCase):
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
+
+  def testSerialization(self):
+    """serialization using pickle"""
+    # instances to test
+    aDef = Anomaly()
+    aLike = anomaly.Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
+    aWeig = Anomaly(mode=Anomaly.MODE_WEIGHTED)
+#    aCust = Anomaly(mode=Anomaly.MODE_CUSTOM, customComputeFn=sum)
+    inst = [aDef, aLike, aWeig] #, aCust] #TODO add soon
+
+    for a in inst:
+      stored = pickle.dumps(a)
+      restored = pickle.loads(stored)
+      self.assertEqual(a, restored)
+
+
+  def testEquals(self):
+    an = Anomaly()
+    anP = Anomaly()
+    self.assertEqual(an, anP, "default constructors equal")
+
+    anN = Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
+    self.assertNotEqual(an, anN)
+    an = Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
+    self.assertEqual(an, anN)
+
+    an = Anomaly(slidingWindowSize=5, mode=Anomaly.MODE_WEIGHTED, binaryAnomalyThreshold=0.9)
+    anP = Anomaly(slidingWindowSize=5, mode=Anomaly.MODE_WEIGHTED, binaryAnomalyThreshold=0.9)
+    anN = Anomaly(slidingWindowSize=4, mode=Anomaly.MODE_WEIGHTED, binaryAnomalyThreshold=0.9)
+    self.assertEqual(an, anP)
+    self.assertNotEqual(an, anN)
+    anN = Anomaly(slidingWindowSize=5, mode=Anomaly.MODE_WEIGHTED, binaryAnomalyThreshold=0.5)
+    self.assertNotEqual(an, anN)
+
+    
 
 if __name__ == "__main__":
   unittest.main()
