@@ -23,7 +23,7 @@
 
 import numpy
 
-from nupic.algorithms import anomaly
+from nupic.algorithms.anomaly import Anomaly
 from nupic.regions.PyRegion import PyRegion
 
 
@@ -57,6 +57,15 @@ class AnomalyRegion(PyRegion):
                 "isDefaultInput": False,
                 "requireSplitterMap": False,
             },
+            "rawInput": {
+                "description": "The raw values coming from the input sensor.",
+                "regionLevel": True,
+                "dataType": "Real32", #TODO what type to set here? can be anything
+                "count": 0,
+                "required": False,
+                "isDefaultInput": False,
+                "requireSplitterMap": False,
+            },
         },
         "outputs": {
             "rawAnomalyScore": {
@@ -75,8 +84,18 @@ class AnomalyRegion(PyRegion):
 
 
   def __init__(self, *args, **kwargs):
+    super(AnomalyRegion, self).__init__(*args, **kwargs)
+    print args, type(args)
+    windowSize = kwargs.get("slidingWindowSize", None)
+    mode = kwargs.get("mode", Anomaly.MODE_PURE)
+    binaryThr = kwargs.get("binaryAnomalyThreshold", None)
+    self.anomaly = Anomaly(windowSize, mode, binaryThr)
+
     self.prevPredictedColumns = numpy.zeros([], dtype="float32")
 
+
+  def __str__(self):
+    return "AnomalyRegion: %s" % self.__dict__
 
   def __eq__(self, other):
     for k, v1 in self.__dict__.iteritems():
@@ -117,9 +136,12 @@ class AnomalyRegion(PyRegion):
 
   def compute(self, inputs, outputs):
     activeColumns = inputs["activeColumns"].nonzero()[0]
+    rawInput = inputs.get("rawInput", None)
+    timestamp = inputs.get("timestamp", None)
+    print "RAW=", rawInput
 
-    rawAnomalyScore = anomaly.computeRawAnomalyScore(
-        activeColumns, self.prevPredictedColumns)
+    rawAnomalyScore = self.anomaly.compute(activeColumns, self.prevPredictedColumns,
+                                           rawInput, timestamp)
 
     self.prevPredictedColumns = inputs["predictedColumns"].nonzero()[0]
 

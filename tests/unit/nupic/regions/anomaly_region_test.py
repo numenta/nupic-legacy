@@ -79,7 +79,9 @@ class AnomalyRegionTest(unittest.TestCase):
     # Load the deserialized proto
     anomalyRegion2 = AnomalyRegion.read(proto2)
 
-    self.assertEqual(anomalyRegion1, anomalyRegion2)
+    self.assertEqual(anomalyRegion1, anomalyRegion2, "Region1:\n%s\n"
+                     "not equal to Region2:\n%s" 
+                     % (str(anomalyRegion1), str(anomalyRegion2)))
 
     for i in xrange(6, 10):
       inputs['predictedColumns'] = numpy.array(predictedColumns[i])

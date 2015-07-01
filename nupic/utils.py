@@ -68,6 +68,8 @@ class MovingAverage(object):
     """
     if len(slidingWindow) == windowSize:
       total -= slidingWindow.pop(0)
+  
+    assert isinstance(newVal, numbers.Number), "utils.MovingAverage.compute() got %s instead of a number as a new value" % (newVal) 
 
     slidingWindow.append(newVal)
     total += newVal

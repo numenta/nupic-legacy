@@ -38,7 +38,6 @@ from operator import itemgetter
 import numpy
 
 from nupic.frameworks.opf.model import Model
-from nupic.algorithms.anomaly import Anomaly
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
 from nupic.encoders import MultiEncoder, DeltaEncoder
@@ -187,12 +186,6 @@ class CLAModel(Model):
     self._predictedFieldIdx = None
     self._predictedFieldName = None
     self._numFields = None
-    # init anomaly
-    windowSize = anomalyParams.get("slidingWindowSize", None)
-    mode = anomalyParams.get("mode", "pure")
-    anomalyThreshold = anomalyParams.get("autoDetectThreshold", None)
-    self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode,
-                                binaryAnomalyThreshold=anomalyThreshold)
 
     # -----------------------------------------------------------------------
     # Create the network
@@ -599,19 +592,12 @@ class CLAModel(Model):
 
     inferences = {}
     sp = self._getSPRegion()
+    anomaly = self._getAnomalyRegion()
     score = None
     if inferenceType == InferenceType.NontemporalAnomaly:
       score = sp.getOutputData("anomalyScore")[0] #TODO move from SP to Anomaly ?
 
     elif inferenceType == InferenceType.TemporalAnomaly:
-      tp = self._getTPRegion()
-
-      if sp is not None:
-        activeColumns = sp.getOutputData("bottomUpOut").nonzero()[0]
-      else:
-        sensor = self._getSensorRegion()
-        activeColumns = sensor.getOutputData('dataOut').nonzero()[0]
-
       if not self._predictedFieldName in self._input:
         raise ValueError(
           "Expected predicted field '%s' in input row, but was not found!" 
@@ -619,26 +605,21 @@ class CLAModel(Model):
         )
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
-      score = self._anomalyInst.compute(
-                                   activeColumns,
-                                   self._prevPredictedColumns,
-                                   inputValue=self._input[self._predictedFieldName])
-
-      # Store the predicted columns for the next timestep.
-      predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
-      self._prevPredictedColumns = copy.deepcopy(predictedColumns)
+      if anomaly is not None:
+        anomaly.prepareInputs()
+        anomaly.compute()
 
       # Calculate the classifier's output and use the result as the anomaly
       # label. Stores as string of results.
 
-      # TODO: make labels work with non-SP models
-      if sp is not None:
-        self._getAnomalyClassifier().setParameter(
-            "activeColumnCount", len(activeColumns))
-        self._getAnomalyClassifier().prepareInputs()
-        self._getAnomalyClassifier().compute()
-        labels = self._getAnomalyClassifier().getSelf().getLabelResults()
-        inferences[InferenceElement.anomalyLabel] = "%s" % labels
+#      # TODO: make labels work with non-SP models
+#      if sp is not None:
+#        self._getAnomalyClassifier().setParameter(
+#            "activeColumnCount", len(activeColumns))
+#        self._getAnomalyClassifier().prepareInputs()
+#        self._getAnomalyClassifier().compute()
+#        labels = self._getAnomalyClassifier().getSelf().getLabelResults()
+#        inferences[InferenceElement.anomalyLabel] = "%s" % labels
 
     inferences[InferenceElement.anomalyScore] = score
     return inferences
@@ -986,6 +967,13 @@ class CLAModel(Model):
     return self._netInfo.net.regions['sensor']
 
 
+  def _getAnomalyRegion(self):
+    """
+    Returns reference to the network's Anomaly region
+    """
+    return self._netInfo.net.regions.get("Anomaly", None)
+
+
   def _getClassifierRegion(self):
     """
     Returns reference to the network's Classifier region
@@ -1088,6 +1076,7 @@ class CLAModel(Model):
       prevRegion = "SP"
       prevRegionWidth = spParams['columnCount']
 
+    # add TP to the network
     if tpEnable:
       tpParams = tpParams.copy()
       if prevRegion == 'sensor':
@@ -1113,6 +1102,7 @@ class CLAModel(Model):
       prevRegion = "TP"
       prevRegionWidth = tpParams['inputWidth']
 
+    # add Classifier
     if clEnable and clParams is not None:
       clParams = clParams.copy()
       clRegionName = clParams.pop('regionName')
@@ -1131,6 +1121,33 @@ class CLAModel(Model):
           cacheSize=anomalyParams.get('anomalyCacheRecords', None)
       )
       self._addAnomalyClassifierRegion(n, anomalyClParams, spEnable, tpEnable)
+
+    # add Anomaly region
+    if anomalyParams and tpEnable:
+      # ignore these params, used for AnomalyClassifierRegion, but shared under anomalyParams{}
+      args = copy.deepcopy(anomalyParams)
+      args.pop("anomalyCacheRecords")
+      args.pop("autoDetectThreshold")
+      args.pop("autoDetectWaitRecords")
+
+      self.__logger.debug("Adding AnomalyRegion; params: %r" % args)
+      n.addRegion("Anomaly", "py.AnomalyRegion", json.dumps(args))
+
+      # link SP (or sensor) output as activeColumns
+      if spEnable:
+        n.link("SP", "Anomaly", "UniformLink", "",
+                 srcOutput="bottomUpOut", destInput="activeColumns")
+      else:
+        activeColumns = sensor.getOutputData('dataOut').nonzero()[0]
+        n.link("sensor", "Anomaly", "UniformLink", "",
+               srcOutput="dataOut", destInput="activeColumns")
+      # link TP out as predictedColumns
+      n.link("TP", "Anomaly", "UniformLink", "",
+               srcOutput="topDownOut", destInput="predictedColumns")
+      # link sensor sourceOut as rawInput
+      n.link("sensor", "Anomaly", "UniformLink", "",
+               srcOutput="sourceOut", destInput="rawInput")
+
 
     #--------------------------------------------------
     # NuPIC doesn't initialize the network until you try to run it
@@ -1227,10 +1244,6 @@ class CLAModel(Model):
 
 
     # -----------------------------------------------------------------------
-    # Migrate from when Anomaly was not separate class
-    if not hasattr(self, "_anomalyInst"):
-      self._anomalyInst = Anomaly()
-
 
     # This gets filled in during the first infer because it can only be
     #  determined at run-time
