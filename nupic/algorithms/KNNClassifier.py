@@ -23,7 +23,7 @@
 """This module implements a k nearest neighbor classifier."""
 
 import numpy
-
+import warnings
 from nupic.bindings.math import (NearestNeighbor, min_score_per_category)
 
 
@@ -534,7 +534,6 @@ class KNNClassifier(object):
             self._numPatterns -= 1
 
 
-
     if self.numSVDDims is not None and self.numSVDSamples is not None \
           and self._numPatterns == self.numSVDSamples:
         self.computeSVD()
@@ -573,38 +572,48 @@ class KNNClassifier(object):
     return (dist, self._categoryList)
 
 
-  def infer(self, inputPattern, computeScores=True, overCategories=True,
-            partitionId=None):
-    """Finds the category that best matches the input pattern. Returns the
-    winning category index as well as a distribution over all categories.
+  ##########################################################################
+  def infer(self, inputPattern, numWinners=1, computeScores=True,
+                  overCategories=True, partitionId=None):
+    """Find the category that best matches the input pattern. Returns the
+    winning category `numWinners` categories indices as an array plus  a
+    distribution over all categories.
 
-    @param inputPattern (list) A pattern to be classified
+    @param  inputPattern    (numpy.array)   Pattern to perform inference for
 
-    @param computeScores NO EFFECT
+    @param  numWinners  (int)   Number of most frequent labels for points
+                                closest to inputPattern
 
-    @param overCategories NO EFFECT
+    @param  computeScores   (bool)  UNKNOWN. Not called within function
 
-    @param partitionId (int) UNKNOWN
+    @param  overCategories  (bool)  UNKNOWN. Not called within function
 
-    This method returns a 4-tuple: (winner, inferenceResult, dist, categoryDist)
-      winner:           The category with the greatest number of nearest
-                        neighbors within the kth nearest neighbors. If the
-                        inferenceResult contains no neighbors, the value of
-                        winner is None; this applies to the case of exact
-                        matching.
-      inferenceResult:  A list of length numCategories, each entry contains the
-                        number of neighbors within the top k neighbors that
-                        are in that category.
-      dist:             A list of length numPrototypes. Each entry is the
-                        distance from the unknown to that prototype. All
-                        distances are between 0.0 and 1.0
-      categoryDist:     A list of length numCategories. Each entry is the
-                        distance from the unknown to the nearest prototype of
-                        that category. All distances are between 0 and 1.0.
+    @param  partitionId     (int)   UNKNOWN. Not called within function
+
+    @return (winners, inferenceResult, dist, categoryDist)
+
+        winners (numpy.array) The `numWinners` categories with the greatest
+                number of nearest neighbors within the kth nearest neighbors.
+                If the inferenceResult contains no neighbors, the value of
+                winner is None; this applies to the case of exact matching.
+
+        inferenceResult (numpy.array) A list of length numCategories, each
+                entry contains the number of neighbors within the top k
+                neighbors that are in that category.
+
+        dist (numpy.array) A list of length numPrototypes. Each entry is the
+                distance from the unknown to that prototype. All distances are
+                between 0 and 1.0.
+
+        categoryDist (numpy.array) A list of length numCategories. Each entry
+                is the distance from the unknown to the nearest prototype of
+                that category. All distances are between 0 and 1.0.
+
+
     """
     if len(self._categoryList) == 0:
       # No categories learned yet; i.e. first inference w/ online learning.
-      winner = 0
+      winners = 0
       inferenceResult = numpy.zeros(1)
       dist = numpy.ones(1)
       categoryDist = numpy.ones(1)
@@ -629,10 +638,11 @@ class KNNClassifier(object):
 
       # Prepare inference results.
       if inferenceResult.any():
-        winner = inferenceResult.argmax()
+        # Perform argsort in descending order and return top `n`
+        winners = inferenceResult.argsort()[::-1][:numWinners]
         inferenceResult /= inferenceResult.sum()
       else:
-        winner = None
+        winners = None
       categoryDist = min_score_per_category(maxCategoryIdx,
                                             self._categoryList, dist)
       categoryDist.clip(0, 1.0, categoryDist)
@@ -641,12 +651,23 @@ class KNNClassifier(object):
       print "%s infer:" % (g_debugPrefix)
       print "  active inputs:",  _labeledInput(inputPattern,
                                                cellsPerCol=self.cellsPerCol)
-      print "  winner category:", winner
+      print "  winner categories:", winners
       print "  pct neighbors of each category:", inferenceResult
       print "  dist of each prototype:", dist
       print "  dist of each category:", categoryDist
 
-    result = (winner, inferenceResult, dist, categoryDist)
+    result = (winners, inferenceResult, dist, categoryDist)
+    numCategories = len(self._categoryList)
+
+    if numWinners > numCategories:
+      warnings.warn("Your requested number of categories exceeds the "
+                         "total number of categories learned. Returning %d "
+                         "categories..." %(numCategories))
+    if numWinners > self.k:
+      warnings.warn("Your requested number of categories exceeds the"
+                         "total number of neighbors considered. Returning %d "
+                         "categories..." %(numWinners))
+
     return result
 
 
