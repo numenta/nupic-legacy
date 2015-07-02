@@ -69,8 +69,7 @@ class KNNClassifierTest(unittest.TestCase):
     a = np.array([1, 3, 7, 11, 13, 17, 19, 23, 29], dtype=np.int32)
 
     # Learn with incorrect dimensionality, less than some bits (23, 29)
-    with self.assertRaises(RuntimeError, "Learning with bits that don't match"
-                                         "dimensionality"):
+    with self.assertRaises(RuntimeError):
       classifier.learn(a, 0, isSparse=20)
 
 
@@ -106,10 +105,10 @@ class KNNClassifierTest(unittest.TestCase):
     a = np.array([29, 3, 7, 11, 13, 17, 19, 23, 1], dtype=np.int32)
     b = np.array([2, 4, 20, 12, 14, 18, 8, 28, 30], dtype=np.int32)
 
-    with self.assertRaises(RuntimeError, "Sparse representation is unsorted"):
+    with self.assertRaises(RuntimeError):
       classifier.learn(a, 0, isSparse=dimensionality)
 
-    with self.assertRaises(RuntimeError, "Sparse representation is unsorted"):
+    with self.assertRaises(RuntimeError):
       classifier.learn(b, 1, isSparse=dimensionality)
 
 
@@ -157,21 +156,21 @@ class KNNClassifierTest(unittest.TestCase):
     testA[a] = 1.0
 
     catA, _, _, _ = classifier.infer(testA, numWinners=2)
-    self.assertFalse(np.any(catA - np.array([0, 2])), "Categories inferred "
+    self.assertTrue(np.allclose(catA, np.array([0, 2])), "Categories inferred "
                               "do not match what is expected")
 
     testB = np.zeros(dimensionality, dtype=np.float64)
     testB[b] = 1.0
 
     catB, _, _, _ = classifier.infer(testB, numWinners=2)
-    self.assertFalse(np.any(catB - np.array([1, 2])), "Categories inferred "
+    self.assertTrue(np.allclose(catB, np.array([1, 2])), "Categories inferred "
                               "do not match what is expected")
 
     testC = np.zeros(dimensionality, dtype=np.float64)
     testC[c] = 1.0
 
     catC, _, _, _ = classifier.infer(testC, numWinners=2)
-    self.assertFalse(np.any(catC - np.array([2, 1])), "Categories inferred "
+    self.assertTrue(np.allclose(catC, np.array([2, 1])), "Categories inferred "
                               "do not match what is expected")
 
   def testMultipleReturnedLabelsComplex(self):
@@ -201,21 +200,21 @@ class KNNClassifierTest(unittest.TestCase):
     testA[a] = 1.0
 
     catA, _, _, _ = classifier.infer(testA, numWinners=2)
-    self.assertFalse(np.any(catA - np.array([0, 1])), "Categories inferred "
+    self.assertTrue(np.allclose(catA, np.array([0, 1])), "Categories inferred "
                               "do not match what is expected")
 
     testB = np.zeros(dimensionality, dtype=np.float64)
     testB[b] = 1.0
 
     catB, _, _, _ = classifier.infer(testB, numWinners=2)
-    self.assertFalse(np.any(catB - np.array([0, 1])), "Categories inferred "
+    self.assertTrue(np.allclose(catB, np.array([0, 1])), "Categories inferred "
                               "do not match what is expected")
 
     testC = np.zeros(dimensionality, dtype=np.float64)
     testC[c] = 1.0
 
     catC, _, _, _ = classifier.infer(testC, numWinners=2)
-    self.assertFalse(np.any(catC - np.array([0, 1])), "Categories inferred "
+    self.assertTrue(np.allclose(catC, np.array([0, 1])), "Categories inferred "
                               "do not match what is expected")
 
   def testMultipleReturnedLabelsMoreComplex(self):
@@ -250,21 +249,21 @@ class KNNClassifierTest(unittest.TestCase):
     testA[a] = 1.0
 
     catA, _, _, _ = classifier.infer(testA, numWinners=2)
-    self.assertFalse(np.any(catA - np.array([1, 0])), "Categories inferred "
+    self.assertTrue(np.allclose(catA, np.array([1, 0])), "Categories inferred "
                               "do not match what is expected")
 
     testB = np.zeros(dimensionality, dtype=np.float64)
     testB[b] = 1.0
 
     catB, _, _, _ = classifier.infer(testB, numWinners=2)
-    self.assertFalse(np.any(catB - np.array([0, 1])), "Categories inferred "
+    self.assertTrue(np.allclose(catB, np.array([0, 1])), "Categories inferred "
                               "do not match what is expected")
 
     testD = np.zeros(dimensionality, dtype=np.float64)
     testD[d] = 1.0
 
     catD, _, _, _ = classifier.infer(testD, numWinners=2)
-    self.assertFalse(np.any(catD - np.array([0, 1])), "Categories inferred "
+    self.assertTrue(np.allclose(catD, np.array([0, 1])), "Categories inferred "
                               "do not match what is expected")
 
   @unittest.skip("Finish when infer has options for sparse and dense "

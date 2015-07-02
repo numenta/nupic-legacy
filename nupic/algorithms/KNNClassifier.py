@@ -442,7 +442,6 @@ class KNNClassifier(object):
         if partitionId is not None:
           self._partitionIdList.append(partitionId)
 
-
     # Sparse vectors
     else:
 
@@ -535,15 +534,10 @@ class KNNClassifier(object):
             self._numPatterns -= 1
 
 
-
     if self.numSVDDims is not None and self.numSVDSamples is not None \
           and self._numPatterns == self.numSVDSamples:
         self.computeSVD()
 
-    #print "Category List: ", self._categoryList
-    #print "Num Patterns: ", self._numPatterns
-    #print "Memory: ", self._Memory
-    #print "-" * 100
     return self._numPatterns
 
 
@@ -585,21 +579,37 @@ class KNNClassifier(object):
     winning category `numWinners` categories indices as an array plus  a
     distribution over all categories.
 
-    This method returns a 4 item tuple:
-    (winner, inferenceResult, dist, categoryDist)
-      winners: The `numWinners` categories with the greatest number of nearest neighbors within
-                the kth nearest neighbors. If the inferenceResult contains no
-                neighbors, the value of winner is None; this applies to the case
-                of exact matching.
-      inferenceResult: A list of length numCategories, each entry contains the
-                number of neighbors within the top k neighbors that are in that
-                category
-      dist: A list of length numPrototypes. Each entry is the distance from
-                the unknown to that prototype. All distances are between 0 and
-                1.0
-      categoryDist: A list of length numCategories. Each entry is the distance
-                from the unknown to the nearest prototype of that category. All
-                distances are between 0 and 1.0.
+    @param  inputPattern    (numpy.array)   Pattern to perform inference for
+
+    @param  numWinners  (int)   Number of most frequent labels for points
+                                closest to inputPattern
+
+    @param  computeScores   (bool)  UNKNOWN. Not called within function
+
+    @param  overCategories  (bool)  UNKNOWN. Not called within function
+
+    @param  partitionId     (int)   UNKNOWN. Not called within function
+
+    @return (winners, inferenceResult, dist, categoryDist)
+
+        winners (numpy.array) The `numWinners` categories with the greatest
+                number of nearest neighbors within the kth nearest neighbors.
+                If the inferenceResult contains no neighbors, the value of
+                winner is None; this applies to the case of exact matching.
+
+        inferenceResult (numpy.array) A list of length numCategories, each
+                entry contains the number of neighbors within the top k
+                neighbors that are in that category.
+
+        dist (numpy.array) A list of length numPrototypes. Each entry is the
+                distance from the unknown to that prototype. All distances are
+                between 0 and 1.0.
+
+        categoryDist (numpy.array) A list of length numCategories. Each entry
+                is the distance from the unknown to the nearest prototype of
+                that category. All distances are between 0 and 1.0.
+
+
     """
     if len(self._categoryList) == 0:
       # No categories learned yet; i.e. first inference w/ online learning.
@@ -628,7 +638,7 @@ class KNNClassifier(object):
 
       # Prepare inference results.
       if inferenceResult.any():
-        #Perform argsort in descending order and return top `n`
+        # Perform argsort in descending order and return top `n`
         winners = inferenceResult.argsort()[::-1][:numWinners]
         inferenceResult /= inferenceResult.sum()
       else:
@@ -650,11 +660,11 @@ class KNNClassifier(object):
     numCategories = len(self._categoryList)
 
     if numWinners > numCategories:
-          warnings.warn("Your requested number of categories exceeds the "
+      warnings.warn("Your requested number of categories exceeds the "
                          "total number of categories learned. Returning %d "
                          "categories..." %(numCategories))
     if numWinners > self.k:
-          warnings.warn("Your requested number of categories exceeds the"
+      warnings.warn("Your requested number of categories exceeds the"
                          "total number of neighbors considered. Returning %d "
                          "categories..." %(numWinners))
 
