@@ -149,10 +149,12 @@ class AnomalyTest(unittest.TestCase):
     """serialization using pickle"""
     # instances to test
     aDef = Anomaly()
-    aLike = anomaly.Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
+    aLike = Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
     aWeig = Anomaly(mode=Anomaly.MODE_WEIGHTED)
     aCust = Anomaly(mode=Anomaly.MODE_CUSTOM, customComputeFn=sum)
-    inst = [aDef, aLike, aWeig, aCust]
+    # test anomaly with all whistles (MovingAverage, Likelihood, ...)
+    aAll = Anomaly(mode=Anomaly.MODE_LIKELIHOOD, slidingWindowSize=5)
+    inst = [aDef, aLike, aWeig, aCust, aAll] 
 
     for a in inst:
       try:
