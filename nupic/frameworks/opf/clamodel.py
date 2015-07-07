@@ -369,7 +369,13 @@ class CLAModel(Model):
     results.inferences = {}
     self._input = inputRecord
 
-    # -------------------------------------------------------------------------
+    # Check if the input includes the predicted field.
+    if not self._predictedFieldName in self._input:
+      raise ValueError("Expected predicted field '%s' in input row, "
+                       "but was not found! Raw input is: %s"
+                       % (self._predictedFieldName, self._input))
+
+
     # Turn learning on or off?
     if '_learning' in inputRecord:
       if inputRecord['_learning']:
@@ -378,9 +384,7 @@ class CLAModel(Model):
         self.disableLearning()
 
 
-    ###########################################################################
     # Predictions and Learning
-    ###########################################################################
     self._sensorCompute(inputRecord)
     self._spCompute()
     self._tpCompute()
@@ -677,19 +681,10 @@ class CLAModel(Model):
                   None.
     rawInput:   The raw input to the sensor, as a dict.
     """
-    inferenceArgs = self.getInferenceArgs()
-    predictedFieldName = inferenceArgs.get('predictedField', None)
-    if predictedFieldName is None:
+    if self._predictedFieldName is None:
       raise ValueError(
         "No predicted field was enabled! Did you call enableInference()?"
       )
-    self._predictedFieldName = predictedFieldName
-    # check if predicted field was correctly specified
-    if not self._predictedFieldName in self._input:
-      raise ValueError("Expected predicted field '%s' in input row, "
-                       "but was not found! Raw input is: %s"
-                       % (self._predictedFieldName, self._input))
-
 
     classifier = self._getClassifierRegion()
     if not self._hasCL or classifier is None:
