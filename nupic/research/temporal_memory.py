@@ -846,7 +846,4 @@ class TemporalMemory(object):
 
   @staticmethod
   def getCellIndex(cell):
-    if not isinstance(cell, int):
-      return cell.idx
-    else:
-      return cell
+    return cell
