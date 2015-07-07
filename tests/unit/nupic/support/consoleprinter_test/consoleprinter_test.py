@@ -81,7 +81,7 @@ class ConsolePrinterTest(unittest.TestCase):
     with self.assertRaises(KeyError):
       c1.cPrint(0, "Message", badkw="badvalue")
 
-    referenceFilename = os.path.join(mydir, "testconsoleprinter_output.txt")
+    referenceFilename = os.path.join(mydir, "consoleprinter_output.txt")
     expected = open(referenceFilename).readlines()
     actual = open(filename).readlines()
 
