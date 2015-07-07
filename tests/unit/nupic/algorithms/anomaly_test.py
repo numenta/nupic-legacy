@@ -115,15 +115,15 @@ class AnomalyTest(unittest.TestCase):
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
-
   def testSerialization(self):
     """serialization using pickle"""
     # instances to test
     aDef = Anomaly()
-    aLike = anomaly.Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
+    aLike = Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
     aWeig = Anomaly(mode=Anomaly.MODE_WEIGHTED)
-#    aCust = Anomaly(mode=Anomaly.MODE_CUSTOM, customComputeFn=sum)
-    inst = [aDef, aLike, aWeig] #, aCust] #TODO add soon
+    # test anomaly with all whistles (MovingAverage, Likelihood, ...)
+    aAll = Anomaly(mode=Anomaly.MODE_LIKELIHOOD, slidingWindowSize=5)
+    inst = [aDef, aLike, aWeig, aAll] 
 
     for a in inst:
       stored = pickle.dumps(a)
