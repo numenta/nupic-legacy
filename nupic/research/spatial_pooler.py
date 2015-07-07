@@ -1253,7 +1253,7 @@ class SpatialPooler(object):
 
     # As each column has only one segment, we can reference it with own column's
     # index
-    if index in self.connections._segmentsForElement:
+    if index in self.connections._segmentsForCell:
       synapses = set(self.connections.synapsesForSegment(index))
       for synapse in synapses:
         self.connections.destroySynapse(synapse)
