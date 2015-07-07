@@ -590,12 +590,7 @@ class SPRegion(PyRegion):
     inputVector = numpy.array(rfInput[0]).astype('uint32')
     outputVector = numpy.zeros(self._sfdr.getNumColumns()).astype('uint32')
 
-    # Switch to using a random SP if learning mode is off and the SP hasn't
-    # learned anything yet.
-    if (not self.learningMode) and (self._sfdr.getIterationLearnNum() == 0):
-      self._sfdr.compute(inputVector, self.learningMode, outputVector, False)
-    else:
-      self._sfdr.compute(inputVector, self.learningMode, outputVector)
+    self._sfdr.compute(inputVector, self.learningMode, outputVector)
 
     self._spatialPoolerOutput[:] = outputVector[:]
 
