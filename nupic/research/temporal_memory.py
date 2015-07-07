@@ -846,4 +846,4 @@ class TemporalMemory(object):
 
   @staticmethod
   def getCellIndex(cell):
-    return cell
+    return cell.idx
