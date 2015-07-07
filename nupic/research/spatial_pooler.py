@@ -1359,7 +1359,8 @@ class SpatialPooler(object):
     """
     overlaps = numpy.zeros(self._numColumns).astype(realDType)
     for i in xrange(self._numColumns):
-      inputIndices = self._getInputIndicesFromSynapsesForColumn(i)
+      inputIndices = self._getInputIndicesFromSynapsesForColumn(i,
+                                                                onlyConnected=True)
       overlaps[i] = inputVector[inputIndices].sum()
     overlaps[overlaps < self._stimulusThreshold] = 0
     return overlaps
