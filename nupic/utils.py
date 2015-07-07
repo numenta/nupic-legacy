@@ -89,7 +89,7 @@ class MovingAverage(object):
     """get current average"""
     return float(self.total) / len(self.slidingWindow)
 
-
+  # TODO obsoleted by capnp, will be removed in future
   def __setstate__(self, state):
     """ for loading this object"""
     self.__dict__.update(state)
