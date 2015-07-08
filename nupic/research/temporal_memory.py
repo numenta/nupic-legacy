@@ -46,7 +46,7 @@ class TemporalMemory(object):
                maxNewSynapseCount=20,
                permanenceIncrement=0.10,
                permanenceDecrement=0.10,
-               predictedSegmentDecrement = 0.004,
+               predictedSegmentDecrement = 0.0,
                seed=42):
     """
     @param columnDimensions          (list)  Dimensions of the column space
