@@ -134,7 +134,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
   def testActivateCorrectlyPredictiveCellsOrphan(self):
     tm = self.tm
-
+    tm.predictedSegmentDecrement = 0.001
     prevPredictiveCells = set([])
     activeColumns = set([32, 47, 823])
     prevMatchingCells = set([32, 47])
@@ -278,7 +278,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
 
   def testComputePredictiveCells(self):
-    tm = TemporalMemory(activationThreshold=2, minThreshold=2)
+    tm = TemporalMemory(activationThreshold=2, minThreshold=2, predictedSegmentDecrement=0.004)
 
     connections = tm.connections
     connections.createSegment(0)
