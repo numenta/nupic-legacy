@@ -673,6 +673,7 @@ try:
       "nupic.bindings.proto": ["*.capnp"],
     },
     include_package_data=True,
+    zip_safe=False,
     ext_modules=extensions,
     description="Numenta Platform for Intelligent Computing",
     author="Numenta",
