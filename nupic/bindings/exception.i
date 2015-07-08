@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "nupic/types/Exception.hpp"
-#include "py_support/PyHelpers.hpp"
+#include "nupic/py_support/PyHelpers.hpp"
 %}
 
 %exception

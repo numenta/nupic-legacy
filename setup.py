@@ -317,8 +317,8 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
   #
   # Finds out version of Numpy and headers' path.
   #
-  numpyIncludeDir = numpy.get_include()
-  numpyIncludeDir = numpyIncludeDir.replace("\\", "/")
+  #numpyIncludeDir = numpy.get_include()
+  #numpyIncludeDir = numpyIncludeDir.replace("\\", "/")
 
   commonDefines = [
     ("NUPIC2", None),
@@ -337,8 +337,8 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     REPO_DIR + "/extensions",
     REPO_DIR,
     nupicCoreReleaseDir + "/include",
-    pythonIncludeDir,
-    numpyIncludeDir]
+    pythonIncludeDir]
+    #numpyIncludeDir]
 
   commonCompileFlags = [
     # Adhere to c++11 spec
@@ -404,26 +404,26 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     nupicCoreReleaseDir + "/lib/" +
       getLibPrefix(platform) + "nupic_core" + getStaticLibExtension(platform)]
 
-  pythonSupportSources = [
-    "extensions/py_support/NumpyVector.cpp",
-    "extensions/py_support/PyArray.cpp",
-    "extensions/py_support/PyHelpers.cpp",
-    "extensions/py_support/PythonStream.cpp"]
+  #pythonSupportSources = [
+  #  "extensions/py_support/NumpyVector.cpp",
+  #  "extensions/py_support/PyArray.cpp",
+  #  "extensions/py_support/PyHelpers.cpp",
+  #  "extensions/py_support/PythonStream.cpp"]
 
   extensions = []
 
-  libDynamicPyRegion = Extension(
-    "nupic." + getLibPrefix(platform) + "py_region",
-    extra_compile_args=commonCompileFlags,
-    define_macros=commonDefines,
-    extra_link_args=commonLinkFlags,
-    include_dirs=commonIncludeDirs,
-    libraries=commonLibraries,
-    sources=pythonSupportSources +
-      ["extensions/py_region/PyRegion.cpp",
-       "extensions/py_region/unittests/PyHelpersTest.cpp"],
-    extra_objects=commonObjects)
-  extensions.append(libDynamicPyRegion)
+  #libDynamicPyRegion = Extension(
+  #  "nupic." + getLibPrefix(platform) + "py_region",
+  #  extra_compile_args=commonCompileFlags,
+  #  define_macros=commonDefines,
+  #  extra_link_args=commonLinkFlags,
+  #  include_dirs=commonIncludeDirs,
+  #  libraries=commonLibraries,
+  #  sources=pythonSupportSources +
+  #    ["extensions/py_region/PyRegion.cpp",
+  #     "extensions/py_region/unittests/PyHelpersTest.cpp"],
+  #  extra_objects=commonObjects)
+  #extensions.append(libDynamicPyRegion)
 
   #
   # SWIG
@@ -479,7 +479,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-    sources=pythonSupportSources + [wrapAlgorithms],
+    sources=[wrapAlgorithms],
     extra_objects=commonObjects)
   extensions.append(libModuleAlgorithms)
 
@@ -493,7 +493,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-    sources=pythonSupportSources + [wrapEngineInternal],
+    sources=[wrapEngineInternal],
     extra_objects=commonObjects)
   extensions.append(libModuleEngineInternal)
 
@@ -507,8 +507,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-    sources=pythonSupportSources + [wrapMath,
-                                    "nupic/bindings/PySparseTensor.cpp"],
+    sources=[wrapMath, "nupic/bindings/PySparseTensor.cpp"],
     extra_objects=commonObjects)
   extensions.append(libModuleMath)
 
@@ -625,9 +624,9 @@ def postProcess():
   shutil.copy(
     nupicCoreReleaseDir + "/bin/py_region_test", REPO_DIR + "/bin"
   )
-  # Copy py_region located at build dir into source dir
-  shutil.copy(buildDir + "/nupic/" + getLibPrefix(platform) + "py_region" +
-              getSharedLibExtension(platform), REPO_DIR + "/nupic")
+  ## Copy py_region located at build dir into source dir
+  #shutil.copy(buildDir + "/nupic/" + getLibPrefix(platform) + "py_region" +
+  #            getSharedLibExtension(platform), REPO_DIR + "/nupic")
 
 options = getCommandLineOptions()
 platform, bitness = getPlatformInfo()

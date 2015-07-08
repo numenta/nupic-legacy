@@ -47,7 +47,7 @@
 //
 
 %{
-#include <py_support/NumpyVector.hpp>
+#include <nupic/py_support/NumpyVector.hpp>
 #include <nupic/math/Index.hpp>
 #include <nupic/math/Domain.hpp>
 #include <nupic/math/SparseTensor.hpp>
