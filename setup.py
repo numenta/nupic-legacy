@@ -461,7 +461,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-    sources=[wrapAlgorithms],
+    sources=pythonSupportSources + [wrapAlgorithms],
     extra_objects=commonObjects)
   extensions.append(libModuleAlgorithms)
 
@@ -475,7 +475,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-    sources=[wrapEngineInternal],
+    sources=pythonSupportSources + [wrapEngineInternal],
     extra_objects=commonObjects)
   extensions.append(libModuleEngineInternal)
 
@@ -489,8 +489,12 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
+<<<<<<< HEAD
     sources=pythonSupportSources + [wrapMath,
                                     "nupic/bindings/PySparseTensor.cpp"],
+=======
+    sources=pythonSupportSources + [wrapMath, "nupic/bindings/PySparseTensor.cpp"],
+>>>>>>> 9f98530... hack to find py_support files
     extra_objects=commonObjects)
   extensions.append(libModuleMath)
 
