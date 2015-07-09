@@ -404,11 +404,13 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     nupicCoreReleaseDir + "/lib/" +
       getLibPrefix(platform) + "nupic_core" + getStaticLibExtension(platform)]
 
-  #pythonSupportSources = [
-  #  "extensions/py_support/NumpyVector.cpp",
-  #  "extensions/py_support/PyArray.cpp",
-  #  "extensions/py_support/PyHelpers.cpp",
-  #  "extensions/py_support/PythonStream.cpp"]
+  # Find py_support cpp files in nupic.core
+  nupic_core = os.path.dirname(os.path.dirname(os.path.dirname(nupicCoreReleaseDir)))
+  pythonSupportSources = [
+    nupicCoreReleaseDir + "include/nupic/py_support/NumpyVector.cpp",
+    nupicCoreReleaseDir + "include/nupic/py_support/PyArray.cpp",
+    nupicCoreReleaseDir + "include/nupic/py_support/PyHelpers.cpp",
+    nupicCoreReleaseDir + "include/nupic/py_support/PythonStream.cpp"]
 
   extensions = []
 
