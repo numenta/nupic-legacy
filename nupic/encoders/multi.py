@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import capnp
+
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
@@ -38,7 +40,6 @@ from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEnco
 
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar_capnp import ScalarEncoderProto
-# multiencoder must be imported last because it imports * from this module!
 
 
 
