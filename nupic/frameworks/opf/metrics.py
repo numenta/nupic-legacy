@@ -32,7 +32,7 @@ from nupic.data.fieldmeta import FieldMetaType
 import nupic.math.roc_utils as roc
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.frameworks.opf.opfutils import InferenceType
-from nupic.utils import MovingAverage
+from nupic.utils import MovingAverage, GlobalDict
 
 from collections import deque
 from operator import itemgetter
@@ -483,6 +483,32 @@ class AggregateMetric(MetricsIface):
 
 
 
+class MetricSubmetric(AggregateMetric):
+  """
+  abstract metric class the uses a sub-metric
+  """
+  def __init__(self, metricSpec):
+    super(MetricSubmetric, self).__init__(metricSpec)
+    # Must have a suberror metric
+    assert self._subErrorMetrics is not None, "This metric requires that you" \
+        + " specify the name of another base metric  via the 'errorMetric' " \
+        + " parameter."
+
+  def getMetric(self):
+    return self._subErrorMetrics[0].getMetric()
+
+  def addInstance(self, groundTruth, prediction, record = None):
+    if self.verbosity > 0:
+      print "groundTruth:\n%s\nPredictions:\n%s\n%s\n" % (groundTruth,
+                                            prediction, self.getMetric())
+    # If missing data,
+    if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA:
+      return self._subErrorMetrics[0].aggregateError
+    # Our "prediction" is simply what submetric does
+    return self._subErrorMetrics[0].addInstance(groundTruth, prediction, record)
+
+
+
 class MetricRMSE(AggregateMetric):
   """
       computes root-mean-square error
@@ -689,7 +715,7 @@ class MetricPassThruPrediction(MetricsIface):
 
 
 
-class MetricMovingMean(AggregateMetric):
+class MetricMovingMean(MetricSubmetric):
   """
       computes error metric based on moving mean prediction
   """
@@ -712,26 +738,15 @@ class MetricMovingMean(AggregateMetric):
     # Construct moving average instance
     self._movingAverage = MovingAverage(self.mean_window)
 
-  def getMetric(self):
-    return self._subErrorMetrics[0].getMetric()
-
   def addInstance(self, groundTruth, prediction, record = None):
-
-    # If missing data,
-    if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA:
-      return self._subErrorMetrics[0].aggregateError
-
-    if self.verbosity > 0:
-      print "groundTruth:\n%s\nPredictions:\n%s\n%s\n" % (groundTruth, prediction, self.getMetric())
-
     # Use ground truth from 'steps' steps ago as our most recent ground truth
     lastGT = self._getShiftedGroundTruth(groundTruth)
     if lastGT is None:
       return self._subErrorMetrics[0].aggregateError
-
     mean = self._movingAverage(lastGT)
+    return super(MetricMovingMean, self).addInstance(groundTruth, mean, record)
 
-    return self._subErrorMetrics[0].addInstance(groundTruth, mean, record)
+
 
 def evalCustomErrorMetric(expr, prediction, groundTruth, tools):
   sandbox = SafeInterpreter(writer=StringIO())
@@ -919,8 +934,6 @@ class MetricMovingMode(AggregateMetric):
       computes error metric based on moving mode prediction
 
   """
-
-
   def __init__(self, metricSpec):
 
     super(MetricMovingMode, self).__init__(metricSpec)
@@ -961,7 +974,7 @@ class MetricMovingMode(AggregateMetric):
 
 
 
-class MetricTrivial(AggregateMetric):
+class MetricTrivial(MetricSubmetric):
   """
   computes a metric against the ground truth N steps ago. The metric to
   compute is designated by the 'errorMetric' entry in the metric params.
@@ -972,35 +985,14 @@ class MetricTrivial(AggregateMetric):
     # This metric assumes a default 'steps' of 1
     if not 'steps' in metricSpec.params:
       metricSpec.params['steps'] = 1
-
     super(MetricTrivial, self).__init__(metricSpec)
-
     # Only supports one stepsize
     assert len(self._predictionSteps) == 1
 
-    # Must have a suberror metric
-    assert self._subErrorMetrics is not None, "This metric requires that you" \
-        + " specify the name of another base metric  via the 'errorMetric' " \
-        + " parameter."
-
-  def getMetric(self):
-    return self._subErrorMetrics[0].getMetric()
-
   def addInstance(self, groundTruth, prediction, record = None):
-
     # Use ground truth from 'steps' steps ago as our "prediction"
     prediction = self._getShiftedGroundTruth(groundTruth)
-
-    if self.verbosity > 0:
-      print "groundTruth:\n%s\nPredictions:\n%s\n%s\n" % (groundTruth,
-                                            prediction, self.getMetric())
-    # If missing data,
-    if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA:
-      return self._subErrorMetrics[0].aggregateError
-
-    # Our "prediction" is simply what happened 'steps' steps ago
-    return self._subErrorMetrics[0].addInstance(groundTruth, prediction, record)
-
+    return super(MetricTrivial, self).addInstance(groundTruth, prediction, record)
 
 
 class MetricTwoGram(AggregateMetric):
@@ -1484,3 +1476,33 @@ class MetricMulti(MetricsIface):
   def getMetric(self):
     return {'value': self.err, "stats" : {"weights" : self.weights}}
 
+
+class MetricModelCallback(MetricSubmetric):
+  """
+  this is an abstract class for metrics that require a direct access to a (CLA)model, 
+  eg. to access specific internal values there. 
+
+  Examples are AnomalyMetric, SpeedMetric, ...
+  """
+
+  def __init__(self, metricSpec):
+    """
+    @param modelName - name of model stored globally in utils.GlobalDict
+    """
+    super(MetricModelCallback, self).__init__(metricSpec)
+    self._activeModel = metricSpec.params.get('modelName', None)
+
+
+  def setModel(self, modelName):
+    self._activeModel = modelName
+
+  
+  def getModelInstance(self):
+    """
+    access the (CLA)Model for which this instance of metric is computed
+    @return CLAModel 
+    """
+    model = GlobalDict.get(self._activeModel)
+    if model is None:
+      raise ValueError("MetricModelCallback: failed to access model named '%s' " % (self._activeModel))
+    return model

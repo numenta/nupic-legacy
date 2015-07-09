@@ -27,7 +27,7 @@ import shutil
 from abc import ABCMeta, abstractmethod
 
 import nupic.frameworks.opf.opfutils as opfutils
-
+from nupic.utils import GlobalDict 
 
 
 class Model(object):
@@ -39,17 +39,20 @@ class Model(object):
 
   __metaclass__ = ABCMeta
 
-  def __init__(self, inferenceType):
+  def __init__(self, inferenceType, name=None):
     """ Model constructor.
     @param inferenceType (nupic.frameworks.opf.opfutils.InferenceType)
            A value that specifies the type of inference (i.e. TemporalNextStep,
            Classification, etc.).
+    @param name (opt) unique ID of the model, if none, random will be generated
     """
     self._numPredictions = 0
     self.__inferenceType =  inferenceType
     self.__learningEnabled = True
     self.__inferenceEnabled = True
     self.__inferenceArgs = {}
+    # expose in global store, (returns new uniq if needed)
+    self._name = GlobalDict.set(name, self)
 
   def run(self, inputRecord):
     """ Run one iteration of this model.
@@ -124,6 +127,7 @@ class Model(object):
     logger created by the subclass.
     @returns (Logger) A Logger object, it should not be None.
     """
+
 
   ###############################################################################
   # Common learning/inference methods
@@ -262,7 +266,15 @@ class Model(object):
     model._deSerializeExtraData(
         extraDataDir=Model._getModelExtraDataDir(savedModelDir))
 
+    # compatibility
+    if not hasattr(model, '_name'):
+      model._name = None # will generate unique name
+
     logger.debug("Finished Loading model from local checkpoint")
+
+    # expose loaded model to global store
+    GlobalDict.remove(model._name) # remove old model with the same name, if exists
+    model._name = GlobalDict.set(model._name, model)
 
     return model
 

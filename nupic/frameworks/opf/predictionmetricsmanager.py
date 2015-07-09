@@ -195,6 +195,11 @@ class MetricsManager(object):
     return tuple(self.__metricLabels)
 
 
+  def getMetricInstances(self):
+    """@return instances of all metrics available here (as a [list])"""
+    return self.__metrics
+
+
   def _addResults(self, results):
     """
     Stores the current model results in the manager's internal store

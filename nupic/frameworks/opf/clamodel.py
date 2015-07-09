@@ -122,38 +122,41 @@ class CLAModel(Model):
       clParams={},
       anomalyParams={},
       minLikelihoodThreshold=DEFAULT_LIKELIHOOD_THRESHOLD,
-      maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP):
+      maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP,
+      name=None):
     """CLAModel constructor.
 
-    Args:
-      inferenceType: A value from the InferenceType enum class.
-      predictedField: The field to predict for multistep prediction.
-      sensorParams: A dictionary specifying the sensor parameters.
-      spEnable: Whether or not to use a spatial pooler.
-      spParams: A dictionary specifying the spatial pooler parameters. These
-          are passed to the spatial pooler.
-      trainSPNetOnlyIfRequested: If set, don't create an SP network unless the
-          user requests SP metrics.
-      tpEnable: Whether to use a temporal pooler.
-      tpParams: A dictionary specifying the temporal pooler parameters. These
-          are passed to the temporal pooler.
-      clEnable: Whether to use the classifier. If false, the classifier will
-          not be created and no predictions will be generated.
-      clParams: A dictionary specifying the classifier parameters. These are
-          are passed to the classifier.
-      anomalyParams: Anomaly detection parameters
-      minLikelihoodThreshold: The minimum likelihood value to include in
-          inferences.  Currently only applies to multistep inferences.
-      maxPredictionsPerStep: Maximum number of predictions to include for
-          each step in inferences. The predictions with highest likelihood are
-          included.
+      @param inferenceType: 	A value from the InferenceType enum class
+      @param predictedField: 	The field to predict for multistep prediction.
+      @param sensorParams: 	A dictionary specifying the sensor parameters.
+      @param spEnable: 		Whether or not to use a spatial pooler.
+      @param spParams: 		A dictionary specifying the spatial pooler 
+				parameters. These are passed to the spatial pooler.
+      @param trainSPNetOnlyIfRequested: 	If set, don't create an SP network
+				unless the user requests SP metrics.
+      @param tpEnable: 		Whether to use a temporal pooler.
+      @param tpParams: 		A dictionary specifying the temporal pooler 
+				parameters. These are passed to the temporal pooler.
+      @param clEnable: 		Whether to use the classifier. If false, 
+				the classifier will not be created and 
+				no predictions will be generated.
+      @param clParams: 		A dictionary specifying the classifier parameters.
+				These are are passed to the classifier.
+      @param anomalyParams: 	Anomaly detection parameters
+      @param minLikelihoodThreshold: 	The minimum likelihood value to include
+				in inferences.  Currently only applies to 
+				multistep inferences.
+      @param maxPredictionsPerStep: 	Maximum number of predictions to include for
+          			each step in inferences. The predictions with 
+				highest likelihood are included.
+      @param name		(opt) unique ID of the model, randomly chosen if unspecified
     """
     if not inferenceType in self.__supportedInferenceKindSet:
       raise ValueError("{0} received incompatible inference type: {1}"\
                        .format(self.__class__, inferenceType))
 
     # Call super class constructor
-    super(CLAModel, self).__init__(inferenceType)
+    super(CLAModel, self).__init__(inferenceType, name=name)
 
     # self.__restoringFromState is set to True by our __setstate__ method
     # and back to False at completion of our _deSerializeExtraData() method.
@@ -1037,10 +1040,10 @@ class CLAModel(Model):
 
     #--------------------------------------------------
     # Add the Sensor
-    n.addRegion("sensor", "py.RecordSensor", json.dumps(dict(verbosity=sensorParams['verbosity'])))
+    n.addRegion("sensor", "py.RecordSensor", json.dumps(dict(verbosity=sensorParams.get("verbosity", 0))))
     sensor = n.regions['sensor'].getSelf()
 
-    enabledEncoders = copy.deepcopy(sensorParams['encoders'])
+    enabledEncoders = copy.deepcopy(sensorParams.get("encoders", {}))
     for name, params in enabledEncoders.items():
       if params is not None:
         classifierOnly = params.pop('classifierOnly', False)
@@ -1050,7 +1053,7 @@ class CLAModel(Model):
     # Disabled encoders are encoders that are fed to CLAClassifierRegion but not
     # SP or TP Regions. This is to handle the case where the predicted field
     # is not fed through the SP/TP. We typically just have one of these now.
-    disabledEncoders = copy.deepcopy(sensorParams['encoders'])
+    disabledEncoders = copy.deepcopy(sensorParams.get("encoders", {}))
     for name, params in disabledEncoders.items():
       if params is None:
         disabledEncoders.pop(name)

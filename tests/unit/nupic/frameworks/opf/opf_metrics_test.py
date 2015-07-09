@@ -24,8 +24,13 @@ import numpy as np
 
 import unittest2 as unittest
 
-from nupic.frameworks.opf.metrics import getModule, MetricSpec, MetricMulti
-
+from nupic.frameworks.opf.modelfactory import ModelFactory
+from nupic.frameworks.opf.clamodel import CLAModel
+from nupic.frameworks.opf.metrics import (getModule, 
+                                          MetricSpec, 
+                                          MetricMulti,
+                                          MetricModelCallback)
+from tests.unit.nupic.frameworks.opf.clamodel_test import modelConfig
 
 
 class OPFMetricsTest(unittest.TestCase):
@@ -786,6 +791,31 @@ record={"test":gt[i]})
       self.assertEqual(check, metricValue, "iter i= %s gt=%s pred=%s multi=%s sub1=%s sub2=%s" % (i, gt[i], p[i], metricValue, v10, v1000))
 
 
+  def testCallbackMetric(self):
+    """testing the callback metric which can access its model"""
+    modelConfig["modelParams"]["name"]="my"
+    myModel = ModelFactory.create(modelConfig=modelConfig)
+    ms = MetricSpec(field='a', metric='trivial',  inferenceElement='prediction', params={'modelName': 'my', 'errorMetric': 'aae', 'window': 1000})
+    mCall = MetricModelCallback(ms)
+    refModel = mCall.getModelInstance()
+    # test Callback instance works and has access to the Model
+    self.assertEqual(myModel,refModel, "failed to get correct Model from CallbackMetric")
+
+    # test Callback metric in environment with multiple models
+    modelConfig["modelParams"]["name"]="my1"
+    myModel1 = ModelFactory.create(modelConfig=modelConfig)
+    ms = MetricSpec(field='a', metric='trivial',  inferenceElement='prediction', params={'modelName': 'my1', 'errorMetric': 'aae', 'window': 1000})
+    mCall1 = MetricModelCallback(ms)
+    # ..and 2nd
+    modelConfig["modelParams"]["name"]="my2"
+    myModel2 = ModelFactory.create(modelConfig=modelConfig)
+    ms = MetricSpec(field='a', metric='trivial',  inferenceElement='prediction', params={'modelName': 'my2', 'errorMetric': 'aae', 'window': 1000})
+    mCall2 = MetricModelCallback(ms)
+    self.assertEqual(myModel1,mCall1.getModelInstance(), "failed to get correct Model from CallbackMetric in multimodel env")
+    self.assertEqual(myModel2,mCall2.getModelInstance(), "failed to get correct Model from CallbackMetric in multimodel env")
+
+    # CallBack metric compute uses submetric
+    self.assertEqual(mCall.addInstance(0, 0.1), 0.1, "Callback metric uses submetric to compute value of 0.1")
 
 if __name__ == "__main__":
   unittest.main()

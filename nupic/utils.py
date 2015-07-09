@@ -25,7 +25,8 @@ in our codebase.
 """
 
 import numbers
-
+from collections import MutableMapping
+import logging
 
 class MovingAverage(object):
   """Helper class for computing moving average and sliding window"""
@@ -126,3 +127,54 @@ class MovingAverage(object):
     proto.windowSize = self.windowSize
     proto.slidingWindow = self.slidingWindow
     proto.total = self.total
+
+                                                
+
+class GlobalDict(MutableMapping):
+  """
+  a dict{} storing its content globally. 
+
+  GlobalDict class serves as a global look-up table addressed by names, 
+  for storing and accessing objects globally.
+  """
+
+  # global variable
+  store = {}
+
+  logging.basicConfig()
+  logger = logging.getLogger(__name__)
+
+  def __init__(self, *args, **kwargs):
+    self.update(dict(*args, **kwargs))
+  def __getitem__(self, key):
+    return GlobalDict.get(key)
+  def __setitem__(self, key, value):
+    """if the key is in use, generate a unique one"""
+    self.__class__.set(key, value)
+  def __delitem__(self, key):
+    del GlobalDict.store[key]
+  def __iter__(self):
+    return iter(GlobalDict.store)
+  def __len__(self):
+    return len(GlobalDict.store)
+  @classmethod
+  def set(cls, key, value):
+    if key is None:
+      key = str(id(value)) # generate uniq name
+    if key in cls.store: # replacing existing item
+      cls.logger.warn("GlobalDict: replacing item '%s' named '%s' with new '%s'." % (cls.get(key), key, value))
+    cls.store[key] = value
+    cls.logger.warn("Globally stored item '%s' named '%s' " % (value, key))
+    return key # in case of new 
+  @classmethod
+  def get(cls, key):
+    return cls.store.get(key, None)
+  @classmethod
+  def getAll(cls):
+    return cls.store
+  @classmethod
+  def remove(cls, key):
+    if key in cls.store:
+      del cls.store[key]
+  def __str__(self):
+    return str(GlobalDict.store)
