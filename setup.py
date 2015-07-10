@@ -314,12 +314,6 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
   pythonPrefix = pythonPrefix.replace("\\", "/")
   pythonIncludeDir = pythonPrefix + "/include/python" + pythonVersion
 
-  #
-  # Finds out version of Numpy and headers' path.
-  #
-  #numpyIncludeDir = numpy.get_include()
-  #numpyIncludeDir = numpyIncludeDir.replace("\\", "/")
-
   commonDefines = [
     ("NUPIC2", None),
     ("NTA_OS_" + platform.upper(), None),
@@ -338,7 +332,6 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     REPO_DIR,
     nupicCoreReleaseDir + "/include",
     pythonIncludeDir]
-    #numpyIncludeDir]
 
   commonCompileFlags = [
     # Adhere to c++11 spec
@@ -413,19 +406,6 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     nupicCoreReleaseDir + "include/nupic/py_support/PythonStream.cpp"]
 
   extensions = []
-
-  #libDynamicPyRegion = Extension(
-  #  "nupic." + getLibPrefix(platform) + "py_region",
-  #  extra_compile_args=commonCompileFlags,
-  #  define_macros=commonDefines,
-  #  extra_link_args=commonLinkFlags,
-  #  include_dirs=commonIncludeDirs,
-  #  libraries=commonLibraries,
-  #  sources=pythonSupportSources +
-  #    ["extensions/py_region/PyRegion.cpp",
-  #     "extensions/py_region/unittests/PyHelpersTest.cpp"],
-  #  extra_objects=commonObjects)
-  #extensions.append(libDynamicPyRegion)
 
   #
   # SWIG
@@ -509,7 +489,8 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-    sources=[wrapMath, "nupic/bindings/PySparseTensor.cpp"],
+    sources=pythonSupportSources + [wrapMath,
+                                    "nupic/bindings/PySparseTensor.cpp"],
     extra_objects=commonObjects)
   extensions.append(libModuleMath)
 
@@ -626,9 +607,6 @@ def postProcess():
   shutil.copy(
     nupicCoreReleaseDir + "/bin/py_region_test", REPO_DIR + "/bin"
   )
-  ## Copy py_region located at build dir into source dir
-  #shutil.copy(buildDir + "/nupic/" + getLibPrefix(platform) + "py_region" +
-  #            getSharedLibExtension(platform), REPO_DIR + "/nupic")
 
 options = getCommandLineOptions()
 platform, bitness = getPlatformInfo()
