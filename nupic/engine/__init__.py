@@ -737,6 +737,16 @@ class Network(engine.Network):
     """
     engine.Network.registerPyRegion(regionClass.__module__, regionClass.__name__)
 
+  @staticmethod
+  def unregisterRegion(regionName):
+    """
+    Unregisters a region from the internal list of regions
+
+    :param str regionName: The name of the region to unregister
+        (ex: regionName=regionClass.__name__)
+    """
+    engine.Network.unregisterPyRegion(regionName)
+
   # Syntactic sugar properties
   regions = property(_getRegions, doc='@property:place_holder(Network.getRegions)')
   minPhase = property(engine.Network.getMinPhase, doc='@property:place_holder(Network.getMinPhase)')
