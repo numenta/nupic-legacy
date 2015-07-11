@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -36,29 +36,17 @@ import logging
 import requests
 from pkg_resources import resource_filename
 
+from nupic.data.file_record_stream import FileRecordStream
 from nupic.frameworks.opf.metrics import MetricSpec
 
 import model_params
+
+
 
 _LOGGER = logging.getLogger(__name__)
 
 _INPUT_FILE_PATH = resource_filename(
   "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
-)
-
-_METRIC_SPECS = (
-    MetricSpec(field='consumption', metric='multiStep',
-               inferenceElement='multiStepBestPredictions',
-               params={'errorMetric': 'aae', 'window': 1000, 'steps': 1}),
-    MetricSpec(field='consumption', metric='trivial',
-               inferenceElement='prediction',
-               params={'errorMetric': 'aae', 'window': 1000, 'steps': 1}),
-    MetricSpec(field='consumption', metric='multiStep',
-               inferenceElement='multiStepBestPredictions',
-               params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': 1}),
-    MetricSpec(field='consumption', metric='trivial',
-               inferenceElement='prediction',
-               params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': 1}),
 )
 
 _NUM_RECORDS = 1000
@@ -76,14 +64,14 @@ def createModel():
 def runDemo():
   createModel()
 
-  with open (_INPUT_FILE_PATH) as fin:
-    reader = csv.reader(fin)
-    headers = reader.next()
-    reader.next()
-    reader.next()
-    for i, record in enumerate(reader, start=1):
+  with FileRecordStream(_INPUT_FILE_PATH) as f:
+    headers = f.getFieldNames()
+
+    for i in range(_NUM_RECORDS):
+      record = f.getNextRecord()
       modelInput = dict(zip(headers, record))
       modelInput["consumption"] = float(modelInput["consumption"])
+      modelInput["timestamp"] = modelInput["timestamp"].strftime("%m/%d/%y %H:%M")
 
       res = requests.post("http://localhost:8888/models/demo/run",
                           json.dumps(modelInput))
