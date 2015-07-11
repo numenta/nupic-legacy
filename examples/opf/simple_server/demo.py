@@ -29,15 +29,15 @@ $ ./nupic/simple_server.py 8888
 Then run this demo in another terminal window.
 """
 
-import csv
 import json
 import logging
+from optparse import OptionParser
+import sys
 
 import requests
 from pkg_resources import resource_filename
 
 from nupic.data.file_record_stream import FileRecordStream
-from nupic.frameworks.opf.metrics import MetricSpec
 
 import model_params
 
@@ -53,16 +53,17 @@ _NUM_RECORDS = 1000
 
 
 
-def createModel():
+def createModel(server, port):
   data = {"modelParams": model_params.MODEL_PARAMS,
           "predictedFieldName": "consumption"}
-  requests.post("http://localhost:8888/models/demo",
+  requests.post("http://{server}:{port}/models/demo".format(server=server,
+                                                            port=port),
                 json.dumps(data))
 
 
 
-def runDemo():
-  createModel()
+def runDemo(server, port):
+  createModel(server, port)
 
   with FileRecordStream(_INPUT_FILE_PATH) as f:
     headers = f.getFieldNames()
@@ -73,8 +74,9 @@ def runDemo():
       modelInput["consumption"] = float(modelInput["consumption"])
       modelInput["timestamp"] = modelInput["timestamp"].strftime("%m/%d/%y %H:%M")
 
-      res = requests.post("http://localhost:8888/models/demo/run",
-                          json.dumps(modelInput))
+      res = requests.post(
+          "http://{server}:{port}/models/demo/run".format(server=server, port=port),
+          json.dumps(modelInput))
       print "result = %s" % res.text
 
       isLast = i == _NUM_RECORDS
@@ -84,4 +86,11 @@ def runDemo():
 
 
 if __name__ == "__main__":
-  runDemo()
+  parser = OptionParser()
+  parser.add_option("-s", help="Server url (default: %default)",
+                    dest="server", default="http://localhost")
+  parser.add_option("-p", help="Server port (default: %default",
+                    dest="port", default=8888)
+  opt, arg = parser.parse_args(sys.argv[1:])
+
+  runDemo(opt.server, opt.port)

@@ -54,7 +54,7 @@ class ModelHandler(object):
     [model1, model2, model3, ...] list of model names
     """
     global g_models
-    return json.dumps({"models":g_models.keys()})
+    return json.dumps({"models": g_models.keys()})
 
 
   def POST(self, name):
@@ -83,7 +83,7 @@ class ModelHandler(object):
     model.enableInference({'predictedField': predictedFieldName})
     g_models[name] = model
 
-    return json.dumps({"success":name})
+    return json.dumps({"success": name})
 
 
 
