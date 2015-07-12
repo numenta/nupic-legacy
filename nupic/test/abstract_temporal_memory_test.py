@@ -25,9 +25,8 @@ from nupic.data.generators.sequence_machine import SequenceMachine
 from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
   TemporalMemoryMonitorMixin)
 
+# Uncomment one line below to run tests with C++ or Py TM implementation instead
 from nupic.bindings.algorithms import TemporalMemory
-
-# Uncomment the line below to run tests with Py TM implementation instead
 #from nupic.research.temporal_memory import TemporalMemory
 
 # Uncomment the lines below to run tests with TP10X2 implementation instead
@@ -63,6 +62,7 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
     """
     params = self._computeTMParams(overrides)
     self.tm = MonitoredTemporalMemory(**params)
+    #self.tm.printParameters() # C++ only
 
     self.patternMachine = self.PATTERN_MACHINE
     self.sequenceMachine = SequenceMachine(self.patternMachine)
