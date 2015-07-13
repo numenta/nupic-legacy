@@ -398,7 +398,6 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
       getLibPrefix(platform) + "nupic_core" + getStaticLibExtension(platform)]
 
   # Find py_support cpp files in nupic.core
-  nupic_core = os.path.dirname(os.path.dirname(os.path.dirname(nupicCoreReleaseDir)))
   pythonSupportSources = [
     nupicCoreReleaseDir + "include/nupic/py_support/NumpyVector.cpp",
     nupicCoreReleaseDir + "include/nupic/py_support/PyArray.cpp",
@@ -489,12 +488,8 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-<<<<<<< HEAD
     sources=pythonSupportSources + [wrapMath,
                                     "nupic/bindings/PySparseTensor.cpp"],
-=======
-    sources=pythonSupportSources + [wrapMath, "nupic/bindings/PySparseTensor.cpp"],
->>>>>>> 9f98530... hack to find py_support files
     extra_objects=commonObjects)
   extensions.append(libModuleMath)
 
