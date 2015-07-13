@@ -475,7 +475,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-    sources=[wrapEngineInternal],
+    sources=pythonSupportSources + [wrapEngineInternal],
     extra_objects=commonObjects)
   extensions.append(libModuleEngineInternal)
 
