@@ -23,6 +23,9 @@
 A simple web server for interacting with NuPIC.
 Note: Requires web.py to run (install using '$ pip install web.py')
 """
+import os
+import sys
+sys.path.remove(os.path.dirname(os.path.realpath(__file__)))
 import datetime
 import json
 import web
