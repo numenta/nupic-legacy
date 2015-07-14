@@ -223,6 +223,9 @@ class Connections(object):
     # Update indexes
     self._synapsesForPresynapticCell[newData.presynapticCell][synapse] = newData
 
+    if permanence == 0:
+      self.destroySynapse(synapse)
+
 
   def numSegments(self):
     """
