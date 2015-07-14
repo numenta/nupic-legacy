@@ -150,6 +150,11 @@ class FastTemporalMemory(TemporalMemory):
     return activeSegments, predictiveCells, matchingSegments, matchingCells
 
 
+  @staticmethod
+  def getCellIndex(cell):
+    return cell.idx
+
+
   # ==============================
   # Helper functions
   # ==============================

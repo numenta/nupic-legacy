@@ -82,9 +82,9 @@ class TPShim(TemporalMemory):
     numberOfCells = self.numberOfCells()
 
     activeState = numpy.zeros(numberOfCells)
-    activeState[list(self.activeCells)] = 1
+    activeState[self.getCellIndices(self.activeCells)] = 1
     self.infActiveState["t"] = activeState
 
     output = numpy.zeros(numberOfCells)
-    output[list(self.predictiveCells | self.activeCells)] = 1
+    output[self.getCellIndices(self.predictiveCells | self.activeCells)] = 1
     return output
