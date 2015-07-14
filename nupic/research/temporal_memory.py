@@ -593,7 +593,7 @@ class TemporalMemory(object):
     @param permanenceIncrement  (float)  Amount to increment active synapses
     @param permanenceDecrement  (float)  Amount to decrement inactive synapses
     """
-    for synapse in set(connections.synapsesForSegment(segment)):
+    for synapse in connections.synapsesForSegment(segment):
       synapseData = connections.dataForSynapse(synapse)
       permanence = synapseData.permanence
 
