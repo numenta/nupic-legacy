@@ -20,6 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import capnp  # For import hook
 import numpy as np
 import tempfile
 import unittest

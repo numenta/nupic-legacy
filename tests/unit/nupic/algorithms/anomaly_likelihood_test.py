@@ -603,7 +603,6 @@ class AnomalyLikelihoodTest(TestCaseBase):
 
     self.assertEqual(l, restored)
 
- 
 
 
 if __name__ == "__main__":
