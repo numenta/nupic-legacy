@@ -1,5 +1,59 @@
 # Changelog
 
+## 0.2.6
+
+* Sets zip-safe to false to make sure relative capnp schema imports will work and importing .capnp files will work.
+* Clean up capnp imports.
+* Changes to TM test to accommodate changes in the default value of predictedSegmentDecrement
+* Merge remote-tracking branch 'upstream/master'
+* Change default value of predictedSegmentDecrement to be 0 to be backward compatible
+* Change default value of predictedSegmentDecrement to be 0 to be backward compatible
+* Change default value of predictedSegmentDecrement to be 0 to be backward compatible
+* Merge remote-tracking branch 'upstream/master'
+* Rename testconsoleprinter_output.txt so as to not be picked up by py.test as a test during discovery
+* likelihood test: fix raw-value must be int
+* Fix broken TPShim
+* Revert "Fix TP Shim"
+* Anomaly serialization verify complex anomaly instance
+* Likelihood pickle serialization test
+* MovingAverage pickle serialization test
+* Fix TP Shim
+* Removed stripUnlearnedColumns-from-SPRegion
+* Updated comment describing activeArray paramater of stripUnlearnedColumns method in SP
+* Revert "MovingAvera: remove unused pickle serialization method"
+* Updated NUPIC_CORE_COMMITISH to use the core without stripNeverLearned
+* Removed stripNeverLearned from SP.compute
+* MovingAverage has getter for current value
+* Fixes bug in mmGetCellActivityPlot
+* Merge remote-tracking branch 'upstream/master'
+* Fixes bug in mmGetCellActivityPlot
+* Fixes bug in mmGetCellActivityPlot
+* addressing scott's cr
+* addressing cr; docstring formatting and minor
+* Continuing work on 0.2.6.dev0.
+* minor
+* first version of knn tests
+* Update SHA and fix files
+* Rename cpp_region to py_region
+* pylint
+* fix likelihood equals problem when default timestamp
+* Likelihood: @param docstring
+* AnomalyLikelihood: add __str__
+* ANomalyLikelihood equals test case
+* Anomaly: add eq test
+* add MovingAverage eq test
+* anomaly likelihood, MA, Anomaly: review - better _eq_ statement
+* Anomaly: code review - use instance access
+* improving constructor docs
+* AnomalyLikelihood: add _eq_
+* Anomaly: compare likelihood in _eq_
+* improve anomaly serialization test - use eq
+* MovingAvera: remove unused pickle serialization method
+* Anomaly & MovingAverage : change __cmp__ to __eq__
+* define equals operator (__cmp__) for anomaly & MovingAverage
+* anomaly serialize test - comment out parts
+* Anomaly: add serialization test
+
 ## 0.2.5
 
 * Fix MANIFEST.in capnp include.

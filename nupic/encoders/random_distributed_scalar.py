@@ -24,6 +24,7 @@ import numbers
 import pprint
 import sys
 
+import capnp
 import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA

@@ -60,8 +60,6 @@ updateAnomalyLikelihoods. The details of these are described below.
 """
 
 import math
-import datetime
-
 import numpy
 
 from nupic.utils import MovingAverage
@@ -146,11 +144,11 @@ class AnomalyLikelihood(object):
                    '21.2' (deg. Celsius), ...
     @param anomalyScore - the current anomaly score
     @param timestamp - (optional) timestamp of the ocurrence, 
-                       default (None) results in datetime.now()
+                       default (None) results in using iteration step.
     @return theanomalyLikelihood for this record.
     """
     if timestamp is None:
-      timestamp = datetime.datetime.now()
+      timestamp = self._iteration
       
     dataPoint = (timestamp, value, anomalyScore)
     # We ignore the first probationaryPeriod data points

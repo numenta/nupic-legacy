@@ -134,7 +134,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
   def testActivateCorrectlyPredictiveCellsOrphan(self):
     tm = self.tm
-
+    tm.predictedSegmentDecrement = 0.001
     prevPredictiveCells = set([])
     activeColumns = set([32, 47, 823])
     prevMatchingCells = set([32, 47])
@@ -278,7 +278,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
 
   def testComputePredictiveCells(self):
-    tm = TemporalMemory(activationThreshold=2, minThreshold=2)
+    tm = TemporalMemory(activationThreshold=2, minThreshold=2, predictedSegmentDecrement=0.004)
 
     connections = tm.connections
     connections.createSegment(0)
@@ -491,15 +491,9 @@ class TemporalMemoryTest(unittest.TestCase):
     tm.adaptSegment(0, set(), connections,
                     tm.permanenceIncrement,
                     tm.permanenceDecrement)
-    synapseData = connections.dataForSynapse(0)
-    self.assertAlmostEqual(synapseData.permanence, 0.0)
 
-    # Now permanence should be at min
-    tm.adaptSegment(0, set(), connections,
-                    tm.permanenceIncrement,
-                    tm.permanenceDecrement)
-    synapseData = connections.dataForSynapse(0)
-    self.assertAlmostEqual(synapseData.permanence, 0.0)
+    synapses = connections.synapsesForSegment(0)
+    self.assertFalse(0 in synapses)
 
 
   def testPickCellsToLearnOn(self):
