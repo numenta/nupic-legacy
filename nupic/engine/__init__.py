@@ -47,7 +47,7 @@ pyRegions = (("nupic.regions.AnomalyRegion", "AnomalyRegion"),
 
 registeredRegions = False
 
-def registerBuildInRegions():
+def registerBuiltInRegions():
   global registeredRegions
 
   # Initialize nupic regions
@@ -55,7 +55,7 @@ def registerBuildInRegions():
     for module, className in pyRegions:
       engine.Network.registerPyRegion(module, className)
   registeredRegions = True
-registerBuildInRegions()
+registerBuiltInRegions()
 
 # Import all the array types from engine (there is no HandleArray)
 arrayTypes = [t + 'Array' for t in basicTypes[:-1]]
