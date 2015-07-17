@@ -55,6 +55,7 @@ def registerBuildInRegions():
     for module, className in pyRegions:
       engine.Network.registerPyRegion(module, className)
   registeredRegions = True
+registerBuildInRegions()
 
 # Import all the array types from engine (there is no HandleArray)
 arrayTypes = [t + 'Array' for t in basicTypes[:-1]]
