@@ -43,7 +43,7 @@ class HotgymRegressionTest(unittest.TestCase):
   def testHotgymRegression(self):
     experimentDir = pkg_resources.resource_filename(
         "nupic",
-        os.path.join("..", "examples", "opf", "experiments", "multistep",
+        os.path.join(os.pardir, "examples", "opf", "experiments", "multistep",
                      "hotgym")
     )
 
@@ -62,7 +62,7 @@ class HotgymRegressionTest(unittest.TestCase):
                          "steps=1:window=1000:field=consumption")
         lastRow = collections.deque(reader, 1)[0]
 
-      # Changes that affect prediction results will cause this test to failure.
+      # Changes that affect prediction results will cause this test to fail.
       # If the change is understood and reviewers agree that there has not been a
       # regression then this value can be updated to reflect the new result.
       self.assertAlmostEqual(float(lastRow[12]), 6.0933712258)
