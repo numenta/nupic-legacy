@@ -31,6 +31,10 @@ from nupic.research.connections import Connections
 
 
 
+EPSILON = 0.0000001
+
+
+
 class TemporalMemory(object):
   """
   Class implementing the Temporal Memory algorithm.
@@ -593,7 +597,9 @@ class TemporalMemory(object):
     @param permanenceIncrement  (float)  Amount to increment active synapses
     @param permanenceDecrement  (float)  Amount to decrement inactive synapses
     """
-    for synapse in connections.synapsesForSegment(segment):
+    # Need to copy synapses for segment set below because it will be modified
+    # during iteration by `destroySynapse`
+    for synapse in set(connections.synapsesForSegment(segment)):
       synapseData = connections.dataForSynapse(synapse)
       permanence = synapseData.permanence
 
@@ -605,7 +611,10 @@ class TemporalMemory(object):
       # Keep permanence within min/max bounds
       permanence = max(0.0, min(1.0, permanence))
 
-      connections.updateSynapsePermanence(synapse, permanence)
+      if (abs(permanence) < EPSILON):
+        connections.destroySynapse(synapse)
+      else:
+        connections.updateSynapsePermanence(synapse, permanence)
 
 
   def pickCellsToLearnOn(self, n, segment, winnerCells, connections):
@@ -779,22 +788,20 @@ class TemporalMemory(object):
 
     @param other (TemporalMemory) TemporalMemory instance to compare to
     """
-    epsilon = 0.0000001
-
     if self.columnDimensions != other.columnDimensions: return False
     if self.cellsPerColumn != other.cellsPerColumn: return False
     if self.activationThreshold != other.activationThreshold: return False
-    if abs(self.initialPermanence - other.initialPermanence) > epsilon:
+    if abs(self.initialPermanence - other.initialPermanence) > EPSILON:
       return False
-    if abs(self.connectedPermanence - other.connectedPermanence) > epsilon:
+    if abs(self.connectedPermanence - other.connectedPermanence) > EPSILON:
       return False
     if self.minThreshold != other.minThreshold: return False
     if self.maxNewSynapseCount != other.maxNewSynapseCount: return False
-    if abs(self.permanenceIncrement - other.permanenceIncrement) > epsilon:
+    if abs(self.permanenceIncrement - other.permanenceIncrement) > EPSILON:
       return False
-    if abs(self.permanenceDecrement - other.permanenceDecrement) > epsilon:
+    if abs(self.permanenceDecrement - other.permanenceDecrement) > EPSILON:
       return False
-    if abs(self.predictedSegmentDecrement - other.predictedSegmentDecrement) > epsilon:
+    if abs(self.predictedSegmentDecrement - other.predictedSegmentDecrement) > EPSILON:
       return False
 
     if self.connections != other.connections: return False
