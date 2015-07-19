@@ -1,0 +1,3 @@
+# Default nupic.core dependencies (override in optional .nupic_config)
+NUPIC_CORE_REMOTE = 'http://github.com/rcrowder/nupic.core.git'
+NUPIC_CORE_COMMITISH = '8a6e9320caf2f7a7fcc06cf722206b12c20edf03'
