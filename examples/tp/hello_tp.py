@@ -57,8 +57,6 @@ def formatRow(x):
 
 
 
-#######################################################################
-#
 # Step 1: create Temporal Pooler instance with appropriate parameters
 tp = TP(numberOfCols=50, cellsPerColumn=2,
                 initialPerm=0.5, connectedPerm=0.5,
@@ -70,8 +68,7 @@ tp = TP(numberOfCols=50, cellsPerColumn=2,
                 pamLength=10)
 
 
-#######################################################################
-#
+
 # Step 2: create input vectors to feed to the temporal pooler. Each input vector
 # must be numberOfCols wide. Here we create a simple sequence of 5 vectors
 # representing the sequence A -> B -> C -> D -> E
@@ -83,8 +80,7 @@ x[3,30:40] = 1   # Input SDR representing "D", corresponding to columns 30-39
 x[4,40:50] = 1   # Input SDR representing "E", corresponding to columns 40-49
 
 
-#######################################################################
-#
+
 # Step 3: send this simple sequence to the temporal pooler for learning
 # We repeat the sequence 10 times
 for i in range(10):
@@ -142,8 +138,7 @@ for j in range(5):
   print formatRow(predictedCells.max(axis=1).nonzero())
 
 
-#######################################################################
-#
+
 # This command prints the segments associated with every single cell. This is
 # commented out because it prints a ton of stuff. 
 #tp.printCells()

@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import capnp
+
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
@@ -38,7 +40,6 @@ from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEnco
 
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar_capnp import ScalarEncoderProto
-# multiencoder must be imported last because it imports * from this module!
 
 
 
@@ -78,12 +79,12 @@ class MultiEncoder(Encoder):
     if encoderDescriptions is not None:
       self.addMultipleEncoders(encoderDescriptions)
 
-  ############################################################################
+
   def setFieldStats(self, fieldName, fieldStatistics ):
     for (name, encoder, offset) in self.encoders:
       encoder.setFieldStats(name, fieldStatistics)
 
-  ############################################################################
+
   def addEncoder(self, name, encoder):
     self.encoders.append((name, encoder, self.width))
     for d in encoder.getDescription():
@@ -93,16 +94,16 @@ class MultiEncoder(Encoder):
     self._flattenedEncoderList = None
     self._flattenedFieldTypeList = None
 
-  ############################################################################
+
   def encodeIntoArray(self, obj, output):
     for name, encoder, offset in self.encoders:
         encoder.encodeIntoArray(self._getInputValue(obj, name), output[offset:])
 
-  ############################################################################
+
   def getDescription(self):
     return self.description
 
-  ############################################################################
+
   def getWidth(self):
     """Represents the sum of the widths of each fields encoding."""
     return self.width
@@ -113,20 +114,20 @@ class MultiEncoder(Encoder):
       encoder.setLearning(learningEnabled)
     return
 
-  ############################################################################
+
   def encodeField(self, fieldName, value):
     for name, encoder, offset in self.encoders:
       if name == fieldName:
         return encoder.encode(value)
 
-  ############################################################################
+
   def encodeEachField(self, inputRecord):
     encodings = []
     for name, encoder, offset in self.encoders:
       encodings.append(encoder.encode(getattr(inputRecord, name)))
     return encodings
 
-  ############################################################################
+
   def addMultipleEncoders(self, fieldEncodings):
     """
     fieldEncodings -- a dict of dicts, mapping field names to the field params

@@ -412,18 +412,18 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
 
   extensions = []
 
-  libDynamicCppRegion = Extension(
-    "nupic." + getLibPrefix(platform) + "cpp_region",
+  libDynamicPyRegion = Extension(
+    "nupic." + getLibPrefix(platform) + "py_region",
     extra_compile_args=commonCompileFlags,
     define_macros=commonDefines,
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
     sources=pythonSupportSources +
-      ["extensions/cpp_region/PyRegion.cpp",
-       "extensions/cpp_region/unittests/PyHelpersTest.cpp"],
+      ["extensions/py_region/PyRegion.cpp",
+       "extensions/py_region/unittests/PyHelpersTest.cpp"],
     extra_objects=commonObjects)
-  extensions.append(libDynamicCppRegion)
+  extensions.append(libDynamicPyRegion)
 
   #
   # SWIG
@@ -625,8 +625,8 @@ def postProcess():
   shutil.copy(
     nupicCoreReleaseDir + "/bin/py_region_test", REPO_DIR + "/bin"
   )
-  # Copy cpp_region located at build dir into source dir
-  shutil.copy(buildDir + "/nupic/" + getLibPrefix(platform) + "cpp_region" +
+  # Copy py_region located at build dir into source dir
+  shutil.copy(buildDir + "/nupic/" + getLibPrefix(platform) + "py_region" +
               getSharedLibExtension(platform), REPO_DIR + "/nupic")
 
 options = getCommandLineOptions()
@@ -673,6 +673,7 @@ try:
       "nupic.bindings.proto": ["*.capnp"],
     },
     include_package_data=True,
+    zip_safe=False,
     ext_modules=extensions,
     description="Numenta Platform for Intelligent Computing",
     author="Numenta",

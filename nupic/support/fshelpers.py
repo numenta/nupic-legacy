@@ -27,7 +27,6 @@ import os
 
 
 
-###############################################################################
 def makeDirectoryFromAbsolutePath(absDirPath):
   """ Makes directory for the given directory path with default permissions.
   If the directory already exists, it is treated as success.

@@ -53,7 +53,8 @@ def pickByDistribution(distribution, r=None):
       return i
     x -= d
 
-############################################################################
+
+
 def Indicator(pos, size, dtype):
   """Returns an array of length size and type dtype that is everywhere 0,
   except in the index in pos.
@@ -72,7 +73,8 @@ def Indicator(pos, size, dtype):
   x[pos] = 1
   return x
 
-############################################################################
+
+
 def MultiArgMax(x):
   """Get tuple (actually a generator) of indices where the max value of
   array x occurs. Requires that x have a max() method, as x.max()
@@ -91,7 +93,8 @@ def MultiArgMax(x):
   m = x.max()
   return (i for i, v in enumerate(x) if v == m)
 
-############################################################################
+
+
 def Any(sequence):
   """Returns true if any element of the sequence satisfies True.
   Tests much faster (30%) than bool(sum(bool(x) for x in sequence)).
@@ -104,7 +107,8 @@ def Any(sequence):
   """
   return bool(reduce(lambda x, y: x or y, sequence, False))
 
-############################################################################
+
+
 def All(sequence):
   """Returns true if all elements of the sequence satisfy True and x.
 
@@ -116,7 +120,8 @@ def All(sequence):
   """
   return bool(reduce(lambda x, y: x and y, sequence, True))
 
-############################################################################
+
+
 def Product(sequence):
   """Returns the product of the elements of the sequence.
   Use numpy.prod() if the sequence is an array, as it will be faster.
@@ -134,7 +139,8 @@ def Product(sequence):
   """
   return reduce(lambda x, y: x * y, sequence)
 
-############################################################################
+
+
 def MultiIndicator(pos, size, dtype):
   """Returns an array of length size and type dtype that is everywhere 0,
   except in the indices listed in sequence pos.
@@ -155,7 +161,8 @@ def MultiIndicator(pos, size, dtype):
   else: x[pos] = 1
   return x
 
-############################################################################
+
+
 def Distribution(pos, size, counts, dtype):
   """Returns an array of length size and type dtype that is everywhere 0,
   except in the indices listed in sequence pos.  The non-zero indices

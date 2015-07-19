@@ -46,7 +46,8 @@ def not_implemented(f):
   decorated.__doc__ == f.__doc__
   return decorated
 
-#---------------------------------------------------------------------------------
+
+
 class PyRegion(object):
   """
   PyRegion provides services to its sub-classes (the actual regions):
@@ -97,7 +98,7 @@ class PyRegion(object):
   """
   __metaclass__ = ABCMeta
 
-  #---------------------------------------------------------------------------------
+
   @classmethod
   @not_implemented
   def getSpec(cls):
