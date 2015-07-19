@@ -23,18 +23,18 @@
 """Unit tests for category encoder"""
 
 import tempfile
+import unittest
 
-from nupic.encoders.base import defaultDtype
-from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+import capnp
 import numpy
-import unittest2 as unittest
 
+from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.encoders.base import defaultDtype
 from nupic.encoders.category import CategoryEncoder, UNKNOWN
 from nupic.encoders.category_capnp import CategoryEncoderProto
 
 
 
-#########################################################################
 class CategoryEncoderTest(unittest.TestCase):
   '''Unit tests for CategoryEncoder class'''
 

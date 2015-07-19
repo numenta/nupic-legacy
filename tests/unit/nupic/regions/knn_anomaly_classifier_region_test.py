@@ -713,7 +713,8 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
 
 
   # Tests for configuration
-  #############################################################################
+  # ===========================================================================
+
   def testSetState(self):
     # No Version set
     state = dict(_classificationDelay=100)
@@ -738,7 +739,8 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
 
 
   # Tests for _CLAClassificationRecord class
-  #############################################################################
+  # ===========================================================================
+
   def testCLAClassificationRecord(self):
     record = {
       "ROWID": 0,

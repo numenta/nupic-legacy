@@ -27,8 +27,7 @@ PictureSensor.
 from nupic.regions.PictureSensor import PictureSensor
 from nupic.math.cross import cross
 
-#+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-# InwardPictureExplorer
+
 
 class InwardPictureExplorer(PictureSensor.PictureExplorer):
   """

@@ -28,7 +28,7 @@ import numpy as np
 
 class Distributions():
 
-  ############################################################################
+
   def __init__(self):
     """A distribution is a set of values with certain statistical properties
 
@@ -38,33 +38,34 @@ class Distributions():
     - getDescription() -- Returns a dict of parameters pertinent to the
       distribution, if any as well as state variables.
     """
-  ############################################################################
+
+
   def getNext(self):
     """ Returns the next value of the disribution using knowledge about the
     current state of the distribution as stored in numValues.
     """
     raise Exception("getNext must be implemented by all subclasses")
 
-  ############################################################################
+
   def getData(self, n):
     """Returns the next n values for the distribution as a list."""
 
     records = [self.getNext() for x in range(n)]
     return records
 
-  ############################################################################
+
   def getDescription(self):
     """Returns a dict of parameters pertinent to the distribution (if any) as
     well as state variables such as numValues."""
 
     raise Exception("getDescription must be implemented by all subclasses")
 
-############################################################################
+
 
 class SineWave(Distributions):
   """Generates a sinewave of a given period, amplitude and phase shift"""
 
-  ############################################################################
+
   def __init__(self, params={}):
 
     if 'period' in params: self.period=params.pop('period')
@@ -76,7 +77,7 @@ class SineWave(Distributions):
     else: self.phaseShift=0
     self.valueNum=0
 
-  ############################################################################
+
   def getNext(self):
     nextVal = self.amplitude*np.sin(2*pi*(self.period)*self.valueNum*(pi/180) - \
       self.phaseShift)
@@ -84,48 +85,49 @@ class SineWave(Distributions):
 
     return nextVal
 
-  ############################################################################
+
   def getData(self, numOfValues):
     return Distributions.getData(self, numOfValues)
 
-  ############################################################################
+
   def getDescription(self):
     description = dict(name='SineWave', period=self.period, amplitude=self.amplitude, \
                          phaseShift=self.phaseShift, numOfValues=self.valueNum)
 
     return description
 
-############################################################################
+
 
 class RandomCategories(Distributions):
   """Generates random categories"""
 
-  ############################################################################
+
   def __init__(self, params={}):
     self.valueNum=0
     self.alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
-  ############################################################################
+
   def getNext(self):
     self.valueNum+=1
 
     return ''.join(x for x in sample(self.alphabet, randint(3,15)))
 
-  ############################################################################
+
   def getData(self, numOfValues):
     return Distributions.getData(self, numOfValues)
 
-  ############################################################################
+
   def getDescription(self):
     description = dict(name='Random Categories', numOfValues=self.valueNum)
 
     return description
 
-############################################################################
+
+
 class GaussianDistribution(Distributions):
   """Generates a gaussian distribution"""
 
-############################################################################
+
   def __init__(self, params={}):
 
     self.valueNum=0
@@ -140,7 +142,7 @@ class GaussianDistribution(Distributions):
 
     self.records = np.random.normal(self.mean, self.std, self.numOfValues)
 
-  ############################################################################
+
   def getNext(self):
 
     assert (self.numOfValues>self.valueNum)
@@ -149,11 +151,11 @@ class GaussianDistribution(Distributions):
 
     return nextValue
 
-  ############################################################################
+
   def getData(self):
     return Distributions.getData(self, self.numOfValues)
 
-  ############################################################################
+
   def getDescription(self):
     description = dict(name='GaussianDistribution', mean=self.mean,
             standardDeviation=self.std, numOfValues=self.valueNum)

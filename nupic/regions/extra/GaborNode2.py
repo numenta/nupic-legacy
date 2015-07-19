@@ -46,17 +46,13 @@ from nupic.regions.Spec import *
 
 # Global counter used for some debugging operations
 id = 0
-#+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-# GaborNode
-#+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
+
+
+
 class GaborNode2(PyRegion):
   """
   Performs dense Gabor filtering upon a multi-resolution grid.
   """
-
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-  # Class constants
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   # The minimum filter size dimension (3x3)
   minFilterDim = 3
@@ -118,10 +114,6 @@ class GaborNode2(PyRegion):
   _integerMathShifts = 12     # 2^12 = 4096
   _integerMathScale  = 1 << _integerMathShifts
 
-
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-  # Public API calls
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def __init__(self,
                # Filter size:
@@ -280,10 +272,8 @@ class GaborNode2(PyRegion):
               for the name of the log images.  Default is None (no such logging.)
     """
 
-    #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-    #|  The following parameters are for advanced configuration and unsupported at this time   |
-    #|  They may be specified via keyword arguments only.                                      |
-    #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+    # The following parameters are for advanced configuration and unsupported at this time
+    # They may be specified via keyword arguments only.
     #
     # @param nta_aspectRatio -- Controls how "fat" (i.e., how oriented) the Gabor
     #                 filters are.  A value of 1 would produce completely non-oriented
@@ -465,7 +455,6 @@ class GaborNode2(PyRegion):
     # Where we keep the maxTopDownOut for every node
     self._maxTopDownOut = []
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _stripHidingPrefixIfPresent(self, paramName):
     """
@@ -477,7 +466,6 @@ class GaborNode2(PyRegion):
     else:
       return paramName
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _isHiddenParam(self, paramName):
     """
@@ -486,7 +474,6 @@ class GaborNode2(PyRegion):
     """
     return paramName.find('nta_') == 0
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def getOutputDims(self, inputDims):
     """
@@ -496,7 +483,6 @@ class GaborNode2(PyRegion):
                                self._filterDim,
                                self._boundaryMode)
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def getNumPlanes(self):
     """
@@ -506,7 +492,6 @@ class GaborNode2(PyRegion):
                               self._phaseMode,
                               self._centerSurround)
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   @classmethod
   def calcOutputDims(cls, inputDims,
@@ -535,7 +520,6 @@ class GaborNode2(PyRegion):
       shrinkage = filterDim - 1
     return tuple([dim - shrinkage for dim in inputDims])
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   @classmethod
   def calcNumPlanes(cls, numOrientations=None,
@@ -566,7 +550,6 @@ class GaborNode2(PyRegion):
       numPlanes *= 2
     return numPlanes
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _doHolisticValidation(self):
     """
@@ -579,7 +562,6 @@ class GaborNode2(PyRegion):
                          "either 'numOrientations' must be > 0 or " \
                          "'centerSurround' must be True")
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   @classmethod
   def _validate(cls, name, value):
@@ -806,7 +788,6 @@ class GaborNode2(PyRegion):
     else:
       raise RuntimeError("Unknown parameter: %s [%s]" % (name, value))
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def initialize(self, dims, splitterMaps):
     """Build the gaborfilter bank.
@@ -822,7 +803,6 @@ class GaborNode2(PyRegion):
     # Determine the number of response planes
     self._numPlanes = self.getNumPlanes()
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def getParameter(self, parameterName, nodeSet=""):
     """
@@ -863,7 +843,6 @@ class GaborNode2(PyRegion):
     else:
       return PyRegion.getParameter(self, parameterName, nodeSet)
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def setParameter(self, parameterName, parameterValue, nodeSet=""):
     """
@@ -898,7 +877,6 @@ class GaborNode2(PyRegion):
     if parameterName in regenParams:
       self._makeLUTs()
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def enableResponseImages(self):
     """
@@ -906,7 +884,6 @@ class GaborNode2(PyRegion):
     """
     self._makeResponseImages = True
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def disableResponseImages(self):
     """
@@ -914,7 +891,6 @@ class GaborNode2(PyRegion):
     """
     self._makeResponseImages = False
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def getResponseImages(self, whichResponse='all',
                               preSuppression=False,
@@ -1006,9 +982,6 @@ class GaborNode2(PyRegion):
     # Return composite gabor response(s)
     return imageSet[whichDirection][whichResponse][whichScale]
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-  # Public class methods
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   @classmethod
   def deserializeImage(cls, serialized):
@@ -1022,9 +995,6 @@ class GaborNode2(PyRegion):
     return image
 
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-  # Private methods - Overriding base class
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   class ARRAY(ctypes.Structure):
     _fields_ = [
@@ -1034,7 +1004,6 @@ class GaborNode2(PyRegion):
           ("data",        ctypes.c_void_p),
           ]
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _wrapArray(self, array):
     """
@@ -1051,7 +1020,6 @@ class GaborNode2(PyRegion):
                    ctypes.cast(array.ctypes.strides, ctypes.c_void_p),
                    array.ctypes.data))
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _prepare(self, inputDims):
     """
@@ -1061,7 +1029,6 @@ class GaborNode2(PyRegion):
     #             for inputDim in self._inputPyramidTopology]
     self.prepare(inputDims)
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def prepare(self, inputDims):
     """
@@ -1112,7 +1079,6 @@ class GaborNode2(PyRegion):
     # used by the C implementation
     self._makeLUTs()
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _alignToFour(self, val):
     """
@@ -1122,7 +1088,6 @@ class GaborNode2(PyRegion):
     """
     return (((val - 1) / 4) + 1) * 4
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _makeLUTs(self):
     """
@@ -1233,7 +1198,6 @@ class GaborNode2(PyRegion):
     self._postProcLUT = postProcLUT
     self._postProcLutScalar = postProcScalar
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _allocBuffers(self):
     """
@@ -1280,7 +1244,6 @@ class GaborNode2(PyRegion):
                                       dtype=numpy.int32) \
                          for outHeight, outWidth in self._outputDims]
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _initEphemerals(self):
     self._gaborComputeProc = None
@@ -1323,8 +1286,6 @@ class GaborNode2(PyRegion):
         exec("self._%s = paramValue" % paramName)
 
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-
   def _getEphemeralMembers(self):
     """
     Callback (to be overridden) allowing the class to publish a list of
@@ -1341,7 +1302,6 @@ class GaborNode2(PyRegion):
         '_erosion',
         ]
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _loadLibrary(self, libraryName, libSubDir=None):
     """
@@ -1378,7 +1338,7 @@ class GaborNode2(PyRegion):
       print "Exception: %s" % str(e)
       return None
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
+
   def compute(self, inputs, outputs):
     """
     Run one iteration of fat node, profiling it if requested.
@@ -1403,7 +1363,6 @@ class GaborNode2(PyRegion):
 
     self._imageCounter += 1
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _getUpperLeftPixelValue(self, inputs, validAlpha=None):
     """
@@ -1449,7 +1408,6 @@ class GaborNode2(PyRegion):
 
     return buInputVector[pixelIndex]
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _gaborCompute(self, inputs, outputs):
     """
@@ -1568,8 +1526,6 @@ class GaborNode2(PyRegion):
       self._doDebugLogging()
 
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-
   def _doDebugLogging(self):
     """
     Dump the most recently computed responses to logging image files.
@@ -1592,7 +1548,6 @@ class GaborNode2(PyRegion):
                                                                 scale, orientCode)
           self.deserializeImage(image).save(debugPath)
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def filter(self, image, validRegionIn=None,
                    orientation='all', phase=0,
@@ -1700,7 +1655,6 @@ class GaborNode2(PyRegion):
 
     return finalResponse, response
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _buildGaborBankIfNeeded(self):
     """
@@ -1709,7 +1663,6 @@ class GaborNode2(PyRegion):
     if self._gaborBank is None:
       self._buildGaborBank()
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _doCompute(self, rfInput, rfMask, rfSize, resetSignal, validPyramid):
     """
@@ -1929,7 +1882,6 @@ class GaborNode2(PyRegion):
     self.response = responseFinal
     return responseFinal
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _applyValiditySuppression(self, response, validPyramid):
     """
@@ -1972,7 +1924,6 @@ class GaborNode2(PyRegion):
     # Apply the suppression factor to the output response array
     response *= suppressionFactor[:, numpy.newaxis]
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _dumpStats(self, response, statsLogPath):
     """
@@ -2034,7 +1985,6 @@ class GaborNode2(PyRegion):
     fpStatsLog.write(response + "\n")
     fpStatsLog.close()
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _doTopDownInfer(self, tdInput, tdNumParents, buOutput, buInput):
     """
@@ -2139,7 +2089,6 @@ class GaborNode2(PyRegion):
     return tdOutput
 
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
   def _computeWithC(self,
                     inputPlane,
                     validRegionIn,
@@ -2280,7 +2229,6 @@ class GaborNode2(PyRegion):
     #outputs['bottomUpOut'].wvector()[:] = outputPlane
     outputs['bottomUpOut'] = outputPlane
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _adjustAlphaChannel(self, alphaMask):
     """
@@ -2395,7 +2343,6 @@ class GaborNode2(PyRegion):
 
     return alphaMask
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _prepMorphology(self):
     """
@@ -2420,7 +2367,6 @@ class GaborNode2(PyRegion):
       # we create and use a new GaborNode unless we find a way
       # to guarantee the invocation of cv.ReleaseImageHeader()
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _computeBBox(self, validPyramid, inWidth, inHeight):
     """
@@ -2479,7 +2425,6 @@ class GaborNode2(PyRegion):
 
     return bbox
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _logDebugBuffers(self, outputVector, scaleIndex, outPrefix="debug"):
     """
@@ -2504,7 +2449,6 @@ class GaborNode2(PyRegion):
       self._saveImage(outputVector[k], "%s.out.%02d.%02d.png" % \
                       (outPrefix, scaleIndex, k))
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _saveImage(self, imgArray, outPath):
     imgDims = imgArray.shape
@@ -2519,7 +2463,6 @@ class GaborNode2(PyRegion):
       img.putdata(imgArray.flatten())
     img.save(outPath)
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _doGabor(self, inputVector,
                      bbox,
@@ -2576,7 +2519,6 @@ class GaborNode2(PyRegion):
     if validAlpha is not None:
       validAlpha.shape = origAlphaShape
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _convertEnumValue(self, enumValue):
     """
@@ -2586,7 +2528,6 @@ class GaborNode2(PyRegion):
     """
     return ctypes.c_int(enumValue)
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _mapParamFromPythonToC(self, paramName):
     """
@@ -2652,9 +2593,6 @@ class GaborNode2(PyRegion):
     else:
       assert False
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-  # Private helper methods
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _getValidEdgeModes(self):
     """
@@ -2662,7 +2600,6 @@ class GaborNode2(PyRegion):
     """
     return ['constrained', 'sweepOff']
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _serializeImage(self, image):
     """
@@ -2679,7 +2616,6 @@ class GaborNode2(PyRegion):
       image.save(s, format='png')
     return s.getvalue()
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _getResponseKey(self, preSuppression):
     """
@@ -2691,7 +2627,6 @@ class GaborNode2(PyRegion):
     else:
       return 'final'
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _genResponseImages(self, rawResponse, preSuppression, phase='bottomUp'):
     """
@@ -2750,7 +2685,6 @@ class GaborNode2(PyRegion):
       self._responseImages = {self._getResponseKey(preSuppression): {}}
     self._responseImages[self._getResponseKey(preSuppression)][phase] = imageSet
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _getNodeRangeByScale(self, whichScale):
     """
@@ -2772,7 +2706,6 @@ class GaborNode2(PyRegion):
         startNodeIdx = stopNodeIdx
     assert False
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _makeImage(self, response, whichScale, whichOrient, gain=1.0):
     """
@@ -2787,7 +2720,6 @@ class GaborNode2(PyRegion):
                  whichOrient]).clip(min=0.0, max=255.0).astype(numpy.uint8))
     return img
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _makeCompositeImage(self, imageSet):
     """
@@ -2805,7 +2737,6 @@ class GaborNode2(PyRegion):
     compositeImage = Image.merge(mode='RGB', bands=bands)
     return compositeImage
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   if False:
     def _getEffectiveOrients(self):
@@ -2821,7 +2752,6 @@ class GaborNode2(PyRegion):
         numEffectiveOrients -= 1
       return numEffectiveOrients
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _buildGaborBank(self):
     """
@@ -2967,7 +2897,6 @@ class GaborNode2(PyRegion):
     # during our compute() calls.
     self._gaborBank = (gaborBank.astype(numpy.float32) * 4096.0).astype(numpy.int32)
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   @classmethod
   def getSpec(cls):
@@ -3283,7 +3212,7 @@ class GaborNode2(PyRegion):
 
     return ns.toDict()
 
-  #---------------------------------------------------------------------------------
+
   def getOutputElementCount(self, name):
     """This method will be called only when the node is used in nuPIC 2"""
     if name == 'bottomUpOut':
@@ -3293,9 +3222,8 @@ class GaborNode2(PyRegion):
     else:
       raise Exception('Unknown output: ' + name)
 
-#+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-# Command line unit testing
-#+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
+
+
 if __name__=='__main__':
   from nupic.engine import Network
   n = Network()

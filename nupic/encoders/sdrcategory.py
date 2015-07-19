@@ -29,7 +29,6 @@ from nupic.bindings.math import SM32, GetNTAReal, Random as NupicRandom
 
 
 
-############################################################################
 class SDRCategoryEncoder(Encoder):
   """Encodes a list of discrete categories (described by strings), that aren't
   related to each other.
@@ -43,7 +42,7 @@ class SDRCategoryEncoder(Encoder):
 
   The SDRCategoryEncoder uses a different method to encode categories"""
 
-  ############################################################################
+
   def __init__(self, n, w, categoryList = None, name="category", verbosity=0,
                encoderSeed=1, forced=False):
     """
@@ -142,7 +141,6 @@ class SDRCategoryEncoder(Encoder):
       self.random = NupicRandom()
 
 
-  ############################################################################
   def getDecoderOutputFieldTypes(self):
     """ [Encoder class virtual method override]
     """
@@ -152,7 +150,6 @@ class SDRCategoryEncoder(Encoder):
     #return (FieldMetaType.integer,)
 
 
-  ############################################################################
   def  _addCategory(self, category):
     if category in self.categories:
       raise RuntimeError("Attempt to add add encoder category '%s' "
@@ -178,7 +175,6 @@ class SDRCategoryEncoder(Encoder):
     self._topDownMappingM = None
 
 
-  ############################################################################
   def _newRep(self):
     """Generate a new and unique representation. Returns a numpy array
     of shape (n,). """
@@ -203,15 +199,14 @@ class SDRCategoryEncoder(Encoder):
     return sdr
 
 
-  ############################################################################
   def getWidth(self):
     return self.n
 
-  ############################################################################
+
   def getDescription(self):
     return self.description
 
-  ############################################################################
+
   def getScalars(self, input):
     """ See method description in base.py """
     if input == SENTINEL_VALUE_FOR_MISSING_DATA:
@@ -228,7 +223,7 @@ class SDRCategoryEncoder(Encoder):
 
     return numpy.array([index])
 
-  ############################################################################
+
   def getBucketIndices(self, input):
     """ See method description in base.py """
 
@@ -236,7 +231,7 @@ class SDRCategoryEncoder(Encoder):
     #  bucket index
     return self.getScalars(input)
 
-  ############################################################################
+
   def encodeIntoArray(self, input, output):
     if input == SENTINEL_VALUE_FOR_MISSING_DATA:
       output[0:self.n] = 0
@@ -250,8 +245,6 @@ class SDRCategoryEncoder(Encoder):
       print "decoded:", self.decodedToStr(self.decode(output))
 
 
-
-  ############################################################################
   def decode(self, encoded, parentFieldName=''):
     """ See the function description in base.py
     """
@@ -283,7 +276,6 @@ class SDRCategoryEncoder(Encoder):
     return ({fieldName: (resultRanges, resultString)}, [fieldName])
 
 
-  ############################################################################
   def _getTopDownMapping(self):
     """ Return the interal _topDownMappingM matrix used for handling the
     bucketInfo() and topDownCompute() methods. This is a matrix, one row per
@@ -306,14 +298,12 @@ class SDRCategoryEncoder(Encoder):
     return self._topDownMappingM
 
 
-  ############################################################################
   def getBucketValues(self):
     """ See the function description in base.py """
 
     return self.categories
 
 
-  ############################################################################
   def getBucketInfo(self, buckets):
     """ See the function description in base.py
     """
@@ -330,7 +320,7 @@ class SDRCategoryEncoder(Encoder):
     return [EncoderResult(value=category, scalar=categoryIndex,
                           encoding=encoding)]
 
-  ############################################################################
+
   def topDownCompute(self, encoded):
     """ See the function description in base.py
     """
@@ -346,7 +336,7 @@ class SDRCategoryEncoder(Encoder):
 
     return EncoderResult(value=category, scalar=categoryIndex, encoding=encoding)
 
-  ############################################################################
+
   def closenessScores(self, expValues, actValues, fractional=True):
     """ See the function description in base.py
 

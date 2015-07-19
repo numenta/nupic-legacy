@@ -28,7 +28,8 @@ definition of CLAClassifierRegion for a description.
 from PyRegion import PyRegion
 from nupic.algorithms.cla_classifier_factory import CLAClassifierFactory
 
-###############################################################################
+
+
 class CLAClassifierRegion(PyRegion):
   """
   CLAClassifierRegion implements a CLA specific classifier that accepts a binary
@@ -51,8 +52,8 @@ class CLAClassifierRegion(PyRegion):
   Any number of different K's can be specified, allowing the classifier to learn
   and infer multi-step predictions for a number of steps in advance.
   """
-  
-###############################################################################
+
+
   @classmethod
   def getSpec(cls):
     ns = dict(
@@ -147,7 +148,7 @@ class CLAClassifierRegion(PyRegion):
 
     return ns
 
-  ###############################################################################
+
   def __init__(self,
                steps='1',
                alpha=0.001,
@@ -174,21 +175,18 @@ class CLAClassifierRegion(PyRegion):
     self._initEphemerals()
 
 
-  ###############################################################################
   def _initEphemerals(self):
     pass
 
 
-   ###############################################################################
   def initialize(self, dims, splitterMaps):
     pass
 
-  ###############################################################################
+
   def clear(self):
     self._claClassifier.clear()
 
 
-  ###############################################################################
   def getParameter(self, name, index=-1):
     """
     Get the value of the parameter.
@@ -201,7 +199,6 @@ class CLAClassifierRegion(PyRegion):
     return PyRegion.getParameter(self, name, index)
 
 
-  ###############################################################################
   def setParameter(self, name, index, value):
     """
     Set the value of the parameter.
@@ -218,12 +215,10 @@ class CLAClassifierRegion(PyRegion):
       return PyRegion.setParameter(self, name, index, value)
 
 
-  ###############################################################################
   def reset(self):
     pass
 
 
-  ###############################################################################
   def compute(self, inputs, outputs):
     """
     Process one input sample.
@@ -236,7 +231,7 @@ class CLAClassifierRegion(PyRegion):
 
     pass
 
-  ###############################################################################
+
   def customCompute(self, recordNum, patternNZ, classification):
     """
     Process one input sample.
@@ -269,7 +264,6 @@ class CLAClassifierRegion(PyRegion):
 
 
 
-###############################################################################
 if __name__=='__main__':
   from nupic.engine import Network
   n = Network()

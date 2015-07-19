@@ -24,7 +24,7 @@
 import os
   
 
-###############################################################################
+
 def getSearch(rootDir):
   """ This method returns search description. See the following file for the
   schema of the dictionary this method returns:

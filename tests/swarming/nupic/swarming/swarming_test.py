@@ -37,8 +37,10 @@ import time
 import math
 import uuid
 import tempfile
+from pkg_resources import resource_filename
 
 from optparse import OptionParser
+
 
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.support import configuration, initLogging
@@ -65,7 +67,6 @@ g_repeatableSwarmMaturityWindow = 5
 
 
 
-################################################################################
 class MyTestEnvironment(object):
 
   # =======================================================================
@@ -83,11 +84,10 @@ class MyTestEnvironment(object):
     return
 
 
-################################################################################
+
 class ExperimentTestBaseClass(HelperTestCaseBase):
 
 
-  ############################################################################
   def setUp(self):
     """ Method called to prepare the test fixture. This is called by the
     unittest framework immediately before calling the test method; any exception
@@ -97,7 +97,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     pass
 
 
-  ############################################################################
   def tearDown(self):
     """ Method called immediately after the test method has been called and the
     result recorded. This is called even if the test method raised an exception,
@@ -111,14 +110,13 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     self.resetExtraLogItems()
 
 
-  ############################################################################
   def shortDescription(self):
     """ Override to force unittest framework to use test method names instead
     of docstrings in the report.
     """
     return None
 
-  ############################################################################
+
   def _printTestHeader(self):
     """ Print out what test we are running
     """
@@ -127,8 +125,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     print "Running test: %s.%s..." % (self.__class__, self._testMethodName)
 
 
-
-  ############################################################################
   def _setDataPath(self, env):
     """ Put the path to our datasets int the NTA_DATA_PATH variable which
     will be used to set the environment for each of the workers
@@ -149,7 +145,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     env["NTA_DATA_PATH"] = newPath
 
 
-  ############################################################################
   def _launchWorkers(self, cmdLine, numWorkers):
     """ Launch worker processes to execute the given command line
     
@@ -171,9 +166,8 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       workers.append(p)
       
     return workers
-      
-      
-  ############################################################################
+
+
   def _getJobInfo(self, cjDAO, workers, jobID):
     """ Return the job info for a job
     
@@ -211,7 +205,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     return jobInfo
 
 
-  ############################################################################
   def _generateHSJobParams(self,
                            expDirectory=None,
                            hsImp='v2',
@@ -255,8 +248,10 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
       # Form the stream definition
       if dataPath is None:
-        dataPath = os.path.join(os.environ['NUPIC'], 'examples', 'prediction',
-                        'data', 'extra', 'qa', "hotgym", "qa_hotgym.csv")
+        dataPath = resource_filename("nupic.data",
+                                     os.path.join("extra", "qa", "hotgym",
+                                                  "qa_hotgym.csv"))
+        
       streamDef = dict(
         version = 1,
         info = "TestHypersearch",
@@ -310,7 +305,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     return jobParams
 
 
-  ############################################################################
   def _runPermutationsLocal(self, jobParams, loggingLevel=logging.INFO,
                             env=None, waitForCompletion=True,
                             continueJobId=None, ignoreErrModels=False):
@@ -401,8 +395,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     return (jobID, jobInfo, results, metricResults)
 
 
-
-  ############################################################################
   def _runPermutationsCluster(self, jobParams, loggingLevel=logging.INFO,
                               maxNumWorkers=4, env=None,
                               waitForCompletion=True, ignoreErrModels=False,
@@ -583,8 +575,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       self.assertEqual (jobInfo.completionReason,
                       ClientJobsDAO.CMPL_REASON_SUCCESS)
 
-    ############################################################################
-    ############################################################################
     # Get final model results
     models = cjDAO.modelsGetUpdateCounters(jobID)
     modelIDs = [model.modelId for model in models]
@@ -607,8 +597,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     return (jobID, jobInfo, results, metricResults)
 
 
-
-  ############################################################################
   def runPermutations(self, expDirectory, hsImp='v2', maxModels=2,
                       maxNumWorkers=4, loggingLevel=logging.INFO,
                       onCluster=False, env=None, waitForCompletion=True,
@@ -724,21 +712,22 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
     return (jobID, jobInfo, resultInfos, metricResults, minErrScore)
 
-################################################################################
+
+
 class OneNodeTests(ExperimentTestBaseClass):
   """
   """
   # AWS tests attribute required for tagging via automatic test discovery via
   # nosetests
   engineAWSClusterTest=True
-  #############################################################################
+
 
   def setUp(self):
     super(OneNodeTests, self).setUp()
     if not g_myEnv.options.runInProc:
       self.skipTest("Skipping One Node test since runInProc is not specified")
 
-  ############################################################################
+
   def testSimpleV2(self, onCluster=False, env=None, **kwargs):
     """ 
     Try running simple permutations
@@ -768,7 +757,7 @@ class OneNodeTests(ExperimentTestBaseClass):
 
     return
 
-  ############################################################################
+
   def testDeltaV2(self, onCluster=False, env=None, **kwargs):
     """ Try running a simple permutations with delta encoder
     Test which tests the delta encoder. Runs a swarm of the sawtooth dataset
@@ -800,7 +789,7 @@ class OneNodeTests(ExperimentTestBaseClass):
 
     return
 
-  ############################################################################
+
   def testSimpleV2NoSpeculation(self, onCluster=False, env=None, **kwargs):
     """ Try running a simple permutations
     """
@@ -831,7 +820,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertLess(len(resultInfos), 350)
     return
 
-  ############################################################################
+
   def testCLAModelV2(self, onCluster=False, env=None, maxModels=2,
                       **kwargs):
     """ Try running a simple permutations using an actual CLA model, not
@@ -858,7 +847,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertEqual(len(resultInfos), maxModels)
     return
 
-  ############################################################################
+
   def testCLAMultistepModel(self, onCluster=False, env=None, maxModels=2,
                       **kwargs):
     """ Try running a simple permutations using an actual CLA model, not
@@ -885,7 +874,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertEqual(len(resultInfos), maxModels)
     return
 
-  ############################################################################
+
   def testLegacyCLAMultistepModel(self, onCluster=False, env=None, maxModels=2,
                       **kwargs):
     """ Try running a simple permutations using an actual CLA model, not
@@ -913,7 +902,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertEqual(len(resultInfos), maxModels)
     return
 
-  ############################################################################
+
   def testFilterV2(self, onCluster=False):
     """ Try running a simple permutations
     """
@@ -941,7 +930,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertLess(len(resultInfos), 400)
     return
 
-  ############################################################################
+
   def testLateWorker(self, onCluster=False):
     """ Try running a simple permutations where a worker comes in late,
     after the some models have already been evaluated
@@ -984,7 +973,6 @@ class OneNodeTests(ExperimentTestBaseClass):
     return
 
 
-  ############################################################################
   def testOrphanedModel(self, onCluster=False, modelRange=(0,1)):
     """ Run a worker on a model for a while, then have it exit before the
     model finishes. Then, run another worker, which should detect the orphaned
@@ -1057,7 +1045,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertLess(len(resultInfos), 350)
     return
 
-  ############################################################################
+
   def testOrphanedModelGen1(self):
     """ Run a worker on a model for a while, then have it exit before a
     model finishes in gen index 2. Then, run another worker, which should detect
@@ -1069,7 +1057,6 @@ class OneNodeTests(ExperimentTestBaseClass):
     return inst.testOrphanedModel(modelRange=(10,11))
 
 
-  ############################################################################
   def testErredModel(self, onCluster=False, modelRange=(6,7)):
     """ Run with 1 or more models generating errors
     """
@@ -1101,7 +1088,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertLess(len(resultInfos), 350)
     return
 
-  ############################################################################
+
   def testJobFailModel(self, onCluster=False, modelRange=(6,7)):
     """ Run with 1 or more models generating jobFail exception
     """
@@ -1136,7 +1123,6 @@ class OneNodeTests(ExperimentTestBaseClass):
     return
 
 
-  ############################################################################
   def testTooManyErredModels(self, onCluster=False, modelRange=(5,10)):
     """ Run with too many models generating errors
     """
@@ -1168,7 +1154,7 @@ class OneNodeTests(ExperimentTestBaseClass):
                       ClientJobsDAO.CMPL_REASON_ERROR)
     return
 
-  ############################################################################
+
   def testFieldThreshold(self, onCluster=False, env=None, **kwargs):
     """ Test minimum field contribution threshold for a field to be included in further sprints
     """
@@ -1296,7 +1282,6 @@ class OneNodeTests(ExperimentTestBaseClass):
     assert bestModel.optimizedMetric == 25, bestModel.optimizedMetric
 
 
-  ############################################################################
   def testSpatialClassification(self, onCluster=False, env=None, **kwargs):
     """ 
     Try running a spatial classification swarm
@@ -1362,7 +1347,7 @@ class OneNodeTests(ExperimentTestBaseClass):
 
     return
 
-  ############################################################################
+
   def testAlwaysInputPredictedField(self, onCluster=False, env=None, 
                                       **kwargs):
     """ 
@@ -1424,7 +1409,7 @@ class OneNodeTests(ExperimentTestBaseClass):
 
     return
 
-  ############################################################################
+
   def testFieldThresholdNoPredField(self, onCluster=False, env=None, **kwargs):
     """ Test minimum field contribution threshold for a field to be included 
     in further sprints when doing a temporal search that does not require
@@ -1655,7 +1640,6 @@ class OneNodeTests(ExperimentTestBaseClass):
 
 
 
-################################################################################
 class MultiNodeTests(ExperimentTestBaseClass):
   """
   Test hypersearch on multiple nodes
@@ -1663,7 +1647,8 @@ class MultiNodeTests(ExperimentTestBaseClass):
   # AWS tests attribute required for tagging via automatic test discovery via
   # nosetests
   engineAWSClusterTest=True
-  ############################################################################
+
+
   def testSimpleV2(self):
     """ Try running a simple permutations
     """
@@ -1672,7 +1657,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     inst = OneNodeTests(self._testMethodName)
     return inst.testSimpleV2(onCluster=True) #, maxNumWorkers=7)
 
-  ############################################################################
+
   def testDeltaV2(self):
     """ Try running a simple permutations
     """
@@ -1681,7 +1666,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     inst = OneNodeTests(self._testMethodName)
     return inst.testDeltaV2(onCluster=True) #, maxNumWorkers=7)
 
-  ############################################################################
+
   def testSmartSpeculation(self, onCluster=True, env=None, **kwargs):
     """ Try running a simple permutations
     """
@@ -1757,7 +1742,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
     pass
 
-  ############################################################################
+
   def testSmartSpeculationSpatialClassification(self, onCluster=True, 
                                                 env=None, **kwargs):
     """ Test that smart speculation does the right thing with spatial
@@ -1833,8 +1818,6 @@ class MultiNodeTests(ExperimentTestBaseClass):
                            "hypersearch")
 
 
-
-   ############################################################################
   def testFieldBranching(self, onCluster=True, env=None, **kwargs):
     """ Try running a simple permutations
     """
@@ -1972,7 +1955,8 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
 
     return
-  ############################################################################
+
+
   def testFieldThreshold(self, onCluster=True, env=None, **kwargs):
     """ Test minimum field contribution threshold for a field to be included in further sprints
     """
@@ -1981,9 +1965,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     inst = OneNodeTests(self._testMethodName)
     return inst.testFieldThreshold(onCluster=True) 
 
-   
-    
-  ############################################################################
+
   def testFieldContributions(self, onCluster=True, env=None, **kwargs):
     """ Try running a simple permutations
     """
@@ -2028,7 +2010,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
                        "match the expected value of %f" % (key, value))
     return
 
-  ############################################################################
+
   def testCLAModelV2(self):
     """ Try running a simple permutations through a real CLA model
     """
@@ -2038,7 +2020,6 @@ class MultiNodeTests(ExperimentTestBaseClass):
     return inst.testCLAModelV2(onCluster=True, maxModels=4)
 
 
-  ############################################################################
   def testCLAMultistepModel(self):
     """ Try running a simple permutations through a real CLA model that
     uses multistep
@@ -2049,7 +2030,6 @@ class MultiNodeTests(ExperimentTestBaseClass):
     return inst.testCLAMultistepModel(onCluster=True, maxModels=4)
 
 
-  ############################################################################
   def testLegacyCLAMultistepModel(self):
     """ Try running a simple permutations through a real CLA model that
     uses multistep
@@ -2060,7 +2040,6 @@ class MultiNodeTests(ExperimentTestBaseClass):
     return inst.testLegacyCLAMultistepModel(onCluster=True, maxModels=4)
 
 
-  ############################################################################
   def testSimpleV2VariableWaits(self):
     """ Try running a simple permutations where certain field combinations
     take longer to complete, this lets us test that we successfully kill
@@ -2080,7 +2059,6 @@ class MultiNodeTests(ExperimentTestBaseClass):
     return inst.testSimpleV2(onCluster=True, env=env)
 
 
-  ############################################################################
   def testOrphanedModel(self, modelRange=(0,2)):
     """ Run a worker on a model for a while, then have it exit before the
     model finishes. Then, run another worker, which should detect the orphaned
@@ -2116,7 +2094,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     self.assertLess(len(resultInfos), 500)
     return
 
-  ############################################################################
+
   def testTwoOrphanedModels(self, modelRange=(0,2)):
     """ Test behavior when a worker marks 2 models orphaned at the same time. 
     """
@@ -2152,7 +2130,6 @@ class MultiNodeTests(ExperimentTestBaseClass):
     return
 
 
-  ############################################################################
   def testOrphanedModelGen1(self):
     """ Run a worker on a model for a while, then have it exit before the
     model finishes. Then, run another worker, which should detect the orphaned
@@ -2163,7 +2140,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     inst = MultiNodeTests(self._testMethodName)
     return inst.testOrphanedModel(modelRange=(10,11))
 
-  ############################################################################
+
   def testOrphanedModelMaxModels(self):
     """ Test to make sure that the maxModels parameter doesn't include
     orphaned models. Run a test with maxModels set to 2, where one becomes
@@ -2200,7 +2177,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     self.assertGreaterEqual(completionReasons.count(cjDB.CMPL_REASON_EOF), numModels)
     self.assertGreaterEqual(completionReasons.count(cjDB.CMPL_REASON_ORPHAN), 1)
 
-  ############################################################################
+
   def testOrphanedModelConnection(self):
     """Test for the correct behavior when a model uses a different connection id
     than what is stored in the db. The correct behavior is for the worker to log
@@ -2241,7 +2218,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     self.assertGreaterEqual(completionReasons.count(cjDB.CMPL_REASON_EOF), numModels)
     self.assertGreaterEqual(completionReasons.count(cjDB.CMPL_REASON_ORPHAN), 1)
 
-  ############################################################################
+
   def testErredModel(self, modelRange=(6,7)):
     """ Run a worker on a model for a while, then have it exit before the
     model finishes. Then, run another worker, which should detect the orphaned
@@ -2252,7 +2229,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     inst = OneNodeTests(self._testMethodName)
     return inst.testErredModel(onCluster=True)
 
-  ############################################################################
+
   def testJobFailModel(self):
     """ Run a worker on a model for a while, then have it exit before the
     model finishes. Then, run another worker, which should detect the orphaned
@@ -2263,7 +2240,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     inst = OneNodeTests(self._testMethodName)
     return inst.testJobFailModel(onCluster=True)
 
-  ############################################################################
+
   def testTooManyErredModels(self, modelRange=(5,10)):
     """ Run a worker on a model for a while, then have it exit before the
     model finishes. Then, run another worker, which should detect the orphaned
@@ -2274,7 +2251,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     inst = OneNodeTests(self._testMethodName)
     return inst.testTooManyErredModels(onCluster=True)
 
-  ############################################################################
+
   def testSpatialClassification(self):
     """ Try running a simple permutations
     """
@@ -2284,7 +2261,6 @@ class MultiNodeTests(ExperimentTestBaseClass):
     return inst.testSpatialClassification(onCluster=True) #, maxNumWorkers=7)
 
 
-  ############################################################################
   def testAlwaysInputPredictedField(self):
 
     self._printTestHeader()
@@ -2292,7 +2268,6 @@ class MultiNodeTests(ExperimentTestBaseClass):
     return inst.testAlwaysInputPredictedField(onCluster=True) 
 
 
-  ############################################################################
   def testFieldThresholdNoPredField(self):
 
     self._printTestHeader()
@@ -2301,14 +2276,14 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
 
 
-################################################################################
 class ModelMaturityTests(ExperimentTestBaseClass):
   """
   """
   # AWS tests attribute required for tagging via automatic test discovery via
   # nosetests
   engineAWSClusterTest=True
-  #############################################################################
+
+
   def setUp(self):
     # Ignore the global hypersearch version setting. Always test hypersearch v2
     hsVersion = 2
@@ -2321,7 +2296,7 @@ class ModelMaturityTests(ExperimentTestBaseClass):
                 'NTA_CONF_PROP_nupic_hypersearch_enableSwarmTermination':'0',
                 'NTA_CONF_PROP_nupic_hypersearch_bestModelMinRecords':'0'}
 
-  ############################################################################
+
   def testMatureInterleaved(self):
     """ Test to make sure that the best model continues running even when it has
     matured. The 2nd model (constant) will be marked as mature first and will
@@ -2371,7 +2346,6 @@ class ModelMaturityTests(ExperimentTestBaseClass):
     self.assertTrue(matured[0], True)
 
 
-  ############################################################################
   def testConstant(self):
     """ Sanity check to make sure that when only 1 model is running, it continues
     to run even when it has reached maturity """
@@ -2405,7 +2379,7 @@ class ModelMaturityTests(ExperimentTestBaseClass):
     self.assertEqual(completionReasons[0], cjDB.CMPL_REASON_EOF)
     self.assertEqual(matured[0], True)
 
-  ############################################################################
+
   def getModelFields(self, jobID, fields):
     cjDB = ClientJobsDAO.get()
     modelIDs = cjDB.jobGetModelIDs(jobID)
@@ -2423,21 +2397,23 @@ class ModelMaturityTests(ExperimentTestBaseClass):
 
     return [e[1:] for e in sorted(modelInfo, key=lambda info:info[0])]
 
-################################################################################
+
+
 class SwarmTerminatorTests(ExperimentTestBaseClass):
   """
   """
   # AWS tests attribute required for tagging via automatic test discovery via
   # nosetests
   engineAWSClusterTest=True
-  #############################################################################
+
+
   def setUp(self):
     self.env = {'NTA_CONF_PROP_nupic_hypersearch_enableModelMaturity':'0',
                 'NTA_CONF_PROP_nupic_hypersearch_enableModelTermination':'0',
                 'NTA_CONF_PROP_nupic_hypersearch_enableSwarmTermination':'1',
                 'NTA_TEST_recordSwarmTerminations':'1'}
 
-  ############################################################################
+
   def testSimple(self, useCluster=False):
     """Run with one really bad swarm to see if terminator picks it up correctly"""
 
@@ -2470,7 +2446,7 @@ class SwarmTerminatorTests(ExperimentTestBaseClass):
       else:
         self.assertEqual(generation, swarmMaturityWindow-1+4)
 
-  ############################################################################
+
   def testMaturity(self, useCluster=False):
     if not g_myEnv.options.runInProc:
       self.skipTest("Skipping One Node test since runInProc is not specified")
@@ -2507,15 +2483,16 @@ class SwarmTerminatorTests(ExperimentTestBaseClass):
       else:
         self.assertEqual(generation, swarmMaturityWindow-1 + 7)
 
-  ############################################################################
+
   def testSimpleMN(self):
     self.testSimple(useCluster=True)
 
-  ############################################################################
+
   def testMaturityMN(self):
     self.testMaturity(useCluster=True)
 
-############################################################################
+
+
 def getHypersearchWinningModelID(jobID):
   """
   Parameters:
@@ -2533,7 +2510,6 @@ def getHypersearchWinningModelID(jobID):
 
 
 
-################################################################################
 def _executeExternalCmdAndReapStdout(args):
   """
   args:     Args list as defined for the args parameter in subprocess.Popen()
@@ -2571,7 +2547,8 @@ def _executeExternalCmdAndReapStdout(args):
 
   return result
 
-################################################################################
+
+
 def _debugOut(text):
   global g_debug
   if g_debug:
@@ -2580,7 +2557,8 @@ def _debugOut(text):
 
   return
 
-################################################################################
+
+
 def _getTestList():
   """ Get the list of tests that can be run from this module"""
 
@@ -2666,8 +2644,7 @@ class _ArgParser(object):
     return cls._processArgs()[1]
 
 
-################################################################################
-################################################################################
+
 def setUpModule():
   print "\nCURRENT DIRECTORY:", os.getcwd()
 
