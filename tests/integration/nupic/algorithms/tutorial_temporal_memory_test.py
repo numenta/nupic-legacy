@@ -41,7 +41,8 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     "maxNewSynapseCount": 6,
     "permanenceIncrement": 0.1,
     "permanenceDecrement": 0.05,
-    "activationThreshold": 1
+    "activationThreshold": 1,
+    "seed": 42
   }
   PATTERN_MACHINE = ConsecutivePatternMachine(6, 1)
 

@@ -197,7 +197,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     "maxNewSynapseCount": 11,
     "permanenceIncrement": 0.4,
     "permanenceDecrement": 0,
-    "activationThreshold": 11
+    "activationThreshold": 11,
+    "seed": 42
   }
   PATTERN_MACHINE = PatternMachine(100, range(21, 26), num=300)
 
