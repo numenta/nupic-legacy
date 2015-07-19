@@ -44,7 +44,7 @@ from nupic.analysis.memoryAwareness import MemoryAwareness
 _kKernelTypes = ["rbf", "linear"]
 
 
-############################################################################
+
 class SVMClassifierNode(PyNode, MemoryAwareness):
   """
   SVMClassifierNode implements Support Vector Machines (SVMs), which can be used to
@@ -189,7 +189,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     self.distances = None
     self._distanceCount = 0
 
-  #---------------------------------------------------------------------------------
+
   def _initRandom(self):
     """
     Create and seed random number generator.
@@ -272,10 +272,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
   nta_cpp_svm_seed = property(fget=lambda self: self.cpp_svm_seed,
                               fset=_set_nta_cpp_svm_seed)
 
-
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-  # Public API methods
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def compute(self, nodeInfo, inputs, outputs):
     """
@@ -384,7 +380,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       allOutputs[0:nout] = out[0:nout]
 
 
-  #---------------------------------------------------------------------------------
   def _scan(self, inputs):
     """
     Run scanning inference and store the results.
@@ -416,7 +411,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       self._scanResults.append(tuple(out))
 
 
-  #---------------------------------------------------------------------------------
   # @todo -- Modernize nodeSpec
   def getNodeSpec(self):
     """
@@ -583,7 +577,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     return out + parent
 
 
-  #---------------------------------------------------------------------------------
   def catIndexToId(self, catIndex):
     """
     Map category indices (internal) to category IDs (external).
@@ -591,7 +584,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     return self._catIdMap[catIndex]
 
 
-  #---------------------------------------------------------------------------------
   def _getHyperplanes(self):
     """
     Return a numpy array containing the complete set of hyperplanes used
@@ -605,7 +597,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     return hyperplanes
 
 
-  #---------------------------------------------------------------------------------
   def simulateTrainingSample(self, inputWidth=None, category=None, partitionId=None):
     """
     Debugging/profiling utility method to allow tools to
@@ -631,7 +622,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     if partitionId is not None:
       self._partitionIds.append(partitionId)
 
-  #---------------------------------------------------------------------------------
+
   def getParameter(self, parameterName, nodeSet=""):
     """
     Get the value of a parameter.
@@ -677,7 +668,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     else:
       PyNode.setParameter(self, parameterName, parameterValue, nodeSet)
 
-  #---------------------------------------------------------------------------------
+
   def getNumTrainingSamples(self):
     if self._samples is None:
       numSamples = 0
@@ -685,7 +676,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       numSamples = self._samples.shape[0]
     return numSamples
 
-  #---------------------------------------------------------------------------------
+
   def _getActiveOutputCount(self):
     if self._catIdMap is not None:
       # Use the catIdMap, which is created during finishLearning
@@ -709,10 +700,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     return self._autoTuningData
   autoTuningData = property(_getAutoTuningData, _setAutoTuningData)
 
-
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-  # Internal methods
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def __setstate__(self, state):
     """
@@ -759,7 +746,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
 
     self._initRandom()
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def __getstate__(self):
     """
@@ -773,7 +759,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       del state[ephemeralMemberName]
     return state
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _getEphemeralMembers(self):
     """
@@ -786,7 +771,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
         '_autoTunePartitionIds',
         ]
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _initDataStructures(self, inputWidth):
     """
@@ -828,7 +812,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
                             probability=self.useProbabilisticSvm,
                             seed=self.cpp_svm_seed)
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _learn(self, inputVector, trueCatIndex, partitionId=None):
     """
@@ -842,7 +825,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     # category mapping later
     self._storeSample(trueCatIndex, inputVector, partitionId)
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _storeSample(self, trueCatIndex, inputVector, partitionId):
     """
@@ -887,7 +869,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       if partitionId is not None:
         self._partitionIds.append(partitionId)
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _infer(self, sample):
     """
@@ -913,7 +894,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       belief[prediction] = 1.0
     return belief
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _finishSphering(self):
     """
@@ -940,7 +920,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
 
     return samples
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _finishLearning(self):
     """
@@ -1047,7 +1026,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
 
     self._endMemoryMonitoring("_finishLearning")
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _doRecursion(self, samples, validationSets, paramRange, recursionIndex=0, bestResults=None):
     """
@@ -1120,7 +1098,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       return self._doRecursion(samples, validationSets, newParamRange, recursionIndex,
                               (bestSamplePoint, bestAccuracy, svmModel))
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _autoTuneTest(self, svm):
     if self.useProbabilisticSvm:
@@ -1146,7 +1123,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
         numErrors += 1
     return float(numTestingSamples - numErrors) / float(numTestingSamples)
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _validateSvm(self, C, gamma, progressStart, progressEnd):
     """
@@ -1225,7 +1201,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
                                                 eps=self.convEpsilon)
     return (accuracy, None)
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _buildSVM(self, C, gamma):
     """
@@ -1242,7 +1217,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     valueGamma = math.pow(10.0, gamma)
     self._svm.trainReleaseGIL(gamma=valueGamma, C=valueC, eps=self.convEpsilon)
 
-  #---------------------------------------------------------------------------------
+
   def computeSVD(self, numSVDSamples=None, finalize=True):
     print 'Computing SVD'
 
@@ -1265,7 +1240,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       self.finalizeSVD()
     return self._s
 
-  #---------------------------------------------------------------------------------
+
   def getAdaptiveSVDDims(self, singularValues, fractionOfMax=0.001):
     v = singularValues/singularValues[0]
     idx = numpy.where(v<fractionOfMax)[0]
@@ -1276,7 +1251,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       print "Number of PCA dimensions chosen: ", len(v)-1, "out of ", len(v)
       return len(v)-1
 
-  #---------------------------------------------------------------------------------
+
   def finalizeSVD(self, numSVDDims=None):
     print 'Finalizing SVD'
 
@@ -1310,7 +1285,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       self._samples = numpy.dot(self._samples, self._vt.T)
 
 
-  #---------------------------------------------------------------------------------
   def getAllDistances(self):
     """Return all the prototype distances from all computes available."""
 
@@ -1319,7 +1293,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     return self.distances[:self._distanceCount, :]
 
 
-  #---------------------------------------------------------------------------------
   def getLatestDistances(self):
     """Get the distances to all training samples (pre-SVM, post-PCA)."""
 
@@ -1331,7 +1304,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     return self._calculateDistances(self._inputVector)
 
 
-  #---------------------------------------------------------------------------------
   def getCategoryList(self):
     """
     Public API for returning the category list
@@ -1339,7 +1311,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
 
     return self._labels
 
-  #---------------------------------------------------------------------------------
+
   def _calculateDistances(self, inputVector):
     """Calculate distances in the original input space (pre-SVM, post-PCA)."""
 
@@ -1355,7 +1327,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     return dist
 
 
-  #---------------------------------------------------------------------------------
   def _calculateAndStoreDistances(self, inputVector):
     """Calculate distances in the original input space (pre-SVM, post-PCA)."""
 
@@ -1379,7 +1350,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       self._distanceCount += 1
 
 
-  #---------------------------------------------------------------------------------
   def setUpcomingPartitionIds(self, partitionIds):
     """
     Set the queue of upcoming partition ids. This can be used instead of the
@@ -1401,7 +1371,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     self._upcomingPartitionIds = partitionIds
 
 
-  #---------------------------------------------------------------------------------
   def remapCategories(self, mapping):
     """
     Change the existing category labels.
@@ -1425,7 +1394,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     self._labels = list(newLabels)
 
 
-  #---------------------------------------------------------------------------------
   def changePartitionId(self, oldPartitionId, newPartitionId):
     """
     Change all instances of oldPartitionId to newPartitionId.
@@ -1440,7 +1408,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     self._partitionIds = list(self._partitionIds)
 
 
-  #---------------------------------------------------------------------------------
   def changeCategoriesOfPartitionIds(self, partitionIds, categoryIndices):
     """
     Change the category associated with all vectors with this partitionId(s).
@@ -1475,7 +1442,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     self._labels = list(self._labels)
 
 
-  #---------------------------------------------------------------------------------
   def switchToLearning(self):
     """Force a switch back to learning mode (not normally supported)."""
 
@@ -1492,9 +1458,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     self._distanceCount = None
 
 
-#+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-# Command line unit testing
-#+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
+
 if __name__=='__main__':
   import os
   from nupic.network import CreateNode

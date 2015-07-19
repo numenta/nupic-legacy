@@ -1,5 +1,97 @@
 # Changelog
 
+## 0.2.6
+
+* Sets zip-safe to false to make sure relative capnp schema imports will work and importing .capnp files will work.
+* Clean up capnp imports.
+* Changes to TM test to accommodate changes in the default value of predictedSegmentDecrement
+* Merge remote-tracking branch 'upstream/master'
+* Change default value of predictedSegmentDecrement to be 0 to be backward compatible
+* Change default value of predictedSegmentDecrement to be 0 to be backward compatible
+* Change default value of predictedSegmentDecrement to be 0 to be backward compatible
+* Merge remote-tracking branch 'upstream/master'
+* Rename testconsoleprinter_output.txt so as to not be picked up by py.test as a test during discovery
+* likelihood test: fix raw-value must be int
+* Fix broken TPShim
+* Revert "Fix TP Shim"
+* Anomaly serialization verify complex anomaly instance
+* Likelihood pickle serialization test
+* MovingAverage pickle serialization test
+* Fix TP Shim
+* Removed stripUnlearnedColumns-from-SPRegion
+* Updated comment describing activeArray paramater of stripUnlearnedColumns method in SP
+* Revert "MovingAvera: remove unused pickle serialization method"
+* Updated NUPIC_CORE_COMMITISH to use the core without stripNeverLearned
+* Removed stripNeverLearned from SP.compute
+* MovingAverage has getter for current value
+* Fixes bug in mmGetCellActivityPlot
+* Merge remote-tracking branch 'upstream/master'
+* Fixes bug in mmGetCellActivityPlot
+* Fixes bug in mmGetCellActivityPlot
+* addressing scott's cr
+* addressing cr; docstring formatting and minor
+* Continuing work on 0.2.6.dev0.
+* minor
+* first version of knn tests
+* Update SHA and fix files
+* Rename cpp_region to py_region
+* pylint
+* fix likelihood equals problem when default timestamp
+* Likelihood: @param docstring
+* AnomalyLikelihood: add __str__
+* ANomalyLikelihood equals test case
+* Anomaly: add eq test
+* add MovingAverage eq test
+* anomaly likelihood, MA, Anomaly: review - better _eq_ statement
+* Anomaly: code review - use instance access
+* improving constructor docs
+* AnomalyLikelihood: add _eq_
+* Anomaly: compare likelihood in _eq_
+* improve anomaly serialization test - use eq
+* MovingAvera: remove unused pickle serialization method
+* Anomaly & MovingAverage : change __cmp__ to __eq__
+* define equals operator (__cmp__) for anomaly & MovingAverage
+* anomaly serialize test - comment out parts
+* Anomaly: add serialization test
+
+## 0.2.5
+
+* Fix MANIFEST.in capnp include.
+* Update documentation related to PyRegion serialization introduction.
+* Updates nupic.core and adds function definitions for read/write in PyRegion
+
+## 0.2.4
+
+* Fix a minor bug in the algorithm
+* Implement orphan synapse decay
+* register python regions in Region class method
+* moved registration of python regions to nupic.core
+* date encoder bug fix
+* Implement orphan synapse decay
+* changed default regions to tuples
+* fill predictedActiveCells with 0
+* removing irrelevant files
+* removing old network api demo 2
+* modified PyRegion to accept custom classes
+* renamed unionMode to computePredictedActiveCellIndices
+* set the output size for active indices and predicted+active indices to max possible size
+* converting union pooler input to right format
+* Port AnomalyRegion serialization
+* Rename "enc" to "encoder"
+
+## 0.2.3
+
+* updated custom region methods and example to be static
+* demo for custom regions
+* Improve docstring for 'save' method and others.
+* allows custom regions
+* moved encoder changes to network_api_demo
+* updated network_api_demo in new file to make swapping out encoders easier
+* bit more explanation for MultiEncoder
+* Use different logic for determining whether or not to translate back into actual values from bucket indices
+* Switch over to C++ SpatialPooler where possible to speed up tests/build.
+* Finish implementation of TemporalMemory serialization
+
 ## 0.2.2
 
 * Fixed equality test for Connections class

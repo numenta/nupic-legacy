@@ -58,20 +58,21 @@ _ONE_INDENT = ' ' * _INDENT_STEP
 _ILLEGAL_FIELDNAME_CHARACTERS = "\\"
 METRIC_WINDOW = int(Configuration.get("nupic.opf.metricWindow"))
 
-#############################################################################
+
+
 # Enum to characterize potential generation environments
 OpfEnvironment = Enum(Nupic='nupic',
                       Experiment='opfExperiment')
 
 
-#############################################################################
+
 class _ExpGeneratorException(Exception):
   """ Base class for all ExpGenerator-specific exceptions
   """
   pass
 
 
-#############################################################################
+
 class _CreateDirectoryException(_ExpGeneratorException):
   """ Raised on error creating the experiment directory
 
@@ -91,7 +92,7 @@ class _CreateDirectoryException(_ExpGeneratorException):
     self.reason = reason
 
 
-#############################################################################
+
 class _InvalidFunctionArgException(_ExpGeneratorException):
   """
   This exception may be raised in response to invalid or incompatible function
@@ -100,7 +101,7 @@ class _InvalidFunctionArgException(_ExpGeneratorException):
   pass
 
 
-#############################################################################
+
 class _InvalidCommandArgException(_ExpGeneratorException):
   """
   This exception may be raised in response to invalid or incompatible command
@@ -111,7 +112,7 @@ class _InvalidCommandArgException(_ExpGeneratorException):
   pass
 
 
-#############################################################################
+
 class _ErrorReportingException(_ExpGeneratorException):
   """
   This exception may be raised by our error result reporting code.  When
@@ -134,12 +135,12 @@ class _ErrorReportingException(_ExpGeneratorException):
                                 % (problem, precursor))
 
 
-#############################################################################
+
 class FieldTypeError(_ExpGeneratorException):
   pass
 
 
-#############################################################################
+
 def _makeUsageErrorStr(errorString, usageString):
   """ Combines an error string and usage string into a regular format, so they
   all look consistent.
@@ -147,7 +148,7 @@ def _makeUsageErrorStr(errorString, usageString):
   return "ERROR: %s (%s)" % (errorString, usageString)
 
 
-#############################################################################
+
 def _handleShowSchemaOption():
   """ Displays command schema to stdout and exit program
   """
@@ -157,7 +158,7 @@ def _handleShowSchemaOption():
   return
 
 
-#############################################################################
+
 def _handleDescriptionOption(cmdArgStr, outDir, usageStr, hsVersion,
                              claDescriptionTemplateFile):
   """
@@ -195,7 +196,7 @@ def _handleDescriptionOption(cmdArgStr, outDir, usageStr, hsVersion,
   return
 
 
-#############################################################################
+
 def _handleDescriptionFromFileOption(filename, outDir, usageStr, hsVersion,
                              claDescriptionTemplateFile):
   """
@@ -230,7 +231,7 @@ def _handleDescriptionFromFileOption(filename, outDir, usageStr, hsVersion,
   return
 
 
-#############################################################################
+
 def _isInt(x, precision = 0.0001):
   """
   Return (isInt, intValue) for a given floating point number.
@@ -248,7 +249,7 @@ def _isInt(x, precision = 0.0001):
   return (abs(x - xInt) < precision * x, xInt)
 
 
-#############################################################################
+
 def _isString(obj):
   """
   returns whether or not the object is a string
@@ -257,7 +258,7 @@ def _isString(obj):
   return type(obj) in types.StringTypes
 
 
-#############################################################################
+
 def _quoteAndEscape(string):
   """
   string:   input string (ascii or unicode)
@@ -269,7 +270,7 @@ def _quoteAndEscape(string):
   return pprint.pformat(string)
 
 
-#############################################################################
+
 def _indentLines(str, indentLevels = 1, indentFirstLine=True):
   """ Indent all lines in the given string
 
@@ -297,7 +298,7 @@ def _indentLines(str, indentLevels = 1, indentFirstLine=True):
   return result
 
 
-#############################################################################
+
 def _isCategory(fieldType):
   """Prediction function for determining whether a function is a categorical
       variable or a scalar variable.  Mainly used for determining the appropriate
@@ -310,7 +311,7 @@ def _isCategory(fieldType):
     return False
 
 
-#############################################################################
+
 def _generateMetricSpecString(inferenceElement, metric,
                               params=None, field=None,
                               returnLabel=False):
@@ -355,7 +356,7 @@ def _generateMetricSpecString(inferenceElement, metric,
   return metricSpecAsString, metricLabel
 
 
-#############################################################################
+
 def _generateFileFromTemplates(templateFileNames, outputFilePath,
                               replacementDict):
   """ Generates a file by applying token replacements to the given template
@@ -406,7 +407,7 @@ def _generateFileFromTemplates(templateFileNames, outputFilePath,
   outputFile.close()
 
 
-#############################################################################
+
 def _generateEncoderChoicesV1(fieldInfo):
   """ Return a list of possible encoder parameter combinations for the given
   field and the default aggregation function to use. Each parameter combination
@@ -499,7 +500,7 @@ def _generateEncoderChoicesV1(fieldInfo):
   return (encoderChoicesList, aggFunction)
 
 
-#############################################################################
+
 def _generateEncoderStringsV1(includedFields):
   """ Generate and return the following encoder related substitution variables:
 
@@ -621,7 +622,7 @@ def _generateEncoderStringsV1(includedFields):
   return (encoderSpecsStr, permEncoderChoicesStr)
 
 
-#############################################################################
+
 def _generatePermEncoderStr(options, encoderDict):
   """ Generate the string that defines the permutations to apply for a given
   encoder. 
@@ -757,7 +758,7 @@ def _generatePermEncoderStr(options, encoderDict):
   return permStr
 
 
-#############################################################################
+
 def _generateEncoderStringsV2(includedFields, options):
   """ Generate and return the following encoder related substitution variables:
 
@@ -978,7 +979,7 @@ def _generateEncoderStringsV2(includedFields, options):
   return (encoderSpecsStr, permEncoderChoicesStr)
 
 
-#############################################################################
+
 def _handleJAVAParameters(options):
   """ Handle legacy options (TEMPORARY) """
 
@@ -1007,7 +1008,7 @@ def _handleJAVAParameters(options):
       options['inferenceArgs']['predictedField'] = options['predictionField']
 
 
-#############################################################################
+
 def _getPropertyValue(schema, propertyName, options):
   """Checks to see if property is specified in 'options'. If not, reads the
   default value from the schema"""
@@ -1020,7 +1021,7 @@ def _getPropertyValue(schema, propertyName, options):
       options[propertyName] = None
 
 
-#############################################################################
+
 def _getExperimentDescriptionSchema():
   """
   Returns the experiment description schema. This implementation loads it in
@@ -1035,7 +1036,7 @@ def _getExperimentDescriptionSchema():
   return json.loads(open(schemaFilePath, 'r').read())
 
 
-#############################################################################
+
 def _generateExperiment(options, outputDirPath, hsVersion,
                              claDescriptionTemplateFile):
   """ Executes the --description option, which includes:
@@ -1616,7 +1617,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   print "done."
 
 
-#############################################################################
+
 def _generateMetricsSubstitutions(options, tokenReplacements):
   """Generate the token substitution for metrics related fields.
   This includes:
@@ -1650,7 +1651,7 @@ def _generateMetricsSubstitutions(options, tokenReplacements):
                                         = permOptimizeSettingStr
 
 
-#############################################################################
+
 def _generateMetricSpecs(options):
   """ Generates the Metrics for a given InferenceType
 
@@ -1856,7 +1857,7 @@ def _generateMetricSpecs(options):
   return metricSpecStrings, optimizeMetricLabel
 
 
-#############################################################################
+
 def _generateExtraMetricSpecs(options):
   """Generates the non-default metrics specified by the expGenerator params """
   global _metricSpecSchema
@@ -1883,7 +1884,7 @@ def _generateExtraMetricSpecs(options):
   return results
 
 
-#############################################################################
+
 def _getPredictedField(options):
   """ Gets the predicted field and it's datatype from the options dictionary
 
@@ -1911,7 +1912,7 @@ def _getPredictedField(options):
   return predictedField, predictedFieldType
 
 
-#############################################################################
+
 def _generateInferenceArgs(options, tokenReplacements):
   """ Generates the token substitutions related to the predicted field
   and the supplemental arguments for prediction
@@ -1944,7 +1945,7 @@ def _generateInferenceArgs(options, tokenReplacements):
   tokenReplacements['\$PREDICTION_FIELD'] = predictedField
 
 
-#############################################################################
+
 def expGenerator(args):
   """ Parses, validates, and executes command-line options;
 
@@ -2038,6 +2039,5 @@ def expGenerator(args):
 
 
 
-#############################################################################
 if __name__ == '__main__':
   expGenerator(sys.argv[1:])

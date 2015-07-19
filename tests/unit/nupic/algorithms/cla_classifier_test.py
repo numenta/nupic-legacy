@@ -28,9 +28,9 @@ import cPickle as pickle
 import types
 import unittest2 as unittest
 
+import capnp
 import numpy
 import tempfile
-import capnp
 
 from nupic.algorithms.CLAClassifier import CLAClassifier
 from nupic.bindings.proto import ClaClassifier_capnp

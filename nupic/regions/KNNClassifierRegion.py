@@ -29,7 +29,8 @@ import numpy
 from PyRegion import PyRegion
 from nupic.algorithms import KNNClassifier
 
-#---------------------------------------------------------------------------------
+
+
 class KNNClassifierRegion(PyRegion):
   """
   KNNClassifierRegion implements the k Nearest Neighbor classification algorithm.
@@ -40,7 +41,7 @@ class KNNClassifierRegion(PyRegion):
 
   __VERSION__ = 1
 
-  #---------------------------------------------------------------------------------
+
   @classmethod
   def getSpec(cls):
     ns = dict(
@@ -445,7 +446,7 @@ class KNNClassifierRegion(PyRegion):
 
     return ns
 
-  #---------------------------------------------------------------------------------
+
   def __init__(self,
                maxCategoryCount=0,
                bestPrototypeIndexCount=0,
@@ -612,11 +613,10 @@ class KNNClassifierRegion(PyRegion):
     return state
 
 
-  #---------------------------------------------------------------------------------
   def initialize(self, dims, splitterMaps):
     assert tuple(dims) == (1,) * len(dims)
 
-  #---------------------------------------------------------------------------------
+
   def _getActiveOutputCount(self):
     if self._knn._categoryList:
       return int(max(self._knn._categoryList)+1)
@@ -626,14 +626,12 @@ class KNNClassifierRegion(PyRegion):
   activeOutputCount = property(fget=_getActiveOutputCount)
 
 
-  #---------------------------------------------------------------------------------
   def _getSeenCategoryCount(self):
     return len(set(self._knn._categoryList))
 
   categoryCount = property(fget=_getSeenCategoryCount)
 
 
-  #---------------------------------------------------------------------------------
   def _getPatternMatrix(self):
 
     if self._knn._M is not None:
@@ -641,7 +639,7 @@ class KNNClassifierRegion(PyRegion):
     else:
       return self._knn._Memory
 
-  #---------------------------------------------------------------------------------
+
   def _getAccuracy(self):
 
     n = self.confusion.shape[0]
@@ -651,13 +649,11 @@ class KNNClassifierRegion(PyRegion):
   accuracy = property(fget=_getAccuracy)
 
 
-  #---------------------------------------------------------------------------------
   def clear(self):
 
     self._knn.clear()
 
 
-  #---------------------------------------------------------------------------------
   def getParameter(self, name, index=-1):
     """
     Get the value of the parameter.
@@ -716,7 +712,6 @@ class KNNClassifierRegion(PyRegion):
       return PyRegion.getParameter(self, name, index)
 
 
-  #---------------------------------------------------------------------------------
   def setParameter(self, name, index, value):
     """
     Set the value of the parameter.
@@ -758,13 +753,11 @@ class KNNClassifierRegion(PyRegion):
       return PyRegion.setParameter(self, name, index, value)
 
 
-  #---------------------------------------------------------------------------------
   def reset(self):
 
     self.confusion = numpy.zeros((1, 1))
 
 
-  #---------------------------------------------------------------------------------
   def doInference(self, activeInput):
     """Explicitly run inference on a vector that is passed in and return the
     category id. Useful for debugging."""
@@ -773,7 +766,6 @@ class KNNClassifierRegion(PyRegion):
     return inference
 
 
-  #---------------------------------------------------------------------------------
   def enableTap(self, tapPath):
     """
     Begin writing output tap files.
@@ -785,7 +777,6 @@ class KNNClassifierRegion(PyRegion):
     self._tapFileOut = open(tapPath + '.out', 'w')
 
 
-  #---------------------------------------------------------------------------------
   def disableTap(self):
     """Disable writing of output tap files. """
 
@@ -797,7 +788,6 @@ class KNNClassifierRegion(PyRegion):
       self._tapFileOut = None
 
 
-  #---------------------------------------------------------------------------------
   def handleLogInput(self, inputs):
     """Write inputs to output tap file."""
 
@@ -808,7 +798,6 @@ class KNNClassifierRegion(PyRegion):
         print >> self._tapFileIn
 
 
-  #---------------------------------------------------------------------------------
   def handleLogOutput(self, output):
     """Write outputs to output tap file."""
     #raise Exception('MULTI-LINE DUMMY\nMULTI-LINE DUMMY')
@@ -818,7 +807,6 @@ class KNNClassifierRegion(PyRegion):
       print >> self._tapFileOut
 
 
-  #---------------------------------------------------------------------------------
   def _storeSample(self, inputVector, trueCatIndex, partition=0):
     """
     Store a training sample and associated category label
@@ -842,7 +830,7 @@ class KNNClassifierRegion(PyRegion):
       partition = 0
     self._partitions += [partition]
 
-  #---------------------------------------------------------------------------------
+
   def compute(self, inputs, outputs):
     """
     Process one input sample.
@@ -1037,7 +1025,6 @@ class KNNClassifierRegion(PyRegion):
     self._epoch += 1
 
 
-  #---------------------------------------------------------------------------------
   def getCategoryList(self):
     """
     Public API for returning the category list
@@ -1050,11 +1037,10 @@ class KNNClassifierRegion(PyRegion):
     return self._knn._categoryList
 
 
-  #---------------------------------------------------------------------------------
   def removeCategory(self, categoryToRemove):
     return self._knn.removeCategory(categoryToRemove)
 
-  #---------------------------------------------------------------------------------
+
   def getLatestDistances(self):
     """
     Public API for returning the full scores
@@ -1075,7 +1061,6 @@ class KNNClassifierRegion(PyRegion):
       return None
 
 
-  #---------------------------------------------------------------------------------
   def getAllDistances(self):
     """
     Return all the prototype distances from all computes available.
@@ -1088,7 +1073,7 @@ class KNNClassifierRegion(PyRegion):
       return None
     return self._protoScores[:self._protoScoreCount, :]
 
-  #---------------------------------------------------------------------------------
+
   def calculateProbabilities(self):
     # Get the scores, from 0 to 1
     scores = 1.0 - self._categoryDistances
@@ -1102,7 +1087,6 @@ class KNNClassifierRegion(PyRegion):
     return scores / total
 
 
-  #---------------------------------------------------------------------------------
   def _restartLearning(self):
     """
     Currently, we allow learning mode to be "re-started" after being
@@ -1111,7 +1095,7 @@ class KNNClassifierRegion(PyRegion):
     """
     self._knn.restartLearning()
 
-  #---------------------------------------------------------------------------------
+
   def _finishLearning(self):
     """Does nothing. Kept here for API compatibility """
     if self._doSphering:
@@ -1132,7 +1116,7 @@ class KNNClassifierRegion(PyRegion):
           print "Leave-one-out validation: %d of %d correct ==> %.3f%%" % \
                  (numCorrect, numSamples, self._accuracy * 100.0)
 
-  #---------------------------------------------------------------------------------
+
   def _finishSphering(self):
     """
     Compute normalization constants for each feature dimension
@@ -1162,14 +1146,14 @@ class KNNClassifierRegion(PyRegion):
                       self._labels[sampleIndex],
                       self._partitions[sampleIndex])
 
-  #---------------------------------------------------------------------------------
+
   def _arraysToLists(self, samplesArray, labelsArray):
 
     labelsList = list(labelsArray)
     samplesList = [[float(y) for y in x] for x in [list(x) for x in samplesArray]]
     return samplesList, labelsList
 
-  #---------------------------------------------------------------------------------
+
   def getOutputElementCount(self, name):
     """This method will be called only when the node is used in nuPIC 2"""
     if name == 'categoriesOut':
@@ -1181,7 +1165,7 @@ class KNNClassifierRegion(PyRegion):
     else:
       raise Exception('Unknown output: ' + name)
 
-#---------------------------------------------------------------------------------
+
 
 if __name__=='__main__':
   from nupic.engine import Network
