@@ -491,15 +491,9 @@ class TemporalMemoryTest(unittest.TestCase):
     tm.adaptSegment(0, set(), connections,
                     tm.permanenceIncrement,
                     tm.permanenceDecrement)
-    synapseData = connections.dataForSynapse(0)
-    self.assertAlmostEqual(synapseData.permanence, 0.0)
 
-    # Now permanence should be at min
-    tm.adaptSegment(0, set(), connections,
-                    tm.permanenceIncrement,
-                    tm.permanenceDecrement)
-    synapseData = connections.dataForSynapse(0)
-    self.assertAlmostEqual(synapseData.permanence, 0.0)
+    synapses = connections.synapsesForSegment(0)
+    self.assertFalse(0 in synapses)
 
 
   def testPickCellsToLearnOn(self):
