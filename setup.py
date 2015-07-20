@@ -399,10 +399,10 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
 
   # Find py_support cpp files in nupic.core
   pythonSupportSources = [
-    nupicCoreReleaseDir + "include/nupic/py_support/NumpyVector.cpp",
-    nupicCoreReleaseDir + "include/nupic/py_support/PyArray.cpp",
-    nupicCoreReleaseDir + "include/nupic/py_support/PyHelpers.cpp",
-    nupicCoreReleaseDir + "include/nupic/py_support/PythonStream.cpp"]
+    nupicCoreReleaseDir + "/include/nupic/py_support/NumpyVector.cpp",
+    nupicCoreReleaseDir + "/include/nupic/py_support/PyArray.cpp",
+    nupicCoreReleaseDir + "/include/nupic/py_support/PyHelpers.cpp",
+    nupicCoreReleaseDir + "/include/nupic/py_support/PythonStream.cpp"]
 
   extensions = []
 
