@@ -41,7 +41,7 @@ if [ $CC == 'gcc' ]; then
 fi
 
 echo ">>> Installing virtualenv..."
-sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv cmake-data
+sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv cmake-data python-numpy
 sudo ls -laFh /usr/lib/libpython$PY_VER.so
 
 echo ">>> Installing nupic-linux64..."
