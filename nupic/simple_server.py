@@ -25,7 +25,7 @@ Note: Requires web.py to run (install using '$ pip install web.py')
 """
 import os
 import sys
-# The following loop removes the nupic.nupic package from the
+# The following loop removes the nupic package from the
 # PythonPath (sys.path). This is necessary in order to let web
 # import the built in math module rather than defaulting to
 # nupic.math
@@ -34,6 +34,7 @@ while True:
     sys.path.remove(os.path.dirname(os.path.realpath(__file__)))
   except:
     break
+
 import datetime
 import json
 import web
