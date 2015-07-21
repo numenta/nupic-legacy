@@ -16,7 +16,7 @@ test.out
 build/
 
 # personalized nupic configuration file
-# .nupic_config
+.nupic_config
 
 # IDE project files
 nbproject/
