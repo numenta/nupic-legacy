@@ -1515,13 +1515,14 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
                  maxNewSynapseCount=20,
                  permanenceIncrement=0.10,
                  permanenceDecrement=0.10,
+                 predictedSegmentDecrement=0.00,
                  seed=-1):
       self.this = _ALGORITHMS.new_TemporalMemory()
       _ALGORITHMS.TemporalMemory_initialize(
         self, columnDimensions, cellsPerColumn, activationThreshold,
         initialPermanence, connectedPermanence,
         minThreshold, maxNewSynapseCount, permanenceIncrement,
-        permanenceDecrement, seed)
+        permanenceDecrement, predictedSegmentDecrement, seed)
 
     def __getstate__(self):
       # Save the local attributes but override the C++ temporal memory with the
@@ -1580,5 +1581,5 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
     self->save(s);
     return py_s.close();
   }
-
 }
+
