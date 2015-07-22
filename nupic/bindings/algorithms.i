@@ -108,10 +108,10 @@ _ALGORITHMS = _algorithms
 #include <nupic/proto/SpatialPoolerProto.capnp.h>
 
 #include <numpy/arrayobject.h>
-#include <py_support/NumpyVector.hpp>
-#include <py_support/PyCapnp.hpp>
-#include <py_support/PythonStream.hpp>
-#include <py_support/PyHelpers.hpp>
+#include <nupic/py_support/NumpyVector.hpp>
+#include <nupic/py_support/PyCapnp.hpp>
+#include <nupic/py_support/PythonStream.hpp>
+#include <nupic/py_support/PyHelpers.hpp>
 
 // Hack to fix SWIGPY_SLICE_ARG not found bug
 #if PY_VERSION_HEX >= 0x03020000

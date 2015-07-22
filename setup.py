@@ -314,12 +314,6 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
   pythonPrefix = pythonPrefix.replace("\\", "/")
   pythonIncludeDir = pythonPrefix + "/include/python" + pythonVersion
 
-  #
-  # Finds out version of Numpy and headers' path.
-  #
-  numpyIncludeDir = numpy.get_include()
-  numpyIncludeDir = numpyIncludeDir.replace("\\", "/")
-
   commonDefines = [
     ("NUPIC2", None),
     ("NTA_OS_" + platform.upper(), None),
@@ -337,8 +331,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     REPO_DIR + "/extensions",
     REPO_DIR,
     nupicCoreReleaseDir + "/include",
-    pythonIncludeDir,
-    numpyIncludeDir]
+    pythonIncludeDir]
 
   commonCompileFlags = [
     # Adhere to c++11 spec
@@ -404,26 +397,14 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     nupicCoreReleaseDir + "/lib/" +
       getLibPrefix(platform) + "nupic_core" + getStaticLibExtension(platform)]
 
+  # Find py_support cpp files in nupic.core
   pythonSupportSources = [
-    "extensions/py_support/NumpyVector.cpp",
-    "extensions/py_support/PyArray.cpp",
-    "extensions/py_support/PyHelpers.cpp",
-    "extensions/py_support/PythonStream.cpp"]
+    os.path.relpath(nupicCoreReleaseDir + "/include/nupic/py_support/NumpyVector.cpp", REPO_DIR),
+    os.path.relpath(nupicCoreReleaseDir + "/include/nupic/py_support/PyArray.cpp", REPO_DIR),
+    os.path.relpath(nupicCoreReleaseDir + "/include/nupic/py_support/PyHelpers.cpp", REPO_DIR),
+    os.path.relpath(nupicCoreReleaseDir + "/include/nupic/py_support/PythonStream.cpp", REPO_DIR)]
 
   extensions = []
-
-  libDynamicPyRegion = Extension(
-    "nupic." + getLibPrefix(platform) + "py_region",
-    extra_compile_args=commonCompileFlags,
-    define_macros=commonDefines,
-    extra_link_args=commonLinkFlags,
-    include_dirs=commonIncludeDirs,
-    libraries=commonLibraries,
-    sources=pythonSupportSources +
-      ["extensions/py_region/PyRegion.cpp",
-       "extensions/py_region/unittests/PyHelpersTest.cpp"],
-    extra_objects=commonObjects)
-  extensions.append(libDynamicPyRegion)
 
   #
   # SWIG
@@ -625,9 +606,6 @@ def postProcess():
   shutil.copy(
     nupicCoreReleaseDir + "/bin/py_region_test", REPO_DIR + "/bin"
   )
-  # Copy py_region located at build dir into source dir
-  shutil.copy(buildDir + "/nupic/" + getLibPrefix(platform) + "py_region" +
-              getSharedLibExtension(platform), REPO_DIR + "/nupic")
 
 options = getCommandLineOptions()
 platform, bitness = getPlatformInfo()
