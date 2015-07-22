@@ -86,7 +86,7 @@
 
 
 
-#include <py_support/PyArray.hpp>
+#include <nupic/py_support/PyArray.hpp>
 
 #include <nupic/engine/NuPIC.hpp>
 #include <nupic/engine/Network.hpp>
@@ -149,7 +149,7 @@
 %include <nupic/bindings/numpy.i>
 
 
-%include <py_support/PyArray.hpp>
+%include <nupic/py_support/PyArray.hpp>
 %template(ByteArray) nupic::PyArray<nupic::Byte>;
 %template(Int16Array) nupic::PyArray<nupic::Int16>;
 %template(UInt16Array) nupic::PyArray<nupic::UInt16>;

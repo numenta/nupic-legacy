@@ -4,9 +4,6 @@ include *.md
 include *.txt
 include VERSION
 
-recursive-include nupic/bindings *.hpp *.cpp *.i
-recursive-include extensions *.hpp *.cpp
-
 recursive-include external/common/share/swig *.*
 recursive-include external/darwin64 swig *.a
 recursive-include external/linux64 swig *.a
