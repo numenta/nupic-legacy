@@ -1,0 +1,4 @@
+version: '{build}'
+build:
+  verbosity: minimal
+
