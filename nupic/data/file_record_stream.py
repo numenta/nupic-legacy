@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -99,8 +99,7 @@ class FileRecordStream(RecordStreamIface):
 
   def __init__(self, streamID, write=False, fields=None, missingValues=None,
                bookmark=None, includeMS=True, firstRecord=None):
-    """ Constructor
-    
+    """
     streamID:
         CSV file name, input or output
     write:
@@ -129,16 +128,15 @@ class FileRecordStream(RecordStreamIface):
     The name is the name of the field. The type is one of: 'string', 'datetime',
     'int', 'float', 'bool' The special is either empty or one of S, R, T, C that
     designate their field as the sequenceId, reset, timestamp, or category.
-    There can be at most one of each. There may be multiple fields of type
-    datetime, but no more than one of them may be the timestamp field (T). The
-    sequence id field must be either a string or an int. The reset field must be
-    an int (and must contain 0 or 1). The category field must be an int.
+    With exception of multiple categories, there can be at most one of each.
+    There may be multiple fields of type datetime, but no more than one of them 
+    may be the timestamp field (T). The sequence id field must be either a 
+    string or an int. The reset field must be an int (and must contain 0 or 1). 
+    The category field must be an int.
 
     The FileRecordStream iterates over the field names, types and specials and
     stores the information.
     """
-    
-    # Call superclass constructor
     super(FileRecordStream, self).__init__()
 
     # Only bookmark or firstRow can be specified, not both
@@ -150,7 +148,7 @@ class FileRecordStream(RecordStreamIface):
     if missingValues is None:
       missingValues = ['']
     
-    # We'll be operating on csvs with arbitrarily long fields
+    # We'll be operating on CSVs with arbitrarily long fields
     size = 2**27
     csv.field_size_limit(size)
 
@@ -172,7 +170,8 @@ class FileRecordStream(RecordStreamIface):
       names, types, specials = zip(*fields)
       self._writer = csv.writer(self._file)
     else:
-      os.linesep = '\n' # make sure readline() works on windows too.
+      # make sure readline() works on windows too.
+      os.linesep = '\n'
       # Read header lines
       self._reader = csv.reader(self._file, dialect='excel', quoting=csv.QUOTE_NONE)
       try:
@@ -221,7 +220,8 @@ class FileRecordStream(RecordStreamIface):
     self._timeStampIdx = specials.index('T') if 'T' in specials else None
     self._resetIdx = specials.index('R') if 'R' in specials else None
     self._sequenceIdIdx = specials.index('S') if 'S' in specials else None
-    self._categoryIdx = specials.index('C') if 'C' in specials else None
+    self._categoryIdx = [i for i, s in enumerate(specials) if s == 'C'] \
+                        if 'C' in specials else None
     self._learningIdx = specials.index('L') if 'L' in specials else None
 
     # keep track of the current sequence
@@ -235,7 +235,7 @@ class FileRecordStream(RecordStreamIface):
     if self._resetIdx:
       assert types[self._resetIdx] == 'int'
     if self._categoryIdx:
-      assert types[self._categoryIdx] == 'int'
+      assert [types[i] == 'int' for i in self._categoryIdx]
     if self._learningIdx:
       assert types[self._learningIdx] == 'int'
 
@@ -263,9 +263,7 @@ class FileRecordStream(RecordStreamIface):
 
     self._missingValues = missingValues
 
-    #
     # If the bookmark is set, we need to skip over first N records
-    #
     if bookmark is not None:
       rowsToSkip = self._getStartRow(bookmark)
     elif firstRecord is not None:
@@ -276,7 +274,6 @@ class FileRecordStream(RecordStreamIface):
     while rowsToSkip > 0:
       self.next()
       rowsToSkip -= 1
-
 
     # Dictionary to store record statistics (min and max of scalars for now)
     self._stats = None

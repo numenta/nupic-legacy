@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -88,7 +88,7 @@ class RecordStreamIface(object):
     learningIdx = self.getLearningFieldIdx()
 
     if catIdx is not None:
-      result['_category'] = values[catIdx]
+      result['_category'] = [values[i] for i in catIdx]
     else:
       result['_category'] = None
 
@@ -363,11 +363,13 @@ class RecordStreamIface(object):
 
 
   def getCategoryFieldIdx(self):
-    """ Index of the 'category' field. """
+    """ Return indices of the 'category' fields. """
+    indices = []
     for i, field in enumerate(self.getFields()):
       if field[2] == 'C' or field[2] == 'c':
-        return i
-    return None
+        indices.append(i)
+  
+    return indices if indices else None
 
 
   def getLearningFieldIdx(self):

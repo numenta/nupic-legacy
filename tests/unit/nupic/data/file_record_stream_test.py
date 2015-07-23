@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -108,6 +108,99 @@ class TestFileRecordStream(unittest.TestCase):
     expectedStats = {
                      'max': [None, None, 12, 11.5, 1, None, 15],
                      'min': [None, None, 2, 6.5, 0, None, 10]
+                    }
+    self.assertTrue(readStats == expectedStats)
+
+    readRecords = []
+    print 'Reading records ...'
+    while True:
+      r = s.getNextRecord()
+      print r
+      if r is None:
+        break
+
+      readRecords.append(r)
+
+    allRecords = records + recordsBatch
+    for r1, r2 in zip(allRecords, readRecords):
+      print 'Expected:', r1
+      print 'Read    :', r2
+      self.assertTrue(r1 == r2)
+
+    s.close()
+
+
+  def testMultipleClasses(self):
+    """Runs FileRecordStream tests with multiple category fields."""
+    filename = _getTempFileName()
+
+    # Write a standard file
+    fields = [('name', 'string', ''),
+              ('timestamp', 'datetime', 'T'),
+              ('integer', 'int', ''),
+              ('real', 'float', ''),
+              ('reset', 'int', 'R'),
+              ('sid', 'string', 'S'),
+              ('categoryField1', 'int', 'C'),
+              ('categoryField2', 'int', 'C'),
+              ('categoryField3', 'int', 'C'),]
+    fieldNames = ['name', 'timestamp', 'integer', 'real', 'reset', 'sid',
+                  'categoryField1', 'categoryField2', 'categoryField3']
+
+    print 'Creating temp file:', filename
+
+    s = FileRecordStream(streamID=filename, write=True, fields=fields)
+
+    self.assertTrue(s.getDataRowCount() == 0)
+
+    # Records
+    records = (
+      ['rec_1', datetime(day=1, month=3, year=2010), 5, 6.5, 1, 'seq-1',
+          0, 1, 2],
+      ['rec_2', datetime(day=2, month=3, year=2010), 8, 7.5, 0, 'seq-1',
+          3, 4, 5],
+      ['rec_3', datetime(day=3, month=3, year=2010), 2, 8.5, 0, 'seq-1',
+          6, 7, 8])
+
+    self.assertTrue(s.getFields() == fields)
+    self.assertTrue(s.getNextRecordIdx() == 0)
+
+    print 'Writing records ...'
+    for r in records:
+      print list(r)
+      s.appendRecord(list(r))
+
+    self.assertTrue(s.getDataRowCount() == 3)
+
+    recordsBatch = (
+      ['rec_4', datetime(day=4, month=3, year=2010), 2, 9.5, 1, 'seq-1',
+          2, 3, 4],
+      ['rec_5', datetime(day=5, month=3, year=2010), 6, 10.5, 0, 'seq-1',
+          3, 4, 5],
+      ['rec_6', datetime(day=6, month=3, year=2010), 11, 11.5, 0, 'seq-1',
+          4, 5, 6])
+
+    print 'Adding batch of records...'
+    for rec in recordsBatch:
+      print rec
+    s.appendRecords(recordsBatch)
+    self.assertTrue(s.getDataRowCount() == 6)
+
+    s.close()
+
+    # Read the standard file
+    s = FileRecordStream(filename)
+    self.assertTrue(s.getDataRowCount() == 6)
+    self.assertTrue(s.getFieldNames() == fieldNames)
+
+    # Note! this is the number of records read so far
+    self.assertTrue(s.getNextRecordIdx() == 0)
+
+    readStats = s.getStats()
+    print 'Got stats:', readStats
+    expectedStats = {
+                     'max': [None, None, 11, 11.5, 1, None, 6, 7, 8],
+                     'min': [None, None, 2, 6.5, 0, None, 0, 1, 2]
                     }
     self.assertTrue(readStats == expectedStats)
 

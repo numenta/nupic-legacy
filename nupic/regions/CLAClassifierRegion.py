@@ -69,7 +69,7 @@ class CLAClassifierRegion(PyRegion):
           categoryIn=dict(
             description='Category of the input sample',
             dataType='Real32',
-            count=1,
+            count=0,
             required=True,
             regionLevel=True,
             isDefaultInput=False,

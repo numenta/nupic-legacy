@@ -51,7 +51,7 @@ class KNNClassifierRegion(PyRegion):
           categoryIn=dict(
             description='Category of the input sample',
             dataType='Real32',
-            count=1,
+            count=0,
             required=True,
             regionLevel=True,
             isDefaultInput=False,
@@ -874,13 +874,8 @@ class KNNClassifierRegion(PyRegion):
     self.handleLogInput([inputVector])
 
     # Read the category.
-    category = -1
     assert "categoryIn" in inputs, "No linked category input."
-    assert len(inputs["categoryIn"]) == 1, "Must have exactly one link to category input."
-    #catInput = inputs["categoryIn"][0].wvector()
-    catInput = inputs['categoryIn']
-    assert len(catInput) == 1, "Category input element count must be exactly 1."
-    category = catInput[0]
+    categories = inputs['categoryIn']
 
     # Read the partition ID.
     if "partitionIn" in inputs:
@@ -972,14 +967,16 @@ class KNNClassifierRegion(PyRegion):
         self._scanResults = [tuple(inference[:nout])]
 
       # Update the stored confusion matrix.
-      if category >= 0:
-        dims = max(category+1, len(inference))
-        oldDims = len(self.confusion)
-        if oldDims < dims:
-          confusion = numpy.zeros((dims, dims))
-          confusion[0:oldDims, 0:oldDims] = self.confusion
-          self.confusion = confusion
-        self.confusion[inference.argmax(), category] += 1
+      # TODO: confusion matrix does not support multi-classification
+      for category in categories:
+        if category:
+          dims = max(category+1, len(inference))
+          oldDims = len(self.confusion)
+          if oldDims < dims:
+            confusion = numpy.zeros((dims, dims))
+            confusion[0:oldDims, 0:oldDims] = self.confusion
+            self.confusion = confusion
+          self.confusion[inference.argmax(), category] += 1
 
       # Calculate the best prototype indices
       if nPrototypes > 1:
@@ -1006,20 +1003,20 @@ class KNNClassifierRegion(PyRegion):
 
       # Accept the input
       else:
-
-        # If we are sphering, then we can't provide the data to the KNN
-        # library until we have computed per-dimension normalization constants.
-        # So instead, we'll just store each training sample.
-        if self._doSphering:
-          # If this is our first sample:
-          self._storeSample(inputVector, category, partition)
-        # If we are not sphering, then we just go ahead and pass the raw
-        # training sample directly to the KNN library.
-        else:
-          try:
-            self._knn.learn(inputVector, category, partition)
-          except:
-            self._knn.learn(inputVector, category, partition)
+        for category in categories:
+          # If we are sphering, then we can't provide the data to the KNN
+          # library until we have computed per-dimension normalization constants.
+          # So instead, we'll just store each training sample.
+          if self._doSphering:
+            # If this is our first sample:
+            self._storeSample(inputVector, category, partition)
+          # If we are not sphering, then we just go ahead and pass the raw
+          # training sample directly to the KNN library.
+          else:
+            try:
+              self._knn.learn(inputVector, category, partition)
+            except:
+              self._knn.learn(inputVector, category, partition)
 
 
     self._epoch += 1

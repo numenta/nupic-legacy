@@ -30,49 +30,35 @@ class RecordSensor(PyRegion):
   """
   A Record Sensor (RS) retrieves an information "record" and encodes
   it to be suitable as input to an HTM.
-
   An information record is analogous database record -- it is just a
   collection of typed values: date, amount, category, location, etc.
-
   The RS may obtain information from one of three sources:
     . a file (e.g. csv or tsv)
     . a sql database (not yet implemented)
     . a data generator (for artificial data)
-
   The RS encodes a record using an encoding scheme that can be specified
   programmatically.
-
   An RS is essentially a shell containing two objects:
-
   1. A DataSource object gets one record at a time. This record is returned
   either as a dictionary or a user-defined object. The fields within a record
   correspond to entries in the dictionary or attributes of the object. For
   example, a DataSource might return:
-
     dict(date="02-01-2010 23:12:23", amount=4.95, country="US", _reset=0, _sequenceId=0)
-
   or an object with attributes "date", "amount" and "country".
-
   The _reset and _sequenceId attributes must always exist, and are provided by
   the DataSource if not directly present in the data.
-
   DataSource methods are:
   -- getNext() -- return the next record, which is a dict
   -- TBD: something like getIterationCount()?
-
   2. A MultiEncoder object encodes one record into a fixed-sparsity
   distributed representation. MultiEncoder is defined in
   nupic.encoders
-
   The DataSource and MultiEncoder are supplied after the node is created,
   not in the node itself.
-
   Example usage in NuPIC:
-
   from nupic.net import Network
   from nupic.encoders import MultiEncoder
   from nupic.data.file.file_record_stream import FileRecordStream
-
   n = Network()
   s = n.addRegion("sensor", "py.RecordSensor", "")
   mysource = FileRecordStream("mydata.txt")
@@ -80,17 +66,13 @@ class RecordSensor(PyRegion):
   ... set up myencoder ...
   s.getSelf().dataSource = mysource
   s.getSelf().encoder = myencoder
-
   l1 = n.addRegion("l1", "py.FDRCNode", "[create params]")
   n.initialize()
-
   n.run(100)
-
   TBD: the data source could also include the type of data, and we could
   more closely tie the DataSource output to the encoder input, ensuring that
   data types match and that allfields the encoder expects to see are in fact
   present.
-
   """
 
 
@@ -121,7 +103,7 @@ class RecordSensor(PyRegion):
         categoryOut=dict(
           description="Category",
           dataType='Real32',
-          count=1,
+          count=0,
           regionLevel=True,
           isDefaultOutput=False),
         sourceOut=dict(
@@ -172,6 +154,12 @@ class RecordSensor(PyRegion):
           accessMode="ReadWrite",
           count=1,
           constraints=""),
+        numCategories=dict(
+          description="Number of Categories to expect from the FileRecordStream",
+          dataType="UInt32",
+          accessMode="ReadWrite",
+          count=1,
+          constraints=""),
         topDownMode=dict(
           description='1 if the node should do top down compute on the next call '
                   'to compute into topDownOut (default 0).',
@@ -185,7 +173,7 @@ class RecordSensor(PyRegion):
 
     return ns
 
-  def __init__(self, verbosity=0):
+  def __init__(self, verbosity=0, numCategories=1):
     """
     Create a node without an encoder or datasource
     """
@@ -198,6 +186,7 @@ class RecordSensor(PyRegion):
     self.postEncodingFilters = []
     self.topDownMode = False
     self.verbosity = verbosity
+    self.numCategories = numCategories
     self._iterNum = 0
 
     # lastRecord is the last record returned. Used for debugging only
@@ -207,6 +196,9 @@ class RecordSensor(PyRegion):
     # Default value for older versions being deserialized.
     self.disabledEncoder = None
     self.__dict__.update(state)
+
+    if not hasattr(self, "numCategories"):
+      self.numCategories = 1
 
   def initialize(self, dims, splitterMaps):
     if self.encoder is None:
@@ -282,7 +274,6 @@ class RecordSensor(PyRegion):
     """Get a record from the dataSource and encode it
     """
     if not self.topDownMode:
-
       data = self.getNextRecord()
 
       reset = data["_reset"]
@@ -313,12 +304,16 @@ class RecordSensor(PyRegion):
       for filter in self.postEncodingFilters:
         filter.process(encoder=self.encoder, data=outputs['dataOut'])
 
-      #print "sensor reset:", reset, "seqid:", sequenceId
       outputs['resetOut'][0] = reset
       outputs['sequenceIdOut'][0] = sequenceId
       if category is None:
         category = data.get('category', 0)
-      outputs['categoryOut'][0] = category
+      if type(category) == list:
+        outputs['categoryOut'] = numpy.array(category, dtype="float32")
+        # for i, c in enumerate(category):
+        #   outputs['categoryOut'][i] = c
+      else:
+        outputs['categoryOut'][0] = category
 
       # ------------------------------------------------------------------------
       # Verbose print?
@@ -390,17 +385,14 @@ class RecordSensor(PyRegion):
       outputs['temporalTopDownOut'][:] = numpy.array(scalars)
       self._outputValues['temporalTopDownEncodings'] = encodings
 
-      assert len(spatialTopDownOut) == len(temporalTopDownOut), \
-                                "Error: spatialTopDownOut and temporalTopDownOut"\
-                                " should be the same size"
+      assert(len(spatialTopDownOut) == len(temporalTopDownOut), "Error: "
+             "spatialTopDownOut and temporalTopDownOut should be the same size")
 
 
   def _convertNonNumericData(self, spatialOutput, temporalOutput, output):
     """
     Converts all of the non-numeric fields from spatialOutput and temporalOutput
     into their scalar equivalents and records them in the output dictionary.
-
-
     Parameters:
     -----------------------------------------------------------------------
     spatialOutput:              The results of topDownCompute() for the spatial
@@ -411,7 +403,6 @@ class RecordSensor(PyRegion):
                                 It is exepected to have keys 'spatialTopDownOut'
                                 and 'temporalTopDownOut' that are mapped
                                 to numpy arrays
-
     """
     encoders = self.encoder.getEncoderList()
     types = self.encoder.getDecoderOutputFieldTypes()
@@ -430,14 +421,13 @@ class RecordSensor(PyRegion):
       output['temporalTopDownOut'][i] = temporalData
 
 
-
-
   def getOutputValues(self, outputName):
     """Return the dictionary of output values. Note that these are normal Python
     lists, rather than numpy arrays. This is to support lists with mixed scalars
     and strings, as in the case of records with categorical variables
     """
     return self._outputValues[outputName]
+
 
   def getOutputElementCount(self, name):
     """
@@ -465,6 +455,9 @@ class RecordSensor(PyRegion):
         raise Exception("NuPIC requested output element count for 'sourceOut' "
                         "on a RecordSensor node, but the encoder has not been set")
       return len(self.encoder.getDescription())
+
+    elif name == "categoryOut":
+      return self.numCategories
 
     elif name == 'spatialTopDownOut' or name == 'temporalTopDownOut':
       if self.encoder == None:
