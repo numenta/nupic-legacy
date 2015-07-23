@@ -375,7 +375,8 @@ def _generateFileFromTemplates(templateFileNames, outputFilePath,
   """
 
   # Find out where we're running from so we know where to find templates
-  installPath = os.path.dirname(__file__)
+  installPath = os.path.dirname(__file__) #TODO: Will want to change the
+                      # default install path once all .tpl files are migrated
   outputFile = open(outputFilePath, "w")
   outputLines = []
   inputLines = []
