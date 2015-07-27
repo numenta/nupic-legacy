@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -473,7 +473,7 @@ class StreamReader(RecordStreamIface):
 
 
   def getResetFieldIdx(self):
-    """ Index of the 'reset' field. """
+    """ Return index of the 'reset' field. """
     for i, field in enumerate(self._streamFields):
       if field[2] == 'R' or field[2] == 'r':
         return i
@@ -481,7 +481,7 @@ class StreamReader(RecordStreamIface):
 
 
   def getTimestampFieldIdx(self):
-    """ Index of the 'timestamp' field. """
+    """ Return index of the 'timestamp' field. """
     for i, field in enumerate(self._streamFields):
       if field[2] == 'T' or field[2] == 't':
         return i
@@ -489,7 +489,7 @@ class StreamReader(RecordStreamIface):
 
 
   def getSequenceIdFieldIdx(self):
-    """ Index of the 'sequenceId' field. """
+    """ Return index of the 'sequenceId' field. """
     for i, field in enumerate(self._streamFields):
       if field[2] == 'S' or field[2] == 's':
         return i
@@ -497,13 +497,11 @@ class StreamReader(RecordStreamIface):
 
 
   def getCategoryFieldIdx(self):
-    """ Return indices of the 'category' fields. """
-    indices = []
-    for i, field in enumerate(self.getFields()):
+    """ Return indicex of the 'category' field. """
+    for i, field in enumerate(self._streamFields):
       if field[2] == 'C' or field[2] == 'c':
-        indices.append(i)
-  
-    return indices if indices else None
+        return i
+    return None
 
 
   def clearStats(self):

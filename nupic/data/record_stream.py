@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -88,7 +88,12 @@ class RecordStreamIface(object):
     learningIdx = self.getLearningFieldIdx()
 
     if catIdx is not None:
-      result['_category'] = [values[i] for i in catIdx]
+      if isinstance(values[catIdx], str):
+        # multiple categories
+        result['_category'] = [int(c) for c in values[catIdx].split(' ')]
+      else:
+        # cat value is int
+        result['_category'] = [values[catIdx]]
     else:
       result['_category'] = None
 
@@ -339,7 +344,7 @@ class RecordStreamIface(object):
 
 
   def getResetFieldIdx(self):
-    """ Index of the 'reset' field. """
+    """ Return index of the 'reset' field. """
     for i, field in enumerate(self.getFields()):
       if field[2] == 'R' or field[2] == 'r':
         return i
@@ -347,7 +352,7 @@ class RecordStreamIface(object):
 
 
   def getTimestampFieldIdx(self):
-    """ Index of the 'timestamp' field. """
+    """ Return index of the 'timestamp' field. """
     for i, field in enumerate(self.getFields()):
       if field[2] == 'T' or field[2] == 't':
         return i
@@ -355,7 +360,7 @@ class RecordStreamIface(object):
 
 
   def getSequenceIdFieldIdx(self):
-    """ Index of the 'sequenceId' field. """
+    """ Return index of the 'sequenceId' field. """
     for i, field in enumerate(self.getFields()):
       if field[2] == 'S' or field[2] == 's':
         return i
@@ -363,17 +368,15 @@ class RecordStreamIface(object):
 
 
   def getCategoryFieldIdx(self):
-    """ Return indices of the 'category' fields. """
-    indices = []
+    """ Return index of the 'category' field. """
     for i, field in enumerate(self.getFields()):
       if field[2] == 'C' or field[2] == 'c':
-        indices.append(i)
-  
-    return indices if indices else None
+        return i
+    return None
 
 
   def getLearningFieldIdx(self):
-    """ Index of the 'learning' field. """
+    """ Return index of the 'learning' field. """
     for i, field in enumerate(self.getFields()):
       if field[2] == 'L' or field[2] == 'l':
         return i

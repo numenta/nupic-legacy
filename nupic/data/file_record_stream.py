@@ -129,10 +129,16 @@ class FileRecordStream(RecordStreamIface):
     'int', 'float', 'bool' The special is either empty or one of S, R, T, C that
     designate their field as the sequenceId, reset, timestamp, or category.
     With exception of multiple categories, there can be at most one of each.
-    There may be multiple fields of type datetime, but no more than one of them 
-    may be the timestamp field (T). The sequence id field must be either a 
-    string or an int. The reset field must be an int (and must contain 0 or 1). 
-    The category field must be an int.
+    There can be at most one of each. There may be multiple fields of type
+    datetime, but no more than one of them may be the timestamp field (T). The
+    sequence id field must be either a string or an int. The reset field must be
+    an int (and must contain 0 or 1).
+    
+    The category field must be an int or string, where the former represents
+    single-label classification and the latter is for multi-label classification 
+    (e.g. "1 3 4" designates a record for labels 1, 3, and 4). The number of 
+    categories is allowed to vary record to record; sensor regions represent
+    non-categories with -1, thus the category values must be >= 0.
 
     The FileRecordStream iterates over the field names, types and specials and
     stores the information.
@@ -170,7 +176,7 @@ class FileRecordStream(RecordStreamIface):
       names, types, specials = zip(*fields)
       self._writer = csv.writer(self._file)
     else:
-      # make sure readline() works on windows too.
+      # make sure readline() works on Windows too.
       os.linesep = '\n'
       # Read header lines
       self._reader = csv.reader(self._file, dialect='excel', quoting=csv.QUOTE_NONE)
@@ -220,8 +226,7 @@ class FileRecordStream(RecordStreamIface):
     self._timeStampIdx = specials.index('T') if 'T' in specials else None
     self._resetIdx = specials.index('R') if 'R' in specials else None
     self._sequenceIdIdx = specials.index('S') if 'S' in specials else None
-    self._categoryIdx = [i for i, s in enumerate(specials) if s == 'C'] \
-                        if 'C' in specials else None
+    self._categoryIdx = specials.index('C') if 'C' in specials else None
     self._learningIdx = specials.index('L') if 'L' in specials else None
 
     # keep track of the current sequence
@@ -235,7 +240,7 @@ class FileRecordStream(RecordStreamIface):
     if self._resetIdx:
       assert types[self._resetIdx] == 'int'
     if self._categoryIdx:
-      assert [types[i] == 'int' for i in self._categoryIdx]
+      assert types[self._categoryIdx] in ('string', 'int')
     if self._learningIdx:
       assert types[self._learningIdx] == 'int'
 
