@@ -69,6 +69,7 @@ deploy:
         - "$CC == gcc-4.8"
 
 before_install:
+  - "sudo pip install --upgrade pip"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/before_install-osx.sh; fi"
 
