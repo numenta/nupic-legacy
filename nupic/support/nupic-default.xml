@@ -113,7 +113,7 @@
 
 <property>
   <name>nupic.hypersearch.speculative.particles.default</name>
-  <value>0</value>
+  <value>1</value>
   <description>If true (not 0), hypersearch workers will go ahead and create
   and run particles in subsequent sprints and generations before the current
   generation or sprint has been completed. If false, a worker will wait in a
