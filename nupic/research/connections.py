@@ -230,8 +230,8 @@ class Connections(object):
 
     data = self._synapses[synapse]
     newData = SynapseData(data.segment,
-                               data.presynapticCell,
-                               permanence)
+                          data.presynapticCell,
+                          permanence)
     self._synapses[synapse] = newData
 
     # Update indexes
