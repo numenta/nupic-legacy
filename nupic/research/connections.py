@@ -412,4 +412,3 @@ class Connections(object):
     """
     if permanence < 0 or permanence > 1:
       raise ValueError("Invalid permanence")
-
