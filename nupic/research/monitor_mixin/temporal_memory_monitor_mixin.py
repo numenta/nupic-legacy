@@ -23,7 +23,9 @@
 Temporal Memory mixin that enables detailed monitoring of history.
 """
 
-from collections import defaultdict
+import numpy
+
+from collections import defaultdict, namedtuple
 
 from prettytable import PrettyTable
 
@@ -39,6 +41,10 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
   Mixin for TemporalMemory that stores a detailed history, for inspection and
   debugging.
   """
+
+  SynapseData = namedtuple("SynapseData", ["presynapticCell",
+                                           "permanence",
+                                           "destroyed"])
 
   def __init__(self, *args, **kwargs):
     super(TemporalMemoryMonitorMixin, self).__init__(*args, **kwargs)
@@ -209,10 +215,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
           synapseList = []
 
           for synapse in self.connections.synapsesForSegment(seg):
-            (_, sourceCell, permanence) = self.connections.dataForSynapse(
-              synapse)
-
-            synapseList.append((sourceCell, permanence))
+            synapseData = self.connections.dataForSynapse(synapse)
+            synapseList.append((synapseData.presynapticCell, synapseData.permanence))
 
           synapseList.sort()
           synapseStringList = ["{0:3}={1:.2f}".format(sourceCell, permanence) for
@@ -327,7 +331,15 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     # Append last cycle's predictiveCells to *predicTEDCells* trace
     self._mmTraces["predictedCells"].data.append(self.predictiveCells)
 
-    super(TemporalMemoryMonitorMixin, self).compute(activeColumns, **kwargs)
+    # Use the line below for the Python temporal memory (TM)
+    # super(TemporalMemoryMonitorMixin, self).compute(activeColumns, **kwargs)
+
+    # Use the next five lines for the C++ TM
+    array = numpy.array(list(activeColumns), dtype='int32')
+    if kwargs is not None and 'learn' in kwargs:
+      super(TemporalMemoryMonitorMixin, self).compute(len(array), array, kwargs['learn'])
+    else:
+      super(TemporalMemoryMonitorMixin, self).compute(len(array), array, True)
 
     # Append this cycle's predictiveCells to *predicTIVECells* trace
     self._mmTraces["predictiveCells"].data.append(self.predictiveCells)

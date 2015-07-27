@@ -197,7 +197,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     "maxNewSynapseCount": 11,
     "permanenceIncrement": 0.4,
     "permanenceDecrement": 0,
-    "activationThreshold": 11
+    "activationThreshold": 11,
+    "seed": 42
   }
   PATTERN_MACHINE = PatternMachine(100, range(21, 26), num=300)
 
@@ -556,8 +557,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
 
   def feedTM(self, sequence, learn=True, num=1):
-    super(ExtensiveTemporalMemoryTest, self).feedTM(
-      sequence, learn=learn, num=num)
+    super(ExtensiveTemporalMemoryTest, self).feedTM(sequence, learn=learn, num=num)
 
     if self.VERBOSITY >= 2:
       print self.tm.mmPrettyPrintTraces(
