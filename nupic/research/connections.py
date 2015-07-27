@@ -23,14 +23,28 @@ from collections import defaultdict, namedtuple
 
 
 
+class SynapseData(object):
+
+
+  __slots__ = ("segment", "presynapticCell", "permanence")
+
+
+  def __init__(self, segment, presynapticCell, permanence):
+    self.segment = segment
+    self.presynapticCell = presynapticCell
+    self.permanence = permanence
+
+
+  def __eq__(self, other):
+    return (self.segment, self.presynapticCell, self.permanence) == other
+
+
+
 class Connections(object):
   """
   Class to hold data representing the connectivity of a collection of cells.
   """
 
-  SynapseData = namedtuple("SynapseData", ["segment",
-                                           "presynapticCell",
-                                           "permanence"])
 
   def __init__(self, numCells):
     """
@@ -177,7 +191,7 @@ class Connections(object):
 
     # Add data
     synapse = self._nextSynapseIdx
-    synapseData = self.SynapseData(segment, presynapticCell, permanence)
+    synapseData = SynapseData(segment, presynapticCell, permanence)
     self._synapses[synapse] = synapseData
     self._nextSynapseIdx += 1
 
@@ -215,7 +229,7 @@ class Connections(object):
     self._validatePermanence(permanence)
 
     data = self._synapses[synapse]
-    newData = self.SynapseData(data.segment,
+    newData = SynapseData(data.segment,
                                data.presynapticCell,
                                permanence)
     self._synapses[synapse] = newData
