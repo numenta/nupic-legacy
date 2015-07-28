@@ -42,7 +42,7 @@ from nupic.support.unittesthelpers.testcasebase import (
   TestCaseBase as HelperTestCaseBase)
 from nupic.swarming import HypersearchWorker
 from nupic.swarming.permutationhelpers import PermuteChoices
-from nupic.swarming.HyperSearch.utils import generatePersistentJobGUID
+from nupic.swarming.hypersearch.utils import generatePersistentJobGUID
 from nupic.frameworks.opf.expdescriptionapi import OpfEnvironment
 from nupic.frameworks.opf.exp_generator import ExpGenerator
 from nupic.frameworks.opf.opfutils import (InferenceType,

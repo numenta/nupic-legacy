@@ -21,7 +21,7 @@
 
 import functools
 
-from nupic.swarming.HyperSearch.utils import PeriodicActivityRequest
+from nupic.swarming.hypersearch.utils import PeriodicActivityRequest
 
 
 
