@@ -23,7 +23,7 @@
 # It implements the TaskDriver for an OPF experiment.
 #
 # It's used by OPF RunExperiment and may also be useful for swarming's
-# HyperSearch Worker
+# hypersearch Worker
 #
 # The TaskDriver is a simple state machine that:
 #

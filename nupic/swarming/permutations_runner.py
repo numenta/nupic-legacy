@@ -40,7 +40,7 @@ import uuid
 from nupic.support import object_json as json
 import nupic.database.ClientJobsDAO as cjdao
 from nupic.swarming import HypersearchWorker
-from nupic.swarming.HyperSearch import utils
+from nupic.swarming.hypersearch import utils
 from nupic.swarming.HypersearchV2 import HypersearchV2
 from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 
@@ -142,7 +142,7 @@ def _engineServicesRunning():
 
 def _runHyperSearch(runOptions):
   global gCurrentSearch
-  # Run HyperSearch
+  # Run hypersearch
   startTime = time.time()
   search = _HyperSearchRunner(runOptions)
   # Save in global for the signal handler.
@@ -206,14 +206,14 @@ def _runAction(runOptions):
     os.makedirs(runOptions["permWorkDir"])
 
   action = runOptions["action"]
-  # Print Nupic HyperSearch results from the current or last run
+  # Print Nupic hypersearch results from the current or last run
   if action == "report":
     returnValue = _HyperSearchRunner.generateReport(
         options=runOptions,
         replaceReport=runOptions["replaceReport"],
         hyperSearchJob=None,
         metricsKeys=None)
-  # Run HyperSearch
+  # Run hypersearch
   elif action in ("run", "dryRun", "pickup"):
     returnValue = _runHyperSearch(runOptions)
   else:
@@ -401,7 +401,7 @@ def _nupicHyperSearchHasErrors(hyperSearchJob):
 
 class _HyperSearchRunner(object):
   """ @private
-  Manages one instance of HyperSearch"""
+  Manages one instance of hypersearch"""
 
 
   def __init__(self, options):
@@ -470,7 +470,7 @@ class _HyperSearchRunner(object):
     startTime = time.time()
     lastUpdateTime = datetime.now()
 
-    # Monitor HyperSearch and report progress
+    # Monitor hypersearch and report progress
 
     # NOTE: may be -1 if it can't be determined
     expectedNumModels = self.__searchJob.getExpectedNumModels(
@@ -611,7 +611,7 @@ class _HyperSearchRunner(object):
     # Tabulate results
     modelIDs = self.__searchJob.queryModelIDs()
     print "Evaluated %s models" % len(modelIDs)
-    print "HyperSearch finished!"
+    print "hypersearch finished!"
 
     jobInfo = self.__searchJob.getJobStatus(self._workers)
     print "Worker completion message: %s" % (jobInfo.getWorkerCompletionMsg())
@@ -639,12 +639,12 @@ class _HyperSearchRunner(object):
 
 
   def __startSearch(self):
-    """Starts HyperSearch as a worker or runs it inline for the "dryRun" action
+    """Starts hypersearch as a worker or runs it inline for the "dryRun" action
 
     Parameters:
     ----------------------------------------------------------------------
     retval:         the new _HyperSearchJob instance representing the
-                    HyperSearch job
+                    hypersearch job
     """
     # This search uses a pre-existing permutations script
     params = _ClientJobUtils.makeSearchJobParamsDict(options=self._options,
@@ -689,7 +689,7 @@ class _HyperSearchRunner(object):
     if self._options["action"] == "dryRun":
       print "Successfully executed \"dry-run\" hypersearch, jobID=%d" % (jobID)
     else:
-      print "Successfully submitted new HyperSearch job, jobID=%d" % (jobID)
+      print "Successfully submitted new hypersearch job, jobID=%d" % (jobID)
       _emit(Verbosity.DEBUG,
             "Each worker executing the command line: %s" % (cmdLine,))
 
@@ -711,7 +711,7 @@ class _HyperSearchRunner(object):
 
 
   def getDiscoveredMetricsKeys(self):
-    """Returns a tuple of all metrics keys discovered while running HyperSearch.
+    """Returns a tuple of all metrics keys discovered while running hypersearch.
 
     NOTE: This is an optimization so that our client may
         use this info for generating the report csv file without having
@@ -720,7 +720,7 @@ class _HyperSearchRunner(object):
     Parameters:
     ----------------------------------------------------------------------
     retval:         Tuple of metrics keys discovered while running
-                    HyperSearch;
+                    hypersearch;
     """
     return tuple(self.__foundMetrcsKeySet)
 
@@ -747,7 +747,7 @@ class _HyperSearchRunner(object):
                      replaceReport,
                      hyperSearchJob,
                      metricsKeys):
-    """Prints all available results in the given HyperSearch job and emits
+    """Prints all available results in the given hypersearch job and emits
     model information to the permutations report csv.
 
     The job may be completed or still in progress.
@@ -810,7 +810,7 @@ class _HyperSearchRunner(object):
 
     # Print metrics, while looking for the best model
     formatStr = None
-    # NOTE: we may find additional metrics if HyperSearch is still running
+    # NOTE: we may find additional metrics if hypersearch is still running
     foundMetricsKeySet = set(metricsKeys)
     sortedMetricsKeys = []
 
@@ -1085,7 +1085,7 @@ class _HyperSearchRunner(object):
     ----------------------------------------------------------------------
     permWorkDir:  Directory path for saved jobID file
     outputLabel:  Label string for incorporating into file name for saved jobID
-    retval:       HyperSearch jobID; raises exception if not found.
+    retval:       hypersearch jobID; raises exception if not found.
     """
     filePath = cls.__getHyperSearchJobIDFilePath(permWorkDir=permWorkDir,
                                                  outputLabel=outputLabel)
@@ -1101,13 +1101,13 @@ class _HyperSearchRunner(object):
 
   @classmethod
   def __getHyperSearchJobIDFilePath(cls, permWorkDir, outputLabel):
-    """Returns filepath where to store HyperSearch JobID
+    """Returns filepath where to store hypersearch JobID
 
     Parameters:
     ----------------------------------------------------------------------
     permWorkDir: Directory path for saved jobID file
     outputLabel: Label string for incorporating into file name for saved jobID
-    retval:      Filepath where to store HyperSearch JobID
+    retval:      Filepath where to store hypersearch JobID
     """
     # Get the base path and figure out the path of the report file.
     basePath = permWorkDir
@@ -1718,14 +1718,14 @@ class _JobCompletionReason(object):
 
 class _HyperSearchJob(_NupicJob):
   """ @private
-  This class represents a single running Nupic HyperSearch job"""
+  This class represents a single running Nupic hypersearch job"""
 
 
   def __init__(self, nupicJobID):
     """
     Parameters:
     ----------------------------------------------------------------------
-    nupicJobID:      Nupic Client JobID of a HyperSearch job
+    nupicJobID:      Nupic Client JobID of a hypersearch job
     retval:         nothing
     """
     super(_HyperSearchJob, self).__init__(nupicJobID)
@@ -1742,7 +1742,7 @@ class _HyperSearchJob(_NupicJob):
 
   def queryModelIDs(self):
     """Queuries DB for model IDs of all currently instantiated models
-    associated with this HyperSearch job.
+    associated with this hypersearch job.
 
     See also: _iterModels()
 
@@ -1781,7 +1781,7 @@ class _ClientJobUtils(object):
 
   @classmethod
   def makeSearchJobParamsDict(cls, options, forRunning=False):
-    """Constructs a dictionary of HyperSearch parameters suitable for converting
+    """Constructs a dictionary of hypersearch parameters suitable for converting
     to json and passing as the params argument to ClientJobsDAO.jobInsert()
     Parameters:
     ----------------------------------------------------------------------
@@ -1789,7 +1789,7 @@ class _ClientJobUtils(object):
     forRunning:     True if the params are for running a Hypersearch job; False
                     if params are for introspection only.
 
-    retval:         A dictionary of HyperSearch parameters for
+    retval:         A dictionary of hypersearch parameters for
                     ClientJobsDAO.jobInsert()
     """
     if options["searchMethod"] == "v2":
