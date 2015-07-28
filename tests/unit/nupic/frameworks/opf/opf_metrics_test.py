@@ -47,6 +47,19 @@ class OPFMetricsTest(unittest.TestCase):
 < OPFMetricsTest.DELTA)
 
 
+  def testNRMSE(self):
+    nrmse = getModule(MetricSpec("nrmse", None, None,
+{"verbosity" : OPFMetricsTest.VERBOSITY}))
+    gt = [9, 4, 5, 6]
+    p = [0, 13, 8, 3]
+    for i in xrange(len(gt)):
+      nrmse.addInstance(gt[i], p[i])
+    target = 1.342
+
+    self.assertTrue(abs(nrmse.getMetric()["value"]-target)\
+< OPFMetricsTest.DELTA)
+
+
   def testWindowedRMSE(self):
     wrmse = getModule(MetricSpec("rmse", None, None,
 {"verbosity": OPFMetricsTest.VERBOSITY, "window":3}))
@@ -766,7 +779,6 @@ record={"test":gt[i]})
     # create multi metric
     multi = MetricMulti(weights=[0.2, 0.8], metrics=[metric10, metric1000])
     multi.verbosity = 1
-    print multi 
     # create reference metrics (must be diff from metrics above used in MultiMetric, as they keep history)
     metric1000ref = getModule(ms1)
     metric10ref = getModule(ms2)
