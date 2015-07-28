@@ -515,15 +515,10 @@ class MetricNRMSE(MetricRMSE):
   """
   def __init__(self, *args, **kwargs):
     super(MetricNRMSE, self).__init__(*args, **kwargs)
-    self.maxValue = float("-inf")
-    self.minValue = float("inf")
+    self.groundTruths = []
 
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
-    if groundTruth > self.maxValue:
-      self.maxValue = groundTruth
-
-    if groundTruth < self.minValue:
-      self.minValue = groundTruth
+    self.groundTruths.append(groundTruth)
 
     return super(MetricNRMSE, self).accumulate(groundTruth,
                                                prediction,
@@ -534,7 +529,7 @@ class MetricNRMSE(MetricRMSE):
     rmse = super(MetricNRMSE, self).aggregate(accumulatedError,
                                               historyBuffer,
                                               steps)
-    denominator = (self.maxValue - self.minValue)
+    denominator = np.std(self.groundTruths)
     return rmse / denominator if denominator > 0 else float("inf")
 
 
