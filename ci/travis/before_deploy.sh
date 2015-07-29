@@ -31,11 +31,11 @@ cd ${TRAVIS_BUILD_DIR}
 if [ "${TRAVIS_BRANCH}" = "master" ]; then
 
     # Assuming pip 1.5.X is installed.
-    echo "sudo pip install wheel"
-    sudo pip install wheel
+    echo "pip install wheel --user"
+    pip install wheel --user
 
     # Wheel fails unless we remove this.
-    sudo rm -rf external/linux32arm
+    # sudo rm -rf external/linux32arm
 
     # Build all NuPIC and all required python packages into dist/wheels as .whl
     # files.
@@ -53,6 +53,3 @@ else
     echo "<html><body>See NuPIC docs at <a href='http://numenta.org/docs/nupic/'>http://numenta.org/docs/nupic/</a>.</body></html>" > build/docs/index.html
 
 fi
-
-
-
