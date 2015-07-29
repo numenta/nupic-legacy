@@ -28,6 +28,7 @@ addons:
       - g++-4.8
       - cmake
       - cmake-data
+      - tree
 
 env:
   global:

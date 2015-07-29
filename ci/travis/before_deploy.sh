@@ -34,6 +34,12 @@ if [ "${TRAVIS_BRANCH}" = "master" ]; then
     echo "pip install wheel --user"
     pip install wheel --user
 
+    echo "TESTING"
+    echo "pwd"
+    pwd
+    echo "tree extensions/core/build/release"
+    tree extensions/core/build/release
+
     # Wheel fails unless we remove this.
     rm -rf external/linux32arm/
 
