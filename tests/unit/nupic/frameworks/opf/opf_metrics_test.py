@@ -49,15 +49,14 @@ class OPFMetricsTest(unittest.TestCase):
 
   def testNRMSE(self):
     nrmse = getModule(MetricSpec("nrmse", None, None,
-{"verbosity" : OPFMetricsTest.VERBOSITY}))
+                                 {"verbosity" : OPFMetricsTest.VERBOSITY}))
     gt = [9, 4, 5, 6]
     p = [0, 13, 8, 3]
     for i in xrange(len(gt)):
       nrmse.addInstance(gt[i], p[i])
-    target = 3.5866
+    target = 3.5856858280031814
 
-    self.assertTrue(abs(nrmse.getMetric()["value"]-target) <
-                    OPFMetricsTest.DELTA)
+    self.assertAlmostEqual(nrmse.getMetric()["value"], target)
 
 
   def testWindowedRMSE(self):
