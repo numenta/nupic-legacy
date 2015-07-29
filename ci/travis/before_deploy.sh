@@ -34,13 +34,14 @@ if [ "${TRAVIS_BRANCH}" = "master" ]; then
     echo "pip install wheel --user"
     pip install wheel --user
 
-    echo "TESTING"
-    echo "pwd"
-    pwd
-    echo "tree extensions/core/build/release"
-    tree extensions/core/build/release
+    # There are now a bunch of symlinks in ${TRAVIS_BUILD_DIR}/extensions that
+    # need to be converted to real files. We will do this with a tar hack.
+    echo "Removing symlinks from extensions..."
+    tar -hcf - extensions | tar -xf - -C tmp_extensions
+    mv tmp_extensions extensions
 
     # Wheel fails unless we remove this.
+    echo "Removing external/linux32arm..."
     rm -rf external/linux32arm/
 
     # Build all NuPIC and all required python packages into dist/wheels as .whl
