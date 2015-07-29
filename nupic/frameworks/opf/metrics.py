@@ -510,9 +510,7 @@ class MetricRMSE(AggregateMetric):
 
 
 class MetricNRMSE(MetricRMSE):
-  """
-      computes normalized root-mean-square error
-  """
+  """computes normalized root-mean-square error"""
   def __init__(self, *args, **kwargs):
     super(MetricNRMSE, self).__init__(*args, **kwargs)
     self.groundTruths = []
