@@ -35,7 +35,7 @@ if [ "${TRAVIS_BRANCH}" = "master" ]; then
     pip install wheel --user
 
     # Wheel fails unless we remove this.
-    # sudo rm -rf external/linux32arm
+    rm -rf external/linux32arm/
 
     # Build all NuPIC and all required python packages into dist/wheels as .whl
     # files.
