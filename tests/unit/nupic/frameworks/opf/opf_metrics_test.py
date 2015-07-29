@@ -54,10 +54,10 @@ class OPFMetricsTest(unittest.TestCase):
     p = [0, 13, 8, 3]
     for i in xrange(len(gt)):
       nrmse.addInstance(gt[i], p[i])
-    target = 1.342
+    target = 3.5866
 
-    self.assertTrue(abs(nrmse.getMetric()["value"]-target)\
-< OPFMetricsTest.DELTA)
+    self.assertTrue(abs(nrmse.getMetric()["value"]-target) <
+                    OPFMetricsTest.DELTA)
 
 
   def testWindowedRMSE(self):
