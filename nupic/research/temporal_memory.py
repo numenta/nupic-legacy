@@ -678,7 +678,7 @@ class TemporalMemory(object):
 
     start = self.cellsPerColumn * column
     end = start + self.cellsPerColumn
-    return set([cell for cell in range(start, end)])
+    return set([cell for cell in range(int(start), int(end))])
 
 
   def numberOfColumns(self):

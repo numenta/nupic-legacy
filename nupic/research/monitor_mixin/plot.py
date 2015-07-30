@@ -47,8 +47,8 @@ class Plot(object):
     self._monitor = monitor
     self._title = title
     self._fig = self._initFigure()
-    plt.ion()
-    plt.show()
+    #plt.ion()
+    #plt.show()
 
 
   def _initFigure(self):
@@ -95,7 +95,7 @@ class Plot(object):
 
 
   def add2DArray(self, data, position=111, xlabel=None, ylabel=None, cmap=None,
-                 aspect="auto", interpolation="nearest"):
+                 aspect="auto", interpolation="nearest", name="0"):
     """ Adds an image to the plot's figure.
 
     @param data a 2D array. See matplotlib.Axes.imshow documentation.
@@ -114,7 +114,12 @@ class Plot(object):
 
     ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
     ax.imshow(data, cmap=cmap, aspect=aspect, interpolation=interpolation)
-    plt.draw()
+    #ax.imsave('{name}.png'.format(name=name), data, cmap=cmap, aspect=aspect, interpolation=interpolation)
+    #plt.draw()
+    plt.savefig('log/{name}.png'.format(name=name), bbox_inches="tight",
+                figsize=(8, 6), dpi=400)
+    #ax.savefig('{name}.png'.format(name=name), bbox_inches='tight')
+
 
 
   def _addBase(self, position, xlabel=None, ylabel=None):

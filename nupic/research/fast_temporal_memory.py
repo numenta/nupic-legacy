@@ -184,7 +184,7 @@ class FastTemporalMemory(TemporalMemory):
 
     start = self.cellsPerColumn * column
     end = start + self.cellsPerColumn
-    return set([ConnectionsCell(idx) for idx in range(start, end)])
+    return set([ConnectionsCell(idx) for idx in range(int(start), int(end))])
 
 
   def _validateCell(self, cell):
