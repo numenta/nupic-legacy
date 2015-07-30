@@ -130,6 +130,110 @@ class TestFileRecordStream(unittest.TestCase):
     s.close()
 
 
+  def testMultipleClasses(self):
+    """Runs FileRecordStream tests with multiple category fields."""
+    filename = _getTempFileName()
+
+    # Write a standard file
+    fields = [('name', 'string', ''),
+              ('timestamp', 'datetime', 'T'),
+              ('integer', 'int', ''),
+              ('real', 'float', ''),
+              ('reset', 'int', 'R'),
+              ('sid', 'string', 'S'),
+              ('categories', 'list', 'C')]
+    fieldNames = ['name', 'timestamp', 'integer', 'real', 'reset', 'sid',
+                  'categories']
+
+    print 'Creating temp file:', filename
+
+    s = FileRecordStream(streamID=filename, write=True, fields=fields)
+
+    self.assertTrue(s.getDataRowCount() == 0)
+
+    # Records
+    records = (
+      ['rec_1', datetime(day=1, month=3, year=2010), 5, 6.5, 1, 'seq-1',
+       [0, 1, 2]],
+      ['rec_2', datetime(day=2, month=3, year=2010), 8, 7.5, 0, 'seq-1',
+       [3, 4, 5,]],
+      ['rec_3', datetime(day=3, month=3, year=2010), 2, 8.5, 0, 'seq-1',
+       [6, 7, 8,]])
+
+    self.assertTrue(s.getFields() == fields)
+    self.assertTrue(s.getNextRecordIdx() == 0)
+
+    print 'Writing records ...'
+    for r in records:
+      print r
+      s.appendRecord(r)
+
+    self.assertTrue(s.getDataRowCount() == 3)
+
+    recordsBatch = (
+      ['rec_4', datetime(day=4, month=3, year=2010), 2, 9.5, 1, 'seq-1',
+       [2, 3, 4]],
+      ['rec_5', datetime(day=5, month=3, year=2010), 6, 10.5, 0, 'seq-1',
+       [3, 4, 5]],
+      ['rec_6', datetime(day=6, month=3, year=2010), 11, 11.5, 0, 'seq-1',
+       [4, 5, 6]])
+
+    print 'Adding batch of records...'
+    for rec in recordsBatch:
+      print rec
+    s.appendRecords(recordsBatch)
+    self.assertTrue(s.getDataRowCount() == 6)
+
+    s.close()
+
+    # Read the standard file
+    s = FileRecordStream(filename)
+    self.assertTrue(s.getDataRowCount() == 6)
+    self.assertTrue(s.getFieldNames() == fieldNames)
+
+    # Note! this is the number of records read so far
+    self.assertTrue(s.getNextRecordIdx() == 0)
+
+    readStats = s.getStats()
+    print 'Got stats:', readStats
+    expectedStats = {
+                     'max': [None, None, 11, 11.5, 1, None, None],
+                     'min': [None, None, 2, 6.5, 0, None, None]
+                    }
+    self.assertTrue(readStats == expectedStats)
+
+    readRecords = []
+    print 'Reading records ...'
+    while True:
+      r = s.getNextRecord()
+      print r
+      if r is None:
+        break
+
+      readRecords.append(r)
+
+    expectedRecords = (
+      ['rec_1', datetime(day=1, month=3, year=2010), 5, 6.5, 1, 'seq-1',
+       [0, 1, 2]],
+      ['rec_2', datetime(day=2, month=3, year=2010), 8, 7.5, 0, 'seq-1',
+       [3, 4, 5]],
+      ['rec_3', datetime(day=3, month=3, year=2010), 2, 8.5, 0, 'seq-1',
+       [6, 7, 8]],
+      ['rec_4', datetime(day=4, month=3, year=2010), 2, 9.5, 1, 'seq-1',
+       [2, 3, 4]],
+      ['rec_5', datetime(day=5, month=3, year=2010), 6, 10.5, 0, 'seq-1',
+       [3, 4, 5]],
+      ['rec_6', datetime(day=6, month=3, year=2010), 11, 11.5, 0, 'seq-1',
+       [4, 5, 6]])
+
+    for r1, r2 in zip(expectedRecords, readRecords):
+      print 'Expected:', r1
+      print 'Read    :', r2
+      self.assertTrue(r1 == r2)
+
+    s.close()
+
+
   def testEscapeUnescape(self):
     s = '1,2\n4,5'
 
