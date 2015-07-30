@@ -36,8 +36,8 @@ import nupic.support
 from nupic.support.configuration import Configuration
 
 
-TYPES = ['float', 'int', 'string', 'datetime', 'bool', 'address',
-         'FLOAT', 'INT', 'STRING', 'DATETIME', 'BOOL', 'ADDRESS']
+TYPES = ['float', 'int', 'string', 'datetime', 'bool', 'address', 'list',
+         'FLOAT', 'INT', 'STRING', 'DATETIME', 'BOOL', 'ADDRESS', 'LIST']
 
 FILE_PREF = 'file://'
 
@@ -497,7 +497,7 @@ class StreamReader(RecordStreamIface):
 
 
   def getCategoryFieldIdx(self):
-    """ Return indicex of the 'category' field. """
+    """ Return index of the 'category' field. """
     for i, field in enumerate(self._streamFields):
       if field[2] == 'C' or field[2] == 'c':
         return i

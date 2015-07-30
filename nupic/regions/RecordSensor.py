@@ -2,7 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -133,7 +133,7 @@ class RecordSensor(PyRegion):
                         feedback from SP""",
           dataType='Real32',
           count=0,
-          required = False,
+          required=False,
           regionLevel=True,
           isDefaultInput=False,
           requireSplitterMap=False),
@@ -142,7 +142,7 @@ class RecordSensor(PyRegion):
                         feedback from TP through SP""",
           dataType='Real32',
           count=0,
-          required = False,
+          required=False,
           regionLevel=True,
           isDefaultInput=False,
           requireSplitterMap=False),
@@ -155,7 +155,8 @@ class RecordSensor(PyRegion):
           count=1,
           constraints=""),
         numCategories=dict(
-          description="Number of Categories to expect from the FileRecordStream",
+          description=("Total number of categories to expect from the "
+                      "FileRecordStream"),
           dataType="UInt32",
           accessMode="ReadWrite",
           count=1,
@@ -170,8 +171,8 @@ class RecordSensor(PyRegion):
         ),
       commands=dict())
 
-
     return ns
+
 
   def __init__(self, verbosity=0, numCategories=1):
     """
@@ -196,9 +197,9 @@ class RecordSensor(PyRegion):
     # Default value for older versions being deserialized.
     self.disabledEncoder = None
     self.__dict__.update(state)
-
     if not hasattr(self, "numCategories"):
       self.numCategories = 1
+
 
   def initialize(self, dims, splitterMaps):
     if self.encoder is None:
@@ -226,7 +227,6 @@ class RecordSensor(PyRegion):
     while not foundData:
       # Get the data from the dataSource
       data = self.dataSource.getNextRecordDict()
-
       if not data:
         raise StopIteration("Datasource has no more data")
 
@@ -236,11 +236,10 @@ class RecordSensor(PyRegion):
       if  "_sequenceId" not in data:
         data["_sequenceId"] = 0
       if "_category" not in data:
-        data["_category"] = None
+        data["_category"] = [None]
 
       if self.verbosity > 0:
-          print "RecordSensor got data: %s" % data
-
+        print "RecordSensor got data: %s" % data
 
       # Apply pre-encoding filters.
       # These filters may modify or add data
@@ -264,29 +263,45 @@ class RecordSensor(PyRegion):
           data['_reset'] = originalReset
         data['_reset'] = actualReset
 
-
     self.lastRecord = data
 
     return data
 
 
-  def compute(self, inputs, outputs):
-    """Get a record from the dataSource and encode it
+  def populateCategoriesOut(self, categories, output):
     """
+    Populate the output array with the category indices.
+    Note: non-categories are represented with -1.
+    """
+    if categories[0] is None:
+      # The record has no entry in category field.
+      output[:] = -1
+    else:
+      # Populate category output array by looping over the smaller of the
+      # output array (size specified by numCategories) and the record's number
+      # of categories.
+      [numpy.put(output, [i], cat)
+          for i, (_, cat) in enumerate(zip(output, categories))]
+      output[len(categories):] = -1
+
+
+  def compute(self, inputs, outputs):
+    """Get a record from the dataSource and encode it."""
     if not self.topDownMode:
       data = self.getNextRecord()
 
+      # The private keys in data are standard of RecordStreamIface objects. Any
+      # add'l keys are column headers from the data source.
       reset = data["_reset"]
       sequenceId = data["_sequenceId"]
-      category = data["_category"]
+      categories = data["_category"]
 
-      # Encode the processed records
+      # Encode the processed records; populate outputs["dataOut"] in place
       self.encoder.encodeIntoArray(data, outputs["dataOut"])
 
-      # Write out the scalar values obtained from the data source. These
-      #  are often logged to a file
-      outputs['sourceOut'][:] = self.encoder.getScalars(data)
-      self._outputValues['sourceOut'] = self.encoder.getEncodedValues(data)
+      # Write out the scalar values obtained from they data source.
+      outputs["sourceOut"][:] = self.encoder.getScalars(data)
+      self._outputValues["sourceOut"] = self.encoder.getEncodedValues(data)
 
       # -----------------------------------------------------------------------
       # Get the encoded bit arrays for each field
@@ -304,16 +319,10 @@ class RecordSensor(PyRegion):
       for filter in self.postEncodingFilters:
         filter.process(encoder=self.encoder, data=outputs['dataOut'])
 
+      # Populate the output numpy arrays; must assign by index.
       outputs['resetOut'][0] = reset
       outputs['sequenceIdOut'][0] = sequenceId
-      if category is None:
-        category = data.get('category', 0)
-      if type(category) == list:
-        outputs['categoryOut'] = numpy.array(category, dtype="float32")
-        # for i, c in enumerate(category):
-        #   outputs['categoryOut'][i] = c
-      else:
-        outputs['categoryOut'][0] = category
+      self.populateCategoriesOut(categories, outputs['categoryOut'])
 
       # ------------------------------------------------------------------------
       # Verbose print?

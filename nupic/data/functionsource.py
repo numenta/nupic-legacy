@@ -91,7 +91,7 @@ class FunctionSource(object):
 
     result["_reset"] = reset
     result["_sequenceId"] = sequenceId
-    result["_category"] = None
+    result["_category"] = [None]
 
     return result
 

@@ -141,11 +141,9 @@ class TestFileRecordStream(unittest.TestCase):
               ('real', 'float', ''),
               ('reset', 'int', 'R'),
               ('sid', 'string', 'S'),
-              ('categoryField1', 'int', 'C'),
-              ('categoryField2', 'int', 'C'),
-              ('categoryField3', 'int', 'C'),]
+              ('categories', 'list', 'C')]
     fieldNames = ['name', 'timestamp', 'integer', 'real', 'reset', 'sid',
-                  'categoryField1', 'categoryField2', 'categoryField3']
+                  'categories']
 
     print 'Creating temp file:', filename
 
@@ -156,29 +154,29 @@ class TestFileRecordStream(unittest.TestCase):
     # Records
     records = (
       ['rec_1', datetime(day=1, month=3, year=2010), 5, 6.5, 1, 'seq-1',
-          0, 1, 2],
+       '0 1 2'],
       ['rec_2', datetime(day=2, month=3, year=2010), 8, 7.5, 0, 'seq-1',
-          3, 4, 5],
+       '3 4 5'],
       ['rec_3', datetime(day=3, month=3, year=2010), 2, 8.5, 0, 'seq-1',
-          6, 7, 8])
+       '6 7 8'])
 
     self.assertTrue(s.getFields() == fields)
     self.assertTrue(s.getNextRecordIdx() == 0)
 
     print 'Writing records ...'
     for r in records:
-      print list(r)
-      s.appendRecord(list(r))
+      print r
+      s.appendRecord(r)
 
     self.assertTrue(s.getDataRowCount() == 3)
 
     recordsBatch = (
       ['rec_4', datetime(day=4, month=3, year=2010), 2, 9.5, 1, 'seq-1',
-          2, 3, 4],
+       '2 3 4'],
       ['rec_5', datetime(day=5, month=3, year=2010), 6, 10.5, 0, 'seq-1',
-          3, 4, 5],
+       '3 4 5'],
       ['rec_6', datetime(day=6, month=3, year=2010), 11, 11.5, 0, 'seq-1',
-          4, 5, 6])
+       '4 5 6'])
 
     print 'Adding batch of records...'
     for rec in recordsBatch:
@@ -199,8 +197,8 @@ class TestFileRecordStream(unittest.TestCase):
     readStats = s.getStats()
     print 'Got stats:', readStats
     expectedStats = {
-                     'max': [None, None, 11, 11.5, 1, None, 6, 7, 8],
-                     'min': [None, None, 2, 6.5, 0, None, 0, 1, 2]
+                     'max': [None, None, 11, 11.5, 1, None, None],
+                     'min': [None, None, 2, 6.5, 0, None, None]
                     }
     self.assertTrue(readStats == expectedStats)
 
@@ -214,8 +212,21 @@ class TestFileRecordStream(unittest.TestCase):
 
       readRecords.append(r)
 
-    allRecords = records + recordsBatch
-    for r1, r2 in zip(allRecords, readRecords):
+    expectedRecords = (
+      ['rec_1', datetime(day=1, month=3, year=2010), 5, 6.5, 1, 'seq-1',
+       [0, 1, 2]],
+      ['rec_2', datetime(day=2, month=3, year=2010), 8, 7.5, 0, 'seq-1',
+       [3, 4, 5]],
+      ['rec_3', datetime(day=3, month=3, year=2010), 2, 8.5, 0, 'seq-1',
+       [6, 7, 8]],
+      ['rec_4', datetime(day=4, month=3, year=2010), 2, 9.5, 1, 'seq-1',
+       [2, 3, 4]],
+      ['rec_5', datetime(day=5, month=3, year=2010), 6, 10.5, 0, 'seq-1',
+       [3, 4, 5]],
+      ['rec_6', datetime(day=6, month=3, year=2010), 11, 11.5, 0, 'seq-1',
+       [4, 5, 6]])
+
+    for r1, r2 in zip(expectedRecords, readRecords):
       print 'Expected:', r1
       print 'Read    :', r2
       self.assertTrue(r1 == r2)
@@ -338,7 +349,6 @@ class TestFileRecordStream(unittest.TestCase):
     # this should leave the string as-is, since a missing string
     # is encoded not with a sentinel value but with an empty string
     self.assertTrue(recordsRead[6][1] != SENTINEL_VALUE_FOR_MISSING_DATA)
-
 
 
 if __name__ == '__main__':

@@ -79,7 +79,8 @@ from nupic.data.utils import (
                         escape,
                         unescape,
                         parseSdr,
-                        serializeSdr)
+                        serializeSdr,
+                        parseStringList)
 
 
 
@@ -179,7 +180,7 @@ class FileRecordStream(RecordStreamIface):
       # make sure readline() works on Windows too.
       os.linesep = '\n'
       # Read header lines
-      self._reader = csv.reader(self._file, dialect='excel', quoting=csv.QUOTE_NONE)
+      self._reader = csv.reader(self._file, dialect='excel')
       try:
         names = [n.strip() for n in self._reader.next()]
       except:
@@ -198,7 +199,7 @@ class FileRecordStream(RecordStreamIface):
                       (streamID, len(names), len(types), len(specials)))
 
     # Verify standard file format
-    allowedTypes = ('string', 'datetime', 'int', 'float', 'bool', 'sdr')
+    allowedTypes = ('string', 'datetime', 'int', 'float', 'bool', 'sdr', 'list')
     for i, t in enumerate(types):
       # This is a temporary hack for the Precog milestone, which passes in a
       # type 'address' for address fields. Here we simply map the type "address"
@@ -240,7 +241,7 @@ class FileRecordStream(RecordStreamIface):
     if self._resetIdx:
       assert types[self._resetIdx] == 'int'
     if self._categoryIdx:
-      assert types[self._categoryIdx] in ('string', 'int')
+      assert types[self._categoryIdx] in ('list', 'int')
     if self._learningIdx:
       assert types[self._learningIdx] == 'int'
 
@@ -251,7 +252,8 @@ class FileRecordStream(RecordStreamIface):
                bool=parseBool,
                string=unescape,
                datetime=parseTimestamp,
-               sdr=parseSdr)
+               sdr=parseSdr,
+               list=parseStringList)
     else:
       if includeMS:
         datetimeFunc = serializeTimestamp
@@ -262,7 +264,8 @@ class FileRecordStream(RecordStreamIface):
                string=escape,
                bool=str,
                datetime=datetimeFunc,
-               sdr=serializeSdr)
+               sdr=serializeSdr,
+               list=parseStringList)
 
     self._adapters = [m[t] for t in types]
 
@@ -314,7 +317,7 @@ class FileRecordStream(RecordStreamIface):
 
     self.close()
     self._file = open(self._filename, self._mode)
-    self._reader = csv.reader(self._file, dialect='excel', quoting=csv.QUOTE_NONE)
+    self._reader = csv.reader(self._file, dialect='excel')
     
     # Skip header rows
     row = self._reader.next()
@@ -338,7 +341,7 @@ class FileRecordStream(RecordStreamIface):
     # Read the line
     try:
       line = self._reader.next()
-    
+
     except StopIteration:
       if self.rewindAtEOF:
         if self._recordCount == 0:
@@ -520,7 +523,7 @@ class FileRecordStream(RecordStreamIface):
       os.linesep = '\n' # make sure readline() works on windows too.
 
       # Create a new reader; read names, types, specials
-      reader = csv.reader(inFile, dialect='excel', quoting=csv.QUOTE_NONE)
+      reader = csv.reader(inFile, dialect='excel')
       names = [n.strip() for n in reader.next()]
       types = [t.strip() for t in reader.next()]
       # Skip over specials

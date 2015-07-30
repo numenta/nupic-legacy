@@ -88,14 +88,13 @@ class RecordStreamIface(object):
     learningIdx = self.getLearningFieldIdx()
 
     if catIdx is not None:
-      if isinstance(values[catIdx], str):
-        # multiple categories
-        result['_category'] = [int(c) for c in values[catIdx].split(' ')]
-      else:
-        # cat value is int
+      # category value can be an int or a list
+      if isinstance(values[catIdx], int):
         result['_category'] = [values[catIdx]]
+      else:
+        result['_category'] = values[catIdx] if values[catIdx] else [None]
     else:
-      result['_category'] = None
+      result['_category'] = [None]
 
     if resetIdx is not None:
       result['_reset'] = int(bool(values[resetIdx]))

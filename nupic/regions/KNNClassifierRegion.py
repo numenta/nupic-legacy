@@ -2,7 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -37,6 +37,8 @@ class KNNClassifierRegion(PyRegion):
   By default it will implement vanilla 1-nearest neighbor using the L2 (Euclidean)
   distance norm.  There are options for using different norms as well as
   various ways of sparsifying the input.
+  
+  Note: categories are ints >= 0.
   """
 
   __VERSION__ = 1
@@ -49,7 +51,7 @@ class KNNClassifierRegion(PyRegion):
         singleNodeOnly=True,
         inputs=dict(
           categoryIn=dict(
-            description='Category of the input sample',
+            description='Vector of categories of the input sample',
             dataType='Real32',
             count=0,
             required=True,
@@ -833,10 +835,12 @@ class KNNClassifierRegion(PyRegion):
 
   def compute(self, inputs, outputs):
     """
-    Process one input sample.
-    This method is called by the runtime engine.
+    Process one input sample. This method is called by the runtime engine.
+    
+    NOTE: the number of input categories may vary, but the array size is fixed
+    to the max number of categories allowed (by a lower region), so "unused"
+    indices of the input category array are filled with -1s.
     """
-
     #raise Exception('MULTI-LINE DUMMY\nMULTI-LINE DUMMY')
     #For backward compatibility
     if self._useAuxiliary is None:
@@ -997,25 +1001,23 @@ class KNNClassifierRegion(PyRegion):
     # ---------------------------------------------------------------------
     # Learning mode
     if self.learningMode:
+
       if (self.acceptanceProbability < 1.0) and \
             (self._rgen.uniform(0.0, 1.0) > self.acceptanceProbability):
-        pass # Skip.
+        pass
 
-      # Accept the input
       else:
+        # Accept the input
         for category in categories:
-          # If we are sphering, then we can't provide the data to the KNN
-          # library until we have computed per-dimension normalization constants.
-          # So instead, we'll just store each training sample.
-          if self._doSphering:
-            # If this is our first sample:
-            self._storeSample(inputVector, category, partition)
-          # If we are not sphering, then we just go ahead and pass the raw
-          # training sample directly to the KNN library.
-          else:
-            try:
-              self._knn.learn(inputVector, category, partition)
-            except:
+          if category >= 0:
+            # category values of -1 are to be skipped (they are non-categories)
+            if self._doSphering:
+              # If we are sphering, then we can't provide the data to the KNN
+              # library until we have computed per-dimension normalization
+              # constants. So instead, we'll just store each training sample.
+              self._storeSample(inputVector, category, partition)
+            else:
+              # Pass the raw training sample directly to the KNN library.
               self._knn.learn(inputVector, category, partition)
 
 
