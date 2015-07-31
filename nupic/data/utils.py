@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -60,15 +60,12 @@ def parseTimestamp(s):
                    'formats are: [%s]' % (s, ', '.join(DATETIME_FORMATS)))
 
 
-
 def serializeTimestamp(t):
   return t.strftime(DATETIME_FORMATS[0])
 
 
-
 def serializeTimestampNoMS(t):
   return t.strftime(DATETIME_FORMATS[2])
-
 
 
 def parseBool(s):
@@ -80,19 +77,16 @@ def parseBool(s):
   raise Exception("Unable to convert string '%s' to a boolean value" % s)
 
 
-
 def floatOrNone(f):
   if f == 'None':
     return None
   return float(f)
 
 
-
 def intOrNone(i):
   if i.strip() == 'None' or i.strip() == 'NULL':
     return None
   return int(i)
-
 
 
 def escape(s):
@@ -112,13 +106,11 @@ def escape(s):
   return s
 
 
-
 def unescape(s):
   """Unescapes a string that may contain commas, tabs, newlines and dashes
 
   Commas are decoded from tabs
   """
-  #assert isinstance(s, str)
   assert isinstance(s, basestring)
   s = s.replace('\t', ',')
   s = s.replace('\\,', ',')
@@ -126,7 +118,6 @@ def unescape(s):
   s = s.replace('\\\\', '\\')
 
   return s
-
 
 
 def parseSdr(s):
@@ -141,9 +132,21 @@ def parseSdr(s):
   return sdr
 
 
-
 def serializeSdr(sdr):
   """Serialize Python list object containing only 0's and 1's to string.
   """
 
   return "".join(str(bit) for bit in sdr)
+
+
+def parseStringList(s):
+  """Parse a string of space-separated numbers, returning a Python list."""
+  assert isinstance(s, basestring)
+  ints = []
+  for val in s:
+    try:
+      # skip space-separations
+      ints.append(int(val))
+    except:
+      continue
+  return ints

@@ -54,7 +54,7 @@ def _generateCategory(filename="simple.csv", numSequences=2, elementsPerSeq=1,
   scriptDir = os.path.dirname(__file__)
   pathname = os.path.join(scriptDir, 'datasets', filename)
   print "Creating %s..." % (pathname)
-  fields = [('reset', 'int', 'R'), ('category', 'string', ''), 
+  fields = [('reset', 'int', 'R'), ('category', 'int', 'C'),
             ('field1', 'string', '')]  
   outFile = FileRecordStream(pathname, write=True, fields=fields)
   
@@ -102,7 +102,7 @@ def _generateScalar(filename="simple.csv", numSequences=2, elementsPerSeq=1,
   scriptDir = os.path.dirname(__file__)
   pathname = os.path.join(scriptDir, 'datasets', filename)
   print "Creating %s..." % (pathname)
-  fields = [('reset', 'int', 'R'), ('category', 'string', ''), 
+  fields = [('reset', 'int', 'R'), ('category', 'int', 'C'),
             ('field1', 'float', '')]  
   outFile = FileRecordStream(pathname, write=True, fields=fields)
   
@@ -155,7 +155,7 @@ def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=
   scriptDir = os.path.dirname(__file__)
   pathname = os.path.join(scriptDir, 'datasets', filename)
   print "Creating %s..." % (pathname)
-  fields = [('reset', 'int', 'R'), ('category', 'string', ''), 
+  fields = [('reset', 'int', 'R'), ('category', 'int', 'C'),
             ('field1', 'string', '')]  
   outFile = FileRecordStream(pathname, write=True, fields=fields)
   

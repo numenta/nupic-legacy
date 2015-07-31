@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -79,7 +79,8 @@ from nupic.data.utils import (
                         escape,
                         unescape,
                         parseSdr,
-                        serializeSdr)
+                        serializeSdr,
+                        parseStringList)
 
 
 
@@ -99,8 +100,7 @@ class FileRecordStream(RecordStreamIface):
 
   def __init__(self, streamID, write=False, fields=None, missingValues=None,
                bookmark=None, includeMS=True, firstRecord=None):
-    """ Constructor
-    
+    """
     streamID:
         CSV file name, input or output
     write:
@@ -129,16 +129,21 @@ class FileRecordStream(RecordStreamIface):
     The name is the name of the field. The type is one of: 'string', 'datetime',
     'int', 'float', 'bool' The special is either empty or one of S, R, T, C that
     designate their field as the sequenceId, reset, timestamp, or category.
+    With exception of multiple categories, there can be at most one of each.
     There can be at most one of each. There may be multiple fields of type
     datetime, but no more than one of them may be the timestamp field (T). The
     sequence id field must be either a string or an int. The reset field must be
-    an int (and must contain 0 or 1). The category field must be an int.
+    an int (and must contain 0 or 1).
+    
+    The category field must be an int or string, where the former represents
+    single-label classification and the latter is for multi-label classification 
+    (e.g. "1 3 4" designates a record for labels 1, 3, and 4). The number of 
+    categories is allowed to vary record to record; sensor regions represent
+    non-categories with -1, thus the category values must be >= 0.
 
     The FileRecordStream iterates over the field names, types and specials and
     stores the information.
     """
-    
-    # Call superclass constructor
     super(FileRecordStream, self).__init__()
 
     # Only bookmark or firstRow can be specified, not both
@@ -150,7 +155,7 @@ class FileRecordStream(RecordStreamIface):
     if missingValues is None:
       missingValues = ['']
     
-    # We'll be operating on csvs with arbitrarily long fields
+    # We'll be operating on CSVs with arbitrarily long fields
     size = 2**27
     csv.field_size_limit(size)
 
@@ -172,9 +177,10 @@ class FileRecordStream(RecordStreamIface):
       names, types, specials = zip(*fields)
       self._writer = csv.writer(self._file)
     else:
-      os.linesep = '\n' # make sure readline() works on windows too.
+      # make sure readline() works on Windows too.
+      os.linesep = '\n'
       # Read header lines
-      self._reader = csv.reader(self._file, dialect='excel', quoting=csv.QUOTE_NONE)
+      self._reader = csv.reader(self._file, dialect='excel')
       try:
         names = [n.strip() for n in self._reader.next()]
       except:
@@ -193,7 +199,7 @@ class FileRecordStream(RecordStreamIface):
                       (streamID, len(names), len(types), len(specials)))
 
     # Verify standard file format
-    allowedTypes = ('string', 'datetime', 'int', 'float', 'bool', 'sdr')
+    allowedTypes = ('string', 'datetime', 'int', 'float', 'bool', 'sdr', 'list')
     for i, t in enumerate(types):
       # This is a temporary hack for the Precog milestone, which passes in a
       # type 'address' for address fields. Here we simply map the type "address"
@@ -235,7 +241,7 @@ class FileRecordStream(RecordStreamIface):
     if self._resetIdx:
       assert types[self._resetIdx] == 'int'
     if self._categoryIdx:
-      assert types[self._categoryIdx] == 'int'
+      assert types[self._categoryIdx] in ('list', 'int')
     if self._learningIdx:
       assert types[self._learningIdx] == 'int'
 
@@ -246,7 +252,8 @@ class FileRecordStream(RecordStreamIface):
                bool=parseBool,
                string=unescape,
                datetime=parseTimestamp,
-               sdr=parseSdr)
+               sdr=parseSdr,
+               list=parseStringList)
     else:
       if includeMS:
         datetimeFunc = serializeTimestamp
@@ -257,15 +264,14 @@ class FileRecordStream(RecordStreamIface):
                string=escape,
                bool=str,
                datetime=datetimeFunc,
-               sdr=serializeSdr)
+               sdr=serializeSdr,
+               list=parseStringList)
 
     self._adapters = [m[t] for t in types]
 
     self._missingValues = missingValues
 
-    #
     # If the bookmark is set, we need to skip over first N records
-    #
     if bookmark is not None:
       rowsToSkip = self._getStartRow(bookmark)
     elif firstRecord is not None:
@@ -276,7 +282,6 @@ class FileRecordStream(RecordStreamIface):
     while rowsToSkip > 0:
       self.next()
       rowsToSkip -= 1
-
 
     # Dictionary to store record statistics (min and max of scalars for now)
     self._stats = None
@@ -312,7 +317,7 @@ class FileRecordStream(RecordStreamIface):
 
     self.close()
     self._file = open(self._filename, self._mode)
-    self._reader = csv.reader(self._file, dialect='excel', quoting=csv.QUOTE_NONE)
+    self._reader = csv.reader(self._file, dialect='excel')
     
     # Skip header rows
     row = self._reader.next()
@@ -336,7 +341,7 @@ class FileRecordStream(RecordStreamIface):
     # Read the line
     try:
       line = self._reader.next()
-    
+
     except StopIteration:
       if self.rewindAtEOF:
         if self._recordCount == 0:
@@ -518,7 +523,7 @@ class FileRecordStream(RecordStreamIface):
       os.linesep = '\n' # make sure readline() works on windows too.
 
       # Create a new reader; read names, types, specials
-      reader = csv.reader(inFile, dialect='excel', quoting=csv.QUOTE_NONE)
+      reader = csv.reader(inFile, dialect='excel')
       names = [n.strip() for n in reader.next()]
       types = [t.strip() for t in reader.next()]
       # Skip over specials
