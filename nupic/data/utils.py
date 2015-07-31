@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -24,6 +24,7 @@ Collection of utilities to process input data
 """
 
 import datetime
+import string
 # Workaround for this error: 
 #  "ImportError: Failed to import _strptime because the import lockis held by 
 #     another thread"
@@ -118,7 +119,6 @@ def unescape(s):
 
   Commas are decoded from tabs
   """
-  #assert isinstance(s, str)
   assert isinstance(s, basestring)
   s = s.replace('\t', ',')
   s = s.replace('\\,', ',')
@@ -147,3 +147,16 @@ def serializeSdr(sdr):
   """
 
   return "".join(str(bit) for bit in sdr)
+
+
+
+def parseStringList(s):
+  """Parse a string of space-separated numbers, returning a Python list."""
+  assert isinstance(s, basestring)
+  return [int(i) for i in s.split()]
+
+
+
+def stripList(listObj):
+  """Convert a list of numbers to a string of space-separated numbers."""
+  return string.replace(str(listObj)[1:-1], ",", "")

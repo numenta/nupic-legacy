@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -69,17 +69,9 @@ import json
 from nupic.data.fieldmeta import FieldMetaInfo
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.record_stream import RecordStreamIface
-from nupic.data.utils import (
-                        intOrNone,
-                        floatOrNone,
-                        parseBool,
-                        parseTimestamp,
-                        serializeTimestamp,
-                        serializeTimestampNoMS,
-                        escape,
-                        unescape,
-                        parseSdr,
-                        serializeSdr)
+from nupic.data.utils import (intOrNone, floatOrNone, parseBool, parseTimestamp,
+    serializeTimestamp, serializeTimestampNoMS, escape, unescape, parseSdr,
+    serializeSdr, parseStringList, stripList)
 
 
 
@@ -172,7 +164,8 @@ class FileRecordStream(RecordStreamIface):
       names, types, specials = zip(*fields)
       self._writer = csv.writer(self._file)
     else:
-      os.linesep = '\n' # make sure readline() works on windows too.
+      # Make sure readline() works on windows too
+      os.linesep = '\n'
       # Read header lines
       self._reader = csv.reader(self._file, dialect='excel', quoting=csv.QUOTE_NONE)
       try:
@@ -193,7 +186,7 @@ class FileRecordStream(RecordStreamIface):
                       (streamID, len(names), len(types), len(specials)))
 
     # Verify standard file format
-    allowedTypes = ('string', 'datetime', 'int', 'float', 'bool', 'sdr')
+    allowedTypes = ('string', 'datetime', 'int', 'float', 'bool', 'sdr', 'list')
     for i, t in enumerate(types):
       # This is a temporary hack for the Precog milestone, which passes in a
       # type 'address' for address fields. Here we simply map the type "address"
@@ -246,7 +239,8 @@ class FileRecordStream(RecordStreamIface):
                bool=parseBool,
                string=unescape,
                datetime=parseTimestamp,
-               sdr=parseSdr)
+               sdr=parseSdr,
+               list=parseStringList)
     else:
       if includeMS:
         datetimeFunc = serializeTimestamp
@@ -257,7 +251,8 @@ class FileRecordStream(RecordStreamIface):
                string=escape,
                bool=str,
                datetime=datetimeFunc,
-               sdr=serializeSdr)
+               sdr=serializeSdr,
+               list=stripList)
 
     self._adapters = [m[t] for t in types]
 
