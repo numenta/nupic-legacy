@@ -303,8 +303,8 @@ class RecordSensor(PyRegion):
       # Populate category output array by looping over the smaller of the
       # output array (size specified by numCategories) and the record's number
       # of categories.
-      [numpy.put(output, [i], cat)
-          for i, (_, cat) in enumerate(zip(output, categories))]
+      for i, cat in enumerate(categories[:len(output)]):
+        output[i] = cat
       output[len(categories):] = -1
 
 
