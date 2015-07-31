@@ -154,6 +154,8 @@ def getModule(metricSpec):
 
   if metricName == 'rmse':
     return MetricRMSE(metricSpec)
+  if metricName == 'nrmse':
+    return MetricNRMSE(metricSpec)
   elif metricName == 'aae':
     return MetricAAE(metricSpec)
   elif metricName == 'acc':
@@ -504,6 +506,29 @@ class MetricRMSE(AggregateMetric):
       n = len(historyBuffer)
 
     return np.sqrt(accumulatedError / float(n))
+
+
+
+class MetricNRMSE(MetricRMSE):
+  """computes normalized root-mean-square error"""
+  def __init__(self, *args, **kwargs):
+    super(MetricNRMSE, self).__init__(*args, **kwargs)
+    self.groundTruths = []
+
+  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
+    self.groundTruths.append(groundTruth)
+
+    return super(MetricNRMSE, self).accumulate(groundTruth,
+                                               prediction,
+                                               accumulatedError,
+                                               historyBuffer)
+
+  def aggregate(self, accumulatedError, historyBuffer, steps):
+    rmse = super(MetricNRMSE, self).aggregate(accumulatedError,
+                                              historyBuffer,
+                                              steps)
+    denominator = np.std(self.groundTruths)
+    return rmse / denominator if denominator > 0 else float("inf")
 
 
 
