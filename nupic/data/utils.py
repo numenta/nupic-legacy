@@ -158,5 +158,5 @@ def parseStringList(s):
 
 
 def stripList(listObj):
-  """Convert a list of numbers to a space-separated list."""
+  """Convert a list of numbers to a string of space-separated numbers."""
   return string.replace(str(listObj)[1:-1], ",", "")
