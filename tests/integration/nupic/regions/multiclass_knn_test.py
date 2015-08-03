@@ -20,10 +20,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import csv
 import os
 import tempfile
-import unittest2 as unittest
+import unittest
 
 from datetime import datetime
 from nupic.data.file_record_stream import FileRecordStream
@@ -51,12 +50,11 @@ class MulticlassKNNTest(unittest.TestCase):
   
     # Setup data record stream of fake data (with three categories)
     filename = _getTempFileName()
-    fields = [('timestamp', 'datetime', 'T'),
-              ('value', 'float', ''),
-              ('reset', 'int', 'R'),
-              ('sid', 'int', 'S'),
-              ('categories', 'list', 'C')]
-    fieldNames = ["timestamp", "value", "reset", "seqID", "categories"]
+    fields = [("timestamp", "datetime", "T"),
+              ("value", "float", ""),
+              ("reset", "int", "R"),
+              ("sid", "int", "S"),
+              ("categories", "list", "C")]
     records = (
       [datetime(day=1, month=3, year=2010), 0.0, 1, 0, ""],
       [datetime(day=2, month=3, year=2010), 1.0, 0, 0, "1 2"],
@@ -124,7 +122,6 @@ class MulticlassKNNTest(unittest.TestCase):
                     [0.5, 0.5, 0.0],
                     [0.0, 0.5, 0.5])
     dataSource.rewind()
-    totalCorrect = 0
     for i in xrange(8):
       net.run(1)
       inferredCats = classifier.getOutputData("categoriesOut")
