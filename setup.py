@@ -637,6 +637,7 @@ try:
     name="nupic",
     version=getVersion(),
     install_requires=findRequirements(),
+    namespace_packages=["nupic"],
     packages=find_packages(),
     package_data={
       "nupic.support": ["nupic-default.xml",
