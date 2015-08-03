@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -67,9 +67,9 @@ class CLAClassifierRegion(PyRegion):
         #  inputs and outputs.
         inputs=dict(
           categoryIn=dict(
-            description='Category of the input sample',
+            description='Vector of categories of the input sample',
             dataType='Real32',
-            count=1,
+            count=0,
             required=True,
             regionLevel=True,
             isDefaultInput=False,

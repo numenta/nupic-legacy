@@ -88,9 +88,13 @@ class RecordStreamIface(object):
     learningIdx = self.getLearningFieldIdx()
 
     if catIdx is not None:
-      result['_category'] = values[catIdx]
+      # category value can be an int or a list
+      if isinstance(values[catIdx], int):
+        result['_category'] = [values[catIdx]]
+      else:
+        result['_category'] = values[catIdx] if values[catIdx] else [None]
     else:
-      result['_category'] = None
+      result['_category'] = [None]
 
     if resetIdx is not None:
       result['_reset'] = int(bool(values[resetIdx]))
@@ -339,7 +343,7 @@ class RecordStreamIface(object):
 
 
   def getResetFieldIdx(self):
-    """ Index of the 'reset' field. """
+    """ Return index of the 'reset' field. """
     for i, field in enumerate(self.getFields()):
       if field[2] == 'R' or field[2] == 'r':
         return i
@@ -347,7 +351,7 @@ class RecordStreamIface(object):
 
 
   def getTimestampFieldIdx(self):
-    """ Index of the 'timestamp' field. """
+    """ Return index of the 'timestamp' field. """
     for i, field in enumerate(self.getFields()):
       if field[2] == 'T' or field[2] == 't':
         return i
@@ -355,7 +359,7 @@ class RecordStreamIface(object):
 
 
   def getSequenceIdFieldIdx(self):
-    """ Index of the 'sequenceId' field. """
+    """ Return index of the 'sequenceId' field. """
     for i, field in enumerate(self.getFields()):
       if field[2] == 'S' or field[2] == 's':
         return i
@@ -363,7 +367,7 @@ class RecordStreamIface(object):
 
 
   def getCategoryFieldIdx(self):
-    """ Index of the 'category' field. """
+    """ Return index of the 'category' field. """
     for i, field in enumerate(self.getFields()):
       if field[2] == 'C' or field[2] == 'c':
         return i
@@ -371,7 +375,7 @@ class RecordStreamIface(object):
 
 
   def getLearningFieldIdx(self):
-    """ Index of the 'learning' field. """
+    """ Return index of the 'learning' field. """
     for i, field in enumerate(self.getFields()):
       if field[2] == 'L' or field[2] == 'l':
         return i
