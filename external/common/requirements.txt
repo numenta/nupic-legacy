@@ -1,4 +1,6 @@
 #See http://www.pip-installer.org/en/latest/requirements.html for details
+# Check nupic.core requirements before adding any to this list. Do not add
+# any that are there: <nupic.core repo>/external/common/requirements.txt
 asteval==0.9.1
 coverage==3.7.1
 mock==1.0.1
@@ -17,4 +19,4 @@ PyMySQL==0.6.2
 DBUtils==1.1
 pyproj==1.9.3
 prettytable==0.7.2
-nupiccore-python==1.0
+nupiccore==0.1.0

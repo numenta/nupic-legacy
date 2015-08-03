@@ -185,6 +185,16 @@ def getVersion():
     return versionFile.read().strip()
 
 
+def parse_file(requirementFile):
+  try:
+    return [
+      line.strip()
+      for line in open(requirementFile).readlines()
+      if not line.startswith("#")
+    ]
+  except IOError:
+    return []
+
 
 def findRequirements(nupicCoreReleaseDir, options):
   """
@@ -197,25 +207,18 @@ def findRequirements(nupicCoreReleaseDir, options):
   requirements = []
   # use develop nupiccore bindings. not PYPI
   if getCommandLineOption("nupic-core-dir", options) is not None:
-    eggFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.egg"))
-    for egg in eggFiles:
-      requirements.append(egg)
-     
-  def parse_file(requirementFile):
-   return [
-     line.strip()
-     for line in open(coreRequirementsPath).readlines()
-     if not line.startswith("#")
-   ]
+    wheelFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.whl"))
+    for wheel in wheelFiles:
+      requirements.append(wheel)
   
-   if requirements:
-     requirements += parse_file(coreRequirementsPath)
-   else:
-     requirements += [r for r in parse_file(coreRequirementsPath) if "nupiccore" not in r]
+  if requirements:
+    requirements += parse_file(coreRequirementsPath)
+  else:
+    requirements += [r for r in parse_file(coreRequirementsPath) if "nupiccore" not in r]
 
-   requirements += parse_file(requirementsPath)
+  requirements += parse_file(requirementsPath)
    
-   return requirements
+  return requirements
 
 
 
@@ -279,8 +282,12 @@ def prepareNupicCore(options, platform, bitness):
                           + nupicCoreCommitish + "-" + platform + bitness + ".tar.gz")
     nupicCoreLocalPackage = (nupicCoreSourceDir + "/nupic_core-"
                              + nupicCoreCommitish + "-" + platform + bitness + ".tar.gz")
-    nupicCoreLocalDirToUnpack = ("nupic_core-"
-                                 + nupicCoreCommitish + "-" + platform + bitness)
+    #nupicCoreLocalDirToUnpack = ("nupic_core-"
+    #                             + nupicCoreCommitish + "-" + platform + bitness)
+    if getPlatformInfo()[0] == "darwin":
+      nupicCoreLocalDirToUnpack = "/Users/travis/build/numenta/nupic.core/bindings/py/dist"
+    elif getPlatformInfo()[0] == "linux":
+      nupicCoreLocalDirToUnpack = "/home/travis/build/numenta/nupic.core/bindings/py/dist"
 
     if os.path.exists(nupicCoreLocalPackage):
       print ("Target nupic.core package already exists at "
@@ -316,22 +323,23 @@ def prepareNupicCore(options, platform, bitness):
   else:
     skipCompareVersions = not fetchNupicCore
 
-  if not skipCompareVersions:
-    # Compare expected version of nupic.core against installed version
-    with open(nupicCoreReleaseDir + "/include/nupic/Version.hpp",
-              "r") as fileObj:
-      content = fileObj.read()
+  # TODO: Remove
+  #if not skipCompareVersions:
+  #  # Compare expected version of nupic.core against installed version
+  #  with open(nupicCoreReleaseDir + "/include/nupic/Version.hpp",
+  #            "r") as fileObj:
+  #    content = fileObj.read()
 
-    nupicCoreVersionFound = re.search(
-      "#define NUPIC_CORE_VERSION \"([a-z0-9]+)\"", content
-    ).group(1)
+  #  nupicCoreVersionFound = re.search(
+  #    "#define NUPIC_CORE_VERSION \"([a-z0-9]+)\"", content
+  #  ).group(1)
 
-    if nupicCoreCommitish != nupicCoreVersionFound:
-      raise Exception(
-        "Fatal Error: Unexpected version of nupic.core! "
-        "Expected %s, but detected %s."
-        % (nupicCoreCommitish, nupicCoreVersionFound)
-      )
+  #  if nupicCoreCommitish != nupicCoreVersionFound:
+  #    raise Exception(
+  #      "Fatal Error: Unexpected version of nupic.core! "
+  #      "Expected %s, but detected %s."
+  #      % (nupicCoreCommitish, nupicCoreVersionFound)
+  #    )
 
   return nupicCoreReleaseDir
 
@@ -339,7 +347,8 @@ def prepareNupicCore(options, platform, bitness):
 
 def copyProtoFiles(nupicCoreReleaseDir):
   # Copy proto files located at nupic.core dir into nupic dir
-  protoSourceDir = glob.glob(os.path.join(nupicCoreReleaseDir, "include/nupic/proto/"))[0]
+  print "Copying capnp files from nupic core"
+  protoSourceDir = glob.glob(os.path.join(nupicCoreReleaseDir, "proto/"))[0]
   protoTargetDir = REPO_DIR + "/nupic/bindings/proto"
   if not os.path.exists(protoTargetDir):
     os.makedirs(protoTargetDir)
