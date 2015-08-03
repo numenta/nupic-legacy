@@ -29,7 +29,7 @@ pip install boto --user || exit
 echo "Installing wheel..."
 pip install wheel --user || exit
 echo "Installing twine..."
-sudo pip install twine || exit
+pip install twine --user || exit
 
 echo "Creating distribution files..."
 # This release build creates the source distribution. All other release builds
