@@ -209,10 +209,9 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
           synapseList = []
 
           for synapse in self.connections.synapsesForSegment(seg):
-            (_, sourceCell, permanence) = self.connections.dataForSynapse(
-              synapse)
-
-            synapseList.append((sourceCell, permanence))
+            synapseData = self.connections.dataForSynapse(synapse)
+            synapseList.append(
+                (synapseData.presynapticCell, synapseData.permanence))
 
           synapseList.sort()
           synapseStringList = ["{0:3}={1:.2f}".format(sourceCell, permanence) for

@@ -36,8 +36,8 @@ import nupic.support
 from nupic.support.configuration import Configuration
 
 
-TYPES = ['float', 'int', 'string', 'datetime', 'bool', 'address',
-         'FLOAT', 'INT', 'STRING', 'DATETIME', 'BOOL', 'ADDRESS']
+TYPES = ['float', 'int', 'string', 'datetime', 'bool', 'address', 'list',
+         'FLOAT', 'INT', 'STRING', 'DATETIME', 'BOOL', 'ADDRESS', 'LIST']
 
 FILE_PREF = 'file://'
 
@@ -473,7 +473,7 @@ class StreamReader(RecordStreamIface):
 
 
   def getResetFieldIdx(self):
-    """ Index of the 'reset' field. """
+    """ Return index of the 'reset' field. """
     for i, field in enumerate(self._streamFields):
       if field[2] == 'R' or field[2] == 'r':
         return i
@@ -481,7 +481,7 @@ class StreamReader(RecordStreamIface):
 
 
   def getTimestampFieldIdx(self):
-    """ Index of the 'timestamp' field. """
+    """ Return index of the 'timestamp' field. """
     for i, field in enumerate(self._streamFields):
       if field[2] == 'T' or field[2] == 't':
         return i
@@ -489,7 +489,7 @@ class StreamReader(RecordStreamIface):
 
 
   def getSequenceIdFieldIdx(self):
-    """ Index of the 'sequenceId' field. """
+    """ Return index of the 'sequenceId' field. """
     for i, field in enumerate(self._streamFields):
       if field[2] == 'S' or field[2] == 's':
         return i
@@ -497,7 +497,7 @@ class StreamReader(RecordStreamIface):
 
 
   def getCategoryFieldIdx(self):
-    """ Index of the 'category' field. """
+    """ Return index of the 'category' field. """
     for i, field in enumerate(self._streamFields):
       if field[2] == 'C' or field[2] == 'c':
         return i
