@@ -36,7 +36,7 @@ except ImportError:
 class Plot(object):
 
 
-  def __init__(self, monitor, title):
+  def __init__(self, monitor, title, show=True):
     """
 
     @param monitor (MonitorMixinBase) Monitor Mixin instance that generated
@@ -47,8 +47,10 @@ class Plot(object):
     self._monitor = monitor
     self._title = title
     self._fig = self._initFigure()
-    #plt.ion()
-    #plt.show()
+    self._show = show
+    if self._show:
+      plt.ion()
+      plt.show()
 
 
   def _initFigure(self):
@@ -95,7 +97,7 @@ class Plot(object):
 
 
   def add2DArray(self, data, position=111, xlabel=None, ylabel=None, cmap=None,
-                 aspect="auto", interpolation="nearest", name="0"):
+                 aspect="auto", interpolation="nearest", name=None):
     """ Adds an image to the plot's figure.
 
     @param data a 2D array. See matplotlib.Axes.imshow documentation.
@@ -114,11 +116,13 @@ class Plot(object):
 
     ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
     ax.imshow(data, cmap=cmap, aspect=aspect, interpolation=interpolation)
-    #ax.imsave('{name}.png'.format(name=name), data, cmap=cmap, aspect=aspect, interpolation=interpolation)
-    #plt.draw()
-    plt.savefig('log/{name}.png'.format(name=name), bbox_inches="tight",
+
+    if self._show:
+      plt.draw()
+
+    if name is not None:
+    plt.savefig("log/{name}.png".format(name=name), bbox_inches="tight",
                 figsize=(8, 6), dpi=400)
-    #ax.savefig('{name}.png'.format(name=name), bbox_inches='tight')
 
 
 

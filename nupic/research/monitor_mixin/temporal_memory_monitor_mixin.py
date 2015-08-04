@@ -335,9 +335,6 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     self._mmTraces["predictiveCells"].data.append(self.predictiveCells)
 
     self._mmTraces["activeCells"].data.append(self.activeCells)
-    #print "celltype = {type}".format(type=type(list(self.activeCells)[0]))
-    #print type(self._mmTraces["activeCells"].data[0])
-
     self._mmTraces["activeColumns"].data.append(activeColumns)
     self._mmTraces["numSegments"].data.append(self.connections.numSegments())
     self._mmTraces["numSynapses"].data.append(self.connections.numSynapses())
@@ -427,9 +424,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     #print type(self._mmTraces["activeCells"].data[0])
 
     cellTrace = copy.deepcopy(self._mmTraces[activityType].data)
-    for i in (xrange(len(cellTrace))
-              if len(cellTrace) < 600
-              else range(len(cellTrace)-600, len(cellTrace))):
+    for i in xrange(len(cellTrace)):
       cellTrace[i] = self.getCellIndices(cellTrace[i])
 
     return self.mmGetCellTracePlot(cellTrace, self.numberOfCells(),

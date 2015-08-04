@@ -171,5 +171,5 @@ class MonitorMixinBase(object):
       activity[list(activeIndices)] = 1
       data = numpy.concatenate((data, activity), 1)
 
-    plot.add2DArray(data[-200:], xlabel="Time", ylabel=activityType, name=title)
+    plot.add2DArray(data, xlabel="Time", ylabel=activityType, name=title)
     return plot
