@@ -644,7 +644,7 @@ try:
                         "nupic-logging.conf"],
       "nupic": ["README.md", "LICENSE.txt"],
       "nupic.data": ["*.json"],
-      "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
+      "nupic.swarming.exp_generator": ["*.json", "*.tpl"],
       "nupic.frameworks.opf.jsonschema": ["*.json"],
       "nupic.swarming.jsonschema": ["*.json"],
       "nupic.datafiles": ["*.csv", "*.txt"],
