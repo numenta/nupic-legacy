@@ -112,4 +112,3 @@ def permutationFilter(perm):
   #  return False;
   #
   return True
-
