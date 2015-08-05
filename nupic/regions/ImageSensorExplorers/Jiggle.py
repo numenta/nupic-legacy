@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 from nupic.regions.ImageSensorExplorers.SpiralSweep import SpiralSweep
 
 
@@ -114,7 +116,7 @@ class Jiggle(SpiralSweep):
           backJiggle = (dst, src)
           if awayJiggle in jigglesPerformed  and \
              backJiggle in jigglesPerformed:
-             if DEBUG >= 2: print "already performed jiggle", jiggleIndex, ", skipping"
+             if DEBUG >= 2: print("already performed jiggle", jiggleIndex, ", skipping")
              jiggleIndex += 1
              continue
           # Add these jiggles to those performed
@@ -123,8 +125,8 @@ class Jiggle(SpiralSweep):
 
         # Move to dst
         if DEBUG >= 2:
-          print "jiggleIndex:", jiggleIndex, "location:", location,
-          print "relPosition:", dst
+          print("jiggleIndex:", jiggleIndex, "location:", location, end=' ')
+          print("relPosition:", dst)
         return (jiggleIndex, dst)
 
     # --------------------------------------------------------------------------

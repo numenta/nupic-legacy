@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 
 import os
-import cPickle as pickle
+from six.moves import cPickle as pickle
 
 from nupic.regions.ImageSensorExplorers.BaseExplorer import BaseExplorer
 
@@ -47,7 +47,7 @@ class ManualSaliency(BaseExplorer):
 
     # Retain just the enclosing directory and filename, not the full path
     self.doSaliencySize = True
-    keys = self.points.keys()
+    keys = list(self.points.keys())
     for key in keys:
       path, filename = os.path.split(key)
       key2 = os.path.join(os.path.split(path)[1], filename)
@@ -75,7 +75,7 @@ class ManualSaliency(BaseExplorer):
 
     # Set up the list of filenames
     self.names = []
-    for i in xrange(self.numImages):
+    for i in range(self.numImages):
       path, filename = os.path.split(self.getImageInfo(i)['imagePath'])
       name = os.path.join(os.path.split(path)[1], filename)
       self.names.append(name)

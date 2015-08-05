@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import capnp
 
 from nupic.encoders.base import Encoder
@@ -59,7 +61,7 @@ _CLASS_ATTR_MAP = {
 }
 
 # Invert for fast lookup in MultiEncoder.read()
-_ATTR_CLASS_MAP = {value:key for key, value in _CLASS_ATTR_MAP.items()}
+_ATTR_CLASS_MAP = {value:key for key, value in list(_CLASS_ATTR_MAP.items())}
 
 
 
@@ -149,9 +151,9 @@ class MultiEncoder(Encoder):
                             name='consumption', minval=0,maxval=110,
                             clipInput=True, w=5, resolution=5),
     }
-    
-    would yield a vector with a part encoded by the DateEncoder, 
-    and to parts seperately taken care of by the ScalarEncoder with the specified parameters. 
+
+    would yield a vector with a part encoded by the DateEncoder,
+    and to parts seperately taken care of by the ScalarEncoder with the specified parameters.
     The three seperate encodings are then merged together to the final vector, in such a way that
     they are always at the same location within the vector.
     """
@@ -165,10 +167,10 @@ class MultiEncoder(Encoder):
         encoderName = fieldParams.pop('type')
         try:
           self.addEncoder(fieldName, eval(encoderName)(**fieldParams))
-        except TypeError, e:
-          print ("#### Error in constructing %s encoder. Possibly missing "
+        except TypeError as e:
+          print(("#### Error in constructing %s encoder. Possibly missing "
                 "some required constructor parameters. Parameters "
-                "that were provided are: %s" %  (encoderName, fieldParams))
+                "that were provided are: %s" %  (encoderName, fieldParams)))
           raise
 
 

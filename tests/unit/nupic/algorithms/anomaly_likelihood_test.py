@@ -22,11 +22,13 @@
 
 """Unit tests for anomaly likelihood module."""
 
+from __future__ import print_function
+
 import copy
 import datetime
 import math
 import numpy
-import pickle
+from six.moves import cPickle as pickle
 import unittest2 as unittest
 
 from nupic.algorithms import anomaly_likelihood as an
@@ -40,7 +42,7 @@ def _sampleDistribution(params, numSamples, verbosity=0):
 
   :returns: A numpy array of samples.
   """
-  if params.has_key("name"):
+  if "name" in params:
     if params["name"] == "normal":
       samples = numpy.random.normal(loc=params["mean"],
                                     scale=math.sqrt(params["variance"]),
@@ -56,9 +58,9 @@ def _sampleDistribution(params, numSamples, verbosity=0):
     raise ValueError("Bad distribution params: " + str(params))
 
   if verbosity > 0:
-    print "\nSampling from distribution:", params
-    print "After estimation, mean=", numpy.mean(samples), \
-          "var=", numpy.var(samples), "stdev=", math.sqrt(numpy.var(samples))
+    print("\nSampling from distribution:", params)
+    print("After estimation, mean=", numpy.mean(samples), \
+          "var=", numpy.var(samples), "stdev=", math.sqrt(numpy.var(samples)))
   return samples
 
 
@@ -498,7 +500,7 @@ class AnomalyLikelihoodTest(TestCaseBase):
 
   def testFilterLikelihodsInputType(self):
     """
-    Calls _filterLikelihoods with both input types -- numpy array of floats and 
+    Calls _filterLikelihoods with both input types -- numpy array of floats and
     list of floats.
     """
     l =[0.0, 0.0, 0.3, 0.3, 0.5]
@@ -533,10 +535,10 @@ class AnomalyLikelihoodTest(TestCaseBase):
     l2[1] = 1 - yellowThreshold
     l2[7] = 1 - yellowThreshold
     l3 = an._filterLikelihoods(l, redThreshold=redThreshold)
-    
+
     [self.assertAlmostEqual(l2[i], l3[i], msg="Failure in case (i)")
       for i in range(len(l2))]
-    
+
     # Case (ii): values at indices 1-10 should be filtered to yellowzone
     l = numpy.array([0.999978229, 0.999978229, 0.999999897, 1, 1, 1, 1,
                      0.999999994, 0.999999966, 0.999999966, 0.999994331,
@@ -545,7 +547,7 @@ class AnomalyLikelihoodTest(TestCaseBase):
     l2 = copy.copy(l)
     l2[1:11] = 1 - yellowThreshold
     l3 = an._filterLikelihoods(l, redThreshold=redThreshold)
-    
+
     [self.assertAlmostEqual(l2[i], l3[i], msg="Failure in case (ii)")
       for i in range(len(l2))]
 

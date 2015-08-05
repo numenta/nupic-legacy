@@ -21,6 +21,8 @@
 
 """This script contains helper routines for testing algorithms"""
 
+from __future__ import print_function
+
 import time
 import traceback
 
@@ -42,9 +44,9 @@ def getNumpyRandomGenerator(seed = None):
   """
   if seed is None:
     seed = int((time.time()%10000)*10)
-  print "Numpy seed set to:", seed, "called by",
+  print("Numpy seed set to:", seed, "called by", end=' ')
   callStack = traceback.extract_stack(limit=3)
-  print callStack[0][2], "line", callStack[0][1], "->", callStack[1][2]
+  print(callStack[0][2], "line", callStack[0][1], "->", callStack[1][2])
   return numpy.random.RandomState(seed)
 
 
@@ -56,7 +58,7 @@ def convertPermanences(sourceSP, destSP):
   """
   numColumns = sourceSP.getNumColumns()
   numInputs = sourceSP.getNumInputs()
-  for i in xrange(numColumns):
+  for i in range(numColumns):
     potential = numpy.zeros(numInputs).astype(uintType)
     sourceSP.getPotential(i, potential)
     destSP.setPotential(i, potential)
@@ -65,18 +67,18 @@ def convertPermanences(sourceSP, destSP):
     sourceSP.getPermanence(i, perm)
     destSP.setPermanence(i, perm)
 
-  
+
 
 def getSeed():
   """Generate and log a 32-bit compatible seed value."""
   seed = int((time.time()%10000)*10)
-  print "New seed generated as:", seed, "called by",
+  print("New seed generated as:", seed, "called by", end=' ')
   callStack = traceback.extract_stack(limit=3)
-  print callStack[0][2], "line", callStack[0][1], "->", callStack[1][2]
+  print(callStack[0][2], "line", callStack[0][1], "->", callStack[1][2])
   return seed
 
-  
-  
+
+
 def convertSP(pySp, newSeed):
   """
   Given an instance of a python spatial_pooler return an instance of the CPP
@@ -134,7 +136,7 @@ def convertSP(pySp, newSeed):
   pySp.getMinActiveDutyCycles(minActiveDuty)
   cppSp.setMinActiveDutyCycles(minActiveDuty)
 
-  for i in xrange(numColumns):
+  for i in range(numColumns):
     potential = numpy.zeros(numInputs).astype(uintType)
     pySp.getPotential(i, potential)
     cppSp.setPotential(i, potential)
@@ -152,14 +154,14 @@ def convertSP(pySp, newSeed):
 def CreateSP(imp, params):
   """
   Helper class for creating an instance of the appropriate spatial pooler using
-  given parameters. 
+  given parameters.
 
   Parameters:
   ----------------------------
   imp:       Either 'py' or 'cpp' for creating the appropriate instance.
   params:    A dict for overriding constructor parameters. The keys must
              correspond to contructor parameter names.
-  
+
   Returns the SP object.
   """
   if (imp == "py"):
@@ -170,6 +172,6 @@ def CreateSP(imp, params):
     raise RuntimeError("unrecognized implementation")
 
   sp = spClass(**params)
-  
+
   return sp
 

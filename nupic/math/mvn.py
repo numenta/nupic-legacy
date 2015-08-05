@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 raise Exception("XERROR -- removing for NuPIC 2")
 
 
@@ -36,7 +38,7 @@ def cov(data, mean=None, prior=None, dfOffset=-1):
   if prior is not None:
     assert len(prior) == 2, "Must be of the form (n, SS)"
     n += prior[0]
-    print prior[1].shape
+    print(prior[1].shape)
     xxt += prior[1]
   n += dfOffset
   assert n > 0

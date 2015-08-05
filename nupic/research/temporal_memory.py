@@ -28,6 +28,7 @@ from operator import mul
 
 from nupic.bindings.math import Random
 from nupic.research.connections import Connections
+from functools import reduce
 
 
 
@@ -440,7 +441,7 @@ class TemporalMemory(object):
     matchingCells = set()
 
     for cell in activeCells:
-      for synapseData in connections.synapsesForPresynapticCell(cell).values():
+      for synapseData in list(connections.synapsesForPresynapticCell(cell).values()):
         segment = synapseData.segment
         permanence = synapseData.permanence
 

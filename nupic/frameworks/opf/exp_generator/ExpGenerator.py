@@ -25,6 +25,9 @@ This utility can generate an OPF experiment and permutation script based on
 a data file and other optional arguments.
 """
 
+from __future__ import print_function
+from six import string_types
+
 import os
 import types
 import json
@@ -152,9 +155,9 @@ def _makeUsageErrorStr(errorString, usageString):
 def _handleShowSchemaOption():
   """ Displays command schema to stdout and exit program
   """
-  print "\n============== BEGIN INPUT SCHEMA for --description =========>>"
-  print(json.dumps(_getExperimentDescriptionSchema(), indent=_INDENT_STEP*2))
-  print "\n<<============== END OF INPUT SCHEMA for --description ========"
+  print("\n============== BEGIN INPUT SCHEMA for --description =========>>")
+  print((json.dumps(_getExperimentDescriptionSchema(), indent=_INDENT_STEP*2)))
+  print("\n<<============== END OF INPUT SCHEMA for --description ========")
   return
 
 
@@ -174,13 +177,13 @@ def _handleDescriptionOption(cmdArgStr, outDir, usageStr, hsVersion,
                 be 'v1' or 'v2'
   claDescriptionTemplateFile: Filename containing the template description
   retval:     nothing
-  
+
 
   """
   # convert --description arg from JSON string to dict
   try:
     args = json.loads(cmdArgStr)
-  except Exception, e:
+  except Exception as e:
     raise _InvalidCommandArgException(
       _makeUsageErrorStr(
         ("JSON arg parsing failed for --description: %s\n" + \
@@ -219,7 +222,7 @@ def _handleDescriptionFromFileOption(filename, outDir, usageStr, hsVersion,
     JSONStringFromFile = fileHandle.read().splitlines()
     JSONStringFromFile = ''.join(JSONStringFromFile)
 
-  except Exception, e:
+  except Exception as e:
     raise _InvalidCommandArgException(
       _makeUsageErrorStr(
         ("File open failed for --descriptionFromFile: %s\n" + \
@@ -255,7 +258,7 @@ def _isString(obj):
   returns whether or not the object is a string
   """
 
-  return type(obj) in types.StringTypes
+  return isinstance(obj, string_types)
 
 
 
@@ -346,7 +349,7 @@ def _generateMetricSpecString(inferenceElement, metric,
 
   metricSpecAsString = "MetricSpec(%s)" % \
     ', '.join(['%s=%r' % (item[0],item[1])
-              for item in metricSpecArgs.iteritems()])
+              for item in metricSpecArgs.items()])
 
   if not returnLabel:
     return metricSpecAsString
@@ -393,13 +396,13 @@ def _generateFileFromTemplates(templateFileNames, outputFilePath,
     inputFile.close()
 
 
-  print "Writing ", len(inputLines), "lines..."
+  print("Writing ", len(inputLines), "lines...")
 
   for line in inputLines:
     tempLine = line
 
     # Enumerate through each key in replacementDict and replace with value
-    for k, v in replacementDict.iteritems():
+    for k, v in replacementDict.items():
       if v is None:
         v = "None"
       tempLine = re.sub(k, v, tempLine)
@@ -625,113 +628,113 @@ def _generateEncoderStringsV1(includedFields):
 
 def _generatePermEncoderStr(options, encoderDict):
   """ Generate the string that defines the permutations to apply for a given
-  encoder. 
-  
+  encoder.
+
   Parameters:
   -----------------------------------------------------------------------
   options: experiment params
   encoderDict: the encoder dict, which gets placed into the description.py
-  
-  
+
+
   For example, if the encoderDict contains:
-      'consumption':     {   
+      'consumption':     {
                 'clipInput': True,
                 'fieldname': u'consumption',
                 'n': 100,
                 'name': u'consumption',
                 'type': 'AdaptiveScalarEncoder',
                 'w': 21},
-                
+
   The return string will contain:
-    "PermuteEncoder(fieldName='consumption', 
-                    encoderClass='AdaptiveScalarEncoder', 
-                    w=21, 
-                    n=PermuteInt(28, 521), 
+    "PermuteEncoder(fieldName='consumption',
+                    encoderClass='AdaptiveScalarEncoder',
+                    w=21,
+                    n=PermuteInt(28, 521),
                     clipInput=True)"
 
   """
 
   permStr = ""
-  
+
 
   # If it's the encoder for the classifier input, then it's always present so
-  # put it in as a dict in the permutations.py file instead of a 
-  # PermuteEncoder().   
+  # put it in as a dict in the permutations.py file instead of a
+  # PermuteEncoder().
   if encoderDict.get('classifierOnly', False):
     permStr = "dict("
-    for key, value in encoderDict.items():
+    for key, value in list(encoderDict.items()):
       if key == "name":
         continue
-      
+
       if key == 'n' and encoderDict['type'] != 'SDRCategoryEncoder':
         permStr += "n=PermuteInt(%d, %d), " % (encoderDict["w"] + 7,
                                                encoderDict["w"] + 500)
       else:
-        if issubclass(type(value), basestring):
+        if isinstance(value, string_types):
           permStr += "%s='%s', " % (key, value)
         else:
           permStr += "%s=%s, " % (key, value)
-    permStr += ")" 
-  
-  
+    permStr += ")"
+
+
   else:
     # Scalar encoders
     if encoderDict["type"] in ["ScalarSpaceEncoder", "AdaptiveScalarEncoder",
                              "ScalarEncoder", "LogEncoder"]:
       permStr = "PermuteEncoder("
-      for key, value in encoderDict.items():
+      for key, value in list(encoderDict.items()):
         if key == "fieldname":
           key = "fieldName"
         elif key == "type":
           key = "encoderClass"
         elif key == "name":
           continue
-          
+
         if key == "n":
-          permStr += "n=PermuteInt(%d, %d), " % (encoderDict["w"] + 1, 
+          permStr += "n=PermuteInt(%d, %d), " % (encoderDict["w"] + 1,
                                                  encoderDict["w"] + 500)
         elif key == "runDelta":
           if value and not "space" in encoderDict:
             permStr += "space=PermuteChoices([%s,%s]), " \
                      % (_quoteAndEscape("delta"), _quoteAndEscape("absolute"))
           encoderDict.pop("runDelta")
-          
+
         else:
-          if issubclass(type(value), basestring):
+          if isinstance(value, string_types):
             permStr += "%s='%s', " % (key, value)
           else:
             permStr += "%s=%s, " % (key, value)
       permStr += ")"
 
-    # Category encoder          
+    # Category encoder
     elif encoderDict["type"] in ["SDRCategoryEncoder"]:
       permStr = "PermuteEncoder("
-      for key, value in encoderDict.items():
+      for key, value in list(encoderDict.items()):
         if key == "fieldname":
           key = "fieldName"
         elif key == "type":
           key = "encoderClass"
         elif key == "name":
           continue
-          
-        if issubclass(type(value), basestring):
+
+        if isinstance(value, string_types):
           permStr += "%s='%s', " % (key, value)
         else:
           permStr += "%s=%s, " % (key, value)
       permStr += ")"
-      
+
 
     # Datetime encoder
     elif encoderDict["type"] in ["DateEncoder"]:
       permStr = "PermuteEncoder("
-      for key, value in encoderDict.items():
+      for key, value in list(encoderDict.items()):
         if key == "fieldname":
           key = "fieldName"
         elif key == "type":
           continue
         elif key == "name":
           continue
-          
+
         if key == "timeOfDay":
           permStr += "encoderClass='%s.timeOfDay', " % (encoderDict["type"])
           permStr += "radius=PermuteFloat(0.5, 12), "
@@ -745,7 +748,7 @@ def _generatePermEncoderStr(options, encoderDict):
           permStr += "radius=PermuteChoices([1]),  "
           permStr += "w=%d, " % (value)
         else:
-          if issubclass(type(value), basestring):
+          if isinstance(value, string_types):
             permStr += "%s='%s', " % (key, value)
           else:
             permStr += "%s=%s, " % (key, value)
@@ -754,7 +757,7 @@ def _generatePermEncoderStr(options, encoderDict):
     else:
       raise RuntimeError("Unsupported encoder type '%s'" % \
                           (encoderDict["type"]))
-      
+
   return permStr
 
 
@@ -812,18 +815,18 @@ def _generateEncoderStringsV2(includedFields, options):
   width = 21
   encoderDictsList = []
 
-  
+
   # If this is a NontemporalClassification experiment, then the
-  #  the "predicted" field (the classification value) should be marked to ONLY 
+  #  the "predicted" field (the classification value) should be marked to ONLY
   #  go to the classifier
   if options['inferenceType'] in ["NontemporalClassification",
-                                  "NontemporalMultiStep", 
+                                  "NontemporalMultiStep",
                                   "TemporalMultiStep",
                                   "MultiStep"]:
     classifierOnlyField = options['inferenceArgs']['predictedField']
   else:
     classifierOnlyField = None
-    
+
 
   # ==========================================================================
   # For each field, generate the default encoding dict and PermuteEncoder
@@ -839,7 +842,7 @@ def _generateEncoderStringsV2(includedFields, options):
       # n=100 is reasonably hardcoded value for n when used by description.py
       # The swarming will use PermuteEncoder below, where n is variable and
       # depends on w
-      runDelta = fieldInfo.get("runDelta", False) 
+      runDelta = fieldInfo.get("runDelta", False)
       if runDelta or "space" in fieldInfo:
         encoderDict = dict(type='ScalarSpaceEncoder', name=fieldName,
                             fieldname=fieldName, n=100, w=width, clipInput=True)
@@ -853,12 +856,12 @@ def _generateEncoderStringsV2(includedFields, options):
         encoderDict['minval'] = fieldInfo['minValue']
       if 'maxValue' in fieldInfo:
         encoderDict['maxval'] = fieldInfo['maxValue']
-        
+
       # If both min and max were specified, use a non-adaptive encoder
       if ('minValue' in fieldInfo and 'maxValue' in fieldInfo) \
             and (encoderDict['type'] == 'AdaptiveScalarEncoder'):
         encoderDict['type'] = 'ScalarEncoder'
-      
+
       # Defaults may have been over-ridden by specifying an encoder type
       if 'encoderType' in fieldInfo:
         encoderDict['type'] = fieldInfo['encoderType']
@@ -923,7 +926,7 @@ def _generateEncoderStringsV2(includedFields, options):
       clEncoderDict['classifierOnly'] = True
       clEncoderDict['name'] = '_classifierInput'
       encoderDictsList.append(clEncoderDict)
-      
+
       # If the predicted field needs to be excluded, take it out of the encoder
       #  lists
       if options["inferenceArgs"]["inputPredictedField"] == "no":
@@ -938,13 +941,13 @@ def _generateEncoderStringsV2(includedFields, options):
     encoderDictsList = tempList
 
   # ==========================================================================
-  # Now generate the encoderSpecsStr and permEncoderChoicesStr strings from 
+  # Now generate the encoderSpecsStr and permEncoderChoicesStr strings from
   #  encoderDictsList and constructorStringList
 
   encoderSpecsList = []
   permEncoderChoicesList = []
   for encoderDict in encoderDictsList:
-    
+
     if encoderDict['name'].find('\\') >= 0:
       raise _ExpGeneratorException("Illegal character in field: '\\'")
 
@@ -960,7 +963,7 @@ def _generateEncoderStringsV2(includedFields, options):
         encoderKey,
         2*_ONE_INDENT,
         pprint.pformat(encoderDict, indent=2*_INDENT_STEP)))
-    
+
 
     # Each permEncoderChoicesStr is of the form:
     #  PermuteEncoder('gym', 'SDRCategoryEncoder',
@@ -988,7 +991,7 @@ def _handleJAVAParameters(options):
     prediction = options.get('prediction', {InferenceType.TemporalNextStep:
                                               {'optimize':True}})
     inferenceType = None
-    for infType, value in prediction.iteritems():
+    for infType, value in prediction.items():
       if value['optimize']:
         inferenceType = infType
         break
@@ -1072,7 +1075,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   # Validate JSON arg using JSON schema validator
   try:
     validictory.validate(options, _gExperimentDescriptionSchema)
-  except Exception, e:
+  except Exception as e:
     raise _InvalidCommandArgException(
       ("JSON arg validation failed for option --description: " + \
        "%s\nOPTION ARG=%s") % (str(e), pprint.pformat(options)))
@@ -1082,7 +1085,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
                                            'stream_def.json'))
   try:
     validictory.validate(options['streamDef'], streamSchema)
-  except Exception, e:
+  except Exception as e:
     raise _InvalidCommandArgException(
       ("JSON arg validation failed for streamDef " + \
        "%s\nOPTION ARG=%s") % (str(e), json.dumps(options)))
@@ -1097,7 +1100,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   for propertyName in _gExperimentDescriptionSchema['properties']:
     _getPropertyValue(_gExperimentDescriptionSchema, propertyName, options)
 
-  
+
   if options['inferenceArgs'] is not None:
     infArgs = _gExperimentDescriptionSchema['properties']['inferenceArgs']
     for schema in infArgs['type']:
@@ -1112,7 +1115,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
         for propertyName in schema['properties']:
           _getPropertyValue(schema, propertyName, options['anomalyParams'])
 
-  
+
   # If the user specified nonTemporalClassification, make sure prediction
   # steps is 0
   predictionSteps = options['inferenceArgs'].get('predictionSteps', None)
@@ -1120,17 +1123,17 @@ def _generateExperiment(options, outputDirPath, hsVersion,
     if predictionSteps is not None and predictionSteps != [0]:
       raise RuntimeError("When NontemporalClassification is used, prediction"
                          " steps must be [0]")
-  
+
   # -------------------------------------------------------------------------
   # If the user asked for 0 steps of prediction, then make this a spatial
   #  classification experiment
   if predictionSteps == [0] \
-    and options['inferenceType'] in ['NontemporalMultiStep', 
+    and options['inferenceType'] in ['NontemporalMultiStep',
                                      'TemporalMultiStep',
                                      'MultiStep']:
     options['inferenceType'] = InferenceType.NontemporalClassification
- 
-  
+
+
   # If NontemporalClassification was chosen as the inferenceType, then the
   #  predicted field can NOT be used as an input
   if options["inferenceType"] == InferenceType.NontemporalClassification:
@@ -1139,12 +1142,12 @@ def _generateExperiment(options, outputDirPath, hsVersion,
       raise RuntimeError("When the inference type is NontemporalClassification"
                          " inputPredictedField must be set to 'no'")
     options["inferenceArgs"]["inputPredictedField"] = "no"
-  
-  
+
+
   # -----------------------------------------------------------------------
   # Process the swarmSize setting, if provided
   swarmSize = options['swarmSize']
-  
+
   if swarmSize is None:
     if options["inferenceArgs"]["inputPredictedField"] is None:
       options["inferenceArgs"]["inputPredictedField"] = "auto"
@@ -1168,7 +1171,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
       options['maxModels'] = 200
     if options["inferenceArgs"]["inputPredictedField"] is None:
       options["inferenceArgs"]["inputPredictedField"] = "auto"
-      
+
   elif swarmSize == 'large':
     if options['minParticlesPerSwarm'] is None:
       options['minParticlesPerSwarm'] = 15
@@ -1179,12 +1182,12 @@ def _generateExperiment(options, outputDirPath, hsVersion,
     options['tryAll3FieldCombinationsWTimestamps'] = True
     if options["inferenceArgs"]["inputPredictedField"] is None:
       options["inferenceArgs"]["inputPredictedField"] = "auto"
-      
+
   else:
     raise RuntimeError("Unsupported swarm size: %s" % (swarmSize))
-    
 
-  
+
+
   # -----------------------------------------------------------------------
   # Get token replacements
   tokenReplacements = dict()
@@ -1229,7 +1232,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   # Honor any overrides provided in the stream definition
   aggFunctionsDict = {}
   if 'aggregation' in options['streamDef']:
-    for key in aggregationPeriod.keys():
+    for key in list(aggregationPeriod.keys()):
       if key in options['streamDef']['aggregation']:
         aggregationPeriod[key] = options['streamDef']['aggregation'][key]
     if 'fields' in options['streamDef']['aggregation']:
@@ -1238,14 +1241,14 @@ def _generateExperiment(options, outputDirPath, hsVersion,
 
   # Do we have any aggregation at all?
   hasAggregation = False
-  for v in aggregationPeriod.values():
+  for v in list(aggregationPeriod.values()):
     if v != 0:
       hasAggregation = True
       break
 
 
   # Convert the aggFunctionsDict to a list
-  aggFunctionList = aggFunctionsDict.items()
+  aggFunctionList = list(aggFunctionsDict.items())
   aggregationInfo = dict(aggregationPeriod)
   aggregationInfo['fields'] = aggFunctionList
 
@@ -1295,7 +1298,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
     # Compute the predictAheadTime
     numSteps = predictionSteps[0]
     predictAheadTime = dict(aggregationPeriod)
-    for key in predictAheadTime.iterkeys():
+    for key in predictAheadTime.keys():
       predictAheadTime[key] *= numSteps
     predictAheadTimeStr = pprint.pformat(predictAheadTime,
                                          indent=2*_INDENT_STEP)
@@ -1323,7 +1326,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   if inferenceType == 'MultiStep':
     inferenceType = InferenceType.TemporalMultiStep
   tokenReplacements['\$INFERENCE_TYPE'] = "'%s'" % inferenceType
-  
+
   # Nontemporal classificaion uses only encoder and classifier
   if inferenceType == InferenceType.NontemporalClassification:
     tokenReplacements['\$SP_ENABLE'] = "False"
@@ -1332,7 +1335,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
     tokenReplacements['\$SP_ENABLE'] = "True"
     tokenReplacements['\$TP_ENABLE'] = "True"
     tokenReplacements['\$CLA_CLASSIFIER_IMPL'] = ""
-    
+
 
   tokenReplacements['\$ANOMALY_PARAMS'] = pprint.pformat(
       options['anomalyParams'], indent=2*_INDENT_STEP)
@@ -1373,7 +1376,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   # Option permuting over SP synapse decrement value
   tokenReplacements['\$PERM_SP_CHOICES'] = ""
   if options['spPermuteDecrement'] \
-        and options['inferenceType'] != 'NontemporalClassification': 
+        and options['inferenceType'] != 'NontemporalClassification':
     tokenReplacements['\$PERM_SP_CHOICES'] = \
       _ONE_INDENT +"'synPermInactiveDec': PermuteFloat(0.0003, 0.1),\n"
 
@@ -1401,7 +1404,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   # The Classifier permutation parameters are only required for
   #  Multi-step inference types
   if options['inferenceType'] in ['NontemporalMultiStep', 'TemporalMultiStep',
-                                  'MultiStep', 'TemporalAnomaly', 
+                                  'MultiStep', 'TemporalAnomaly',
                                   'NontemporalClassification']:
     tokenReplacements['\$PERM_CL_CHOICES'] = \
         "  'alpha': PermuteFloat(0.0001, 0.1),\n"
@@ -1410,44 +1413,44 @@ def _generateExperiment(options, outputDirPath, hsVersion,
     tokenReplacements['\$PERM_CL_CHOICES'] = ""
 
 
-  # The Permutations alwaysIncludePredictedField setting. 
-  # * When the experiment description has 'inputPredictedField' set to 'no', we 
-  #   simply do not put in an encoder for the predicted field. 
-  # * When 'inputPredictedField' is set to 'auto', we include an encoder for the 
+  # The Permutations alwaysIncludePredictedField setting.
+  # * When the experiment description has 'inputPredictedField' set to 'no', we
+  #   simply do not put in an encoder for the predicted field.
+  # * When 'inputPredictedField' is set to 'auto', we include an encoder for the
   #   predicted field and swarming tries it out just like all the other fields.
   # * When 'inputPredictedField' is set to 'yes', we include this setting in
   #   the permutations file which informs swarming to always use the
-  #   predicted field (the first swarm will be the predicted field only) 
+  #   predicted field (the first swarm will be the predicted field only)
   tokenReplacements['\$PERM_ALWAYS_INCLUDE_PREDICTED_FIELD'] = \
       "inputPredictedField = '%s'" % \
-                            (options["inferenceArgs"]["inputPredictedField"])  
+                            (options["inferenceArgs"]["inputPredictedField"])
 
-    
+
   # The Permutations minFieldContribution setting
   if options.get('minFieldContribution', None) is not None:
     tokenReplacements['\$PERM_MIN_FIELD_CONTRIBUTION'] = \
-        "minFieldContribution = %d" % (options['minFieldContribution']) 
+        "minFieldContribution = %d" % (options['minFieldContribution'])
   else:
     tokenReplacements['\$PERM_MIN_FIELD_CONTRIBUTION'] = ""
-    
+
   # The Permutations killUselessSwarms setting
   if options.get('killUselessSwarms', None) is not None:
     tokenReplacements['\$PERM_KILL_USELESS_SWARMS'] = \
-        "killUselessSwarms = %r" % (options['killUselessSwarms']) 
+        "killUselessSwarms = %r" % (options['killUselessSwarms'])
   else:
     tokenReplacements['\$PERM_KILL_USELESS_SWARMS'] = ""
 
   # The Permutations maxFieldBranching setting
   if options.get('maxFieldBranching', None) is not None:
     tokenReplacements['\$PERM_MAX_FIELD_BRANCHING'] = \
-        "maxFieldBranching = %r" % (options['maxFieldBranching']) 
+        "maxFieldBranching = %r" % (options['maxFieldBranching'])
   else:
     tokenReplacements['\$PERM_MAX_FIELD_BRANCHING'] = ""
 
   # The Permutations tryAll3FieldCombinations setting
   if options.get('tryAll3FieldCombinations', None) is not None:
     tokenReplacements['\$PERM_TRY_ALL_3_FIELD_COMBINATIONS'] = \
-        "tryAll3FieldCombinations = %r" % (options['tryAll3FieldCombinations']) 
+        "tryAll3FieldCombinations = %r" % (options['tryAll3FieldCombinations'])
   else:
     tokenReplacements['\$PERM_TRY_ALL_3_FIELD_COMBINATIONS'] = ""
 
@@ -1455,7 +1458,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   if options.get('tryAll3FieldCombinationsWTimestamps', None) is not None:
     tokenReplacements['\$PERM_TRY_ALL_3_FIELD_COMBINATIONS_W_TIMESTAMPS'] = \
         "tryAll3FieldCombinationsWTimestamps = %r" % \
-                (options['tryAll3FieldCombinationsWTimestamps']) 
+                (options['tryAll3FieldCombinationsWTimestamps'])
   else:
     tokenReplacements['\$PERM_TRY_ALL_3_FIELD_COMBINATIONS_W_TIMESTAMPS'] = ""
 
@@ -1463,14 +1466,14 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   # The Permutations fieldFields setting
   if options.get('fixedFields', None) is not None:
     tokenReplacements['\$PERM_FIXED_FIELDS'] = \
-        "fixedFields = %r" % (options['fixedFields']) 
+        "fixedFields = %r" % (options['fixedFields'])
   else:
     tokenReplacements['\$PERM_FIXED_FIELDS'] = ""
 
   # The Permutations fastSwarmModelParams setting
   if options.get('fastSwarmModelParams', None) is not None:
     tokenReplacements['\$PERM_FAST_SWARM_MODEL_PARAMS'] = \
-        "fastSwarmModelParams = %r" % (options['fastSwarmModelParams']) 
+        "fastSwarmModelParams = %r" % (options['fastSwarmModelParams'])
   else:
     tokenReplacements['\$PERM_FAST_SWARM_MODEL_PARAMS'] = ""
 
@@ -1478,7 +1481,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   # The Permutations maxModels setting
   if options.get('maxModels', None) is not None:
     tokenReplacements['\$PERM_MAX_MODELS'] = \
-        "maxModels = %r" % (options['maxModels']) 
+        "maxModels = %r" % (options['maxModels'])
   else:
     tokenReplacements['\$PERM_MAX_MODELS'] = ""
 
@@ -1518,7 +1521,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
     #  N * M = maxPredictionSteps constraint
     mTimesN = float(predictionSteps[0])
     possibleNs = []
-    for n in xrange(1, int(mTimesN)+1):
+    for n in range(1, int(mTimesN)+1):
       m = mTimesN / n
       mInt = int(round(m))
       if mInt < 1:
@@ -1528,7 +1531,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
       possibleNs.append(n)
 
     if debugAgg:
-      print "All integer factors of %d are: %s" % (mTimesN, possibleNs)
+      print("All integer factors of %d are: %s" % (mTimesN, possibleNs))
 
     # Now go through and throw out any N's that don't satisfy the constraint:
     #  computeInterval = K * (minAggregation * N)
@@ -1536,7 +1539,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
     for n in possibleNs:
       # Compute minAggregation * N
       agg = dict(aggregationPeriod)
-      for key in agg.iterkeys():
+      for key in agg.keys():
         agg[key] *= n
 
       # Make sure computeInterval is an integer multiple of the aggregation
@@ -1554,10 +1557,10 @@ def _generateExperiment(options, outputDirPath, hsVersion,
     aggChoices = aggChoices[-5:]
 
     if debugAgg:
-      print "Aggregation choices that will be evaluted during swarming:"
+      print("Aggregation choices that will be evaluted during swarming:")
       for agg in aggChoices:
-        print "  ==>", agg
-      print
+        print("  ==>", agg)
+      print()
 
     tokenReplacements['\$PERM_AGGREGATION_CHOICES'] = (
         "PermuteChoices(%s)" % (
@@ -1593,7 +1596,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   if not os.path.exists(outputDirPath):
     os.makedirs(outputDirPath)
 
-  print "Generating experiment files in directory: %s..." % (outputDirPath)
+  print("Generating experiment files in directory: %s..." % (outputDirPath))
   descriptionPyPath = os.path.join(outputDirPath, "description.py")
   _generateFileFromTemplates([claDescriptionTemplateFile, controlTemplate],
                               descriptionPyPath,
@@ -1611,10 +1614,9 @@ def _generateExperiment(options, outputDirPath, hsVersion,
     _generateFileFromTemplates(['permutationsTemplateV2.tpl'],permutationsPyPath,
                             tokenReplacements)
   else:
-    raise(ValueError("This permutation version is not supported yet: %s" %
-                        hsVersion))
+    raise ValueError
 
-  print "done."
+  print("done.")
 
 
 
@@ -1787,7 +1789,7 @@ def _generateMetricSpecs(options):
                                                     "steps": steps})
             )
 
-    
+
 
 
   # -----------------------------------------------------------------------
@@ -1841,7 +1843,7 @@ def _generateMetricSpecs(options):
                                 metric="custom",
                                 params=options["customErrorMetric"])
       optimizeMetricLabel = ".*custom_error_metric.*"
-  
+
       metricSpecStrings.append(optimizeMetricSpec)
 
 
@@ -1865,7 +1867,7 @@ def _generateExtraMetricSpecs(options):
   results = []
   for metric in options['metrics']:
 
-    for propertyName in _metricSpecSchema['properties'].keys():
+    for propertyName in list(_metricSpecSchema['properties'].keys()):
       _getPropertyValue(_metricSpecSchema, propertyName, metric)
 
 
@@ -2006,8 +2008,7 @@ def expGenerator(args):
   # -----------------------------------------------------------------
   # Check for use of mutually-exclusive options
   #
-  activeOptions = filter(lambda x: getattr(options, x) != None,
-                         ('description', 'showSchema'))
+  activeOptions = [x for x in ('description', 'showSchema') if getattr(options, x) != None]
   if len(activeOptions) > 1:
     raise _InvalidCommandArgException(
       _makeUsageErrorStr(("The specified command options are " + \

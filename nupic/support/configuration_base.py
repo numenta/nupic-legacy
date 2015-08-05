@@ -19,8 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
 
-from __future__ import with_statement
 
 import os
 import logging
@@ -56,7 +56,7 @@ class Configuration(object):
 
   # Once we read in the properties, they are stored in this dict
   _properties = None
-  
+
   # This stores the paths we search for config files. It can be modified through
   # the setConfigPaths() method.
   _configPaths = None
@@ -70,7 +70,7 @@ class Configuration(object):
   def getString(cls, prop):
     """ Retrieve the requested property as a string. If property does not exist,
     then KeyError will be raised.
-    
+
     Parameters:
     ----------------------------------------------------------------
     prop:        name of the property
@@ -84,7 +84,7 @@ class Configuration(object):
                                         prop.replace('.', '_')), None)
     if envValue is not None:
       return envValue
-    
+
     return cls._properties[prop]
 
 
@@ -93,19 +93,19 @@ class Configuration(object):
     """ Retrieve the requested property and return it as a bool. If property
     does not exist, then KeyError will be raised. If the property value is
     neither 0 nor 1, then ValueError will be raised
-    
+
     Parameters:
     ----------------------------------------------------------------
     prop:        name of the property
     retval:      property value as bool
     """
-    
+
     value = cls.getInt(prop)
-    
+
     if value not in (0, 1):
       raise ValueError("Expected 0 or 1, but got %r in config property %s" % (
         value, prop))
-    
+
     return bool(value)
 
 
@@ -113,13 +113,13 @@ class Configuration(object):
   def getInt(cls, prop):
     """ Retrieve the requested property and return it as an int. If property
     does not exist, then KeyError will be raised.
-    
+
     Parameters:
     ----------------------------------------------------------------
     prop:        name of the property
     retval:      property value as int
     """
-    
+
     return int(cls.getString(prop))
 
 
@@ -127,13 +127,13 @@ class Configuration(object):
   def getFloat(cls, prop):
     """ Retrieve the requested property and return it as a float. If property
     does not exist, then KeyError will be raised.
-    
+
     Parameters:
     ----------------------------------------------------------------
     prop:        name of the property
     retval:      property value as float
     """
-    
+
     return float(cls.getString(prop))
 
 
@@ -142,7 +142,7 @@ class Configuration(object):
     """ Get the value of the given configuration property as string. This
     returns a string which is the property value, or the value of "default" arg
     if the property is not found. Use Configuration.getString() instead.
-    
+
     NOTE: it's atypical for our configuration properties to be missing - a
      missing configuration property is usually a very serious error. Because
      of this, it's preferable to use one of the getString, getInt, getFloat,
@@ -156,7 +156,7 @@ class Configuration(object):
     retval:      property value (as a string), or default if the property does
                   not exist.
     """
-    
+
     try:
       return cls.getString(prop)
     except KeyError:
@@ -194,9 +194,8 @@ class Configuration(object):
     # Make a copy so we can update any current values obtained from environment
     #  variables
     result = dict(cls._properties)
-    keys = os.environ.keys()
-    replaceKeys = filter(lambda x: x.startswith(cls.envPropPrefix),
-                         keys)
+    keys = list(os.environ.keys())
+    replaceKeys = [x for x in keys if x.startswith(cls.envPropPrefix)]
     for envKey in replaceKeys:
       key = envKey[len(cls.envPropPrefix):]
       key = key.replace('_', '.')
@@ -308,7 +307,7 @@ class Configuration(object):
             else:
               raise RuntimeError("Missing 'value' element within the property "
                                  "element: => %s " % (str(propInfo)))
-        
+
         # The value is allowed to contain substitution tags of the form
         # ${env.VARNAME}, which should be substituted with the corresponding
         # environment variable values
@@ -396,7 +395,7 @@ class Configuration(object):
     configPaths = []
     if cls._configPaths is not None:
       return cls._configPaths
-      
+
     else:
       if 'NTA_CONF_PATH' in os.environ:
         configVar = os.environ['NTA_CONF_PATH']
@@ -416,7 +415,7 @@ class Configuration(object):
     """
 
     cls._configPaths = list(paths)
-    
+
 
   @classmethod
   def _readStdConfigFiles(cls):

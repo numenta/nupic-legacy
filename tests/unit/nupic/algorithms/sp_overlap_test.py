@@ -32,6 +32,8 @@ Note: Since the sp pooler has 2048 cells with a sparsity of 40 cells active
 per iteration, 100% allocation is reached at the 51st unique pattern.
 """
 
+from __future__ import print_function
+
 import unittest2 as unittest
 import random as rnd
 import time
@@ -100,8 +102,8 @@ class TestSPFrequency(unittest.TestCase):
     """ Helper function that tests whether the SP predicts the most
     frequent record """
 
-    print "\nRunning SP overlap test..."
-    print encoder, 'encoder,', 'Random seed:', seed, 'and', numColors, 'colors'
+    print("\nRunning SP overlap test...")
+    print(encoder, 'encoder,', 'Random seed:', seed, 'and', numColors, 'colors')
     #Setting up SP and creating training patterns
 
     # Instantiate Spatial Pooler
@@ -128,20 +130,20 @@ class TestSPFrequency(unittest.TestCase):
     if encoder=='scalar':
       enc = scalar.ScalarEncoder(name='car', w=w, n=n, minval=minVal,
                                  maxval=maxVal, periodic=False, forced=True) # forced: it's strongly recommended to use w>=21, in the example we force skip the check for readibility
-      for y in xrange(numColors):
+      for y in range(numColors):
         temp = enc.encode(rnd.random()*maxVal)
         colors.append(numpy.array(temp, dtype=realDType))
     else:
-      for y in xrange(numColors):
+      for y in range(numColors):
         sdr = numpy.zeros(n, dtype=realDType)
         # Randomly setting w out of n bits to 1
-        sdr[rnd.sample(xrange(n), w)] = 1
+        sdr[rnd.sample(range(n), w)] = 1
         colors.append(sdr)
 
     # Training the sp
-    print 'Starting to train the sp on', numColors, 'patterns'
+    print('Starting to train the sp on', numColors, 'patterns')
     startTime = time.time()
-    for i in xrange(numColors):
+    for i in range(numColors):
       # TODO: See https://github.com/numenta/nupic/issues/2072
       spInput = colors[i]
       onCells = numpy.zeros(columnDimensions)
@@ -163,10 +165,10 @@ class TestSPFrequency(unittest.TestCase):
       patterns.update(activeCoincIndices)
 
       if (i + 1) % 100 == 0:
-        print 'Record number:', i + 1
+        print('Record number:', i + 1)
 
-        print "Elapsed time: %.2f seconds" % (time.time() - startTime)
-        print len(reUsedCoincs), "re-used coinc(s),"
+        print("Elapsed time: %.2f seconds" % (time.time() - startTime))
+        print(len(reUsedCoincs), "re-used coinc(s),")
 
     # Check if results match expectations
     summ = []

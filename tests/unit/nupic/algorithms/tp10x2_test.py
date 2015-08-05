@@ -22,7 +22,9 @@
 
 """Tests for the C++ implementation of the temporal pooler."""
 
-import cPickle as pickle
+from __future__ import print_function
+
+from six.moves import cPickle as pickle
 import unittest2 as unittest
 
 import numpy
@@ -75,7 +77,7 @@ class TP10X2Test(unittest.TestCase):
     self.assertTrue(fdrutils.tpDiff2(tp, tp2, VERBOSITY, checkStates=False))
 
     # Learn
-    for i in xrange(5):
+    for i in range(5):
       x = numpy.zeros(tp.numberOfCols, dtype='uint32')
       _RGEN.initializeUInt32Array(x, 2)
       tp.learn(x)
@@ -89,10 +91,10 @@ class TP10X2Test(unittest.TestCase):
 
     ## Infer
     patterns = numpy.zeros((4, tp.numberOfCols), dtype='uint32')
-    for i in xrange(4):
+    for i in range(4):
       _RGEN.initializeUInt32Array(patterns[i], 2)
 
-    for i in xrange(10):
+    for i in range(10):
       x = numpy.zeros(tp.numberOfCols, dtype='uint32')
       _RGEN.initializeUInt32Array(x, 2)
       tp.infer(x)
@@ -129,8 +131,8 @@ class TP10X2Test(unittest.TestCase):
     sequence = fdrutils.generateCoincMatrix(nCoinc=numPatterns,
                                             length=tp.numberOfCols,
                                             activity=activity)
-    for r in xrange(numRepetitions):
-      for i in xrange(sequence.nRows()):
+    for r in range(numRepetitions):
+      for i in range(sequence.nRows()):
 
         #if i > 11:
         #  setVerbosity(6, tp, tpPy)
@@ -140,8 +142,8 @@ class TP10X2Test(unittest.TestCase):
           tpPy.reset()
 
         if verbosity >= 2:
-          print "\n\n    ===================================\nPattern:",
-          print i, "Round:", r, "input:", sequence.getRow(i)
+          print("\n\n    ===================================\nPattern:", end=' ')
+          print(i, "Round:", r, "input:", sequence.getRow(i))
 
         y1 = tp.learn(sequence.getRow(i))
         y2 = tpPy.learn(sequence.getRow(i))
@@ -156,19 +158,19 @@ class TP10X2Test(unittest.TestCase):
           tpPy.trimSegments()
 
         if verbosity > 2:
-          print "\n   ------  CPP states  ------ ",
+          print("\n   ------  CPP states  ------ ", end=' ')
           tp.printStates()
-          print "\n   ------  PY states  ------ ",
+          print("\n   ------  PY states  ------ ", end=' ')
           tpPy.printStates()
           if verbosity > 6:
-            print "C++ cells: "
+            print("C++ cells: ")
             tp.printCells()
-            print "PY cells: "
+            print("PY cells: ")
             tpPy.printCells()
 
         if verbosity >= 3:
-          print "Num segments in PY and C++", tpPy.getNumSegments(), \
-              tp.getNumSegments()
+          print("Num segments in PY and C++", tpPy.getNumSegments(), \
+              tp.getNumSegments())
 
         # Check if the two TP's are identical or not. This check is slow so
         # we do it every other iteration. Make it every iteration for debugging
@@ -178,7 +180,7 @@ class TP10X2Test(unittest.TestCase):
         # Check that outputs are identical
         self.assertLess(abs((y1 - y2).sum()), 3)
 
-    print "Learning completed"
+    print("Learning completed")
 
     self.assertTrue(fdrutils.tpDiff2(tp, tpPy, verbosity))
 
@@ -188,24 +190,24 @@ class TP10X2Test(unittest.TestCase):
     # Remove unconnected synapses and check TP's again
 
     # Test rebuild out synapses
-    print "Rebuilding outSynapses"
+    print("Rebuilding outSynapses")
     tp.cells4.rebuildOutSynapses()
     self.assertTrue(fdrutils.tpDiff2(tp, tpPy, VERBOSITY))
 
-    print "Trimming segments"
+    print("Trimming segments")
     tp.trimSegments()
     tpPy.trimSegments()
     self.assertTrue(fdrutils.tpDiff2(tp, tpPy, VERBOSITY))
 
     # Save and reload after learning
-    print "Pickling and unpickling"
+    print("Pickling and unpickling")
     tp.makeCells4Ephemeral = False
     pickle.dump(tp, open("test_tp10x.pkl", "wb"))
     tp2 = pickle.load(open("test_tp10x.pkl"))
     self.assertTrue(fdrutils.tpDiff2(tp, tp2, VERBOSITY, checkStates=False))
 
     # Infer
-    print "Testing inference"
+    print("Testing inference")
 
     # Setup for inference
     tp.reset()
@@ -213,7 +215,7 @@ class TP10X2Test(unittest.TestCase):
     setVerbosity(INFERENCE_VERBOSITY, tp, tpPy)
 
     patterns = numpy.zeros((40, tp.numberOfCols), dtype='uint32')
-    for i in xrange(4):
+    for i in range(4):
       _RGEN.initializeUInt32Array(patterns[i], 2)
 
     for i, x in enumerate(patterns):
@@ -225,16 +227,16 @@ class TP10X2Test(unittest.TestCase):
 
       self.assertTrue(fdrutils.tpDiff2(tp, tpPy, VERBOSITY, checkLearn=False))
       if abs((y - yPy).sum()) > 0:
-        print "C++ output", y
-        print "Py output", yPy
+        print("C++ output", y)
+        print("Py output", yPy)
         assert False
 
       if i > 0:
         tp.checkPrediction2(patterns)
         tpPy.checkPrediction2(patterns)
 
-    print "Inference completed"
-    print "===================================="
+    print("Inference completed")
+    print("====================================")
 
     return tp, tpPy
 
@@ -244,12 +246,12 @@ class TP10X2Test(unittest.TestCase):
     PY versions are identical throughout."""
 
     if short == True:
-      print "Testing short version"
+      print("Testing short version")
     else:
-      print "Testing long version"
+      print("Testing long version")
 
     if short:
-      print "\nTesting with fixed resource CLA - test max segment and synapses"
+      print("\nTesting with fixed resource CLA - test max segment and synapses")
       tp = TP10X2(numberOfCols=30, cellsPerColumn=5,
              initialPerm=.5, connectedPerm= 0.5, permanenceMax=1,
              minThreshold=8, newSynapseCount=10,
@@ -264,7 +266,7 @@ class TP10X2Test(unittest.TestCase):
       self.basicTest2(tp, numPatterns=15, numRepetitions=1)
 
     if not short:
-      print "\nTesting with fixed resource CLA - test max segment and synapses"
+      print("\nTesting with fixed resource CLA - test max segment and synapses")
       tp = TP10X2(numberOfCols=30, cellsPerColumn=5,
              initialPerm = .5, connectedPerm= 0.5, permanenceMax = 1,
              minThreshold = 8, newSynapseCount = 10,
@@ -278,7 +280,7 @@ class TP10X2Test(unittest.TestCase):
       tp.cells4.setCellSegmentOrder(1)
       self.basicTest2(tp, numPatterns=30, numRepetitions=2)
 
-      print "\nTesting with permanenceInc = 0 and Dec = 0"
+      print("\nTesting with permanenceInc = 0 and Dec = 0")
       tp = TP10X2(numberOfCols=30, cellsPerColumn=5,
               initialPerm = .5, connectedPerm= 0.5,
               minThreshold = 3, newSynapseCount = 3,
@@ -291,7 +293,7 @@ class TP10X2Test(unittest.TestCase):
       tp.printParameters()
       self.basicTest2(tp, numPatterns = 30, numRepetitions = 3)
 
-      print "Testing with permanenceInc = 0 and Dec = 0 and 1 cell per column"
+      print("Testing with permanenceInc = 0 and Dec = 0 and 1 cell per column")
       tp = TP10X2(numberOfCols=30, cellsPerColumn=1,
               initialPerm = .5, connectedPerm= 0.5,
               minThreshold = 3, newSynapseCount = 3,
@@ -303,7 +305,7 @@ class TP10X2Test(unittest.TestCase):
               checkSynapseConsistency = False)
       self.basicTest2(tp)
 
-      print "Testing with permanenceInc = 0.1 and Dec = .0"
+      print("Testing with permanenceInc = 0.1 and Dec = .0")
       tp = TP10X2(numberOfCols=30, cellsPerColumn=5,
              initialPerm = .5, connectedPerm= 0.5,
              minThreshold = 3, newSynapseCount = 3,
@@ -328,7 +330,7 @@ class TP10X2Test(unittest.TestCase):
              checkSynapseConsistency = True)
       self.basicTest2(tp, numPatterns=10, numRepetitions=2)
 
-      print "Testing age based global decay"
+      print("Testing age based global decay")
       tp = TP10X2(numberOfCols=30, cellsPerColumn=5,
               initialPerm = .4, connectedPerm= 0.5,
               minThreshold = 3, newSynapseCount = 3,
@@ -342,7 +344,7 @@ class TP10X2Test(unittest.TestCase):
       tp.cells4.setCellSegmentOrder(1)
       self.basicTest2(tp)
 
-      print "\nTesting with fixed size CLA, max segments per cell"
+      print("\nTesting with fixed size CLA, max segments per cell")
       tp = TP10X2(numberOfCols=30, cellsPerColumn=5,
              initialPerm = .5, connectedPerm= 0.5, permanenceMax = 1,
              minThreshold = 8, newSynapseCount = 10,

@@ -20,6 +20,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+from six import StringIO
+
 import sys
 import os
 import pprint
@@ -29,7 +32,6 @@ import logging
 import json
 import hashlib
 import itertools
-import StringIO
 import traceback
 
 from nupic.data import jsonhelpers
@@ -39,7 +41,7 @@ from nupic.support.configuration import Configuration
 from nupic.support.ExtendedLogger import ExtendedLogger
 from nupic.support.errorcodes import ErrorCodes
 from nupic.database.ClientJobsDAO import ClientJobsDAO
-from HypersearchV2 import HypersearchV2
+from .HypersearchV2 import HypersearchV2
 
 
 class HypersearchWorker(object):
@@ -152,9 +154,8 @@ class HypersearchWorker(object):
     # Each item in the list we are filtering contains:
     #  (idxIntoModelIDCtrList, (modelID, curCtr), (modelID, oldCtr))
     # We only want to keep the ones where the oldCtr != curCtr
-    changedEntries = filter(lambda x:x[1][1] != x[2][1],
-                      itertools.izip(xrange(numItems), curModelIDCtrList,
-                                     self._modelIDCtrList))
+    changedEntries = [x for x in zip(range(numItems), curModelIDCtrList,
+                                     self._modelIDCtrList) if x[1][1] != x[2][1]]
 
     if len(changedEntries) > 0:
       # Update values in our cache
@@ -201,7 +202,7 @@ class HypersearchWorker(object):
       modelParamsAndHashs = cjDAO.modelsGetParams(newModelIDs)
       modelParamsAndHashs.sort()
 
-      for (mResult, mParamsAndHash) in itertools.izip(modelInfos,
+      for (mResult, mParamsAndHash) in zip(modelInfos,
                                                   modelParamsAndHashs):
 
         modelID = mResult.modelId
@@ -268,7 +269,7 @@ class HypersearchWorker(object):
       wID = options.workerID
     else:
       wID = self._workerID
-    
+
     buildID = Configuration.get('nupic.software.buildNumber', 'N/A')
     logPrefix = '<BUILDID=%s, WORKER=HW, WRKID=%s, JOBID=%s> ' % \
                 (buildID, wID, options.jobID)
@@ -315,7 +316,7 @@ class HypersearchWorker(object):
     try:
       exit = False
       numModelsTotal = 0
-      print >>sys.stderr, "reporter:status:Evaluating first model..."
+      print("reporter:status:Evaluating first model...", file=sys.stderr)
       while not exit:
 
         # ------------------------------------------------------------------
@@ -333,7 +334,7 @@ class HypersearchWorker(object):
             # changed and new models, and sends those to the Hypersearch
             # implementation's self._hs.recordModelProgress() method.
             self._processUpdatedModels(cjDAO)
-  
+
             # --------------------------------------------------------------------
             # Create a new batch of models
             (exit, newModels) = self._hs.createModels(numModels = batchSize)
@@ -345,13 +346,13 @@ class HypersearchWorker(object):
             #  orphan if it detects one.
             if len(newModels) == 0:
               continue
-  
+
             # Try and insert one that we will run
             for (modelParams, modelParamsHash, particleHash) in newModels:
               jsonModelParams = json.dumps(modelParams)
               (modelID, ours) = cjDAO.modelInsertAndStart(options.jobID,
                                   jsonModelParams, modelParamsHash, particleHash)
-  
+
               # Some other worker is already running it, tell the Hypersearch object
               #  so that it doesn't try and insert it again
               if not ours:
@@ -360,16 +361,16 @@ class HypersearchWorker(object):
                 results = mResult.results
                 if results is not None:
                   results = json.loads(results)
-  
+
                 modelParams = json.loads(mParamsAndHash.params)
-                particleHash = cjDAO.modelsGetFields(modelID, 
+                particleHash = cjDAO.modelsGetFields(modelID,
                                   ['engParticleHash'])[0]
                 particleInst = "%s.%s" % (
                           modelParams['particleState']['id'],
                           modelParams['particleState']['genIdx'])
                 self.logger.info("Adding model %d to our internal DB " \
                       "because modelInsertAndStart() failed to insert it: " \
-                      "paramsHash=%s, particleHash=%s, particleId='%s'", modelID, 
+                      "paramsHash=%s, particleHash=%s, particleId='%s'", modelID,
                       mParamsAndHash.engParamsHash.encode('hex'),
                       particleHash.encode('hex'), particleInst)
                 self._hs.recordModelProgress(modelID = modelID,
@@ -383,14 +384,14 @@ class HypersearchWorker(object):
               else:
                 modelIDToRun = modelID
                 break
-  
+
           else:
             # A specific modelID was passed on the command line
             modelIDToRun = int(options.modelID)
             mParamsAndHash = cjDAO.modelsGetParams([modelIDToRun])[0]
             modelParams = json.loads(mParamsAndHash.params)
             modelParamsHash = mParamsAndHash.engParamsHash
-            
+
             # Make us the worker
             cjDAO.modelSetFields(modelIDToRun,
                                      dict(engWorkerConnId=self._workerID))
@@ -414,12 +415,12 @@ class HypersearchWorker(object):
               if not success:
                 raise RuntimeError("Unexpected failure to change paramsHash and "
                                    "particleHash of orphaned model")
-              
+
               (modelIDToRun, ours) = cjDAO.modelInsertAndStart(options.jobID,
                                   mParamsAndHash.params, modelParamsHash)
 
-            
-            
+
+
             # ^^^ end while modelIDToRun ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         # ---------------------------------------------------------------
@@ -452,9 +453,9 @@ class HypersearchWorker(object):
 
         self.logger.info("COMPLETED MODEL GID=%d; EVALUATED %d MODELs",
           modelIDToRun, numModelsTotal)
-        print >>sys.stderr, "reporter:status:Evaluated %d models..." % \
-                                    (numModelsTotal)
-        print >>sys.stderr, "reporter:counter:HypersearchWorker,numModels,1"
+        print("reporter:status:Evaluated %d models..." % \
+                                    (numModelsTotal), file=sys.stderr)
+        print("reporter:counter:HypersearchWorker,numModels,1", file=sys.stderr)
 
         if options.modelID is not None:
           exit = True
@@ -465,7 +466,7 @@ class HypersearchWorker(object):
       self._hs.close()
 
     self.logger.info("FINISHED. Evaluated %d models." % (numModelsTotal))
-    print >>sys.stderr, "reporter:status:Finished, evaluated %d models" % (numModelsTotal)
+    print("reporter:status:Finished, evaluated %d models" % (numModelsTotal), file=sys.stderr)
     return options.jobID
 
 
@@ -544,11 +545,11 @@ def main(argv):
     try:
       jobID = hst.run()
 
-    except Exception, e:
+    except Exception as e:
       jobID = options.jobID
-      msg = StringIO.StringIO()
-      print >>msg, "%s: Exception occurred in Hypersearch Worker: %r" % \
-         (ErrorCodes.hypersearchLogicErr, e)
+      msg = StringIO()
+      print("%s: Exception occurred in Hypersearch Worker: %r" % \
+         (ErrorCodes.hypersearchLogicErr, e), file=msg)
       traceback.print_exc(None, msg)
 
       completionReason = ClientJobsDAO.CMPL_REASON_ERROR
@@ -577,7 +578,7 @@ def main(argv):
 
     try:
       jobID = hst.run()
-    except Exception, e:
+    except Exception as e:
       jobID = hst._options.jobID
       completionReason = ClientJobsDAO.CMPL_REASON_ERROR
       completionMsg = "ERROR: %s" % (e,)
@@ -598,7 +599,7 @@ if __name__ == "__main__":
   buildID = Configuration.get('nupic.software.buildNumber', 'N/A')
   logPrefix = '<BUILDID=%s, WORKER=HS, WRKID=N/A, JOBID=N/A> ' % buildID
   ExtendedLogger.setLogPrefix(logPrefix)
-  
+
   try:
     main(sys.argv)
   except:

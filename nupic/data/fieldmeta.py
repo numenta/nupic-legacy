@@ -76,7 +76,7 @@ class FieldMetaInfo(FieldMetaInfoBase):
     Returns:  A list of FieldMetaInfo elements corresponding to the given
               'fields' list.
     """
-    return map(lambda x: cls.createFromFileFieldElement(x), fields)
+    return [cls.createFromFileFieldElement(x) for x in fields]
 
 
 

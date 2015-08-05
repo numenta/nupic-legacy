@@ -23,6 +23,8 @@
 ## @file
 This file defines the base class for NuPIC 2 Python regions.
 """
+from six import with_metaclass
+
 import numpy
 
 RealNumpyDType = numpy.float32
@@ -41,14 +43,14 @@ def not_implemented(f):
       caller = gci[2] + '.' + caller
 
     message = 'The unimplemented method '
-    message += '%s() was called by %s' % (f.func_name, caller)
+    message += '%s() was called by %s' % (f.__name__, caller)
     raise NotImplementedError(message)
   decorated.__doc__ == f.__doc__
   return decorated
 
 
 
-class PyRegion(object):
+class PyRegion(with_metaclass(ABCMeta, object)):
   """
   PyRegion provides services to its sub-classes (the actual regions):
 
@@ -96,7 +98,6 @@ class PyRegion(object):
   * executeMethod
 
   """
-  __metaclass__ = ABCMeta
 
 
   @classmethod

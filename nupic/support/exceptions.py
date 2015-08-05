@@ -88,4 +88,4 @@ class NupicJobFailException(Exception):
 
     e = NupicJobFailException(errorCode=errorCode, msg=newMsg)
 
-    raise e, None, traceback
+    raise e.with_traceback(traceback)

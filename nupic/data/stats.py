@@ -19,8 +19,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import os
-import pickle
+from six.moves import cPickle as pickle
 
 from pkg_resources import resource_filename
 
@@ -139,8 +141,8 @@ def generateStats(filename, statsInfo, maxSamples = None, filters=[], cache=True
         r = pickle.load(open(statsFilename, "rb"))
       except:
         # Ok to ignore errors -- we will just re-generate the file
-        print "Warning: unable to load stats for %s -- " \
-              "will regenerate" % filename
+        print("Warning: unable to load stats for %s -- " \
+              "will regenerate" % filename)
         r = dict()
       requestedKeys = set([s for s in statsInfo])
       availableKeys = set(r.keys())
@@ -148,12 +150,12 @@ def generateStats(filename, statsInfo, maxSamples = None, filters=[], cache=True
       if len(unavailableKeys ) == 0:
         return r
       else:
-        print "generateStats: re-generating stats file %s because " \
+        print("generateStats: re-generating stats file %s because " \
               "keys %s are not available" %  \
-              (filename, str(unavailableKeys))
+              (filename, str(unavailableKeys)))
         os.remove(filename)
 
-  print "Generating statistics for file '%s' with filters '%s'" % (filename, filters)
+  print("Generating statistics for file '%s' with filters '%s'" % (filename, filters))
   sensor = RecordSensor()
   sensor.dataSource = FileRecordStream(filename)
   sensor.preEncodingFilters = filters
@@ -173,19 +175,19 @@ def generateStats(filename, statsInfo, maxSamples = None, filters=[], cache=True
   # Now collect the stats
   if maxSamples is None:
     maxSamples = 500000
-  for i in xrange(maxSamples):
+  for i in range(maxSamples):
     try:
       record = sensor.getNextRecord()
     except StopIteration:
       break
-    for (name, collector) in statsInfo.items():
+    for (name, collector) in list(statsInfo.items()):
       collector.add(record[name])
 
   del sensor
 
   # Assemble the results and return
   r = dict()
-  for (field, collector) in statsInfo.items():
+  for (field, collector) in list(statsInfo.items()):
     stats = collector.getStats()
     if field not in r:
       r[field] = stats

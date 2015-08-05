@@ -170,7 +170,7 @@ class Spec(object):
 
     # Verify all item dicts
     hasDefaultInput = False
-    for k, v in self.inputs.items():
+    for k, v in list(self.inputs.items()):
       assert isinstance(k, str)
       assert isinstance(v, InputSpec)
       v.invariant()
@@ -180,7 +180,7 @@ class Spec(object):
 
 
     hasDefaultOutput = False
-    for k, v in self.outputs.items():
+    for k, v in list(self.outputs.items()):
       assert isinstance(k, str)
       assert isinstance(v, OutputSpec)
       v.invariant()
@@ -188,12 +188,12 @@ class Spec(object):
         assert not hasDefaultOutput
         hasDefaultOutput = True
 
-    for k, v in self.parameters.items():
+    for k, v in list(self.parameters.items()):
       assert isinstance(k, str)
       assert isinstance(v, ParameterSpec)
       v.invariant()
 
-    for k, v in self.commands.items():
+    for k, v in list(self.commands.items()):
       assert isinstance(k, str)
       assert isinstance(v, CommandSpec)
       v.invariant()
@@ -215,7 +215,7 @@ class Spec(object):
       attributes. The entire items dict will become a dict of dicts (same keys).
       """
       d = {}
-      for k, v in items.items():
+      for k, v in list(items.items()):
         d[k] = v.__dict__
 
       return d

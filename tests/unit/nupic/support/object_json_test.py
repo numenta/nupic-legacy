@@ -23,7 +23,7 @@
 """Unit tests for object_json module."""
 
 import datetime
-import StringIO
+from six import StringIO
 
 from nupic.data.inference_shifter import InferenceShifter
 from nupic.support import object_json as json
@@ -43,8 +43,8 @@ class TestObjectJson(TestCaseBase):
     self.assertEqual(json.loads(json.dumps(5)), 5)
     self.assertEqual(json.loads(json.dumps(7.7)), 7.7)
     self.assertEqual(json.loads(json.dumps('hello')), 'hello')
-    self.assertEqual(json.loads(json.dumps(5L)), 5L)
-    self.assertEqual(json.loads(json.dumps(u'hello')), u'hello')
+    self.assertEqual(json.loads(json.dumps(5)), 5)
+    self.assertEqual(json.loads(json.dumps('hello')), 'hello')
     self.assertEqual(json.loads(json.dumps([5, 6, 7])), [5, 6, 7])
     self.assertEqual(json.loads(json.dumps({'5': 6, '7': 8})), {'5': 6, '7': 8})
 
@@ -90,7 +90,7 @@ class TestObjectJson(TestCaseBase):
 
   def testDump(self):
     d = {'a': 1, 'b': {'c': 2}}
-    f = StringIO.StringIO()
+    f = StringIO()
     json.dump(d, f)
     self.assertEqual(f.getvalue(), '{"a": 1, "b": {"c": 2}}')
 
@@ -105,7 +105,7 @@ class TestObjectJson(TestCaseBase):
     self.assertDictEqual(d, {'a': 1, 'b': {'c': 2}})
 
   def testLoad(self):
-    f = StringIO.StringIO('{"a": 1, "b": {"c": 2}}')
+    f = StringIO('{"a": 1, "b": {"c": 2}}')
     d = json.load(f)
     self.assertDictEqual(d, {'a': 1, 'b': {'c': 2}})
 
@@ -138,8 +138,8 @@ class TestObjectJson(TestCaseBase):
     decoded = json.loads(encoded)
     self.assertEqual(decoded.a, 5)
     self.assertEqual(type(decoded.b), dict)
-    self.assertEqual(len(decoded.b.keys()), 1)
-    self.assertTupleEqual(decoded.b.keys()[0], (4, 5))
+    self.assertEqual(len(list(decoded.b.keys())), 1)
+    self.assertTupleEqual(list(decoded.b.keys())[0], (4, 5))
     self.assertTupleEqual(decoded.b[(4, 5)], (17,))
 
 

@@ -126,7 +126,7 @@ class MultiSweep(BaseExplorer):
         self.parsedDimensions = pattern[1:]
         while None in self.parsedDimensions:
           self.parsedDimensions.remove(None)
-      elif isinstance(pattern, basestring):
+      elif isinstance(pattern, str):
         self.parsedDimensions = re.findall("\(\?P<([^>]+)>", pattern)
       else:
         raise ValueError("'pattern' should be a list/tuple or string")
@@ -173,7 +173,7 @@ class MultiSweep(BaseExplorer):
 
     # Pick a random dimension (exclude filters without multiple outputs)
     filters = []
-    for i in xrange(self.numFilters):
+    for i in range(self.numFilters):
       if self.numFilterOutputs[i] > 1:
         filters.append(i)
     legalDimensions = self.dimensions[:]
@@ -465,7 +465,7 @@ class MultiSweep(BaseExplorer):
 
     if kwds:
       raise RuntimeError('Invalid key(s) in sweep dimension: '
-        + str(keywds.keys()))
+        + str(list(keywds.keys())))
 
     if name not in ('translation', 'image') \
         and name not in self.parsedDimensions \
@@ -632,9 +632,9 @@ class MultiSweep(BaseExplorer):
     """
 
     self.parsedFilenames = []
-    for i in xrange(numImages):
+    for i in range(numImages):
       filename = os.path.split(self.getImageInfo(i)['imagePath'])[1]
-      if isinstance(self.pattern, basestring):
+      if isinstance(self.pattern, str):
         # Regular expression
         match = re.search(self.pattern, filename)
         if not match:
@@ -654,7 +654,7 @@ class MultiSweep(BaseExplorer):
             + "returned %d elements " % len(indices)
             + "instead of %d " % (len(self.pattern) - 1)
             + "(as specified by the 'pattern' argument to MultiSweep)")
-        self.parsedFilenames.append(dict(zip(self.pattern[1:], indices)))
+        self.parsedFilenames.append(dict(list(zip(self.pattern[1:], indices))))
         # Remove entry for None if it exists, which corresponds to one or
         # more parts of the filename that should be ignored
         self.parsedFilenames[-1].pop(None, None)
@@ -687,10 +687,10 @@ class MultiSweep(BaseExplorer):
       startImage -= 1
     # Get other images with the same index in the other parsed dimensions
     imageIndices = []
-    for i in xrange(startImage, len(self.parsedFilenames)):
+    for i in range(startImage, len(self.parsedFilenames)):
       if os.path.split(self.getImageInfo(i)['imagePath'])[0] != path:
         break
-      for key, value in indices.iteritems():
+      for key, value in indices.items():
         if key == self.dimension['name']:
           continue
         if self.parsedFilenames[i][key] != value:

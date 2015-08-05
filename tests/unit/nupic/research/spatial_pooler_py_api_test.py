@@ -22,7 +22,7 @@
 
 from mock import Mock, patch, ANY, call
 import numpy
-import cPickle as pickle
+from six.moves import cPickle as pickle
 import unittest2 as unittest
 
 from nupic.bindings.math import GetNTAReal
@@ -196,9 +196,9 @@ class SpatialPoolerAPITest(unittest.TestCase):
   def testGetPermanence(self):
     numInputs = 5
     numColumns = 5
-    self.sp.initialize(columnDimensions=[numInputs], 
-                       inputDimensions=[numColumns], 
-                       potentialRadius=1, 
+    self.sp.initialize(columnDimensions=[numInputs],
+                       inputDimensions=[numColumns],
+                       potentialRadius=1,
                        potentialPct=1)
     inParam = numpy.array(
       [0.06, 0.07, 0.08, 0.12, 0.13]).astype(realType)
@@ -211,7 +211,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
   def testGetBoostFactors(self):
     numInputs = 3
     numColumns = 3
-    self.sp.initialize(columnDimensions=[numInputs], 
+    self.sp.initialize(columnDimensions=[numInputs],
                        inputDimensions=[numColumns])
     inParam = numpy.array([1, 1.2, 1.3, ]).astype(realType)
     self.sp.setBoostFactors(inParam)
@@ -223,7 +223,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
   def testGetOverlapDutyCycles(self):
     numInputs = 3
     numColumns = 3
-    self.sp.initialize(columnDimensions=[numInputs], 
+    self.sp.initialize(columnDimensions=[numInputs],
                        inputDimensions=[numColumns])
     inParam = numpy.array([0.9, 0.3, 0.1]).astype(realType)
     self.sp.setOverlapDutyCycles(inParam)
@@ -235,7 +235,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
   def testGetActiveDutyCycles(self):
     numInputs = 3
     numColumns = 3
-    self.sp.initialize(columnDimensions=[numInputs], 
+    self.sp.initialize(columnDimensions=[numInputs],
                        inputDimensions=[numColumns])
     inParam = numpy.array([0.9, 0.99, 0.999, ]).astype(realType)
     self.sp.setActiveDutyCycles(inParam)
@@ -247,7 +247,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
   def testGetMinOverlapDutyCycles(self):
     numInputs = 3
     numColumns = 3
-    self.sp.initialize(columnDimensions=[numInputs], 
+    self.sp.initialize(columnDimensions=[numInputs],
                        inputDimensions=[numColumns])
     inParam = numpy.array([0.01, 0.02, 0.035, ]).astype(realType)
     self.sp.setMinOverlapDutyCycles(inParam)
@@ -259,7 +259,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
   def testGetMinActiveDutyCycles(self):
     numInputs = 3
     numColumns = 3
-    self.sp.initialize(columnDimensions=[numInputs], 
+    self.sp.initialize(columnDimensions=[numInputs],
                        inputDimensions=[numColumns])
     inParam = numpy.array([0.01, 0.02, 0.035, ]).astype(realType)
     self.sp.setMinActiveDutyCycles(inParam)
@@ -272,7 +272,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
     self.sp.initialize(columnDimensions=[3], inputDimensions=[3])
     numInputs = 3
     numColumns = 3
-    self.sp.initialize(columnDimensions=[numInputs], 
+    self.sp.initialize(columnDimensions=[numInputs],
                        inputDimensions=[numColumns])
     inParam1 = numpy.array([1, 0, 1]).astype(uintType)
     self.sp.setPotential(0, inParam1)
@@ -291,9 +291,9 @@ class SpatialPoolerAPITest(unittest.TestCase):
   def testGetConnectedSynapses(self):
     numInputs = 5
     numColumns = 5
-    self.sp.initialize(columnDimensions=[numInputs], 
-                       inputDimensions=[numColumns], 
-                       potentialRadius=1, 
+    self.sp.initialize(columnDimensions=[numInputs],
+                       inputDimensions=[numColumns],
+                       potentialRadius=1,
                        potentialPct=1)
     inParam = numpy.array(
       [0.06, 0.07, 0.08, 0.12, 0.13]).astype(realType)
@@ -308,9 +308,9 @@ class SpatialPoolerAPITest(unittest.TestCase):
   def testGetConnectedCounts(self):
     numInputs = 5
     numColumns = 5
-    self.sp.initialize(columnDimensions=[numInputs], 
-                       inputDimensions=[numColumns], 
-                       potentialRadius=1, 
+    self.sp.initialize(columnDimensions=[numInputs],
+                       inputDimensions=[numColumns],
+                       potentialRadius=1,
                        potentialPct=1)
     inParam = numpy.array(
       [0.06, 0.07, 0.08, 0.12, 0.11]).astype(realType)

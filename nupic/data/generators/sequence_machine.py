@@ -24,6 +24,8 @@ Utilities for generating and manipulating sequences, for use in
 experimentation and tests.
 """
 
+from __future__ import print_function
+
 import numpy
 
 
@@ -98,7 +100,7 @@ class SequenceMachine(object):
     """
     text = ""
 
-    for i in xrange(len(sequence)):
+    for i in range(len(sequence)):
       pattern = sequence[i]
 
       if pattern == None:
@@ -127,12 +129,12 @@ class SequenceMachine(object):
     if sharedRange:
       sharedStart, sharedEnd = sharedRange
       sharedLength = sharedEnd - sharedStart
-      sharedNumbers = range(numSequences * sequenceLength,
-                            numSequences * sequenceLength + sharedLength)
+      sharedNumbers = list(range(numSequences * sequenceLength,
+                            numSequences * sequenceLength + sharedLength))
 
-    for i in xrange(numSequences):
+    for i in range(numSequences):
       start = i * sequenceLength
-      newNumbers = range(start, start + sequenceLength)
+      newNumbers = list(range(start, start + sequenceLength))
       self._random.shuffle(newNumbers)
 
       if sharedRange is not None:

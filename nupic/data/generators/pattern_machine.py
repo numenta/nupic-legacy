@@ -24,6 +24,8 @@ Utilities for generating and manipulating patterns, for use in
 experimentation and tests.
 """
 
+from __future__ import print_function
+
 import numpy
 
 
@@ -104,7 +106,7 @@ class PatternMachine(object):
 
     numbers = set()
 
-    for index, pattern in self._patterns.iteritems():
+    for index, pattern in self._patterns.items():
       if bit in pattern:
         numbers.add(index)
 
@@ -147,8 +149,8 @@ class PatternMachine(object):
     text = ""
 
     numberList = []
-    numberItems = sorted(numberMap.iteritems(),
-                         key=lambda (number, bits): len(bits),
+    numberItems = sorted(iter(numberMap.items()),
+                         key=lambda number_bits: len(number_bits[1]),
                          reverse=True)
 
     for number, bits in numberItems:
@@ -172,8 +174,8 @@ class PatternMachine(object):
     """
     Generates set of random patterns.
     """
-    candidates = range(self._n)
-    for i in xrange(self._num):
+    candidates = list(range(self._n))
+    for i in range(self._num):
       self._random.shuffle(candidates)
       pattern = candidates[0:self._getW()]
       self._patterns[i] = set(pattern)
@@ -207,6 +209,6 @@ class ConsecutivePatternMachine(PatternMachine):
 
     assert type(w) is int, "List for w not supported"
 
-    for i in xrange(n / w):
-      pattern = set(xrange(i * w, (i+1) * w))
+    for i in range(n / w):
+      pattern = set(range(i * w, (i+1) * w))
       self._patterns[i] = pattern

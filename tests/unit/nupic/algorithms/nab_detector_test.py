@@ -55,7 +55,7 @@ def _getDateList(numSamples, startDatetime):
   dateList = []
   td = datetime.timedelta(minutes=5)
   currentDate = startDatetime + td
-  for _ in xrange(numSamples):
+  for _ in range(numSamples):
     dateList.append(currentDate)
     currentDate = currentDate + td
   
@@ -268,7 +268,7 @@ class NABTest(TestCaseBase):
                            0.90319951499999995, 0.90319951499999995,
                            0.78814460099999994, 0.78814460099999994,
                            0.78814460099999994, 0.78814460099999994]
-    for i in xrange(len(likelihoodList)):
+    for i in range(len(likelihoodList)):
       self.assertAlmostEqual(likelihoodList[i], truthLikelihoodList[i],
         msg="unequal values are at index %i" % i)
 

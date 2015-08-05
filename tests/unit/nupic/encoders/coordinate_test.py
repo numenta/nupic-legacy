@@ -20,6 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import capnp  # For import hook
 import numpy as np
 import tempfile
@@ -256,11 +258,11 @@ class CoordinateEncoderTest(unittest.TestCase):
     self.assertGreater(np.average(allOverlaps), avgThreshold)
 
     if verbose:
-      print ("===== Adjacent positions overlap "
-             "(n = {0}, w = {1}, radius = {2}) ===").format(n, w, radius)
-      print "Max: {0}".format(np.max(allOverlaps))
-      print "Min: {0}".format(np.min(allOverlaps))
-      print "Average: {0}".format(np.average(allOverlaps))
+      print(("===== Adjacent positions overlap "
+             "(n = {0}, w = {1}, radius = {2}) ===").format(n, w, radius))
+      print("Max: {0}".format(np.max(allOverlaps)))
+      print("Min: {0}".format(np.min(allOverlaps)))
+      print("Average: {0}".format(np.average(allOverlaps)))
 
 
   def assertDecreasingOverlaps(self, overlaps):
@@ -334,13 +336,13 @@ def overlapsForRelativeAreas(n, w, initPosition, initRadius, dPosition=None,
     overlaps[i] = overlap(outputA, outputB)
 
   if verbose:
-    print
-    print ("===== Relative encoding overlaps (n = {0}, w = {1}, "
+    print()
+    print(("===== Relative encoding overlaps (n = {0}, w = {1}, "
                            "initPosition = {2}, initRadius = {3}, "
                            "dPosition = {4}, dRadius = {5}) =====").format(
-      n, w, initPosition, initRadius, dPosition, dRadius)
-    print "Average: {0}".format(np.average(overlaps))
-    print "Max: {0}".format(np.max(overlaps))
+      n, w, initPosition, initRadius, dPosition, dRadius))
+    print("Average: {0}".format(np.average(overlaps)))
+    print("Max: {0}".format(np.max(overlaps)))
 
   return overlaps
 

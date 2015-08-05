@@ -34,6 +34,9 @@ data source (e.g., .csv file or database, etc.), prediction sink (.csv file or
 databse, etc.), report and serialization destination,  etc.
 """
 
+from __future__ import print_function
+from six import Iterator, StringIO, with_metaclass
+
 from abc import ABCMeta, abstractmethod
 import copy
 import csv
@@ -42,24 +45,22 @@ import logging
 import logging.handlers
 import os
 import shutil
-import StringIO
 
-import opfutils
-import opfenvironment as opfenv
+from . import opfutils
+from . import opfenvironment as opfenv
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data.stream_reader import StreamReader
 from nupic.data.fieldmeta import (FieldMetaInfo,
                                   FieldMetaType,
                                   FieldMetaSpecial)
 from nupic.data.inference_shifter import InferenceShifter
-from opfutils import InferenceType, InferenceElement
+from .opfutils import InferenceType, InferenceElement
 
 
 
-class PredictionMetricsLoggerIface(object):
+class PredictionMetricsLoggerIface(with_metaclass(ABCMeta, object)):
   """ This is the interface for output of prediction metrics
   """
-  __metaclass__ = ABCMeta
 
 
   @abstractmethod
@@ -86,10 +87,9 @@ class PredictionMetricsLoggerIface(object):
 
 
 
-class DatasetReaderIface(object):
+class DatasetReaderIface(with_metaclass(ABCMeta, Iterator)):
   """ This is the interface class for a dataset readers
   """
-  __metaclass__ = ABCMeta
 
 
   @abstractmethod
@@ -117,11 +117,10 @@ class DatasetReaderIface(object):
 
 
 
-class PredictionWriterIface(object):
+class PredictionWriterIface(with_metaclass(ABCMeta, object)):
   """ This class defines the interface for prediction writer implementation
   returned by an object factory conforming to PredictionWriterFactoryIface
   """
-  __metaclass__ = ABCMeta
 
 
   @abstractmethod
@@ -258,9 +257,9 @@ class BasicPredictionMetricsLogger(PredictionMetricsLoggerIface):
 
 
   def _emitJSONStringToStdout(self, jsonString):
-    print '<JSON>'
-    print jsonString
-    print '</JSON>'
+    print('<JSON>')
+    print(jsonString)
+    print('</JSON>')
 
 
 
@@ -367,7 +366,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
     self.__checkpointCache = None
     if checkpointSource is not None:
       checkpointSource.seek(0)
-      self.__checkpointCache = StringIO.StringIO()
+      self.__checkpointCache = StringIO()
       shutil.copyfileobj(checkpointSource, self.__checkpointCache)
 
     return
@@ -388,7 +387,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
     # -----------------------------------------------------------------------
     # Write each of the raw inputs that go into the encoders
     rawInput = modelResult.rawInput
-    rawFields = rawInput.keys()
+    rawFields = list(rawInput.keys())
     rawFields.sort()
     for field in rawFields:
       if field.startswith('_') or field == 'reset':
@@ -402,7 +401,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
 
     # -----------------------------------------------------------------------
     # Handle each of the inference elements
-    for inferenceElement, value in modelResult.inferences.iteritems():
+    for inferenceElement, value in modelResult.inferences.items():
       inferenceLabel = InferenceElement.getLabel(inferenceElement)
 
       # TODO: Right now we assume list inferences are associated with
@@ -441,8 +440,8 @@ class _BasicPredictionWriter(PredictionWriterIface):
     self.__datasetPath = os.path.join(inferenceDir, filename)
 
     # Create the output dataset
-    print "OPENING OUTPUT FOR PREDICTION WRITER AT: %r" % self.__datasetPath
-    print "Prediction field-meta: %r" % ([tuple(i) for i in self.__outputFieldsMeta],)
+    print("OPENING OUTPUT FOR PREDICTION WRITER AT: %r" % self.__datasetPath)
+    print("Prediction field-meta: %r" % ([tuple(i) for i in self.__outputFieldsMeta],))
     self.__dataset = FileRecordStream(streamID=self.__datasetPath, write=True,
                                      fields=self.__outputFieldsMeta)
 
@@ -454,9 +453,9 @@ class _BasicPredictionWriter(PredictionWriterIface):
 
       # Skip header row
       try:
-        header = reader.next()
+        header = next(reader)
       except StopIteration:
-        print "Empty record checkpoint initializer for %r" % (self.__datasetPath,)
+        print("Empty record checkpoint initializer for %r" % (self.__datasetPath,))
       else:
         assert tuple(self.__dataset.getFieldNames()) == tuple(header), \
           "dataset.getFieldNames(): %r; predictionCheckpointFieldNames: %r" % (
@@ -466,7 +465,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
       numRowsCopied = 0
       while True:
         try:
-          row = reader.next()
+          row = next(reader)
         except StopIteration:
           break
 
@@ -477,8 +476,8 @@ class _BasicPredictionWriter(PredictionWriterIface):
 
       self.__dataset.flush()
 
-      print "Restored %d rows from checkpoint for %r" % (
-        numRowsCopied, self.__datasetPath)
+      print("Restored %d rows from checkpoint for %r" % (
+        numRowsCopied, self.__datasetPath))
 
       # Dispose of our checkpoint cache
       self.__checkpointCache.close()
@@ -574,7 +573,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
     inferences = modelResult.inferences
     hasInferences = False
     if inferences is not None:
-      for value in inferences.itervalues():
+      for value in inferences.values():
         hasInferences = hasInferences or (value is not None)
 
     if not hasInferences:
@@ -597,7 +596,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
 
     # -----------------------------------------------------------------------
     # Write out the inference element info
-    for inferenceElement, outputVal in inferences.iteritems():
+    for inferenceElement, outputVal in inferences.items():
       inputElement = InferenceElement.getInputElement(inferenceElement)
       if inputElement:
         inputVal = getattr(inputData, inputElement)
@@ -685,8 +684,8 @@ class _BasicPredictionWriter(PredictionWriterIface):
 
     # Skip initial rows to get to the rows that we actually need to checkpoint
     numRowsToSkip = totalDataRows - numToWrite
-    for i in xrange(numRowsToSkip):
-      reader.next()
+    for i in range(numRowsToSkip):
+      next(reader)
 
     # Write the data rows to checkpoint sink
     numWritten = 0
@@ -837,7 +836,7 @@ class BasicPredictionLogger(opfenv.PredictionLoggerIface):
     self.__checkpointCache = None
     if checkpointSource is not None:
       checkpointSource.seek(0)
-      self.__checkpointCache = StringIO.StringIO()
+      self.__checkpointCache = StringIO()
       shutil.copyfileobj(checkpointSource, self.__checkpointCache)
 
     return

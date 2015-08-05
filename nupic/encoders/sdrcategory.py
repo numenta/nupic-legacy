@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import random
 
 import numpy
@@ -128,7 +130,7 @@ class SDRCategoryEncoder(Encoder):
     # previous numpy random state
     randomState = state["random"]
     if isinstance(randomState, numpy.random.mtrand.RandomState):
-      self.random = NupicRandom(randomState.randint(sys.maxint))
+      self.random = NupicRandom(randomState.randint(sys.maxsize))
 
 
   def _seed(self, seed=-1):
@@ -180,14 +182,14 @@ class SDRCategoryEncoder(Encoder):
     of shape (n,). """
     maxAttempts = 1000
 
-    for _ in xrange(maxAttempts):
+    for _ in range(maxAttempts):
       foundUnique = True
       population = numpy.arange(self.n, dtype=numpy.uint32)
       choices = numpy.arange(self.w, dtype=numpy.uint32)
       oneBits = sorted(self.random.sample(population, choices))
       sdr =  numpy.zeros(self.n, dtype='uint8')
       sdr[oneBits] = 1
-      for i in xrange(self.ncategories):
+      for i in range(self.ncategories):
         if (sdr == self.sdrs[i]).all():
           foundUnique = False
           break
@@ -241,8 +243,8 @@ class SDRCategoryEncoder(Encoder):
       output[0:self.n] = self.sdrs[index,:]
 
     if self.verbosity >= 2:
-      print "input:", input, "index:", index, "output:", output
-      print "decoded:", self.decodedToStr(self.decode(output))
+      print("input:", input, "index:", index, "output:", output)
+      print("decoded:", self.decodedToStr(self.decode(output)))
 
 
   def decode(self, encoded, parentFieldName=''):
@@ -257,9 +259,9 @@ class SDRCategoryEncoder(Encoder):
     overlaps =  (self.sdrs * encoded[0:self.n]).sum(axis=1)
 
     if self.verbosity >= 2:
-      print "Overlaps for decoding:"
-      for i in xrange(0, self.ncategories):
-        print "%d %s" % (overlaps[i], self.categories[i])
+      print("Overlaps for decoding:")
+      for i in range(0, self.ncategories):
+        print("%d %s" % (overlaps[i], self.categories[i]))
 
     matchingCategories =  (overlaps > self.thresholdOverlap).nonzero()[0]
 
@@ -291,7 +293,7 @@ class SDRCategoryEncoder(Encoder):
       self._topDownMappingM = SM32(self.ncategories, self.n)
 
       outputSpace = numpy.zeros(self.n, dtype=GetNTAReal())
-      for i in xrange(self.ncategories):
+      for i in range(self.ncategories):
         self.encodeIntoArray(self.categories[i], outputSpace)
         self._topDownMappingM.setRowFromDense(i, outputSpace)
 

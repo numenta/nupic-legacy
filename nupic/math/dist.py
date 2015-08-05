@@ -55,14 +55,14 @@ class DiscreteDistribution(Distribution):
     # Use iteritems() repeatedly here (instead of iterkeys()) to
     # make sure the order is preserved.
     n = len(pmfIn)
-    keyMap = dict((item[0], i) for i, item in enumerate(pmfIn.iteritems()))
-    keys = [item[0] for item in pmfIn.iteritems()]
-    pmf = numpy.array([item[1] for item in pmfIn.iteritems()], dtype=float)
+    keyMap = dict((item[0], i) for i, item in enumerate(pmfIn.items()))
+    keys = [item[0] for item in pmfIn.items()]
+    pmf = numpy.array([item[1] for item in pmfIn.items()], dtype=float)
     if normalize:
       pmf *= (1.0 / pmf.sum())
     # Is there a faster way to accumulate?
     cdf = pmf.copy()
-    for i in xrange(1, n): cdf[i] += cdf[i-1]
+    for i in range(1, n): cdf[i] += cdf[i-1]
     self.keys = keys
     self.keyMap = keyMap
     self.pmf = pmf
@@ -150,7 +150,7 @@ class PoissonDistribution(Distribution):
     else: # Inefficient sum.
       if x != int(x): raise RuntimeError("Invalid value.")
       c = 0.0
-      for i in xrange(x+1):
+      for i in range(x+1):
         c += self.probability(i)
       return c
 

@@ -57,8 +57,8 @@ class Thicken(BaseFilter):
 
     # Shifting by more than one pixel can cause problems, so even if
     # stepSize > 1, get there by thickening by one shift at a time
-    for x in xrange(-self.shiftSize,self.shiftSize+1):
-      for y in xrange(-self.shiftSize,self.shiftSize+1):
+    for x in range(-self.shiftSize,self.shiftSize+1):
+      for y in range(-self.shiftSize,self.shiftSize+1):
         offsetImage = ImageChops.offset(image,x,y)
         newImage = ImageChops.lighter(newImage,offsetImage)
     return newImage

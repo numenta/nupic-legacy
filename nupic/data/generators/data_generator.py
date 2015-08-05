@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import random as rand
 
 from nupic.encoders import adaptivescalar, sdrcategory, date
@@ -85,10 +87,10 @@ class DataGenerator():
     try:
       dataClass=eval(dataClassName)(fieldParams)
 
-    except TypeError, e:
-      print ("#### Error in constructing %s class object. Possibly missing "
+    except TypeError as e:
+      print(("#### Error in constructing %s class object. Possibly missing "
               "some required constructor parameters. Parameters "
-              "that were provided are: %s" % (dataClass, fieldParams))
+              "that were provided are: %s" % (dataClass, fieldParams)))
       raise
 
     encoderParams['dataClass']=dataClass
@@ -166,7 +168,7 @@ class DataGenerator():
   def generateRecords(self, records):
     """Generate multiple records. Refer to definition for generateRecord"""
 
-    if self.verbosity>0: print 'Generating', len(records), 'records...'
+    if self.verbosity>0: print('Generating', len(records), 'records...')
     for record in records:
       self.generateRecord(record)
 
@@ -206,7 +208,7 @@ class DataGenerator():
                    the corresponding fields
     """
     encoding=[self.fields[i].encodeValue(record[i], toBeAdded) for i in \
-              xrange(len(self.fields))]
+              range(len(self.fields))]
 
     return encoding
 
@@ -224,7 +226,7 @@ class DataGenerator():
     """
     if records is None:
       records = self.getAllRecords()
-    if self.verbosity>0: print 'Encoding', len(records), 'records.'
+    if self.verbosity>0: print('Encoding', len(records), 'records.')
     encodings = [self.encodeRecord(record, toBeAdded) for record in records]
 
     return encodings
@@ -359,8 +361,8 @@ class DataGenerator():
       writer.writerow(self.getAllFlags())
       writer.writerows(self.getAllRecords())
     if self.verbosity>0:
-      print '******', numRecords,'records exported in numenta format to file:',\
-                path,'******\n'
+      print('******', numRecords,'records exported in numenta format to file:',\
+                path,'******\n')
 
 
   def removeAllRecords(self):

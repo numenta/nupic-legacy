@@ -21,6 +21,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import ctypes
 
 import numpy
@@ -37,7 +39,7 @@ try:
 except:
   cv = None
 
-from StringIO import StringIO
+from io import StringIO
 from PIL import (Image,
                  ImageChops)
 
@@ -314,7 +316,7 @@ class GaborNode2(PyRegion):
 
     # ------------------------------------------------------
     # Assign default values to missing parameters
-    for paramName, paramValue in self._defaults.items():
+    for paramName, paramValue in list(self._defaults.items()):
       if eval(paramName) is None:
         exec("%s = paramValue" % paramName)
 
@@ -324,47 +326,47 @@ class GaborNode2(PyRegion):
     # Deprecated: numOrients
     numOrients = keywds.pop('numOrients', None)
     if numOrients:
-      print "WARNING: 'numOrients' has been deprecated and replaced with 'numOrientations'"
+      print("WARNING: 'numOrients' has been deprecated and replaced with 'numOrientations'")
       if numOrientations is None:
         numOrientations = numOrients
       elif numOrients != numOrientations:
-        print "WARNING: 'numOrients' (%s) is inconsistent with 'numOrientations' (%s) and will be ignored" % \
-              (str(numOrients), str(numOrientations))
+        print("WARNING: 'numOrients' (%s) is inconsistent with 'numOrientations' (%s) and will be ignored" % \
+              (str(numOrients), str(numOrientations)))
 
     # Deprecated: filterPhase
     filterPhase = keywds.pop('filterPhase', None)
     if filterPhase:
-      print "WARNING: 'filterPhase' has been deprecated and replaced with 'targetType'"
+      print("WARNING: 'filterPhase' has been deprecated and replaced with 'targetType'")
       if targetType is None:
         targetType = filterPhase
       elif filterPhase != targetType:
-        print "WARNING: 'filterPhase' (%s) is inconsistent with 'targetType' (%s) and will be ignored" % \
-              (str(filterPhase), str(targetType))
+        print("WARNING: 'filterPhase' (%s) is inconsistent with 'targetType' (%s) and will be ignored" % \
+              (str(filterPhase), str(targetType)))
 
     # Deprecated: nta_edgeMode
     nta_edgeMode = keywds.pop('nta_edgeMode', None)
     if nta_edgeMode:
-      print "WARNING: 'nta_edgeMode' has been deprecated and replaced with 'edgeMode'"
+      print("WARNING: 'nta_edgeMode' has been deprecated and replaced with 'edgeMode'")
       if edgeMode is None:
         edgeMode = nta_edgeMode
       elif nta_edgeMode != edgeMode:
-        print "WARNING: 'nta_edgeMode' (%s) is inconsistent with 'edgeMode' (%s) and will be ignored" % \
-              (str(nta_edgeMode), str(edgeMode))
+        print("WARNING: 'nta_edgeMode' (%s) is inconsistent with 'edgeMode' (%s) and will be ignored" % \
+              (str(nta_edgeMode), str(edgeMode)))
 
     # Deprecated: lateralInhibition
     lateralInhibition = keywds.pop('nta_lateralInhibition', None)
     if lateralInhibition:
-      print "WARNING: 'lateralInhibition' has been deprecated and will not be supported in future releases"
+      print("WARNING: 'lateralInhibition' has been deprecated and will not be supported in future releases")
 
     # Deprecated: validityShrinkage
     validityShrinkage = keywds.pop('validityShrinkage', None)
     if validityShrinkage:
-      print "WARNING: 'validityShrinkage' has been deprecated and replaced with 'suppressOutsideBox'"
+      print("WARNING: 'validityShrinkage' has been deprecated and replaced with 'suppressOutsideBox'")
       if suppressOutsideBox is None:
         suppressOutsideBox = (validityShrinkage >= 0.0)
       elif suppressOutsideBox != (validityShrinkage >= 0.0):
-        print "WARNING: 'validityShrinkage' (%s) is inconsistent with 'suppressOutsideBox' (%s) and will be ignored" % \
-              (str(validityShrinkage), str(suppressOutsideBox))
+        print("WARNING: 'validityShrinkage' (%s) is inconsistent with 'suppressOutsideBox' (%s) and will be ignored" % \
+              (str(validityShrinkage), str(suppressOutsideBox)))
 
     self._numScales = None
 
@@ -411,12 +413,12 @@ class GaborNode2(PyRegion):
 
     # ------------------------------------------------------
     # Validate each parameter
-    for paramName in self._defaults.keys():
+    for paramName in list(self._defaults.keys()):
       self._validate(paramName, eval(paramName))
 
     # ------------------------------------------------------
     # Store each parameter value
-    for paramName in self._defaults.keys():
+    for paramName in list(self._defaults.keys()):
       # Hidden parameters have the 'nta_' prefix stripped
       #if self._isHiddenParam(paramName):
       #  internalName = paramName[4:]
@@ -956,17 +958,15 @@ class GaborNode2(PyRegion):
     # Validate format of 'whichScale' arg
     numScales = len(self._inputPyramidTopology)
     if whichScale != 'all' and (type(whichScale) != type(0) or whichScale < 0 or whichScale >= numScales):
-      raise RuntimeError, \
-              "'whichScale' must be 'all' or an integer between 0 and %d." % self._numScales
+      raise RuntimeError("'whichScale' must be 'all' or an integer between 0 and %d." % self._numScales)
 
     # Validate format of 'whichResponse' arg
     if whichResponse not in ['all', 'centerSurround']:
       if type(whichResponse) != type(0) or whichResponse < 0 or whichResponse >= self._numPlanes:
-        raise RuntimeError, \
-                "'whichResponse' must be 'all' or an integer between 0 and %d." % self._numPlanes
+        raise RuntimeError("'whichResponse' must be 'all' or an integer between 0 and %d." % self._numPlanes)
 
     # Make sure the requested phase of response exists
-    if not imageSet.has_key(whichDirection):
+    if whichDirection not in imageSet:
       return
 
     # Handle "exotic" responses
@@ -1147,7 +1147,7 @@ class GaborNode2(PyRegion):
       assert False
 
     # Build LUT
-    lutInputs = numpy.array(range(numLutBins), dtype=numpy.float32) / postProcScalar
+    lutInputs = numpy.array(list(range(numLutBins)), dtype=numpy.float32) / postProcScalar
 
     # Sigmoid: output = 1 / (1 + exp(input))
     if self._postProcessingMethod == 'sigmoid':
@@ -1280,7 +1280,7 @@ class GaborNode2(PyRegion):
       self._numPlanes = None
 
     # Assign default values to missing parameters
-    for paramName, paramValue in self._defaults.items():
+    for paramName, paramValue in list(self._defaults.items()):
       paramName = self._stripHidingPrefixIfPresent(paramName)
       if not hasattr(self, "_%s" % paramName):
         exec("self._%s = paramValue" % paramName)
@@ -1333,9 +1333,9 @@ class GaborNode2(PyRegion):
       # pythonSystemRefP = PythonSystem.getInstanceP()
       # lib.initFromPython(ctypes.c_void_p(pythonSystemRefP))
       return lib
-    except Exception, e:
-      print "Warning: Could not load shared library: %s" % libraryName
-      print "Exception: %s" % str(e)
+    except Exception as e:
+      print("Warning: Could not load shared library: %s" % libraryName)
+      print("Exception: %s" % str(e))
       return None
 
 
@@ -1536,8 +1536,8 @@ class GaborNode2(PyRegion):
       self._genResponseImages(self.response, preSuppression=False)
     # Write the response images to disk
     imageSet = self._responseImages[self._getResponseKey(preSuppression=False)]['bottomUp']
-    for orient, orientImages in imageSet.items():
-      for scale, image in orientImages.items():
+    for orient, orientImages in list(imageSet.items()):
+      for scale, image in list(orientImages.items()):
         if type(scale) == type(0):
           if type(orient) == type(0):
             orientCode = "%02d" % orient
@@ -1636,7 +1636,7 @@ class GaborNode2(PyRegion):
     if orientation == 'all':
       # Build all the single-orientation responses
       responseSet = []
-      for responseIdx in xrange(self._numPlanes):
+      for responseIdx in range(self._numPlanes):
         img = Image.new('L', (nCols, nRows))
         img.putdata((gain * 255.0 * response[:stopNodeIdx-startNodeIdx, responseIdx]).astype(numpy.uint8))
         responseSet += [img]
@@ -1766,7 +1766,7 @@ class GaborNode2(PyRegion):
       numLayers = len(self._inputPyramidTopology)
       layerOffsets = self._computeLayerOffsets(self._inputPyramidTopology)
       responseStats = []
-      for k in xrange(numLayers):
+      for k in range(numLayers):
         startOffset = layerOffsets[k]
         stopOffset  = layerOffsets[k+1]
         if self._normalizationMethod in ['max', 'maxPower']:
@@ -1821,7 +1821,7 @@ class GaborNode2(PyRegion):
       # Slowest: per-scale normalization
       else:
         responseAmplified = None
-        for k in xrange(numLayers):
+        for k in range(numLayers):
           startOffset = layerOffsets[k]
           stopOffset  = layerOffsets[k+1]
           if not self._perOrientNormalization:
@@ -1954,7 +1954,7 @@ class GaborNode2(PyRegion):
     # statistics over the spatial dimensions for each scale and orientation.
     numLayers = len(self._outputPyramidTopology)
     layerOffsets = self._computeLayerOffsets(self._outputPyramidTopology)
-    for k in xrange(numLayers):
+    for k in range(numLayers):
       startOffset = layerOffsets[k]
       stopOffset  = layerOffsets[k+1]
       # Mean response
@@ -2127,7 +2127,7 @@ class GaborNode2(PyRegion):
 
     inputOffset  = 0
     outputOffset = 0
-    for scaleIndex in xrange(self._numScales):
+    for scaleIndex in range(self._numScales):
 
       # Handle padded case (normal)
       if isPadded:
@@ -2412,7 +2412,7 @@ class GaborNode2(PyRegion):
 
     # Check in case bbox is non-existent or mal-formed
     if bbox[0] < 0 or bbox[1] < 0 or bbox[2] <= bbox[0] or bbox[3] <= bbox[1]:
-      print "WARNING: empty or malformed bounding box:", bbox
+      print("WARNING: empty or malformed bounding box:", bbox)
       # Fix bbox so that it is a null box but at least not malformed
       if bbox[0] < 0:
         bbox[0] = 0
@@ -2439,13 +2439,13 @@ class GaborNode2(PyRegion):
                     "%s.buffer.in.%02d.png" % (outPrefix, scaleIndex))
 
     # Save output buffer planes
-    for k in xrange(self._bufferSetOut[scaleIndex].shape[0]):
+    for k in range(self._bufferSetOut[scaleIndex].shape[0]):
       # We do integer arithmetic shifted by 12 bits
       buf = (self._bufferSetOut[scaleIndex][k] / 4096).clip(min=0, max=255);
       self._saveImage(buf, "%s.buffer.out.%02d.%02d.png" % (outPrefix, scaleIndex, k))
 
     # Save raw gabor output images (from C implementation)
-    for k in xrange(self._numPlanes):
+    for k in range(self._numPlanes):
       self._saveImage(outputVector[k], "%s.out.%02d.%02d.png" % \
                       (outPrefix, scaleIndex, k))
 
@@ -2645,7 +2645,7 @@ class GaborNode2(PyRegion):
     """
 
     if phase not in ('bottomUp', 'topDown', 'combined'):
-      raise RuntimeError, "phase must be either 'bottomUp', 'topDown', or 'combined'"
+      raise RuntimeError("phase must be either 'bottomUp', 'topDown', or 'combined'")
 
     numLocns = len(rawResponse.flatten()) / self._numPlanes
     response = rawResponse.reshape(numLocns, self._numPlanes)
@@ -2656,11 +2656,11 @@ class GaborNode2(PyRegion):
     imageSet = {}
 
     # Build all the single-orientation responses
-    for responseIdx in xrange(self._numPlanes):
+    for responseIdx in range(self._numPlanes):
       responseSet = {}
 
       # Build all the scales
-      for scaleIdx in xrange(numScales):
+      for scaleIdx in range(numScales):
         responseSet[scaleIdx] = self._makeImage(response, scaleIdx, responseIdx)
 
       # Build the "all scale" list
@@ -2669,16 +2669,16 @@ class GaborNode2(PyRegion):
 
     # Build the composite respones
     responseSet = {}
-    for scaleIdx in xrange(numScales):
-      scaleSet = [imageSet[orientIdx][scaleIdx] for orientIdx in xrange(self._numPlanes)]
+    for scaleIdx in range(numScales):
+      scaleSet = [imageSet[orientIdx][scaleIdx] for orientIdx in range(self._numPlanes)]
       responseSet[scaleIdx] = self._makeCompositeImage(scaleSet)
     imageSet['all'] = responseSet
 
     # Serialize all images
-    for orientIdx, orientResponses in imageSet.items():
-      for scaleIdx, scaleResponse in orientResponses.items():
+    for orientIdx, orientResponses in list(imageSet.items()):
+      for scaleIdx, scaleResponse in list(orientResponses.items()):
         imageSet[orientIdx][scaleIdx] = self._serializeImage(scaleResponse)
-      imageSet[orientIdx]['all'] = imageSet[orientIdx].values()
+      imageSet[orientIdx]['all'] = list(imageSet[orientIdx].values())
 
     # Store the image set
     if self._responseImages is None:
@@ -2783,7 +2783,7 @@ class GaborNode2(PyRegion):
 
     # Select the orientation sample points (in radians)
     radianInterval = numpy.pi / float(numOrientations)
-    orientations = numpy.array(range(numOrientations), dtype=RealNumpyDType) * \
+    orientations = numpy.array(list(range(numOrientations)), dtype=RealNumpyDType) * \
                    radianInterval
 
     # Compute trigonometric functions of orientation
@@ -2847,7 +2847,7 @@ class GaborNode2(PyRegion):
       # filter cell where we go negative
       halfFilterDim = (self._filterDim - 1) / 2
       firstBadCell = None
-      for cellIdx in xrange(halfFilterDim, self._filterDim):
+      for cellIdx in range(halfFilterDim, self._filterDim):
         if gaborBank[0, 0, cellIdx] < 0.0:
           firstBadCell = cellIdx - halfFilterDim
           break
@@ -2884,7 +2884,7 @@ class GaborNode2(PyRegion):
 
     # Log gabor filters to disk
     if self._logPrefix:
-      for k in xrange(numGaborFilters):
+      for k in range(numGaborFilters):
         img = Image.new('L', (self._filterDim, self._filterDim))
         minVal = gaborBank[k].min()
         gaborFilter = gaborBank[k] - minVal
@@ -3247,4 +3247,4 @@ if __name__=='__main__':
           zeroThresholdOut: 0.003
     }""")
 
-  print 'Done.'
+  print('Done.')

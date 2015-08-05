@@ -20,6 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import csv
 import os
 import shutil
@@ -79,8 +81,8 @@ class MyTestCaseBase(HelperTestCaseBase):
     experimentLabel = "%s prediction comparison" % \
                         ("Temporal" if temporal else "Non-Temporal")
 
-    print "%s: Performing comparison of OPF prediction CSV files %r and %r" % (
-            experimentLabel, path1, path2)
+    print("%s: Performing comparison of OPF prediction CSV files %r and %r" % (
+            experimentLabel, path1, path2))
 
     # Open CSV readers
     #
@@ -124,22 +126,22 @@ class MyTestCaseBase(HelperTestCaseBase):
     if temporal:
       # Skip the first data rows for temporal tests, since they don't contain
       # prediction values.
-      _skipOpf1Row = opf1CsvReader.next()
+      _skipOpf1Row = next(opf1CsvReader)
       opf1CurrentDataRowIndex += 1
-      _skipOpf2Row = opf2CsvReader.next()
+      _skipOpf2Row = next(opf2CsvReader)
       opf2CurrentDataRowIndex += 1
 
 
-    fieldsIndexesToCompare = tuple(xrange(2, len(opf1FieldNames), 2))
+    fieldsIndexesToCompare = tuple(range(2, len(opf1FieldNames), 2))
 
     self.assertGreater(len(fieldsIndexesToCompare), 0)
 
-    print ("%s: Comparing fields at indexes: %s; "
+    print(("%s: Comparing fields at indexes: %s; "
            "opf1Labels: %s; opf2Labels: %s") % (
             experimentLabel,
             fieldsIndexesToCompare,
             [opf1FieldNames[i] for i in fieldsIndexesToCompare],
-            [opf2FieldNames[i] for i in fieldsIndexesToCompare])
+            [opf2FieldNames[i] for i in fieldsIndexesToCompare]))
 
 
     for i in fieldsIndexesToCompare:
@@ -153,26 +155,26 @@ class MyTestCaseBase(HelperTestCaseBase):
     while True:
 
       try:
-        opf1Row = opf1CsvReader.next()
+        opf1Row = next(opf1CsvReader)
       except StopIteration:
         opf1EOF = True
       else:
         opf1CurrentDataRowIndex += 1
 
       try:
-        opf2Row = opf2CsvReader.next()
+        opf2Row = next(opf2CsvReader)
       except StopIteration:
         opf2EOF = True
       else:
         opf2CurrentDataRowIndex += 1
 
       if opf1EOF != opf2EOF:
-        print ("%s: ERROR: Data row counts mismatch: "
+        print(("%s: ERROR: Data row counts mismatch: "
                "opf1EOF: %s, opf1CurrentDataRowIndex: %s; "
                "opf2EOF: %s, opf2CurrentDataRowIndex: %s") % (
                   experimentLabel,
                   opf1EOF, opf1CurrentDataRowIndex,
-                  opf2EOF, opf2CurrentDataRowIndex)
+                  opf2EOF, opf2CurrentDataRowIndex))
         return False
 
       if opf1EOF and opf2EOF:
@@ -190,7 +192,7 @@ class MyTestCaseBase(HelperTestCaseBase):
 
           mismatchCount += 1
 
-          print ("%s: ERROR: mismatch in "
+          print(("%s: ERROR: mismatch in "
            "prediction values: dataRowIndex: %s, fieldIndex: %s (%r); "
            "opf1FieldValue: <%s>, opf2FieldValue: <%s>; "
            "opf1FieldValueAsFloat: %s, opf2FieldValueAsFloat: %s; "
@@ -204,7 +206,7 @@ class MyTestCaseBase(HelperTestCaseBase):
             opf1FloatValue,
             opf2FloatValue,
             opf1Row,
-            opf2Row)
+            opf2Row))
 
           # Stop comparison if we exceeded the allowed number of mismatches
           if maxMismatches is not None and mismatchCount >= maxMismatches:
@@ -212,8 +214,8 @@ class MyTestCaseBase(HelperTestCaseBase):
 
 
     if mismatchCount != 0:
-      print "%s: ERROR: there were %s mismatches between %r and %r" % (
-              experimentLabel, mismatchCount, path1, path2)
+      print("%s: ERROR: there were %s mismatches between %r and %r" % (
+              experimentLabel, mismatchCount, path1, path2))
       return False
 
 
@@ -221,13 +223,13 @@ class MyTestCaseBase(HelperTestCaseBase):
     self.assertEqual(opf1CurrentDataRowIndex, opf2CurrentDataRowIndex)
 
 
-    print ("%s: Comparison of predictions "
+    print(("%s: Comparison of predictions "
            "completed: OK; number of prediction rows examined: %s; "
            "path1: %r; path2: %r") % \
               (experimentLabel,
                opf1CurrentDataRowIndex + 1,
                path1,
-               path2)
+               path2))
 
     return True
 
@@ -243,9 +245,9 @@ class MyTestCaseBase(HelperTestCaseBase):
     csvReader = self._openCsvFile(filepath)
 
     # Advance it past the three NUPIC header lines
-    names = csvReader.next()
-    _types = csvReader.next()
-    _specials = csvReader.next()
+    names = next(csvReader)
+    _types = next(csvReader)
+    _specials = next(csvReader)
 
     return (csvReader, names)
 
@@ -322,12 +324,12 @@ class MyTestCaseBase(HelperTestCaseBase):
 
     # Skip past the 'a' records in aPlusB
     for i in range(checkpointAt):
-      aPlusBPred.next()
+      next(aPlusBPred)
 
     # Now, read through the records that don't have predictions yet
     for i in range(predSteps):
-      aPlusBPred.next()
-      bPred.next()
+      next(aPlusBPred)
+      next(bPred)
 
     # Now, compare predictions in the two files
     rowIdx = checkpointAt + predSteps + 4 - 1
@@ -335,8 +337,8 @@ class MyTestCaseBase(HelperTestCaseBase):
     while True:
       rowIdx += 1
       try:
-        rowAPB = aPlusBPred.next()
-        rowB = bPred.next()
+        rowAPB = next(aPlusBPred)
+        rowB = next(bPred)
 
         # Compare actuals
         self.assertEqual(rowAPB[actValueColIdx], rowB[actValueColIdx],
@@ -349,8 +351,8 @@ class MyTestCaseBase(HelperTestCaseBase):
         predB = eval(rowB[predValueColIdx])
 
         # Sort with highest probabilities first
-        predAPB = [(a, b) for b, a in predAPB.items()]
-        predB = [(a, b) for b, a in predB.items()]
+        predAPB = [(a, b) for b, a in list(predAPB.items())]
+        predB = [(a, b) for b, a in list(predB.items())]
         predAPB.sort(reverse=True)
         predB.sort(reverse=True)
 
@@ -384,7 +386,7 @@ class MyTestCaseBase(HelperTestCaseBase):
       except StopIteration:
         break
 
-    print "Predictions match!"
+    print("Predictions match!")
 
 
   @staticmethod

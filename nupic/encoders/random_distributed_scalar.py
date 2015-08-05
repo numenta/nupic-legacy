@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import math
 import numbers
 import pprint
@@ -168,7 +170,7 @@ class RandomDistributedScalarEncoder(Encoder):
     # previous numpy random state
     randomState = state["random"]
     if isinstance(randomState, numpy.random.mtrand.RandomState):
-      self.random = NupicRandom(randomState.randint(sys.maxint))
+      self.random = NupicRandom(randomState.randint(sys.maxsize))
 
 
   def _seed(self, seed=-1):
@@ -229,9 +231,9 @@ class RandomDistributedScalarEncoder(Encoder):
     if index >= self._maxBuckets:
       index = self._maxBuckets-1
 
-    if not self.bucketMap.has_key(index):
+    if index not in self.bucketMap:
       if self.verbosity >= 2:
-        print "Adding additional buckets to handle index=", index
+        print("Adding additional buckets to handle index=", index)
       self._createBucket(index)
     return self.bucketMap[index]
 
@@ -367,7 +369,7 @@ class RandomDistributedScalarEncoder(Encoder):
     """
     Return the overlap between bucket indices i and j
     """
-    if self.bucketMap.has_key(i) and self.bucketMap.has_key(j):
+    if i in self.bucketMap and j in self.bucketMap:
       iRep = self.bucketMap[i]
       jRep = self.bucketMap[j]
       return self._countOverlap(iRep, jRep)
@@ -443,17 +445,17 @@ class RandomDistributedScalarEncoder(Encoder):
 
 
   def dump(self):
-    print "RandomDistributedScalarEncoder:"
-    print "  minIndex:   %d" % self.minIndex
-    print "  maxIndex:   %d" % self.maxIndex
-    print "  w:          %d" % self.w
-    print "  n:          %d" % self.getWidth()
-    print "  resolution: %g" % self.resolution
-    print "  offset:     %s" % str(self._offset)
-    print "  numTries:   %d" % self.numTries
-    print "  name:       %s" % self.name
+    print("RandomDistributedScalarEncoder:")
+    print("  minIndex:   %d" % self.minIndex)
+    print("  maxIndex:   %d" % self.maxIndex)
+    print("  w:          %d" % self.w)
+    print("  n:          %d" % self.getWidth())
+    print("  resolution: %g" % self.resolution)
+    print("  offset:     %s" % str(self._offset))
+    print("  numTries:   %d" % self.numTries)
+    print("  name:       %s" % self.name)
     if self.verbosity > 2:
-      print "  All buckets:     "
+      print("  All buckets:     ")
       pprint.pprint(self.bucketMap)
 
 
@@ -490,4 +492,4 @@ class RandomDistributedScalarEncoder(Encoder):
     proto.minIndex = self.minIndex
     proto.maxIndex = self.maxIndex
     proto.bucketMap = [{"key": key, "value": value.tolist()}
-                       for key, value in self.bucketMap.items()]
+                       for key, value in list(self.bucketMap.items())]

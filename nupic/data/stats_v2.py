@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import itertools
 import pprint
 import operator
@@ -83,12 +85,12 @@ class BaseStatsCollector(object):
     stats[self.fieldname]['totalNumDistinctEntries'] = totalNumDistinctEntries
 
     if VERBOSITY > 1:
-      print "-"*40
-      print "Field '%s'" % self.fieldname
-      print "--"
-      print "Counts:"
-      print "Total number of entries:%d" % totalNumEntries
-      print "Total number of distinct entries:%d" % totalNumDistinctEntries
+      print("-"*40)
+      print("Field '%s'" % self.fieldname)
+      print("--")
+      print("Counts:")
+      print("Total number of entries:%d" % totalNumEntries)
+      print("Total number of distinct entries:%d" % totalNumDistinctEntries)
 
 class StringStatsCollector(BaseStatsCollector):
 
@@ -102,17 +104,17 @@ class StringStatsCollector(BaseStatsCollector):
       for value in self.valueList:
         valueCountDict[value] += 1
 
-      print "--"
+      print("--")
       # Print the top 5 frequent strings
       topN = 5
-      print " Sorted list:"
-      for key, value in sorted(valueCountDict.iteritems(),
+      print(" Sorted list:")
+      for key, value in sorted(iter(valueCountDict.items()),
                                key=operator.itemgetter(1),
                                reverse=True,)[:topN]:
 
-        print "%s:%d" % (key, value)
+        print("%s:%d" % (key, value))
       if len(valueCountDict) > topN:
-        print "..."
+        print("...")
 
 class NumberStatsCollector(BaseStatsCollector):
 
@@ -135,10 +137,10 @@ class NumberStatsCollector(BaseStatsCollector):
     percentile99th = sortedNumberList[int(0.99*listLength)]
 
     differenceList = \
-               [(cur - prev) for prev, cur in itertools.izip(list(self.valueSet)[:-1],
+               [(cur - prev) for prev, cur in zip(list(self.valueSet)[:-1],
                                                              list(self.valueSet)[1:])]
     if min > max:
-      print self.fieldname, min, max, '-----'
+      print(self.fieldname, min, max, '-----')
     meanResolution = numpy.mean(differenceList)
 
 
@@ -157,25 +159,25 @@ class NumberStatsCollector(BaseStatsCollector):
       stats[self.fieldname]['data'] = self.valueList
 
     if VERBOSITY > 2:
-      print '--'
-      print "Statistics:"
-      print "min:", min
-      print "max:", max
-      print "mean:", mean
-      print "median:", median
-      print "1st percentile :", percentile1st
-      print "99th percentile:", percentile99th
+      print('--')
+      print("Statistics:")
+      print("min:", min)
+      print("max:", max)
+      print("mean:", mean)
+      print("median:", median)
+      print("1st percentile :", percentile1st)
+      print("99th percentile:", percentile99th)
 
-      print '--'
-      print "Resolution:"
-      print "Mean Resolution:", meanResolution
+      print('--')
+      print("Resolution:")
+      print("Mean Resolution:", meanResolution)
 
     if VERBOSITY > 3:
-      print '--'
-      print "Histogram:"
+      print('--')
+      print("Histogram:")
       counts, bins = numpy.histogram(self.valueList, new=True)
-      print "Counts:", counts.tolist()
-      print "Bins:", bins.tolist()
+      print("Counts:", counts.tolist())
+      print("Bins:", bins.tolist())
 
 
 class IntStatsCollector(NumberStatsCollector):
@@ -232,10 +234,10 @@ class DateTimeStatsCollector(BaseStatsCollector):
     decodedInput = encoder.decode(totalOrEncoderOutput)[0]
 
     if VERBOSITY > 2:
-      print "--"
-      print "Sub-encoders:"
+      print("--")
+      print("Sub-encoders:")
       for subEncoderName,_ in encoderDescription:
-        print "%s:%s" % (subEncoderName, stats[self.fieldname][subEncoderName])
+        print("%s:%s" % (subEncoderName, stats[self.fieldname][subEncoderName]))
 
 def generateStats(filename, maxSamples = None,):
   """
@@ -267,8 +269,8 @@ def generateStats(filename, maxSamples = None,):
                            }
 
   filename = resource_filename("nupic.datafiles", filename)
-  print "*"*40
-  print "Collecting statistics for file:'%s'" % (filename,)
+  print("*"*40)
+  print("Collecting statistics for file:'%s'" % (filename,))
   dataFile = FileRecordStream(filename)
 
   # Initialize collector objects
@@ -284,7 +286,7 @@ def generateStats(filename, maxSamples = None,):
   # Now collect the stats
   if maxSamples is None:
     maxSamples = 500000
-  for i in xrange(maxSamples):
+  for i in range(maxSamples):
     record = dataFile.getNextRecord()
     if record is None:
       break

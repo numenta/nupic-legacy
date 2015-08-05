@@ -26,6 +26,8 @@ This file tests specific experiments to see if they are providing the
 correct results. These are high level tests of the algorithms themselves.
 """
 
+from __future__ import print_function
+
 import os
 import shutil
 from subprocess import call
@@ -96,7 +98,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
     # Run from the test directory so that we can find our experiments
     os.chdir(testDir)
 
-    runExperiment = resource_filename("nupic", os.path.join("..", 
+    runExperiment = resource_filename("nupic", os.path.join("..",
                                 "scripts", "run_opf_experiment.py"))
 
     # A list of experiments to run.  Valid attributes:
@@ -238,12 +240,12 @@ class OPFExperimentResultsTest(unittest.TestCase):
       },
 
     ] # End of classification tests
-    
+
     spatialClassificationTests = [
       { 'experimentDir': 'experiments/spatial_classification/category_0',
         'results': {
             ('DefaultTask.NontemporalClassification.predictionLog.csv',
-             "multiStepBestPredictions:multiStep:errorMetric='avg_err':steps=0:window=100:field=classification"): 
+             "multiStepBestPredictions:multiStep:errorMetric='avg_err':steps=0:window=100:field=classification"):
                     (0.0, 0.05),
             }
 
@@ -252,15 +254,15 @@ class OPFExperimentResultsTest(unittest.TestCase):
       { 'experimentDir': 'experiments/spatial_classification/category_1',
         'results': {
             ('DefaultTask.NontemporalClassification.predictionLog.csv',
-             "multiStepBestPredictions:multiStep:errorMetric='avg_err':steps=0:window=100:field=classification"): 
+             "multiStepBestPredictions:multiStep:errorMetric='avg_err':steps=0:window=100:field=classification"):
                     (0.0, 0.0),
             }
       },
-      
+
       { 'experimentDir': 'experiments/spatial_classification/scalar_0',
         'results': {
             ('DefaultTask.NontemporalClassification.predictionLog.csv',
-             "multiStepBestPredictions:multiStep:errorMetric='aae':steps=0:window=100:field=classification"): 
+             "multiStepBestPredictions:multiStep:errorMetric='aae':steps=0:window=100:field=classification"):
                     (0.0, 0.025),
             }
       },
@@ -268,7 +270,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
       { 'experimentDir': 'experiments/spatial_classification/scalar_1',
         'results': {
             ('DefaultTask.NontemporalClassification.predictionLog.csv',
-             "multiStepBestPredictions:multiStep:errorMetric='aae':steps=0:window=100:field=classification"): 
+             "multiStepBestPredictions:multiStep:errorMetric='aae':steps=0:window=100:field=classification"):
                     (0.0, 0.01),
             }
       },
@@ -322,7 +324,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
       for path in toDelete:
         if not os.path.exists(path):
           continue
-        print "Removing %s ..." % path
+        print("Removing %s ..." % path)
         if os.path.isfile(path):
           os.remove(path)
         else:
@@ -332,22 +334,22 @@ class OPFExperimentResultsTest(unittest.TestCase):
       # ------------------------------------------------------------------------
       # Run the test.
       args = test.get('args', [])
-      print "Running experiment %s ..." % (expDirectory)
+      print("Running experiment %s ..." % (expDirectory))
       command = ['python', runExperiment, expDirectory] + args
       retVal = call(command)
 
       # If retVal is non-zero and this was not a negative test or if retVal is
       # zero and this is a negative test something went wrong.
       if retVal:
-        print "Details of failed test: %s" % test
-        print("TestIdx %d, OPF experiment '%s' failed with return code %i." %
-              (testIdx, expDirectory, retVal))
+        print("Details of failed test: %s" % test)
+        print(("TestIdx %d, OPF experiment '%s' failed with return code %i." %
+              (testIdx, expDirectory, retVal)))
       self.assertFalse(retVal)
 
 
       # -----------------------------------------------------------------------
       # Check the results
-      for (key, expValues) in test['results'].items():
+      for (key, expValues) in list(test['results'].items()):
         (logFilename, colName) = key
 
         # Open the prediction log file
@@ -355,16 +357,16 @@ class OPFExperimentResultsTest(unittest.TestCase):
                                                 logFilename))
         colNames = [x[0] for x in logFile.getFields()]
         if not colName in colNames:
-          print "TestIdx %d: %s not one of the columns in " \
+          print("TestIdx %d: %s not one of the columns in " \
             "prediction log file. Available column names are: %s" % (testIdx,
-                    colName, colNames)
+                    colName, colNames))
         self.assertTrue(colName in colNames)
         colIndex = colNames.index(colName)
 
         # Read till we get to the last line
         while True:
           try:
-            row = logFile.next()
+            row = next(logFile)
           except StopIteration:
             break
         result = row[colIndex]
@@ -372,33 +374,33 @@ class OPFExperimentResultsTest(unittest.TestCase):
         # Save summary of results
         summaryOfResults.append((expDirectory, colName, result))
 
-        print "Actual result for %s, %s:" % (expDirectory, colName), result
-        print "Expected range:", expValues
+        print("Actual result for %s, %s:" % (expDirectory, colName), result)
+        print("Expected range:", expValues)
         failed = (expValues[0] is not None and result < expValues[0]) \
             or (expValues[1] is not None and result > expValues[1])
         if failed:
-          print ("TestIdx %d: Experiment %s failed. \nThe actual result"
+          print(("TestIdx %d: Experiment %s failed. \nThe actual result"
              " for %s (%s) was outside the allowed range of %s" % (testIdx,
-              expDirectory, colName, result, expValues))
+              expDirectory, colName, result, expValues)))
         else:
-          print "  Within expected range."
+          print("  Within expected range.")
         self.assertFalse(failed)
 
 
     # =======================================================================
     # Print summary of results:
-    print
-    print "Summary of results in all experiments run:"
-    print "========================================="
+    print()
+    print("Summary of results in all experiments run:")
+    print("=========================================")
     prevExpDir = None
     for (expDir, key, results) in summaryOfResults:
       if expDir != prevExpDir:
-        print
-        print expDir
+        print()
+        print(expDir)
         prevExpDir = expDir
-      print "  %s: %s" % (key, results)
+      print("  %s: %s" % (key, results))
 
-    print "\nElapsed time: %.1f seconds" % (time.time() - startTime)
+    print("\nElapsed time: %.1f seconds" % (time.time() - startTime))
 
 
 

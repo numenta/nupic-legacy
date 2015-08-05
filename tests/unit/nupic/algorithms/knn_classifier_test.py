@@ -40,20 +40,20 @@ class KNNClassifierTest(unittest.TestCase):
     b = np.array([2, 4, 8, 12, 14, 18, 20, 28, 30], dtype=np.int32)
 
     numPatterns = classifier.learn(a, 0, isSparse=dimensionality)
-    self.assertEquals(numPatterns, 1)
+    self.assertEqual(numPatterns, 1)
 
     numPatterns = classifier.learn(b, 1, isSparse=dimensionality)
-    self.assertEquals(numPatterns, 2)
+    self.assertEqual(numPatterns, 2)
 
     denseA = np.zeros(dimensionality)
     denseA[a] = 1.0
     cat, _, _, _ = classifier.infer(denseA)
-    self.assertEquals(cat, 0)
+    self.assertEqual(cat, 0)
 
     denseB = np.zeros(dimensionality)
     denseB[b] = 1.0
     cat, _, _, _ = classifier.infer(denseB)
-    self.assertEquals(cat, 1)
+    self.assertEqual(cat, 1)
 
 
   def testOverlapDistanceMethodBadSparsity(self):
@@ -80,13 +80,13 @@ class KNNClassifierTest(unittest.TestCase):
     # Learn with incorrect dimensionality, greater than largest ON bit, but
     # inconsistent when inferring
     numPatterns = classifier.learn(a, 0, isSparse=31)
-    self.assertEquals(numPatterns, 1)
+    self.assertEqual(numPatterns, 1)
 
     denseA = np.zeros(dimensionality)
     denseA[a] = 1.0
 
     cat, _, _, _ = classifier.infer(denseA)
-    self.assertEquals(cat, 0)
+    self.assertEqual(cat, 0)
 
 
 
@@ -115,12 +115,12 @@ class KNNClassifierTest(unittest.TestCase):
     a = np.array([], dtype=np.int32)
 
     numPatterns = classifier.learn(a, 0, isSparse=dimensionality)
-    self.assertEquals(numPatterns, 1)
+    self.assertEqual(numPatterns, 1)
 
     denseA = np.zeros(dimensionality)
     denseA[a] = 1.0
     cat, _, _, _ = classifier.infer(denseA)
-    self.assertEquals(cat, 0)
+    self.assertEqual(cat, 0)
 
 
   @unittest.skip("Finish when infer has options for sparse and dense "
@@ -139,10 +139,10 @@ class KNNClassifierTest(unittest.TestCase):
     # TODO Test case where infer is passed a sparse representation after
     # infer() has been extended to handle sparse and dense
     cat, _, _, _ = classifier.infer(a)
-    self.assertEquals(cat, 0)
+    self.assertEqual(cat, 0)
 
     cat, _, _, _ = classifier.infer(b)
-    self.assertEquals(cat, 1)
+    self.assertEqual(cat, 1)
 
 
 

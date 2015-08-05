@@ -32,6 +32,8 @@ a single CSV file with hourly data. Each record contains the following fields:
 Gym name, Date, Hour, # Atendees, KW consumption
 """
 
+from __future__ import print_function
+
 import os
 import sys
 import fileinput
@@ -50,37 +52,37 @@ class Record(object):
     self.KW = 0
     self.attendeeCount = 0
     self.consumption = 0
-        
+
 class Club(object):
   def __init__(self, name):
     self.name = name
     self.records = {}
-    
+
   def processAttendance(self, f):
     # Skip first two
-    line = f.next()
+    line = next(f)
     assert line == ',,,,,,,,,,,,,,,,,,,\n'
 
-    line = f.next()
+    line = next(f)
     assert line == 'Date Of Swipe, < 6 am,6-7 am,7-8 am,8-9 am,9-10 am,10-11 am,11-12 am,12-1 pm,1-2 pm,2-3 pm,3-4 pm,4-5 pm,5-6 pm,6-7 pm,7-8 pm,8-9 pm,9-10 pm,> 10 pm,Totals\n'
-    
+
     for i, line in enumerate(f):
       # Check weather we're done with this club
       if line == ',,,,,,,,,,,,,,,,,,,\n':
         # skip next two lines
-        line = f.next()
+        line = next(f)
         assert line.startswith('Club Totals:')
-        line = f.next()
+        line = next(f)
         assert line == ',,,,,,,,,,,,,,,,,,,\n'
         return
       else:
         self.addRecord(line)
-        
+
   def addRecord(self, line):
     fields = line.split(',')
     assert len(fields) == 20
     date = fields[0].split('-')
-    
+
     # Convert day to 'dd'
     dd = int(date[0])
     mm = months.index(date[1]) + 1
@@ -88,7 +90,7 @@ class Club(object):
     # Convert year from 'yy' to 'yyyy'
     yyyy = 2000 + int(date[2])
     date = (yyyy, mm, dd)
-    
+
     # Add 0 for hours without attendants (<12AM-4AM and 11PM)
     attendance =  [0] * 5 + fields[1:19] + [0]
     assert len(attendance) == 24
@@ -100,14 +102,14 @@ class Club(object):
       #r.time = i
       r.attendeeCount = a
       self.records[(date, i)] = r
-      
+
   def updateRecord(self, date, t, consumption):
     # Get rid of time and AM/PM if needed
     date = date.split()[0]
-    
+
     # Convert to (yyyy, mmm, dd)
     date = date.split('/')
-    
+
     # Convert day to 'dd'
     dd = int(date[0])
     # Convert month index to month name
@@ -116,54 +118,54 @@ class Club(object):
     # Locate record
     key = ((yyyy, mm, dd), t)
     if not key in self.records:
-      print self.name, 'is missing attendance data for', key
+      print(self.name, 'is missing attendance data for', key)
     else:
       r = self.records[key]
       r.consumption = consumption
-          
+
 def processClubAttendance(f, clubs):
   """Process the attendance data of one club
-  
+
   If the club already exists in the list update its data.
   If the club is new create a new Club object and add it to the dict
-  
+
   The next step is to iterate over all the lines and add a record for each line.
   When reaching an empty line it means there are no more records for this club.
-  
+
   Along the way some redundant lines are skipped. When the file ends the f.next()
   call raises a StopIteration exception and that's the sign to return False,
   which indicates to the caller that there are no more clubs to process.
   """
   try:
     # Skip as many empty lines as necessary (file format inconsistent)
-    line = f.next()
+    line = next(f)
     while line == ',,,,,,,,,,,,,,,,,,,\n':
-      line = f.next()
-    
+      line = next(f)
+
     # The first non-empty line should have the name as the first field
     name = line.split(',')[0]
-    
+
     # Create a new club object if needed
     if name not in clubs:
       clubs[name] = Club(name)
-    
+
     # Get the named club
     c = clubs[name]
-    
-    c.processAttendance(f)      
+
+    c.processAttendance(f)
     return True
   except StopIteration:
     return False
-  
+
 def fixEOL(f):
   """Make sure the end of line character is '\n'
-  
+
   This is needed in order to use fileinput.input() to process the files. The
   file format of the raw gym dataset unfortunately contains \r (old Mac format)
   EOL characters.
   """
   text = open(f).read()
-  
+
   # If there are no carriage returns (\r) just return
   if text.find('\r') == -1:
     return
@@ -171,13 +173,13 @@ def fixEOL(f):
   text = text.replace('\r\n', '\n')
   # Takes care of old Mac format
   text = text.replace('\r', '\n')
-  
+
   open(f, 'w').write(text)
 
 
 def processClubConsumption(f, clubs):
   """Process the consumption a club
-  
+
   - Skip the header line
   - Iterate over lines
     - Read 4 records at a time
@@ -188,10 +190,10 @@ def processClubConsumption(f, clubs):
   """
   try:
     # Skip header line
-    line = f.next()
+    line = next(f)
     assert line.endswith('"   ","SITE_LOCATION_NAME","TIMESTAMP","TOTAL_KWH"\n')
 
-    valid_times = range(24)
+    valid_times = list(range(24))
     t = 0 # used to track time
     club = None
     clubName = None
@@ -208,60 +210,60 @@ def processClubConsumption(f, clubs):
           # Strip the redundant double quotes
           assert field[0] == '"' and field[-1] == '"'
           fields[i] = field[1:-1]
-        
+
         # Ignoring field 0, which is just a running count
-        
-        # Get the club name  
+
+        # Get the club name
         name = fields[1]
-        
+
         # Hack to fix inconsistent club names like: "Melbourne CBD - Melbourne Central" vs. "Melbourne Central"
         partialNames = ('Melbourne Central', 'North Sydney', 'Park St', 'Pitt St')
         for pn in partialNames:
           if pn in name:
             name = pn
-        
+
         # Locate the club if needed (maybe )
         if name != clubName:
           clubName = name
           club = clubs[name]
-        
+
         # Split the date (time is counted using the t variable)
         tokens = fields[2].split()
-        
+
         # Verify that t == 0 and consumption == 0 when there is no time in the file
         if len(tokens) == 1:
           assert consumption == 0 and t == 0
-        
+
         # The first (and sometimes only) token is the date
         date = tokens[0]
-                
+
         # Aggregate the consumption
         consumption += float(fields[3])
-      
-      # Update the Club object after aggregating the consumption of 4 lines 
+
+      # Update the Club object after aggregating the consumption of 4 lines
       club.updateRecord(date, t, consumption)
-      
+
       # Increment time
       t += 1
       t %= 24
   except StopIteration:
     return
-  
+
 def processAttendanceFiles():
   files = glob.glob('Attendance*.csv')
   # Make sure EOL is '\n'
   for f in files:
     fixEOL(f)
-  
+
   f = fileinput.input(files=files)
 
   # Process the input files and create a dictionary of Club objects
   clubs = {}
   while processClubAttendance(f, clubs):
     pass
-  
+
   return clubs
-        
+
 def processConsumptionFiles(clubs):
   """
   """
@@ -269,13 +271,13 @@ def processConsumptionFiles(clubs):
   # Make sure EOL is '\n'
   for f in files:
     fixEOL(f)
-  
+
   f = fileinput.input(files=files)
 
   # Process the input files and create a dictionary of Club objects
   while processClubConsumption(f, clubs):
     pass
-  
+
   return clubs
 
 def makeDataset():
@@ -283,8 +285,8 @@ def makeDataset():
   """
   clubs = processAttendanceFiles()
   clubs = processConsumptionFiles(clubs)
-  
-  
+
+
   fields = [('gym', 'string', 'S'),
             ('timestamp', 'datetime', 'T'),
             ('attendeeCount', 'int', ''),
@@ -293,8 +295,8 @@ def makeDataset():
   with File('gym.csv', fields) as f:
     ## write header
     #f.write('Gym Name,Date,Time,Attendee Count,Consumption (KWH)\n')
-    for c in clubs.values():
-      for k, r in sorted(c.records.iteritems(), key=operator.itemgetter(0)):          
+    for c in list(clubs.values()):
+      for k, r in sorted(iter(c.records.items()), key=operator.itemgetter(0)):
         #dd = r.date[2]
         #mm = r.date[1]
         #yyyy = r.date[0]
@@ -302,8 +304,8 @@ def makeDataset():
         #          (c.name, '%d-%s-%d' % (dd, mmm, yyyy), r.time, r.attendeeCount, r.consumption))
         #f.write(line + '\n')
         f.write([r.club, r.timestamp, r.attendeeCount, r.consumption])
-      
+
 if __name__=='__main__':
   makeDataset()
-  print 'Done.'
-  
+  print('Done.')
+

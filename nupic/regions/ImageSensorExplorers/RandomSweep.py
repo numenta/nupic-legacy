@@ -83,7 +83,7 @@ class RandomSweep(BaseExplorer):
     # Pick a random direction and filtered image
     self.direction = self.random.choice(self.sweepDirections)
     self.position['image'] = self.random.randint(0, self.numImages - 1)
-    for i in xrange(self.numFilters):
+    for i in range(self.numFilters):
       self.position['filters'][i] = self.random.randint(0,
         self.numFilterOutputs[i] - 1)
     filteredImages = self.getFilteredImages()

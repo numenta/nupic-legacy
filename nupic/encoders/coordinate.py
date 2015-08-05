@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import hashlib
 import itertools
 
@@ -127,7 +129,7 @@ class CoordinateEncoder(Encoder):
 
     @return (numpy.array) List of coordinates
     """
-    ranges = [range(n-radius, n+radius+1) for n in coordinate.tolist()]
+    ranges = [list(range(n-radius, n+radius+1)) for n in coordinate.tolist()]
     return numpy.array(list(itertools.product(*ranges)))
 
 
@@ -186,9 +188,9 @@ class CoordinateEncoder(Encoder):
 
 
   def dump(self):
-    print "CoordinateEncoder:"
-    print "  w:   %d" % self.w
-    print "  n:   %d" % self.n
+    print("CoordinateEncoder:")
+    print("  w:   %d" % self.w)
+    print("  n:   %d" % self.n)
 
 
   @classmethod

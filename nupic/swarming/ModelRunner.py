@@ -19,13 +19,15 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+from six import StringIO
+
 import json
 import time
 import logging
 import os
 import sys
 import shutil
-import StringIO
 import threading
 import traceback
 from collections import deque
@@ -93,7 +95,7 @@ class OPFModelRunner(object):
     modelCheckpointGUID:
                         A persistent, globally-unique identifier for
                         constructing the model checkpoint key. If None, then
-                        don't bother creating a model checkpoint. 
+                        don't bother creating a model checkpoint.
     logLevel:           override logging level to this value, if not None
     predictionCacheMaxRecords:
                         Maximum number of records for the prediction output cache.
@@ -344,7 +346,7 @@ class OPFModelRunner(object):
         inputRecord = self._inputSource.getNextRecordDict()
         if self._currentRecordIndex < 0:
           self._inputSource.setTimeout(10)
-      except Exception, e:
+      except Exception as e:
         raise utils.JobFailException(ErrorCodes.streamReading, str(e.args),
                                      traceback.format_exc())
 
@@ -431,7 +433,7 @@ class OPFModelRunner(object):
     if self._predictionLogger is None:
       self._createPredictionLogger()
 
-    predictions = StringIO.StringIO()
+    predictions = StringIO()
     self._predictionLogger.checkpoint(
       checkpointSink=predictions,
       maxRows=int(Configuration.get('nupic.model.checkpoint.maxPredictionRows')))
@@ -585,7 +587,7 @@ class OPFModelRunner(object):
     # Update model results
     results = json.dumps((metrics , optimizeDict))
     self._jobsDAO.modelUpdateResults(self._modelID,  results=results,
-                              metricValue=optimizeDict.values()[0],
+                              metricValue=list(optimizeDict.values())[0],
                               numRecords=(self._currentRecordIndex + 1))
 
     self._logger.debug(
@@ -878,7 +880,7 @@ class OPFModelRunner(object):
 
     # Update a hadoop job counter at least once every 600 seconds so it doesn't
     #  think our map task is dead
-    print >>sys.stderr, "reporter:counter:HypersearchWorker,numRecords,50"
+    print("reporter:counter:HypersearchWorker,numRecords,50", file=sys.stderr)
 
     # See if the job got cancelled
     jobCancel = self._jobsDAO.jobGetFields(self._jobID, ['cancel'])[0]

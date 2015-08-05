@@ -354,7 +354,7 @@ class DateEncoder(Encoder):
 
       # Encoder each sub-field
       result = []
-      for i in xrange(len(self.encoders)):
+      for i in range(len(self.encoders)):
         (name, encoder, offset) = self.encoders[i]
         result.extend(encoder.getBucketIndices(scalars[i]))
       return result
@@ -373,7 +373,7 @@ class DateEncoder(Encoder):
       # Get the scalar values for each sub-field
       scalars = self.getScalars(input)
       # Encoder each sub-field
-      for i in xrange(len(self.encoders)):
+      for i in range(len(self.encoders)):
         (name, encoder, offset) = self.encoders[i]
         encoder.encodeIntoArray(scalars[i], output[offset:])
 

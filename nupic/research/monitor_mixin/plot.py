@@ -22,6 +22,9 @@
 """
 Plot class used in monitor mixin framework.
 """
+
+from __future__ import print_function
+
 import traceback
 
 try:
@@ -29,8 +32,8 @@ try:
   import matplotlib.pyplot as plt
   import matplotlib.cm as cm
 except ImportError:
-  print "Cannot import matplotlib. Plot class will not work."
-  print traceback.format_exc() + "\n"
+  print("Cannot import matplotlib. Plot class will not work.")
+  print(traceback.format_exc() + "\n")
 
 
 class Plot(object):

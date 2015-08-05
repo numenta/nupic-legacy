@@ -24,7 +24,7 @@
 Unit tests for functionsource.
 """
 
-import pickle
+from six.moves import cPickle as pickle
 import unittest
 
 from nupic.data import FunctionSource

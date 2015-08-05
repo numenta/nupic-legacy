@@ -22,6 +22,8 @@
 
 """Tests OPF descriptionTemplate.py-based experiment/sub-experiment pair"""
 
+from __future__ import print_function
+
 import os
 import pprint
 import sys
@@ -278,8 +280,8 @@ def _executeExternalCmdAndReapOutputs(args):
 def _debugOut(msg):
   if g_debug:
     callerTraceback = whoisCallersCaller()
-    print "OPF TestDescriptionTemplate (f=%s;line=%s): %s" % \
-            (callerTraceback.function, callerTraceback.lineno, msg,)
+    print("OPF TestDescriptionTemplate (f=%s;line=%s): %s" % \
+            (callerTraceback.function, callerTraceback.lineno, msg,))
     sys.stdout.flush()
 
 

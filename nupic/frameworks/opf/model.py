@@ -21,7 +21,8 @@
 
 """Module defining the OPF Model base class."""
 
-import cPickle as pickle
+from six import with_metaclass
+from six.moves import cPickle as pickle
 import os
 import shutil
 from abc import ABCMeta, abstractmethod
@@ -30,14 +31,12 @@ import nupic.frameworks.opf.opfutils as opfutils
 
 
 
-class Model(object):
+class Model(with_metaclass(ABCMeta, object)):
   """ This is the base class that all OPF Model implementations should
   subclass.
   It includes a number of virtual methods, to be overridden by subclasses,
   as well as some shared functionality for saving/loading models
   """
-
-  __metaclass__ = ABCMeta
 
   def __init__(self, inferenceType):
     """ Model constructor.

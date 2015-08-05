@@ -23,18 +23,20 @@
 Trace classes used in monitor mixin framework.
 """
 
+from __future__ import print_function
+from six import with_metaclass
+
 import abc
 
 import numpy
 
 
 
-class Trace(object):
+class Trace(with_metaclass(abc.ABCMeta, object)):
   """
   A record of the past data the algorithm has seen, with an entry for each
   iteration.
   """
-  __metaclass__ = abc.ABCMeta
 
 
   def __init__(self, monitor, title):

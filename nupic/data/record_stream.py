@@ -21,15 +21,15 @@
 
 """Interface for different types of storages (file, hbase, rio, etc)."""
 
+from six import Iterator, with_metaclass
+
 from abc import ABCMeta, abstractmethod
 import datetime
 
 
 
-class RecordStreamIface(object):
+class RecordStreamIface(with_metaclass(ABCMeta, Iterator)):
   """This is the interface for the record input/output storage classes."""
-
-  __metaclass__ = ABCMeta
 
 
   def __init__(self):
@@ -51,10 +51,10 @@ class RecordStreamIface(object):
   def getNextRecord(self, useCache=True):
     """Returns next available data record from the storage. If useCache is
     False, then don't read ahead and don't cache any records.
-    
+
     Raises nupic.support.exceptions.StreamDisappearedError if stream
     disappears (e.g., gets garbage-collected).
-    
+
     retval: a data row (a list or tuple) if available; None, if no more records
              in the table (End of Stream - EOS); empty sequence (list or tuple)
              when timing out while waiting for the next record.
@@ -67,19 +67,19 @@ class RecordStreamIface(object):
       '_category': The value from the category field (if any)
       '_reset': True if the reset field was True (if any)
       '_sequenceId': the value from the sequenceId field (if any)
-    
+
     """
-    
+
     values = self.getNextRecord()
     if values is None:
       return None
-    
+
     if not values:
       return dict()
-    
+
     # Create the return dict
-    result = dict(zip(self.getFieldNames(), values))
-    
+    result = dict(list(zip(self.getFieldNames(), values)))
+
     # Add in the special fields
     catIdx = self.getCategoryFieldIdx()
     resetIdx = self.getResetFieldIdx()
@@ -100,19 +100,19 @@ class RecordStreamIface(object):
       result['_reset'] = int(bool(values[resetIdx]))
     else:
       result['_reset'] = 0
-      
+
     if learningIdx is not None:
       result['_learning'] = int(bool(values[learningIdx]))
-      
+
     result['_timestampRecordIdx'] = None
     if timeIdx is not None:
-      result['_timestamp'] = values[timeIdx]      
+      result['_timestamp'] = values[timeIdx]
       # Compute the record index based on timestamp
       result['_timestampRecordIdx'] = self._computeTimestampRecordIdx(
                                                         values[timeIdx])
     else:
       result['_timestamp'] = None
-    
+
     # -----------------------------------------------------------------------
     # Figure out the sequence ID
     hasReset = resetIdx is not None
@@ -123,50 +123,50 @@ class RecordStreamIface(object):
         try:
           self._sequenceId += 1
         except:
-          import pdb; pdb.set_trace() 
+          import pdb; pdb.set_trace()
       sequenceId = self._sequenceId
-      
+
     elif not hasReset and hasSequenceId:
       sequenceId = values[sequenceIdx]
       result['_reset'] = int(sequenceId != self._sequenceId)
       self._sequenceId = sequenceId
-      
+
     elif hasReset and hasSequenceId:
       sequenceId = values[sequenceIdx]
-      
+
     else:
       sequenceId = 0
-      
+
     if sequenceId is not None:
       result['_sequenceId'] = hash(sequenceId)
     else:
       result['_sequenceId'] = None
-    
+
     return result
 
 
   def _computeTimestampRecordIdx(self, recordTS):
     """ Give the timestamp of a record (a datetime object), compute the record's
-    timestamp index - this is the timestamp divided by the aggregation period. 
-    
-    
+    timestamp index - this is the timestamp divided by the aggregation period.
+
+
     Parameters:
     ------------------------------------------------------------------------
     recordTS:  datetime instance
-    retval:    record timestamp index, or None if no aggregation period 
+    retval:    record timestamp index, or None if no aggregation period
     """
-    
+
     aggPeriod = self.getAggregationMonthsAndSeconds()
     if aggPeriod is None:
       return None
-    
-    # Base record index on number of elapsed months if aggregation is in 
+
+    # Base record index on number of elapsed months if aggregation is in
     #  months
     if aggPeriod['months'] > 0:
       assert aggPeriod['seconds'] == 0
       result = \
         int((recordTS.year * 12 + (recordTS.month-1)) / aggPeriod['months'])
-        
+
     # Base record index on elapsed seconds
     elif aggPeriod['seconds'] > 0:
       delta = recordTS - datetime.datetime(year=1, month=1, day=1)
@@ -174,29 +174,29 @@ class RecordStreamIface(object):
                 + delta.seconds               \
                 + delta.microseconds / 1000000.0
       result = int(deltaSecs / aggPeriod['seconds'])
-    
+
     else:
       result = None
-      
+
     return result
 
 
   def getAggregationMonthsAndSeconds(self):
-    """ Returns the aggregation period of the record stream as a dict 
+    """ Returns the aggregation period of the record stream as a dict
     containing 'months' and 'seconds'. The months is always an integer and
-    seconds is a floating point. Only one is allowed to be non-zero.  
-    
-    If there is no aggregation associated with the stream, returns None. 
-    
+    seconds is a floating point. Only one is allowed to be non-zero.
+
+    If there is no aggregation associated with the stream, returns None.
+
     Typically, a raw file or hbase stream will NOT have any aggregation info,
     but subclasses of RecordStreamIFace, like StreamReader, will and will
     return the aggregation period from this call. This call is used by the
     getNextRecordDict() method to assign a record number to a record given
     its timestamp and the aggregation interval
-    
+
     Parameters:
     ------------------------------------------------------------------------
-    retval: aggregationPeriod (as a dict) or None  
+    retval: aggregationPeriod (as a dict) or None
               'months': number of months in aggregation period
               'seconds': number of seconds in aggregation period (as a float)
     """

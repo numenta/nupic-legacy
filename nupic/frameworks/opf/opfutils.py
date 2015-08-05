@@ -130,9 +130,9 @@ class InferenceElement(Enum(
     inferences:   A dictionary where the keys are InferenceElements
     """
     maxDelay = 0
-    for inferenceElement, inference in inferences.iteritems():
+    for inferenceElement, inference in inferences.items():
       if isinstance(inference, dict):
-        for key in inference.iterkeys():
+        for key in inference.keys():
           maxDelay = max(InferenceElement.getTemporalDelay(inferenceElement,
                                                             key),
                          maxDelay)

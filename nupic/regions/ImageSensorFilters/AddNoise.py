@@ -88,10 +88,10 @@ class AddNoise(BaseFilter):
       noiseArrayH = numpy.floor(imgHeight/float(self.noiseThickness))
       thickNoise = numpy.random.random((noiseArrayH, noiseArrayW))
       thickNoise = 255*(thickNoise < self.noiseLevel)
-      idxW = numpy.array([int(self.noiseThickness*i) for i in xrange(noiseArrayW)])
-      idxH = numpy.array([int(self.noiseThickness*i) for i in xrange(noiseArrayH)])
-      for nt1 in xrange(self.noiseThickness):
-        for nt2 in xrange(self.noiseThickness):
+      idxW = numpy.array([int(self.noiseThickness*i) for i in range(noiseArrayW)])
+      idxH = numpy.array([int(self.noiseThickness*i) for i in range(noiseArrayH)])
+      for nt1 in range(self.noiseThickness):
+        for nt2 in range(self.noiseThickness):
           submatIdx = numpy.ix_(idxH + nt1, idxW + nt2)
           if self.doForeground and self.doBackground:
             pixels2d[submatIdx] ^= thickNoise

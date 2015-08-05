@@ -25,7 +25,7 @@ images, as well as a list of supported image extensions.
 """
 
 import math
-from StringIO import StringIO
+from io import StringIO
 
 from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageOps
 import numpy
@@ -196,7 +196,7 @@ def blur(image, radius, sigma=None, edgeColor=None):
       kernel = numpy.ones(length, numpy.float32)
     else:
       kernel = numpy.zeros(length, numpy.float32)
-      for x in xrange(radius):
+      for x in range(radius):
         val = 1 / (sigma * 2 * math.pi)
         val *= math.exp(-1 * x**2 / (2 * sigma**2))
         kernel[radius - 1 + x] = val
@@ -365,7 +365,7 @@ def erode(image, iterations=1):
     # Dialation
     iterations = -iterations
     f = ImageFilter.MaxFilter(3)
-  for i in xrange(iterations):
+  for i in range(iterations):
     image = image.filter(f)
   return image
 

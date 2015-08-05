@@ -1,7 +1,9 @@
+from __future__ import print_function
+
 from pprint import pprint as pp
 
 import numpy
-from PyRegion import PyRegion
+from .PyRegion import PyRegion
 
 
 class TestNode(PyRegion):
@@ -125,7 +127,7 @@ class TestNode(PyRegion):
       commands=dict()
     )
 
-    print result
+    print(result)
     return result
 
   def __init__(self, *args, **kwargs):
@@ -161,7 +163,7 @@ class TestNode(PyRegion):
     self.outputElementCount = 2 # used for computation
     self._delta = 1
     self._iter = 0
-    for i in xrange(0,4):
+    for i in range(0,4):
       self.parameters["int64ArrayParam"][i] = i*64
 
   def getParameter(self, name, index):
@@ -173,14 +175,14 @@ class TestNode(PyRegion):
     self.parameters[name] = value
 
   def initialize(self, dims, splitterMaps):
-    print 'TestNode.initialize() here.'
+    print('TestNode.initialize() here.')
     assert len(dims) == 2
     self.dims = dims
     self.nodeCount = dims[0] * dims[1]
     self.splitterMap = splitterMaps['bottomUpIn']
-    print 'self.nodeCount:', self.nodeCount
-    print 'self.splitterMap:', self.splitterMap
-    print
+    print('self.nodeCount:', self.nodeCount)
+    print('self.splitterMap:', self.splitterMap)
+    print()
 
   def _getInputForNode(self, input, index):
     #from dbgp.client import brk; brk(port=9019)
@@ -196,14 +198,14 @@ class TestNode(PyRegion):
     if self._failInCompute:
       assert False, 'TestNode.compute() Failing on purpose as requested'
 
-    print 'TestNode.compute() here.'
-    print 'splitter map:',
+    print('TestNode.compute() here.')
+    print('splitter map:', end=' ')
     pp(self.splitterMap)
-    print
+    print()
 
-    print 'inputs:',
+    print('inputs:', end=' ')
     pp(inputs)
-    print
+    print()
 
     if not 'bottomUpIn' in inputs:
       bottomUpIn = [0] * 8
@@ -227,15 +229,15 @@ class TestNode(PyRegion):
       for i in range(1, self.outputElementCount):
         value = node + x + (i - 1) * self._delta
         bottomUpOut[base+i] = value
-        print 'index, value:', base+i, value
-        print bottomUpOut[:base+i+1]
-        print '-----'
+        print('index, value:', base+i, value)
+        print(bottomUpOut[:base+i+1])
+        print('-----')
 
     self._iter += 1
 
-    print 'outputs:',
+    print('outputs:', end=' ')
     pp(outputs)
-    print
+    print()
 
   def getOutputElementCount(self, name):
     assert name == 'bottomUpOut'
@@ -243,7 +245,7 @@ class TestNode(PyRegion):
 
   def getParameterArrayCount(self, name, index):
     assert name.endswith('ArrayParam')
-    print 'len(self.parameters[%s]) = %d' % (name, len(self.parameters[name]))
+    print('len(self.parameters[%s]) = %d' % (name, len(self.parameters[name])))
     return len(self.parameters[name])
 
   def getParameterArray(self, name, index, array):

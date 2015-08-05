@@ -41,6 +41,8 @@ Test N: test that all the parameters of a TP region work properly
 
 """
 
+from __future__ import print_function
+
 import numpy
 import os
 import json
@@ -67,7 +69,7 @@ g_tpRegionConfig = None
 
 
 def _initConfigDicts():
-  
+
   # ============================================================================
   # Config field for SPRegion
   global g_spRegionConfig  # pylint: disable=W0603
@@ -79,7 +81,7 @@ def _initConfigDicts():
     spatialImp = 'cpp',
     seed = _SEED,
     )
-  
+
   # ============================================================================
   # Config field for TPRegion
   global g_tpRegionConfig  # pylint: disable=W0603
@@ -158,7 +160,7 @@ def _createOPFNetwork(addSP = True, addTP = False):
   # ==========================================================================
   # Add the SP if requested
   if addSP:
-    print "Adding SPRegion"
+    print("Adding SPRegion")
     g_spRegionConfig['inputWidth'] = encoder.getWidth()
     n.addRegion("level1SP", "py.SPRegion", json.dumps(g_spRegionConfig))
 
@@ -174,7 +176,7 @@ def _createOPFNetwork(addSP = True, addTP = False):
   if addTP and addSP:
     # Add the TP on top of SP if requested
     # The input width of the TP is set to the column count of the SP
-    print "Adding TPRegion on top of SP"
+    print("Adding TPRegion on top of SP")
     g_tpRegionConfig['inputWidth'] = g_spRegionConfig['columnCount']
     n.addRegion("level1TP", "py.TPRegion", json.dumps(g_tpRegionConfig))
     n.link("level1SP", "level1TP", "UniformLink", "")
@@ -186,7 +188,7 @@ def _createOPFNetwork(addSP = True, addTP = False):
   elif addTP:
     # Add a lone TPRegion if requested
     # The input width of the TP is set to the encoder width
-    print "Adding TPRegion"
+    print("Adding TPRegion")
     g_tpRegionConfig['inputWidth'] = encoder.getWidth()
     n.addRegion("level1TP", "py.TPRegion", json.dumps(g_tpRegionConfig))
 
@@ -203,7 +205,7 @@ class OPFRegionTest(TestCaseBase):
 
   def setUp(self):
     _initConfigDicts()
-  
+
   # ============================================================================
   def testSaveAndReload(self):
     """
@@ -212,79 +214,79 @@ class OPFRegionTest(TestCaseBase):
     then run both networks for 100 iterations and ensure they return identical
     results.
     """
-  
-    print "Creating network..."
-  
+
+    print("Creating network...")
+
     netOPF = _createOPFNetwork()
     level1OPF = netOPF.regions['level1SP']
-  
+
     # ==========================================================================
-    print "Training network for 500 iterations"
+    print("Training network for 500 iterations")
     level1OPF.setParameter('learningMode', 1)
     level1OPF.setParameter('inferenceMode', 0)
     netOPF.run(500)
     level1OPF.setParameter('learningMode', 0)
     level1OPF.setParameter('inferenceMode', 1)
-  
+
     # ==========================================================================
     # Save network and reload as a second instance. We need to reset the data
     # source for the unsaved network so that both instances start at the same
     # place
-    print "Saving and reload network"
+    print("Saving and reload network")
     _, tmpNetworkFilename = _setupTempDirectory("trained.nta")
     netOPF.save(tmpNetworkFilename)
     netOPF2 = Network(tmpNetworkFilename)
     level1OPF2 = netOPF2.regions['level1SP']
-  
+
     sensor = netOPF.regions['sensor'].getSelf()
     trainFile = resource_filename("nupic.datafiles", "extra/gym/gym.csv")
     sensor.dataSource = FileRecordStream(streamID=trainFile)
     sensor.dataSource.setAutoRewind(True)
-  
+
     # ==========================================================================
-    print "Running inference on the two networks for 100 iterations"
-    for _ in xrange(100):
+    print("Running inference on the two networks for 100 iterations")
+    for _ in range(100):
       netOPF2.run(1)
       netOPF.run(1)
       l1outputOPF2 = level1OPF2.getOutputData("bottomUpOut")
       l1outputOPF  = level1OPF.getOutputData("bottomUpOut")
       opfHash2 = l1outputOPF2.nonzero()[0].sum()
       opfHash  = l1outputOPF.nonzero()[0].sum()
-  
+
       self.assertEqual(opfHash2, opfHash)
-  
+
   # ============================================================================
   def testMaxEnabledPhase(self):
     """ Test maxEnabledPhase"""
-  
-    print "Creating network..."
-  
+
+    print("Creating network...")
+
     netOPF = _createOPFNetwork(addSP = True, addTP = True)
     netOPF.initialize()
     level1SP = netOPF.regions['level1SP']
     level1SP.setParameter('learningMode', 1)
     level1SP.setParameter('inferenceMode', 0)
-  
+
     tp = netOPF.regions['level1TP']
     tp.setParameter('learningMode', 0)
     tp.setParameter('inferenceMode', 0)
-  
-    print "maxPhase,maxEnabledPhase = ", netOPF.maxPhase, \
-                                      netOPF.getMaxEnabledPhase()
+
+    print("maxPhase,maxEnabledPhase = ", netOPF.maxPhase, \
+                                      netOPF.getMaxEnabledPhase())
     self.assertEqual(netOPF.maxPhase, 2)
     self.assertEqual(netOPF.getMaxEnabledPhase(), 2)
 
-    print "Setting setMaxEnabledPhase to 1"
+    print("Setting setMaxEnabledPhase to 1")
     netOPF.setMaxEnabledPhase(1)
-    print "maxPhase,maxEnabledPhase = ", netOPF.maxPhase, \
-                                      netOPF.getMaxEnabledPhase()
+    print("maxPhase,maxEnabledPhase = ", netOPF.maxPhase, \
+                                      netOPF.getMaxEnabledPhase())
     self.assertEqual(netOPF.maxPhase, 2)
     self.assertEqual(netOPF.getMaxEnabledPhase(), 1)
 
     netOPF.run(1)
-  
-    print "RUN SUCCEEDED"
-  
+
+    print("RUN SUCCEEDED")
+
     # TODO: The following does not run and is probably flawed.
     """
     print "\nSetting setMaxEnabledPhase to 2"
@@ -292,9 +294,9 @@ class OPFRegionTest(TestCaseBase):
     print "maxPhase,maxEnabledPhase = ", netOPF.maxPhase, \
                                       netOPF.getMaxEnabledPhase()
     netOPF.run(1)
-  
+
     print "RUN SUCCEEDED"
-  
+
     print "\nSetting setMaxEnabledPhase to 1"
     netOPF.setMaxEnabledPhase(1)
     print "maxPhase,maxEnabledPhase = ", netOPF.maxPhase, \

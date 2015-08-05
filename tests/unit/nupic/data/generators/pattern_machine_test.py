@@ -78,7 +78,7 @@ class PatternMachineTest(unittest.TestCase):
     pattern = self.patternMachine.get(49)
     numberMap = self.patternMachine.numberMapForBits(pattern)
 
-    self.assertEqual(numberMap.keys(), [49])
+    self.assertEqual(list(numberMap.keys()), [49])
     self.assertEqual(numberMap[49], pattern)
 
 

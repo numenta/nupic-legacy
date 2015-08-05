@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import os
 
 import numpy
@@ -464,10 +466,10 @@ class BoxFixer(BaseFilter):
       if self._imgCounter == 0:
         mode = 'w'
         self._logBox = open("LOGBOX.txt", mode)
-      print >>self._logBox, "%d    %d %d %d %d    %d %d %d %d" % \
+      print("%d    %d %d %d %d    %d %d %d %d" % \
                       (self._imgCounter,
                        origBox[0], origBox[1], origBox[2], origBox[3],
-                       box[0], box[1], box[2], box[3])
+                       box[0], box[1], box[2], box[3]), file=self._logBox)
 
     self._imgCounter += 1
 
@@ -521,7 +523,7 @@ class BoxFixer(BaseFilter):
       """
 
       if x.ndim != 1:
-          raise ValueError, "smooth only accepts 1 dimension arrays."
+          raise ValueError("smooth only accepts 1 dimension arrays.")
 
       if x.size < window_len:
           window_len = x.size
@@ -530,7 +532,7 @@ class BoxFixer(BaseFilter):
           return x
 
       if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
-          raise ValueError, "Window is on of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'"
+          raise ValueError("Window is on of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'")
 
 
       s=numpy.r_[2*x[0]-x[window_len:1:-1],x,2*x[-1]-x[-1:-window_len:-1]]
@@ -580,7 +582,7 @@ class BoxFixer(BaseFilter):
         # with a bbox of 'None'.  Nothing much we can do
         if bbox is None:
           bbox = (0, 0, image.size[0], image.size[1])
-          print 'WARNING: empty alpha channel'
+          print('WARNING: empty alpha channel')
 
         # Ascertain the original raw size of the tracking box
         width  = bbox[2] - bbox[0]

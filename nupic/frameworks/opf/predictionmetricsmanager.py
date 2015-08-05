@@ -22,6 +22,8 @@
 # This script implements PredictionMetricsManager, a helper class that handles
 # pooling of multiple record and field prediction metrics calculators
 
+from __future__ import print_function
+
 import logging
 import copy
 import pprint
@@ -31,7 +33,7 @@ from collections import (namedtuple,
 from nupic.data.inference_shifter import InferenceShifter
 from nupic.frameworks.opf import metrics
 
-from opfutils import InferenceType, InferenceElement
+from .opfutils import InferenceType, InferenceElement
 
 
 
@@ -106,7 +108,7 @@ class MetricsManager(object):
     #print "\n\n---------------------------------------------------------------"
     #print "Model results: \nrawInput:%s \ninferences:%s" % \
     #      (pprint.pformat(results.rawInput), pprint.pformat(results.inferences))
-          
+
     self._addResults(results)
 
     if  not self.__metricSpecs \
@@ -296,7 +298,7 @@ def test():
 
 
 def _testMetricsMgr():
-  print "*Testing Metrics Managers*..."
+  print("*Testing Metrics Managers*...")
   from nupic.data.fieldmeta import (
     FieldMetaInfo,
     FieldMetaType,
@@ -307,7 +309,7 @@ def _testMetricsMgr():
   onlineMetrics = (MetricSpec(metric="aae", inferenceElement='', \
                               field="consumption", params={}),)
 
-  print "TESTING METRICS MANAGER (BASIC PLUMBING TEST)..."
+  print("TESTING METRICS MANAGER (BASIC PLUMBING TEST)...")
 
   modelFieldMetaInfo = (
     FieldMetaInfo(name='temperature',
@@ -326,10 +328,10 @@ def _testMetricsMgr():
     fieldInfo=modelFieldMetaInfo,
     inferenceType=InferenceType.TemporalNextStep)
   except ValueError:
-    print "Caught bad inference element: PASS"
+    print("Caught bad inference element: PASS")
 
 
-  print
+  print()
   onlineMetrics = (MetricSpec(metric="aae",
                               inferenceElement=InferenceElement.prediction,
                               field="consumption", params={}),)
@@ -388,10 +390,10 @@ def _testMetricsMgr():
 
     temporalMetrics.update(result)
 
-  assert temporalMetrics.getMetrics().values()[0] == 15.0 / 3.0, \
+  assert list(temporalMetrics.getMetrics().values())[0] == 15.0 / 3.0, \
           "Expected %f, got %f" %(15.0/3.0,
-                                  temporalMetrics.getMetrics().values()[0])
-  print "ok"
+                                  list(temporalMetrics.getMetrics().values())[0])
+  print("ok")
 
   return
 
@@ -401,7 +403,7 @@ def _testTemporalShift():
   """ Test to see if the metrics manager correctly shifts records for multistep
   prediction cases
   """
-  print "*Testing Multistep temporal shift*..."
+  print("*Testing Multistep temporal shift*...")
   from nupic.data.fieldmeta import (
     FieldMetaInfo,
     FieldMetaType,
@@ -421,10 +423,10 @@ def _testTemporalShift():
                        inferenceType=InferenceType.TemporalMultiStep)
 
   groundTruths = [{'consumption':i} for i in range(10)]
-  oneStepInfs = reversed(range(10))
-  threeStepInfs = range(5, 15)
+  oneStepInfs = reversed(list(range(10)))
+  threeStepInfs = list(range(5, 15))
 
-  for iterNum, gt, os, ts in zip(xrange(10), groundTruths,
+  for iterNum, gt, os, ts in zip(range(10), groundTruths,
                               oneStepInfs, threeStepInfs):
     inferences = {InferenceElement.multiStepPredictions:{1: os, 3: ts}}
     sensorInput = SensorInput(dataDict = [gt])
@@ -449,7 +451,7 @@ def _testTemporalShift():
 
 
 def _testMetricLabels():
-  print "\n*Testing Metric Label Generation*..."
+  print("\n*Testing Metric Label Generation*...")
 
   from nupic.frameworks.opf.metrics import MetricSpec
 
@@ -479,11 +481,11 @@ def _testMetricLabels():
     try:
       assert test[0].getLabel() == test[1]
     except:
-      print "Failed Creating label"
-      print "Expected %s \t Got %s" % (test[1], test[0].getLabel())
+      print("Failed Creating label")
+      print("Expected %s \t Got %s" % (test[1], test[0].getLabel()))
       return
 
-  print "ok"
+  print("ok")
 
 
 

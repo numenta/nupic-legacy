@@ -25,7 +25,7 @@
 import unittest
 
 from numpy import array
-import pickle
+from six.moves import cPickle as pickle
 
 from nupic.algorithms import anomaly
 from nupic.algorithms.anomaly import Anomaly
@@ -123,7 +123,7 @@ class AnomalyTest(unittest.TestCase):
     aWeig = Anomaly(mode=Anomaly.MODE_WEIGHTED)
     # test anomaly with all whistles (MovingAverage, Likelihood, ...)
     aAll = Anomaly(mode=Anomaly.MODE_LIKELIHOOD, slidingWindowSize=5)
-    inst = [aDef, aLike, aWeig, aAll] 
+    inst = [aDef, aLike, aWeig, aAll]
 
     for a in inst:
       stored = pickle.dumps(a)
@@ -149,7 +149,7 @@ class AnomalyTest(unittest.TestCase):
     anN = Anomaly(slidingWindowSize=5, mode=Anomaly.MODE_WEIGHTED, binaryAnomalyThreshold=0.5)
     self.assertNotEqual(an, anN)
 
-    
+
 
 if __name__ == "__main__":
   unittest.main()

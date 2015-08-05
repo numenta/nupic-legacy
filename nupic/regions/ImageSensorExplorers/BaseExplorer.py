@@ -129,9 +129,9 @@ class BaseExplorer(object):
       self.restoreRandomState()
       self.first()
       if iteration > 0:
-        for i in xrange(iteration-1):
+        for i in range(iteration-1):
           self.next(seeking=True)
-        self.next()
+        next(self)
     else:
       if position['image'] is not None:
         self.position['image'] = position['image']
@@ -246,7 +246,7 @@ class BaseExplorer(object):
     position = {'image': image, 'filters': filterPosition}
     while True:
       filteredImages.append(self.getFilteredImages(position))
-      for i in xrange(self.numFilters-1, -1, -1):
+      for i in range(self.numFilters-1, -1, -1):
         filterPosition[i] += 1
         if filterPosition[i] == self.numFilterOutputs[i]:
           filterPosition[i] = 0
@@ -273,7 +273,7 @@ class BaseExplorer(object):
     """
 
     return [random.randint(0, self.numFilterOutputs[i] - 1)
-      for i in xrange(self.numFilters)]
+      for i in range(self.numFilters)]
 
   def centerImage(self):
     """
@@ -290,7 +290,7 @@ class BaseExplorer(object):
     """
 
     numFilteredVersions = 1
-    for i in xrange(self.numFilters):
+    for i in range(self.numFilters):
       numFilteredVersions *= self.numFilterOutputs[i]
     return numFilteredVersions
 

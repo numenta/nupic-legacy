@@ -27,6 +27,8 @@ numActiveColumnsPerInhArea.
 TODO: Fix this up to be more unit testy.
 """
 
+from __future__ import print_function
+
 import numpy
 
 import unittest2 as unittest

@@ -36,6 +36,8 @@ metrics.py file:
 
 """
 
+from __future__ import print_function
+
 import numpy as np
 
 
@@ -187,8 +189,8 @@ def AreaUnderCurve(x, y):
 def _printNPArray(x, precision=2):
   format = "%%.%df" % (precision)
   for elem in x:
-    print format % (elem),
-  print
+    print(format % (elem), end=' ')
+  print()
 
 
 
@@ -250,26 +252,26 @@ def _test():
   yScore = np.array([0.1, 0.4, 0.5, 0.3, 0.45])
   (fpr, tpr, thresholds) = ROCCurve(yTrue, yScore)
 
-  print "Actual:    ",
+  print("Actual:    ", end=' ')
   _printNPArray(yTrue)
 
-  print "Predicted: ",
+  print("Predicted: ", end=' ')
   _printNPArray(yScore)
-  print
+  print()
 
-  print "Thresholds:",
+  print("Thresholds:", end=' ')
   _printNPArray(thresholds[::-1])
 
-  print "FPR(x):    ",
+  print("FPR(x):    ", end=' ')
   _printNPArray(fpr)
 
-  print "TPR(y):    ",
+  print("TPR(y):    ", end=' ')
   _printNPArray(tpr)
 
 
-  print
+  print()
   area = AreaUnderCurve(fpr, tpr)
-  print "AUC: ", area
+  print("AUC: ", area)
 
 
 

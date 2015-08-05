@@ -23,6 +23,9 @@
 MonitorMixinBase class used in monitor mixin framework.
 """
 
+from __future__ import print_function
+from six import with_metaclass
+
 import abc
 
 import numpy
@@ -32,7 +35,7 @@ from nupic.research.monitor_mixin.plot import Plot
 
 
 
-class MonitorMixinBase(object):
+class MonitorMixinBase(with_metaclass(abc.ABCMeta, object)):
   """
   Base class for MonitorMixin. Each subclass will be a mixin for a particular
   algorithm.
@@ -40,7 +43,6 @@ class MonitorMixinBase(object):
   All arguments, variables, and methods in monitor mixin classes should be
   prefixed with "mm" (to avoid collision with the classes they mix in to).
   """
-  __metaclass__ = abc.ABCMeta
 
 
   def __init__(self, *args, **kwargs):
@@ -81,7 +83,7 @@ class MonitorMixinBase(object):
     assert len(traces) > 0, "No traces found"
     table = PrettyTable(["#"] + [trace.prettyPrintTitle() for trace in traces])
 
-    for i in xrange(len(traces[0].data)):
+    for i in range(len(traces[0].data)):
       if breakOnResets and breakOnResets.data[i]:
         table.add_row(["<reset>"] * (len(traces) + 1))
       table.add_row([i] +
@@ -160,7 +162,7 @@ class MonitorMixinBase(object):
     plot = Plot(self, title)
     resetTrace = self.mmGetTraceResets().data
     data = numpy.zeros((cellCount, 1))
-    for i in xrange(len(cellTrace)):
+    for i in range(len(cellTrace)):
       # Set up a "background" vector that is shaded or blank
       if showReset and resetTrace[i]:
         activity = numpy.ones((cellCount, 1)) * resetShading

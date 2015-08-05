@@ -27,6 +27,8 @@ prediction metrics. Limiting the number of permutations can cause the test to
 fail if it results in lower accuracy.
 """
 
+from __future__ import print_function
+
 import sys
 import os
 import time
@@ -37,7 +39,7 @@ import tempfile
 
 from optparse import OptionParser
 from multiprocessing import Process, Queue
-from Queue import Empty
+from queue import Empty
 from collections import deque
 
 from nupic.database import ClientJobsDAO as cjdao
@@ -148,12 +150,12 @@ class OPFBenchmarkRunner(unittest.TestCase):
     """ Function that cancels all the jobs in the
     process queue.
     """
-    print "Terminating all Jobs due to reaching timeout"
+    print("Terminating all Jobs due to reaching timeout")
     for proc in self.__procs:
       if not proc.is_alive():
 
         proc.terminate()
-    print "All jobs have been terminated"
+    print("All jobs have been terminated")
 
 
   def runJobs(self, maxJobs):
@@ -179,7 +181,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
         elif jobsindx == len(self.testQ):
 
           time.sleep(30)
-          print "Waiting for all scheduled tests to finish."
+          print("Waiting for all scheduled tests to finish.")
         #Update the number of active running processes.
         jobsrunning = self.__updateProcessCounter()
         for proc in self.__procs:
@@ -301,7 +303,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     done=False
     while(not done):
       done=True
-      for jobID in self.swarmJobIDProductionJobIDMap.keys():
+      for jobID in list(self.swarmJobIDProductionJobIDMap.keys()):
         if (jobsDB.jobGetFields(self.swarmJobIDProductionJobIDMap[jobID],
             ["status",])[0] != 'completed'):
           done=False
@@ -321,7 +323,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     outputDir=self.descriptions[dataSet][0]
     streamDef = self.descriptions[dataSet][1]["streamDef"]
     #streamDef["streams"][0]["first_record"]=self.splits[dataSet]
-    streamDef["streams"][0]["last_record"]=sys.maxint
+    streamDef["streams"][0]["last_record"]=sys.maxsize
 
     cmdLine = "$PRODUCTIONMODEL"
 
@@ -348,8 +350,8 @@ class OPFBenchmarkRunner(unittest.TestCase):
   def runProductionWorkers(self):
 
     jobsDB = cjdao.ClientJobsDAO.get()
-    print "Starting Production Worker Jobs"
-    print "__expJobMap " + str(self.__expJobMap) + str(id(self.__expJobMap))
+    print("Starting Production Worker Jobs")
+    print("__expJobMap " + str(self.__expJobMap) + str(id(self.__expJobMap)))
     while not self.__expJobMap.empty():
       (dataSet, jobID) = self.__expJobMap.get()
       modelCounterPairs = jobsDB.modelsGetUpdateCounters(jobID)
@@ -392,25 +394,25 @@ class OPFBenchmarkRunner(unittest.TestCase):
 
   @classmethod
   def setMetaOptimize(cls, paramString):
-    print paramString
+    print(paramString)
     if paramString is None:
       cls.__metaOptimize = False
     else:
       cls.__metaOptimize = True
       paramsDict=json.loads(paramString)
-      if(paramsDict.has_key("inertia")):
+      if("inertia" in paramsDict):
         os.environ['NTA_CONF_PROP_nupic_hypersearch_inertia'] = \
                   str(paramsDict['inertia'])
 
-      if(paramsDict.has_key('socRate')):
+      if('socRate' in paramsDict):
         os.environ['NTA_CONF_PROP_nupic_hypersearch_socRate'] = \
                   str(paramsDict['socRate'])
 
-      if(paramsDict.has_key('cogRate')):
+      if('cogRate' in paramsDict):
         os.environ['NTA_CONF_PROP_nupic_hypersearch_cogRate'] = \
                   str(paramsDict['cogRate'])
 
-      if(paramsDict.has_key('minParticlesPerSwarm')):
+      if('minParticlesPerSwarm' in paramsDict):
         os.environ['NTA_CONF_PROP_nupic_hypersearch_minParticlesPerSwarm'] = \
                    str(paramsDict['minParticlesPerSwarm'])
 
@@ -453,7 +455,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
 
 
   def removeTmpDirs(self):
-    print "Removing temporary directory <%s>" % self.outdir
+    print("Removing temporary directory <%s>" % self.outdir)
     if(self.onCluster()):
       os.system("onall rm -r %s" % self.outdir)
     else :
@@ -483,12 +485,12 @@ class OPFBenchmarkRunner(unittest.TestCase):
                         self.swarmJobIDProductionJobIDMap[restup["jobID"]],
                         ["results",])[0])['bestValue']
 
-      print ("Test: %10s      Expected: %10.4f     Swarm Error: %10.4f     "
+      print(("Test: %10s      Expected: %10.4f     Swarm Error: %10.4f     "
              "ProductionError: %10.4f   TotalModelWallTime: %8d    "
              "RecordsProcessed: %10d    Status: %10s") % \
             (key, self.benchmarkDB[key][0], restup['metric'],
              productionError, restup['totalModelWallTime'],
-             restup["totalNumRecordsProcessed"], restup['status'])
+             restup["totalNumRecordsProcessed"], restup['status']))
 
 
       if self.__metaOptimize:
@@ -500,7 +502,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
           Configuration.get("nupic.hypersearch.cogRate")+", "+\
           Configuration.get("nupic.hypersearch.socRate")+", "+\
           str(productionError)+", "+str(self.__trainFraction)+"\n"
-        print lineMeta
+        print(lineMeta)
         with open("allResults.csv", "a") as results:
           results.write(lineResults+", "+lineMeta)
 
@@ -509,29 +511,29 @@ class OPFBenchmarkRunner(unittest.TestCase):
     outpath = os.path.join(self.outdir, "BenchmarkResults.csv")
     csv = open(outpath, 'w')
     optionalKeys = ['maxBranching', 'maxParticles']
-    print >> csv , (
+    print((
         "JobID, Output Directory, Benchmark, Search, Swarm Error Metric,"
         " Prod. Error Metric, encoders, TotalModelElapsedTime(s), "
-        "TotalCpuTime(s), JobWallTime, RecordsProcessed, Completion Status"),
+        "TotalCpuTime(s), JobWallTime, RecordsProcessed, Completion Status"), end=' ', file=csv)
     addstr = ""
     for key in optionalKeys:
       addstr+= ",%s" % key
-    print >> csv, addstr
+    print(addstr, file=csv)
     for result in self.__resultList:
-      print >> csv, "%d,%s,%s,%s,%f,%s,%s,%d,%f,%s,%d,%s" % (result['jobID'],
+      print("%d,%s,%s,%s,%f,%s,%s,%d,%f,%s,%d,%s" % (result['jobID'],
             result['outDir'], result['expName'], result['searchType'], \
             result["metric"], result["prodMetric"], \
             result['encoders'], \
             result["totalModelWallTime"], \
             result['totalModelCpuTime'], str(result['jobTime']), \
-            result["totalNumRecordsProcessed"], result['status']),
+            result["totalNumRecordsProcessed"], result['status']), end=' ', file=csv)
       addstr = ""
       for key in optionalKeys:
         if key in result:
           addstr+= ",%s" % str(result[key])
         else:
           addstr+= ",None"
-      print >> csv, addstr
+      print(addstr, file=csv)
 
     csv.close()
 
@@ -571,8 +573,8 @@ class OPFBenchmarkRunner(unittest.TestCase):
     for modelInfo in modelInfos:
       if modelInfo.modelId == bestModel:
         metrics = json.loads(modelInfo.results)[0]
-        bestmetric = json.loads(modelInfo.results)[1].keys()[0]
-        for key in metrics.keys():
+        bestmetric = list(json.loads(modelInfo.results)[1].keys())[0]
+        for key in list(metrics.keys()):
           if "nupicScore" in key and "moving" in key:
             ret["nupicScore"] = ret[key] = metrics[key]
           ret[key] = metrics[key]
@@ -1259,9 +1261,9 @@ class OPFBenchmarkRunner(unittest.TestCase):
     self.resultDB[expname + ',' + searchMethod] = resultdict
     self.__resultList.append(resultdict)
     if (resultdict['metric'] / benchmark[0]) > (1+benchmark[1]):
-      print "HyperSearch %s on %s benchmark did not match " \
+      print("HyperSearch %s on %s benchmark did not match " \
         "the expected value. (Expected: %f    Observed:  %f)" % \
-        (searchMethod, expname, benchmark[0], resultdict['metric'])
+        (searchMethod, expname, benchmark[0], resultdict['metric']))
       self.__failures+=1
     return
 
@@ -1379,7 +1381,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
       self.saveResults()
     else:
       self.removeTmpDirs()
-    print "Done with all tests"
+    print("Done with all tests")
 
 
 
@@ -1470,11 +1472,11 @@ if __name__ == "__main__":
   options, remainingArgs = parser.parse_args()
 
   # Set up module
-  print "\nCURRENT DIRECTORY:", os.getcwd()
+  print("\nCURRENT DIRECTORY:", os.getcwd())
   if not os.path.isdir(options.outdir):
     options.outdir = tempfile.mkdtemp()
-    print "Provided directory to store Benchmark files is invalid.",
-    print "Now storing in <%s> and then deleting" % options.outdir
+    print("Provided directory to store Benchmark files is invalid.", end=' ')
+    print("Now storing in <%s> and then deleting" % options.outdir)
     OPFBenchmarkRunner.isSaveResults = False
   OPFBenchmarkRunner.outdir = os.path.abspath(os.path.join(options.outdir,
                                                            "BenchmarkFiles"))

@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import numpy
 from numpy import *
 import random
@@ -80,8 +82,8 @@ def generateCoincMatrix(nCoinc=10, length=500, activity=50):
 
   coincMatrix0 = SM32(int(nCoinc), int(length))
   theOnes = numpy.array([1.0] * activity, dtype=numpy.float32)
-  for rowIdx in xrange(nCoinc):
-    coinc = numpy.array(random.sample(xrange(length),
+  for rowIdx in range(nCoinc):
+    coinc = numpy.array(random.sample(range(length),
                 activity), dtype=numpy.uint32)
     coinc.sort()
     coincMatrix0.setRowFromSparse(rowIdx, coinc, theOnes)
@@ -114,9 +116,9 @@ def generateVectors(numVectors=100, length=500, activity=50):
 
   vectors = []
   coinc = numpy.zeros(length, dtype='int32')
-  indexList = range(length)
+  indexList = list(range(length))
 
-  for i in xrange(numVectors):
+  for i in range(numVectors):
       coinc[:] = 0
       coinc[random.sample(indexList, activity)] = 1
       vectors.append(coinc.copy())
@@ -142,16 +144,16 @@ def generateSimpleSequences(nCoinc=10, seqLength=[5,6,7], nSeq=100):
                containing the coincidence indices for that sequence.
   """
 
-  coincList = range(nCoinc)
+  coincList = list(range(nCoinc))
   seqList  = []
 
-  for i in xrange(nSeq):
+  for i in range(nSeq):
     if max(seqLength) <= nCoinc:
       seqList.append(random.sample(coincList, random.choice(seqLength)))
     else:
       len = random.choice(seqLength)
       seq = []
-      for x in xrange(len):
+      for x in range(len):
         seq.append(random.choice(coincList))
       seqList.append(seq)
 
@@ -180,12 +182,12 @@ def generateHubSequences(nCoinc=10, hubs = [2,6], seqLength=[5,6,7], nSeq=100):
   """
 
 
-  coincList = range(nCoinc)
+  coincList = list(range(nCoinc))
   for hub in hubs:
     coincList.remove(hub)
 
   seqList = []
-  for i in xrange(nSeq):
+  for i in range(nSeq):
     length = random.choice(seqLength)-1
     seq = random.sample(coincList,length)
     seq.insert(length//2, random.choice(hubs))
@@ -225,11 +227,11 @@ def genTestSeqsForLookback(nPatterns=10, patternLen=500, patternActivity=50,
   #           activity=patternActivity)
 
   similarity = []
-  for i in xrange(nPatterns):
+  for i in range(nPatterns):
      similarity.append(patterns.rightVecProd(patterns.getRow(i)))
   similarity = numpy.array(similarity, dtype='int32')
 
-  print similarity
+  print(similarity)
 
 
   # Create the raw sequences
@@ -266,7 +268,7 @@ def generateSimpleCoincMatrix(nCoinc=10, length=500, activity=50):
   coincMatrix = SM32(0, length)
   coinc = numpy.zeros(length, dtype='int32')
 
-  for i in xrange(nCoinc):
+  for i in range(nCoinc):
       coinc[:] = 0
       coinc[i*activity:(i+1)*activity] = 1
       coincMatrix.addRow(coinc)
@@ -451,8 +453,8 @@ def sameTPParams(tp1, tp2):
                 "doPooling", "segUpdateValidDuration", "seed",
                 "burnIn", "pamLength", "maxAge"]:
     if getattr(tp1, param) != getattr(tp2,param):
-      print param,"is different"
-      print getattr(tp1, param), "vs", getattr(tp2,param)
+      print(param,"is different")
+      print(getattr(tp1, param), "vs", getattr(tp2,param))
       result = False
   return result
 
@@ -483,12 +485,12 @@ def sameSegment(seg1, seg2):
   # Now compare synapses, ignoring order of synapses
   for syn in seg2[1:]:
     if syn[2] <= 0:
-      print "A synapse with zero permanence encountered"
+      print("A synapse with zero permanence encountered")
       result = False
   if result == True:
     for syn in seg1[1:]:
       if syn[2] <= 0:
-        print "A synapse with zero permanence encountered"
+        print("A synapse with zero permanence encountered")
         result = False
       res = sameSynapse(syn, seg2[1:])
       if res == False:
@@ -509,7 +511,7 @@ def tpDiff(tp1, tp2, verbosity = 0, relaxSegmentTests =True):
 
   # First check basic parameters. If we fail here, don't continue
   if sameTPParams(tp1, tp2) == False:
-    print "Two TP's have different parameters"
+    print("Two TP's have different parameters")
     return False
 
   result = True
@@ -518,32 +520,32 @@ def tpDiff(tp1, tp2, verbosity = 0, relaxSegmentTests =True):
   # cells starts diverging
 
   if (tp1.activeState['t'] != tp2.activeState['t']).any():
-    print 'Active states diverge', numpy.where(tp1.activeState['t'] != tp2.activeState['t'])
+    print('Active states diverge', numpy.where(tp1.activeState['t'] != tp2.activeState['t']))
     result = False
 
   if (tp1.predictedState['t'] - tp2.predictedState['t']).any():
-    print 'Predicted states diverge', numpy.where(tp1.predictedState['t'] != tp2.predictedState['t'])
+    print('Predicted states diverge', numpy.where(tp1.predictedState['t'] != tp2.predictedState['t']))
     result = False
 
   # TODO: check confidence at T (confT)
 
   # Now check some high level learned parameters.
   if tp1.getNumSegments() != tp2.getNumSegments():
-    print "Number of segments are different", tp1.getNumSegments(), tp2.getNumSegments()
+    print("Number of segments are different", tp1.getNumSegments(), tp2.getNumSegments())
     result = False
 
   if tp1.getNumSynapses() != tp2.getNumSynapses():
-    print "Number of synapses are different", tp1.getNumSynapses(), tp2.getNumSynapses()
+    print("Number of synapses are different", tp1.getNumSynapses(), tp2.getNumSynapses())
     tp1.printCells()
     tp2.printCells()
     result = False
 
   # Check that each cell has the same number of segments and synapses
-  for c in xrange(tp1.numberOfCols):
-    for i in xrange(tp2.cellsPerColumn):
+  for c in range(tp1.numberOfCols):
+    for i in range(tp2.cellsPerColumn):
       if tp1.getNumSegmentsInCell(c, i) != tp2.getNumSegmentsInCell(c, i):
-        print "Num segments different in cell:",c,i,
-        print tp1.getNumSegmentsInCell(c, i), tp2.getNumSegmentsInCell(c, i)
+        print("Num segments different in cell:",c,i, end=' ')
+        print(tp1.getNumSegmentsInCell(c, i), tp2.getNumSegmentsInCell(c, i))
         result = False
 
   # If the above tests pass, then check each segment and report differences
@@ -551,30 +553,30 @@ def tpDiff(tp1, tp2, verbosity = 0, relaxSegmentTests =True):
   # make sure that, for each segment in tp1, there is an identical segment
   # in tp2.
   if result == True and not relaxSegmentTests:
-    for c in xrange(tp1.numberOfCols):
-      for i in xrange(tp2.cellsPerColumn):
+    for c in range(tp1.numberOfCols):
+      for i in range(tp2.cellsPerColumn):
         nSegs = tp1.getNumSegmentsInCell(c, i)
-        for segIdx in xrange(nSegs):
+        for segIdx in range(nSegs):
           tp1seg = tp1.getSegmentOnCell(c, i, segIdx)
 
           # Loop through all segments in tp2seg and see if any of them match tp1seg
           res = False
-          for tp2segIdx in xrange(nSegs):
+          for tp2segIdx in range(nSegs):
             tp2seg = tp2.getSegmentOnCell(c, i, tp2segIdx)
             if sameSegment(tp1seg, tp2seg) == True:
               res = True
               break
           if res == False:
-            print "\nSegments are different for cell:",c,i
+            print("\nSegments are different for cell:",c,i)
             if verbosity >= 1:
-              print "C++"
+              print("C++")
               tp1.printCell(c,i)
-              print "Py"
+              print("Py")
               tp2.printCell(c,i)
             result = False
 
   if result == True and (verbosity > 1):
-    print "TP's match"
+    print("TP's match")
 
   return result
 
@@ -596,7 +598,7 @@ def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
 
   # First check basic parameters. If we fail here, don't continue
   if sameTPParams(tp1, tp2) == False:
-    print "Two TP's have different parameters"
+    print("Two TP's have different parameters")
     return False
 
   tp1Label = "<tp_1 (%s)>" % tp1.__class__.__name__
@@ -609,48 +611,48 @@ def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
     # cells starts diverging
 
     if (tp1.infActiveState['t'] != tp2.infActiveState['t']).any():
-      print 'Active states diverged', numpy.where(tp1.infActiveState['t'] != tp2.infActiveState['t'])
+      print('Active states diverged', numpy.where(tp1.infActiveState['t'] != tp2.infActiveState['t']))
       result = False
 
     if (tp1.infPredictedState['t'] - tp2.infPredictedState['t']).any():
-      print 'Predicted states diverged', numpy.where(tp1.infPredictedState['t'] != tp2.infPredictedState['t'])
+      print('Predicted states diverged', numpy.where(tp1.infPredictedState['t'] != tp2.infPredictedState['t']))
       result = False
 
     if checkLearn and (tp1.lrnActiveState['t'] - tp2.lrnActiveState['t']).any():
-      print 'lrnActiveState[t] diverged', numpy.where(tp1.lrnActiveState['t'] != tp2.lrnActiveState['t'])
+      print('lrnActiveState[t] diverged', numpy.where(tp1.lrnActiveState['t'] != tp2.lrnActiveState['t']))
       result = False
 
     if checkLearn and (tp1.lrnPredictedState['t'] - tp2.lrnPredictedState['t']).any():
-      print 'lrnPredictedState[t] diverged', numpy.where(tp1.lrnPredictedState['t'] != tp2.lrnPredictedState['t'])
+      print('lrnPredictedState[t] diverged', numpy.where(tp1.lrnPredictedState['t'] != tp2.lrnPredictedState['t']))
       result = False
 
     if checkLearn and abs(tp1.getAvgLearnedSeqLength() - tp2.getAvgLearnedSeqLength()) > 0.01:
-      print "Average learned sequence lengths differ: ",
-      print tp1.getAvgLearnedSeqLength()," vs ", tp2.getAvgLearnedSeqLength()
+      print("Average learned sequence lengths differ: ", end=' ')
+      print(tp1.getAvgLearnedSeqLength()," vs ", tp2.getAvgLearnedSeqLength())
       result = False
 
   # TODO: check confidence at T (confT)
 
   # Now check some high level learned parameters.
   if tp1.getNumSegments() != tp2.getNumSegments():
-    print "Number of segments are different", tp1.getNumSegments(), tp2.getNumSegments()
+    print("Number of segments are different", tp1.getNumSegments(), tp2.getNumSegments())
     result = False
 
   if tp1.getNumSynapses() != tp2.getNumSynapses():
-    print "Number of synapses are different", tp1.getNumSynapses(), tp2.getNumSynapses()
+    print("Number of synapses are different", tp1.getNumSynapses(), tp2.getNumSynapses())
     if verbosity >= 3:
-      print "%s: " % tp1Label,
+      print("%s: " % tp1Label, end=' ')
       tp1.printCells()
-      print "\n%s  : " % tp2Label,
+      print("\n%s  : " % tp2Label, end=' ')
       tp2.printCells()
     #result = False
 
   # Check that each cell has the same number of segments and synapses
-  for c in xrange(tp1.numberOfCols):
-    for i in xrange(tp2.cellsPerColumn):
+  for c in range(tp1.numberOfCols):
+    for i in range(tp2.cellsPerColumn):
       if tp1.getNumSegmentsInCell(c, i) != tp2.getNumSegmentsInCell(c, i):
-        print "Num segments different in cell:",c,i,
-        print tp1.getNumSegmentsInCell(c, i), tp2.getNumSegmentsInCell(c, i)
+        print("Num segments different in cell:",c,i, end=' ')
+        print(tp1.getNumSegmentsInCell(c, i), tp2.getNumSegmentsInCell(c, i))
         result = False
 
   # If the above tests pass, then check each segment and report differences
@@ -658,30 +660,30 @@ def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
   # make sure that, for each segment in tp1, there is an identical segment
   # in tp2.
   if result == True and not relaxSegmentTests and checkLearn:
-    for c in xrange(tp1.numberOfCols):
-      for i in xrange(tp2.cellsPerColumn):
+    for c in range(tp1.numberOfCols):
+      for i in range(tp2.cellsPerColumn):
         nSegs = tp1.getNumSegmentsInCell(c, i)
-        for segIdx in xrange(nSegs):
+        for segIdx in range(nSegs):
           tp1seg = tp1.getSegmentOnCell(c, i, segIdx)
 
           # Loop through all segments in tp2seg and see if any of them match tp1seg
           res = False
-          for tp2segIdx in xrange(nSegs):
+          for tp2segIdx in range(nSegs):
             tp2seg = tp2.getSegmentOnCell(c, i, tp2segIdx)
             if sameSegment(tp1seg, tp2seg) == True:
               res = True
               break
           if res == False:
-            print "\nSegments are different for cell:",c,i
+            print("\nSegments are different for cell:",c,i)
             result = False
             if verbosity >= 0:
-              print "%s : " % tp1Label,
+              print("%s : " % tp1Label, end=' ')
               tp1.printCell(c,i)
-              print "\n%s  : " % tp2Label,
+              print("\n%s  : " % tp2Label, end=' ')
               tp2.printCell(c,i)
 
   if result == True and (verbosity > 1):
-    print "TP's match"
+    print("TP's match")
 
   return result
 
@@ -712,15 +714,15 @@ def spDiff(SP1,SP2):
 
     """
     if(len(SP1._masterConnectedM)!=len(SP2._masterConnectedM)):
-        print "Connected synapse matrices are different sizes"
+        print("Connected synapse matrices are different sizes")
         return False
 
     if(len(SP1._masterPotentialM)!=len(SP2._masterPotentialM)):
-        print "Potential synapse matrices are different sizes"
+        print("Potential synapse matrices are different sizes")
         return False
 
     if(len(SP1._masterPermanenceM)!=len(SP2._masterPermanenceM)):
-        print "Permanence matrices are different sizes"
+        print("Permanence matrices are different sizes")
         return False
 
 
@@ -730,35 +732,35 @@ def spDiff(SP1,SP2):
         connected1 = SP1._masterConnectedM[i]
         connected2 = SP2._masterConnectedM[i]
         if(connected1!=connected2):
-            print "Connected Matrices for cell %d different"  % (i)
+            print("Connected Matrices for cell %d different"  % (i))
             return False
         #grab permanence Matrices and compare them
         permanences1 = SP1._masterPermanenceM[i];
         permanences2 = SP2._masterPermanenceM[i];
         if(permanences1!=permanences2):
-            print "Permanence Matrices for cell %d different" % (i)
+            print("Permanence Matrices for cell %d different" % (i))
             return False
         #grab the potential connection Matrices and compare them
         potential1 = SP1._masterPotentialM[i];
         potential2 = SP2._masterPotentialM[i];
         if(potential1!=potential2):
-            print "Potential Matrices for cell %d different" % (i)
+            print("Potential Matrices for cell %d different" % (i))
             return False
 
     #Check firing boosts
     if(not numpy.array_equal(SP1._firingBoostFactors,SP2._firingBoostFactors)):
-        print "Firing boost factors are different between spatial poolers"
+        print("Firing boost factors are different between spatial poolers")
         return False
 
     #Check duty cycles after inhibiton
     if(not numpy.array_equal(SP1._dutyCycleAfterInh,SP2._dutyCycleAfterInh)):
-        print "Duty cycles after inhibition are different between spatial poolers"
+        print("Duty cycles after inhibition are different between spatial poolers")
         return False
 
 
     #Check duty cycles before inhibition
     if(not numpy.array_equal(SP1._dutyCycleBeforeInh,SP2._dutyCycleBeforeInh)):
-        print "Duty cycles before inhibition are different between spatial poolers"
+        print("Duty cycles before inhibition are different between spatial poolers")
         return False
 
 
@@ -935,7 +937,7 @@ def _fillInOnTimes(vector, durations):
   for idx in nonzeros[1:]:
     if idx != prev+1:
       # Fill in the durations
-      durations[onStartIdx:onStartIdx+onTime] = range(1,onTime+1)
+      durations[onStartIdx:onStartIdx+onTime] = list(range(1,onTime+1))
       onTime       = 1
       onStartIdx = idx
     else:
@@ -943,7 +945,7 @@ def _fillInOnTimes(vector, durations):
     prev = idx
 
   # Fill in the last one
-  durations[onStartIdx:onStartIdx+onTime] = range(1,onTime+1)
+  durations[onStartIdx:onStartIdx+onTime] = list(range(1,onTime+1))
 
 
 
@@ -988,7 +990,7 @@ def averageOnTimePerTimestep(vectors, numSamples=None):
   # Fill in each non-zero of vectors with the on-time that that output was
   #  on for.
   durations = numpy.zeros(vectors.shape, dtype='int32')
-  for col in xrange(vectors.shape[1]):
+  for col in range(vectors.shape[1]):
     _fillInOnTimes(vectors[:,col], durations[:,col])
 
   # Compute the average on time for each time step
@@ -1030,7 +1032,7 @@ def averageOnTime(vectors, numSamples=None):
   # How many samples will we look at?
   if numSamples is None:
     numSamples = numElements
-    countOn    = range(numElements)
+    countOn    = list(range(numElements))
   else:
     countOn    = numpy.random.randint(0, numElements, numSamples)
 
@@ -1141,7 +1143,7 @@ def populationStability(vectors, numSamples=None):
 
   if numSamples is None:
     numSamples = numVectors-1
-    countOn = range(numVectors-1)
+    countOn = list(range(numVectors-1))
   else:
     countOn = numpy.random.randint(0, numVectors-1, numSamples)
 
@@ -1189,7 +1191,7 @@ def percentOutputsStableOverNTimeSteps(vectors, numSamples=None):
 
     # Accumulated
     samplePctStable = float(stableOutputs) / data[0].sum()
-    print samplePctStable
+    print(samplePctStable)
     pctStable += samplePctStable
     numWindows += 1
 
@@ -1234,8 +1236,8 @@ def computeSaturationLevels(outputs, outputsShape, sparseForm=False):
   # We will use regions that are 15x15, which give us about a 1/225 (.4%) resolution
   #  on saturation.
   regionSize = 15
-  rows = xrange(regionSize+1, outputsShape[0]+1, regionSize)
-  cols = xrange(regionSize+1, outputsShape[1]+1, regionSize)
+  rows = range(regionSize+1, outputsShape[0]+1, regionSize)
+  cols = range(regionSize+1, outputsShape[1]+1, regionSize)
   regionSums = spOut.nNonZerosPerBox(rows, cols)
 
   # Get all the nonzeros out - those are our saturation sums
@@ -1247,7 +1249,7 @@ def computeSaturationLevels(outputs, outputsShape, sparseForm=False):
   #  are surrounded by activity above, below, left and right
   innerSat = []
   locationSet = set(locations)
-  for (location, value) in itertools.izip(locations, values):
+  for (location, value) in zip(locations, values):
     (row, col) = location
     if (row-1,col) in locationSet and (row, col-1) in locationSet \
       and (row+1, col) in locationSet and (row, col+1) in locationSet:
@@ -1297,11 +1299,11 @@ def checkMatch(input, prediction, sparse=True, verbosity=0):
   missingFromPrediction = len(activeElementsInInput.difference(activeElementsInPrediction))
 
   if verbosity >= 1:
-    print "preds. found in input:", foundInInput, "out of", totalActiveInPrediction,
-    print "; preds. missing from input:", missingFromInput, "out of", \
-              totalActiveInPrediction,
-    print "; unexpected active in input:", missingFromPrediction, "out of", \
-              totalActiveInInput
+    print("preds. found in input:", foundInInput, "out of", totalActiveInPrediction, end=' ')
+    print("; preds. missing from input:", missingFromInput, "out of", \
+              totalActiveInPrediction, end=' ')
+    print("; unexpected active in input:", missingFromPrediction, "out of", \
+              totalActiveInInput)
 
   return (foundInInput, totalActiveInInput, missingFromInput,
           totalActiveInPrediction)
@@ -1366,7 +1368,7 @@ def predictionExtent(inputs, resets, outputs, minOverlapPct=100.0):
   nCellsPerCol = len(outputs[0]) // nCols
 
   # Evalulate prediction for each output sample
-  for idx in xrange(nSamples):
+  for idx in range(nSamples):
 
     # What are the active columns for this output?
     activeCols = outputs[idx].reshape(nCols, nCellsPerCol).max(axis=1)
@@ -1431,16 +1433,16 @@ def getCentreAndSpreadOffsets(spaceShape,
   else:
     xMin = -1 * (shape[1] // 2)
     xMax = xMin + shape[1] - 1
-    xPositions = range(stepSize * xMin, stepSize * xMax + 1, stepSize)
+    xPositions = list(range(stepSize * xMin, stepSize * xMax + 1, stepSize))
 
     yMin = -1 * (shape[0] // 2)
     yMax = yMin + shape[0] - 1
-    yPositions = range(stepSize * yMin, stepSize * yMax + 1, stepSize)
+    yPositions = list(range(stepSize * yMin, stepSize * yMax + 1, stepSize))
 
     centerOffsets = list(cross(yPositions, xPositions))
 
   numCenterOffsets = len(centerOffsets)
-  print "centerOffsets:", centerOffsets
+  print("centerOffsets:", centerOffsets)
 
   # What is the range on the X and Y offsets of the spread points?
   shape = spreadShape
@@ -1451,11 +1453,11 @@ def getCentreAndSpreadOffsets(spaceShape,
   else:
     xMin = -1 * (shape[1] // 2)
     xMax = xMin + shape[1] - 1
-    xPositions = range(stepSize * xMin, stepSize * xMax + 1, stepSize)
+    xPositions = list(range(stepSize * xMin, stepSize * xMax + 1, stepSize))
 
     yMin = -1 * (shape[0] // 2)
     yMax = yMin + shape[0] - 1
-    yPositions = range(stepSize * yMin, stepSize * yMax + 1, stepSize)
+    yPositions = list(range(stepSize * yMin, stepSize * yMax + 1, stepSize))
 
     spreadOffsets = list(cross(yPositions, xPositions))
 
@@ -1464,7 +1466,7 @@ def getCentreAndSpreadOffsets(spaceShape,
     spreadOffsets.insert(0, (0,0))
 
   numSpreadOffsets = len(spreadOffsets)
-  print "spreadOffsets:", spreadOffsets
+  print("spreadOffsets:", spreadOffsets)
 
   return centerOffsets, spreadOffsets
 
@@ -1589,8 +1591,8 @@ def makeCloneMap(columnsShape, outputCloningWidth, outputCloningHeight=-1):
   numDistinctMasters = outputCloningWidth * outputCloningHeight
 
   a = numpy.empty((columnsHeight, columnsWidth), 'uint32')
-  for row in xrange(columnsHeight):
-    for col in xrange(columnsWidth):
+  for row in range(columnsHeight):
+    for col in range(columnsWidth):
       a[row, col] = (col % outputCloningWidth) + \
                     (row % outputCloningHeight) * outputCloningWidth
 
@@ -1633,7 +1635,7 @@ def numpyStr(array, format='%f', includeIndices=False, includeZeros=True):
     if includeIndices:
       format = '%d,%d:' + format
 
-    for r in xrange(rows):
+    for r in range(rows):
       if includeIndices:
         rowItems = [format % (r,c,x) for c,x in enumerate(array[r])]
       else:

@@ -341,7 +341,7 @@ class OPFDummyModelRunner(OPFModelRunner):
     specified as lists, read the appropriate value for this model using the model
     index """
 
-    for key, value in params.iteritems():
+    for key, value in params.items():
       if type(value) == list:
         index = self.modelIndex % len(params[key])
         self._params[key] = params[key][index]
@@ -377,7 +377,7 @@ class OPFDummyModelRunner(OPFModelRunner):
     if self._sleepModelRange is not None:
       range, delay = self._sleepModelRange.split(':')
       delay = float(delay)
-      range = map(int, range.split(','))
+      range = list(map(int, range.split(',')))
       modelIDs = self._jobsDAO.jobGetModelIDs(self._jobID)
       modelIDs.sort()
 
@@ -425,7 +425,7 @@ class OPFDummyModelRunner(OPFModelRunner):
     # Create our top-level loop-control iterator
     # =========================================================================
     if self._iterations >= 0:
-      iterTracker = iter(xrange(self._iterations))
+      iterTracker = iter(range(self._iterations))
     else:
       iterTracker = iter(itertools.count())
 
@@ -601,8 +601,7 @@ class OPFDummyModelRunner(OPFModelRunner):
     modelIDs = [e[0] for e in results]
     modelNums = [json.loads(e[1][0])['structuredParams']['__model_num'] for e in results]
 
-    sameModelNumbers = filter(lambda x: x[1] == self.modelIndex,
-                              zip(modelIDs, modelNums))
+    sameModelNumbers = [x for x in zip(modelIDs, modelNums) if x[1] == self.modelIndex]
 
     firstModelID = min(zip(*sameModelNumbers)[0])
 

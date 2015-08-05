@@ -89,14 +89,14 @@ class RandomPictureExplorer(PictureSensor.PictureExplorer):
     if params['maxOffset'] != -1:
       slopX = min(abs(slopX), params['maxOffset'])
       slopY = min(abs(slopY), params['maxOffset'])
-    posnX = self._rng.choice(xrange(-slopX, slopX + 1))
-    posnY = self._rng.choice(xrange(-slopY, slopY + 1))
+    posnX = self._rng.choice(range(-slopX, slopX + 1))
+    posnY = self._rng.choice(range(-slopY, slopY + 1))
     # Choose a category random
     catIndex = self._chooseCategory()
     velocityX = self._rng.choice([-1, +1]) \
-              * self._rng.choice(xrange(params['minVelocity'], params['maxVelocity'] + 1))
+              * self._rng.choice(range(params['minVelocity'], params['maxVelocity'] + 1))
     velocityY = self._rng.choice([-1, +1]) \
-              * self._rng.choice(xrange(params['minVelocity'], params['maxVelocity'] + 1))
+              * self._rng.choice(range(params['minVelocity'], params['maxVelocity'] + 1))
     # Choose rotational params
     angularPosn = params['minAngularPosn'] + self._rng.random() \
                 * (params['maxAngularPosn'] - params['minAngularPosn'])

@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import math
 
 import numpy
@@ -128,9 +130,9 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
 
 
   def dump(self):
-    print "GeospatialCoordinateEncoder:"
-    print "  w:   %d" % self.w
-    print "  n:   %d" % self.n
+    print("GeospatialCoordinateEncoder:")
+    print("  w:   %d" % self.w)
+    print("  n:   %d" % self.n)
 
 
   @classmethod

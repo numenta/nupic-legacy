@@ -58,7 +58,7 @@ class HotgymRegressionTest(unittest.TestCase):
           resultsDir, "DefaultTask.TemporalMultiStep.predictionLog.csv")
       with open(resultsPath) as f:
         reader = csv.reader(f)
-        headers = reader.next()
+        headers = next(reader)
         self.assertEqual(headers[12],
                          "multiStepBestPredictions:multiStep:errorMetric='aae':"
                          "steps=1:window=1000:field=consumption")

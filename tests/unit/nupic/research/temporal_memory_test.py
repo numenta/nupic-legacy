@@ -648,7 +648,7 @@ class TemporalMemoryTest(unittest.TestCase):
     # Run some data through before serializing
     self.patternMachine = PatternMachine(100, 4)
     self.sequenceMachine = SequenceMachine(self.patternMachine)
-    sequence = self.sequenceMachine.generateFromNumbers(range(5))
+    sequence = self.sequenceMachine.generateFromNumbers(list(range(5)))
     for _ in range(3):
       for pattern in sequence:
         tm1.compute(pattern)

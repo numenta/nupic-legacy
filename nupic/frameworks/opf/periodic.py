@@ -86,7 +86,7 @@ class PeriodicActivityMgr(object):
       except StopIteration:
         act.cb()
         if act.repeating:
-          act.iteratorHolder[0] = iter(xrange(act.period-1))
+          act.iteratorHolder[0] = iter(range(act.period-1))
         else:
           act.iteratorHolder[0] = None
 
@@ -102,7 +102,7 @@ class PeriodicActivityMgr(object):
       act =   self.Activity(repeating=req.repeating,
                             period=req.period,
                             cb=req.cb,
-                            iteratorHolder=[iter(xrange(req.period-1))])
+                            iteratorHolder=[iter(range(req.period-1))])
       self.__activities.append(act)
 
     return

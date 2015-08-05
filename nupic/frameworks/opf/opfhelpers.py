@@ -29,7 +29,7 @@
 import imp
 import os
 
-import expdescriptionapi
+from . import expdescriptionapi
 
 
 def loadExperiment(path):

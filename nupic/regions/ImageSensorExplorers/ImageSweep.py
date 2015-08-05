@@ -45,7 +45,7 @@ class ImageSweep(BaseExplorer):
     prevImage = self.position['image']
 
     # Iterate through the filters
-    for i in xrange(self.numFilters):
+    for i in range(self.numFilters):
       self.position['filters'][i] += 1
       if self.position['filters'][i] < self.numFilterOutputs[i]:
         if not seeking:

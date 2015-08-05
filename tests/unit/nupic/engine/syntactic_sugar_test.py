@@ -20,6 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import unittest2 as unittest
 
 import nupic.engine as net
@@ -92,18 +94,18 @@ class NetworkSugarTest(unittest.TestCase):
         self.fail("Expected i == 0 or i == 1")
 
     # test .keys()
-    keys = regions.keys()
-    self.assertEqual(keys, set(['r1', 'r2']))
+    keys = list(regions.keys())
+    self.assertEqual(set(keys), set(['r1', 'r2']))
 
     # test .values()
-    values = regions.values()
+    values = list(regions.values())
     self.assertEqual(len(values), 2)
     v1 = values.pop()
     v2 = values.pop()
     self.assertTrue((v1, v2) == (r1, r2) or (v1, v2) == (r2, r1))
 
     # test .items()
-    items = regions.items()
+    items = list(regions.items())
     self.assertEqual(len(items), 2)
     i1 = items.pop()
     i2 = items.pop()
@@ -114,7 +116,7 @@ class NetworkSugarTest(unittest.TestCase):
   def testRegion(self):
     r = net.Network().addRegion('r', 'py.TestNode', '')
 
-    print r.spec
+    print(r.spec)
     self.assertEqual(r.type, 'py.TestNode')
     self.assertEqual(r.name, 'r')
     self.assertTrue(r.dimensions.isUnspecified())
@@ -145,7 +147,7 @@ class NetworkSugarTest(unittest.TestCase):
     t.start()
     # Dummy time
     _j = 0
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
       _j = i
     t.stop()
     self.assertTrue(t.elapsed > 0)

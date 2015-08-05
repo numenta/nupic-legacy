@@ -434,12 +434,13 @@ the older sequences?).
 
 """
 
+from __future__ import print_function
+
 import random
 import numpy
 from numpy import *
 import sys
-import pickle
-import cPickle
+from six.moves import cPickle as pickle
 import pprint
 
 from nupic.research.TP import TP
@@ -463,16 +464,16 @@ rgen = numpy.random.RandomState(SEED) # always call this rgen, NOT random
 
 def printOneTrainingVector(x):
 
-    print ''.join('1' if k != 0 else '.' for k in x)
+    print(''.join('1' if k != 0 else '.' for k in x))
 
 
 
 def printAllTrainingSequences(trainingSequences, upTo = 99999):
 
-    for t in xrange(min(len(trainingSequences[0]), upTo)):
-        print 't=',t,
+    for t in range(min(len(trainingSequences[0]), upTo)):
+        print('t=',t, end=' ')
         for i,trainingSequence in enumerate(trainingSequences):
-            print "\tseq#",i,'\t',
+            print("\tseq#",i,'\t', end=' ')
             printOneTrainingVector(trainingSequences[i][t])
 
 
@@ -564,7 +565,7 @@ def buildTrainingSet(numSequences = 2,
 
   sharedSequence = []
 
-  for i in xrange(sharedSequenceLength):
+  for i in range(sharedSequenceLength):
     if disjointConsecutive and i > 0:
       x = generatePattern(numCols, minOnes, maxOnes, colSet, sharedSequence[i-1])
     else:
@@ -580,18 +581,18 @@ def buildTrainingSet(numSequences = 2,
   else:
       trailingLength = sequenceLength - sharedSequenceLength
 
-  for k,s in enumerate(xrange(numSequences)):
+  for k,s in enumerate(range(numSequences)):
 
     # TODO: implement no repetitions
     if len(trainingSequences) > 0 and 'shuffle' in seqGenMode:
 
-      r = range(subsequenceStartPos) \
-          + range(subsequenceStartPos + sharedSequenceLength, sequenceLength)
+      r = list(range(subsequenceStartPos)) \
+          + list(range(subsequenceStartPos + sharedSequenceLength, sequenceLength))
 
       rgen.shuffle(r)
 
       r = r[:subsequenceStartPos] \
-          + range(subsequenceStartPos, subsequenceStartPos + sharedSequenceLength) \
+          + list(range(subsequenceStartPos, subsequenceStartPos + sharedSequenceLength)) \
           + r[subsequenceStartPos:]
 
       sequence = [trainingSequences[k-1][j] for j in r]
@@ -600,7 +601,7 @@ def buildTrainingSet(numSequences = 2,
         sequence = []
 
         if 'beginning' not in seqGenMode:
-          for i in xrange(subsequenceStartPos):
+          for i in range(subsequenceStartPos):
             if disjointConsecutive and i > 0:
               x = generatePattern(numCols, minOnes, maxOnes, colSet, sequence[i-1])
             else:
@@ -610,7 +611,7 @@ def buildTrainingSet(numSequences = 2,
         if 'shared' in seqGenMode and 'no shared' not in seqGenMode:
           sequence.extend(sharedSequence)
 
-        for i in xrange(trailingLength):
+        for i in range(trailingLength):
           if disjointConsecutive and i > 0:
             x = generatePattern(numCols, minOnes, maxOnes, colSet, sequence[i-1])
           else:
@@ -624,7 +625,7 @@ def buildTrainingSet(numSequences = 2,
   assert len(trainingSequences) == numSequences
 
   if VERBOSITY >= 2:
-    print "Training Sequences"
+    print("Training Sequences")
     pprint.pprint(trainingSequences)
 
   if sharedSequenceLength > 0:
@@ -639,7 +640,7 @@ def getSimplePatterns(numOnes, numPatterns):
 
   numCols = numOnes * numPatterns
   p = []
-  for i in xrange(numPatterns):
+  for i in range(numPatterns):
     x = numpy.zeros(numCols, dtype='float32')
     x[i*numOnes:(i+1)*numOnes] = 1
     p.append(x)
@@ -699,7 +700,7 @@ def buildHL0aTrainingSet(numOnes=5):
 
   s = []
   s.append(p[rgen.randint(3,23)])
-  for i in xrange(20):
+  for i in range(20):
     s.append(p[rgen.randint(3,23)])
     s.append(p[0])
     s.append(p[1])
@@ -725,25 +726,25 @@ def buildHL0bTrainingSet(numOnes=5):
 
   s = []
   s.append(p[rgen.randint(5,numPatterns)])
-  for i in xrange(50):
+  for i in range(50):
     r = rgen.randint(5,numPatterns)
-    print r,
+    print(r, end=' ')
     s.append(p[r])
     if rgen.binomial(1, 0.5) > 0:
-      print "S1",
+      print("S1", end=' ')
       s.append(p[0])
       s.append(p[1])
       s.append(p[2])
       s.append(p[4])
     else:
-      print "S2",
+      print("S2", end=' ')
       s.append(p[1])
       s.append(p[2])
       s.append(p[3])
     r = rgen.randint(5,numPatterns)
     s.append(p[r])
-    print r,
-  print
+    print(r, end=' ')
+  print()
 
   return ([s], [ [p[0], p[1], p[2], p[4]],  [p[1], p[2], p[3]] ])
 
@@ -781,7 +782,7 @@ def basicTest():
           pamLength = 1000,
           checkSynapseConsistency=checkSynapseConsistency)
 
-  print "Creation ok"
+  print("Creation ok")
 
   #--------------------------------------------------------------------------------
   # Save and reload
@@ -790,7 +791,7 @@ def basicTest():
 
   assert tp2.numberOfCols == numberOfCols
   assert tp2.cellsPerColumn == cellsPerColumn
-  print tp2.initialPerm
+  print(tp2.initialPerm)
   assert tp2.initialPerm == numpy.float32(.2)
   assert tp2.connectedPerm == numpy.float32(.8)
   assert tp2.minThreshold == minThreshold
@@ -805,11 +806,11 @@ def basicTest():
   assert tp2.seed == SEED
   assert tp2.verbosity == verbosity
 
-  print "Save/load ok"
+  print("Save/load ok")
 
   #--------------------------------------------------------------------------------
   # Learn
-  for i in xrange(5):
+  for i in range(5):
     xi = rgen.randint(0,2,(numberOfCols))
     x = numpy.array(xi, dtype="uint32")
     y = tp.learn(x)
@@ -817,14 +818,14 @@ def basicTest():
   #--------------------------------------------------------------------------------
   # Infer
   patterns = rgen.randint(0,2,(4,numberOfCols))
-  for i in xrange(10):
+  for i in range(10):
     xi = rgen.randint(0,2,(numberOfCols))
     x = numpy.array(xi, dtype="uint32")
     y = tp.infer(x)
     if i > 0:
         p = tp.checkPrediction2([pattern.nonzero()[0] for pattern in patterns])
 
-  print "basicTest ok"
+  print("basicTest ok")
 
 #---------------------------------------------------------------------------------
 # Figure out acceptable patterns if none were passed to us.
@@ -885,7 +886,7 @@ def findAcceptablePatterns(tp, t, whichSequence, trainingSequences, nAcceptable 
 
     # Add patterns going forward
     acceptablePatterns += [trainingSequences[whichSequence][t] \
-                           for t in xrange(t,upTo)]
+                           for t in range(t,upTo)]
 
     return acceptablePatterns
 
@@ -987,12 +988,12 @@ def _testSequence(trainingSequences,
 
   #--------------------------------------------------------------------------------
   # Learn
-  for r in xrange(nTrainingReps):
+  for r in range(nTrainingReps):
     if VERBOSITY > 1:
-      print "============= Learning round",r,"================="
+      print("============= Learning round",r,"=================")
     for sequenceNum, trainingSequence in enumerate(trainingSequences):
       if VERBOSITY > 1:
-        print "============= New sequence ================="
+        print("============= New sequence =================")
       if doResets:
           tp.reset()
           if compareToPy:
@@ -1004,9 +1005,9 @@ def _testSequence(trainingSequences,
             noise_vector = rgen.binomial(len(x), noiseLevel, (len(x)))
             x = logical_xor(x, noise_vector)
         if VERBOSITY > 2:
-          print "Time step",t, "learning round",r, "sequence number", sequenceNum
-          print "Input: ",tp.printInput(x)
-          print "NNZ:", x.nonzero()
+          print("Time step",t, "learning round",r, "sequence number", sequenceNum)
+          print("Input: ",tp.printInput(x))
+          print("NNZ:", x.nonzero())
         x = numpy.array(x).astype('float32')
         y = tp.learn(x)
         if compareToPy:
@@ -1016,25 +1017,25 @@ def _testSequence(trainingSequences,
 
         if VERBOSITY > 3:
           tp.printStates(printPrevious = (VERBOSITY > 4))
-          print
+          print()
       if VERBOSITY > 3:
-        print "Sequence finished. Complete state after sequence"
+        print("Sequence finished. Complete state after sequence")
         tp.printCells()
-        print
+        print()
 
   numPerfectAtHub = 0
 
   if compareToPy:
-      print "End of training"
+      print("End of training")
       assert fdrutils.tpDiff(tp, py_tp, VERBOSITY) == True
 
   #--------------------------------------------------------------------------------
   # Infer
-  if VERBOSITY > 1: print "============= Inference ================="
+  if VERBOSITY > 1: print("============= Inference =================")
 
   for s,testSequence in enumerate(testSequences):
 
-    if VERBOSITY > 1: print "============= New sequence ================="
+    if VERBOSITY > 1: print("============= New sequence =================")
 
     if doResets:
         tp.reset()
@@ -1052,7 +1053,7 @@ def _testSequence(trainingSequences,
         noise_vector = rgen.binomial(len(x), noiseLevel, (len(x)))
         x = logical_xor(x, noise_vector)
 
-      if VERBOSITY > 2: print "Time step",t, '\nInput:', tp.printInput(x)
+      if VERBOSITY > 2: print("Time step",t, '\nInput:', tp.printInput(x))
 
       x = numpy.array(x).astype('float32')
       y = tp.infer(x)
@@ -1067,7 +1068,7 @@ def _testSequence(trainingSequences,
       #     print ''.join('.' if z[i] == 0 else '1' for i in xrange(len(z)))
 
       if VERBOSITY > 3: tp.printStates(printPrevious = (VERBOSITY > 4),
-                                       printLearnState = False); print
+                                       printLearnState = False); print()
 
 
       if nMultiStepPrediction > 0:
@@ -1075,9 +1076,9 @@ def _testSequence(trainingSequences,
         y_ms = tp.predict(nSteps=nMultiStepPrediction)
 
         if VERBOSITY > 3:
-          print "Multi step prediction at Time step", t
+          print("Multi step prediction at Time step", t)
           for i in range(nMultiStepPrediction):
-            print "Prediction at t+", i+1
+            print("Prediction at t+", i+1)
             tp.printColConfidence(y_ms[i])
 
         # Error Checking
@@ -1093,34 +1094,34 @@ def _testSequence(trainingSequences,
             falsePositives = missingFromInput
 
             if VERBOSITY > 2:
-              print "Predition from %d to %d" % (t, t+i+1)
-              print "\t\tFalse Negatives:", falseNegatives
-              print "\t\tFalse Positivies:", falsePositives
+              print("Predition from %d to %d" % (t, t+i+1))
+              print("\t\tFalse Negatives:", falseNegatives)
+              print("\t\tFalse Positivies:", falsePositives)
 
             if falseNegatives > 0 or falsePositives > 0:
               numStrictErrors += 1
 
               if falseNegatives > 0 and VERBOSITY > 1:
-                print "Multi step prediction from t=", t, "to t=", t+i+1,\
-                      "false negative with error=",falseNegatives,
-                print "out of", totalActiveInInput,"ones"
+                print("Multi step prediction from t=", t, "to t=", t+i+1,\
+                      "false negative with error=",falseNegatives, end=' ')
+                print("out of", totalActiveInInput,"ones")
 
               if falsePositives > 0 and VERBOSITY > 1:
-                print "Multi step prediction from t=", t, "to t=", t+i+1,\
-                    "false positive with error=",falsePositives,
-                print "out of",totalActiveInInput,"ones"
+                print("Multi step prediction from t=", t, "to t=", t+i+1,\
+                    "false positive with error=",falsePositives, end=' ')
+                print("out of",totalActiveInInput,"ones")
 
               if falsePositives > 3 or falseNegatives > 3:
                 numFailures += 1
 
                 # Analyze the failure if we care about it
                 if VERBOSITY > 1 and not shouldFail:
-                  print 'Input at t=', t
-                  print '\t\t',; printOneTrainingVector(testSequence[t])
-                  print 'Prediction for t=', t+i+1
-                  print '\t\t',; printOneTrainingVector(y_ms[i])
-                  print 'Actual input at t=', t+i+1
-                  print '\t\t',; printOneTrainingVector(testSequence[t+i+1])
+                  print('Input at t=', t)
+                  print('\t\t', end=' '); printOneTrainingVector(testSequence[t])
+                  print('Prediction for t=', t+i+1)
+                  print('\t\t', end=' '); printOneTrainingVector(y_ms[i])
+                  print('Actual input at t=', t+i+1)
+                  print('\t\t', end=' '); printOneTrainingVector(testSequence[t+i+1])
 
 
       if t < slen-1:
@@ -1146,14 +1147,14 @@ def _testSequence(trainingSequences,
           numStrictErrors += 1
 
           if falseNegatives > 0 and VERBOSITY > 1:
-            print "Pattern",s,"time",t,\
-                  "prediction false negative with error=",falseNegatives,
-            print "out of",int(testSequence[t+1].sum()),"ones"
+            print("Pattern",s,"time",t,\
+                  "prediction false negative with error=",falseNegatives, end=' ')
+            print("out of",int(testSequence[t+1].sum()),"ones")
 
           if falsePositives > 0 and VERBOSITY > 1:
-            print "Pattern",s,"time",t,\
-                  "prediction false positive with error=",falsePositives,
-            print "out of",int(testSequence[t+1].sum()),"ones"
+            print("Pattern",s,"time",t,\
+                  "prediction false positive with error=",falsePositives, end=' ')
+            print("out of",int(testSequence[t+1].sum()),"ones")
 
           if falseNegatives > 3 or falsePositives > 3:
 
@@ -1161,19 +1162,19 @@ def _testSequence(trainingSequences,
 
             # Analyze the failure if we care about it
             if VERBOSITY > 1 and not shouldFail:
-              print 'Test sequences'
+              print('Test sequences')
               if len(testSequences) > 1:
                   printAllTrainingSequences(testSequences, t+1)
               else:
-                  print '\t\t',; printOneTrainingVector(testSequence[t])
-                  print '\t\t',; printOneTrainingVector(testSequence[t+1])
-              print 'Acceptable'
+                  print('\t\t', end=' '); printOneTrainingVector(testSequence[t])
+                  print('\t\t', end=' '); printOneTrainingVector(testSequence[t+1])
+              print('Acceptable')
               for p in acceptablePatterns:
-                  print '\t\t',; printOneTrainingVector(p)
-              print 'Output'
+                  print('\t\t', end=' '); printOneTrainingVector(p)
+              print('Output')
               diagnostic = ''
               output = sum(tp.currentOutput,axis=1)
-              print '\t\t',; printOneTrainingVector(output)
+              print('\t\t', end=' '); printOneTrainingVector(output)
 
         else:
             numPerfect += 1
@@ -1196,7 +1197,7 @@ def TestB1(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B1"):
 
   for numSequences in [1]:
 
-    print "Test "+name+" (sequence memory - 1 repetition - 1 sequence)"
+    print("Test "+name+" (sequence memory - 1 repetition - 1 sequence)")
 
     for k in range(nTests): # Test that configuration several times
 
@@ -1223,13 +1224,13 @@ def TestB1(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B1"):
                                  activationThreshold = 8,
                                  doPooling = False)
       if numFailures == 0:
-        print "Test "+name+" ok"
+        print("Test "+name+" ok")
       else:
-        print "Test "+name+" failed"
+        print("Test "+name+" failed")
         nFailed = nFailed + 1
-        print "numFailures=", numFailures
-        print "numStrictErrors=", numStrictErrors
-        print "numPerfect=", numPerfect
+        print("numFailures=", numFailures)
+        print("numStrictErrors=", numStrictErrors)
+        print("numPerfect=", numPerfect)
 
   return nFailed
 
@@ -1241,7 +1242,7 @@ def TestB7(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B7"):
 
   for numSequences in [1]:
 
-    print "Test "+name+" (sequence memory - 4 repetition - 1 sequence - slow learning)"
+    print("Test "+name+" (sequence memory - 4 repetition - 1 sequence - slow learning)")
 
     for k in range(nTests): # Test that configuration several times
 
@@ -1269,13 +1270,13 @@ def TestB7(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B7"):
                                  doPooling = False)
 
       if numFailures == 0:
-        print "Test "+name+" ok"
+        print("Test "+name+" ok")
       else:
-        print "Test "+name+" failed"
+        print("Test "+name+" failed")
         nFailed = nFailed + 1
-        print "numFailures=", numFailures,
-        print "numStrictErrors=", numStrictErrors,
-        print "numPerfect=", numPerfect
+        print("numFailures=", numFailures, end=' ')
+        print("numStrictErrors=", numStrictErrors, end=' ')
+        print("numPerfect=", numPerfect)
 
   return nFailed
 
@@ -1289,10 +1290,10 @@ def TestB2(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B2"):
 
   for numSequences in [1]: # TestC has multiple sequences
 
-    print "Test",name,"(sequence memory - second repetition of the same sequence" +\
-          " should not add synapses)"
-    print "Num patterns in sequence =", numUniquePatterns,
-    print "cellsPerColumn=",cellsPerColumn
+    print("Test",name,"(sequence memory - second repetition of the same sequence" +\
+          " should not add synapses)")
+    print("Num patterns in sequence =", numUniquePatterns, end=' ')
+    print("cellsPerColumn=",cellsPerColumn)
 
     for k in range(nTests): # Test that configuration several times
 
@@ -1340,18 +1341,18 @@ def TestB2(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B2"):
       segmentInfo2 = tp2.getSegmentInfo()
       if (segmentInfo1[0] != segmentInfo2[0]) or \
          (segmentInfo1[1] != segmentInfo2[1]) :
-          print "Training twice incorrectly resulted in more segments or synapses"
-          print "Number of segments: ", segmentInfo1[0], segmentInfo2[0]
+          print("Training twice incorrectly resulted in more segments or synapses")
+          print("Number of segments: ", segmentInfo1[0], segmentInfo2[0])
           numFailures += 1
 
       if numFailures == 0:
-        print "Test",name,"ok"
+        print("Test",name,"ok")
       else:
-        print "Test",name,"failed"
+        print("Test",name,"failed")
         nFailed = nFailed + 1
-        print "numFailures=", numFailures
-        print "numStrictErrors=", numStrictErrors
-        print "numPerfect=", numPerfect
+        print("numFailures=", numFailures)
+        print("numStrictErrors=", numStrictErrors)
+        print("numPerfect=", numPerfect)
 
   return nFailed
 
@@ -1365,7 +1366,7 @@ def TestB3(numUniquePatterns, nTests):
 
   for numSequences in [2,5]:
 
-    print "Test B3 (sequence memory - 2 repetitions -", numSequences, "sequences)"
+    print("Test B3 (sequence memory - 2 repetitions -", numSequences, "sequences)")
 
     for k in range(nTests): # Test that configuration several times
 
@@ -1392,13 +1393,13 @@ def TestB3(numUniquePatterns, nTests):
                                  activationThreshold = 8,
                                  doPooling = False)
       if numFailures == 0:
-        print "Test B3 ok"
+        print("Test B3 ok")
       else:
-        print "Test B3 failed"
+        print("Test B3 failed")
         nFailed = nFailed + 1
-        print "numFailures=", numFailures
-        print "numStrictErrors=", numStrictErrors
-        print "numPerfect=", numPerfect
+        print("numFailures=", numFailures)
+        print("numStrictErrors=", numStrictErrors)
+        print("numPerfect=", numPerfect)
 
   return nFailed
 
@@ -1408,7 +1409,7 @@ def TestH0(numOnes = 5,nMultiStepPrediction=0):
 
   cellsPerColumn = 4
 
-  print "Higher order test 0 with cellsPerColumn=",cellsPerColumn
+  print("Higher order test 0 with cellsPerColumn=",cellsPerColumn)
 
   trainingSet = buildSimpleTrainingSet(numOnes)
 
@@ -1432,13 +1433,13 @@ def TestH0(numOnes = 5,nMultiStepPrediction=0):
   if numFailures == 0 and \
      numStrictErrors == 0 and \
      numPerfect == len(trainingSet[0])*(len(trainingSet[0][0]) - 1):
-    print "Test PASS"
+    print("Test PASS")
     return 0
   else:
-    print "Test FAILED"
-    print "numFailures=", numFailures
-    print "numStrictErrors=", numStrictErrors
-    print "numPerfect=", numPerfect
+    print("Test FAILED")
+    print("numFailures=", numFailures)
+    print("numStrictErrors=", numStrictErrors)
+    print("numPerfect=", numPerfect)
     return 1
 
 
@@ -1453,9 +1454,9 @@ def TestH(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2],
 
   for numSequences in nSequences:
 
-    print "Higher order test with sequenceLength=",sequenceLength,
-    print "cellsPerColumn=",cellsPerColumn,"nTests=",nTests,
-    print "numSequences=",numSequences, "pctShared=", pctShared
+    print("Higher order test with sequenceLength=",sequenceLength, end=' ')
+    print("cellsPerColumn=",cellsPerColumn,"nTests=",nTests, end=' ')
+    print("numSequences=",numSequences, "pctShared=", pctShared)
 
     for k in range(nTests): # Test that configuration several times
 
@@ -1487,17 +1488,17 @@ def TestH(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2],
 
       if numFailures == 0 and not shouldFail \
              or numFailures > 0 and shouldFail:
-          print "Test PASS",
+          print("Test PASS", end=' ')
           if shouldFail:
-              print '(should fail, and failed)'
+              print('(should fail, and failed)')
           else:
-              print
+              print()
       else:
-        print "Test FAILED"
+        print("Test FAILED")
         nFailed = nFailed + 1
-        print "numFailures=", numFailures
-        print "numStrictErrors=", numStrictErrors
-        print "numPerfect=", numPerfect
+        print("numFailures=", numFailures)
+        print("numStrictErrors=", numStrictErrors)
+        print("numPerfect=", numPerfect)
 
   return nFailed
 
@@ -1507,7 +1508,7 @@ def TestH11(numOnes = 3):
 
   cellsPerColumn = 4
 
-  print "Higher order test 11 with cellsPerColumn=",cellsPerColumn
+  print("Higher order test 11 with cellsPerColumn=",cellsPerColumn)
 
   trainingSet = buildAlternatingTrainingSet(numOnes= 3)
 
@@ -1530,13 +1531,13 @@ def TestH11(numOnes = 3):
   if numFailures == 0 and \
      numStrictErrors == 0 and \
      numPerfect == len(trainingSet[0])*(len(trainingSet[0][0]) - 1):
-    print "Test PASS"
+    print("Test PASS")
     return 0
   else:
-    print "Test FAILED"
-    print "numFailures=", numFailures
-    print "numStrictErrors=", numStrictErrors
-    print "numPerfect=", numPerfect
+    print("Test FAILED")
+    print("numFailures=", numFailures)
+    print("numStrictErrors=", numStrictErrors)
+    print("numPerfect=", numPerfect)
     return 1
 
 
@@ -1550,7 +1551,7 @@ def TestH2a(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2
       get correct high order prediction after multiple reps.
   """
 
-  print "Test H2a - second repetition of the same sequence should not add synapses"
+  print("Test H2a - second repetition of the same sequence should not add synapses")
 
   nFailed = 0
   subsequenceStartPos = 10
@@ -1558,10 +1559,10 @@ def TestH2a(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2
 
   for numSequences in nSequences:
 
-    print "Higher order test with sequenceLength=",sequenceLength,
-    print "cellsPerColumn=",cellsPerColumn,"nTests=",nTests,"numCols=", numCols
-    print "numSequences=",numSequences, "pctShared=", pctShared,
-    print "sharing mode=", seqGenMode
+    print("Higher order test with sequenceLength=",sequenceLength, end=' ')
+    print("cellsPerColumn=",cellsPerColumn,"nTests=",nTests,"numCols=", numCols)
+    print("numSequences=",numSequences, "pctShared=", pctShared, end=' ')
+    print("sharing mode=", seqGenMode)
 
     for k in range(nTests): # Test that configuration several times
 
@@ -1572,7 +1573,7 @@ def TestH2a(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2
                                      numCols = numCols,
                                      minOnes = 21, maxOnes = 25)
 
-      print "============== 10 ======================"
+      print("============== 10 ======================")
 
       numFailures3, numStrictErrors3, numPerfect3, tp3 = \
                    _testSequence(trainingSet,
@@ -1591,7 +1592,7 @@ def TestH2a(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2
                                  doPooling = False,
                                  shouldFail = shouldFail)
 
-      print "============== 2 ======================"
+      print("============== 2 ======================")
 
       numFailures, numStrictErrors, numPerfect, tp2 = \
                    _testSequence(trainingSet,
@@ -1610,7 +1611,7 @@ def TestH2a(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2
                                  doPooling = False,
                                  shouldFail = shouldFail)
 
-      print "============== 1 ======================"
+      print("============== 1 ======================")
 
       numFailures1, numStrictErrors1, numPerfect1, tp1 = \
                    _testSequence(trainingSet,
@@ -1634,32 +1635,32 @@ def TestH2a(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2
       segmentInfo2 = tp2.getSegmentInfo()
       if (abs(segmentInfo1[0] - segmentInfo2[0]) > 3) or \
          (abs(segmentInfo1[1] - segmentInfo2[1]) > 3*15) :
-          print "Training twice incorrectly resulted in too many segments or synapses"
-          print segmentInfo1
-          print segmentInfo2
-          print tp3.getSegmentInfo()
+          print("Training twice incorrectly resulted in too many segments or synapses")
+          print(segmentInfo1)
+          print(segmentInfo2)
+          print(tp3.getSegmentInfo())
           tp3.trimSegments()
-          print tp3.getSegmentInfo()
+          print(tp3.getSegmentInfo())
 
-          print "Failures for 1, 2, and N reps"
-          print numFailures1, numStrictErrors1, numPerfect1
-          print numFailures, numStrictErrors, numPerfect
-          print numFailures3, numStrictErrors3, numPerfect3
+          print("Failures for 1, 2, and N reps")
+          print(numFailures1, numStrictErrors1, numPerfect1)
+          print(numFailures, numStrictErrors, numPerfect)
+          print(numFailures3, numStrictErrors3, numPerfect3)
           numFailures += 1
 
       if numFailures == 0 and not shouldFail \
              or numFailures > 0 and shouldFail:
-          print "Test PASS",
+          print("Test PASS", end=' ')
           if shouldFail:
-              print '(should fail, and failed)'
+              print('(should fail, and failed)')
           else:
-              print
+              print()
       else:
-        print "Test FAILED"
+        print("Test FAILED")
         nFailed = nFailed + 1
-        print "numFailures=", numFailures
-        print "numStrictErrors=", numStrictErrors
-        print "numPerfect=", numPerfect
+        print("numFailures=", numFailures)
+        print("numStrictErrors=", numStrictErrors)
+        print("numPerfect=", numPerfect)
 
   return nFailed
 
@@ -1677,12 +1678,12 @@ def TestP(sequenceLength, nTests, cellsPerColumn, numCols =300, nSequences =[2],
 
   for numSequences in nSequences:
 
-    print "Pooling test with sequenceLength=",sequenceLength,
-    print 'numCols=', numCols,
-    print "cellsPerColumn=",cellsPerColumn,"nTests=",nTests,
-    print "numSequences=",numSequences, "pctShared=", pctShared,
-    print "nTrainingReps=", nTrainingReps, "minOnes=", minOnes,
-    print "maxOnes=", maxOnes
+    print("Pooling test with sequenceLength=",sequenceLength, end=' ')
+    print('numCols=', numCols, end=' ')
+    print("cellsPerColumn=",cellsPerColumn,"nTests=",nTests, end=' ')
+    print("numSequences=",numSequences, "pctShared=", pctShared, end=' ')
+    print("nTrainingReps=", nTrainingReps, "minOnes=", minOnes, end=' ')
+    print("maxOnes=", maxOnes)
 
     for k in range(nTests): # Test that configuration several times
 
@@ -1714,12 +1715,12 @@ def TestP(sequenceLength, nTests, cellsPerColumn, numCols =300, nSequences =[2],
       if numFailures == 0 and \
          numStrictErrors == 0 and \
          numPerfect == numSequences*(sequenceLength - 1):
-        print "Test PASS"
+        print("Test PASS")
       else:
-        print "Test FAILED"
-        print "numFailures=", numFailures
-        print "numStrictErrors=", numStrictErrors
-        print "numPerfect=", numPerfect
+        print("Test FAILED")
+        print("numFailures=", numFailures)
+        print("numStrictErrors=", numStrictErrors)
+        print("numPerfect=", numPerfect)
         nFailed = nFailed + 1
 
   return nFailed
@@ -1732,7 +1733,7 @@ def TestHL0a(numOnes = 5):
   newSynapseCount = 5
   activationThreshold = newSynapseCount
 
-  print "HiLo test 0a with cellsPerColumn=",cellsPerColumn
+  print("HiLo test 0a with cellsPerColumn=",cellsPerColumn)
 
   trainingSet, testSet = buildHL0aTrainingSet()
   numCols = trainingSet[0][0].size
@@ -1757,22 +1758,22 @@ def TestHL0a(numOnes = 5):
 
   tp.trimSegments()
   retAfter = tp.getSegmentInfo()
-  print retAfter[0], retAfter[1]
+  print(retAfter[0], retAfter[1])
   if retAfter[0] > 20:
-    print "Too many segments"
+    print("Too many segments")
     numFailures += 1
   if retAfter[1] > 100:
-    print "Too many synapses"
+    print("Too many synapses")
     numFailures += 1
 
   if numFailures == 0:
-    print "Test HL0a ok"
+    print("Test HL0a ok")
     return 0
   else:
-    print "Test HL0a failed"
-    print "numFailures=", numFailures
-    print "numStrictErrors=", numStrictErrors
-    print "numPerfect=", numPerfect
+    print("Test HL0a failed")
+    print("numFailures=", numFailures)
+    print("numStrictErrors=", numStrictErrors)
+    print("numPerfect=", numPerfect)
     return 1
 
 
@@ -1783,11 +1784,11 @@ def TestHL0b(numOnes = 5):
   newSynapseCount = 5
   activationThreshold = newSynapseCount
 
-  print "HiLo test 0b with cellsPerColumn=",cellsPerColumn
+  print("HiLo test 0b with cellsPerColumn=",cellsPerColumn)
 
   trainingSet, testSet = buildHL0bTrainingSet()
   numCols = trainingSet[0][0].size
-  print "numCols=", numCols
+  print("numCols=", numCols)
 
   numFailures, numStrictErrors, numPerfect, tp = \
                _testSequence([trainingSet],
@@ -1811,13 +1812,13 @@ def TestHL0b(numOnes = 5):
   tp.printCells()
 
   if numFailures == 0:
-    print "Test HL0 ok"
+    print("Test HL0 ok")
     return 0
   else:
-    print "Test HL0 failed"
-    print "numFailures=", numFailures
-    print "numStrictErrors=", numStrictErrors
-    print "numPerfect=", numPerfect
+    print("Test HL0 failed")
+    print("numFailures=", numFailures)
+    print("numStrictErrors=", numStrictErrors)
+    print("numPerfect=", numPerfect)
     return 1
 
 
@@ -1839,12 +1840,12 @@ def TestHL(sequenceLength, nTests, cellsPerColumn, numCols =200, nSequences =[2]
 
   for numSequences in nSequences:
 
-    print "Hilo test with sequenceLength=", sequenceLength,
-    print "cellsPerColumn=", cellsPerColumn, "nTests=", nTests,
-    print "numSequences=", numSequences, "pctShared=", pctShared,
-    print "nTrainingReps=", nTrainingReps, "minOnes=", minOnes,
-    print "maxOnes=", maxOnes,
-    print 'noiseModel=', noiseModel, 'noiseLevel=', noiseLevel
+    print("Hilo test with sequenceLength=", sequenceLength, end=' ')
+    print("cellsPerColumn=", cellsPerColumn, "nTests=", nTests, end=' ')
+    print("numSequences=", numSequences, "pctShared=", pctShared, end=' ')
+    print("nTrainingReps=", nTrainingReps, "minOnes=", minOnes, end=' ')
+    print("maxOnes=", maxOnes, end=' ')
+    print('noiseModel=', noiseModel, 'noiseLevel=', noiseLevel)
 
     for k in range(nTests): # Test that configuration several times
 
@@ -1878,12 +1879,12 @@ def TestHL(sequenceLength, nTests, cellsPerColumn, numCols =200, nSequences =[2]
       if numFailures == 0 and \
          numStrictErrors == 0 and \
          numPerfect == numSequences*(sequenceLength - 1):
-        print "Test PASS"
+        print("Test PASS")
       else:
-        print "Test FAILED"
-        print "numFailures=", numFailures
-        print "numStrictErrors=", numStrictErrors
-        print "numPerfect=", numPerfect
+        print("Test FAILED")
+        print("numFailures=", numFailures)
+        print("numStrictErrors=", numStrictErrors)
+        print("numPerfect=", numPerfect)
         nFailed = nFailed + 1
 
   return nFailed
@@ -1898,7 +1899,7 @@ def worker(x):
   sequenceLength = 10
   numCols = 200
 
-  print 'Started', cellsPerColumn, numSequences
+  print('Started', cellsPerColumn, numSequences)
 
   seqGenMode = 'shared subsequence, one pattern'
   subsequenceStartPos = 5
@@ -1952,9 +1953,9 @@ def worker(x):
                              doPooling = False,
                              shouldFail = False)
 
-  print 'Completed',
-  print cellsPerColumn, numSequences, numFailures1, numStrictErrors1, numPerfect1, atHub, \
-         numFailures2, numStrictErrors2, numPerfect2
+  print('Completed', end=' ')
+  print(cellsPerColumn, numSequences, numFailures1, numStrictErrors1, numPerfect1, atHub, \
+         numFailures2, numStrictErrors2, numPerfect2)
 
   return cellsPerColumn, numSequences, numFailures1, numStrictErrors1, numPerfect1, atHub, \
          numFailures2, numStrictErrors2, numPerfect2
@@ -1972,16 +1973,16 @@ def hubCapacity():
   from multiprocessing import Pool
   import itertools
 
-  print "Hub capacity test"
+  print("Hub capacity test")
   # scalar value on predictions by looking at max perm over column
 
   p = Pool(2)
 
-  results = p.map(worker, itertools.product([1,2,3,4,5,6,7,8], xrange(1,2000,200)))
+  results = p.map(worker, itertools.product([1,2,3,4,5,6,7,8], range(1,2000,200)))
 
   f = open('results-numPerfect.11.22.10.txt', 'w')
   for i,r in enumerate(results):
-      print >>f, '{%d,%d,%d,%d,%d,%d,%d,%d,%d},' % r
+      print('{%d,%d,%d,%d,%d,%d,%d,%d,%d},' % r, file=f)
   f.close()
 
 
@@ -1993,7 +1994,7 @@ def runTests(testLength = "short"):
 
   # always run this one: if that one fails, we can't do anything
   basicTest()
-  print
+  print()
 
   #---------------------------------------------------------------------------------
   if testLength == "long":
@@ -2009,7 +2010,7 @@ def runTests(testLength = "short"):
                                    cellsPerColumn = 4, name="B6")
   tests['B7'] = TestB7(numUniquePatterns, nTests)
 
-  print
+  print()
 
   #---------------------------------------------------------------------------------
 
@@ -2018,14 +2019,14 @@ def runTests(testLength = "short"):
 
   if True:
 
-      print "Test H0"
+      print("Test H0")
       tests['H0'] = TestH0(numOnes = 5)
 
-      print "Test H2"
+      print("Test H2")
       #tests['H2'] = TestH(numUniquePatterns, nTests, cellsPerColumn = 4,
       #                    nTrainingReps = numUniquePatterns, compareToPy = False)
 
-      print "Test H3"
+      print("Test H3")
       tests['H3'] = TestH(numUniquePatterns, nTests,
                           numCols = 200,
                           cellsPerColumn = 20,
@@ -2033,7 +2034,7 @@ def runTests(testLength = "short"):
                           compareToPy = False,
                           highOrder = True)
 
-      print "Test H4" # Produces 3 false positives, but otherwise fine.
+      print("Test H4") # Produces 3 false positives, but otherwise fine.
       # TODO: investigate initial false positives?
       tests['H4'] = TestH(numUniquePatterns, nTests,
                         cellsPerColumn = 20,
@@ -2041,14 +2042,14 @@ def runTests(testLength = "short"):
                         seqGenMode='shared subsequence at beginning')
 
   if True:
-      print "Test H0 with multistep prediction"
+      print("Test H0 with multistep prediction")
 
       tests['H0_MS'] = TestH0(numOnes = 5, nMultiStepPrediction=2)
 
 
   if True:
 
-      print "Test H1" # - Should Fail
+      print("Test H1") # - Should Fail
       tests['H1'] = TestH(numUniquePatterns, nTests,
                                       cellsPerColumn = 1, nTrainingReps = 1,
                                       shouldFail = True)
@@ -2061,13 +2062,13 @@ def runTests(testLength = "short"):
 
 
   if False:
-      print "Test H5" # make sure seqs are good even with shuffling, fast learning
+      print("Test H5") # make sure seqs are good even with shuffling, fast learning
       tests['H5'] = TestH(numUniquePatterns, nTests,
                             cellsPerColumn = 10,
                             pctShared = 0.0,
                             seqGenMode='shuffle, no shared subsequence')
 
-      print "Test H6" # should work
+      print("Test H6") # should work
       tests['H6'] = TestH(numUniquePatterns, nTests,
                             cellsPerColumn = 10,
                             pctShared = 0.4,
@@ -2090,7 +2091,7 @@ def runTests(testLength = "short"):
       #                                  pctShared = 0.4,
       #                                  seqGenMode='shuffle, shared subsequence')
 
-      print "Test H9" # plot hub capacity
+      print("Test H9") # plot hub capacity
       tests['H9'] = TestH(numUniquePatterns, nTests,
                                         cellsPerColumn = 10,
                                         pctShared = 0.4,
@@ -2102,11 +2103,11 @@ def runTests(testLength = "short"):
       #                                    pctShared = 0.4,
       #                                    seqGenMode='shuffle, shared subsequence')
 
-      print
+      print()
 
   #---------------------------------------------------------------------------------
   if False:
-      print "Test P1"
+      print("Test P1")
       tests['P1'] = TestP(numUniquePatterns, nTests,
                                         cellsPerColumn = 4,
                                         pctShared = 0.0,
@@ -2115,14 +2116,14 @@ def runTests(testLength = "short"):
 
   if False:
 
-      print "Test P2"
+      print("Test P2")
       tests['P2'] = TestP(numUniquePatterns, nTests,
                                         cellsPerColumn = 4,
                                         pctShared = 0.0,
                                         seqGenMode = 'no shared subsequence',
                                         nTrainingReps = 5)
 
-      print "Test P3"
+      print("Test P3")
       tests['P3'] = TestP(numUniquePatterns, nTests,
                                         cellsPerColumn = 4,
                                         pctShared = 0.0,
@@ -2130,7 +2131,7 @@ def runTests(testLength = "short"):
                                         nSequences = [2] if testLength == 'short' else [2,5],
                                         nTrainingReps = 5)
 
-      print "Test P4"
+      print("Test P4")
       tests['P4'] = TestP(numUniquePatterns, nTests,
                                         cellsPerColumn = 4,
                                         pctShared = 0.0,
@@ -2138,19 +2139,19 @@ def runTests(testLength = "short"):
                                         nSequences = [2] if testLength == 'short' else [2,5],
                                         nTrainingReps = 5)
 
-      print
+      print()
 
   #---------------------------------------------------------------------------------
   if True:
-      print "Test HL0a"
+      print("Test HL0a")
       tests['HL0a'] = TestHL0a(numOnes = 5)
 
   if False:
 
-      print "Test HL0b"
+      print("Test HL0b")
       tests['HL0b'] = TestHL0b(numOnes = 5)
 
-      print "Test HL1"
+      print("Test HL1")
       tests['HL1'] = TestHL(sequenceLength = 20,
                                            nTests = nTests,
                                            numCols = 100,
@@ -2162,7 +2163,7 @@ def runTests(testLength = "short"):
                                            noiseLevel = 0.1,
                                            doResets = False)
 
-      print "Test HL2"
+      print("Test HL2")
       tests['HL2'] = TestHL(numUniquePatterns = 20,
                                            nTests = nTests,
                                            numCols = 200,
@@ -2174,7 +2175,7 @@ def runTests(testLength = "short"):
                                            noiseLevel = 0.1,
                                            doResets = False)
 
-      print "Test HL3"
+      print("Test HL3")
       tests['HL3'] = TestHL(numUniquePatterns = 30,
                                            nTests = nTests,
                                            numCols = 200,
@@ -2187,7 +2188,7 @@ def runTests(testLength = "short"):
                                            noiseLevel = 0.0,
                                            doResets = True)
 
-      print "Test HL4"
+      print("Test HL4")
       tests['HL4'] = TestHL(numUniquePatterns = 30,
                                            nTests = nTests,
                                            numCols = 200,
@@ -2200,7 +2201,7 @@ def runTests(testLength = "short"):
                                            noiseLevel = 0.0,
                                            doResets = False)
 
-      print "Test HL5"
+      print("Test HL5")
       tests['HL5'] = TestHL(numUniquePatterns = 30,
                                            nTests = nTests,
                                            numCols = 200,
@@ -2213,7 +2214,7 @@ def runTests(testLength = "short"):
                                            noiseLevel = 0.1,
                                            doResets = False)
 
-      print "Test HL6"
+      print("Test HL6")
       tests['HL6'] = nTests - TestHL(numUniquePatterns = 20,
                                      nTests = nTests,
                                      numCols = 200,
@@ -2226,21 +2227,21 @@ def runTests(testLength = "short"):
                                      doResets = True,
                                      hiloOn = False)
 
-      print
+      print()
 
   #---------------------------------------------------------------------------------
   nFailures = 0
-  for k,v in tests.iteritems():
+  for k,v in tests.items():
     nFailures = nFailures + v
 
   if nFailures > 0: # 1 to account for H1
-    print "There are failed tests"
-    print "Test\tn failures"
-    for k,v in tests.iteritems():
-      print k, "\t", v
+    print("There are failed tests")
+    print("Test\tn failures")
+    for k,v in tests.items():
+      print(k, "\t", v)
     assert 0
   else:
-    print "All tests pass"
+    print("All tests pass")
 
   #---------------------------------------------------------------------------------
   # Keep
@@ -2259,9 +2260,9 @@ def runTests(testLength = "short"):
 if __name__=="__main__":
 
   if not TEST_CPP_TP:
-    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    print "!!  WARNING: C++ TP testing is DISABLED until it can be updated."
-    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print("!!  WARNING: C++ TP testing is DISABLED until it can be updated.")
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
   # Three different test lengths are passed in through the command line.
   # Developer tests use --short. Autobuild does not pass in anything.
@@ -2282,7 +2283,7 @@ if __name__=="__main__":
       if 'verbosity' in arg:
           VERBOSITY = int(sys.argv[i+1])
       if 'help' in arg:
-          print "TPTest.py --short|long --seed number|'rand' --verbosity number"
+          print("TPTest.py --short|long --seed number|'rand' --verbosity number")
           sys.exit()
       if "short" in arg:
         testLength = "short"
@@ -2296,19 +2297,19 @@ if __name__=="__main__":
     numUniquePatterns = 50
     nTests = 1
   elif testLength == "autobuild":
-    print "Running autobuild tests"
+    print("Running autobuild tests")
     numUniquePatterns = 50
     nTests = 1
   elif testLength == "long":
     numUniquePatterns = 100
     nTests = 3
 
-  print "TP tests", testLength, "numUniquePatterns=", numUniquePatterns, "nTests=", nTests,
-  print "seed=", SEED
-  print
+  print("TP tests", testLength, "numUniquePatterns=", numUniquePatterns, "nTests=", nTests, end=' ')
+  print("seed=", SEED)
+  print()
 
   if testLength == "long":
-    print 'Testing Python TP'
+    print('Testing Python TP')
     TPClass = TP
     runTests(testLength)
 
@@ -2320,6 +2321,6 @@ if __name__=="__main__":
     checkSynapseConsistency = False
 
   if TEST_CPP_TP:
-    print 'Testing C++ TP'
+    print('Testing C++ TP')
     TPClass = TP10X2
     runTests(testLength)

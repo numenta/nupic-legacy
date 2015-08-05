@@ -68,28 +68,28 @@ class NetworkTwoNodeTest(unittest.TestCase):
     # Check everything
     # =====================================================
     dims = level1.getDimensions()
-    self.assertEquals(len(dims), 2)
-    self.assertEquals(dims[0], 6)
-    self.assertEquals(dims[1], 4)
+    self.assertEqual(len(dims), 2)
+    self.assertEqual(dims[0], 6)
+    self.assertEqual(dims[1], 4)
 
     dims = level2.getDimensions()
-    self.assertEquals(len(dims), 2)
-    self.assertEquals(dims[0], 3)
-    self.assertEquals(dims[1], 2)
+    self.assertEqual(len(dims), 2)
+    self.assertEqual(dims[0], 3)
+    self.assertEqual(dims[1], 2)
 
     # Check L1 output. "False" means don't copy, i.e.
     # get a pointer to the actual output
     # Actual output values are determined by the TestNode
     # compute() behavior.
     l1output = level1.getOutputData("bottomUpOut")
-    self.assertEquals(len(l1output), 48) # 24 nodes; 2 values per node
-    for i in xrange(24):
-      self.assertEquals(l1output[2*i], 0)      # size of input to each node is 0
-      self.assertEquals(l1output[2*i+1], i)    # node number
+    self.assertEqual(len(l1output), 48) # 24 nodes; 2 values per node
+    for i in range(24):
+      self.assertEqual(l1output[2*i], 0)      # size of input to each node is 0
+      self.assertEqual(l1output[2*i+1], i)    # node number
 
     # check L2 output.
     l2output = level2.getOutputData("bottomUpOut", )
-    self.assertEquals(len(l2output), 12) # 6 nodes; 2 values per node
+    self.assertEqual(len(l2output), 12) # 6 nodes; 2 values per node
     # Output val = node number + sum(inputs)
     # Can compute from knowing L1 layout
     #
@@ -105,9 +105,9 @@ class NetworkTwoNodeTest(unittest.TestCase):
     outputVals.append(3 + (12 + 13 + 18 + 19))
     outputVals.append(4 + (14 + 15 + 20 + 21))
     outputVals.append(5 + (16 + 17 + 22 + 23))
-    for i in xrange(6):
-      self.assertEquals(l2output[2*i], 8) # size of input for each node is 8
-      self.assertEquals(l2output[2*i+1], outputVals[i])
+    for i in range(6):
+      self.assertEqual(l2output[2*i], 8) # size of input for each node is 8
+      self.assertEqual(l2output[2*i+1], outputVals[i])
 
 
     # =====================================================
@@ -122,13 +122,13 @@ class NetworkTwoNodeTest(unittest.TestCase):
 
     # Outputs are all the same except that the first output is
     # incremented by the iteration number
-    for i in xrange(24):
-      self.assertEquals(l1output[2*i], 1)
-      self.assertEquals(l1output[2*i+1], i)
+    for i in range(24):
+      self.assertEqual(l1output[2*i], 1)
+      self.assertEqual(l1output[2*i+1], i)
 
-    for i in xrange(6):
-      self.assertEquals(l2output[2*i], 9)
-      self.assertEquals(l2output[2*i+1], outputVals[i] + 4)
+    for i in range(6):
+      self.assertEqual(l2output[2*i], 9)
+      self.assertEqual(l2output[2*i+1], outputVals[i] + 4)
 
 
   def testLinkingDownwardDimensions(self):
@@ -144,8 +144,8 @@ class NetworkTwoNodeTest(unittest.TestCase):
     net.initialize()
 
     # Level1 should now have dimensions [6, 4]
-    self.assertEquals(level1.getDimensions()[0], 6)
-    self.assertEquals(level1.getDimensions()[1], 4)
+    self.assertEqual(level1.getDimensions()[0], 6)
+    self.assertEqual(level1.getDimensions()[1], 4)
 
     #
     # We get nice error messages when network can't be initialized

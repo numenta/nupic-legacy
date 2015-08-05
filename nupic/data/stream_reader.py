@@ -350,7 +350,7 @@ class StreamReader(RecordStreamIface):
     # Do we need to re-order the fields in the record?
     if self._needFieldsFiltering:
       values = []
-      srcDict = dict(zip(self._recordStoreFieldNames, fieldValues))
+      srcDict = dict(list(zip(self._recordStoreFieldNames, fieldValues)))
       for name in self._streamFieldNames:
         values.append(srcDict[name])
       fieldValues = values
@@ -527,8 +527,8 @@ class StreamReader(RecordStreamIface):
 
     # We need to convert each item to represent the fields of the *stream*
     streamStats = dict()
-    for (key, values) in recordStoreStats.items():
-      fieldStats = dict(zip(self._recordStoreFieldNames, values))
+    for (key, values) in list(recordStoreStats.items()):
+      fieldStats = dict(list(zip(self._recordStoreFieldNames, values)))
       streamValues = []
       for name in self._streamFieldNames:
         streamValues.append(fieldStats[name])

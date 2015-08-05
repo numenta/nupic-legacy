@@ -54,6 +54,8 @@ right half. Both should be learned well.
 
 """
 
+from __future__ import print_function
+
 import numpy
 import unittest2 as unittest
 
@@ -82,13 +84,13 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
   def _printOneTrainingVector(self, x):
     """Print a single vector succinctly."""
-    print ''.join('1' if k != 0 else '.' for k in x)
+    print(''.join('1' if k != 0 else '.' for k in x))
 
 
   def _printAllTrainingSequences(self, trainingSequences):
     """Print all vectors"""
     for i, trainingSequence in enumerate(trainingSequences):
-      print "============= Sequence", i, "================="
+      print("============= Sequence", i, "=================")
       for pattern in trainingSequence:
         self._printOneTrainingVector(pattern)
 
@@ -130,7 +132,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     if g_testCPPTP:
       if g_options.verbosity > 1:
-        print "Creating TP10X2 instance"
+        print("Creating TP10X2 instance")
 
       cppTP = TP10X2(numberOfCols = numCols, cellsPerColumn = 4,
                      initialPerm = initialPerm, connectedPerm = connectedPerm,
@@ -153,7 +155,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
       cppTP = None
 
     if g_options.verbosity > 1:
-      print "Creating PY TP instance"
+      print("Creating PY TP instance")
     pyTP = TP(numberOfCols = numCols, cellsPerColumn = 4,
                initialPerm = initialPerm, connectedPerm = connectedPerm,
                minThreshold = minThreshold, newSynapseCount = newSynapseCount,
@@ -176,7 +178,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     numCols = numOnes * numPatterns
     p = []
-    for i in xrange(numPatterns):
+    for i in range(numPatterns):
       x = numpy.zeros(numCols, dtype='float32')
       x[i*numOnes:(i+1)*numOnes] = 1
       p.append(x)
@@ -204,9 +206,9 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     # Create noisy training sequence
     trainingSequences = []
-    for i in xrange(numRepetitions):
+    for i in range(numRepetitions):
       sequence = []
-      for j in xrange(numPatterns):
+      for j in range(numPatterns):
 
         # Make left half
         v = numpy.zeros(numCols)
@@ -221,16 +223,16 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     # Create a single clean test sequence
     testSequence = []
-    for j in xrange(numPatterns):
+    for j in range(numPatterns):
       # Make only left half
       v = numpy.zeros(numCols, dtype='float32')
       v[0:halfCols] = p[j]
       testSequence.append(v)
 
     if g_options.verbosity > 1:
-      print "\nTraining sequences"
+      print("\nTraining sequences")
       self.printAllTrainingSequences(trainingSequences)
-      print "\nTest sequence"
+      print("\nTest sequence")
       self.printAllTrainingSequences([testSequence])
 
     return (trainingSequences, [testSequence])
@@ -269,9 +271,9 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     # Create the noisy training sequence
     trainingSequences = []
-    for i in xrange(numRepetitions*numSequences):
+    for i in range(numRepetitions*numSequences):
       sequence = []
-      for j in xrange(numPatterns):
+      for j in range(numPatterns):
 
         # Make left half
         v = numpy.zeros(numCols, dtype='float32')
@@ -286,9 +288,9 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     # Create the clean test sequences
     testSequences = []
-    for i in xrange(numSequences):
+    for i in range(numSequences):
       sequence = []
-      for j in xrange(numPatterns):
+      for j in range(numPatterns):
         # Make only left half
         v = numpy.zeros(numCols, dtype='float32')
         v[0:halfCols] = p[indices[i % numSequences][j]]
@@ -296,9 +298,9 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
       testSequences.append(sequence)
 
     if g_options.verbosity > 1:
-      print "\nTraining sequences"
+      print("\nTraining sequences")
       self.printAllTrainingSequences(trainingSequences)
-      print "\nTest sequences"
+      print("\nTest sequences")
       self.printAllTrainingSequences(testSequences)
 
     return (trainingSequences, testSequences)
@@ -326,18 +328,18 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
     #--------------------------------------------------------------------------
     # Learn
     if g_options.verbosity > 0:
-      print "============= Training ================="
-      print "TP parameters:"
-      print "CPP"
+      print("============= Training =================")
+      print("TP parameters:")
+      print("CPP")
       if cppTP is not None:
-        print cppTP.printParameters()
-      print "\nPY"
-      print pyTP.printParameters()
+        print(cppTP.printParameters())
+      print("\nPY")
+      print(pyTP.printParameters())
 
     for sequenceNum, trainingSequence in enumerate(trainingSequences):
 
       if g_options.verbosity > 1:
-        print "============= New sequence ================="
+        print("============= New sequence =================")
 
       if doResets:
         if cppTP is not None:
@@ -347,9 +349,9 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
       for t, x in enumerate(trainingSequence):
 
         if g_options.verbosity > 1:
-          print "Time step", t, "sequence number", sequenceNum
-          print "Input: ", pyTP.printInput(x)
-          print "NNZ:", x.nonzero()
+          print("Time step", t, "sequence number", sequenceNum)
+          print("Input: ", pyTP.printInput(x))
+          print("NNZ:", x.nonzero())
 
         x = numpy.array(x).astype('float32')
         if cppTP is not None:
@@ -362,23 +364,23 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
         if g_options.verbosity > 2:
           if cppTP is not None:
-            print "CPP"
+            print("CPP")
             cppTP.printStates(printPrevious = (g_options.verbosity > 4))
-          print "\nPY"
+          print("\nPY")
           pyTP.printStates(printPrevious = (g_options.verbosity > 4))
-          print
+          print()
 
       if g_options.verbosity > 4:
-        print "Sequence finished. Complete state after sequence"
+        print("Sequence finished. Complete state after sequence")
         if cppTP is not None:
-          print "CPP"
+          print("CPP")
           cppTP.printCells()
-        print "\nPY"
+        print("\nPY")
         pyTP.printCells()
-        print
+        print()
 
     if g_options.verbosity > 2:
-      print "Calling trim segments"
+      print("Calling trim segments")
 
     if cppTP is not None:
       nSegsRemovedCPP, nSynsRemovedCPP = cppTP.trimSegments()
@@ -390,22 +392,22 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
     if cppTP is not None:
       assert fdrutils.tpDiff2(cppTP, pyTP, g_options.verbosity) == True
 
-    print "Training completed. Stats:"
+    print("Training completed. Stats:")
     info = pyTP.getSegmentInfo()
-    print "  nSegments:", info[0]
-    print "  nSynapses:", info[1]
+    print("  nSegments:", info[0])
+    print("  nSynapses:", info[1])
     if g_options.verbosity > 3:
-      print "Complete state:"
+      print("Complete state:")
       if cppTP is not None:
-        print "CPP"
+        print("CPP")
         cppTP.printCells()
-      print "\nPY"
+      print("\nPY")
       pyTP.printCells()
 
     #---------------------------------------------------------------------------
     # Infer
     if g_options.verbosity > 1:
-      print "============= Inference ================="
+      print("============= Inference =================")
 
     if cppTP is not None:
       cppTP.collectStats = True
@@ -417,7 +419,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
     for sequenceNum, testSequence in enumerate(testSequences):
 
       if g_options.verbosity > 1:
-        print "============= New sequence ================="
+        print("============= New sequence =================")
 
       slen = len(testSequence)
 
@@ -429,7 +431,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
       for t, x in enumerate(testSequence):
 
         if g_options.verbosity >= 2:
-          print "Time step", t, '\nInput:'
+          print("Time step", t, '\nInput:')
           pyTP.printInput(x)
 
         if cppTP is not None:
@@ -441,10 +443,10 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
         if g_options.verbosity > 2:
           if cppTP is not None:
-            print "CPP"
+            print("CPP")
             cppTP.printStates(printPrevious = (g_options.verbosity > 4),
                            printLearnState = False)
-          print "\nPY"
+          print("\nPY")
           pyTP.printStates(printPrevious = (g_options.verbosity > 4),
                          printLearnState = False)
 
@@ -454,10 +456,10 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
         if g_options.verbosity >= 2:
           if cppTP is not None:
-            print "CPP"
-            print cppScores
-          print "\nPY"
-          print pyScores
+            print("CPP")
+            print(cppScores)
+          print("\nPY")
+          print(pyScores)
 
         if t < slen-1 and t > pyTP.burnIn:
           nPredictions += 1
@@ -481,9 +483,9 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
         passTest = True
 
     if not passTest:
-      print "CPP correct predictions:", cppNumCorrect
-      print "PY correct predictions:", pyNumCorrect
-      print "Total predictions:", nPredictions
+      print("CPP correct predictions:", cppNumCorrect)
+      print("PY correct predictions:", pyNumCorrect)
+      print("Total predictions:", nPredictions)
 
     return passTest
 
@@ -497,7 +499,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
     else:
       testName = "TestSL1"
 
-    print "\nRunning %s..." % testName
+    print("\nRunning %s..." % testName)
 
     trainingSet, testSet = self._buildSegmentLearningTrainingSet(numOnes,
                                                                  numRepetitions)
@@ -509,10 +511,10 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
     testResult = self._testSegmentLearningSequence(tps, trainingSet, testSet)
 
     if testResult:
-      print "%s PASS" % testName
+      print("%s PASS" % testName)
       return 1
     else:
-      print "%s FAILED" % testName
+      print("%s FAILED" % testName)
       return 0
 
 
@@ -525,7 +527,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
     else:
       testName = "TestSL2"
 
-    print "\nRunning %s..." % testName
+    print("\nRunning %s..." % testName)
 
     trainingSet, testSet = self._buildSL2TrainingSet(numOnes, numRepetitions)
     numCols = len(trainingSet[0][0])
@@ -536,10 +538,10 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
     testResult = self._testSegmentLearningSequence(tps, trainingSet, testSet)
 
     if testResult:
-      print "%s PASS" % testName
+      print("%s PASS" % testName)
       return 1
     else:
-      print "%s FAILED" % testName
+      print("%s FAILED" % testName)
       return 0
 
 
@@ -559,8 +561,8 @@ class TPSegmentLearningTests(ExperimentTestBaseClass):
     """Test segment learning with fixed resources"""
 
     if not g_options.long:
-      print "Test %s only enabled with the --long option" % \
-                                (self._testMethodName)
+      print("Test %s only enabled with the --long option" % \
+                                (self._testMethodName))
       return
 
     self._testSL1(fixedResources=True,
@@ -571,8 +573,8 @@ class TPSegmentLearningTests(ExperimentTestBaseClass):
     """Test segment learning without fixed resources"""
 
     if not g_options.long:
-      print "Test %s only enabled with the --long option" % \
-                                (self._testMethodName)
+      print("Test %s only enabled with the --long option" % \
+                                (self._testMethodName))
       return
 
     self._testSL2(fixedResources=False,
@@ -583,8 +585,8 @@ class TPSegmentLearningTests(ExperimentTestBaseClass):
     """Test segment learning with fixed resources"""
 
     if not g_options.long:
-      print "Test %s only enabled with the --long option" % \
-                                (self._testMethodName)
+      print("Test %s only enabled with the --long option" % \
+                                (self._testMethodName))
       return
 
     self._testSL2(fixedResources=True,

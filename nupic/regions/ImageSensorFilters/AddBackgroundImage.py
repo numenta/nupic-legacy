@@ -103,7 +103,7 @@ class AddBackgroundImage(BaseFilter):
         w = os.walk(fullPath)
         while True:
           try:
-            dirpath, dirnames, filenames = w.next()
+            dirpath, dirnames, filenames = next(w)
           except StopIteration:
             break
 

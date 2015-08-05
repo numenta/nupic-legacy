@@ -27,8 +27,8 @@ import copy
 
 import numpy
 import numpy.random
-from PyRegion import PyRegion
-from KNNClassifierRegion import KNNClassifierRegion
+from .PyRegion import PyRegion
+from .KNNClassifierRegion import KNNClassifierRegion
 from nupic.algorithms.anomaly import computeRawAnomalyScore
 from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError,
                                              CLAModelInvalidArgument)
@@ -930,7 +930,7 @@ class _CLAClassificationRecord(object):
 
 
   def __setstate__(self, data_dict):
-    for (name, value) in data_dict.iteritems():
+    for (name, value) in data_dict.items():
       setattr(self, name, value)
 
 

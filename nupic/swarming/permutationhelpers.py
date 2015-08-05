@@ -24,6 +24,8 @@ This class provides utility classes and functions for use inside permutations
 scripts.
 """
 
+from __future__ import print_function
+
 import random
 
 import numpy
@@ -469,7 +471,7 @@ class PermuteEncoder(PermuteVariable):
   def __repr__(self):
     """See comments in base class."""
     suffix = ""
-    for key, value in self.kwArgs.items():
+    for key, value in list(self.kwArgs.items()):
       suffix += "%s=%s, " % (key, value)
 
     return "PermuteEncoder(fieldName=%s, encoderClass=%s, name=%s, %s)" % (
@@ -493,7 +495,7 @@ class PermuteEncoder(PermuteVariable):
                    name=self.name)
 
     # Get the position of each encoder argument
-    for encoderArg, value in self.kwArgs.iteritems():
+    for encoderArg, value in self.kwArgs.items():
       # If a permuted variable, get its chosen value.
       if isinstance(value, PermuteVariable):
         value = flattenedChosenValues["%s:%s" % (encoderName, encoderArg)]
@@ -538,12 +540,12 @@ class Tests(object):
     rng.seed(42)
     var = varClass(min=minValue, max=maxValue, stepSize=stepSize,
                        inertia=inertia, cogRate=cogRate, socRate=socRate)
-    for _ in xrange(iterations):
+    for _ in range(iterations):
       pos = var.getPosition()
       if self.verbosity >= 1:
-        print "pos: %f" % (pos),
+        print("pos: %f" % (pos), end=' ')
       if self.verbosity >= 2:
-        print var
+        print(var)
       positions.add(pos)
 
       # Set the result so that the local best is at lBestPosition.
@@ -560,7 +562,7 @@ class Tests(object):
       var.newPosition(gBestPosition, rng)
 
     positions = sorted(positions)
-    print "Positions visited (%d):" % (len(positions)), positions
+    print("Positions visited (%d):" % (len(positions)), positions)
 
     # Validate positions.
     assert (max(positions) <= maxValue)
@@ -579,12 +581,12 @@ class Tests(object):
     rng.seed(42)
 
     var = varClass(min=minValue, max=maxValue)
-    for _ in xrange(iterations):
+    for _ in range(iterations):
       pos = var.getPosition()
       if self.verbosity >= 1:
-        print "pos: %f" % (pos),
+        print("pos: %f" % (pos), end=' ')
       if self.verbosity >= 2:
-        print var
+        print(var)
 
       # Set the result so that the local best is at lBestPosition.
       result = 1.0 - abs(pos - lBestPosition)
@@ -600,7 +602,7 @@ class Tests(object):
       var.newPosition(gBestPosition, rng)
 
     # Test that we reached the target.
-    print "Target: %f, Converged on: %f" % (targetValue, pos)
+    print("Target: %f, Converged on: %f" % (targetValue, pos))
     assert abs(pos-targetValue) < 0.001
 
   def _testChoices(self):
@@ -614,7 +616,7 @@ class Tests(object):
       counts[pos] += 1
     for count in counts:
       assert count < 270 and count > 230
-    print "No results permuteChoice test passed"
+    print("No results permuteChoice test passed")
 
     # Check that with some results the choices are chosen with the lower
     # errors being chosen more often.
@@ -638,7 +640,7 @@ class Tests(object):
     for choice in choices:
       assert prevCount > counts[choice]
       prevCount = counts[choice]
-    print "Results permuteChoice test passed"
+    print("Results permuteChoice test passed")
 
     # Check that with fixEarly as you see more data points you begin heavily
     # biasing the probabilities to the one with the lowest error.
@@ -657,7 +659,7 @@ class Tests(object):
       for choice in choices:
         resultsPerChoiceDict[choice][1].append(float(choice))
         counts[choice] = 0
-      pc.setResultsPerChoice(resultsPerChoiceDict.values())
+      pc.setResultsPerChoice(list(resultsPerChoiceDict.values()))
       rng = random.Random()
       rng.seed(42)
       # Check the without results the choices are chosen uniformly.
@@ -668,7 +670,7 @@ class Tests(object):
       # seen goes down.
       assert prevLowestErrorCount < counts['1']
       prevLowestErrorCount = counts['1']
-    print "Fix early permuteChoice test passed"
+    print("Fix early permuteChoice test passed")
 
   def run(self):
     """Run unit tests on this module."""

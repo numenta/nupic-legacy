@@ -21,7 +21,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import cPickle
+from six.moves import cPickle as pickle
 
 # SparseMatrix is a versatile class that offers a wide range of functionality.
 # This tutorial will introduce you to the main features of SparseMatrix.
@@ -34,9 +34,9 @@ from nupic.bindings.math import *
 # 1. Types of sparse matrices:
 # ===========================
 
-# There are three types of SparseMatrix, depending on the precision you need 
-# in your application: 32 and 32 bits. To create a SparseMatrix holding 
-# floating point values of the desired precision, simply specify it as the 
+# There are three types of SparseMatrix, depending on the precision you need
+# in your application: 32 and 32 bits. To create a SparseMatrix holding
+# floating point values of the desired precision, simply specify it as the
 # 'dtype' parameter in the constructor:
 
 s = SparseMatrix(dtype='Float32')
@@ -46,14 +46,14 @@ s = SparseMatrix(dtype='Float32')
 # =================
 
 # By default, NuPIC is compiled to handle only 32 bits of precision at max,
-# and sparse matrices consider a floating point value to be zero if it's less than 
-# 1e-6 (the best precision possible with 32 bits floats). This value of 1e-6 is 
+# and sparse matrices consider a floating point value to be zero if it's less than
+# 1e-6 (the best precision possible with 32 bits floats). This value of 1e-6 is
 # called "epsilon", and it is a global value used throughout NuPIC to deal with
-# near-zero floating point numbers. 
+# near-zero floating point numbers.
 
 # If this is not enough, NuPIC can be recompiled to access more precision.
-# With NTA_DOUBLE_PRECISION or NTA_QUAD_PRECISION set at compile time, NuPIC can 
-# use 32 bits to represent floating point values. The global epsilon can 
+# With NTA_DOUBLE_PRECISION or NTA_QUAD_PRECISION set at compile time, NuPIC can
+# use 32 bits to represent floating point values. The global epsilon can
 # then be set to smaller values via the variable nupic::Epsilon in nupic/math/math.hpp
 print '\nGlobal epsilon :', getGlobalEpsilon()
 
@@ -61,7 +61,7 @@ print '\nGlobal epsilon :', getGlobalEpsilon()
 # 3. Creation of sparse matrices:
 # ==============================
 
-# There are several convenient ways to create sparse matrices. 
+# There are several convenient ways to create sparse matrices.
 # You can create a SparseMatrix by passing it a 2D array:
 
 s = SparseMatrix([[1,2],[3,4]], dtype='Float32')
@@ -105,7 +105,7 @@ print '\nPickling\n', s2
 # 4. Simple queries:
 # =================
 
-# You can print a SparseMatrix, and query it for its number of rows, columns, 
+# You can print a SparseMatrix, and query it for its number of rows, columns,
 # non-zeros per row or column... There are many query methods available.
 # All row operations are mirrored by the equivalent column operations
 # Most operations are available either for a given row, or a given col, or
@@ -127,11 +127,11 @@ print 'Minimum value and its location ', s.min()
 
 print 'Number of non-zeros on row 0 ', s.nNonZerosOnRow(0)
 print 'If first row zero? ', s.isRowZero(0)
-print 'Number of non-zeros on each row ', s.nNonZerosPerRow() 
+print 'Number of non-zeros on each row ', s.nNonZerosPerRow()
 print 'Minimum on row 0 ', s.rowMin(0)
-print 'Minimum values and locations for all rows', s.rowMin() 
+print 'Minimum values and locations for all rows', s.rowMin()
 print 'Maximum on row 0 ', s.rowMax(0)
-print 'Maximum values and locations for all rows', s.rowMax() 
+print 'Maximum values and locations for all rows', s.rowMax()
 print 'Sum of values on row 0 ', s.rowSum(0)
 print 'Sum of each row ', s.rowSums()
 print 'Product of non-zeros on row 1', s.rowProd(1)
@@ -139,11 +139,11 @@ print 'Product of each row ', s.rowProds()
 
 print 'Number of non-zeros on col 0 ', s.nNonZerosOnCol(0)
 print 'If first col zero? ', s.isColZero(0)
-print 'Number of non-zeros on each col ', s.nNonZerosPerCol() 
+print 'Number of non-zeros on each col ', s.nNonZerosPerCol()
 print 'Minimum on col 0 ', s.colMin(0)
-print 'Minimum values and locations for all cols', s.colMin() 
+print 'Minimum values and locations for all cols', s.colMin()
 print 'Maximum on col 0 ', s.colMax(0)
-print 'Maximum values and locations for all cols', s.colMax() 
+print 'Maximum values and locations for all cols', s.colMax()
 print 'Sum of values on col 0 ', s.colSum(0)
 print 'Sum of each col ', s.colSums()
 print 'Product of non-zeros on col 1', s.colProd(1)
@@ -165,7 +165,7 @@ print 'Set [0,0] to 3.5 ', s[0,0]
 
 print '\ngetOuter\n', s.getOuter([0,2],[0,2])
 s.setOuter([0,2],[0,2],[[1,2],[3,4]])
-print '\nsetOuter\n', s 
+print '\nsetOuter\n', s
 
 s.setElements([0,1,2],[0,1,2],[1,1,1])
 print '\nsetElements\n', s
@@ -195,7 +195,7 @@ print 'getCol ', s.getCol(0)
 # 6. Dynamic features:
 # ===================
 
-# SparseMatrix is very dynamic. Rows and columns can be added and deleted. 
+# SparseMatrix is very dynamic. Rows and columns can be added and deleted.
 # A sparse matrix can also be resized and reshaped.
 
 print '\n', s
@@ -334,7 +334,7 @@ print '\nmatrix matrix multiplication\n', s1 * s2
 
 # The block matrix vector multiplication treats the matrix as if it were
 # a collection of narrower matrices. The following multiplies a1 by x and then a2 by x,
-# where a1 is the sub-matrix of size (4,2) obtained by considering 
+# where a1 is the sub-matrix of size (4,2) obtained by considering
 # only the first two columns of a, and a2 the sub-matrix obtained by considering only
 # the last two columns of x.
 
@@ -387,7 +387,7 @@ print '\n/= -1.5\n', s
 # 10. Count/find:
 # ==============
 
-# Use countWhereEqual and whereEqual to count or find the elements that have 
+# Use countWhereEqual and whereEqual to count or find the elements that have
 # a specific value. The first four parameters define a box in which to look:
 # [begin_row, end_row) X [begin_col, end _col). The indices returned by whereEqual
 # are relative to the orignal matrix. countWhereEqual is faster than using len()

@@ -84,7 +84,7 @@ class EyeMovements(BaseExplorer):
     else:
       self.eyeMovementIndex = 0
       # Iterate through the filters
-      for i in xrange(self.numFilters):
+      for i in range(self.numFilters):
         self.position['filters'][i] += 1
         if self.position['filters'][i] < self.numFilterOutputs[i]:
           self.centerImage()

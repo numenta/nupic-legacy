@@ -22,6 +22,9 @@
 """
 ## @file
 """
+
+from __future__ import print_function
+
 import os
 import ctypes
 import imp
@@ -191,7 +194,7 @@ class Convolution(BaseFilter):
     # If we are using "color-key" mode, then detect the value of
     # the upper-left pixel and use it as the value of
     # 'offImagePixelValue'
-    if self._offImagePixelValue in ('colorKey', u'colorKey'):
+    if self._offImagePixelValue in ('colorKey', 'colorKey'):
       offImagePixelValue = inputVector[0, 0]
     else:
       offImagePixelValue = self._offImagePixelValue
@@ -438,7 +441,7 @@ class Convolution(BaseFilter):
       assert False
 
     # Build LUT
-    lutInputs = numpy.array(range(numLutBins), dtype=numpy.float32) / postProcScalar
+    lutInputs = numpy.array(list(range(numLutBins)), dtype=numpy.float32) / postProcScalar
 
     # Sigmoid: output = 1 / (1 + exp(input))
     if self._postProcessingMethod == 'sigmoid':
@@ -539,7 +542,7 @@ class Convolution(BaseFilter):
         "Windows": "pyd",
         }.get(systemID)
     if not extension:
-      raise RuntimeError, "Unknown platform: %s" % systemID
+      raise RuntimeError("Unknown platform: %s" % systemID)
 
     # Generate the library path
     libPath = os.path.join(nupicRoot, libSubDir, "%s.%s" % (libraryName, extension))
@@ -548,7 +551,7 @@ class Convolution(BaseFilter):
     try:
       return ctypes.cdll.LoadLibrary(libPath)
     except:
-      print "Warning: Could not load shared library: %s" % libraryName
+      print("Warning: Could not load shared library: %s" % libraryName)
       return None
 
 
@@ -596,7 +599,7 @@ class Convolution(BaseFilter):
 
     # Check in case bbox is non-existent or mal-formed
     if bbox[0] < 0 or bbox[1] < 0 or bbox[2] <= bbox[0] or bbox[3] <= bbox[1]:
-      print "WARNING: empty or malformed bounding box:", bbox
+      print("WARNING: empty or malformed bounding box:", bbox)
       # Fix bbox so that it is a null box but at least not malformed
       if bbox[0] < 0:
         bbox[0] = 0

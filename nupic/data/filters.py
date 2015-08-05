@@ -79,7 +79,7 @@ class AutoResetFilter(object):
   def _getDatetimeField(self, data):
     datetimeField = None
     assert isinstance(data, dict)
-    for (name, value) in data.items():
+    for (name, value) in list(data.items()):
       if isinstance(value, datetime):
         datetimeField = name
         break

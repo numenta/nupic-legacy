@@ -124,7 +124,7 @@ GROUPS['ALPHA_B'] = ALPHA_B
 All features in a given group must appear in the features.py file
 '''
 validFeatureNames = [f['name'] for f in FEATURES_LIST]
-for groupName, features in GROUPS.iteritems():
+for groupName, features in GROUPS.items():
   for feature in features:
     if feature not in validFeatureNames:
       raise Exception('The feature %s is not a recognized feature name. Please '

@@ -28,6 +28,8 @@ The Tee class is used to redirect standard output to a file in addition to
 sending it to the console.
 """
 
+from __future__ import print_function
+
 import sys
 
 class ConsolePrinterMixin(object):
@@ -77,22 +79,22 @@ class ConsolePrinterMixin(object):
       return
 
     if len(kw) > 1:
-      raise KeyError("Invalid keywords for cPrint: %s" % str(kw.keys()))
+      raise KeyError("Invalid keywords for cPrint: %s" % str(list(kw.keys())))
 
     newline = kw.get("newline", True)
     if len(kw) == 1 and 'newline' not in kw:
-      raise KeyError("Invalid keyword for cPrint: %s" % kw.keys()[0])
+      raise KeyError("Invalid keyword for cPrint: %s" % list(kw.keys())[0])
 
     if len(args) == 0:
       if newline:
-        print message
+        print(message)
       else:
-        print message,
+        print(message, end=' ')
     else:
       if newline:
-        print message % args
+        print(message % args)
       else:
-        print message % args,
+        print(message % args, end=' ')
 
 class Tee(object):
   """This class captures standard output and writes it to a file

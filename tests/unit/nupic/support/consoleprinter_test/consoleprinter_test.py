@@ -20,6 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import os
 import unittest2 as unittest
 
@@ -37,7 +39,7 @@ class MyClass(ConsolePrinterMixin):
 
 
   def run(self):
-    for i in xrange(0, 4):
+    for i in range(0, 4):
       self.cPrint(i, "message at level %d", i)
 
 
@@ -55,19 +57,19 @@ class ConsolePrinterTest(unittest.TestCase):
     # Capture output to a file so that we can compare it
     with Tee(filename):
       c1 = MyClass()
-      print "Running with default verbosity"
+      print("Running with default verbosity")
       c1.run()
-      print
+      print()
 
-      print "Running with verbosity 2"
+      print("Running with verbosity 2")
       c1.consolePrinterVerbosity = 2
       c1.run()
-      print
+      print()
 
-      print "Running with verbosity 0"
+      print("Running with verbosity 0")
       c1.consolePrinterVerbosity = 0
       c1.run()
-      print
+      print()
 
       c1.cPrint(0, "Message %s two %s", "with", "args")
       c1.cPrint(0, "Message with no newline", newline=False)
@@ -76,7 +78,7 @@ class ConsolePrinterTest(unittest.TestCase):
                 "no newline", "args", newline=False)
       c1.cPrint(0, " Message with %s and %s", "newline", "args")
 
-      print "Done"
+      print("Done")
 
     with self.assertRaises(KeyError):
       c1.cPrint(0, "Message", badkw="badvalue")
@@ -85,12 +87,12 @@ class ConsolePrinterTest(unittest.TestCase):
     expected = open(referenceFilename).readlines()
     actual = open(filename).readlines()
 
-    print ("Comparing files '%s'" % referenceFilename)
-    print ("and             '%s'" % filename)
+    print(("Comparing files '%s'" % referenceFilename))
+    print(("and             '%s'" % filename))
 
     self.assertEqual(len(expected), len(actual))
 
-    for i in xrange(len(expected)):
+    for i in range(len(expected)):
       self.assertEqual(expected[i].strip(), actual[i].strip())
 
     # Clean up

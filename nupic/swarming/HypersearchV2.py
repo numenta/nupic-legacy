@@ -19,6 +19,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+from six import exec_, StringIO
+
 import sys
 import os
 import time
@@ -26,7 +29,6 @@ import logging
 import json
 import hashlib
 import itertools
-import StringIO
 import shutil
 import tempfile
 import copy
@@ -60,7 +62,7 @@ class SwarmTerminator(object):
   """
   MATURITY_WINDOW = None
   MAX_GENERATIONS = None
-  _DEFAULT_MILESTONES = [1.0 / (x + 1) for x in xrange(12)]
+  _DEFAULT_MILESTONES = [1.0 / (x + 1) for x in range(12)]
 
   def __init__(self, milestones=None, logLevel=None):
     # Set class constants.
@@ -149,7 +151,7 @@ class SwarmTerminator(object):
   def _getTerminatedSwarms(self, generation):
     terminatedSwarms = []
     generationScores = dict()
-    for swarm, scores in self.swarmScores.iteritems():
+    for swarm, scores in self.swarmScores.items():
       if len(scores) > generation and swarm not in self.terminatedSwarms:
         generationScores[swarm] = scores[generation]
 
@@ -159,7 +161,7 @@ class SwarmTerminator(object):
     bestScore = min(generationScores.values())
     tolerance = self.milestones[generation]
 
-    for swarm, score in generationScores.iteritems():
+    for swarm, score in generationScores.items():
       if score > (1 + tolerance) * bestScore:
         self._logger.info('Swarm %s is doing poorly at generation %d.\n'
                           'Current Score:%s \n'
@@ -246,7 +248,7 @@ class ResultsDB(object):
 
     # ParamsHash to index mapping
     self._paramsHashToIndexes = dict()
-    
+
 
   def update(self, modelID, modelParams, modelParamsHash, metricResult,
              completed, completionReason, matured, numRecords):
@@ -583,7 +585,7 @@ class ResultsDB(object):
     if swarmId is not None:
       entryIdxs = self._swarmIdToIndexes.get(swarmId, [])
     else:
-      entryIdxs = range(len(self._allResults))
+      entryIdxs = list(range(len(self._allResults)))
     if len(entryIdxs) == 0:
       return ([], [], [], [], [])
 
@@ -636,7 +638,7 @@ class ResultsDB(object):
 
   def getOrphanParticleInfos(self, swarmId, genIdx):
     """Return a list of particleStates for all particles in the given
-    swarm generation that have been orphaned. 
+    swarm generation that have been orphaned.
 
     Parameters:
     ---------------------------------------------------------------------
@@ -655,7 +657,7 @@ class ResultsDB(object):
               matured: list of matured booleans
     """
 
-    entryIdxs = range(len(self._allResults))
+    entryIdxs = list(range(len(self._allResults)))
     if len(entryIdxs) == 0:
       return ([], [], [], [], [])
 
@@ -666,16 +668,16 @@ class ResultsDB(object):
     completedFlags = []
     maturedFlags = []
     for idx in entryIdxs:
-      
+
       # Get info on this model
       entry = self._allResults[idx]
       if not entry['hidden']:
         continue
-      
+
       modelParams = entry['modelParams']
       if modelParams['particleState']['swarmId'] != swarmId:
         continue
-      
+
       isCompleted = entry['completed']
       isMatured = entry['matured']
       particleState = modelParams['particleState']
@@ -758,12 +760,12 @@ class ResultsDB(object):
     minNumParticles: minium number of partices required for a full
                   generation.
 
-    retval:  generation index, or None if no particles at all. 
+    retval:  generation index, or None if no particles at all.
     """
-    
+
     if not swarmId in self._swarmNumParticlesPerGeneration:
       return None
-    
+
     numPsPerGen = self._swarmNumParticlesPerGeneration[swarmId]
 
     numPsPerGen = numpy.array(numPsPerGen)
@@ -804,9 +806,9 @@ class ResultsDB(object):
     For example, if a PermuteChoice variable has the following choices:
       ['a', 'b', 'c']
 
-    The dict will have 3 elements. The keys are the stringified choiceVars, 
-    and each value is tuple containing (choiceVar, errors) where choiceVar is 
-    the original form of the choiceVar (before stringification) and errors is 
+    The dict will have 3 elements. The keys are the stringified choiceVars,
+    and each value is tuple containing (choiceVar, errors) where choiceVar is
+    the original form of the choiceVar (before stringification) and errors is
     the list of errors received from models that used the specific choice:
     retval:
       ['a':('a', [0.1, 0.2, 0.3]), 'b':('b', [0.5, 0.1, 0.6]), 'c':('c', [])]
@@ -826,7 +828,7 @@ class ResultsDB(object):
     (allParticles, _, resultErrs, _, _) = self.getParticleInfos(swarmId,
                                               genIdx=None, matured=True)
 
-    for particleState, resultErr in itertools.izip(allParticles, resultErrs):
+    for particleState, resultErr in zip(allParticles, resultErrs):
       # Consider this generation?
       if maxGenIdx is not None:
         if particleState['genIdx'] > maxGenIdx:
@@ -938,10 +940,10 @@ class Particle(object):
     newFromClone: If not None, clone this other particle's position and generation
           index, with small random perturbations. This is a dict containing the
           particle's state. Required for creation method #3.
-          
+
     newParticleId: Only applicable when newFromClone is True. Give the clone
-          a new particle ID. 
-    
+          a new particle ID.
+
     """
     # Save constructor arguments
     self._hsObj = hsObj
@@ -961,7 +963,7 @@ class Particle(object):
       self.permuteVars = copy.deepcopy(flattenedPermuteVars)
 
       # Remove fields we don't want.
-      varNames = self.permuteVars.keys()
+      varNames = list(self.permuteVars.keys())
       for varName in varNames:
         # Remove encoders we're not using
         if ':' in varName:    # if an encoder
@@ -980,7 +982,7 @@ class Particle(object):
           resultsPerChoice = self._resultsDB.getResultsPerChoice(
               swarmId=self.swarmId, maxGenIdx=maxGenIdx, varName=varName)
           self.permuteVars[varName].setResultsPerChoice(
-              resultsPerChoice.values())
+              list(resultsPerChoice.values()))
 
     # Method #1
     # Create from scratch, optionally pushing away from others that already
@@ -1005,7 +1007,7 @@ class Particle(object):
 
       # Push away from other particles?
       if newFarFrom is not None:
-        for varName in self.permuteVars.iterkeys():
+        for varName in self.permuteVars.keys():
           otherPositions = []
           for particleState in newFarFrom:
             otherPositions.append(particleState['varStates'][varName]['position'])
@@ -1051,7 +1053,7 @@ class Particle(object):
         self.particleId = "%s.%s" % (str(self._hsObj._workerID),
                                      str(Particle._nextParticleID))
         Particle._nextParticleID += 1
-        
+
       self.genIdx = newFromClone['genIdx']
       self.swarmId = newFromClone['swarmId']
 
@@ -1077,7 +1079,7 @@ class Particle(object):
     """Get the particle state as a dict. This is enough information to
     instantiate this particle on another worker."""
     varStates = dict()
-    for varName, var in self.permuteVars.iteritems():
+    for varName, var in self.permuteVars.items():
       varStates[varName] = var.getState()
 
     return dict(id = self.particleId,
@@ -1104,7 +1106,7 @@ class Particle(object):
     # Replace with the position and velocity of each variable from
     #  saved state
     varStates = particleState['varStates']
-    for varName in varStates.keys():
+    for varName in list(varStates.keys()):
       varState = copy.deepcopy(varStates[varName])
       if newBest:
         varState['bestResult'] = bestResult
@@ -1160,7 +1162,7 @@ class Particle(object):
     allowedToMove = True
 
     for varName in particleState['varStates']:
-      if varName in varNames:    
+      if varName in varNames:
 
         # If this particle doesn't include this field, don't copy it
         if varName not in self.permuteVars:
@@ -1194,7 +1196,7 @@ class Particle(object):
     retval:     dict() of flattened permutation choices
     """
     result = dict()
-    for (varName, value) in self.permuteVars.iteritems():
+    for (varName, value) in self.permuteVars.items():
       result[varName] = value.getPosition()
 
     return result
@@ -1209,7 +1211,7 @@ class Particle(object):
                   values are their positions
     """
     result = dict()
-    for (varName, value) in pState['varStates'].iteritems():
+    for (varName, value) in pState['varStates'].items():
       result[varName] = value['position']
 
     return result
@@ -1223,7 +1225,7 @@ class Particle(object):
     --------------------------------------------------------------
     retval:               None
     """
-    for (varName, var) in self.permuteVars.iteritems():
+    for (varName, var) in self.permuteVars.items():
       var.agitate()
 
     self.newPosition()
@@ -1257,7 +1259,7 @@ class Particle(object):
         globalBestPosition = Particle.getPositionFromState(particleState)
 
     # Update each variable
-    for (varName, var) in self.permuteVars.iteritems():
+    for (varName, var) in self.permuteVars.items():
       if whichVars is not None and varName not in whichVars:
         continue
       if globalBestPosition is None:
@@ -1270,12 +1272,12 @@ class Particle(object):
 
     # Log the new position
     if self.logger.getEffectiveLevel() <= logging.DEBUG:
-      msg = StringIO.StringIO()
-      print >> msg, "New particle position: \n%s" % (pprint.pformat(position,
-                                                      indent=4))
-      print >> msg, "Particle variables:"
-      for (varName, var) in self.permuteVars.iteritems():
-        print >> msg, "  %s: %s" % (varName, str(var))
+      msg = StringIO()
+      print("New particle position: \n%s" % (pprint.pformat(position,
+                                                      indent=4)), file=msg)
+      print("Particle variables:", file=msg)
+      for (varName, var) in self.permuteVars.items():
+        print("  %s: %s" % (varName, str(var)), file=msg)
       self.logger.debug(msg.getvalue())
       msg.close()
 
@@ -1375,9 +1377,9 @@ class HsState(object):
       swarms = dict()
 
       # Fast Swarm, first and only sprint has one swarm for each field
-      # in fixedFields 
+      # in fixedFields
       if self._hsObj._fixedFields is not None:
-        print self._hsObj._fixedFields
+        print(self._hsObj._fixedFields)
         encoderSet = []
         for field in self._hsObj._fixedFields:
             if field =='_classifierInput':
@@ -1395,7 +1397,7 @@ class HsState(object):
                                 'sprintIdx': 0,
                                 }
       # Temporal prediction search, first sprint has N swarms of 1 field each,
-      #  the predicted field may or may not be that one field. 
+      #  the predicted field may or may not be that one field.
       elif self._hsObj._searchType == HsSearchType.temporal:
         for encoderName in self._hsObj._encoderNames:
           swarms[encoderName] = {
@@ -1407,7 +1409,7 @@ class HsState(object):
 
 
       # Classification prediction search, first sprint has N swarms of 1 field
-      #  each where this field can NOT be the predicted field. 
+      #  each where this field can NOT be the predicted field.
       elif self._hsObj._searchType == HsSearchType.classification:
         for encoderName in self._hsObj._encoderNames:
           if encoderName == self._hsObj._predictedFieldEncoder:
@@ -1418,11 +1420,11 @@ class HsState(object):
                                   'bestErrScore': None,
                                   'sprintIdx': 0,
                                   }
-          
+
       # Legacy temporal. This is either a model that uses reconstruction or
-      #  an older multi-step model that doesn't have a separate 
-      #  'classifierOnly' encoder for the predicted field. Here, the predicted 
-      #  field must ALWAYS be present and the first sprint tries the predicted 
+      #  an older multi-step model that doesn't have a separate
+      #  'classifierOnly' encoder for the predicted field. Here, the predicted
+      #  field must ALWAYS be present and the first sprint tries the predicted
       #  field only
       elif self._hsObj._searchType == HsSearchType.legacyTemporal:
         swarms[self._hsObj._predictedFieldEncoder] = {
@@ -1455,7 +1457,7 @@ class HsState(object):
         #  for easier reference when viewing the state as presented by
         #  log messages and prints of the hsState data structure (by
         #  permutations_runner).
-        activeSwarms = swarms.keys(),
+        activeSwarms = list(swarms.keys()),
 
         # All the swarms that have been created so far.
         swarms = swarms,
@@ -1525,24 +1527,24 @@ class HsState(object):
 
 
   def getEncoderNameFromKey(self, key):
-    """ Given an encoder dictionary key, get the encoder name. 
-    
+    """ Given an encoder dictionary key, get the encoder name.
+
     Encoders are a sub-dict within model params, and in HSv2, their key
     is structured like this for example:
        'modelParams|sensorParams|encoders|home_winloss'
-       
+
     The encoderName is the last word in the | separated key name
     """
     return key.split('|')[-1]
-    
+
 
   def getEncoderKeyFromName(self, name):
-    """ Given an encoder name, get the key. 
-    
+    """ Given an encoder name, get the key.
+
     Encoders are a sub-dict within model params, and in HSv2, their key
     is structured like this for example:
        'modelParams|sensorParams|encoders|home_winloss'
-       
+
     The encoderName is the last word in the | separated key name
     """
     return 'modelParams|sensorParams|encoders|%s' % (name)
@@ -1557,23 +1559,23 @@ class HsState(object):
                 are how much each field contributed to the best score.
     """
 
-    #in the fast swarm, there is only 1 sprint and field contributions are 
+    #in the fast swarm, there is only 1 sprint and field contributions are
     #not defined
     if self._hsObj._fixedFields is not None:
       return dict(), dict()
-    # Get the predicted field encoder name    
+    # Get the predicted field encoder name
     predictedEncoderName = self._hsObj._predictedFieldEncoder
-    
+
     # -----------------------------------------------------------------------
     # Collect all the single field scores
     fieldScores = []
-    for swarmId, info in self._state['swarms'].iteritems():
+    for swarmId, info in self._state['swarms'].items():
       encodersUsed = swarmId.split('.')
       if len(encodersUsed) != 1:
         continue
       field = self.getEncoderNameFromKey(encodersUsed[0])
       bestScore = info['bestErrScore']
-      
+
       # If the bestScore is None, this swarm hasn't completed yet (this could
       #  happen if we're exiting because of maxModels), so look up the best
       #  score so far
@@ -1582,49 +1584,49 @@ class HsState(object):
             self._hsObj._resultsDB.bestModelIdAndErrScore(swarmId)
 
       fieldScores.append((bestScore, field))
-      
-      
+
+
     # -----------------------------------------------------------------------
-    # If we only have 1 field that was tried in the first sprint, then use that 
-    #  as the base and get the contributions from the fields in the next sprint. 
+    # If we only have 1 field that was tried in the first sprint, then use that
+    #  as the base and get the contributions from the fields in the next sprint.
     if self._hsObj._searchType == HsSearchType.legacyTemporal:
       assert(len(fieldScores)==1)
       (baseErrScore, baseField) = fieldScores[0]
-      
-      for swarmId, info in self._state['swarms'].iteritems():
+
+      for swarmId, info in self._state['swarms'].items():
         encodersUsed = swarmId.split('.')
         if len(encodersUsed) != 2:
           continue
 
         fields = [self.getEncoderNameFromKey(name) for name in encodersUsed]
         fields.remove(baseField)
-        
+
         fieldScores.append((info['bestErrScore'], fields[0]))
-        
+
     # The first sprint tried a bunch of fields, pick the worst performing one
-    #  (within the top self._hsObj._maxBranching ones) as the base 
+    #  (within the top self._hsObj._maxBranching ones) as the base
     else:
       fieldScores.sort(reverse=True)
-      
+
       # If maxBranching was specified, pick the worst performing field within
-      #  the top maxBranching+1 fields as our base, which will give that field 
-      #  a contribution of 0. 
+      #  the top maxBranching+1 fields as our base, which will give that field
+      #  a contribution of 0.
       if self._hsObj._maxBranching > 0 \
-              and len(fieldScores) > self._hsObj._maxBranching: 
+              and len(fieldScores) > self._hsObj._maxBranching:
         baseErrScore = fieldScores[-self._hsObj._maxBranching-1][0]
       else:
         baseErrScore = fieldScores[0][0]
-      
-      
+
+
     # -----------------------------------------------------------------------
     # Prepare and return the fieldContributions dict
     pctFieldContributionsDict = dict()
     absFieldContributionsDict = dict()
-    
+
     # If we have no base score, can't compute field contributions. This can
     #  happen when we exit early due to maxModels or being cancelled
-    if baseErrScore is not None:      
-    
+    if baseErrScore is not None:
+
       # If the base error score is 0, we can't compute a percent difference
       #  off of it, so move it to a very small float
       if abs(baseErrScore) < 0.00001:
@@ -1634,15 +1636,15 @@ class HsState(object):
           pctBetter = (baseErrScore - errScore) * 100.0 / baseErrScore
         else:
           pctBetter = 0.0
-          errScore = baseErrScore   # for absFieldContribution 
-        
+          errScore = baseErrScore   # for absFieldContribution
+
         pctFieldContributionsDict[field] = pctBetter
         absFieldContributionsDict[field] = baseErrScore - errScore
-      
+
     self.logger.debug("FieldContributions: %s" % (pctFieldContributionsDict))
     return pctFieldContributionsDict, absFieldContributionsDict
-     
-    
+
+
   def getAllSwarms(self, sprintIdx):
     """Return the list of all swarms in the given sprint.
 
@@ -1651,7 +1653,7 @@ class HsState(object):
     retval:   list of active swarm Ids in the given sprint
     """
     swarmIds = []
-    for swarmId, info in self._state['swarms'].iteritems():
+    for swarmId, info in self._state['swarms'].items():
       if info['sprintIdx'] == sprintIdx:
         swarmIds.append(swarmId)
 
@@ -1668,7 +1670,7 @@ class HsState(object):
     retval:   list of active swarm Ids in the given sprint
     """
     swarmIds = []
-    for swarmId, info in self._state['swarms'].iteritems():
+    for swarmId, info in self._state['swarms'].items():
       if sprintIdx is not None and info['sprintIdx'] != sprintIdx:
         continue
       if info['status'] == 'active':
@@ -1687,7 +1689,7 @@ class HsState(object):
     retval:   list of active swarm Ids in the given sprint
     """
     swarmIds = []
-    for swarmId, info in self._state['swarms'].iteritems():
+    for swarmId, info in self._state['swarms'].items():
       if info['sprintIdx'] == sprintIdx and info['status'] != 'killed':
         swarmIds.append(swarmId)
 
@@ -1701,7 +1703,7 @@ class HsState(object):
     retval:   list of active swarm Ids
     """
     swarmIds = []
-    for swarmId, info in self._state['swarms'].iteritems():
+    for swarmId, info in self._state['swarms'].items():
       if info['status'] == 'completed':
         swarmIds.append(swarmId)
 
@@ -1715,7 +1717,7 @@ class HsState(object):
     retval:   list of active swarm Ids
     """
     swarmIds = []
-    for swarmId, info in self._state['swarms'].iteritems():
+    for swarmId, info in self._state['swarms'].items():
       if info['status'] == 'completing':
         swarmIds.append(swarmId)
 
@@ -1819,7 +1821,7 @@ class HsState(object):
     statusCounts = dict(active=0, completing=0, completed=0, killed=0)
     bestModelIds = []
     bestErrScores = []
-    for info in self._state['swarms'].itervalues():
+    for info in self._state['swarms'].values():
       if info['sprintIdx'] != sprintIdx:
         continue
       statusCounts[info['status']] += 1
@@ -1847,7 +1849,7 @@ class HsState(object):
         #  killed. Give it a huge error score
         sprintInfo['bestModelId'] = 0
         sprintInfo['bestErrScore'] = numpy.inf
-        
+
 
       # See if our best err score got NO BETTER as compared to a previous
       #  sprint. If so, stop exploring subsequent sprints (lastGoodSprint
@@ -1932,7 +1934,7 @@ class HsState(object):
     #  swarmBestErrScore).
     # ex. completedMatrix:
     #    [(('a', {...}, 1.4), ('b', {...}, 2.0), ('c', {...}, 3.0)),
-    #     (('a.b', {...}, 3.0), ('b.c', {...}, 4.0))] 
+    #     (('a.b', {...}, 3.0), ('b.c', {...}, 4.0))]
     completedMatrix = [[] for i in range(numExistingSprints)]
     for swarm in completedSwarms:
       completedMatrix[swarm[1]["sprintIdx"]].append(swarm)
@@ -1959,14 +1961,14 @@ class HsState(object):
     #  swarmBestErrScore)
     # ex. activeMatrix:
     #    [(('d', {...}, 1.4), ('e', {...}, 2.0), ('f', {...}, 3.0)),
-    #     (('d.e', {...}, 3.0), ('e.f', {...}, 4.0))] 
+    #     (('d.e', {...}, 3.0), ('e.f', {...}, 4.0))]
     activeMatrix = [[] for i in range(numExistingSprints)]
     for swarm in activeSwarms:
       activeMatrix[swarm[1]["sprintIdx"]].append(swarm)
     for sprint in activeMatrix:
       sprint.sort(key=itemgetter(2))
 
-    
+
     # Figure out which active swarms to kill
     toKill = []
     for i in range(1, numExistingSprints):
@@ -1977,11 +1979,11 @@ class HsState(object):
         #  sprints that are not supersets
         if(len(activeMatrix[i-1])==0):
           # If we are trying all possible 3 field combinations, don't kill any
-          #  off in sprint 2 
+          #  off in sprint 2
           if i==2 and (self._hsObj._tryAll3FieldCombinations or \
                 self._hsObj._tryAll3FieldCombinationsWTimestamps):
             pass
-          else: 
+          else:
             bestInPrevious = completedMatrix[i-1][0]
             bestEncoders = bestInPrevious[0].split('.')
             for encoder in bestEncoders:
@@ -1997,8 +1999,8 @@ class HsState(object):
 
     # Mark the bad swarms as killed
     if len(toKill) > 0:
-      print "ParseMe: Killing encoders:" + str(toKill)
-      
+      print("ParseMe: Killing encoders:" + str(toKill))
+
     for swarm in toKill:
       self.setSwarmState(swarm[0], "killed")
 
@@ -2124,7 +2126,7 @@ class HsState(object):
           if sprintIdx >= 1:
             limitFields = True
             baseSprintIdx = 0
-        elif self._hsObj._searchType == HsSearchType.legacyTemporal: 
+        elif self._hsObj._searchType == HsSearchType.legacyTemporal:
           if sprintIdx >= 2:
             limitFields = True
             baseSprintIdx = 1
@@ -2149,7 +2151,7 @@ class HsState(object):
           else:
             self.logger.debug("FieldContributions keeping: %s" % (fieldname))
 
-        
+
         # Grab the top maxBranching base sprint swarms.
         swarms = self._state["swarms"]
         sprintSwarms = [(swarm, swarms[swarm]["bestErrScore"]) \
@@ -2174,17 +2176,17 @@ class HsState(object):
 
 
       # -----------------------------------------------------------------------
-      # Build up the new encoder combinations for the next sprint. 
+      # Build up the new encoder combinations for the next sprint.
       newSwarmIds = set()
-      
+
       # See if the caller wants to try more extensive field combinations with
-      #  3 fields. 
+      #  3 fields.
       if (self._hsObj._searchType == HsSearchType.temporal \
            or self._hsObj._searchType == HsSearchType.legacyTemporal) \
           and sprintIdx == 2 \
           and (self._hsObj._tryAll3FieldCombinations or \
                self._hsObj._tryAll3FieldCombinationsWTimestamps):
-        
+
         if self._hsObj._tryAll3FieldCombinations:
           newEncoders = set(self._hsObj._encoderNames)
           if self._hsObj._predictedFieldEncoder in newEncoders:
@@ -2198,7 +2200,7 @@ class HsState(object):
             if encoder.endswith('_timeOfDay') or encoder.endswith('_weekend') \
                 or encoder.endswith('_dayOfWeek'):
               newEncoders.add(encoder)
-          
+
         allCombos = list(itertools.combinations(newEncoders, 2))
         for combo in allCombos:
           newSet = list(combo)
@@ -2212,7 +2214,7 @@ class HsState(object):
             #   all of them.
             if (len(self.getActiveSwarms(sprintIdx-1)) > 0):
               break
-            
+
       # Else, we only build up by adding 1 new encoder to the best combination(s)
       #  we've seen from the prior sprint
       else:
@@ -2226,13 +2228,13 @@ class HsState(object):
               newSwarmId = '.'.join(newSet)
               if newSwarmId not in self._state['swarms']:
                 newSwarmIds.add(newSwarmId)
-  
+
                 # If a speculative sprint, only add the first encoder, if not add
                 #   all of them.
                 if (len(self.getActiveSwarms(sprintIdx-1)) > 0):
-                  break      
-        
-        
+                  break
+
+
       # ----------------------------------------------------------------------
       # Sort the new swarm Ids
       newSwarmIds = sorted(newSwarmIds)
@@ -2301,24 +2303,24 @@ class HypersearchV2(object):
   categories) are searched using the ronamatic logic whereas floats and
   integers that represent a range of values are searched using PSO.
 
-  For prediction experiments, this implementation starts out evaluating only 
-  single encoder models that encode the predicted field. This is the first 
-  "sprint". Once it finds the optimum set of variables for that, it starts to 
-  build up by adding in combinations of 2 fields (the second "sprint"), where 
-  one of them is the predicted field. Once the top 2-field combination(s) are 
-  discovered, it starts to build up on those by adding in a 3rd field, etc. 
+  For prediction experiments, this implementation starts out evaluating only
+  single encoder models that encode the predicted field. This is the first
+  "sprint". Once it finds the optimum set of variables for that, it starts to
+  build up by adding in combinations of 2 fields (the second "sprint"), where
+  one of them is the predicted field. Once the top 2-field combination(s) are
+  discovered, it starts to build up on those by adding in a 3rd field, etc.
   Each new set of field combinations is called a sprint.
-  
+
   For classification experiments, this implementation starts out evaluating two
   encoder models, where one of the encoders is the classified field. This is the
-  first "sprint". Once it finds the optimum set of variables for that, it starts 
-  to  build up by evauating combinations of 3 fields (the second "sprint"), where 
+  first "sprint". Once it finds the optimum set of variables for that, it starts
+  to  build up by evauating combinations of 3 fields (the second "sprint"), where
   two of them are the best 2 fields found in the first sprint (one of those of
-  course being the classified field). Once the top 3-field combination(s) are 
+  course being the classified field). Once the top 3-field combination(s) are
   discovered, it starts to build up on those by adding in a 4th field, etc.
   In classification models, the classified field, although it has an encoder, is
-  not sent "into" the network. Rather, the encoded value just goes directly to 
-  the classifier as the classifier input.  
+  not sent "into" the network. Rather, the encoded value just goes directly to
+  the classifier as the classifier input.
 
   At any one time, there are 1 or more swarms being evaluated at the same time -
   each swarm representing a certain field combination within the sprint. We try
@@ -2372,8 +2374,8 @@ class HypersearchV2(object):
       maxModels:          OPTIONAL - max # of models to generate
                                     NOTE: This is a deprecated location for this
                                     setting. Now, it should be specified through
-                                    the maxModels variable within the permutations 
-                                    file, or maxModels in the JSON description 
+                                    the maxModels variable within the permutations
+                                    file, or maxModels in the JSON description
       dummyModel:         OPTIONAL - Either (True/False) or a dict of parameters
                                      for a dummy model. If this key is absent,
                                      a real model is trained.
@@ -2409,7 +2411,7 @@ class HypersearchV2(object):
     jobID:      job ID for this hypersearch job
     logLevel:   override logging level to this value, if not None
     """
-    
+
     # Instantiate our logger
     self.logger = logging.getLogger(".".join( ['com.numenta',
                         self.__class__.__module__, self.__class__.__name__]))
@@ -2493,7 +2495,7 @@ class HypersearchV2(object):
               "Either 'description', 'permutationsPyFilename' or"
               "'permutationsPyContents' & 'permutationsPyContents' should be "
               "specified, but not two or more of these at once.")
-        
+
         # Calculate training period for anomaly models
         searchParamObj = self._searchParams
         anomalyParams = searchParamObj['description'].get('anomalyParams',
@@ -2507,18 +2509,18 @@ class HypersearchV2(object):
         if (('autoDetectWaitRecords' not in anomalyParams) or
             (anomalyParams['autoDetectWaitRecords'] is None)):
           streamDef = self._getStreamDef(searchParamObj['description'])
-          
+
           from nupic.data.stream_reader import StreamReader
-            
+
           try:
-            streamReader = StreamReader(streamDef, isBlocking=False, 
+            streamReader = StreamReader(streamDef, isBlocking=False,
                                            maxTimeout=0, eofOnTimeout=True)
             anomalyParams['autoDetectWaitRecords'] = \
               streamReader.getDataRowCount()
           except Exception:
             anomalyParams['autoDetectWaitRecords'] = None
           self._searchParams['description']['anomalyParams'] = anomalyParams
-        
+
 
         # Call the experiment generator to generate the permutations and base
         # description file.
@@ -2608,14 +2610,14 @@ class HypersearchV2(object):
 
       # If at DEBUG log level, print out permutations info to the log
       if self.logger.getEffectiveLevel() <= logging.DEBUG:
-        msg = StringIO.StringIO()
-        print >> msg, "Permutations file specifications: "
+        msg = StringIO()
+        print("Permutations file specifications: ", file=msg)
         info = dict()
         for key in ['_predictedField', '_permutations',
                     '_flattenedPermutations', '_encoderNames',
                     '_reportKeys', '_optimizeKey', '_maximize']:
           info[key] = getattr(self, key)
-        print >> msg, pprint.pformat(info)
+        print(pprint.pformat(info), file=msg)
         self.logger.debug(msg.getvalue())
         msg.close()
 
@@ -2654,7 +2656,7 @@ class HypersearchV2(object):
 
   def _getStreamDef(self, modelDescription):
     """
-    Generate stream definition based on 
+    Generate stream definition based on
     """
     #--------------------------------------------------------------------------
     # Generate the string containing the aggregation settings.
@@ -2673,7 +2675,7 @@ class HypersearchV2(object):
     # Honor any overrides provided in the stream definition
     aggFunctionsDict = {}
     if 'aggregation' in modelDescription['streamDef']:
-      for key in aggregationPeriod.keys():
+      for key in list(aggregationPeriod.keys()):
         if key in modelDescription['streamDef']['aggregation']:
           aggregationPeriod[key] = modelDescription['streamDef']['aggregation'][key]
       if 'fields' in modelDescription['streamDef']['aggregation']:
@@ -2682,13 +2684,13 @@ class HypersearchV2(object):
 
     # Do we have any aggregation at all?
     hasAggregation = False
-    for v in aggregationPeriod.values():
+    for v in list(aggregationPeriod.values()):
       if v != 0:
         hasAggregation = True
         break
 
     # Convert the aggFunctionsDict to a list
-    aggFunctionList = aggFunctionsDict.items()
+    aggFunctionList = list(aggFunctionsDict.items())
     aggregationInfo = dict(aggregationPeriod)
     aggregationInfo['fields'] = aggFunctionList
 
@@ -2752,9 +2754,9 @@ class HypersearchV2(object):
     """
     # Open and execute the permutations file
     vars = {}
-    
-    permFile = execfile(filename, globals(), vars)
-    
+
+    permFile = exec_(compile(open(filename).read(), filename, 'exec'), globals(), vars)
+
 
     # Read in misc info.
     self._reportKeys = vars.get('report', [])
@@ -2763,7 +2765,7 @@ class HypersearchV2(object):
     self._predictedField = None   # default
     self._predictedFieldEncoder = None   # default
     self._fixedFields = None # default
-    
+
     # The fastSwarm variable, if present, contains the params from a best
     #  model from a previous swarm. If present, use info from that to seed
     #  a fast swarm
@@ -2775,10 +2777,10 @@ class HypersearchV2(object):
       for fieldName in encoders:
         if encoders[fieldName] is not None:
           self._fixedFields.append(fieldName)
-          
+
     if 'fixedFields' in vars:
       self._fixedFields = vars['fixedFields']
-    
+
     # Get min number of particles per swarm from either permutations file or
     # config.
     self._minParticlesPerSwarm = vars.get('minParticlesPerSwarm')
@@ -2786,45 +2788,45 @@ class HypersearchV2(object):
       self._minParticlesPerSwarm = Configuration.get(
                                       'nupic.hypersearch.minParticlesPerSwarm')
     self._minParticlesPerSwarm = int(self._minParticlesPerSwarm)
-    
+
     # Enable logic to kill off speculative swarms when an earlier sprint
     #  has found that it contains poorly performing field combination?
     self._killUselessSwarms = vars.get('killUselessSwarms', True)
-    
+
     # The caller can request that the predicted field ALWAYS be included ("yes")
     #  or optionally include ("auto"). The setting of "no" is N/A and ignored
     #  because in that case the encoder for the predicted field will not even
-    #  be present in the permutations file. 
-    # When set to "yes", this will force the first sprint to try the predicted 
+    #  be present in the permutations file.
+    # When set to "yes", this will force the first sprint to try the predicted
     #  field only (the legacy mode of swarming).
-    # When set to "auto", the first sprint tries all possible fields (one at a 
-    #  time) in the first sprint.  
+    # When set to "auto", the first sprint tries all possible fields (one at a
+    #  time) in the first sprint.
     self._inputPredictedField = vars.get("inputPredictedField", "yes")
-    
+
     # Try all possible 3-field combinations? Normally, we start with the best
     #  2-field combination as a base. When this flag is set though, we try
-    #  all possible 3-field combinations which takes longer but can find a 
-    #  better model. 
+    #  all possible 3-field combinations which takes longer but can find a
+    #  better model.
     self._tryAll3FieldCombinations = vars.get('tryAll3FieldCombinations', False)
-    
-    # Always include timestamp fields in the 3-field swarms? 
-    # This is a less compute intensive version of tryAll3FieldCombinations. 
+
+    # Always include timestamp fields in the 3-field swarms?
+    # This is a less compute intensive version of tryAll3FieldCombinations.
     # Instead of trying ALL possible 3 field combinations, it just insures
     # that the timestamp fields (dayOfWeek, timeOfDay, weekend) are never left
-    # out when generating the 3-field swarms.   
+    # out when generating the 3-field swarms.
     self._tryAll3FieldCombinationsWTimestamps = vars.get(
                                 'tryAll3FieldCombinationsWTimestamps', False)
-    
+
     # Allow the permutations file to override minFieldContribution. This would
     #  be set to a negative number for large swarms so that you don't disqualify
     #  a field in an early sprint just because it did poorly there. Sometimes,
-    #  a field that did poorly in an early sprint could help accuracy when 
+    #  a field that did poorly in an early sprint could help accuracy when
     #  added in a later sprint
     minFieldContribution = vars.get('minFieldContribution', None)
     if minFieldContribution is not None:
       self._minFieldContribution = minFieldContribution
-      
-    # Allow the permutations file to override maxBranching. 
+
+    # Allow the permutations file to override maxBranching.
     maxBranching = vars.get('maxFieldBranching', None)
     if maxBranching is not None:
       self._maxBranching = maxBranching
@@ -2839,9 +2841,9 @@ class HypersearchV2(object):
     else:
       raise RuntimeError("Permutations file '%s' does not include a maximize"
                          " or minimize metric.")
-      
+
     # The permutations file is the new location for maxModels. The old location,
-    #  in the jobParams is deprecated. 
+    #  in the jobParams is deprecated.
     maxModels = vars.get('maxModels')
     if maxModels is not None:
       if self._maxModels is None:
@@ -2866,20 +2868,20 @@ class HypersearchV2(object):
 
     if inferenceType in [InferenceType.TemporalMultiStep,
                          InferenceType.NontemporalMultiStep]:
-      # If it does not have a separate encoder for the predicted field that 
+      # If it does not have a separate encoder for the predicted field that
       #  goes to the classifier, it is a legacy multi-step network
-      classifierOnlyEncoder = None 
-      for encoder in modelDescription["modelParams"]["sensorParams"]\
-                    ["encoders"].values():
+      classifierOnlyEncoder = None
+      for encoder in list(modelDescription["modelParams"]["sensorParams"]\
+                    ["encoders"].values()):
         if encoder.get("classifierOnly", False) \
-             and encoder["fieldname"] == vars.get('predictedField', None): 
+             and encoder["fieldname"] == vars.get('predictedField', None):
           classifierOnlyEncoder = encoder
           break
-        
+
       if classifierOnlyEncoder is None or self._inputPredictedField=="yes":
         # If we don't have a separate encoder for the classifier (legacy
         #  MultiStep) or the caller explicitly wants to include the predicted
-        #  field, then use the legacy temporal search methodology. 
+        #  field, then use the legacy temporal search methodology.
         self._searchType = HsSearchType.legacyTemporal
       else:
         self._searchType = HsSearchType.temporal
@@ -2898,7 +2900,7 @@ class HypersearchV2(object):
 
     # Get the predicted field. Note that even classification experiments
     #  have a "predicted" field - which is the field that contains the
-    #  classification value. 
+    #  classification value.
     self._predictedField = vars.get('predictedField', None)
     if self._predictedField is None:
       raise RuntimeError("Permutations file '%s' does not have the required"
@@ -2929,7 +2931,7 @@ class HypersearchV2(object):
 
         # Store the flattened representations of the variables within the
         # encoder.
-        for encKey, encValue in value.kwArgs.iteritems():
+        for encKey, encValue in value.kwArgs.items():
           if isinstance(encValue, PermuteVariable):
             self._flattenedPermutations['%s:%s' % (flatKey, encKey)] = encValue
       elif isinstance(value, PermuteVariable):
@@ -3022,18 +3024,18 @@ class HypersearchV2(object):
 
     Parameters:
     ----------------------------------------------------------------------
-    retval:   
+    retval:
 
     """
-    
+
     self.logger.debug("Checking for orphaned models older than %s" % \
                      (self._modelOrphanIntervalSecs))
-    
+
     while True:
       orphanedModelId = self._cjDAO.modelAdoptNextOrphan(self._jobID,
                                                 self._modelOrphanIntervalSecs)
       if orphanedModelId is None:
-        return 
+        return
 
       self.logger.info("Removing orphaned model: %d" % (orphanedModelId))
 
@@ -3422,42 +3424,42 @@ class HypersearchV2(object):
       swarmIds = self._hsState.getActiveSwarms(sprintIdx)
       for swarmId in swarmIds:
         firstNonFullGenIdx = self._resultsDB.firstNonFullGeneration(
-                                swarmId=swarmId, 
+                                swarmId=swarmId,
                                 minNumParticles=self._minParticlesPerSwarm)
         if firstNonFullGenIdx is None:
           continue
-        
+
         if firstNonFullGenIdx < self._resultsDB.highestGeneration(swarmId):
           self.logger.info("Cloning an earlier model in generation %d of swarm "
               "%s (sprintIdx=%s) to replace an orphaned model" % (
                 firstNonFullGenIdx, swarmId, sprintIdx))
-          
-          # Clone a random orphaned particle from the incomplete generation 
+
+          # Clone a random orphaned particle from the incomplete generation
           (allParticles, allModelIds, errScores, completed, matured) = \
             self._resultsDB.getOrphanParticleInfos(swarmId, firstNonFullGenIdx)
-          
+
           if len(allModelIds) > 0:
             # We have seen instances where we get stuck in a loop incessantly
             #  trying to clone earlier models (NUP-1511). My best guess is that
-            #  we've already successfully cloned each of the orphaned models at 
-            #  least once, but still need at least one more. If we don't create 
-            #  a new particleID, we will never be able to instantiate another 
-            #  model (since particleID hash is a unique key in the models table). 
-            #  So, on 1/8/2013 this logic was changed to create a new particleID          
-            #  whenever we clone an orphan. 
+            #  we've already successfully cloned each of the orphaned models at
+            #  least once, but still need at least one more. If we don't create
+            #  a new particleID, we will never be able to instantiate another
+            #  model (since particleID hash is a unique key in the models table).
+            #  So, on 1/8/2013 this logic was changed to create a new particleID
+            #  whenever we clone an orphan.
             newParticleId = True
             self.logger.info("Cloning an orphaned model")
-            
+
           # If there is no orphan, clone one of the other particles. We can
           #  have no orphan if this was a speculative generation that only
-          #  continued particles completed in the prior generation. 
+          #  continued particles completed in the prior generation.
           else:
             newParticleId = True
             self.logger.info("No orphans found, so cloning a non-orphan")
             (allParticles, allModelIds, errScores, completed, matured) = \
-            self._resultsDB.getParticleInfos(swarmId=swarmId, 
+            self._resultsDB.getParticleInfos(swarmId=swarmId,
                                              genIdx=firstNonFullGenIdx)
-            
+
           # Clone that model
           modelId = random.choice(allModelIds)
           self.logger.info("Cloning model %r" % (modelId))
@@ -3468,16 +3470,16 @@ class HypersearchV2(object):
                               newFromClone=particleState,
                               newParticleId=newParticleId)
           return (False, particle, swarmId)
-            
-          
+
+
       # ====================================================================
       # Sort the swarms in priority order, trying the ones with the least
       #  number of models first
       swarmSizes = numpy.array([self._resultsDB.numModels(x) for x in swarmIds])
-      swarmSizeAndIdList = zip(swarmSizes, swarmIds)
+      swarmSizeAndIdList = list(zip(swarmSizes, swarmIds))
       swarmSizeAndIdList.sort()
       for (_, swarmId) in swarmSizeAndIdList:
-        
+
         # -------------------------------------------------------------------
         # 1.) The particle will be created from new (at generation #0) if there
         #   are not already self._minParticlesPerSwarm particles in the swarm.
@@ -3501,10 +3503,10 @@ class HypersearchV2(object):
             (baseState, modelId, errScore, completed, matured) \
                  = self._resultsDB.getParticleInfo(bestPriorModel)
             particle.copyEncoderStatesFrom(baseState)
-            
+
             # Copy the best inference type from the earlier sprint
             particle.copyVarStatesFrom(baseState, ['modelParams|inferenceType'])
-            
+
             # It's best to jiggle the best settings from the prior sprint, so
             #  compute a new position starting from that previous best
             # Only jiggle the vars we copied from the prior model
@@ -3513,7 +3515,7 @@ class HypersearchV2(object):
               if ':' in varName:
                 whichVars.append(varName)
             particle.newPosition(whichVars)
-            
+
             self.logger.debug("Particle after incorporating encoder vars from best "
                              "model in previous sprint: \n%s" % (str(particle)))
 
@@ -3586,7 +3588,7 @@ class HypersearchV2(object):
     """
     # Send an update status periodically to the JobTracker so that it doesn't
     # think this worker is dead.
-    print >> sys.stderr, "reporter:status:In hypersearchV2: _okToExit"
+    print("reporter:status:In hypersearchV2: _okToExit", file=sys.stderr)
 
     # Any immature models still running?
     if not self._jobCancelled:
@@ -3666,12 +3668,12 @@ class HypersearchV2(object):
     many models to generate. This particular implementation only ever returns 1
     model.
 
-    Before choosing some new models, we first do a sweep for any models that 
-    may have been abandonded by failed workers. If/when we detect an abandoned 
-    model, we mark it as complete and orphaned and hide it from any subsequent 
-    queries to our ResultsDB. This effectively considers it as if it never 
-    existed. We also change the paramsHash and particleHash in the model record 
-    of the models table so that we can create another model with the same 
+    Before choosing some new models, we first do a sweep for any models that
+    may have been abandonded by failed workers. If/when we detect an abandoned
+    model, we mark it as complete and orphaned and hide it from any subsequent
+    queries to our ResultsDB. This effectively considers it as if it never
+    existed. We also change the paramsHash and particleHash in the model record
+    of the models table so that we can create another model with the same
     params and particle status and run it (which we then do immediately).
 
     The modelParamsHash returned for each model should be a hash (max allowed
@@ -3726,12 +3728,12 @@ class HypersearchV2(object):
                          variable name, the value is a dict of the variable's
                          position, velocity, bestPosition, bestResult, etc.
     """
-    
+
     # Check for and mark orphaned models
     self._checkForOrphanedModels()
-    
+
     modelResults = []
-    for _ in xrange(numModels):
+    for _ in range(numModels):
       candidateParticle = None
 
       # If we've reached the max # of model to evaluate, we're done.
@@ -3755,7 +3757,7 @@ class HypersearchV2(object):
         else:
           # Send an update status periodically to the JobTracker so that it doesn't
           # think this worker is dead.
-          print >> sys.stderr, "reporter:status:In hypersearchV2: speculativeWait"
+          print("reporter:status:In hypersearchV2: speculativeWait", file=sys.stderr)
           time.sleep(self._speculativeWaitSecondsMax * random.random())
           return (False, [])
       useEncoders = candidateSwarm.split('.')
@@ -3896,7 +3898,7 @@ class HypersearchV2(object):
     if results is None:
       metricResult = None
     else:
-      metricResult = results[1].values()[0]
+      metricResult = list(results[1].values())[0]
 
     # Update our database.
     errScore = self._resultsDB.update(modelID=modelID,
@@ -3944,7 +3946,7 @@ class HypersearchV2(object):
     modelCheckpointGUID: A persistent, globally-unique identifier for
                           constructing the model checkpoint key
     """
-    
+
     # We're going to make an assumption that if we're not using streams, that
     #  we also don't need checkpoints saved. For now, this assumption is OK
     #  (if there are no streams, we're typically running on a single machine
@@ -3952,7 +3954,7 @@ class HypersearchV2(object):
     #  a separate controllable parameter in the future
     if not self._createCheckpoints:
       modelCheckpointGUID = None
-    
+
     # Register this model in our database
     self._resultsDB.update(modelID=modelID,
                            modelParams=modelParams,
@@ -4017,5 +4019,5 @@ class HypersearchV2(object):
                             cpuTime = time.clock() - cpuTimeStart)
 
 
-    except InvalidConnectionException, e:
+    except InvalidConnectionException as e:
       self.logger.warn("%s", e)

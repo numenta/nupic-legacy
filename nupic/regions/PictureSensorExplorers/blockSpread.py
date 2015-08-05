@@ -24,6 +24,8 @@ This file defines the 'starBlock' explorer.
 
 """
 
+from __future__ import print_function
+
 from nupic.regions.PictureSensor import PictureSensor
 from nupic.math.cross import cross
 
@@ -84,11 +86,11 @@ class BlockSpreadPictureExplorer(PictureSensor.PictureExplorer):
       shape = params['spaceShape']
       xMin = -1 * (shape[1] // 2)
       xMax = xMin + shape[1] - 1
-      xPositions = range(stepSize * xMin, stepSize * xMax + 1, stepSize)
+      xPositions = list(range(stepSize * xMin, stepSize * xMax + 1, stepSize))
 
       yMin = -1 * (shape[0] // 2)
       yMax = yMin + shape[0] - 1
-      yPositions = range(stepSize * yMin, stepSize * yMax + 1, stepSize)
+      yPositions = list(range(stepSize * yMin, stepSize * yMax + 1, stepSize))
 
       self._centerOffsets = list(cross(yPositions, xPositions))
       self._numCenterOffsets = len(self._centerOffsets)
@@ -98,11 +100,11 @@ class BlockSpreadPictureExplorer(PictureSensor.PictureExplorer):
       shape = params['spreadShape']
       xMin = -1 * (shape[1] // 2)
       xMax = xMin + shape[1] - 1
-      xPositions = range(stepSize * xMin, stepSize * xMax + 1, stepSize)
+      xPositions = list(range(stepSize * xMin, stepSize * xMax + 1, stepSize))
 
       yMin = -1 * (shape[0] // 2)
       yMax = yMin + shape[0] - 1
-      yPositions = range(stepSize * yMin, stepSize * yMax + 1, stepSize)
+      yPositions = list(range(stepSize * yMin, stepSize * yMax + 1, stepSize))
 
       self._spreadOffsets = list(cross(yPositions, xPositions))
       # Put the (0,0) entry first
@@ -148,10 +150,10 @@ class BlockSpreadPictureExplorer(PictureSensor.PictureExplorer):
 
     # Print current state
     if False:
-      print "_catIdx:", self._catIdx, "_centerPosIdx", self._centerPosIdx, \
+      print("_catIdx:", self._catIdx, "_centerPosIdx", self._centerPosIdx, \
           "_spreadPosIdx:", self._spreadPosIdx, "centerOffset:", centerOffset, \
           "spreadOffset:", spreadOffset, "yPos:", state['posnY'], \
-          "xPos:", state['posnX']
+          "xPos:", state['posnX'])
 
     # Update to next position
     self._spreadPosIdx += 1

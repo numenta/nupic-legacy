@@ -28,7 +28,7 @@ from nupic import encoders
 from nupic.data import fieldmeta
 from nupic.frameworks.opf import model
 from nupic.frameworks.opf import opfutils
-from opfutils import InferenceType
+from .opfutils import InferenceType
 
 
 class TwoGramModel(model.Model):
@@ -51,7 +51,7 @@ class TwoGramModel(model.Model):
     self._encoder = encoders.MultiEncoder(encoderParams)
     self._fieldNames = self._encoder.getScalarNames()
     self._prevValues = [None] * len(self._fieldNames)
-    self._twoGramDicts = [dict() for _ in xrange(len(self._fieldNames))]
+    self._twoGramDicts = [dict() for _ in range(len(self._fieldNames))]
 
   def run(self, inputRecord):
     """Run one iteration of this model.
@@ -80,11 +80,11 @@ class TwoGramModel(model.Model):
 
     # Keep track of the last value associated with each encoded value for that
     # predictions can be returned in the original value format.
-    for value, bucket in itertools.izip(values, inputBuckets):
+    for value, bucket in zip(values, inputBuckets):
       self._hashToValueDict[bucket] = value
 
     # Update the two-gram dict if learning is enabled.
-    for bucket, prevValue, twoGramDict in itertools.izip(
+    for bucket, prevValue, twoGramDict in zip(
         inputBuckets, self._prevValues, self._twoGramDicts):
       if self._learningEnabled and not self._reset:
         if prevValue not in twoGramDict:
@@ -96,10 +96,10 @@ class TwoGramModel(model.Model):
     predictions = []
     encodedPredictions = []
     for bucket, twoGramDict, default, fieldName in (
-        itertools.izip(inputBuckets, self._twoGramDicts, defaults,
+        zip(inputBuckets, self._twoGramDicts, defaults,
                        self._fieldNames)):
       if bucket in twoGramDict:
-        probabilities = twoGramDict[bucket].items()
+        probabilities = list(twoGramDict[bucket].items())
         prediction = self._hashToValueDict[
             max(probabilities, key=lambda x: x[1])[0]]
         predictions.append(prediction)
@@ -147,7 +147,7 @@ class TwoGramModel(model.Model):
     assert len(self._fieldNames) == len(fieldTypes)
 
     return tuple(fieldmeta.FieldMetaInfo(*args) for args in
-                 itertools.izip(
+                 zip(
                      self._fieldNames, fieldTypes,
                      itertools.repeat(fieldmeta.FieldMetaSpecial.none)))
 
