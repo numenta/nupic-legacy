@@ -21,6 +21,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+from six import Iterator, StringIO
+
 import os
 import sys
 import nupic.bindings.engine_internal as engine
@@ -67,11 +70,10 @@ for a in arrayTypes:
 # stack trace define this environment variable
 if not 'NTA_STANDARD_PYTHON_UNHANDLED_EXCEPTIONS' in os.environ:
   import traceback
-  import cStringIO
-  
+
   def customExceptionHandler(type, value, tb):
     """Catch unhandled Python exception
-    
+
     The handler prints the original exception info including into a buffer.
     It then extracts the original error message (when the exception is raised
     inside a Py node additional stacktrace info will be appended in the end)
@@ -80,11 +82,11 @@ if not 'NTA_STANDARD_PYTHON_UNHANDLED_EXCEPTIONS' in os.environ:
     file.
     """
     # Print the exception info to a string IO buffer for manipulation
-    buff = cStringIO.StringIO()
+    buff = StringIO()
     traceback.print_exception(type, value, tb, file=buff)
 
     text = buff.getvalue()
-      
+
     # get the lines skip the first one: "Traceback (most recent call last)"
     lines = text.split('\n')[1:]
     #
@@ -94,7 +96,7 @@ if not 'NTA_STANDARD_PYTHON_UNHANDLED_EXCEPTIONS' in os.environ:
     for i, line in enumerate(lines):
       if line.startswith('RuntimeError:'):
         begin = i
-    #  
+    #
     #  elif line.startswith('Traceback (most recent call last):'):
     #    end = i
     #    break
@@ -102,35 +104,35 @@ if not 'NTA_STANDARD_PYTHON_UNHANDLED_EXCEPTIONS' in os.environ:
     message = '\n'.join(lines[begin:end])
     message = message[len('Runtime Error:'):]
     #stacktrace = lines[end:]
-    
-    # Get the stack trace if available (default to empty string)
-    stacktrace = getattr(value, 'stackTrace', '')    
 
-        
+    # Get the stack trace if available (default to empty string)
+    stacktrace = getattr(value, 'stackTrace', '')
+
+
 
     # Remove engine from stack trace
     lines = [x for x in lines if 'engine' not in x]
-    
+
     failMessage = 'The program failed with the following error message:'
     dashes = '-' * len(failMessage)
-    print
-    print dashes
-    print 'Traceback (most recent call last):'
-    print '\n'.join(lines[:begin-2])
+    print()
+    print(dashes)
+    print('Traceback (most recent call last):')
+    print('\n'.join(lines[:begin-2]))
     if stacktrace:
-      print stacktrace
-    print dashes
-    print 'The program failed with the following error message:'
-    print dashes
-    print message
-    print
+      print(stacktrace)
+    print(dashes)
+    print('The program failed with the following error message:')
+    print(dashes)
+    print(message)
+    print()
 
   #sys.excepthook = customExceptionHandler
 
 
 
 # Expose the timer class directly
-# Do it this way instead of bringing engine.Timer 
+# Do it this way instead of bringing engine.Timer
 # into the namespace to avoid engine
 # in the class name
 class Timer(engine.Timer):
@@ -147,24 +149,24 @@ class OS(engine.OS):
 
 class Dimensions(engine.Dimensions):
   """Represent the topology of an N-dimensional region
-  
+
   Basically, it is a list of integers such as: [4, 8, 6]
   In this example the topology is a 3 dimensional region with
   4 x 8 x 6 nodes.
-  
+
   You can initialize it with a list of dimensions or with no arguments
   and then append dimensions.
-  
+
   """
   def __init__(self, *args):
     """Construct a Dimensions object
-    
+
     The constructor can be called with no arguments or with a list
     of integers
     """
     # Init the base class
     engine.Dimensions.__init__(self, *args)
-    
+
   def __str__(self):
     return self.toString()
 
@@ -172,26 +174,26 @@ class Dimensions(engine.Dimensions):
 
 def Array(dtype, size=None, ref=False):
   """Factory function that creates typed Array or ArrayRef objects
-  
+
   dtype - the data type of the array (as string).
     Supported types are: Byte, Int16, UInt16, Int32, UInt32, Int64, UInt64, Real32, Real64
-  
+
   size - the size of the array. Must be positive integer.
   """
-  
+
   def getArrayType(self):
     """A little function to replace the getType() method of arrays
-    
+
     It returns a string representation of the array element type instead of the
     integer value (NTA_BasicType enum) returned by the origianl array
     """
     return self._dtype
-      
-    
+
+
   # ArrayRef can't be allocated
   if ref:
     assert size is None
-    
+
   index = basicTypes.index(dtype)
   if index == -1:
     raise Exception('Invalid data type: ' + dtype)
@@ -200,12 +202,12 @@ def Array(dtype, size=None, ref=False):
   suffix = 'ArrayRef' if ref else 'Array'
   arrayFactory = getattr(engine, dtype + suffix)
   arrayFactory.getType = getArrayType
-  
+
   if size:
     a = arrayFactory(size)
   else:
     a = arrayFactory()
-    
+
   a._dtype = basicTypes[index]
   return a
 
@@ -214,12 +216,12 @@ def ArrayRef(dtype):
 
 
 
-class CollectionIterator(object):
+class CollectionIterator(Iterator):
   def __init__(self, collection):
     self.collection = collection
     self.index = 0
-    
-  def next(self):
+
+  def __next__(self):
     index = self.index
     if index == self.collection.getCount():
       raise StopIteration
@@ -228,76 +230,76 @@ class CollectionIterator(object):
 
 class CollectionWrapper(object):
   """Wrap an nupic::Collection with a dict-like interface
-  
+
   The optional valueWrapper is used to wrap values for adaptation purposes.
   Maintains the original documentation
-  
+
   collection - the original collection
   valueWrapper - an optional callable object used to wrap values.
   """
   def IdentityWrapper(o):
     return o
-  
-  
+
+
   def __init__(self, collection, valueWrapper=IdentityWrapper):
     self.collection = collection
     self.valueWrapper = valueWrapper
-    self.__class__.__doc__ == collection.__class__.__doc__    
+    self.__class__.__doc__ == collection.__class__.__doc__
 
   def __iter__(self):
     return CollectionIterator(self.collection)
-  
+
   def __str__(self):
     return str(self.collection)
 
   def __repr__(self):
     return repr(self.collection)
-  
+
   def __len__(self):
     return self.collection.getCount()
-    
+
   def __getitem__(self, key):
     if not self.collection.contains(key):
       raise KeyError('Key ' + key + ' not found')
 
     value =  self.collection.getByName(key)
     value = self.valueWrapper(key, value)
-    
+
     return value
-  
+
   def get(self, key, default=None):
     try:
       return self.__getitem__(key)
     except KeyError:
       return default
-        
+
   def __contains__(self, key):
     return self.collection.contains(key)
-    
+
   def keys(self):
     keys = set()
     for i in range(self.collection.getCount()):
       keys.add(self.collection.getByIndex(i)[0])
     return keys
-  
+
   def values(self):
     values = set()
-    
+
     for i in range(self.collection.getCount()):
       p = self.collection.getByIndex(i)
       values.add(self.valueWrapper(p[0], p[1]))
     return values
-  
+
   def items(self):
     items = set()
     for i in range(self.collection.getCount()):
       p = self.collection.getByIndex(i)
       items.add((p[0], self.valueWrapper(p[0], p[1])))
     return items
-  
+
   def __cmp__(self, other):
     return self.collection == other.collection
-  
+
   def __hash__(self):
     return hash(self.collection)
 
@@ -305,11 +307,11 @@ class CollectionWrapper(object):
 
 class SpecItem(object):
   """Wrapper that translates the data type and access code to a string
-  
+
   The original values are an enumerated type in C++ that become
   just integers in Python. This class wraps the original ParameterSpec
   and translates the integer values to meaningful strings: that correspond to the C++ enum labels.
-  
+
   It is used to wrap ParameterSpec, InputSpec and OutputSpec
   """
   accessModes = ['Create', 'ReadOnly', 'ReadWrite']
@@ -323,10 +325,10 @@ class SpecItem(object):
     # Translate access mode to string representation
     if hasattr(item, 'accessMode'): # ParameterSpec only
       self.accessMode = SpecItem.accessModes[item.accessMode]
-            
+
   def __getattr__(self, name):
     return getattr(self.item, name)
-    
+
   def __str__(self):
     d = dict(name=self.name,
              description=self.description,
@@ -340,7 +342,7 @@ class SpecItem(object):
       d['constraints'] = self.constraints
     if hasattr(self.item, 'defaultValue'): # ParameterSpec only
       d['defaultValue'] = self.defaultValue
-    
+
     return str(d)
 
 
@@ -355,13 +357,13 @@ class Spec(object):
     self.outputs = CollectionWrapper(spec.outputs, SpecItem)
     self.parameters = CollectionWrapper(spec.parameters, SpecItem)
     self.commands = CollectionWrapper(spec.commands)
-          
+
   def __str__(self):
     return self.spec.toString()
 
   def __repr__(self):
     return self.spec.toString()
-  
+
 class _ArrayParameterHelper:
   """This class is used by Region._getParameterMethods"""
   def __init__(self, region, datatype):
@@ -369,7 +371,7 @@ class _ArrayParameterHelper:
     self.datatype = basicTypes[datatype]
 
   def getParameterArray(self, paramName):
-    # return a PyArray instead of a plain array. 
+    # return a PyArray instead of a plain array.
     # PyArray constructor/class for type X is called XArray()
     #factoryName = self.datatype + 'Array'
     #if factoryName not in globals():
@@ -391,7 +393,7 @@ class Region(LockAttributesMixin):
 
   #Wrapper for a network region
   #- Maintains original documentation
-  #- Implement syntactic sugar properties:  
+  #- Implement syntactic sugar properties:
       #name = property(getName)
       #type = property(getType)
       #spec = property(getSpec)
@@ -399,10 +401,10 @@ class Region(LockAttributesMixin):
       #network = property(getNetwork)
   #- Makes sure that returned objects are high-level wrapper objects
   #- Forwards everything else to internal region
-  
+
   def __init__(self, region, network):
     """Store the wraped region and hosting network
-    
+
     The network is the high-level Network and not the internal
     Network. This is important in case the user requests the network
     from the region (never leak a engine object, remember)
@@ -410,10 +412,10 @@ class Region(LockAttributesMixin):
     self._network = network
     self._region = region
     self.__class__.__doc__ == region.__class__.__doc__
-    
+
     # A cache for typed get/setPArameter() calls
     self._paramTypeCache = {}
-    
+
   def __getattr__(self, name):
     if not '_region' in self.__dict__:
       raise AttributeError
@@ -426,23 +428,23 @@ class Region(LockAttributesMixin):
       self.setDimensions(value)
     else:
       setattr(self._region, name, value)
-        
+
   @staticmethod
   def getSpecFromType(nodeType):
     """
     @doc:place_holder(Region.getSpecFromType)
     """
     return Spec(engine.Region.getSpecFromType(nodeType))
-    
+
   def compute(self):
     """
     @doc:place_holder(Region.compute)
-    
-    ** This line comes from the original docstring (not generated by Documentor) 
-    
+
+    ** This line comes from the original docstring (not generated by Documentor)
+
     """
     return self._region.compute()
-    
+
   def getInputData(self, inputName):
     """
     @doc:place_holder(Region.getInputData)
@@ -454,15 +456,15 @@ class Region(LockAttributesMixin):
     @doc:place_holder(Region.getOutputData)
     """
     return self._region.getOutputArray(outputName)
-    
-  
+
+
   def executeCommand(self, args):
     """
     @doc:place_holder(Region.executeCommand)
-    """    
+    """
     return self._region.executeCommand(args)
-    
-    
+
+
   def _getSpec(self):
     """Spec of the region"""
     return Spec(self._region.getSpec())
@@ -470,22 +472,22 @@ class Region(LockAttributesMixin):
   def _getDimensions(self):
     """Dimensions of the region"""
     return Dimensions(tuple(self._region.getDimensions()))
-      
+
   def _getNetwork(self):
     """Network for the region"""
     return self._network
-            
+
   def __hash__(self):
     """Hash a region"""
     return self._region.__hash__()
-    
+
   def __cmp__(self, other):
     """Compare regions"""
     return self._region == other._region
- 
+
 
   def _getParameterMethods(self, paramName):
-    """Returns functions to set/get the parameter. These are 
+    """Returns functions to set/get the parameter. These are
     the strongly typed functions get/setParameterUInt32, etc.
     The return value is a pair:
         setfunc, getfunc
@@ -494,7 +496,7 @@ class Region(LockAttributesMixin):
     if paramName in self._paramTypeCache:
       return self._paramTypeCache[paramName]
     try:
-      # Catch the error here. We will re-throw in getParameter or 
+      # Catch the error here. We will re-throw in getParameter or
       # setParameter with a better error message than we could generate here
       paramSpec = self.getSpec().parameters.getByName(paramName)
     except:
@@ -510,7 +512,7 @@ class Region(LockAttributesMixin):
         s = getattr(self, 's' + x) # get the typed setParameter method
       except AttributeError:
         raise Exception("Internal error: unknown parameter type %s" % dataTypeName)
-      info = (s, g)      
+      info = (s, g)
     else:
       if dataTypeName == "Byte":
         info = (self.setParameterString, self.getParameterString)
@@ -555,11 +557,11 @@ class Region(LockAttributesMixin):
 
   spec = property(_getSpec,
                       doc='@property:place_holder(Region.getSpec)')
-      
+
   dimensions = property(_getDimensions,
                         engine.Region.setDimensions,
                         doc='@property:place_holder(Region.getDimensions)')
-  
+
   computeTimer = property(functools.partial(_get, method='getComputeTimer'),
                           doc='@property:place_holder(Region.getComputeTimer)')
 
@@ -575,13 +577,13 @@ class Network(engine.Network):
 
   def __init__(self, *args):
     """Constructor
-    
+
     - Initialize the internal engine.Network class generated by Swig
     - Attach docstrings to selected methods
     """
     # Init engine.Network class
     engine.Network.__init__(self, *args)
-    
+
     # Prepare documentation table.
     # Each item is pair of method/property, docstring
     # The docstring is attached later to the method or property.
@@ -591,7 +593,7 @@ class Network(engine.Network):
     docTable = (
         (engine.Network.getRegions, 'Get the collection of regions in a network'),
     )
-    
+
     # Attach documentation to methods and properties
     for obj, docString in docTable:
       if isinstance(obj, str):
@@ -599,11 +601,11 @@ class Network(engine.Network):
         assert isinstance(prop, property)
         setattr(Network, obj, property(prop.fget, prop.fset, prop.fdel, docString))
       else:
-        obj.im_func.__doc__ = docString
-    
+        obj.__func__.__doc__ = docString
+
   def _getRegions(self):
     """Get the collection of regions in a network
-    
+
     This is a tricky one. The collection of regions returned from
     from the internal network is a collection of internal regions.
     The desired collection is a collelcion of net.Region objects
@@ -616,24 +618,24 @@ class Network(engine.Network):
 
     def makeRegion(name, r):
       """Wrap a engine region with a nupic.engine.Region
-      
+
       Also passes the containing nupic.engine.Network network in _network. This
-      function is passed a value wrapper to the CollectionWrapper      
+      function is passed a value wrapper to the CollectionWrapper
       """
       r = Region(r, self)
       #r._network = self
       return r
-    
-    regions = CollectionWrapper(engine.Network.getRegions(self), makeRegion)    
+
+    regions = CollectionWrapper(engine.Network.getRegions(self), makeRegion)
     return regions
-    
-  def addRegion(self, name, nodeType, nodeParams):    
+
+  def addRegion(self, name, nodeType, nodeParams):
     """
     @doc:place_holder(Network.addRegion)
     """
     engine.Network.addRegion(self, name, nodeType, nodeParams)
     return self._getRegions()[name]
-    
+
 
   def addRegionFromBundle(self, name, nodeType, dimensions, bundlePath, label):
     """
@@ -724,7 +726,7 @@ class Network(engine.Network):
 
   def inspect(self):
     """Launch a GUI inpector to inspect the network"""
-    from nupic.analysis import inspect    
+    from nupic.analysis import inspect
     inspect(self)
 
   @staticmethod
@@ -751,27 +753,27 @@ class Network(engine.Network):
   maxPhase = property(engine.Network.getMaxPhase, doc='@property:place_holder(Network.getMaxPhase)')
   minEnabledPhase = property(engine.Network.getMinEnabledPhase, engine.Network.setMinEnabledPhase, doc='@property:place_holder(Network.getMinEnabledPhase)')
   maxEnabledPhase = property(engine.Network.getMaxEnabledPhase, engine.Network.setMaxEnabledPhase, doc='@property:place_holder(Network.getMaxEnabledPhase)')
-    
+
 if __name__=='__main__':
   n = Network()
-  print n.regions
-  print len(n.regions)
-  print Network.regions.__doc__
-  
+  print(n.regions)
+  print(len(n.regions))
+  print(Network.regions.__doc__)
+
   d = Dimensions([3, 4, 5])
-  print len(d)
-  print d
-  
+  print(len(d))
+  print(d)
+
   a = Array('Byte', 5)
-  print len(a)
+  print(len(a))
   for i in range(len(a)):
     a[i] = ord('A') + i
-    
+
   for i in range(len(a)):
-    print a[i]
-    
+    print(a[i])
+
   r = n.addRegion('r', 'TestNode', '')
-  print 'name:', r.name
-  print 'node type:', r.type
-  print 'node spec:', r.spec
+  print('name:', r.name)
+  print('node type:', r.type)
+  print('node spec:', r.spec)
 

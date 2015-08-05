@@ -54,8 +54,8 @@ class CategoryEncoderTest(unittest.TestCase):
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldNames), 1)
     self.assertEqual(len(fieldsDict), 1)
-    self.assertEqual(fieldNames[0], fieldsDict.keys()[0])
-    (ranges, desc) = fieldsDict.values()[0]
+    self.assertEqual(fieldNames[0], list(fieldsDict.keys())[0])
+    (ranges, desc) = list(fieldsDict.values())[0]
     self.assertEqual(desc, "US")
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [3, 3]))
@@ -87,8 +87,8 @@ class CategoryEncoderTest(unittest.TestCase):
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldNames), 1)
     self.assertEqual(len(fieldsDict), 1)
-    self.assertEqual(fieldNames[0], fieldsDict.keys()[0])
-    (ranges, desc) = fieldsDict.values()[0]
+    self.assertEqual(fieldNames[0], list(fieldsDict.keys())[0])
+    (ranges, desc) = list(fieldsDict.values())[0]
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [0, 0]))
 
@@ -113,8 +113,8 @@ class CategoryEncoderTest(unittest.TestCase):
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldNames), 1)
     self.assertEqual(len(fieldsDict), 1)
-    self.assertEqual(fieldNames[0], fieldsDict.keys()[0])
-    (ranges, desc) = fieldsDict.values()[0]
+    self.assertEqual(fieldNames[0], list(fieldsDict.keys())[0])
+    (ranges, desc) = list(fieldsDict.values())[0]
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [1, 1]))
 
@@ -133,8 +133,8 @@ class CategoryEncoderTest(unittest.TestCase):
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldNames), 1)
     self.assertEqual(len(fieldsDict), 1)
-    self.assertEqual(fieldNames[0], fieldsDict.keys()[0])
-    (ranges, desc) = fieldsDict.values()[0]
+    self.assertEqual(fieldNames[0], list(fieldsDict.keys())[0])
+    (ranges, desc) = list(fieldsDict.values())[0]
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [0, 3]))
 

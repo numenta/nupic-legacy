@@ -109,7 +109,7 @@ def dummyModelParams(perm):
   #If the model only has the A field have it run slowly to simulate speculation.
 
   encoderCount = 0
-  for key in perm.keys():
+  for key in list(perm.keys()):
  	if 'encoder' in key and not perm[key] is None:
  		encoderCount+=1
   delay=encoderCount*encoderCount*.1

@@ -25,6 +25,8 @@ This file defines the LogPolar filter, an ImageSensor filter that distorts
 incoming images in a "fish-eye" manner.
 """
 
+from __future__ import print_function
+
 from PIL import Image
 import numpy
 
@@ -241,24 +243,24 @@ class LogPolar(BaseFilter):
     if self._pcr:
       optSrcWidth = self._kernelx[centery][-1] * 2
       optSrcHeight = self._kernely[-1][centerx] * 2
-      print "LogPolar Filter: Optimum input image size for this value of c (%f)" % (c), \
-            "is %d x %d (width x height)" % (optSrcWidth, optSrcHeight)
+      print("LogPolar Filter: Optimum input image size for this value of c (%f)" % (c), \
+            "is %d x %d (width x height)" % (optSrcWidth, optSrcHeight))
 
     if Save:
-      import cPickle
+      from six.moves import cPickle as pickle
       f = open('kernelx%ix%ic%.2f.dat' %(xsize,ysize,c),'w')
-      cPickle.dump(self._kernelx, f)
+      pickle.dump(self._kernelx, f)
       f.close()
       f = open('kernely%ix%ic%.2f.dat' %(xsize,ysize,c),'w')
-      cPickle.dump(self._kernely, f)
+      pickle.dump(self._kernely, f)
       f.close()
       if Debug:
         f = open('deltax%ix%i.dat' %(xsize,ysize),'w')
-        cPickle.dump(self._deltaxmat, f)
+        pickle.dump(self._deltaxmat, f)
         f.close()
         f = open('deltay%ix%i.dat' %(xsize,ysize),'w')
-        cPickle.dump(self._deltaymat, f)
+        pickle.dump(self._deltaymat, f)
         f.close()
         f = open('scales%ix%ic%.2f.dat' %(xsize,ysize,c),'w')
-        cPickle.dump(self._scales, f)
+        pickle.dump(self._scales, f)
         f.close()

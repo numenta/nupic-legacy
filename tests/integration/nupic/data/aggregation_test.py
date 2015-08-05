@@ -20,6 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import datetime
 import os
 import tempfile
@@ -40,26 +42,26 @@ def _aggregate(input, options, output, timeFieldName):
   """ Aggregate the input stream and write aggregated records to the output
   stream
   """
-  
-  aggregator = Aggregator(aggregationInfo=options, 
+
+  aggregator = Aggregator(aggregationInfo=options,
                           inputFields=input.getFields(),
                           timeFieldName=timeFieldName)
-  
+
   while True:
     inRecord = input.getNextRecord()
-    
-    print "Feeding in: ", inRecord
 
-    (outRecord, aggBookmark) = aggregator.next(record = inRecord, 
+    print("Feeding in: ", inRecord)
+
+    (outRecord, aggBookmark) = aggregator.next(record = inRecord,
                                             curInputBookmark = None)
-    print "Record out: ", outRecord
-    
+    print("Record out: ", outRecord)
+
     if outRecord is not None:
       output.appendRecord(outRecord, None)
-      
+
     if inRecord is None and outRecord is None:
       break
-      
+
 
 class DataInputList(object):
   """
@@ -89,7 +91,7 @@ class DataInputList(object):
 
   def getCurPos(self):
     return 0
-  
+
   def getFields(self):
     return self._fields
 
@@ -128,7 +130,7 @@ class DataOutputMyFile(object):
 
   def appendRecord(self, record, inputRef):
     if self._file == None:
-      print 'No File'
+      print('No File')
     self._file.appendRecord(record)
 
   def close(self):
@@ -537,7 +539,7 @@ class AggregationTests(HelperTestCaseBase):
       instance is constructed for every sub-test.
     """
     # Insert newline before each sub-test's output
-    print
+    print()
     return
 
 
@@ -568,31 +570,31 @@ class AggregationTests(HelperTestCaseBase):
 
 
       handle = \
-        tempfile.NamedTemporaryFile(prefix='test', 
+        tempfile.NamedTemporaryFile(prefix='test',
           suffix='.bin')
       outputFile = handle.name
       handle.close()
-      
+
       dataInput = DataInputList(input, gymFields)
       dataOutput = DataOutputList(None)
 
-      _aggregate(input=dataInput, options=aggregationOptions, 
+      _aggregate(input=dataInput, options=aggregationOptions,
                  timeFieldName='timestamp', output=dataOutput)
       dataOutput.close()
 
       outputRecords = dataOutput._store
-      
+
       timeFieldIdx = [f[0] for f in gymFields].index('timestamp')
       diffs = []
       for i in range(1,len(outputRecords)):
         diffs.append(outputRecords[i][timeFieldIdx] - \
                      outputRecords[i-1][timeFieldIdx])
-      positiveTimeFlow = map((lambda x: x < datetime.timedelta(seconds=0)), 
-                            diffs)
+      positiveTimeFlow = list(map((lambda x: x < datetime.timedelta(seconds=0)),
+                            diffs))
       #Make sure that old records are in the aggregated output and at the same
       #time make sure that they are in consecutive order after being inserted
-      self.assertEquals(sum(positiveTimeFlow), 1)
-        
+      self.assertEqual(sum(positiveTimeFlow), 1)
+
     return
 
   def test_GymAggregate(self):
@@ -620,23 +622,23 @@ class AggregationTests(HelperTestCaseBase):
 
 
       handle = \
-        tempfile.NamedTemporaryFile(prefix='test', 
+        tempfile.NamedTemporaryFile(prefix='test',
           suffix='.bin')
       outputFile = handle.name
       handle.close()
-      
+
       dataInput = DataInputList(input, gymFields)
       dataOutput = DataOutputMyFile(FileRecordStream(outputFile, write=True,
                                                      fields=gymFields))
 
-      _aggregate(input=dataInput, options=aggregationOptions, 
+      _aggregate(input=dataInput, options=aggregationOptions,
                  timeFieldName='timestamp', output=dataOutput)
 
       dataOutput.close()
 
       for r in FileRecordStream(outputFile):
-        print r
-      print '-' * 30
+        print(r)
+      print('-' * 30)
 
     return
 
@@ -644,7 +646,7 @@ class AggregationTests(HelperTestCaseBase):
   def test_GenerateDataset(self):
     dataset = 'extra/gym/gym.csv'
 
-    print "Using input dataset: ", dataset
+    print("Using input dataset: ", dataset)
 
     filename = resource_filename("nupic.datafiles", dataset)
 
@@ -659,10 +661,10 @@ class AggregationTests(HelperTestCaseBase):
 
       hours=5
       )
-    
+
     handle = \
-      tempfile.NamedTemporaryFile(prefix='agg_gym_hours_5', 
-        suffix='.csv', 
+      tempfile.NamedTemporaryFile(prefix='agg_gym_hours_5',
+        suffix='.csv',
         dir=os.path.dirname(
           resource_filename("nupic.datafiles", dataset)
         )
@@ -670,42 +672,42 @@ class AggregationTests(HelperTestCaseBase):
     outputFile = handle.name
     handle.close()
 
-    print "Expected outputFile path: ", outputFile
+    print("Expected outputFile path: ", outputFile)
 
-    print "Files in the destination folder before the test:"
-    print os.listdir(os.path.abspath(os.path.dirname(
+    print("Files in the destination folder before the test:")
+    print(os.listdir(os.path.abspath(os.path.dirname(
       resource_filename("nupic.datafiles", dataset)))
-    )
+    ))
 
     if os.path.isfile(outputFile):
-      print "Removing existing outputFile: ", outputFile
+      print("Removing existing outputFile: ", outputFile)
       os.remove(outputFile)
 
     self.assertFalse(os.path.exists(outputFile),
                      msg="Shouldn't exist, but does: " + str(outputFile))
 
     result = generateDataset(aggregationOptions, dataset, outputFile)
-    print "generateDataset() returned: ", result
+    print("generateDataset() returned: ", result)
 
     f1 = os.path.abspath(os.path.normpath(result))
-    print "normalized generateDataset() result path: ", f1
+    print("normalized generateDataset() result path: ", f1)
     f2 = os.path.normpath(outputFile)
-    print "normalized outputFile path: ", f2
+    print("normalized outputFile path: ", f2)
     self.assertEqual(f1, f2)
 
-    print "Checking for presence of outputFile: ", outputFile
+    print("Checking for presence of outputFile: ", outputFile)
     self.assertTrue(
       os.path.isfile(outputFile),
       msg="Missing outputFile: %r; normalized generateDataset() result: %r" % (
         outputFile, f1))
 
-    print "Files in the destination folder after the test:"
-    print os.listdir(os.path.abspath(os.path.dirname(
+    print("Files in the destination folder after the test:")
+    print(os.listdir(os.path.abspath(os.path.dirname(
       resource_filename("nupic.datafiles", dataset)
-    )))
+    ))))
 
-    print result
-    print '-' * 30
+    print(result)
+    print('-' * 30)
 
     return
 
@@ -714,7 +716,7 @@ class AggregationTests(HelperTestCaseBase):
     # Cleanup previous files if exist
     import glob
     for f in glob.glob('gap.*'):
-      print 'Removing', f
+      print('Removing', f)
       os.remove(f)
 
     #class TestParser(BaseParser):
@@ -779,12 +781,12 @@ class AggregationTests(HelperTestCaseBase):
 
 
     handle = \
-      tempfile.NamedTemporaryFile(prefix='agg_gap_hours_24', 
-        suffix='.csv', 
+      tempfile.NamedTemporaryFile(prefix='agg_gap_hours_24',
+        suffix='.csv',
         dir='nupic/datafiles')
     outputFile = handle.name
     handle.close()
-    
+
     if os.path.isfile(outputFile):
       os.remove(outputFile)
     self.assertFalse(os.path.exists(outputFile),
@@ -796,8 +798,8 @@ class AggregationTests(HelperTestCaseBase):
       msg="result = '%s'; outputFile = '%s'" % (result, outputFile))
     self.assertTrue(os.path.isfile(outputFile),
                     msg="outputFile missing or is not file: %r" % (outputFile))
-    print outputFile
-    print '-' * 30
+    print(outputFile)
+    print('-' * 30)
 
     s = ''
     for r in FileRecordStream(outputFile):
@@ -850,19 +852,19 @@ class AggregationTests(HelperTestCaseBase):
       fields=[('dummy', lambda x: x[0])],
       weeks=3
       )
-    
+
     handle = \
-      tempfile.NamedTemporaryFile(prefix='auto_specials', 
+      tempfile.NamedTemporaryFile(prefix='auto_specials',
         suffix='.csv',
         dir='.')
     tempFile = handle.name
-    handle.close()    
+    handle.close()
 
     outputFile = generateDataset(ai, 'auto_specials.csv', tempFile)
 
     result = []
     with FileRecordStream(outputFile) as f:
-      print f.getFields()
+      print(f.getFields())
       for r in f:
         result.append(r)
 
@@ -910,19 +912,19 @@ class AggregationTests(HelperTestCaseBase):
               ('dummy2', 'mean', None)],
       days=2
       )
-    
+
     handle = \
-      tempfile.NamedTemporaryFile(prefix='weighted_mean', 
+      tempfile.NamedTemporaryFile(prefix='weighted_mean',
         suffix='.csv',
         dir='.')
     tempFile = handle.name
-    handle.close()    
+    handle.close()
 
     outputFile = generateDataset(ai, 'weighted_mean.csv', tempFile)
 
     result = []
     with FileRecordStream(outputFile) as f:
-      print f.getFields()
+      print(f.getFields())
       for r in f:
         result.append(r)
 

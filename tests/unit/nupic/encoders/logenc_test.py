@@ -97,7 +97,7 @@ class LogEncoderTest(unittest.TestCase):
     decoded = le.decode(output)
     (fieldsDict, _) = decoded
     self.assertEqual(len(fieldsDict), 1)
-    (ranges, _) = fieldsDict.values()[0]
+    (ranges, _) = list(fieldsDict.values())[0]
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [1, 1]))
 
@@ -161,7 +161,7 @@ class LogEncoderTest(unittest.TestCase):
     decoded = le.decode(output)
     (fieldsDict, _) = decoded
     self.assertEqual(len(fieldsDict), 1)
-    (ranges, _) = fieldsDict.values()[0]
+    (ranges, _) = list(fieldsDict.values())[0]
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [100, 100]))
 
@@ -175,7 +175,7 @@ class LogEncoderTest(unittest.TestCase):
     decoded = le.decode(output)
     (fieldsDict, _) = decoded
     self.assertEqual(len(fieldsDict), 1)
-    (ranges, _) = fieldsDict.values()[0]
+    (ranges, _) = list(fieldsDict.values())[0]
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [10000, 10000]))
 

@@ -59,6 +59,8 @@ updateAnomalyLikelihoods. The details of these are described below.
 
 """
 
+from __future__ import print_function
+
 import math
 import numpy
 
@@ -84,7 +86,7 @@ class AnomalyLikelihood(object):
     reasonable - we just need sufficient samples to get a decent estimate for
     the Gaussian. It's unlikely you will need to tune this since the Gaussian is
     re-estimated every 100 iterations.
-    
+
     Anomaly likelihood scores are reported at a flat 0.5 for claLearningPeriod +
     estimationSamples iterations.
     """
@@ -93,12 +95,12 @@ class AnomalyLikelihood(object):
     self._distribution = None
     self._probationaryPeriod = claLearningPeriod + estimationSamples
     self._claLearningPeriod = claLearningPeriod
-    
+
     # How often we re-estimate the Gaussian distribution. The ideal is to
     # re-estimate every iteration but this is a performance hit. In general the
     # system is not very sensitive to this number as long as it is small
     # relative to the total number of records processed.
-    self._reestimationPeriod = 100 
+    self._reestimationPeriod = 100
 
 
   def __eq__(self, o):
@@ -140,16 +142,16 @@ class AnomalyLikelihood(object):
     an anomaly given the historical distribution of anomaly scores. The closer
     the number is to 1, the higher the chance it is an anomaly.
 
-    @param value - the current metric ("raw") input value, eg. "orange", or 
+    @param value - the current metric ("raw") input value, eg. "orange", or
                    '21.2' (deg. Celsius), ...
     @param anomalyScore - the current anomaly score
-    @param timestamp - (optional) timestamp of the ocurrence, 
+    @param timestamp - (optional) timestamp of the ocurrence,
                        default (None) results in using iteration step.
     @return theanomalyLikelihood for this record.
     """
     if timestamp is None:
       timestamp = self._iteration
-      
+
     dataPoint = (timestamp, value, anomalyScore)
     # We ignore the first probationaryPeriod data points
     if len(self._historicalScores) < self._probationaryPeriod:
@@ -288,10 +290,10 @@ def estimateAnomalyLikelihoods(anomalyScores,
 
   """
   if verbosity > 1:
-    print "In estimateAnomalyLikelihoods."
-    print "Number of anomaly scores:", len(anomalyScores)
-    print "Skip records=", skipRecords
-    print "First 20:", anomalyScores[0:min(20, len(anomalyScores))]
+    print("In estimateAnomalyLikelihoods.")
+    print("Number of anomaly scores:", len(anomalyScores))
+    print("Skip records=", skipRecords)
+    print("First 20:", anomalyScores[0:min(20, len(anomalyScores))])
 
   if len(anomalyScores) == 0:
     raise ValueError("Must have at least one anomalyScore")
@@ -344,12 +346,12 @@ def estimateAnomalyLikelihoods(anomalyScores,
   }
 
   if verbosity > 1:
-    print "Discovered params="
-    print params
-    print "Number of likelihoods:", len(likelihoods)
-    print "First 20 likelihoods:", (
-      filteredLikelihoods[0:min(20, len(filteredLikelihoods))] )
-    print "leaving estimateAnomalyLikelihoods"
+    print("Discovered params=")
+    print(params)
+    print("Number of likelihoods:", len(likelihoods))
+    print("First 20 likelihoods:", (
+      filteredLikelihoods[0:min(20, len(filteredLikelihoods))] ))
+    print("leaving estimateAnomalyLikelihoods")
 
 
   return (filteredLikelihoods, aggRecordList, params)
@@ -389,10 +391,10 @@ def updateAnomalyLikelihoods(anomalyScores,
 
   """
   if verbosity > 3:
-    print "In updateAnomalyLikelihoods."
-    print "Number of anomaly scores:", len(anomalyScores)
-    print "First 20:", anomalyScores[0:min(20, len(anomalyScores))]
-    print "Params:", params
+    print("In updateAnomalyLikelihoods.")
+    print("Number of anomaly scores:", len(anomalyScores))
+    print("First 20:", anomalyScores[0:min(20, len(anomalyScores))])
+    print("Params:", params)
 
   if len(anomalyScores) == 0:
     raise ValueError("Must have at least one anomalyScore")
@@ -401,7 +403,7 @@ def updateAnomalyLikelihoods(anomalyScores,
     raise ValueError("'params' is not a valid params structure")
 
   # For backward compatibility.
-  if not params.has_key("historicalLikelihoods"):
+  if "historicalLikelihoods" not in params:
     params["historicalLikelihoods"] = [1.0]
 
   # Compute moving averages of these new scores using the previous values
@@ -441,9 +443,9 @@ def updateAnomalyLikelihoods(anomalyScores,
   assert len(newParams["historicalLikelihoods"]) <= windowSize
 
   if verbosity > 3:
-    print "Number of likelihoods:", len(likelihoods)
-    print "First 20 likelihoods:", likelihoods[0:min(20, len(likelihoods))]
-    print "Leaving updateAnomalyLikelihoods."
+    print("Number of likelihoods:", len(likelihoods))
+    print("First 20 likelihoods:", likelihoods[0:min(20, len(likelihoods))])
+    print("Leaving updateAnomalyLikelihoods.")
 
   return (likelihoods, aggRecordList, newParams)
 
@@ -459,7 +461,7 @@ def _filterLikelihoods(likelihoods,
   """
   redThreshold    = 1.0 - redThreshold
   yellowThreshold = 1.0 - yellowThreshold
-  
+
   # The first value is untouched
   filteredLikelihoods = [likelihoods[0]]
 
@@ -504,7 +506,7 @@ def _anomalyScoreMovingAverage(anomalyScores,
     # Skip (but log) records without correct number of entries
     if not isinstance(record, (list, tuple)) or len(record) != 3:
       if verbosity >= 1:
-        print "Malformed record:", record
+        print("Malformed record:", record)
       continue
 
     avg, historicalValues, total = (
@@ -514,8 +516,8 @@ def _anomalyScoreMovingAverage(anomalyScores,
     averagedRecordList.append( [record[0], record[1], avg] )
 
     if verbosity > 2:
-      print "Aggregating input record:", record
-      print "Result:", [record[0], record[1], avg]
+      print("Aggregating input record:", record)
+      print("Result:", [record[0], record[1], avg])
 
   return averagedRecordList, historicalValues, total
 
@@ -565,7 +567,7 @@ def nullDistribution(verbosity=0):
       between 0 and 1 pretty likely.
   """
   if verbosity>0:
-    print "Returning nullDistribution"
+    print("Returning nullDistribution")
   return {
       "name": "normal",
       "mean": 0.5,
@@ -605,13 +607,13 @@ def isValidEstimatorParams(p):
   """
   if type(p) != type({}):
     return False
-  if not p.has_key("distribution"):
+  if "distribution" not in p:
     return False
-  if not p.has_key("movingAverage"):
+  if "movingAverage" not in p:
     return False
   dist = p["distribution"]
-  if not (dist.has_key("mean") and dist.has_key("name")
-          and dist.has_key("variance") and dist.has_key("stdev")
+  if not ("mean" in dist and "name" in dist
+          and "variance" in dist and "stdev" in dist
           ):
     return False
 

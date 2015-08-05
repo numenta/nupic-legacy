@@ -20,6 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 from mock import Mock
 from mock import patch
 import unittest2 as unittest
@@ -92,29 +94,29 @@ class NetworkTest(unittest.TestCase):
   def testOneRegionNetwork(self):
     n = engine.Network()
 
-    print "Number of regions in new network: %d" % len(n.regions)
+    print("Number of regions in new network: %d" % len(n.regions))
     self.assertEqual(len(n.regions), 0)
 
-    print "Adding level1SP"
+    print("Adding level1SP")
     level1SP = n.addRegion("level1SP", "TestNode", "")
-    print "Current dimensions are: %s" % level1SP.dimensions
-    print "Number of regions in network: %d" % len(n.regions)
+    print("Current dimensions are: %s" % level1SP.dimensions)
+    print("Number of regions in network: %d" % len(n.regions))
 
     self.assertEqual(len(n.regions), 1)
     self.assertEqual(len(n.regions), len(n.regions))
 
-    print 'Node type: ', level1SP.type
+    print('Node type: ', level1SP.type)
 
     print("Attempting to initialize net when "
            "one region has unspecified dimensions")
-    print "Current dimensions are: %s" % level1SP.dimensions
+    print("Current dimensions are: %s" % level1SP.dimensions)
 
     with self.assertRaises(Exception):
       n.initialize()
 
     # Test Dimensions
     level1SP.dimensions = engine.Dimensions([4, 4])
-    print "Set dimensions of level1SP to %s" % str(level1SP.dimensions)
+    print("Set dimensions of level1SP to %s" % str(level1SP.dimensions))
 
     n.initialize()
 
@@ -131,72 +133,72 @@ class NetworkTest(unittest.TestCase):
     for i in range(len(a)):
       self.assertEqual(type(a[i]), int)
       self.assertEqual(a[i], i)
-      print i,
-    print
+      print(i, end=' ')
+    print()
 
     # --- Test Numpy Array
-    print 'Testing Numpy Array'
+    print('Testing Numpy Array')
     a = engine.Array('Byte', 15)
-    print len(a)
+    print(len(a))
     for i in range(len(a)):
       a[i] = ord('A') + i
 
     for i in range(len(a)):
-      print a[i], ord('A') + i
+      print(a[i], ord('A') + i)
       self.assertEqual(ord(a[i]), ord('A') + i)
-    print
+    print()
 
-    print 'before asNumpyarray()'
+    print('before asNumpyarray()')
     na = a.asNumpyArray()
-    print 'after asNumpyarray()'
+    print('after asNumpyarray()')
 
     self.assertEqual(na.shape, (15,))
-    print 'na.shape:', na.shape
+    print('na.shape:', na.shape)
     na = na.reshape(5, 3)
     self.assertEqual(na.shape, (5, 3))
-    print 'na.shape:', na.shape
+    print('na.shape:', na.shape)
     for i in range(5):
       for j in range(3):
-        print chr(na[i, j]), ' ',
-      print
-    print
+        print(chr(na[i, j]), ' ', end=' ')
+      print()
+    print()
 
 
     # --- Test get/setParameter for Int64 and Real64
-    print '---'
-    print 'Testing get/setParameter for Int64/Real64'
+    print('---')
+    print('Testing get/setParameter for Int64/Real64')
     val = level1SP.getParameterInt64('int64Param')
     rval = level1SP.getParameterReal64('real64Param')
-    print 'level1SP.int64Param = ', val
-    print 'level1SP.real64Param = ', rval
+    print('level1SP.int64Param = ', val)
+    print('level1SP.real64Param = ', rval)
 
     val = 20
     level1SP.setParameterInt64('int64Param', val)
     val = 0
     val = level1SP.getParameterInt64('int64Param')
-    print 'level1SP.int64Param = ', val, ' after setting to 20'
+    print('level1SP.int64Param = ', val, ' after setting to 20')
 
     rval = 30.1
     level1SP.setParameterReal64('real64Param', rval)
     rval = 0.0
     rval = level1SP.getParameterReal64('real64Param')
-    print 'level1SP.real64Param = ', rval, ' after setting to 30.1'
+    print('level1SP.real64Param = ', rval, ' after setting to 30.1')
 
     # --- Test array parameter
     # Array a will be allocated inside getParameter
-    print '---'
-    print 'Testing get/setParameterArray'
+    print('---')
+    print('Testing get/setParameterArray')
     a = engine.Array('Int64', 4)
     level1SP.getParameterArray("int64ArrayParam", a)
-    print 'level1SP.int64ArrayParam size = ', len(a)
-    print 'level1SP.int64ArrayParam = [ ',
+    print('level1SP.int64ArrayParam size = ', len(a))
+    print('level1SP.int64ArrayParam = [ ', end=' ')
     for i in range(len(a)):
-      print a[i],
+      print(a[i], end=' ')
 
-    print ']'
+    print(']')
     #
     # --- test setParameter of an Int64 Array ---
-    print 'Setting level1SP.int64ArrayParam to [ 1 2 3 4 ]'
+    print('Setting level1SP.int64ArrayParam to [ 1 2 3 4 ]')
     a2 = engine.Array('Int64', 4)
     for i in range(4):
       a2[i] = i + 1
@@ -208,15 +210,15 @@ class NetworkTest(unittest.TestCase):
     # want, but the buffer should be reused if we just pass it again.
     #// a.releaseBuffer();
     level1SP.getParameterArray('int64ArrayParam', a)
-    print 'level1SP.int64ArrayParam size = ', len(a)
-    print 'level1SP.int64ArrayParam = [ ',
+    print('level1SP.int64ArrayParam size = ', len(a))
+    print('level1SP.int64ArrayParam = [ ', end=' ')
     for i in range(len(a)):
-      print a[i],
-    print ']'
+      print(a[i], end=' ')
+    print(']')
 
     level1SP.compute()
 
-    print "Running for 2 iteraitons"
+    print("Running for 2 iteraitons")
     n.run(2)
 
 
@@ -227,7 +229,7 @@ class NetworkTest(unittest.TestCase):
       level1SP.getOutputData('doesnotexist')
 
     output = level1SP.getOutputData('bottomUpOut')
-    print 'Element count in bottomUpOut is ', len(output)
+    print('Element count in bottomUpOut is ', len(output))
     # set the actual output
     output[11] = 7777
     output[12] = 54321
@@ -260,7 +262,7 @@ class NetworkTest(unittest.TestCase):
     #     print 'method Network.{0}(): "{1}"'.format(name, x.__doc__)
 
     # Typed methods should return correct type
-    print "real64Param: %.2f" % level1SP.getParameterReal64("real64Param")
+    print("real64Param: %.2f" % level1SP.getParameterReal64("real64Param"))
 
     # Uncomment to get performance for getParameter
 
@@ -268,12 +270,12 @@ class NetworkTest(unittest.TestCase):
       import time
       t1 = time.time()
       t1 = time.time()
-      for i in xrange(0, 1000000):
+      for i in range(0, 1000000):
         # x = level1SP.getParameterInt64("int64Param")   # buffered
         x = level1SP.getParameterReal64("real64Param")   # unbuffered
       t2 = time.time()
 
-      print "Time for 1M getParameter calls: %.2f seconds" % (t2 - t1)
+      print("Time for 1M getParameter calls: %.2f seconds" % (t2 - t1))
 
 
   def testTwoRegionNetwork(self):
@@ -286,21 +288,21 @@ class NetworkTest(unittest.TestCase):
     for name in n.regions:
       names.append(name)
     self.assertEqual(names, ['region1', 'region2'])
-    print n.getPhases('region1')
+    print(n.getPhases('region1'))
     self.assertEqual(n.getPhases('region1'), (0,))
     self.assertEqual(n.getPhases('region2'), (1,))
 
     n.link("region1", "region2", "TestFanIn2", "")
 
-    print "Initialize should fail..."
+    print("Initialize should fail...")
     with self.assertRaises(Exception):
       n.initialize()
 
-    print "Setting region1 dims"
+    print("Setting region1 dims")
     r1dims = engine.Dimensions([6, 4])
     region1.setDimensions(r1dims)
 
-    print "Initialize should now succeed"
+    print("Initialize should now succeed")
     n.initialize()
 
     r2dims = region2.dimensions
@@ -325,20 +327,20 @@ class NetworkTest(unittest.TestCase):
     r1_output = region1.getOutputData("bottomUpOut")
 
     region1.compute()
-    print "Region 1 output after first iteration:"
-    print "r1_output:", r1_output
+    print("Region 1 output after first iteration:")
+    print("r1_output:", r1_output)
 
     region2.prepareInputs()
     r2_input = region2.getInputData("bottomUpIn")
-    print "Region 2 input after first iteration:"
-    print 'r2_input:', r2_input
+    print("Region 2 input after first iteration:")
+    print('r2_input:', r2_input)
 
 
   def testNodeSpec(self):
     n = engine.Network()
     r = n.addRegion("region", "TestNode", "")
 
-    print r.getSpec()
+    print(r.getSpec())
 
 
   def testPyNodeGetSetParameter(self):
@@ -346,10 +348,10 @@ class NetworkTest(unittest.TestCase):
 
     r = n.addRegion("region", "py.TestNode", "")
 
-    print "Setting region1 dims"
+    print("Setting region1 dims")
     r.dimensions = engine.Dimensions([6, 4])
 
-    print "Initialize should now succeed"
+    print("Initialize should now succeed")
     n.initialize()
 
     result = r.getParameterReal64('real64Param')
@@ -366,10 +368,10 @@ class NetworkTest(unittest.TestCase):
 
     r = n.addRegion("region", "py.TestNode", "")
 
-    print "Setting region1 dims"
+    print("Setting region1 dims")
     r.setDimensions(engine.Dimensions([6, 4]))
 
-    print "Initialize should now succeed"
+    print("Initialize should now succeed")
     n.initialize()
 
     ns = r.spec
@@ -391,15 +393,15 @@ class NetworkTest(unittest.TestCase):
 
     n.link("region1", "region2", "TestFanIn2", "")
 
-    print "Initialize should fail..."
+    print("Initialize should fail...")
     with self.assertRaises(Exception):
       n.initialize()
 
-    print "Setting region1 dims"
+    print("Setting region1 dims")
     r1dims = engine.Dimensions([6, 4])
     region1.setDimensions(r1dims)
 
-    print "Initialize should now succeed"
+    print("Initialize should now succeed")
     n.initialize()
 
     r2dims = region2.dimensions

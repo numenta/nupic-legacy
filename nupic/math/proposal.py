@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 raise Exception("XERROR proposal not available")
 
 from nupic.math.dist import *
@@ -167,8 +169,8 @@ class TransitionKernel(Proposal):
     if willAdaptForward or willAdaptBackward:
       if not "obsOdds" in locals():
         obsOdds = logit(self.accepted.get())
-      print " Adapting:", obsOdds, "->", targetOdds
-      print "  Adapted:", self.kernel, kernelForward, kernelBackward
+      print(" Adapting:", obsOdds, "->", targetOdds)
+      print("  Adapted:", self.kernel, kernelForward, kernelBackward)
       self.kernel = kernelForward
 
     # Perform the proposal.

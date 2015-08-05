@@ -108,7 +108,7 @@ class NetworkTestNodeInterchangeabilityTest(unittest.TestCase):
     # compute() behavior.
     l1output = level1.getOutputData("bottomUpOut")
     self.assertEqual(len(l1output), 48) # 24 nodes; 2 values per node
-    for i in xrange(24):
+    for i in range(24):
       self.assertEqual(l1output[2*i], 0)      # size of input to each node is 0
       self.assertEqual(l1output[2*i+1], i)    # node number
 
@@ -130,7 +130,7 @@ class NetworkTestNodeInterchangeabilityTest(unittest.TestCase):
     outputVals.append(3 + (12 + 13 + 18 + 19))
     outputVals.append(4 + (14 + 15 + 20 + 21))
     outputVals.append(5 + (16 + 17 + 22 + 23))
-    for i in xrange(6):
+    for i in range(6):
       if l2output[2*i] != 8:
         LOGGER.info(l2output[2*i])
         # from dbgp.client import brk; brk(port=9019)
@@ -151,11 +151,11 @@ class NetworkTestNodeInterchangeabilityTest(unittest.TestCase):
 
     # Outputs are all the same except that the first output is
     # incremented by the iteration number
-    for i in xrange(24):
+    for i in range(24):
       self.assertEqual(l1output[2*i], 1)
       self.assertEqual(l1output[2*i+1], i)
 
-    for i in xrange(6):
+    for i in range(6):
       self.assertEqual(l2output[2*i], 9)
       self.assertEqual(l2output[2*i+1], outputVals[i] + 4)
 

@@ -25,7 +25,7 @@ import logging
 import time
 import unittest2 as unittest
 
-import cPickle
+from six.moves import cPickle as pickle
 import numpy
 
 from nupic.regions.PyRegion import RealNumpyDType
@@ -39,7 +39,7 @@ LOGGER = logging.getLogger(__name__)
 
 class KNNClassifierTest(unittest.TestCase):
   """Tests for k Nearest Neighbor classifier"""
-  
+
 
   def runTestKNNClassifier(self, short = 0):
     """ Test the KNN classifier in this module. short can be:
@@ -70,7 +70,7 @@ class KNNClassifierTest(unittest.TestCase):
     # numpy.random would be completely broken.
     # Patterns in testDict are identical to those in patternDict but for the
     # first 2% of items.
-    for i in xrange(numPatterns):
+    for i in range(numPatterns):
       patternDict[i] = dict()
       patternDict[i]['pattern'] = patterns[i]
       patternDict[i]['category'] = numpy.random.randint(0, numClasses-1)
@@ -95,7 +95,7 @@ class KNNClassifierTest(unittest.TestCase):
       "slightly alter the training data and expect None to be returned for the "
       "classifications.")
     knnExact = KNNClassifier(k=1, exact=True)
-    failures += simulateClassifier(knnExact, 
+    failures += simulateClassifier(knnExact,
                                    patternDict,
                                    "KNN Classifier with exact matching test",
                                    testDict=testDict)
@@ -106,7 +106,7 @@ class KNNClassifierTest(unittest.TestCase):
 
     for i in patterns:
       iString = str(i.tolist())
-      if not patternDict.has_key(iString):
+      if iString not in patternDict:
         randCategory = numpy.random.randint(0, numClasses-1)
         patternDict[iString] = dict()
         patternDict[iString]['pattern'] = i
@@ -264,11 +264,11 @@ def simulateClassifier(knn, patternDict, testName, testDict=None):
 
   LOGGER.info("Training the classifier")
   tick = time.time()
-  for i in patternDict.keys():
+  for i in list(patternDict.keys()):
     knn.learn(patternDict[i]['pattern'], patternDict[i]['category'])
   tock = time.time()
   LOGGER.info("Time Elapsed %s", tock-tick)
-  knnString = cPickle.dumps(knn)
+  knnString = pickle.dumps(knn)
   LOGGER.info("Size of the classifier is %s", len(knnString))
 
   # Run the classifier to infer categories on either the training data, or the
@@ -277,7 +277,7 @@ def simulateClassifier(knn, patternDict, testName, testDict=None):
   tick = time.time()
   if testDict:
     LOGGER.info("Testing the classifier on the test set")
-    for i in testDict.keys():
+    for i in list(testDict.keys()):
       winner, _inferenceResult, _dist, _categoryDist \
         = knn.infer(testDict[i]['pattern'])
       if winner != testDict[i]['category']:
@@ -285,7 +285,7 @@ def simulateClassifier(knn, patternDict, testName, testDict=None):
   else:
     LOGGER.info("Testing the classifier on the training set")
     LOGGER.info("Number of patterns: %s", len(patternDict))
-    for i in patternDict.keys():
+    for i in list(patternDict.keys()):
       LOGGER.info("Testing %s - %s %s", i, patternDict[i]['category'], \
         len(patternDict[i]['pattern']))
       winner, _inferenceResult, _dist, _categoryDist \

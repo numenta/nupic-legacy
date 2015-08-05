@@ -22,7 +22,7 @@
 
 """NuPIC random module tests."""
 
-import cPickle as pickle
+from six.moves import cPickle as pickle
 import unittest
 
 import numpy
@@ -41,9 +41,9 @@ class TestNupicRandom(unittest.TestCase):
     r = Random(42)
     pickledR = pickle.dumps(r)
 
-    test1 = [r.getUInt32() for _ in xrange(10)]
+    test1 = [r.getUInt32() for _ in range(10)]
     r = pickle.loads(pickledR)
-    test2 = [r.getUInt32() for _ in xrange(10)]
+    test2 = [r.getUInt32() for _ in range(10)]
 
     self.assertEqual(test1, test2,
                      "Simple NuPIC random pickle/unpickle failed.")
@@ -54,9 +54,9 @@ class TestNupicRandom(unittest.TestCase):
     # saving the initial seed...
     pickledR = pickle.dumps(r)
 
-    test3 = [r.getUInt32() for _ in xrange(10)]
+    test3 = [r.getUInt32() for _ in range(10)]
     r = pickle.loads(pickledR)
-    test4 = [r.getUInt32() for _ in xrange(10)]
+    test4 = [r.getUInt32() for _ in range(10)]
 
     self.assertEqual(
         test3, test4,

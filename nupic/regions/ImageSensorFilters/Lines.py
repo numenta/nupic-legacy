@@ -62,7 +62,7 @@ class Lines(BaseFilter):
     newImage = Image.new("LA", image.size)
     newImage.putdata([uint(p) for p in imageArray])
     newImage.putalpha(image.split()[1])
-    for i in xrange(int(self.difficulty*self.maxLines)):
+    for i in range(int(self.difficulty*self.maxLines)):
       # Generate random line
       start = (random.randint(sizeRange[0], sizeRange[1]),
         random.randint(sizeRange[0], sizeRange[1]))

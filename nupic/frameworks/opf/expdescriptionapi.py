@@ -37,6 +37,8 @@ This allows description.py to be generic and oblivious to the specific
 experiments.
 """
 
+from six import with_metaclass
+
 import os
 from abc import ABCMeta, abstractmethod
 import types
@@ -59,7 +61,7 @@ OpfEnvironment = Enum(Nupic='nupic',
 
 
 
-class DescriptionIface(object):
+class DescriptionIface(with_metaclass(ABCMeta, object)):
   """ This is the base interface class for description API classes which provide
   OPF configuration parameters.
 
@@ -68,7 +70,6 @@ class DescriptionIface(object):
 
   TODO: logging interface?
   """
-  __metaclass__ = ABCMeta
 
 
   @abstractmethod
@@ -177,14 +178,13 @@ class ExperimentDescriptionAPI(DescriptionIface):
 
         taskLabel = task['taskLabel']
 
-        assert isinstance(taskLabel, types.StringTypes), \
+        assert isinstance(taskLabel, str), \
                "taskLabel type: %r" % type(taskLabel)
         assert len(taskLabel) > 0, "empty string taskLabel not is allowed"
 
         taskLabelsList.append(taskLabel.lower())
 
-      taskLabelDuplicates = filter(lambda x: taskLabelsList.count(x) > 1,
-                                   taskLabelsList)
+      taskLabelDuplicates = [x for x in taskLabelsList if taskLabelsList.count(x) > 1]
       assert len(taskLabelDuplicates) == 0, \
              "Duplcate task labels are not allowed: %s" % taskLabelDuplicates
 

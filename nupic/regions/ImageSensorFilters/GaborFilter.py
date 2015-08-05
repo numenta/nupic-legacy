@@ -25,6 +25,8 @@ This file defines GaborFilter, an ImageSensor filter that applies
 one or more gabor filter masks to incoming images.
 """
 
+from __future__ import print_function
+
 import os
 import shutil
 import math
@@ -186,23 +188,23 @@ class GaborFilter(BaseFilter):
     self._defAspectRatio = 1.30
 
     if self._debugMode:
-      print 'Using Gabor bank parameters:'
-      print self._gaborBankParams
+      print('Using Gabor bank parameters:')
+      print(self._gaborBankParams)
 
     # Prepare the filters
     self._gaborBank = self._makeGaborBank()
 
     if self._debugMode:
-      print 'Gabor Bank:'
+      print('Gabor Bank:')
       for f in self._gaborBank:
-        print '============================='
-        print 'Scale:  %d' % f[0][1]['scale']
-        print 'Orient: %d' % f[0][1]['orient']
-        print 'Phase:  %d' % int(f[0][1]['phase'])
+        print('=============================')
+        print('Scale:  %d' % f[0][1]['scale'])
+        print('Orient: %d' % f[0][1]['orient'])
+        print('Phase:  %d' % int(f[0][1]['phase']))
         self._printGaborFilter(f[0][0])
 
     if self._debugMode:
-      print 'Gabor bank generated with %d filter pairs.' % len(self._gaborBankParams)
+      print('Gabor bank generated with %d filter pairs.' % len(self._gaborBankParams))
 
     # Initialize
     self._imageCounter = 0
@@ -234,8 +236,8 @@ class GaborFilter(BaseFilter):
     responses = []
 
     if self._debugMode:
-      print 'GaborFilter: process()'
-      print 'GaborFilter: origImage size:', origImage.size
+      print('GaborFilter: process()')
+      print('GaborFilter: origImage size:', origImage.size)
 
     # Convert image data from PIL to numpy array
     imageData = numpy.asarray(origImage.split()[0], dtype=dtype)
@@ -250,7 +252,7 @@ class GaborFilter(BaseFilter):
     responseSet = self._doProcessing(imageData, maskData)
 
     if self._debugMode:
-      print 'Responses generated: %d' % len(responseSet)
+      print('Responses generated: %d' % len(responseSet))
 
      # Convert from numpy to PIL
     imageSet = self._convertToPIL(responseSet)
@@ -278,13 +280,13 @@ class GaborFilter(BaseFilter):
 
 
     if self._debugMode:
-      print 'GaborFilter: processArray()'
+      print('GaborFilter: processArray()')
 
     # Perform the actual Gabor filtering
     responseSet = self._doProcessing(origImageData)
 
     if self._debugMode:
-      print 'Responses generated: %d' % len(responseSet)
+      print('Responses generated: %d' % len(responseSet))
 
     self._imageCounter += 1
     return responseSet
@@ -1020,7 +1022,7 @@ class GaborFilter(BaseFilter):
 
     # Create the composite responses
     compositeResponses = []
-    for scale in scaleDict.keys():
+    for scale in list(scaleDict.keys()):
       # Accumulate image indices for each orientation in this scale
       composites = {'red': [], 'green': [], 'blue': []}
       for responseIndex, orient in scaleDict[scale]:
@@ -1034,7 +1036,7 @@ class GaborFilter(BaseFilter):
       # Generate RGB composite images for this scale
       images = {'red': None, 'green': None, 'blue': None}
       bands = []
-      for color in composites.keys():
+      for color in list(composites.keys()):
         imgList = composites[color]
         im = Image.new('L',imageSet[0].size)
         for indx in imgList:
@@ -1058,10 +1060,10 @@ class GaborFilter(BaseFilter):
     """
     Create a directory for writing debug images
     """
-    print 'Wiping directory tree: [%s]...' % directory
+    print('Wiping directory tree: [%s]...' % directory)
     if os.path.exists(directory):
       shutil.rmtree(directory)
-    print 'Creating directory: [%s]...' % directory
+    print('Creating directory: [%s]...' % directory)
     os.makedirs(directory)
 
   def _saveDebugImages(self, imageSet, amplification=1.0):
@@ -1111,7 +1113,7 @@ class GaborFilter(BaseFilter):
         filterSet += [(filter, filterParams)]
       gaborBank += [filterSet]
     if self._debugMode:
-      print '_makeGaborBank: %d filters generated' % len(gaborBank)
+      print('_makeGaborBank: %d filters generated' % len(gaborBank))
 
     return gaborBank
 
@@ -1142,10 +1144,10 @@ class GaborFilter(BaseFilter):
     if filterParams['phase'] in (0, 180):
       # Only necessary on the even-symmetric filters
       if filterParams['orient'] in (0, 45):
-        for row in xrange(filter.shape[0]):
+        for row in range(filter.shape[0]):
           filter[row,:] -= filter[row,:].mean()
       else:
-        for col in xrange(filter.shape[1]):
+        for col in range(filter.shape[1]):
           filter[:,col] -= filter[:,col].mean()
     # else:
     #   # Old normalizeGain method
@@ -1178,13 +1180,13 @@ class GaborFilter(BaseFilter):
     self._applyDefaults(filterParams)
 
     if self._debugMode:
-      print '_makeGaborFilter():'
-      print '  maskRadius:', filterParams['scale']
-      print '  effectiveWidth:', filterParams['width']
-      print '  aspectRatio:', filterParams['aspect']
-      print '  orientation:', filterParams['orient']
-      print '  wavelength:', filterParams['wavelength']
-      print '  phase:', filterParams['phase']
+      print('_makeGaborFilter():')
+      print('  maskRadius:', filterParams['scale'])
+      print('  effectiveWidth:', filterParams['width'])
+      print('  aspectRatio:', filterParams['aspect'])
+      print('  orientation:', filterParams['orient'])
+      print('  wavelength:', filterParams['wavelength'])
+      print('  phase:', filterParams['phase'])
 
     # Deg-to-rad
     orientation = filterParams['orient']
@@ -1341,7 +1343,7 @@ class GaborFilter(BaseFilter):
     return filter
 
 
-  def _zeroLobes(self, filter, (lobeX, lobeY), (deltaX, deltaY)):
+  def _zeroLobes(self, filter, xxx_todo_changeme, xxx_todo_changeme1):
     """
     Perform the actual suppression of the secondary lobes of a
     filter, assuming these secondary lobes have already been located
@@ -1353,6 +1355,8 @@ class GaborFilter(BaseFilter):
     @param (deltaX, deltaY) -- The direction (from filter center) in
               which the search for secondary lobes proceeded.
     """
+    (lobeX, lobeY) = xxx_todo_changeme
+    (deltaX, deltaY) = xxx_todo_changeme1
     wipes = []
     sideLen = filter.shape[0]
 
@@ -1407,7 +1411,7 @@ class GaborFilter(BaseFilter):
     return filter
 
 
-  def _wipeStripe(self, filter, (x, y, dX, dY)):
+  def _wipeStripe(self, filter, xxx_todo_changeme2):
     """
     Zero out a particular row, column, or diagonal within the filter.
 
@@ -1417,6 +1421,7 @@ class GaborFilter(BaseFilter):
     @param dX, dY -- The direction to proceed (and zero) until
               the edge of the filter is encountered.
     """
+    (x, y, dX, dY) = xxx_todo_changeme2
     sideLen = filter.shape[0]
     while True:
       filter[y, x] = 0.0
@@ -1488,8 +1493,8 @@ class GaborFilter(BaseFilter):
     @param maskData -- Used if _wipeOutsideMask is True.
     """
     if self._debugMode:
-      print 'GaborFilter._doProcessing(): imageData:'
-      print imageData
+      print('GaborFilter._doProcessing(): imageData:')
+      print(imageData)
 
     imageData *= (1.0/255.0)
 
@@ -1536,9 +1541,9 @@ class GaborFilter(BaseFilter):
       for (filter, filterSpecs) in filterSet:
 
         if self._debugMode:
-          print 'Applying filter:  phase=%f  scale=%f  orient=%d' % (filterSpecs['phase'],
+          print('Applying filter:  phase=%f  scale=%f  orient=%d' % (filterSpecs['phase'],
                                                                      filterSpecs['scale'],
-                                                                     filterSpecs['orient'])
+                                                                     filterSpecs['orient']))
 
         # Perform the convolution
         if self._convolutionMethod == '2D':
@@ -1579,7 +1584,7 @@ class GaborFilter(BaseFilter):
       # Combine sequential filters to compute energy
       if len(filterResponse) > 1:
         if self._debugMode:
-          print 'Computing combined energy...'
+          print('Computing combined energy...')
         combinedResponse = self._combineResponses(filterResponse)
       else:
         combinedResponse = filterResponse[0]
@@ -1682,8 +1687,8 @@ class GaborFilter(BaseFilter):
     """
     for j in range(g.shape[0]):
       for i in range(g.shape[1]):
-        print '%7.4f' % g[j,i],
-      print
+        print('%7.4f' % g[j,i], end=' ')
+      print()
 
 
   def _convertToPIL(self, responseSet, amplification=1.0):

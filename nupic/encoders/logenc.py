@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import math
 
 import numpy
@@ -181,8 +183,8 @@ class LogEncoder(Encoder):
       self.encoder.encodeIntoArray(scaledVal, output)
 
       if self.verbosity >= 2:
-        print "input:", inpt, "scaledVal:", scaledVal, "output:", output
-        print "decoded:", self.decodedToStr(self.decode(output))
+        print("input:", inpt, "scaledVal:", scaledVal, "output:", output)
+        print("decoded:", self.decodedToStr(self.decode(output)))
 
 
   def decode(self, encoded, parentFieldName=''):
@@ -199,7 +201,7 @@ class LogEncoder(Encoder):
     assert(len(fieldsDict) == 1)
 
     # Convert each range into normal space
-    (inRanges, inDesc) = fieldsDict.values()[0]
+    (inRanges, inDesc) = list(fieldsDict.values())[0]
     outRanges = []
     for (minV, maxV) in inRanges:
       outRanges.append((math.pow(10, minV),
@@ -208,7 +210,7 @@ class LogEncoder(Encoder):
     # Generate a text description of the ranges
     desc = ""
     numRanges = len(outRanges)
-    for i in xrange(numRanges):
+    for i in range(numRanges):
       if outRanges[i][0] != outRanges[i][1]:
         desc += "%.2f-%.2f" % (outRanges[i][0], outRanges[i][1])
       else:

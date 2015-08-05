@@ -47,7 +47,7 @@ class Flash(BaseExplorer):
     """
 
     # Iterate through the filters
-    for i in xrange(self.numFilters):
+    for i in range(self.numFilters):
       self.position['filters'][i] += 1
       if self.position['filters'][i] < self.numFilterOutputs[i]:
         if not seeking:
@@ -83,9 +83,9 @@ class Flash(BaseExplorer):
                                % self.numImages
       remainingIterations = iteration % self.numFilteredVersionsPerImage
       if remainingIterations:
-        for i in xrange(remainingIterations-1):
+        for i in range(remainingIterations-1):
           self.next(seeking=True)
-        self.next()
+        next(self)
     else:
       if position['image'] is not None:
         self.position['image'] = position['image']

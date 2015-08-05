@@ -26,7 +26,7 @@ import unittest2 as unittest
 
 from nupic.algorithms.cla_classifier_diff import CLAClassifierDiff
 
-import cla_classifier_test
+from . import cla_classifier_test
 
 
 

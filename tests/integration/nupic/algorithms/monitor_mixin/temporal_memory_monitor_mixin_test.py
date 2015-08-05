@@ -154,7 +154,7 @@ class TemporalMemoryMonitorMixinTest(unittest.TestCase):
   # ==============================
 
   def _generateSequence(self):
-    numbers = range(0, 10)
+    numbers = list(range(0, 10))
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
     sequence.append(None)
     sequence *= 3

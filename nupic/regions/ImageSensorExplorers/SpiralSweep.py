@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 from nupic.regions.ImageSensorExplorers.BaseExplorer import BaseExplorer
 
 class SpiralSweep(BaseExplorer):
@@ -121,7 +123,7 @@ class SpiralSweep(BaseExplorer):
       n = len(sequence)
       numToSelect = self.randomSelections
       if (numToSelect > 0) and (numToSelect < n):
-        order = range(n)
+        order = list(range(n))
         self.random.shuffle(order)
         # Select from the shuffled originals, but
         # sort so that the original order is restored,
@@ -203,7 +205,7 @@ class SpiralSweep(BaseExplorer):
       # Time to move to the next filter?
       if self.index == 0:
         # Iterate through the filters
-        for i in xrange(self.numFilters):
+        for i in range(self.numFilters):
           self.position['filters'][i] += 1
           if self.position['filters'][i] < self.numFilterOutputs[i]:
             return
@@ -221,7 +223,7 @@ class SpiralSweep(BaseExplorer):
       bbox = self.getFilteredImages()[0].split()[1].getbbox()
       if bbox is None:
         bbox = (0, 0, 1, 1)
-        print 'WARNING: empty alpha channel'
+        print('WARNING: empty alpha channel')
 
       # Check for clipping if self.sweepOffObject==False, otherwise break
       if self.sweepOffObject or not (\
@@ -255,7 +257,7 @@ class SpiralSweep(BaseExplorer):
     else:
       if image is None:
         filteredImages = []
-        for i in xrange(self.numImages):
+        for i in range(self.numImages):
           filteredImages.extend(self.getAllFilteredVersionsOfImage(i))
       else:
         filteredImages = self.getAllFilteredVersionsOfImage(image)
@@ -283,7 +285,7 @@ class SpiralSweep(BaseExplorer):
       # this as an empty bounding box
       if bbox is None:
         bbox = (0, 0, 1, 1)
-        print 'WARNING: empty alpha channel'
+        print('WARNING: empty alpha channel')
 
       offsets = self._getCurrentOffsets()
 

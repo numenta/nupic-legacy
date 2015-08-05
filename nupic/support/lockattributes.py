@@ -19,6 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 import os
+from six import with_metaclass
 
 # This is the environment variable that controls the lock attributes
 # enforcement.
@@ -156,7 +157,7 @@ class LockAttributesMetaclass(type):
       if method is not None:
         setattr(cls, name, _allow_new_attributes(method))
 
-class LockAttributesMixin(object):
+class LockAttributesMixin(with_metaclass(LockAttributesMetaclass, object)):
   """This class serves as a base (or mixin) for classes that want to enforce
   the locked attributes pattern (all attributes should be defined in __init__()
   or __setstate__().
@@ -168,4 +169,3 @@ class LockAttributesMixin(object):
   and the lock attributes machinery will be injected (unless the
   deactivation_key is defined in the environment)
   """
-  __metaclass__ = LockAttributesMetaclass

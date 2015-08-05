@@ -23,16 +23,18 @@
 This file defines ImageSensor, an extensible sensor for images.
 """
 
+from __future__ import print_function
+
 import os
 import re
 import shutil
 import inspect
-import cPickle as pickle
+from six.moves import cPickle as pickle
 import copy
 from base64 import b64encode, b64decode
 from unicodedata import normalize
 
-from PyRegion import PyRegion
+from .PyRegion import PyRegion
 import numpy
 from PIL import (Image,
                  ImageChops,
@@ -380,13 +382,13 @@ class ImageSensor(PyRegion):
       images.
     """
 
-    if categoryNames is not None and isinstance(categoryNames, basestring):
+    if categoryNames is not None and isinstance(categoryNames, str):
       categoryNames = [categoryNames] * len(imagePaths)
 
     if clearImageList:
       self.clearImageList(skipExplorerUpdate=True)
 
-    for i in xrange(len(imagePaths)):
+    for i in range(len(imagePaths)):
       if categoryNames is not None:
         categoryName = categoryNames[i]
       else:
@@ -411,7 +413,7 @@ class ImageSensor(PyRegion):
       # Note that listdir and error are globals in this module due
       # to earlier import-*.
       names = os.listdir(top)
-    except OSError, e:
+    except OSError as e:
       raise RuntimeError("Unable to get a list of files due to an OS error.\nDirectory: "+top+"\nThis may be due to an issue with Snow Leopard.")
       #raise
     except:
@@ -549,7 +551,7 @@ class ImageSensor(PyRegion):
     # NTA_DATA_DIR may be set in the autotest environment
     if "NTA_DATA_DIR" in os.environ and not os.path.abspath(imagePath):
       imagePath = os.path.join(os.environ["NTA_DATA_DIR"], imagePath)
-      print "ImageSensor: looking for data in NTA_DATA_DIR=%s" % os.environ["NTA_DATA_DIR"]
+      print("ImageSensor: looking for data in NTA_DATA_DIR=%s" % os.environ["NTA_DATA_DIR"])
 
     imagePath = os.path.abspath(imagePath)
     if auxPath is not None:
@@ -586,9 +588,9 @@ class ImageSensor(PyRegion):
         if categoryNameFilter:
           # Need to convert to NFC and re-encode to UTF-8 or else paths may not
           # match the category filter
-          categoryList = [normalize('NFC', unicode(c, 'utf8')).encode('utf8')
+          categoryList = [normalize('NFC', str(c, 'utf8')).encode('utf8')
                           for c in categoryList]
-          if isinstance(categoryNameFilter, basestring):
+          if isinstance(categoryNameFilter, str):
             categoryNameFilter = [categoryNameFilter]
           else:
             categoryNameFilter = list(categoryNameFilter)
@@ -630,7 +632,7 @@ class ImageSensor(PyRegion):
       w = self._walk(walkPath)
       while True:
         try:
-          dirpath, dirnames, filenames = w.next()
+          dirpath, dirnames, filenames = next(w)
         except StopIteration:
           break
         # Don't enter directories that begin with '.'
@@ -679,7 +681,7 @@ class ImageSensor(PyRegion):
         else:
           maskFilenames = [None for f in filenames]
         # Add our new images and masks to the list for this category
-        categoryFilenames.extend(zip(imageFilenames, maskFilenames))
+        categoryFilenames.extend(list(zip(imageFilenames, maskFilenames)))
       # We have the full list of filenames for this category
       for f in categoryFilenames[start:stop:step]:
         skipCounter += 1
@@ -694,7 +696,7 @@ class ImageSensor(PyRegion):
       auxPath = [auxPath]
 
     sequenceInfo = self._computeSequenceInfo(images)
-    for i in xrange(len(images)):
+    for i in range(len(images)):
       # Generate the auxiliary data path
       imageName = images[i][0].split(imagePath)
       if auxPath[0] is not None  and len(auxPath)>=1:
@@ -953,7 +955,7 @@ class ImageSensor(PyRegion):
     """
 
     # Load all images and run all filters
-    for i in xrange(len(self._imageList)):
+    for i in range(len(self._imageList)):
       self._applyAllFilters(i)
 
     # Create serializable versions for pickling
@@ -1023,7 +1025,7 @@ class ImageSensor(PyRegion):
       item['categoryIndex'] = -1
     else:
       # Look up the category in categoryInfo
-      for i in xrange(len(self.categoryInfo)):
+      for i in range(len(self.categoryInfo)):
         if self.categoryInfo[i][0] == item['categoryName']:
           item['categoryIndex'] = i
           break
@@ -1312,14 +1314,14 @@ class ImageSensor(PyRegion):
 
     numFilterOutputs = self._getNumFilterOutputs(self.filters)
     if image is None:
-      images = xrange(len(self._imageList))
+      images = range(len(self._imageList))
     else:
       images = [image]
     for image in images:
       filterPosition = [0] * len(self.filters)
       while True:
         self._getFilteredImages({'image': image, 'filters': filterPosition})
-        for i in xrange(len(self.filters)-1, -1, -1):
+        for i in range(len(self.filters)-1, -1, -1):
           filterPosition[i] += 1
           if filterPosition[i] == numFilterOutputs[i]:
             filterPosition[i] = 0
@@ -1398,7 +1400,7 @@ class ImageSensor(PyRegion):
         self._imageQueue.remove(position['image'])
       self._imageQueue.insert(0, position['image'])
     # Mark all precursors to the current filter
-    for i in xrange(1, len(position['filters']) + 1):
+    for i in range(1, len(position['filters']) + 1):
       partialFilterTuple = (position['image'], tuple(position['filters'][:i]))
       if partialFilterTuple in self._filterQueue:
         self._filterQueue.remove(partialFilterTuple)
@@ -1483,7 +1485,7 @@ class ImageSensor(PyRegion):
       if self.postFilters:
 
         newCroppedImages = []
-        for i in xrange(len(croppedImages)):
+        for i in range(len(croppedImages)):
           (responses, raw_output) = self._applyPostFilters(croppedImages[i])
           if raw_output is not None:
             assert final_output is None
@@ -1581,8 +1583,8 @@ class ImageSensor(PyRegion):
       reportStr = reportStr[:-2] + '}'
 
     # Print to the file
-    print >>self.logFile, '(%s, %s, %s)' \
-      % (repr(callerName), argStr, reportStr) + os.linesep
+    print('(%s, %s, %s)' \
+      % (repr(callerName), argStr, reportStr) + os.linesep, file=self.logFile)
     self.logFile.flush()
 
   def _logOutputImages(self):
@@ -1596,7 +1598,7 @@ class ImageSensor(PyRegion):
       os.makedirs(outputLogDir)
     # Save the sensor's output images
     if self.depth > 1:
-      for i in xrange(self.depth):
+      for i in range(self.depth):
         outputImageName = "%09d_%02d.png" % (self._iteration, i)
         name = os.path.join(outputLogDir, outputImageName)
         self.outputImage[i].split()[0].save(name)
@@ -1617,7 +1619,7 @@ class ImageSensor(PyRegion):
       self.bboxLogFile = open(os.path.join(self.logDir, 'imagesensor_bbox_log.txt'), 'w')
 
     # Log the bounding box
-    print >>self.bboxLogFile, '%d %d %d %d' % (bbox[0], bbox[1], bbox[2], bbox[3])
+    print('%d %d %d %d' % (bbox[0], bbox[1], bbox[2], bbox[3]), file=self.bboxLogFile)
     self.bboxLogFile.flush()
 
   def _logOriginalImage(self):
@@ -1742,7 +1744,7 @@ class ImageSensor(PyRegion):
     self._importFilters(self.filters)
 
     # Validate no filter except the last returns simultaneous responses
-    for i in xrange(len(self.filters)-1):
+    for i in range(len(self.filters)-1):
       outputCount = self.filters[i][2].getOutputCount()
       if type(outputCount) in (tuple, list) and len(outputCount) > 1 \
           and outputCount[1] > 1:
@@ -1831,7 +1833,7 @@ class ImageSensor(PyRegion):
     and _setPostFilters.
     """
 
-    for i in xrange(len(filters)):
+    for i in range(len(filters)):
       # Import the filter
       # If name is just the class name, such as 'PadToFit', we assume the same
       # name for the module: names = ['PadToFit', 'PadToFit']
@@ -1934,7 +1936,7 @@ class ImageSensor(PyRegion):
         # Unload the filtered image used least recently
         imageIndex, filterPosition = self._filterQueue.pop()
         filtered = self._imageList[imageIndex]['filtered'][filterPosition]
-        for i in xrange(len(filtered)):
+        for i in range(len(filtered)):
           self._pixelCount -= filtered[i].size[0] * filtered[i].size[1]
         self._imageList[imageIndex]['filtered'].pop(filterPosition)
       elif self._imageQueue:
@@ -2041,7 +2043,7 @@ class ImageSensor(PyRegion):
     self._holdForOffset += 1
     if self._holdForOffset >= holdFor:
       self._holdForOffset = 0
-      self.explorer[2].next()
+      next(self.explorer[2])
     self._iteration += 1
 
     # Save category to file
@@ -2058,8 +2060,8 @@ class ImageSensor(PyRegion):
             croppedArrays[0].shape != (self.height, self.width))
       if pad:
         fullArrays = [numpy.zeros((self.height, self.width), RealNumpyDType)
-          for i in xrange(self.depth)]
-        for i in xrange(self.depth):
+          for i in range(self.depth)]
+        for i in range(self.depth):
           fullArrays[i][:croppedArrays[i].shape[0],:croppedArrays[i].shape[1]] \
             = croppedArrays[i]
       else:
@@ -2151,7 +2153,7 @@ class ImageSensor(PyRegion):
       return self.explorer[2].position
 
     elif parameterName == 'imageInfo':
-      return [self._getImageInfo(i) for i in xrange(len(self._imageList))]
+      return [self._getImageInfo(i) for i in range(len(self._imageList))]
 
     elif parameterName == 'prevImageInfo':
       if self.prevPosition and self._imageList:
@@ -3082,7 +3084,7 @@ def deserializeCategoryInfo(sCategoryInfo):
 
 def _serializeImageList(imageList):
   sImageList = []
-  for i in xrange(len(imageList)):
+  for i in range(len(imageList)):
     sImageList.append(imageList[i].copy())
     if sImageList[i]['image']:
       sImageList[i]['image'] = serializeImage(sImageList[i]['image'])
@@ -3092,7 +3094,7 @@ def _serializeImageList(imageList):
 
 def _deserializeImageList(sImageList):
   imageList = sImageList
-  for i in xrange(len(imageList)):
+  for i in range(len(imageList)):
     if imageList[i]['image']:
       imageList[i]['image'] = deserializeImage(imageList[i]['image'])
     if imageList[i]['filtered']:

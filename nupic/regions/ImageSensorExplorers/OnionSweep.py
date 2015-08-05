@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 from nupic.regions.ImageSensorExplorers.BaseExplorer import BaseExplorer
 
 
@@ -54,7 +56,7 @@ class OnionSweep(BaseExplorer):
       #                        [0,2],[0,1],[0,-1],[0,-2],
       #                        [0,0]]
       self.jitter = []
-      listi = range(-jitterSize,0) + range(1,jitterSize+1)
+      listi = list(range(-jitterSize,0)) + list(range(1,jitterSize+1))
       for i in listi:
         self.jitter.append([i,0])
       for i in listi:
@@ -110,7 +112,7 @@ class OnionSweep(BaseExplorer):
     if self.diagdiri == len(self.offsetDelta) or self.numSteps == 0:
       self.diagdiri = 0
       # Iterate through the filters
-      for i in xrange(self.numFilters):
+      for i in range(self.numFilters):
         self.position['filters'][i] += 1
         if self.position['filters'][i] < self.numFilterOutputs[i]:
           self.centerImage()

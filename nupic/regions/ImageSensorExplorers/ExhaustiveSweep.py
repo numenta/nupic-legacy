@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import math
 
 from nupic.regions.ImageSensorExplorers.BaseExplorer import BaseExplorer
@@ -117,7 +119,7 @@ class ExhaustiveSweep(BaseExplorer):
       # If user did not set a custom order, just create new one automatically
       if not self.customOrder:
         self.order = ["image"]
-        self.order.extend(range(self.numFilters))
+        self.order.extend(list(range(self.numFilters)))
         self.order += ["sweep"]
       # Otherwise, user needs to recreate the explorer with a new order
       else:
@@ -166,7 +168,7 @@ class ExhaustiveSweep(BaseExplorer):
 
     if image is None:
       filteredImages = []
-      for i in xrange(self.numImages):
+      for i in range(self.numImages):
         filteredImages.extend(self.getAllFilteredVersionsOfImage(i))
     else:
       filteredImages = self.getAllFilteredVersionsOfImage(image)
@@ -257,7 +259,7 @@ class ExhaustiveSweep(BaseExplorer):
     if bbox is None:
       bbox = (0, 0, 1, 1)
       #bbox = (0, 0, image.size[0], image.size[1])
-      print 'WARNING: empty alpha channel'
+      print('WARNING: empty alpha channel')
     if float(self.sweepOffObject) == 1.0:
       startX = bbox[0] - self.enabledWidth + 1
       startY = bbox[1] - self.enabledHeight + 1

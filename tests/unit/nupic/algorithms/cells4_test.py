@@ -22,7 +22,9 @@
 
 """Unit tests for Cells4."""
 
-import cPickle as pickle
+from __future__ import print_function
+
+from six.moves import cPickle as pickle
 import os
 
 import numpy
@@ -42,28 +44,28 @@ class Cells4Test(unittest.TestCase):
   def _cellsDiff(cell1, cell2):
     """Test that the two cell instances have the same segments and synapses."""
     result = True
-  
+
     # Check that each cell has the same number of segments and synapses
-    for c in xrange(cell1.nColumns()):
+    for c in range(cell1.nColumns()):
       if not result:
         break
-      for i in xrange(cell1.nCellsPerCol()):
+      for i in range(cell1.nCellsPerCol()):
         if cell1.nSegmentsOnCell(c, i) != cell2.nSegmentsOnCell(c, i):
-          print "Num segments different in cell:", c, i,
-          print "numbers = ", cell1.nSegmentsOnCell(c, i), \
-              cell2.nSegmentsOnCell(c, i)
+          print("Num segments different in cell:", c, i, end=' ')
+          print("numbers = ", cell1.nSegmentsOnCell(c, i), \
+              cell2.nSegmentsOnCell(c, i))
           result = False
           break
         else:
           c1 = cell1.getCell(c, i)
           c2 = cell2.getCell(c, i)
-          for j in xrange(cell1.nSegmentsOnCell(c, i)):
+          for j in range(cell1.nSegmentsOnCell(c, i)):
             seg1 = c1.getSegment(j)
             seg2 = c2.getSegment(j)
             if seg1.size() != seg2.size():
               result = False
               break
-            for k in xrange(seg1.size()):
+            for k in range(seg1.size()):
               sourceCellIdx1 = seg1.getSrcCellIdx(k)
               sourceCellIdx2 = seg1.getSrcCellIdx(k)
               if sourceCellIdx1 != sourceCellIdx2:
@@ -76,7 +78,7 @@ class Cells4Test(unittest.TestCase):
                 break
 
     if result == True:
-      print "TP's match"
+      print("TP's match")
 
     return result
 
@@ -183,24 +185,24 @@ class Cells4Test(unittest.TestCase):
     cells.setMaxInfBacktrack(4)
     cells.setVerbosity(4)
 
-    for i in xrange(nCols):
-      for j in xrange(nCellsPerCol):
-        print "Adding segment: ", i, j, [((i + 1) % nCols,
-                                          (j + 1) % nCellsPerCol)]
+    for i in range(nCols):
+      for j in range(nCellsPerCol):
+        print("Adding segment: ", i, j, [((i + 1) % nCols,
+                                          (j + 1) % nCellsPerCol)])
         cells.addNewSegment(i, j, True if j % 2 == 0 else False,
                             [((i + 1) % nCols, (j + 1) % nCellsPerCol)])
 
-    for i in xrange(10):
+    for i in range(10):
       x = numpy.zeros(nCols, dtype="uint32")
       _RGEN.initializeUInt32Array(x, 2)
-      print "Input:", x
+      print("Input:", x)
       cells.compute(x, True, True)
 
     cells.rebuildOutSynapses()
 
     self._testPersistence(cells)
 
-    for i in xrange(100):
+    for i in range(100):
       x = numpy.zeros(nCols, dtype="uint32")
       _RGEN.initializeUInt32Array(x, 2)
       cells.compute(x, True, False)

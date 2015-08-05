@@ -26,7 +26,7 @@ creates instances of each CLA classifier. Each record is fed to both
 classifiers and the results are checked for differences.
 """
 
-import cPickle as pickle
+from six.moves import cPickle as pickle
 import numbers
 
 from nupic.algorithms.CLAClassifier import CLAClassifier
@@ -83,9 +83,9 @@ class CLAClassifierDiff(object):
     assert set(result1.keys()) == set(result2.keys()), "diff detected: " \
       "py result=%s, C++ result=%s" % (result1, result2)
     # Assert that the values match.
-    for k, l in result1.iteritems():
+    for k, l in result1.items():
       assert type(l) == type(result2[k])
-      for i in xrange(len(l)):
+      for i in range(len(l)):
         if isinstance(classification['actValue'], numbers.Real):
           assert abs(float(l[i]) - float(result2[k][i])) < 0.0000001, (
               'Python CLAClassifier has value %f and C++ FastCLAClassifier has '

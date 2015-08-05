@@ -104,8 +104,8 @@ def escape(s):
   if s is None:
     return ''
   
-  assert isinstance(s, basestring), \
-        "expected %s but got %s; value=%s" % (basestring, type(s), s)
+  assert isinstance(s, str), \
+        "expected %s but got %s; value=%s" % (str, type(s), s)
   s = s.replace('\\', '\\\\')
   s = s.replace('\n', '\\n')
   s = s.replace('\t', '\\t')
@@ -119,7 +119,7 @@ def unescape(s):
 
   Commas are decoded from tabs
   """
-  assert isinstance(s, basestring)
+  assert isinstance(s, str)
   s = s.replace('\t', ',')
   s = s.replace('\\,', ',')
   s = s.replace('\\n', '\n')
@@ -132,7 +132,7 @@ def unescape(s):
 def parseSdr(s):
   """Parses a string containing only 0's and 1's and return a Python list object.
   """
-  assert isinstance(s, basestring)
+  assert isinstance(s, str)
   sdr = [int(c) for c in s if c in ("0", "1")]
   if len(sdr) != len(s):
     raise ValueError("The provided string %s is malformed. The string should "
@@ -152,7 +152,7 @@ def serializeSdr(sdr):
 
 def parseStringList(s):
   """Parse a string of space-separated numbers, returning a Python list."""
-  assert isinstance(s, basestring)
+  assert isinstance(s, str)
   return [int(i) for i in s.split()]
 
 

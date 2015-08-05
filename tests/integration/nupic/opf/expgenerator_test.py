@@ -20,6 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import copy
 import imp
 import json
@@ -311,7 +313,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     self.assertDictEqual(tmpAggregationInfo, minAggregation)
 
     predictAheadTime = dict(minAggregation)
-    for key in predictAheadTime.iterkeys():
+    for key in predictAheadTime.keys():
       predictAheadTime[key] *=  predictionSteps
     self.assertEqual(base.config['predictAheadTime'],
                      predictAheadTime)
@@ -470,13 +472,13 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
                    oneGram,
                    trivialMetric,
                    legacyMetric=None):
-    print "base.control"
+    print("base.control")
     pprint.pprint(base.control)
     #taskMetrics = base.control['tasks'][0]['taskControl']['metrics']
     taskMetrics = base.control['metrics']
 
     for metricSpec in taskMetrics:
-      print metricSpec.metric
+      print(metricSpec.metric)
       self.assertTrue(metricSpec.metric in ["multiStep", optimizeMetric,
                                             movingBaseline, oneGram,
                                             nupicScore, trivialMetric,
@@ -503,8 +505,8 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
                      ":window=%d:field=%s" % \
                                 (optimizeMetric, ExpGenerator.METRIC_WINDOW,
                                  predictedField))
-    print "perm.minimize=",perm.minimize
-    print "optimizeString=",optimizeString
+    print("perm.minimize=",perm.minimize)
+    print("optimizeString=",optimizeString)
     self.assertEqual(perm.minimize, optimizeString,
                      msg="got: %s" % perm.minimize)
 
@@ -549,7 +551,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
         },
       ],
     }
-    
+
     # Make sure we have the right metric type
     #   (avg_err for categories, aae for scalars)
     (base, perms) = self.getModules(expDesc)
@@ -624,7 +626,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     actEncoderFields = set()
     actEncoderNames = set()
     for _, encoder in (
-        base.config['modelParams']['sensorParams']['encoders'].iteritems()):
+        iter(base.config['modelParams']['sensorParams']['encoders'].items())):
       actEncoderFields.add(encoder['fieldname'])
       actEncoderNames.add(encoder['name'])
 
@@ -652,7 +654,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     actEncoderFields = set()
     actEncoderNames = set()
     for _, encoder in (
-        base.config['modelParams']['sensorParams']['encoders'].iteritems()):
+        iter(base.config['modelParams']['sensorParams']['encoders'].items())):
       actEncoderFields.add(encoder['fieldname'])
       actEncoderNames.add(encoder['name'])
 
@@ -679,7 +681,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     minValues = set()
     maxValues = set()
     for _, encoder in (
-        base.config['modelParams']['sensorParams']['encoders'].iteritems()):
+        iter(base.config['modelParams']['sensorParams']['encoders'].items())):
       actEncoderFields.add(encoder['fieldname'])
       actEncoderNames.add(encoder['name'])
       actEncoderTypes.add(encoder['type'])
@@ -714,7 +716,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     minValues = set()
     maxValues = set()
     for _, encoder in (
-        base.config['modelParams']['sensorParams']['encoders'].iteritems()):
+        iter(base.config['modelParams']['sensorParams']['encoders'].items())):
       actEncoderFields.add(encoder['fieldname'])
       actEncoderNames.add(encoder['name'])
       actEncoderTypes.add(encoder['type'])
@@ -1020,14 +1022,14 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # --------------------------------------------------------------------
     (base, perms) = self.getModules(expDesc)
-    
-    print "base.config['modelParams']:"
+
+    print("base.config['modelParams']:")
     pprint.pprint(base.config['modelParams'])
-    print "perms.permutations"
+    print("perms.permutations")
     pprint.pprint(perms.permutations)
-    print "perms.minimize"
+    print("perms.minimize")
     pprint.pprint(perms.minimize)
-    print "expDesc"
+    print("expDesc")
     pprint.pprint(expDesc)
 
     # Make sure we have the expected info in the base description file
@@ -1037,7 +1039,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
                      expDesc['inferenceArgs']['predictedField'])
     self.assertEqual(base.config['modelParams']['inferenceType'],
                      "TemporalMultiStep")
-    
+
     # Make sure there is a '_classifier_input' encoder with classifierOnly
     #  set to True
     self.assertEqual(base.config['modelParams']['sensorParams']['encoders']
@@ -1045,7 +1047,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertEqual(base.config['modelParams']['sensorParams']['encoders']
                      ['_classifierInput']['fieldname'],
                      expDesc['inferenceArgs']['predictedField'])
-    
+
 
     # And in the permutations file
     self.assertIn('inferenceType', perms.permutations['modelParams'])
@@ -1060,7 +1062,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Should set inputPredictedField to "auto" (the default)
     self.assertEqual(perms.inputPredictedField, "auto")
-    
+
 
     # Should have TP parameters being permuted
     self.assertIn('activationThreshold',
@@ -1158,8 +1160,8 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Test running it
     self.runBaseDescriptionAndPermutations(expDesc, hsVersion='v2')
-    
-    
+
+
     # ---------------------------------------------------------------------
     # If the caller sets inferenceArgs.inputPredictedField, make
     # sure the permutations file has the same setting
@@ -1188,7 +1190,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     self.assertNotIn(
       'consumption',
-      base.config['modelParams']['sensorParams']['encoders'].keys())
+      list(base.config['modelParams']['sensorParams']['encoders'].keys()))
 
 
   def test_DeltaEncoders(self):
@@ -1473,7 +1475,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Should set inputPredictedField to "auto"
     self.assertEqual(perms.inputPredictedField, "auto")
-    
+
 
 
     # --------------------------------------------------------------------
@@ -1793,11 +1795,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertEqual(base.config['modelParams']['sensorParams']['encoders']
                      ['_classifierInput']['fieldname'],
                      expDesc['inferenceArgs']['predictedField'])
-    
-    self.assertNotIn('consumption',
-             base.config['modelParams']['sensorParams']['encoders'].keys())
 
-    
+    self.assertNotIn('consumption',
+             list(base.config['modelParams']['sensorParams']['encoders'].keys()))
+
+
     # The SP and TP should both be disabled
     self.assertFalse(base.config['modelParams']['spEnable'])
     self.assertFalse(base.config['modelParams']['tpEnable'])
@@ -1849,8 +1851,8 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     except:
       gotException = True
     self.assertTrue(gotException)
-    
-    
+
+
     # --------------------------------------
     # If we specify NonTemporalClassification, inferenceArgs.inputPredictedField
     #  can not be 'yes'
@@ -1862,7 +1864,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     except:
       gotException = True
     self.assertTrue(gotException)
-    
+
 
     return
 

@@ -41,9 +41,9 @@ predictedField = 'consumption'
 
 permutations = {
   'aggregationInfo': {   'days': 0,
-    'fields': [   (u'timestamp', 'first'),
-                  (u'gym', 'first'),
-                  (u'consumption', 'sum')],
+    'fields': [   ('timestamp', 'first'),
+                  ('gym', 'first'),
+                  ('consumption', 'sum')],
     'hours': 1,
     'microseconds': 0,
     'milliseconds': 0,
@@ -58,22 +58,22 @@ permutations = {
 
     'sensorParams': {
       'encoders': {
-        u'timestamp_timeOfDay': PermuteEncoder(
+        'timestamp_timeOfDay': PermuteEncoder(
                               fieldName='timestamp', 
                               encoderClass='DateEncoder.timeOfDay', 
                               w=21, 
                               radius=PermuteFloat(0.5, 12)),
-        u'timestamp_dayOfWeek': PermuteEncoder(
+        'timestamp_dayOfWeek': PermuteEncoder(
                               fieldName='timestamp', 
                               encoderClass='DateEncoder.dayOfWeek', 
                               w=21, 
                               radius=PermuteFloat(1, 6)),
-        u'timestamp_weekend': PermuteEncoder(
+        'timestamp_weekend': PermuteEncoder(
                               fieldName='timestamp', 
                               encoderClass='DateEncoder.weekend', 
                               w=21, 
                               radius=PermuteChoices([1])),
-        u'consumption': PermuteEncoder(
+        'consumption': PermuteEncoder(
                               fieldName='consumption', 
                               encoderClass='AdaptiveScalarEncoder', 
                               w=21, 

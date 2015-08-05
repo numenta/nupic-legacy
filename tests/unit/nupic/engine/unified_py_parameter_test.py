@@ -26,6 +26,7 @@
   at a moderate performance penalty.
 """
 
+from six import integer_types
 import unittest2 as unittest
 
 # import for type comparison with Array.
@@ -40,10 +41,10 @@ class NetworkUnifiedPyParameterTest(unittest.TestCase):
 
   def testScalars(self):
     scalars = [
-      ("int32Param", 32, int, 35),
-      ("uint32Param", 33, int, 36),
-      ("int64Param", 64, long, 74),
-      ("uint64Param", 65, long, 75),
+      ("int32Param", 32, integer_types, 35),
+      ("uint32Param", 33, integer_types, 36),
+      ("int64Param", 64, integer_types, 74),
+      ("uint64Param", 65, integer_types, 75),
       ("real32Param", 32.1, float, 33.1),
       ("real64Param", 64.1, float, 65.1),
       ("stringParam", "nodespec value", str, "new value")]
@@ -55,7 +56,7 @@ class NetworkUnifiedPyParameterTest(unittest.TestCase):
     for paramName, initval, paramtype, newval in scalars:
       # Check the initial value for each parameter.
       x = l1.getParameter(paramName)
-      self.assertEqual(type(x), paramtype)
+      self.assertIsInstance(x, paramtype)
       if initval is None:
         continue
       if type(x) == float:
@@ -66,7 +67,7 @@ class NetworkUnifiedPyParameterTest(unittest.TestCase):
       # Now set the value, and check to make sure the value is updated
       l1.setParameter(paramName, newval)
       x = l1.getParameter(paramName)
-      self.assertEqual(type(x), paramtype)
+      self.assertIsInstance(x, paramtype)
       if type(x) == float:
         self.assertTrue(abs(x  - newval) < 0.00001)
       else:
@@ -91,10 +92,10 @@ class NetworkUnifiedPyParameterTest(unittest.TestCase):
       self.assertTrue(isinstance(x, nupic.bindings.engine_internal.Array))
       self.assertEqual(x.getType(), paramtype)
       self.assertEqual(len(x), len(initval))
-      for i in xrange(len(x)):
+      for i in range(len(x)):
         self.assertEqual(x[i], initval[i])
 
-      for i in xrange(len(x)):
+      for i in range(len(x)):
         x[i] = x[i] * 2
       l1.setParameter(paramName, x)
 
@@ -102,7 +103,7 @@ class NetworkUnifiedPyParameterTest(unittest.TestCase):
       self.assertTrue(isinstance(x, nupic.bindings.engine_internal.Array))
       self.assertEqual(x.getType(), paramtype)
       self.assertEqual(len(x), len(initval))
-      for i in xrange(len(x)):
+      for i in range(len(x)):
         self.assertEqual(x[i], 2 * initval[i])
 
 

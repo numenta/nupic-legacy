@@ -43,7 +43,7 @@ MODEL_PARAMS = {
     'model': "CLA",
     'version': 1,
     'aggregationInfo': {  'days': 0,
-        'fields': [(u'c1', 'sum'), (u'c0', 'first')],
+        'fields': [('c1', 'sum'), ('c0', 'first')],
         'hours': 1,
         'microseconds': 0,
         'milliseconds': 0,
@@ -58,12 +58,12 @@ MODEL_PARAMS = {
         'sensorParams': {
             'verbosity' : 0,
             'encoders': {
-                u'consumption':    {  'clipInput': True,
-                    'fieldname': u'consumption',
+                'consumption':    {  'clipInput': True,
+                    'fieldname': 'consumption',
                     'maxval': 100.0,
                     'minval': 0.0,
                     'n': 50,
-                    'name': u'c1',
+                    'name': 'c1',
                     'type': 'ScalarEncoder',
                     'w': 21},},
             'sensorAutoReset' : None,
@@ -110,9 +110,9 @@ MODEL_PARAMS = {
             'steps': '1,5',
         },
 
-        'anomalyParams': {  u'anomalyCacheRecords': None,
-    u'autoDetectThreshold': None,
-    u'autoDetectWaitRecords': 2184},
+        'anomalyParams': {  'anomalyCacheRecords': None,
+    'autoDetectThreshold': None,
+    'autoDetectWaitRecords': 2184},
 
         'trainSPNetOnlyIfRequested': False,
     },
@@ -131,7 +131,7 @@ class CheckpointStressTest(TestCaseBase):
 
       for _ in range(2):
         record = [datetime.datetime(2013, 12, 12), numpy.random.uniform(100)]
-        modelInput = dict(zip(headers, record))
+        modelInput = dict(list(zip(headers, record)))
         model.run(modelInput)
   
       # Save and load a checkpoint after each batch. Clean up.

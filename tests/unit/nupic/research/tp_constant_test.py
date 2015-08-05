@@ -25,6 +25,8 @@ This file tests that we can learn and predict the particularly vexing case of a
 single constant signal!
 """
 
+from __future__ import print_function
+
 import numpy as np
 
 import unittest2 as unittest
@@ -41,7 +43,7 @@ np.random.seed(_SEED)
 
 def _printOneTrainingVector(x):
   "Print a single vector succinctly."
-  print ''.join('1' if k != 0 else '.' for k in x)
+  print(''.join('1' if k != 0 else '.' for k in x))
 
 
 def _getSimplePatterns(numOnes, numPatterns):
@@ -51,7 +53,7 @@ def _getSimplePatterns(numOnes, numPatterns):
 
   numCols = numOnes * numPatterns
   p = []
-  for i in xrange(numPatterns):
+  for i in range(numPatterns):
     x = np.zeros(numCols, dtype='float32')
     x[i*numOnes:(i + 1)*numOnes] = 1
     p.append(x)
@@ -118,10 +120,10 @@ class TPConstantTest(unittest.TestCase):
           tp.learn(seq)
         tp.reset()
 
-    print "Learning completed"
+    print("Learning completed")
 
     # Infer
-    print "Running inference"
+    print("Running inference")
 
     tp.collectStats = True
     for seq in trainingSet[0:5]:
@@ -130,20 +132,20 @@ class TPConstantTest(unittest.TestCase):
       for _ in range(10):
         tp.infer(seq)
         if VERBOSITY > 1 :
-          print
+          print()
           _printOneTrainingVector(seq)
           tp.printStates(False, False)
-          print
-          print
+          print()
+          print()
       if VERBOSITY > 1:
-        print tp.getStats()
+        print(tp.getStats())
 
       # Ensure our predictions are accurate for each sequence
       self.assertGreater(tp.getStats()['predictionScoreAvg2'], 0.8)
-      print ("tp.getStats()['predictionScoreAvg2'] = ",
-             tp.getStats()['predictionScoreAvg2'])
+      print(("tp.getStats()['predictionScoreAvg2'] = ",
+             tp.getStats()['predictionScoreAvg2']))
 
-    print "TPConstant basicTest ok"
+    print("TPConstant basicTest ok")
 
 
   def testCppTpBasic(self):

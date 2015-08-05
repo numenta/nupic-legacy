@@ -21,6 +21,8 @@
 
 """Simple OPF client."""
 
+from __future__ import print_function
+
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf.opfbasicenvironment import BasicDatasetReader
 from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
@@ -58,32 +60,32 @@ class Client(object):
     return self
 
   def _processRecord(self, inputRecord):
-    
+
     modelResult = self.model.run(inputRecord)
     modelResult.metrics = self.metricsManager.update(modelResult)
     if self.sink:
       self.sink.writeRecord(modelResult)
     return modelResult
 
-  def next(self):
-    record = self.datasetReader.next()
+  def __next__(self):
+    record = next(self.datasetReader)
     return self._processRecord(record)
-    
+
   def skipNRecords(self, n):
     for i in range(n):
-      self.datasetReader.next()
+      next(self.datasetReader)
   def nextTruthPrediction(self, field):
-    record = self.datasetReader.next()
+    record = next(self.datasetReader)
     prediction=self._processRecord(record).inferences['prediction'][0]
     truth=record[field]
     return truth, prediction
-    
+
 
   def run(self):
     result = None
     while True:
       try:
-        result = self.next()
+        result = next(self)
         #print result
       except StopIteration:
         break

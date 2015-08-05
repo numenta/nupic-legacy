@@ -67,8 +67,8 @@ class Gradient(BaseFilter):
 
         #Calculate gradient
         opacity = self.difficulty - self.difficulty*.2 + self.random.random()*self.difficulty*.2
-        for i in xrange(image.size[1]):
-            for j in xrange(image.size[0]):
+        for i in range(image.size[1]):
+            for j in range(image.size[0]):
                 if type == 'horizontal':
                     gradientArray[i][j] = int(float(j)/image.size[0]*255/opacity)
                 elif type == 'vertical':

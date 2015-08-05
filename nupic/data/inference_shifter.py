@@ -54,10 +54,10 @@ class InferenceShifter(object):
 
     self._inferenceBuffer.appendleft(copy.deepcopy(modelResult.inferences))
 
-    for inferenceElement, inference in modelResult.inferences.iteritems():
+    for inferenceElement, inference in modelResult.inferences.items():
       if isinstance(inference, dict):
         inferencesToWrite[inferenceElement] = {}
-        for key, _ in inference.iteritems():
+        for key, _ in inference.items():
           delay = InferenceElement.getTemporalDelay(inferenceElement, key)
           if len(self._inferenceBuffer) > delay:
             prevInference = self._inferenceBuffer[delay][inferenceElement][key]

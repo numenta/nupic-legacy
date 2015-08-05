@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import numpy
 
 
@@ -140,7 +142,7 @@ class DynamicGroupingFunction(object):
     function = getattr(module, self.funcName)
     # Re-map names.
     if isinstance(self.learningKeys, dict): # Safer check?
-      remapped = dict((k, learning[j]) for j, k in self.learningKeys.iteritems()
+      remapped = dict((k, learning[j]) for j, k in self.learningKeys.items()
           if j in learning)
     else: # Just collect arguments.
       remapped = dict((j, learning[j]) for j in self.learningKeys
@@ -190,8 +192,8 @@ def printStatesWithTitles(ts):
   maxes = combined.max(1)
   s = str(combined)
   numpy.set_printoptions(linewidth=lw)
-  print "\n".join(("%s %s %f" % (t, l, m)) for t, l, m in
-      zip(titles, s.splitlines(), maxes))
+  print("\n".join(("%s %s %f" % (t, l, m)) for t, l, m in
+      zip(titles, s.splitlines(), maxes)))
 
 
 

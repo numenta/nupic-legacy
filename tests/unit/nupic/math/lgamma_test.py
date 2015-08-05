@@ -22,6 +22,8 @@
 
 """Unit tests for Cells4."""
 
+from __future__ import print_function
+
 import sys
 
 import unittest2 as unittest
@@ -67,7 +69,7 @@ class LGammaTest(unittest.TestCase):
       (3.0,  0.69314718),
     )
     for v, lg in items:
-      print v, lg, lgamma(v)
+      print(v, lg, lgamma(v))
       self.assertLessEqual(abs(lgamma(v) - lg), 1.0e-8,
                            "log Gamma(%f) = %f; lgamma(%f) -> %f" % (
                                v, lg, v, lgamma(v)))

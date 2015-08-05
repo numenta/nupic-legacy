@@ -60,7 +60,7 @@ def sortedJSONDumpS(obj):
   itemStrs = []
 
   if isinstance(obj, dict):
-    items = obj.items()
+    items = list(obj.items())
     items.sort()
     for key, value in items:
       itemStrs.append('%s: %s' % (json.dumps(key), sortedJSONDumpS(value)))

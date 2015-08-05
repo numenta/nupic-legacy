@@ -22,12 +22,14 @@
 """ @file permutations_runner.py
 """
 
+from __future__ import print_function
+
 import collections
 import imp
 import csv
 from datetime import datetime, timedelta
 import os
-import cPickle as pickle
+from six.moves import cPickle as pickle
 import pprint
 import shutil
 import signal
@@ -79,9 +81,9 @@ def _termHandler(signal, frame):
     jobrunner = gCurrentSearch
     jobID = jobrunner._HyperSearchRunner__searchJob.getJobID()
   except Exception as exc:
-    print exc
+    print(exc)
   else:
-    print "Canceling jobs due to receiving SIGTERM"
+    print("Canceling jobs due to receiving SIGTERM")
     cjdao.ClientJobsDAO.get().jobCancel(jobID)
 
 
@@ -99,7 +101,7 @@ def _verbosityEnabled(verbosityLevel):
 
 def _emit(verbosityLevel, info):
   if _verbosityEnabled(verbosityLevel):
-    print info
+    print(info)
 
 
 
@@ -163,9 +165,9 @@ def _runHyperSearch(runOptions):
   secs -= hours * (60 * 60)
   minutes = int(secs) / 60
   secs -= minutes * 60
-  print "Elapsed time (h:mm:ss): %d:%02d:%02d" % (hours, minutes, int(secs))
+  print("Elapsed time (h:mm:ss): %d:%02d:%02d" % (hours, minutes, int(secs)))
   jobID = search.peekSearchJob().getJobID()
-  print "Hypersearch ClientJobs job ID: ", jobID
+  print("Hypersearch ClientJobs job ID: ", jobID)
 
   return modelParams
 
@@ -365,7 +367,7 @@ def _setUpExports(exports):
   if  exports is None:
     return ret
   exportDict = json.loads(exports)
-  for key in exportDict.keys():
+  for key in list(exportDict.keys()):
     ret+= "export %s=%s;" % (str(key), str(exportDict[key]))
   return ret
 
@@ -531,7 +533,7 @@ class _HyperSearchRunner(object):
               # Update the set of all encountered metrics keys (we will use
               # these to print column names in reports.csv)
               metrics = modelInfo.getReportMetrics()
-              self.__foundMetrcsKeySet.update(metrics.keys())
+              self.__foundMetrcsKeySet.update(list(metrics.keys()))
 
         numFinished = len(finishedModelIDs)
 
@@ -545,7 +547,7 @@ class _HyperSearchRunner(object):
             expModelsStr = "of %s" % (expectedNumModels)
 
           stats = finishedModelStats
-          print ("<jobID: %s> %s %s models finished [success: %s; %s: %s; %s: "
+          print(("<jobID: %s> %s %s models finished [success: %s; %s: %s; %s: "
                  "%s; %s: %s; %s: %s; %s: %s; %s: %s]" % (
                      jobID,
                      numFinished,
@@ -563,38 +565,38 @@ class _HyperSearchRunner(object):
                      "ORPHANED" if stats.numCompletedError else "orphaned",
                      stats.numCompletedOrphaned,
                      "UNKNOWN" if stats.numCompletedOther else "unknown",
-                     stats.numCompletedOther))
+                     stats.numCompletedOther)))
 
           # Print the first error message from the latest batch of completed
           # models
           if errorCompletionMsg:
-            print "ERROR MESSAGE: %s" % errorCompletionMsg
+            print("ERROR MESSAGE: %s" % errorCompletionMsg)
 
         # Print the new worker state, if it changed
         workerState = jobInfo.getWorkerState()
         if workerState != lastWorkerState:
-          print "##>> UPDATED WORKER STATE: \n%s" % (pprint.pformat(workerState,
-                                                           indent=4))
+          print("##>> UPDATED WORKER STATE: \n%s" % (pprint.pformat(workerState,
+                                                           indent=4)))
           lastWorkerState = workerState
 
         # Print the new job results, if it changed
         jobResults = jobInfo.getResults()
         if jobResults != lastJobResults:
-          print "####>> UPDATED JOB RESULTS: \n%s (elapsed time: %g secs)" \
-              % (pprint.pformat(jobResults, indent=4), time.time()-startTime)
+          print("####>> UPDATED JOB RESULTS: \n%s (elapsed time: %g secs)" \
+              % (pprint.pformat(jobResults, indent=4), time.time()-startTime))
           lastJobResults = jobResults
 
         # Print the new model milestones if they changed
         modelMilestones = jobInfo.getModelMilestones()
         if modelMilestones != lastModelMilestones:
-          print "##>> UPDATED MODEL MILESTONES: \n%s" % (
-              pprint.pformat(modelMilestones, indent=4))
+          print("##>> UPDATED MODEL MILESTONES: \n%s" % (
+              pprint.pformat(modelMilestones, indent=4)))
           lastModelMilestones = modelMilestones
 
         # Print the new engine status if it changed
         engStatus = jobInfo.getEngStatus()
         if engStatus != lastEngStatus:
-          print "##>> UPDATED STATUS: \n%s" % (engStatus)
+          print("##>> UPDATED STATUS: \n%s" % (engStatus))
           lastEngStatus = engStatus
 
       # Sleep before next check
@@ -602,18 +604,18 @@ class _HyperSearchRunner(object):
         if self._options["timeout"] != None:
           if ((datetime.now() - lastUpdateTime) >
               timedelta(minutes=self._options["timeout"])):
-            print "Timeout reached, exiting"
+            print("Timeout reached, exiting")
             self.__cjDAO.jobCancel(jobID)
             sys.exit(1)
         time.sleep(1)
 
     # Tabulate results
     modelIDs = self.__searchJob.queryModelIDs()
-    print "Evaluated %s models" % len(modelIDs)
-    print "HyperSearch finished!"
+    print("Evaluated %s models" % len(modelIDs))
+    print("HyperSearch finished!")
 
     jobInfo = self.__searchJob.getJobStatus(self._workers)
-    print "Worker completion message: %s" % (jobInfo.getWorkerCompletionMsg())
+    print("Worker completion message: %s" % (jobInfo.getWorkerCompletionMsg()))
 
 
 
@@ -652,10 +654,10 @@ class _HyperSearchRunner(object):
     if self._options["action"] == "dryRun":
       args = [sys.argv[0], "--params=%s" % (json.dumps(params))]
 
-      print
-      print "=================================================================="
-      print "RUNNING PERMUTATIONS INLINE as \"DRY RUN\"..."
-      print "=================================================================="
+      print()
+      print("==================================================================")
+      print("RUNNING PERMUTATIONS INLINE as \"DRY RUN\"...")
+      print("==================================================================")
       jobID = HypersearchWorker.main(args)
 
     else:
@@ -686,9 +688,9 @@ class _HyperSearchRunner(object):
       hyperSearchJob=searchJob)
 
     if self._options["action"] == "dryRun":
-      print "Successfully executed \"dry-run\" hypersearch, jobID=%d" % (jobID)
+      print("Successfully executed \"dry-run\" hypersearch, jobID=%d" % (jobID))
     else:
-      print "Successfully submitted new HyperSearch job, jobID=%d" % (jobID)
+      print("Successfully submitted new HyperSearch job, jobID=%d" % (jobID))
       _emit(Verbosity.DEBUG,
             "Each worker executing the command line: %s" % (cmdLine,))
 
@@ -735,7 +737,7 @@ class _HyperSearchRunner(object):
     options:        NupicRunPermutations options dict
     retval:         nothing
     """
-    print "Generating experiment requests..."
+    print("Generating experiment requests...")
 
     searchParams = _ClientJobUtils.makeSearchJobParamsDict(options=options)
 
@@ -780,10 +782,10 @@ class _HyperSearchRunner(object):
     searchVar = set()
     for modelInfo in _iterModels(modelIDs):
       if modelInfo.isFinished():
-        vars = modelInfo.getParamLabels().keys()
+        vars = list(modelInfo.getParamLabels().keys())
         searchVar.update(vars)
         metrics = modelInfo.getReportMetrics()
-        metricstmp.update(metrics.keys())
+        metricstmp.update(list(metrics.keys()))
     if metricsKeys is None:
       metricsKeys = metricstmp
     # Create a csv report writer
@@ -798,8 +800,8 @@ class _HyperSearchRunner(object):
     modelStats = _ModelStats()
     #numCompletedOther = long(0)
 
-    print "\nResults from all experiments:"
-    print "----------------------------------------------------------------"
+    print("\nResults from all experiments:")
+    print("----------------------------------------------------------------")
 
     # Get common optimization metric info from permutations script
     searchParams = hyperSearchJob.getParams()
@@ -823,12 +825,12 @@ class _HyperSearchRunner(object):
 
     try:
       results = json.loads(jobInfo.results)
-    except Exception, e:
-      print "json.loads(jobInfo.results) raised an exception.  " \
-            "Here is some info to help with debugging:"
-      print "jobInfo: ", jobInfo
-      print "jobInfo.results: ", jobInfo.results
-      print "EXCEPTION: ", e
+    except Exception as e:
+      print("json.loads(jobInfo.results) raised an exception.  " \
+            "Here is some info to help with debugging:")
+      print("jobInfo: ", jobInfo)
+      print("jobInfo.results: ", jobInfo.results)
+      print("EXCEPTION: ", e)
       raise
 
     bestModelNum = results["bestModel"]
@@ -866,7 +868,7 @@ class _HyperSearchRunner(object):
       if modelInfo.getModelID() == bestModelNum:
         bestModel = modelInfo
         bestModelIterIndex=i
-        bestMetric = optimizationMetrics.values()[0]
+        bestMetric = list(optimizationMetrics.values())[0]
 
       # Keep track of the best-performing model
       if optimizationMetrics:
@@ -876,20 +878,20 @@ class _HyperSearchRunner(object):
 
       # Append to our list of modelIDs and scores
       if modelInfo.getCompletionReason().isEOF():
-        scoreModelIDDescList.append((optimizationMetrics.values()[0],
+        scoreModelIDDescList.append((list(optimizationMetrics.values())[0],
                                     modelInfo.getModelID(),
                                     modelInfo.getGeneratedDescriptionFile(),
                                     modelInfo.getParamLabels()))
 
-      print "[%d] Experiment %s\n(%s):" % (i, modelInfo, expDesc)
+      print("[%d] Experiment %s\n(%s):" % (i, modelInfo, expDesc))
       if (modelInfo.isFinished() and
           not (modelInfo.getCompletionReason().isStopped or
                modelInfo.getCompletionReason().isEOF())):
-        print ">> COMPLETION MESSAGE: %s" % modelInfo.getCompletionMsg()
+        print(">> COMPLETION MESSAGE: %s" % modelInfo.getCompletionMsg())
 
       if reportMetrics:
         # Update our metrics key set and format string
-        foundMetricsKeySet.update(reportMetrics.iterkeys())
+        foundMetricsKeySet.update(iter(reportMetrics.keys()))
         if len(sortedMetricsKeys) != len(foundMetricsKeySet):
           sortedMetricsKeys = sorted(foundMetricsKeySet)
 
@@ -903,13 +905,13 @@ class _HyperSearchRunner(object):
               m = "%r (*)" % reportMetrics[key]
             else:
               m = "%r" % reportMetrics[key]
-            print formatStr % (key+":"), m
-        print
+            print(formatStr % (key+":"), m)
+        print()
 
     # Summarize results
-    print "--------------------------------------------------------------"
+    print("--------------------------------------------------------------")
     if len(modelIDs) > 0:
-      print "%d experiments total (%s).\n" % (
+      print("%d experiments total (%s).\n" % (
           len(modelIDs),
           ("all completed successfully"
            if (modelStats.numCompletedKilled + modelStats.numCompletedEOF) ==
@@ -917,23 +919,23 @@ class _HyperSearchRunner(object):
            else "WARNING: %d models have not completed or there were errors" % (
                len(modelIDs) - (
                    modelStats.numCompletedKilled + modelStats.numCompletedEOF +
-                   modelStats.numCompletedStopped))))
+                   modelStats.numCompletedStopped)))))
 
       if modelStats.numStatusOther > 0:
-        print "ERROR: models with unexpected status: %d" % (
-            modelStats.numStatusOther)
+        print("ERROR: models with unexpected status: %d" % (
+            modelStats.numStatusOther))
 
-      print "WaitingToStart: %d" % modelStats.numStatusWaitingToStart
-      print "Running: %d" % modelStats.numStatusRunning
-      print "Completed: %d" % modelStats.numStatusCompleted
+      print("WaitingToStart: %d" % modelStats.numStatusWaitingToStart)
+      print("Running: %d" % modelStats.numStatusRunning)
+      print("Completed: %d" % modelStats.numStatusCompleted)
       if modelStats.numCompletedOther > 0:
-        print "    ERROR: models with unexpected completion reason: %d" % (
-            modelStats.numCompletedOther)
-      print "    ran to EOF: %d" % modelStats.numCompletedEOF
-      print "    ran to stop signal: %d" % modelStats.numCompletedStopped
-      print "    were orphaned: %d" % modelStats.numCompletedOrphaned
-      print "    killed off: %d" % modelStats.numCompletedKilled
-      print "    failed: %d" % modelStats.numCompletedError
+        print("    ERROR: models with unexpected completion reason: %d" % (
+            modelStats.numCompletedOther))
+      print("    ran to EOF: %d" % modelStats.numCompletedEOF)
+      print("    ran to stop signal: %d" % modelStats.numCompletedStopped)
+      print("    were orphaned: %d" % modelStats.numCompletedOrphaned)
+      print("    killed off: %d" % modelStats.numCompletedKilled)
+      print("    failed: %d" % modelStats.numCompletedError)
 
       assert modelStats.numStatusOther == 0, "numStatusOther=%s" % (
           modelStats.numStatusOther)
@@ -941,43 +943,43 @@ class _HyperSearchRunner(object):
           modelStats.numCompletedOther)
 
     else:
-      print "0 experiments total."
+      print("0 experiments total.")
 
     # Print out the field contributions
-    print
+    print()
     global gCurrentSearch
     jobStatus = hyperSearchJob.getJobStatus(gCurrentSearch._workers)
     jobResults = jobStatus.getResults()
     if "fieldContributions" in jobResults:
-      print "Field Contributions:"
+      print("Field Contributions:")
       pprint.pprint(jobResults["fieldContributions"], indent=4)
     else:
-      print "Field contributions info not available"
+      print("Field contributions info not available")
 
     # Did we have an optimize key?
     if bestModel is not None:
       maxKeyLen = max([len(k) for k in sortedMetricsKeys])
       maxKeyLen = max(maxKeyLen, len(optimizationMetricKey))
       formatStr = "  %%-%ds" % (maxKeyLen+2)
-      bestMetricValue = bestModel.getOptimizationMetrics().values()[0]
-      optimizationMetricName = bestModel.getOptimizationMetrics().keys()[0]
-      print
-      print "Best results on the optimization metric %s (maximize=%s):" % (
-          optimizationMetricName, maximizeMetric)
-      print "[%d] Experiment %s (%s):" % (
-          bestModelIterIndex, bestModel, bestModel.getModelDescription())
-      print formatStr % (optimizationMetricName+":"), bestMetricValue
-      print
-      print "Total number of Records processed: %d"  % totalRecords
-      print
-      print "Total wall time for all models: %d" % totalWallTime
+      bestMetricValue = list(bestModel.getOptimizationMetrics().values())[0]
+      optimizationMetricName = list(bestModel.getOptimizationMetrics().keys())[0]
+      print()
+      print("Best results on the optimization metric %s (maximize=%s):" % (
+          optimizationMetricName, maximizeMetric))
+      print("[%d] Experiment %s (%s):" % (
+          bestModelIterIndex, bestModel, bestModel.getModelDescription()))
+      print(formatStr % (optimizationMetricName+":"), bestMetricValue)
+      print()
+      print("Total number of Records processed: %d"  % totalRecords)
+      print()
+      print("Total wall time for all models: %d" % totalWallTime)
 
       hsJobParams = hyperSearchJob.getParams()
 
     # Were we asked to write out the top N model description files?
     if options["genTopNDescriptions"] > 0:
-      print "\nGenerating description files for top %d models..." % (
-              options["genTopNDescriptions"])
+      print("\nGenerating description files for top %d models..." % (
+              options["genTopNDescriptions"]))
       scoreModelIDDescList.sort()
       scoreModelIDDescList = scoreModelIDDescList[
           0:options["genTopNDescriptions"]]
@@ -986,8 +988,8 @@ class _HyperSearchRunner(object):
       for (score, modelID, description, paramLabels) in scoreModelIDDescList:
         i += 1
         outDir = os.path.join(options["permWorkDir"], "model_%d" % (i))
-        print "Generating description file for model %s at %s" % \
-          (modelID, outDir)
+        print("Generating description file for model %s at %s" % \
+          (modelID, outDir))
         if not os.path.exists(outDir):
           os.makedirs(outDir)
 
@@ -1009,14 +1011,14 @@ class _HyperSearchRunner(object):
         # Generate a csv file with the parameter settings in it
         fd = open(os.path.join(outDir, "params.csv"), "wb")
         writer = csv.writer(fd)
-        colNames = paramLabels.keys()
+        colNames = list(paramLabels.keys())
         colNames.sort()
         writer.writerow(colNames)
         row = [paramLabels[x] for x in colNames]
         writer.writerow(row)
         fd.close()
 
-        print "Generating model params file..."
+        print("Generating model params file...")
         # Generate a model params file alongside the description.py
         mod = imp.load_source("description", os.path.join(outDir,
                                                           "description.py"))
@@ -1026,7 +1028,7 @@ class _HyperSearchRunner(object):
                                             pprint.pformat(model_description)))
         fd.close()
 
-      print
+      print()
 
     reportWriter.finalize()
     return model_description
@@ -1126,17 +1128,17 @@ class _ModelStats(object):
 
   def __init__(self):
     # Tallies of experiment dispositions
-    self.numStatusWaitingToStart = long(0)
-    self.numStatusRunning = long(0)
-    self.numStatusCompleted = long(0)
-    self.numStatusOther = long(0)
+    self.numStatusWaitingToStart = int(0)
+    self.numStatusRunning = int(0)
+    self.numStatusCompleted = int(0)
+    self.numStatusOther = int(0)
     #self.numCompletedSuccess = long(0)
-    self.numCompletedKilled = long(0)
-    self.numCompletedError = long(0)
-    self.numCompletedStopped = long(0)
-    self.numCompletedEOF = long(0)
-    self.numCompletedOther = long(0)
-    self.numCompletedOrphaned = long(0)
+    self.numCompletedKilled = int(0)
+    self.numCompletedError = int(0)
+    self.numCompletedStopped = int(0)
+    self.numCompletedEOF = int(0)
+    self.numCompletedOther = int(0)
+    self.numCompletedOrphaned = int(0)
 
 
 
@@ -1226,46 +1228,46 @@ class _ReportCSVWriter(object):
     csv = self.__csvFileObj
 
     # Emit model info row to report.csv
-    print >> csv, "%s, " % (self.__searchJobID),
-    print >> csv, "%s, " % (modelInfo.getModelID()),
-    print >> csv, "%s, " % (modelInfo.statusAsString()),
+    print("%s, " % (self.__searchJobID), end=' ', file=csv)
+    print("%s, " % (modelInfo.getModelID()), end=' ', file=csv)
+    print("%s, " % (modelInfo.statusAsString()), end=' ', file=csv)
     if modelInfo.isFinished():
-      print >> csv, "%s, " % (modelInfo.getCompletionReason()),
+      print("%s, " % (modelInfo.getCompletionReason()), end=' ', file=csv)
     else:
-      print >> csv, "NA, ",
+      print("NA, ", end=' ', file=csv)
     if not modelInfo.isWaitingToStart():
-      print >> csv, "%s, " % (modelInfo.getStartTime()),
+      print("%s, " % (modelInfo.getStartTime()), end=' ', file=csv)
     else:
-      print >> csv, "NA, ",
+      print("NA, ", end=' ', file=csv)
     if modelInfo.isFinished():
       dateFormat = "%Y-%m-%d %H:%M:%S"
       startTime = modelInfo.getStartTime()
       endTime = modelInfo.getEndTime()
-      print >> csv, "%s, " % endTime,
+      print("%s, " % endTime, end=' ', file=csv)
       st = datetime.strptime(startTime, dateFormat)
       et = datetime.strptime(endTime, dateFormat)
-      print >> csv, "%s, " % (str((et - st).seconds)),
+      print("%s, " % (str((et - st).seconds)), end=' ', file=csv)
     else:
-      print >> csv, "NA, ",
-      print >> csv, "NA, ",
-    print >> csv, "%s, " % str(modelInfo.getModelDescription()),
-    print >> csv, "%s, " % str(modelInfo.getNumRecords()),
+      print("NA, ", end=' ', file=csv)
+      print("NA, ", end=' ', file=csv)
+    print("%s, " % str(modelInfo.getModelDescription()), end=' ', file=csv)
+    print("%s, " % str(modelInfo.getNumRecords()), end=' ', file=csv)
     paramLabelsDict = modelInfo.getParamLabels()
     for key in self.__sortedVariableNames:
       # Some values are complex structures,.. which need to be represented as
       # strings
       if key in paramLabelsDict:
-        print >> csv, "%s, " % (paramLabelsDict[key]),
+        print("%s, " % (paramLabelsDict[key]), end=' ', file=csv)
       else:
-        print >> csv, "None, ",
+        print("None, ", end=' ', file=csv)
     metrics = modelInfo.getReportMetrics()
     for key in self.__sortedMetricsKeys:
       value = metrics.get(key, "NA")
       value = str(value)
       value = value.replace("\n", " ")
-      print >> csv, "%s, " % (value),
+      print("%s, " % (value), end=' ', file=csv)
 
-    print >> csv
+    print(file=csv)
 
 
 
@@ -1281,13 +1283,13 @@ class _ReportCSVWriter(object):
       self.__csvFileObj.close()
       self.__csvFileObj = None
 
-      print "Report csv saved in %s" % (self.__reportCSVPath,)
+      print("Report csv saved in %s" % (self.__reportCSVPath,))
 
       if self.__backupCSVPath:
-        print "Previous report csv file was backed up to %s" % \
-                (self.__backupCSVPath,)
+        print("Previous report csv file was backed up to %s" % \
+                (self.__backupCSVPath,))
     else:
-      print "Nothing was written to report csv file."
+      print("Nothing was written to report csv file.")
 
 
 
@@ -1327,25 +1329,25 @@ class _ReportCSVWriter(object):
 
     # If we are appending, add some blank line separators
     if not self.__replaceReport and backupCSVPath:
-      print >> csv
-      print >> csv
+      print(file=csv)
+      print(file=csv)
 
     # Print the column names
-    print >> csv, "jobID, ",
-    print >> csv, "modelID, ",
-    print >> csv, "status, " ,
-    print >> csv, "completionReason, ",
-    print >> csv, "startTime, ",
-    print >> csv, "endTime, ",
-    print >> csv, "runtime(s), " ,
-    print >> csv, "expDesc, ",
-    print >> csv, "numRecords, ",
+    print("jobID, ", end=' ', file=csv)
+    print("modelID, ", end=' ', file=csv)
+    print("status, ", end=' ', file=csv)
+    print("completionReason, ", end=' ', file=csv)
+    print("startTime, ", end=' ', file=csv)
+    print("endTime, ", end=' ', file=csv)
+    print("runtime(s), ", end=' ', file=csv)
+    print("expDesc, ", end=' ', file=csv)
+    print("numRecords, ", end=' ', file=csv)
 
     for key in self.__sortedVariableNames:
-      print >> csv, "%s, " % key,
+      print("%s, " % key, end=' ', file=csv)
     for key in self.__sortedMetricsKeys:
-      print >> csv, "%s, " % key,
-    print >> csv
+      print("%s, " % key, end=' ', file=csv)
+    print(file=csv)
 
 
 
@@ -1890,7 +1892,7 @@ def _getOneModelInfo(nupicModelID):
   nupicModelID:      Nupic modelID
   retval:           _NupicModelInfo instance for the given nupicModelID.
   """
-  return _iterModels([nupicModelID]).next()
+  return next(_iterModels([nupicModelID]))
 
 
 
@@ -1952,7 +1954,7 @@ def _iterModels(modelIDs):
 
 
 
-    def next(self):
+    def __next__(self):
       """Iterator Protocol function
 
       Parameters:
@@ -2128,7 +2130,7 @@ class _NupicModelInfo(object):
       paramSettings = self.getParamLabels()
       # Form a csv friendly string representation of this model
       items = []
-      for key, value in paramSettings.items():
+      for key, value in list(paramSettings.items()):
         items.append("%s_%s" % (key, value))
       return ".".join(items)
 
@@ -2169,7 +2171,7 @@ class _NupicModelInfo(object):
     if "particleState" in params:
       retval = dict()
       queue = [(pair, retval) for pair in
-               params["particleState"]["varStates"].iteritems()]
+               params["particleState"]["varStates"].items()]
       while len(queue) > 0:
         pair, output = queue.pop()
         k, v = pair
@@ -2179,7 +2181,7 @@ class _NupicModelInfo(object):
         else:
           if k not in output:
             output[k] = dict()
-          queue.extend((pair, output[k]) for pair in v.iteritems())
+          queue.extend((pair, output[k]) for pair in v.items())
       return retval
 
 

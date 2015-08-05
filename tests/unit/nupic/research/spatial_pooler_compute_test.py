@@ -20,6 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import time
 import numpy
 import unittest2 as unittest
@@ -38,7 +40,7 @@ uintType = "uint32"
 class SpatialPoolerComputeTest(unittest.TestCase):
   """
   End to end tests of the compute function for the SpatialPooler class with no
-  mocking anywhere. 
+  mocking anywhere.
   """
 
 
@@ -84,7 +86,7 @@ class SpatialPoolerComputeTest(unittest.TestCase):
     """
     # Size of each input vector
     inputSize = 30
-    
+
     # Size of each output SDR vector
     columnDimensions = 50
 
@@ -95,7 +97,7 @@ class SpatialPoolerComputeTest(unittest.TestCase):
       'globalInhibition': True,
       "seed": int((time.time()%10000)*10),
     }
-    print "testBasicCompute1, SP seed set to:",params['seed']
+    print("testBasicCompute1, SP seed set to:",params['seed'])
     self.basicComputeLoop('py', params, inputSize, columnDimensions)
     self.basicComputeLoop('cpp', params, inputSize, columnDimensions)
 
@@ -107,7 +109,7 @@ class SpatialPoolerComputeTest(unittest.TestCase):
 
     # Size of each input vector
     inputSize = 100
-    
+
     # Size of each output SDR vector
     columnDimensions = 100
 
@@ -120,7 +122,7 @@ class SpatialPoolerComputeTest(unittest.TestCase):
       "synPermInactiveDec": 0.0,
       "seed": int((time.time()%10000)*10),
     }
-    print "testBasicCompute2, SP seed set to:",params['seed']
+    print("testBasicCompute2, SP seed set to:",params['seed'])
     self.basicComputeLoop('py', params, inputSize, columnDimensions)
     self.basicComputeLoop('cpp', params, inputSize, columnDimensions)
 

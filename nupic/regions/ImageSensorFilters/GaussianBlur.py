@@ -53,7 +53,7 @@ class GaussianBlur(BaseFilter):
     BaseFilter.process(self, image)
 
     mask = image.split()[1]
-    for i in xrange(self.level):
+    for i in range(self.level):
       sharpness_enhancer = ImageEnhance.Sharpness(image.split()[0])
       image = sharpness_enhancer.enhance(0.0)
     image.putalpha(mask)

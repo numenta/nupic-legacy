@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import math
 
 from nupic.regions.ImageSensorExplorers.BaseExplorer import BaseExplorer
@@ -112,11 +114,11 @@ class BlockSpread(BaseExplorer):
     else:
       xMin = -1 * (shape[1] // 2)
       xMax = xMin + shape[1] - 1
-      xPositions = range(stepSize * xMin, stepSize * xMax + 1, stepSize)
+      xPositions = list(range(stepSize * xMin, stepSize * xMax + 1, stepSize))
 
       yMin = -1 * (shape[0] // 2)
       yMax = yMin + shape[0] - 1
-      yPositions = range(stepSize * yMin, stepSize * yMax + 1, stepSize)
+      yPositions = list(range(stepSize * yMin, stepSize * yMax + 1, stepSize))
 
       self._centerOffsets = list(cross(yPositions, xPositions))
 
@@ -135,11 +137,11 @@ class BlockSpread(BaseExplorer):
       else:
         xMin = -1 * (shape[1] // 2)
         xMax = xMin + shape[1] - 1
-        xPositions = range(stepSize * xMin, stepSize * xMax + 1, stepSize)
+        xPositions = list(range(stepSize * xMin, stepSize * xMax + 1, stepSize))
 
         yMin = -1 * (shape[0] // 2)
         yMax = yMin + shape[0] - 1
-        yPositions = range(stepSize * yMin, stepSize * yMax + 1, stepSize)
+        yPositions = list(range(stepSize * yMin, stepSize * yMax + 1, stepSize))
 
         self._spreadOffsets = list(cross(yPositions, xPositions))
 
@@ -182,7 +184,7 @@ class BlockSpread(BaseExplorer):
         self._spreadOffsets.insert(0, (0,0))
 
         if self._verbosity >= 1:
-          print "Visiting spread positions:", self._spreadOffsets
+          print("Visiting spread positions:", self._spreadOffsets)
 
     self._numSpreadOffsets = len(self._spreadOffsets)
 
@@ -219,11 +221,11 @@ class BlockSpread(BaseExplorer):
     """
 
     if self._verbosity >= 1:
-      print "BlockSpread: getNumIterations():"
+      print("BlockSpread: getNumIterations():")
 
     if image is None:
       filteredImages = []
-      for i in xrange(self.numImages):
+      for i in range(self.numImages):
         filteredImages.extend(self.getAllFilteredVersionsOfImage(i))
     else:
       filteredImages = self.getAllFilteredVersionsOfImage(image)
@@ -231,7 +233,7 @@ class BlockSpread(BaseExplorer):
     result = len(filteredImages) * self._numCenterOffsets * self._numSpreadOffsets
 
     if self._verbosity >= 1:
-      print "BlockSpread: getNumIterations() returned %d" % result
+      print("BlockSpread: getNumIterations() returned %d" % result)
 
     return result
 
@@ -253,7 +255,7 @@ class BlockSpread(BaseExplorer):
     self._getHomePosition()
 
     if self._verbosity >= 1:
-      print "BlockSpread: first():"
+      print("BlockSpread: first():")
 
     # Set start position
     self._centerPosIdx = 0       # Which center point
@@ -275,7 +277,7 @@ class BlockSpread(BaseExplorer):
     BaseExplorer.next(self)
 
     if self._verbosity >= 1:
-      print "BlockSpread: next():"
+      print("BlockSpread: next():")
 
     # ========================================================================
     # Update to next position
@@ -293,7 +295,7 @@ class BlockSpread(BaseExplorer):
         # Go to next filter for this image, or next image
         # Iterate through the filters first
         needNewImage = True
-        for i in xrange(self.numFilters):
+        for i in range(self.numFilters):
           self.position['filters'][i] += 1
           if self.position['filters'][i] < self.numFilterOutputs[i]:
             needNewImage = False
@@ -327,7 +329,7 @@ class BlockSpread(BaseExplorer):
     """
 
     if self._verbosity >= 1:
-      print "BlockSpread: _getPosition():"
+      print("BlockSpread: _getPosition():")
 
     # Get the X and Y offsets
     centerOffset = self._centerOffsets[self._centerPosIdx]
@@ -349,7 +351,7 @@ class BlockSpread(BaseExplorer):
 
     # Print current state
     if self._verbosity >= 2:
-      print "_home", self._home, "_centerPosIdx", self._centerPosIdx, \
+      print("_home", self._home, "_centerPosIdx", self._centerPosIdx, \
           "_spreadPosIdx:", self._spreadPosIdx, "centerOffset:", centerOffset, \
           "spreadOffset:", spreadOffset, "yPos:", self.position['offset'][1], \
-          "xPos:", self.position['offset'][0], "reset:", self.position['reset']
+          "xPos:", self.position['offset'][0], "reset:", self.position['reset'])

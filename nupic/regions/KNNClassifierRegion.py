@@ -25,8 +25,11 @@
 ## @file
 This file defines the k Nearest Neighbor classifier region.
 """
+
+from __future__ import print_function
+
 import numpy
-from PyRegion import PyRegion
+from .PyRegion import PyRegion
 from nupic.algorithms import KNNClassifier
 
 
@@ -597,7 +600,7 @@ class KNNClassifierRegion(PyRegion):
       self._knn.__setstate__(knnState)
     else:
       raise RuntimeError("Invalid KNNClassifierRegion version for __setstate__")
-    
+
     # Set to current version
     self.version = KNNClassifierRegion.__VERSION__
 
@@ -644,7 +647,7 @@ class KNNClassifierRegion(PyRegion):
 
     n = self.confusion.shape[0]
     assert n == self.confusion.shape[1], "Confusion matrix is non-square."
-    return self.confusion[range(n), range(n)].sum(), self.confusion.sum()
+    return self.confusion[list(range(n)), list(range(n))].sum(), self.confusion.sum()
 
   accuracy = property(fget=_getAccuracy)
 
@@ -794,8 +797,8 @@ class KNNClassifierRegion(PyRegion):
     if self._tapFileIn is not None:
       for input in inputs:
         for k in range(len(input)):
-          print >> self._tapFileIn, input[k],
-        print >> self._tapFileIn
+          print(input[k], end=' ', file=self._tapFileIn)
+        print(file=self._tapFileIn)
 
 
   def handleLogOutput(self, output):
@@ -803,8 +806,8 @@ class KNNClassifierRegion(PyRegion):
     #raise Exception('MULTI-LINE DUMMY\nMULTI-LINE DUMMY')
     if self._tapFileOut is not None:
       for k in range(len(output)):
-        print >> self._tapFileOut, output[k],
-      print >> self._tapFileOut
+        print(output[k], end=' ', file=self._tapFileOut)
+      print(file=self._tapFileOut)
 
 
   def _storeSample(self, inputVector, trueCatIndex, partition=0):
@@ -848,7 +851,7 @@ class KNNClassifierRegion(PyRegion):
       if self._useAuxiliary:
         #print "\n  Auxiliary input stream from Image Sensor enabled."
         if self._justUseAuxiliary == True:
-          print "  Warning: You have chosen to ignore the image data and instead just use the auxiliary data stream."
+          print("  Warning: You have chosen to ignore the image data and instead just use the auxiliary data stream.")
 
 
     # Format inputs
@@ -861,7 +864,7 @@ class KNNClassifierRegion(PyRegion):
       #auxVector = inputs['auxDataIn'][0].wvector(0).array()
       auxVector = inputs['auxDataIn']
       if auxVector.dtype != numpy.float32:
-        raise RuntimeError, "KNNClassifierRegion expects numpy.float32 for the auxiliary data vector"
+        raise RuntimeError("KNNClassifierRegion expects numpy.float32 for the auxiliary data vector")
       if self._justUseAuxiliary == True:
         #inputVector = inputs['auxDataIn'][0].wvector(0).array()
         inputVector = inputs['auxDataIn']
@@ -965,8 +968,8 @@ class KNNClassifierRegion(PyRegion):
       probabilitiesOut[0:nout] = probabilities[0:nout]
 
       if self.verbosity >= 1:
-        print "KNNRegion: categoriesOut: ", categoriesOut[0:nout]
-        print "KNNRegion: probabilitiesOut: ", probabilitiesOut[0:nout]
+        print("KNNRegion: categoriesOut: ", categoriesOut[0:nout])
+        print("KNNRegion: probabilitiesOut: ", probabilitiesOut[0:nout])
 
       if self._scanInfo is not None:
         self._scanResults = [tuple(inference[:nout])]
@@ -1113,8 +1116,8 @@ class KNNClassifierRegion(PyRegion):
         numSamples, numCorrect = self._knn.leaveOneOutTest()
         if numSamples:
           self._accuracy = float(numCorrect) / float(numSamples)
-          print "Leave-one-out validation: %d of %d correct ==> %.3f%%" % \
-                 (numCorrect, numSamples, self._accuracy * 100.0)
+          print("Leave-one-out validation: %d of %d correct ==> %.3f%%" % \
+                 (numCorrect, numSamples, self._accuracy * 100.0))
 
 
   def _finishSphering(self):

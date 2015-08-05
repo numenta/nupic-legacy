@@ -20,6 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import time
 import unittest
 
@@ -81,8 +83,8 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
 
 
   def testSingleSequence(self):
-    print "Test: Single sequence"
-    sequence = self.sequenceMachine.generateFromNumbers(range(50))
+    print("Test: Single sequence")
+    sequence = self.sequenceMachine.generateFromNumbers(list(range(50)))
     times = self._feedAll(sequence)
 
     self.assertTrue(times[0] < times[1])
@@ -107,15 +109,15 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
 
     elapsed = self._feedOne(repeatedSequence, self.tm, tmComputeFn)
     times.append(elapsed)
-    print "TM:\t{0}s".format(elapsed)
+    print("TM:\t{0}s".format(elapsed))
 
     elapsed = self._feedOne(repeatedSequence, self.tp, tpComputeFn)
     times.append(elapsed)
-    print "TP:\t{0}s".format(elapsed)
+    print("TP:\t{0}s".format(elapsed))
 
     elapsed = self._feedOne(repeatedSequence, self.tp10x2, tpComputeFn)
     times.append(elapsed)
-    print "TP10X2:\t{0}s".format(elapsed)
+    print("TP10X2:\t{0}s".format(elapsed))
 
     return times
 

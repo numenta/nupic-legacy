@@ -438,8 +438,7 @@ import random
 import numpy
 from numpy import *
 import sys
-import pickle
-import cPickle
+from six.moves import cPickle as pickle
 import pprint
 
 from nupic.research.TP import TP

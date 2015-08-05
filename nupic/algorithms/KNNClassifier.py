@@ -22,6 +22,8 @@
 
 """This module implements a k nearest neighbor classifier."""
 
+from __future__ import print_function
+
 import numpy
 
 from nupic.bindings.math import (NearestNeighbor, min_score_per_category)
@@ -367,10 +369,10 @@ class KNNClassifier(object):
     @return The number of patterns currently stored in the classifier
     """
     if self.verbosity >= 1:
-      print "%s learn:" % g_debugPrefix
-      print "  category:", int(inputCategory)
-      print "  active inputs:", _labeledInput(inputPattern,
-                                              cellsPerCol=self.cellsPerCol)
+      print("%s learn:" % g_debugPrefix)
+      print("  category:", int(inputCategory))
+      print("  active inputs:", _labeledInput(inputPattern,
+                                              cellsPerCol=self.cellsPerCol))
 
     if rowID is None:
       rowID = self._iterationIdx
@@ -638,13 +640,13 @@ class KNNClassifier(object):
       categoryDist.clip(0, 1.0, categoryDist)
 
     if self.verbosity >= 1:
-      print "%s infer:" % (g_debugPrefix)
-      print "  active inputs:",  _labeledInput(inputPattern,
-                                               cellsPerCol=self.cellsPerCol)
-      print "  winner category:", winner
-      print "  pct neighbors of each category:", inferenceResult
-      print "  dist of each prototype:", dist
-      print "  dist of each category:", categoryDist
+      print("%s infer:" % (g_debugPrefix))
+      print("  active inputs:",  _labeledInput(inputPattern,
+                                               cellsPerCol=self.cellsPerCol))
+      print("  winner category:", winner)
+      print("  pct neighbors of each category:", inferenceResult)
+      print("  dist of each prototype:", dist)
+      print("  dist of each category:", categoryDist)
 
     result = (winner, inferenceResult, dist, categoryDist)
     return result
@@ -909,10 +911,10 @@ class KNNClassifier(object):
     v = singularValues/singularValues[0]
     idx = numpy.where(v<fractionOfMax)[0]
     if len(idx):
-      print "Number of PCA dimensions chosen: ", idx[0], "out of ", len(v)
+      print("Number of PCA dimensions chosen: ", idx[0], "out of ", len(v))
       return idx[0]
     else:
-      print "Number of PCA dimensions chosen: ", len(v)-1, "out of ", len(v)
+      print("Number of PCA dimensions chosen: ", len(v)-1, "out of ", len(v))
       return len(v)-1
 
 
@@ -929,16 +931,16 @@ class KNNClassifier(object):
 
 
     if self._vt.shape[0] < self.numSVDDims:
-      print "******************************************************************"
+      print("******************************************************************")
       print ("Warning: The requested number of PCA dimensions is more than "
              "the number of pattern dimensions.")
-      print "Setting numSVDDims = ", self._vt.shape[0]
-      print "******************************************************************"
+      print("Setting numSVDDims = ", self._vt.shape[0])
+      print("******************************************************************")
       self.numSVDDims = self._vt.shape[0]
 
     self._vt = self._vt[:self.numSVDDims]
 
-    # Added when svd is not able to decompose vectors - uses raw spare vectors  
+    # Added when svd is not able to decompose vectors - uses raw spare vectors
     if len(self._vt) == 0:
       return
 
@@ -985,7 +987,7 @@ class KNNClassifier(object):
     # excluding invalid vectors, and excluding other vectors with the
     # same partition id
     winners = numpy.zeros(self._M.shape[0], numpy.int32)
-    for i in xrange(self._M.shape[0]):
+    for i in range(self._M.shape[0]):
       if self._specificIndexTraining \
           and categoryListArray[i] == -1:  # This is an invalid vector
         continue
@@ -1009,7 +1011,7 @@ class KNNClassifier(object):
       else:
         # Have the top k winners vote on the category
         categoryScores = numpy.zeros(categoryListArray.max() + 1)
-        for j in xrange(self.k):
+        for j in range(self.k):
           winner = distances.argmin()
           distances[winner] = numpy.inf
           categoryScores[categoryListArray[winner]] += 1
@@ -1044,7 +1046,7 @@ class KNNClassifier(object):
     categoryArray = numpy.array(self._categoryList)
     newCategoryArray = numpy.zeros(categoryArray.shape[0])
     newCategoryArray.fill(-1)
-    for i in xrange(len(mapping)):
+    for i in range(len(mapping)):
       newCategoryArray[categoryArray==i] = mapping[i]
     self._categoryList = list(newCategoryArray)
 
@@ -1067,7 +1069,7 @@ class KNNClassifier(object):
     elif not hasattr(categoryIndices, "__iter__"):
       categoryIndices = [categoryIndices] * len(vectorIndices)
 
-    for i in xrange(len(vectorIndices)):
+    for i in range(len(vectorIndices)):
       vectorIndex = vectorIndices[i]
       categoryIndex = categoryIndices[i]
 

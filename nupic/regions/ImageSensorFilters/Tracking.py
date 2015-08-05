@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import os
 import random
 
@@ -78,7 +80,7 @@ class Tracking(BaseFilter):
     self._resizingFilter = eval("Image.%s" % qualityLevel.upper())
     self._dumpDebugImages = dumpDebugImages
     if fillValue is None:
-      self._histWeights = numpy.array(range(256), dtype='float')
+      self._histWeights = numpy.array(list(range(256)), dtype='float')
 
   def process(self, image):
     """
@@ -117,12 +119,12 @@ class Tracking(BaseFilter):
     # with a bbox of 'None'.  Nothing much we can do
     if bbox is None:
       bbox = (0, 0, image.size[0], image.size[1])
-      print 'WARNING: empty alpha channel'
+      print('WARNING: empty alpha channel')
 
     # Check for malformed box
     elif bbox[0] >= bbox[2] or bbox[1] >= bbox[3]:
       bbox = (0, 0, image.size[0], image.size[1])
-      print 'WARNING: malformed box'
+      print('WARNING: malformed box')
 
     # Ascertain the original raw size of the tracking box
     width  = bbox[2] - bbox[0]

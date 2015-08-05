@@ -26,6 +26,8 @@
 SVMClassifierNode implements Support Vector Machines (SVMs)
 """
 
+from __future__ import print_function
+
 import math
 import random
 import logging
@@ -236,8 +238,8 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     # We can only change this before we have received our first compute()
     # call.  Otherwise it is a runtime error.
     if self._svm is not None:
-      raise RuntimeError, "SVMClassifierNode 'mode' parameter cannot be changed" \
-                          "after first compute() call"
+      raise RuntimeError("SVMClassifierNode 'mode' parameter cannot be changed" \
+                          "after first compute() call")
     self._mode = parameterValue
 
   mode = property(
@@ -285,7 +287,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       if self._useAuxiliary:
 #        print "\n  Auxiliary input stream from Image Sensor enabled."
         if self._justUseAuxiliary == True:
-          print "  Warning: You have chosen to ignore the image data and instead just use the auxiliary data stream."
+          print("  Warning: You have chosen to ignore the image data and instead just use the auxiliary data stream.")
 
     if self._scanInfo is not None:
       # The input is much larger than what we've been trained on
@@ -311,7 +313,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     if self._useAuxiliary:
       auxVector = inputs['auxDataIn'][0].wvector(0).array()
       if auxVector.dtype != numpy.float32:
-        raise RuntimeError, "SVMClassifierNode expects numpy.float32 for the auxiliary data vector"
+        raise RuntimeError("SVMClassifierNode expects numpy.float32 for the auxiliary data vector")
       if self._justUseAuxiliary == True:
         inputVector = auxVector
       else:
@@ -373,7 +375,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       # Convert from internal indices back to ImageSensor's IDs
       # This is necessary to calculate accuracy by comparing our outputs to
       # the true category from the sensor
-      remap = [self.catIndexToId(i) for i in xrange(len(self._catIdMap))]
+      remap = [self.catIndexToId(i) for i in range(len(self._catIdMap))]
       out = numpy.zeros(max(remap)+1)
       out[remap] = inferenceResult[0:len(self._catIdMap)]
       nout = min(len(allOutputs), len(out))
@@ -403,7 +405,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       # Convert from internal indices back to ImageSensor's IDs
       # This is necessary to calculate accuracy by comparing our outputs to
       # the true category from the sensor
-      remap = [self.catIndexToId(i) for i in xrange(len(self._catIdMap))]
+      remap = [self.catIndexToId(i) for i in range(len(self._catIdMap))]
       out = numpy.zeros(max(remap)+1)
       out[remap] = inferenceResult[0:len(self._catIdMap)]
 
@@ -480,7 +482,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
                           linear kernel.)  Default is 'rbf'.""",
                           constraints="enum: %s,%s" % (
                                         ",".join(_kKernelTypes),
-                                        ",".join(map(str, xrange(len(_kKernelTypes))))
+                                        ",".join(map(str, range(len(_kKernelTypes))))
                                       )),
           NodeSpecItem(name="numRecursions", type="uint", access="cgs", value = 0,
                        description="""The number of rounds of recursive Latin Hypercube Sampling
@@ -927,7 +929,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     """
     self._beginMemoryMonitoring("_finishLearning")
 
-    print 'Finish learning'
+    print('Finish learning')
 
     # Set progress to 0
     PyNodeModule.finishLearningProgress = 0.0
@@ -986,7 +988,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
         self._learningMode = False  # To avoid exception
         self._inferenceMode = True
         return
-      print 'optimal params', svmParams
+      print('optimal params', svmParams)
       # Set self.C and self.gamma to the optimal values
       self.C, self.gamma = svmParams
     else:
@@ -1043,7 +1045,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       intervalC = rangeC / float(self.numSamplesPerRecursion - 1)
       intervalGamma = rangeGamma / float(self.numSamplesPerRecursion - 1)
 
-    gammaIndices = range(self.numSamplesPerRecursion)
+    gammaIndices = list(range(self.numSamplesPerRecursion))
     self._rng.shuffle(gammaIndices)
 
     sampleIndices = [(float(x), float(gammaIndices[x])) for x in range(self.numSamplesPerRecursion)]
@@ -1105,7 +1107,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       belief = numpy.zeros(numCats, dtype=RealNumpyDType)
     numErrors = 0
     numTestingSamples = self._autoTuneSamples.shape[0]
-    for k in xrange(numTestingSamples):
+    for k in range(numTestingSamples):
       sample = self._autoTuneSamples[k]
       # Note: we currently do not support sphering and PCA at
       # the same time.
@@ -1219,7 +1221,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
 
 
   def computeSVD(self, numSVDSamples=None, finalize=True):
-    print 'Computing SVD'
+    print('Computing SVD')
 
     # Samples are in self._samples, not in the SVM yet
     if numSVDSamples is None:
@@ -1245,15 +1247,15 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     v = singularValues/singularValues[0]
     idx = numpy.where(v<fractionOfMax)[0]
     if len(idx):
-      print "Number of PCA dimensions chosen: ", idx[0], "out of ", len(v)
+      print("Number of PCA dimensions chosen: ", idx[0], "out of ", len(v))
       return idx[0]
     else:
-      print "Number of PCA dimensions chosen: ", len(v)-1, "out of ", len(v)
+      print("Number of PCA dimensions chosen: ", len(v)-1, "out of ", len(v))
       return len(v)-1
 
 
   def finalizeSVD(self, numSVDDims=None):
-    print 'Finalizing SVD'
+    print('Finalizing SVD')
 
 
     if numSVDDims is not None:
@@ -1266,10 +1268,10 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
         self._numSVDDims = self.getAdaptiveSVDDims(self._s)
 
     if self._vt.shape[0] < self._numSVDDims:
-      print "******************************************************************************"
-      print "Warning: The requested number of PCA dimensions is more than the number of pattern dimensions."
-      print "Setting numSVDDims = ", self._vt.shape[0]
-      print "******************************************************************************"
+      print("******************************************************************************")
+      print("Warning: The requested number of PCA dimensions is more than the number of pattern dimensions.")
+      print("Setting numSVDDims = ", self._vt.shape[0])
+      print("******************************************************************************")
       self._numSVDDims = self._vt.shape[0]
 
     self._vt = self._vt[:self._numSVDDims]
@@ -1389,7 +1391,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     labels = numpy.array(self._labels, dtype=numpy.int)
     newLabels = numpy.zeros(labels.shape[0], dtype=numpy.int)
     newLabels.fill(-1)
-    for i in xrange(len(mapping)):
+    for i in range(len(mapping)):
       newLabels[labels==i] = mapping[i]
     self._labels = list(newLabels)
 
@@ -1432,7 +1434,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     self._partitionIds = numpy.array(self._partitionIds)
     self._labels = numpy.array(self._labels)
 
-    for i in xrange(len(partitionIds)):
+    for i in range(len(partitionIds)):
       partitionId = partitionIds[i]
       categoryIndex = categoryIndices[i]
       self._labels[self._partitionIds == partitionId] = categoryIndex

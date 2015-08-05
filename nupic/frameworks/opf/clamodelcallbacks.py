@@ -26,7 +26,7 @@
 import os
 
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
-from clamodel import CLAModel
+from .clamodel import CLAModel
 
 
 
@@ -117,7 +117,7 @@ class CLAModelPickleSPInitArgs(object):
 
   def __call__(self, claModel):
 
-    import pickle
+    from six.moves import cPickle as pickle
 
     # Get the SP args dictionary
     assert isinstance(claModel, CLAModel)

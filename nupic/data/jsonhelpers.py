@@ -34,6 +34,8 @@
 # TODO: offer a combined json parsing/validation function that applies
 #       defaults from the schema
 
+from __future__ import print_function
+
 import json
 import math
 import os
@@ -78,7 +80,7 @@ def validate(value, **kwds):
           ValidationError when value fails json validation
   """
 
-  assert len(kwds.keys()) >= 1
+  assert len(list(kwds.keys())) >= 1
   assert 'schemaPath' in kwds or 'schemaDict' in kwds
 
   schemaDict = None
@@ -135,34 +137,34 @@ def test():
     'myBool': False
   }
 
-  print "Validating schemaDict method in positive test..."
+  print("Validating schemaDict method in positive test...")
   validate(d, schemaDict=schemaDict)
-  print "ok\n"
+  print("ok\n")
 
-  print "Validating schemaDict method in negative test..."
+  print("Validating schemaDict method in negative test...")
   try:
     validate({}, schemaDict=schemaDict)
   except ValidationError:
-    print "ok\n"
+    print("ok\n")
   else:
-    print "FAILED\n"
+    print("FAILED\n")
     sys.exit(1)
 
 
   schemaPath = os.path.join(os.path.dirname(__file__), "testSchema.json")
-  print "Validating schemaPath method in positive test using %s..." % \
-            (os.path.abspath(schemaPath),)
+  print("Validating schemaPath method in positive test using %s..." % \
+            (os.path.abspath(schemaPath),))
   validate(d, schemaPath=schemaPath)
-  print "ok\n"
+  print("ok\n")
 
-  print "Validating schemaPath method in negative test using %s..." % \
-            (os.path.abspath(schemaPath),)
+  print("Validating schemaPath method in negative test using %s..." % \
+            (os.path.abspath(schemaPath),))
   try:
     validate({}, schemaPath=schemaPath)
   except ValidationError:
-    print "ok\n"
+    print("ok\n")
   else:
-    print "FAILED\n"
+    print("FAILED\n")
     sys.exit(1)
 
 

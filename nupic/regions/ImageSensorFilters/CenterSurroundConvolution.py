@@ -98,7 +98,7 @@ class CenterSurroundConvolution(Convolution):
 
     # Select the orientation sample points (in radians)
     radianInterval = numpy.pi / float(orientationCount)
-    orientations = numpy.array(range(orientationCount), dtype=RealNumpyDType) * \
+    orientations = numpy.array(list(range(orientationCount)), dtype=RealNumpyDType) * \
                    radianInterval
 
     # Compute trigonometric functions of orientation
@@ -151,7 +151,7 @@ class CenterSurroundConvolution(Convolution):
       # filter cell where we go negative
       halfFilterDim = (self._filterDim - 1) / 2
       firstBadCell = None
-      for cellIdx in xrange(halfFilterDim, self._filterDim):
+      for cellIdx in range(halfFilterDim, self._filterDim):
         if filterBank[0, 0, cellIdx] < 0.0:
           firstBadCell = cellIdx - halfFilterDim
           break

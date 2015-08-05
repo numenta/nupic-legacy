@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import copy
 
 
@@ -38,7 +40,7 @@ class DictObj(dict):
     return self[name]
 
   def __setstate__(self, state):
-    for k, v in state.items():
+    for k, v in list(state.items()):
       self[k] = v
 
 
@@ -49,7 +51,7 @@ def rUpdate(original, updates):
   dictPairs = [(original, updates)]
   while len(dictPairs) > 0:
     original, updates = dictPairs.pop()
-    for k, v in updates.iteritems():
+    for k, v in updates.items():
       if k in original and isinstance(original[k], dict) and isinstance(v, dict):
         dictPairs.append((original[k], v))
       else:
@@ -76,14 +78,14 @@ def rCopy(d, f=identityConversion, discardNoneKeys=True, deepCopy=True):
     d = copy.deepcopy(d)
 
   newDict = {}
-  toCopy = [(k, v, newDict, ()) for k, v in d.iteritems()]
+  toCopy = [(k, v, newDict, ()) for k, v in d.items()]
   while len(toCopy) > 0:
     k, v, d, prevKeys = toCopy.pop()
     prevKeys = prevKeys + (k,)
     if isinstance(v, dict):
       d[k] = dict()
       toCopy[0:0] = [(innerK, innerV, d[k], prevKeys)
-                     for innerK, innerV in v.iteritems()]
+                     for innerK, innerV in v.items()]
     else:
       #print k, v, prevKeys
       newV = f(v, prevKeys)
@@ -103,7 +105,7 @@ def rApply(d, f):
   remainingDicts = [(d, ())]
   while len(remainingDicts) > 0:
     current, prevKeys = remainingDicts.pop()
-    for k, v in current.iteritems():
+    for k, v in current.items():
       keys = prevKeys + (k,)
       if isinstance(v, dict):
         remainingDicts.insert(0, (v, keys))
@@ -115,7 +117,7 @@ def find(d, target):
   remainingDicts = [d]
   while len(remainingDicts) > 0:
     current = remainingDicts.pop()
-    for k, v in current.iteritems():
+    for k, v in current.items():
       if k == target:
         return v
       if isinstance(v, dict):
@@ -150,15 +152,15 @@ def dictDiffAndReport(da, db):
     return differences
 
   if differences['inAButNotInB']:
-    print ">>> inAButNotInB: %s" % differences['inAButNotInB']
+    print(">>> inAButNotInB: %s" % differences['inAButNotInB'])
 
   if differences['inBButNotInA']:
-    print ">>> inBButNotInA: %s" % differences['inBButNotInA']
+    print(">>> inBButNotInA: %s" % differences['inBButNotInA'])
 
   for key in differences['differentValues']:
-    print ">>> da[%s] != db[%s]" % (key, key)
-    print "da[%s] = %r" % (key, da[key])
-    print "db[%s] = %r" % (key, db[key])
+    print(">>> da[%s] != db[%s]" % (key, key))
+    print("da[%s] = %r" % (key, da[key]))
+    print("db[%s] = %r" % (key, db[key]))
 
   return differences
 

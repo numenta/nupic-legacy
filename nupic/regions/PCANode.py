@@ -26,9 +26,11 @@
 PCANode implements PCA
 """
 
+from __future__ import print_function
+
 import numpy
 
-from PyRegion import PyRegion
+from .PyRegion import PyRegion
 
 
 
@@ -173,17 +175,17 @@ class PCANode(PyRegion):
       if not hasattr(self, '_logFileCreated') or not self._logFileCreated:
         logDir = os.path.split(self._logPath)[0]
         if not os.path.exists(logDir):
-          print "Creating logging directory: %s" % logDir
+          print("Creating logging directory: %s" % logDir)
           os.makedirs(logDir)
         fpOut = open(self._logPath, 'w')
         # Write initial line containing correct length
         # of coefficient vector
-        print >>fpOut, '%d' % len(pcaCoeffs)
+        print('%d' % len(pcaCoeffs), file=fpOut)
         fpOut.close()
         self._logFileCreated = True
       output = ",".join([str(x) for x in pcaCoeffs.tolist()])
       fpOut = open(self._logPath, 'a')
-      print >>fpOut, output
+      print(output, file=fpOut)
       fpOut.close()
 
 
@@ -405,10 +407,10 @@ class PCANode(PyRegion):
     idx = numpy.where(v<fractionOfMax)[0]
 
     if len(idx):
-      print "Number of PCA dimensions chosen: ", idx[0], "out of ", len(v)
+      print("Number of PCA dimensions chosen: ", idx[0], "out of ", len(v))
       return idx[0]
     else:
-      print "Number of PCA dimensions chosen: ", len(v)-1, "out of ", len(v)
+      print("Number of PCA dimensions chosen: ", len(v)-1, "out of ", len(v))
       return len(v)-1
 
 

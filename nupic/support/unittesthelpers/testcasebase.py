@@ -22,6 +22,8 @@
 # This script implements an extension of the unittest2.TestCase class to be
 # used as a base class unit tests
 
+from __future__ import print_function
+
 import copy
 import optparse
 import sys
@@ -54,11 +56,11 @@ class TestCaseBase(unittest.TestCase):
   def printTestHeader(self):
     """ Print out what test we are running """
 
-    print
-    print "###############################################################"
-    print "Running %s..." % (self,)
-    print "[%s UTC]" % (datetime.utcnow())
-    print "###############################################################"
+    print()
+    print("###############################################################")
+    print("Running %s..." % (self,))
+    print("[%s UTC]" % (datetime.utcnow()))
+    print("###############################################################")
     sys.stdout.flush()
     return
 
@@ -66,11 +68,11 @@ class TestCaseBase(unittest.TestCase):
   def printBanner(self, msg, *args):
     """ Print out a banner """
 
-    print
-    print "==============================================================="
-    print msg % args
-    print >> sys.stdout, "[%s UTC; %s]" % (datetime.utcnow(), self,)
-    print "==============================================================="
+    print()
+    print("===============================================================")
+    print(msg % args)
+    print("[%s UTC; %s]" % (datetime.utcnow(), self,), file=sys.stdout)
+    print("===============================================================")
     sys.stdout.flush()
     return
 

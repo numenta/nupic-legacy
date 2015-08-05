@@ -22,7 +22,9 @@
 
 """Unit tests for sparse binary matrix."""
 
-import cPickle
+from __future__ import print_function
+
+from six.moves import cPickle as pickle
 import os
 
 import numpy
@@ -35,7 +37,7 @@ _RGEN = numpy.random.RandomState(37)
 
 
 def error(str):
-  print 'Error:', str
+  print('Error:', str)
 
 
 
@@ -101,7 +103,7 @@ class UnitTests(unittest.TestCase):
     x[m/2] = 0
     a = self.Matrix.__class__(n)
 
-    print a.getVersion(), a.getVersion(True)
+    print(a.getVersion(), a.getVersion(True))
 
     if a.nRows() != 0:
       error('nRows 1')
@@ -1042,9 +1044,9 @@ class UnitTests(unittest.TestCase):
            [0,0,0,0,0,0,0]])
 
     a.logicalOr(b)
-    if show: print a
+    if show: print(a)
     a.logicalOr(a)
-    if show: print a
+    if show: print(a)
 
     a = self.Matrix.__class__(1)
     a.fromDense([[0,0,1,1,1,0,0],
@@ -1059,9 +1061,9 @@ class UnitTests(unittest.TestCase):
            [0,0,0,0,0,0,0]])
 
     b.logicalNot()
-    if show: print b
+    if show: print(b)
     b.logicalOr(a)
-    if show: print b
+    if show: print(b)
 
     a = self.Matrix.__class__([[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
                 ,[1,1,1,1,1,0,0,0,0,0,0,0,0,0,1]
@@ -1079,12 +1081,12 @@ class UnitTests(unittest.TestCase):
                 ,[1,0,0,0,0,0,0,1,1,1,0,0,0,0,1]
                 ,[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]])
     a.logicalNot()
-    if show: print a
+    if show: print(a)
     b = self.Matrix.__class__(a)
     b.inside()
-    if show: print b
+    if show: print(b)
     a.logicalOr(b)
-    if show: print a
+    if show: print(a)
 
 
   def testLogicalAnd(self):
@@ -1103,9 +1105,9 @@ class UnitTests(unittest.TestCase):
            [0,0,0,0,0,0,0]])
 
     a.logicalAnd(b)
-    if show: print a
+    if show: print(a)
     a.logicalAnd(a)
-    if show: print a
+    if show: print(a)
 
     a = self.Matrix.__class__(1)
     a.fromDense([[0,0,1,1,1,0,0],
@@ -1120,9 +1122,9 @@ class UnitTests(unittest.TestCase):
            [0,0,0,0,0,0,0]])
 
     b.logicalNot()
-    if show: print b
+    if show: print(b)
     b.logicalAnd(a)
-    if show: print b
+    if show: print(b)
 
 
   def testOverlap(self):
@@ -1206,8 +1208,8 @@ class UnitTests(unittest.TestCase):
         line += ' -> '
         for j in range(before.nCols()):
           line += '#' if after.get(i,j) == 1 else '.'
-        print line
-      print
+        print(line)
+      print()
 
 
     def sideBySide(a, edges=False):
@@ -1458,9 +1460,9 @@ class UnitTests(unittest.TestCase):
       y = a.rightVecArgMaxAtNZ(x)
 
       answer = numpy.zeros(m)
-      for i in xrange(m):
+      for i in range(m):
         a = 0
-        for j in xrange(n):
+        for j in range(n):
           if mat[i,j] > 0:
             if x[j] > a:
               a = x[j]
@@ -1523,8 +1525,8 @@ class UnitTests(unittest.TestCase):
     a = self.Matrix.__class__(1)
     a.fromDense(mat)
 
-    cPickle.dump(a, open('test.bin', 'wb'))
-    b = cPickle.load(open('test.bin'))
+    pickle.dump(a, open('test.bin', 'wb'))
+    b = pickle.load(open('test.bin'))
 
     if (a.toDense() != b.toDense()).any():
       error('pickling')
@@ -1631,10 +1633,10 @@ class UnitTests(unittest.TestCase):
       c = m.leftDenseMatSumAtNZ(b)
       d = numpy.dot(b,a)
       if (c != d).any():
-        print m
-        print a
-        print c
-        print d
+        print(m)
+        print(a)
+        print(c)
+        print(d)
         error('leftDenseMatSumAtNZ')
 
 
@@ -1744,7 +1746,7 @@ class UnitTests(unittest.TestCase):
     if (a.toDense() != b.toDense()).any():
       error('scalability 1')
 
-    print 'Preparing'
+    print('Preparing')
     n = 10000
     a = self.Matrix.__class__(n)
     mat = _RGEN.randint(0,100,(20000,n))
@@ -1752,10 +1754,10 @@ class UnitTests(unittest.TestCase):
     for row in mat:
       x += [numpy.where(row > 90)[0]]
 
-    print 'Evaluating'
+    print('Evaluating')
     for i in range(len(x)):
       if i % 100 == 0:
-        print i
+        print(i)
       if a.findRowSparse(x[i]) == a.nRows():
         a.appendSparseRow(x[i])
 

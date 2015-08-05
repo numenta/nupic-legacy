@@ -179,7 +179,7 @@ def processCategoryFile(f, format, categoryColumn=None, categoryColumns=None, co
       else:
         categories = strippedLine.split()[categoryColumn:
                                           categoryColumn+categoryColumns]
-        categories = map(int, categories)
+        categories = list(map(int, categories))
         allCategories.append(categories)
         maxCategory = max(maxCategory, max(categories))
 

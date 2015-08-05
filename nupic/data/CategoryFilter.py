@@ -61,7 +61,7 @@ class CategoryFilter(object):
     Returns True if the record matches any of the provided filters
     '''
 
-    for field, meta in self.filterDict.iteritems():
+    for field, meta in self.filterDict.items():
       index = meta['index']
       categories = meta['categories']
       for category in categories:

@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 from nupic.regions.ImageSensorExplorers.BaseExplorer import BaseExplorer
 from nupic.math.cross import cross
 
@@ -103,12 +105,12 @@ class InwardSweep(BaseExplorer):
 
     # Debugging output to console
     if False:
-      print "[%04d] %d: (%d, %d) %s" % ( \
+      print("[%04d] %d: (%d, %d) %s" % ( \
             self._itersDone,
             self.position['image'],
             self.position['offset'][0],
             self.position['offset'][1],
-            "RESET" if self.position['reset'] else "")
+            "RESET" if self.position['reset'] else ""))
 
     # Update iteration count
     self._itersDone = iteration + 1

@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import numpy
 
 def similar(a, b, eps=0.001):
@@ -93,12 +95,12 @@ def lscsum0(lx):
         pass
       else:
         import sys
-        print >>sys.stderr, "Warning: scaled log sum down axis 0 did not match."
-        print >>sys.stderr, "Scaled log result:"
-        print >>sys.stderr, result
-        print >>sys.stderr, "Conventional result:"
-        print >>sys.stderr, conventional
-  except FloatingPointError, e:
+        print("Warning: scaled log sum down axis 0 did not match.", file=sys.stderr)
+        print("Scaled log result:", file=sys.stderr)
+        print(result, file=sys.stderr)
+        print("Conventional result:", file=sys.stderr)
+        print(conventional, file=sys.stderr)
+  except FloatingPointError as e:
     # print "Scaled log sum down axis 0 avoided underflow or overflow."
     pass
 

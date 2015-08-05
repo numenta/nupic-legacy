@@ -122,7 +122,7 @@ class RandomFlash(BaseExplorer):
           #catPopulation[catIndex] = len([c for c in categoryIndex if c == catIndex])
           imagesByCat[catIndex] = [k for k, c in enumerate(categoryIndex) if c == catIndex]
           catPopulation[catIndex] = len(imagesByCat[catIndex])
-        minNumSamples = min([pop for (cat, pop) in catPopulation.items()])
+        minNumSamples = min([pop for (cat, pop) in list(catPopulation.items())])
         totalNumSamples = minNumSamples * numCats
         # Store
         self.imagesByCat = imagesByCat

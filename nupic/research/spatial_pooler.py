@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import itertools
 
 import numpy
@@ -262,7 +264,7 @@ class SpatialPooler(object):
     # Initialize a tiny random tie breaker. This is used to determine winning
     # columns where the overlaps are identical.
     self._tieBreaker = 0.01*numpy.array([self._random.getReal64() for i in
-                                        xrange(self._numColumns)])
+                                        range(self._numColumns)])
 
 
     # 'self._connectedSynapses' is a similar matrix to 'self._permanences'
@@ -283,7 +285,7 @@ class SpatialPooler(object):
     # Initialize the set of permanence values for each column. Ensure that
     # each column is connected to enough input bits to allow it to be
     # activated.
-    for i in xrange(numColumns):
+    for i in range(numColumns):
       potential = self._mapPotential(i, wrapAround=self._wrapAround)
       self._potentialPools.replaceSparseRow(i, potential.nonzero()[0])
       perm = self._initPermanence(potential, initConnectedPct)
@@ -768,7 +770,7 @@ class SpatialPooler(object):
     _updateMinDutyCyclesGlobal, here the values can be quite different for
     different columns.
     """
-    for i in xrange(self._numColumns):
+    for i in range(self._numColumns):
       maskNeighbors = numpy.append(i,
         self._getNeighborsND(i, self._columnDimensions,
         self._inhibitionRadius))
@@ -841,7 +843,7 @@ class SpatialPooler(object):
 
     avgConnectedSpan = numpy.average(
                           [self._avgConnectedSpanForColumnND(i)
-                          for i in xrange(self._numColumns)]
+                          for i in range(self._numColumns)]
                         )
     columnsPerInput = self._avgColumnsPerInput()
     diameter = avgConnectedSpan * columnsPerInput
@@ -1107,7 +1109,7 @@ class SpatialPooler(object):
     # column's potential pool will be connected. This number is
     # given by the parameter "connectedPct"
     perm = numpy.zeros(self._numInputs)
-    for i in xrange(self._numInputs):
+    for i in range(self._numInputs):
       if (potential[i] < 1):
         continue
 
@@ -1366,7 +1368,7 @@ class SpatialPooler(object):
 
     numActive = int(density * self._numColumns)
     activeColumns = numpy.zeros(self._numColumns)
-    winners = sorted(range(overlaps.size),
+    winners = sorted(list(range(overlaps.size)),
                      key=lambda k: overlaps[k],
                      reverse=True)[0:numActive]
     activeColumns[winners] = 1
@@ -1395,7 +1397,7 @@ class SpatialPooler(object):
     activeColumns = numpy.zeros(self._numColumns)
     addToWinners = max(overlaps)/1000.0
     overlaps = numpy.array(overlaps, dtype=realDType)
-    for i in xrange(self._numColumns):
+    for i in range(self._numColumns):
       maskNeighbors = self._getNeighborsND(i, self._columnDimensions,
         self._inhibitionRadius)
       overlapSlice = overlaps[maskNeighbors]
@@ -1440,10 +1442,10 @@ class SpatialPooler(object):
 
     if wrapAround:
       neighbors = numpy.array(
-        range(columnIndex-radius,columnIndex+radius+1)) % ncols
+        list(range(columnIndex-radius,columnIndex+radius+1))) % ncols
     else:
       neighbors = numpy.array(
-        range(columnIndex-radius,columnIndex+radius+1))
+        list(range(columnIndex-radius,columnIndex+radius+1)))
       neighbors = neighbors[
         numpy.logical_and(neighbors >= 0, neighbors < ncols)]
 
@@ -1495,13 +1497,13 @@ class SpatialPooler(object):
     col = toCol(columnIndex)
 
     if wrapAround:
-      colRange = numpy.array(range(col-radius, col+radius+1)) % ncols
-      rowRange = numpy.array(range(row-radius, row+radius+1)) % nrows
+      colRange = numpy.array(list(range(col-radius, col+radius+1))) % ncols
+      rowRange = numpy.array(list(range(row-radius, row+radius+1))) % nrows
     else:
-      colRange = numpy.array(range(col-radius, col+radius+1))
+      colRange = numpy.array(list(range(col-radius, col+radius+1)))
       colRange = colRange[
         numpy.logical_and(colRange >= 0, colRange < ncols)]
-      rowRange = numpy.array(range(row-radius, row+radius+1))
+      rowRange = numpy.array(list(range(row-radius, row+radius+1)))
       rowRange = rowRange[
         numpy.logical_and(rowRange >= 0, rowRange < nrows)]
 
@@ -1543,13 +1545,13 @@ class SpatialPooler(object):
 
     columnCoords = numpy.unravel_index(columnIndex, dimensions)
     rangeND = []
-    for i in xrange(dimensions.size):
+    for i in range(dimensions.size):
       if wrapAround:
-        curRange = numpy.array(range(columnCoords[i]-radius,
-                                     columnCoords[i]+radius+1)) % dimensions[i]
+        curRange = numpy.array(list(range(columnCoords[i]-radius,
+                                     columnCoords[i]+radius+1))) % dimensions[i]
       else:
-        curRange = numpy.array(range(columnCoords[i]-radius,
-                                     columnCoords[i]+radius+1))
+        curRange = numpy.array(list(range(columnCoords[i]-radius,
+                                     columnCoords[i]+radius+1)))
         curRange = curRange[
           numpy.logical_and(curRange >= 0, curRange < dimensions[i])]
 
@@ -1705,7 +1707,7 @@ class SpatialPooler(object):
     self._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
     self._connectedSynapses = SparseBinaryMatrix(numInputs)
     self._connectedSynapses.resize(numColumns, numInputs)
-    for i in xrange(proto.numColumns):
+    for i in range(proto.numColumns):
       self._updatePermanencesForColumn(self._permanences.getRow(i), i, False)
 
     self._tieBreaker = numpy.array(proto.tieBreaker)
@@ -1725,21 +1727,21 @@ class SpatialPooler(object):
     """
     Useful for debugging.
     """
-    print "------------PY  SpatialPooler Parameters ------------------"
-    print "numInputs                  = ", self.getNumInputs()
-    print "numColumns                 = ", self.getNumColumns()
-    print "columnDimensions           = ", self._columnDimensions
-    print "numActiveColumnsPerInhArea = ", self.getNumActiveColumnsPerInhArea()
-    print "potentialPct               = ", self.getPotentialPct()
-    print "globalInhibition           = ", self.getGlobalInhibition()
-    print "localAreaDensity           = ", self.getLocalAreaDensity()
-    print "stimulusThreshold          = ", self.getStimulusThreshold()
-    print "synPermActiveInc           = ", self.getSynPermActiveInc()
-    print "synPermInactiveDec         = ", self.getSynPermInactiveDec()
-    print "synPermConnected           = ", self.getSynPermConnected()
-    print "minPctOverlapDutyCycle     = ", self.getMinPctOverlapDutyCycles()
-    print "minPctActiveDutyCycle      = ", self.getMinPctActiveDutyCycles()
-    print "dutyCyclePeriod            = ", self.getDutyCyclePeriod()
-    print "maxBoost                   = ", self.getMaxBoost()
-    print "spVerbosity                = ", self.getSpVerbosity()
-    print "version                    = ", self._version
+    print("------------PY  SpatialPooler Parameters ------------------")
+    print("numInputs                  = ", self.getNumInputs())
+    print("numColumns                 = ", self.getNumColumns())
+    print("columnDimensions           = ", self._columnDimensions)
+    print("numActiveColumnsPerInhArea = ", self.getNumActiveColumnsPerInhArea())
+    print("potentialPct               = ", self.getPotentialPct())
+    print("globalInhibition           = ", self.getGlobalInhibition())
+    print("localAreaDensity           = ", self.getLocalAreaDensity())
+    print("stimulusThreshold          = ", self.getStimulusThreshold())
+    print("synPermActiveInc           = ", self.getSynPermActiveInc())
+    print("synPermInactiveDec         = ", self.getSynPermInactiveDec())
+    print("synPermConnected           = ", self.getSynPermConnected())
+    print("minPctOverlapDutyCycle     = ", self.getMinPctOverlapDutyCycles())
+    print("minPctActiveDutyCycle      = ", self.getMinPctActiveDutyCycles())
+    print("dutyCyclePeriod            = ", self.getDutyCyclePeriod())
+    print("maxBoost                   = ", self.getMaxBoost())
+    print("spVerbosity                = ", self.getSpVerbosity())
+    print("version                    = ", self._version)

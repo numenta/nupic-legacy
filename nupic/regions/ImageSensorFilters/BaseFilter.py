@@ -21,7 +21,7 @@
 import sys
 import random
 
-sys_maxint = sys.maxint
+sys_maxint = sys.maxsize
 
 def uint(i):
   """Helper function to convert values to accepted range for PIL

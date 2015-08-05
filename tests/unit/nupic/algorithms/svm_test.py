@@ -22,7 +22,9 @@
 
 """Unit tests for the SVM classifiers."""
 
-import cPickle as pickle
+from __future__ import print_function
+
+from six.moves import cPickle as pickle
 import hashlib
 import os
 
@@ -107,8 +109,8 @@ class SVMTest(unittest.TestCase):
       classifier.cross_validate(2, gamma=0.5, C=10, eps=1e-3)
 
       s = classifier.__getstate__()
-      print "nDims=", nDims, "nClass=", nClass, "n_vectors=", size,
-      print "dense:", len(s), classifier.persistent_size(),
+      print("nDims=", nDims, "nClass=", nClass, "n_vectors=", size, end=' ')
+      print("dense:", len(s), classifier.persistent_size(), end=' ')
       self.assertEqual(len(s), classifier.persistent_size())
 
       classifier01 = svm_01(0, nDims, seed=_SEED, probability=True)
@@ -121,7 +123,7 @@ class SVMTest(unittest.TestCase):
       classifier01.cross_validate(2, gamma=0.5, C=10, eps=1e-3)
 
       s = classifier01.__getstate__()
-      print "0/1", len(s), classifier01.persistent_size()
+      print("0/1", len(s), classifier01.persistent_size())
       self.assertEqual(len(s), classifier01.persistent_size())
 
 
@@ -141,10 +143,10 @@ class SVMTest(unittest.TestCase):
       x = np.array(xList, dtype=_DTYPE)
       classifier.add_sample(float(y), x)
 
-    print "training"
+    print("training")
     classifier.train(gamma=1.0/3.0, C=100, eps=1e-1)
 
-    print "cross validation"
+    print("cross validation")
     classifier.cross_validate(2, gamma=0.5, C=10, eps=1e-3)
 
 

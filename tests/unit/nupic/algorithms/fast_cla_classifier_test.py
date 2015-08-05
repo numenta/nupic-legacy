@@ -32,7 +32,7 @@ from nupic.bindings.algorithms import FastCLAClassifier
 
 # Don't import the CLAClassifierTest directly or the unittest.main() will pick
 # it up and run it.
-import cla_classifier_test
+from . import cla_classifier_test
 
 
 

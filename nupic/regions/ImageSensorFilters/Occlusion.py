@@ -63,7 +63,7 @@ class Occlusion(BaseFilter):
 
     newArray = numpy.array(image.split()[0].getdata())
     newArray.resize(image.size[1],image.size[0])
-    for j in xrange(self.numRectangles):
+    for j in range(self.numRectangles):
       # Generate random rectange
       size = (self.random.randint(sizeRange[0], sizeRange[1]),
         self.random.randint(sizeRange[0], sizeRange[1]))

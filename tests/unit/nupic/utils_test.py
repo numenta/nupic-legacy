@@ -22,7 +22,7 @@
 
 """Unit tests for utils module."""
 
-import pickle
+from six.moves import cPickle as pickle
 import tempfile
 import unittest
 
@@ -159,7 +159,7 @@ class UtilsTest(unittest.TestCase):
 
     stored = pickle.dumps(ma)
     restored = pickle.loads(stored)
-    self.assertEqual(restored, ma) 
+    self.assertEqual(restored, ma)
     self.assertEqual(ma.next(6), restored.next(6))
 
 
@@ -167,7 +167,7 @@ class UtilsTest(unittest.TestCase):
     ma = MovingAverage(windowSize=3)
     maP = MovingAverage(windowSize=3)
     self.assertEqual(ma, maP)
-    
+
     maN = MovingAverage(windowSize=10)
     self.assertNotEqual(ma, maN)
 
@@ -178,7 +178,7 @@ class UtilsTest(unittest.TestCase):
     self.assertNotEqual(ma, maP)
     ma.next(6)
     self.assertEqual(ma, maP)
-    
+
 
 
 

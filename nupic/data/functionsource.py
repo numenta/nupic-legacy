@@ -112,9 +112,9 @@ class FunctionSource(object):
       prevSequenceId = getattr(self, "_prevSequenceId", None)
       )
     func = dict()
-    func['code'] = marshal.dumps(self.func.func_code)
-    func['name'] = self.func.func_name
-    func['doc'] = self.func.func_doc
+    func['code'] = marshal.dumps(self.func.__code__)
+    func['name'] = self.func.__name__
+    func['doc'] = self.func.__doc__
     state['func'] = func
 
     return state
@@ -122,8 +122,8 @@ class FunctionSource(object):
   def __setstate__(self, state):
     funcinfo = state['func']
     self.func = types.FunctionType(marshal.loads(funcinfo['code']), globals())
-    self.func.func_name = funcinfo['name']
-    self.func.func_doc = funcinfo['doc']
+    self.func.__name__ = funcinfo['name']
+    self.func.__doc__ = funcinfo['doc']
 
     self.state = state['state']
     self.resetFieldName = state['resetFieldName']

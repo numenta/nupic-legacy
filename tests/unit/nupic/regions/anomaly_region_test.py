@@ -62,7 +62,7 @@ class AnomalyRegionTest(unittest.TestCase):
     anomalyRegion1 = AnomalyRegion()
     inputs = AnomalyRegion.getSpec()['inputs']
     outputs = AnomalyRegion.getSpec()['outputs']
-    for i in xrange(0, 6):
+    for i in range(0, 6):
       inputs['predictedColumns'] = numpy.array(predictedColumns[i])
       inputs['activeColumns'] = numpy.array(activeColumns[i])
       anomalyRegion1.compute(inputs, outputs)
@@ -81,7 +81,7 @@ class AnomalyRegionTest(unittest.TestCase):
 
     self.assertEqual(anomalyRegion1, anomalyRegion2)
 
-    for i in xrange(6, 10):
+    for i in range(6, 10):
       inputs['predictedColumns'] = numpy.array(predictedColumns[i])
       inputs['activeColumns'] = numpy.array(activeColumns[i])
       anomalyRegion1.compute(inputs, outputs)

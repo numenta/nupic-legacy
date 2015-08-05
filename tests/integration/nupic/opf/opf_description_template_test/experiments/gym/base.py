@@ -24,6 +24,8 @@ Template file used by the OPF Experiment Generator to generate the actual
 description.py file by replacing $XXXXXXXX tokens with desired values.
 """
 
+from __future__ import print_function
+
 from nupic.frameworks.opf.expdescriptionapi import ExperimentDescriptionAPI
 
 from nupic.frameworks.opf.expdescriptionhelpers import (

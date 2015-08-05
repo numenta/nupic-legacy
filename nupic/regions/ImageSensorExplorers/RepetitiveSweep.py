@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import random
 
 from nupic.regions.ImageSensorExplorers.BaseExplorer import BaseExplorer
@@ -80,14 +82,14 @@ class RepetitiveSweep(BaseExplorer):
     if self._maxOffset is not None:
       slopX = min(abs(slopX), self._maxOffset)
       slopY = min(abs(slopY), self._maxOffset)
-    posnX = self._rng.choice(xrange(-slopX, slopX + 1))
-    posnY = self._rng.choice(xrange(-slopY, slopY + 1))
+    posnX = self._rng.choice(range(-slopX, slopX + 1))
+    posnY = self._rng.choice(range(-slopY, slopY + 1))
     velocityX = self._rng.choice([-1, +1]) \
-              * self._rng.choice(xrange(self._minVelocity, self._maxVelocity + 1))
+              * self._rng.choice(range(self._minVelocity, self._maxVelocity + 1))
     velocityY = self._rng.choice([-1, +1]) \
-              * self._rng.choice(xrange(self._minVelocity, self._maxVelocity + 1))
+              * self._rng.choice(range(self._minVelocity, self._maxVelocity + 1))
     # Choose a category random
-    catIndex = self._rng.choice(range(self.numImages))
+    catIndex = self._rng.choice(list(range(self.numImages)))
 
     # Make sure we don't allow stationary (no velocity)
     if self._maxVelocity > 0:
@@ -134,12 +136,12 @@ class RepetitiveSweep(BaseExplorer):
 
     # Debugging output to console
     if False:
-      print "[%04d] %d: (%d, %d) %s" % ( \
+      print("[%04d] %d: (%d, %d) %s" % ( \
             self._seqIndex,
             self.position['image'],
             self.position['offset'][0],
             self.position['offset'][1],
-            "RESET" if self.position['reset'] else "")
+            "RESET" if self.position['reset'] else ""))
 
     # Update count
     self._seqIndex += 1

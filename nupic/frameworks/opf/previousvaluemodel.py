@@ -26,7 +26,7 @@ import itertools
 from nupic.data import fieldmeta
 from nupic.frameworks.opf import model
 from nupic.frameworks.opf import opfutils
-from opfutils import InferenceType
+from .opfutils import InferenceType
 
 
 class PreviousValueModel(model.Model):
@@ -121,7 +121,7 @@ class PreviousValueModel(model.Model):
     datetime -> dayOfWeek, timeOfDay, etc.
     """
     return tuple(fieldmeta.FieldMetaInfo(*args) for args in
-                 itertools.izip(
+                 zip(
                      self._fieldNames, self._fieldTypes,
                      itertools.repeat(fieldmeta.FieldMetaSpecial.none)))
 

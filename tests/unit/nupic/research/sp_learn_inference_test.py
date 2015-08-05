@@ -27,7 +27,9 @@ random inference calls have no effect on learning.
 TODO: implement an SP Diff routine.  That should be fun!
 """
 
-import cPickle as pickle
+from __future__ import print_function
+
+from six.moves import cPickle as pickle
 import numpy as np
 import random
 import time
@@ -85,9 +87,9 @@ class SPLearnInferenceTest(unittest.TestCase):
 
     # Build up training set with numTrainingRecords patterns
     inputs = []         # holds post-encoded input patterns
-    for i in xrange(numTrainingRecords):
+    for i in range(numTrainingRecords):
       inputVector = np.zeros(n, dtype=realDType)
-      inputVector [random.sample(xrange(n), w)] = 1
+      inputVector [random.sample(range(n), w)] = 1
       inputs.append(inputVector)
 
     # Train each SP with identical inputs
@@ -95,9 +97,9 @@ class SPLearnInferenceTest(unittest.TestCase):
 
     random.seed(seed)
     np.random.seed(seed)
-    for i in xrange(numTrainingRecords):
+    for i in range(numTrainingRecords):
       if spVerbosity > 0:
-        print "Input #%d" % i
+        print("Input #%d" % i)
       # TODO: See https://github.com/numenta/nupic/issues/2072
       encodedInput = inputs[i]
       decodedOutput = np.zeros(columnDimensions)
@@ -105,15 +107,15 @@ class SPLearnInferenceTest(unittest.TestCase):
 
     random.seed(seed)
     np.random.seed(seed)
-    for i in xrange(numTrainingRecords):
+    for i in range(numTrainingRecords):
       if spVerbosity > 0:
-        print "Input #%d" % i
+        print("Input #%d" % i)
       # TODO: See https://github.com/numenta/nupic/issues/2072
       encodedInput = inputs[i]
       decodedOutput = np.zeros(columnDimensions)
       spLearnInfer.compute(encodedInput, learn=True, activeArray=decodedOutput)
 
-    print "\nElapsed time: %.2f seconds\n" % (time.time() - startTime)
+    print("\nElapsed time: %.2f seconds\n" % (time.time() - startTime))
 
     # Test that both SP"s are identical by checking learning stats
     # A more in depth test would check all the coincidences, duty cycles, etc.
@@ -131,14 +133,14 @@ class SPLearnInferenceTest(unittest.TestCase):
     spLearnOnlyLoaded = pickle.loads(spPickle)
     success = success and spDiff(spLearnOnly, spLearnOnlyLoaded)
     self.assertTrue(success)
-    for k in learnOnlyStats.keys():
+    for k in list(learnOnlyStats.keys()):
       if learnOnlyStats[k] != learnInferStats[k]:
         success = False
-        print "Stat", k, "is different:", learnOnlyStats[k], learnInferStats[k]
+        print("Stat", k, "is different:", learnOnlyStats[k], learnInferStats[k])
 
     self.assertTrue(success)
     if success:
-      print "Test succeeded"
+      print("Test succeeded")
 
 
   @unittest.skip("Currently fails due to switch from FDRCSpatial2 to SpatialPooler."

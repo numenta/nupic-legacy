@@ -19,7 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from __future__ import with_statement
+from six import reraise
+
 
 from copy import copy
 import errno
@@ -85,13 +86,13 @@ class Configuration(ConfigurationBase):
     """
     _getLogger().info("Setting custom configuration properties=%r; caller=%r",
                       properties, traceback.format_stack())
-    
+
     _CustomConfigurationFileWrapper.edit(properties)
-      
-    for propertyName, value in properties.iteritems():
+
+    for propertyName, value in properties.items():
       cls.set(propertyName, value)
 
-  
+
   @classmethod
   def clear(cls):
     """ Clear all configuration properties from in-memory cache, but do NOT
@@ -103,8 +104,8 @@ class Configuration(ConfigurationBase):
 
     # Reset in-memory custom configuration info.
     _CustomConfigurationFileWrapper.clear(persistent=False)
-    
-  
+
+
   @classmethod
   def resetCustomConfig(cls):
     """ Clear all custom configuration settings and delete the persistent
@@ -127,7 +128,7 @@ class Configuration(ConfigurationBase):
     """ Loads custom configuration settings from their persistent storage.
     DO NOT CALL THIS: It's typically not necessary to call this method
     directly - see NOTE below.
-    
+
     NOTE: this method exists *solely* for the benefit of prepare_conf.py, which
     needs to load configuration files selectively.
     """
@@ -173,7 +174,7 @@ class _CustomConfigurationFileWrapper(object):
     if persistent:
       try:
         os.unlink(cls.getPath())
-      except OSError, e:
+      except OSError as e:
         if e.errno != errno.ENOENT:
           _getLogger().exception("Error %s while trying to remove dynamic " \
             "configuration file: %s", e.errno, cls.getPath())
@@ -217,7 +218,7 @@ class _CustomConfigurationFileWrapper(object):
     try:
       with open(configFilePath, 'rb') as fp:
         contents = fp.read()
-    except IOError, e:
+    except IOError as e:
       if e.errno != errno.ENOENT:
         _getLogger().exception("Error %s reading custom configuration store "
           "from %s, while editing properties %s.",
@@ -228,15 +229,14 @@ class _CustomConfigurationFileWrapper(object):
     try:
       elements = ElementTree.XML(contents)
       ElementTree.tostring(elements)
-    except Exception, e:
+    except Exception as e:
       # Raising error as RuntimeError with custom message since ElementTree
       # exceptions aren't clear.
       msg = "File contents of custom configuration is corrupt.  File " \
         "location: %s; Contents: '%s'. Original Error (%s): %s." % \
         (configFilePath, contents, type(e), e)
       _getLogger().exception(msg)
-      raise RuntimeError(msg), None, sys.exc_info()[2]
-
+      reraise(RuntimeError, msg, sys.exc_info()[2])
 
     if elements.tag != 'configuration':
       e = "Expected top-level element to be 'configuration' but got '%s'" % \
@@ -261,7 +261,7 @@ class _CustomConfigurationFileWrapper(object):
           raise RuntimeError(e)
 
     # Add unmatched remaining properties to custom config store
-    for propertyName, value in copyOfProperties.iteritems():
+    for propertyName, value in copyOfProperties.items():
       newProp = ElementTree.Element('property')
       nameTag = ElementTree.Element('name')
       nameTag.text = propertyName
@@ -272,12 +272,12 @@ class _CustomConfigurationFileWrapper(object):
       newProp.append(valueTag)
 
       elements.append(newProp)
-    
+
     try:
       makeDirectoryFromAbsolutePath(os.path.dirname(configFilePath))
       with open(configFilePath,'w') as fp:
         fp.write(ElementTree.tostring(elements))
-    except Exception, e:
+    except Exception as e:
       _getLogger().exception("Error while saving custom configuration "
         "properties %s in %s.", properties, configFilePath)
       raise

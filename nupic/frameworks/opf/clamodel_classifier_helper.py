@@ -33,7 +33,7 @@ class _CLAClassificationRecord(object):
     return obj_slot_values
 
   def __setstate__(self, data_dict):
-    for (name, value) in data_dict.iteritems():
+    for (name, value) in data_dict.items():
       setattr(self, name, value)
 
 
@@ -638,7 +638,7 @@ class CLAModelClassifierHelper(object):
     if '_autoDetectThreshold' not in state:
       self._autoDetectThreshold = 1.1
 
-    for attr, value in state.iteritems():
+    for attr, value in state.items():
       setattr(self, attr, value)
 
     self._version = CLAModelClassifierHelper.__VERSION__

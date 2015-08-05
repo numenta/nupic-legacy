@@ -22,6 +22,8 @@
 
 """Tool for adding anomalies to data sets."""
 
+from __future__ import print_function
+
 import random
 import sys
 
@@ -166,7 +168,7 @@ def sample(reader, writer, n, start=None, stop=None, tsCol=None,
   # Select random rows in the sample range to delete until the desired number
   # of rows are left.
   numDeletes =  initialN - n
-  for i in xrange(numDeletes):
+  for i in range(numDeletes):
     delIndex = random.randint(start, stop - i)
     del rows[delIndex]
   # Remove outside rows if specified.
@@ -238,6 +240,6 @@ def main(args):
 
 if __name__ == "__main__":
   if len(sys.argv) <= 1:
-    print USAGE
+    print(USAGE)
     sys.exit(1)
   main(sys.argv[1:])

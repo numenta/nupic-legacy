@@ -22,7 +22,8 @@
 
 # Add Context Manager (with ...) support for Jython/Python 2.5.x (
 # ClientJobManager used to use Jython); it's a noop in newer Python versions.
-from __future__ import with_statement
+
+from __future__ import print_function
 
 import collections
 import logging
@@ -915,13 +916,13 @@ class ClientJobsDAO(object):
     # ---------------------------------------------------------------------
     # Generate the name conversion dicts
     self._jobs.pubToDBNameDict = dict(
-      zip(self._jobs.publicFieldNames, self._jobs.dbFieldNames))
+      list(zip(self._jobs.publicFieldNames, self._jobs.dbFieldNames)))
     self._jobs.dbToPubNameDict = dict(
-      zip(self._jobs.dbFieldNames, self._jobs.publicFieldNames))
+      list(zip(self._jobs.dbFieldNames, self._jobs.publicFieldNames)))
     self._models.pubToDBNameDict = dict(
-      zip(self._models.publicFieldNames, self._models.dbFieldNames))
+      list(zip(self._models.publicFieldNames, self._models.dbFieldNames)))
     self._models.dbToPubNameDict = dict(
-      zip(self._models.dbFieldNames, self._models.publicFieldNames))
+      list(zip(self._models.dbFieldNames, self._models.publicFieldNames)))
 
 
     # ---------------------------------------------------------------------
@@ -961,14 +962,14 @@ class ClientJobsDAO(object):
 
     assert fieldsToMatch, repr(fieldsToMatch)
     assert all(k in tableInfo.dbFieldNames
-               for k in fieldsToMatch.iterkeys()), repr(fieldsToMatch)
+               for k in fieldsToMatch.keys()), repr(fieldsToMatch)
 
     assert selectFieldNames, repr(selectFieldNames)
     assert all(f in tableInfo.dbFieldNames for f in selectFieldNames), repr(
       selectFieldNames)
 
     # NOTE: make sure match expressions and values are in the same order
-    matchPairs = fieldsToMatch.items()
+    matchPairs = list(fieldsToMatch.items())
     matchExpressionGen = (
       p[0] +
       (' IS ' + {True:'TRUE', False:'FALSE'}[p[1]] if isinstance(p[1], bool)
@@ -2136,8 +2137,8 @@ class ClientJobsDAO(object):
     # Form the sequecce of key=value strings that will go into the
     #  request
     assignmentExpressions = ','.join(
-      ["%s=%%s" % (self._jobs.pubToDBNameDict[f],) for f in fields.iterkeys()])
-    assignmentValues = fields.values()
+      ["%s=%%s" % (self._jobs.pubToDBNameDict[f],) for f in fields.keys()])
+    assignmentValues = list(fields.values())
 
     query = 'UPDATE %s SET %s ' \
             '          WHERE job_id=%%s' \
@@ -2352,24 +2353,24 @@ class ClientJobsDAO(object):
                      particleHash, self._connectionID)
         try:
           numRowsAffected = conn.cursor.execute(query, sqlParams)
-        except Exception, e:
+        except Exception as e:
           # NOTE: We have seen instances where some package in the calling
           #  chain tries to interpret the exception message using unicode.
           #  Since the exception message contains binary data (the hashes), this
           #  can in turn generate a Unicode translation exception. So, we catch
           #  ALL exceptions here and look for the string "Duplicate entry" in
-          #  the exception args just in case this happens. For example, the 
+          #  the exception args just in case this happens. For example, the
           #  Unicode exception we might get is:
           #   (<type 'exceptions.UnicodeDecodeError'>, UnicodeDecodeError('utf8', "Duplicate entry '1000-?.\x18\xb1\xd3\xe0CO\x05\x8b\xf80\xd7E5\xbb' for key 'job_id'", 25, 26, 'invalid start byte'))
-          # 
-          #  If it weren't for this possible Unicode translation error, we 
-          #  could watch for only the exceptions we want, like this:  
+          #
+          #  If it weren't for this possible Unicode translation error, we
+          #  could watch for only the exceptions we want, like this:
           #  except pymysql.IntegrityError, e:
           #    if e.args[0] != mysqlerrors.DUP_ENTRY:
           #      raise
           if "Duplicate entry" not in str(e):
             raise
-          
+
           # NOTE: duplicate entry scenario: however, we can't discern
           # whether it was inserted by another process or this one, because an
           # intermittent failure may have caused us to retry
@@ -2620,8 +2621,8 @@ class ClientJobsDAO(object):
     # Form the sequence of key=value strings that will go into the
     #  request
     assignmentExpressions = ','.join(
-      '%s=%%s' % (self._models.pubToDBNameDict[f],) for f in fields.iterkeys())
-    assignmentValues = fields.values()
+      '%s=%%s' % (self._models.pubToDBNameDict[f],) for f in fields.keys())
+    assignmentValues = list(fields.values())
 
     query = 'UPDATE %s SET %s, update_counter = update_counter+1 ' \
             '          WHERE model_id=%%s' \
@@ -3318,4 +3319,4 @@ if __name__ == "__main__":
   # Print DB name?
   if options.getDBName:
     cjDAO = ClientJobsDAO()
-    print cjDAO.dbName
+    print(cjDAO.dbName)

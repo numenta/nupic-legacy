@@ -27,7 +27,7 @@
 import json
 import sys
 
-NON_OBJECT_TYPES = (type(None), bool, int, float, long, str, unicode)
+NON_OBJECT_TYPES = (type(None), bool, int, float, int, str, str)
 
 
 class Types(object):
@@ -46,9 +46,9 @@ def getImportPath(obj):
 
 def convertDict(obj):
   obj = dict(obj)
-  for k, v in obj.items():
+  for k, v in list(obj.items()):
     del obj[k]
-    if not (isinstance(k, str) or isinstance(k, unicode)):
+    if not (isinstance(k, str) or isinstance(k, str)):
       k = dumps(k)
       # Keep track of which keys need to be decoded when loading.
       if Types.KEYS not in obj:
@@ -67,7 +67,7 @@ def restoreKeysPostDecoding(obj):
         newKey = loads(k)
         obj[newKey] = v
       del obj[Types.KEYS]
-    for k, v in obj.items():
+    for k, v in list(obj.items()):
       if isinstance(v, dict):
         obj[k] = restoreKeysPostDecoding(v)
   elif isinstance(obj, list):
@@ -94,8 +94,8 @@ def convertObjects(obj):
     if hasattr(obj, '__getstate__'):
       state = obj.__getstate__()
     elif hasattr(obj, '__slots__'):
-      values = map(lambda x: getattr(obj, x), obj.__slots__)
-      state = dict(zip(obj.__slots__, values))
+      values = [getattr(obj, x) for x in obj.__slots__]
+      state = dict(list(zip(obj.__slots__, values)))
     elif hasattr(obj, '__dict__'):
       state = obj.__dict__
     else:
@@ -138,7 +138,7 @@ def objectDecoderHook(obj):
       if hasattr(instance, '__setstate__'):
         instance.__setstate__(attrs)
       else:
-        for k, v in attrs.iteritems():
+        for k, v in attrs.items():
           setattr(instance, k, v)
       return instance
   return obj

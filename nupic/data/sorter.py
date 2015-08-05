@@ -20,6 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from __future__ import print_function
+
 import os
 import sys
 from operator import itemgetter
@@ -187,26 +189,26 @@ def _mergeFiles(key, chunkCount, outputFile, fields):
 
 def writeTestFile(testFile, fields, big):
   if big:
-    print 'Creating big test file (763MB)...'
+    print('Creating big test file (763MB)...')
     payload = 'x' * 10 ** 8
   else:
-    print 'Creating a small big test file...'
+    print('Creating a small big test file...')
     payload = 'x' * 3
   with FileRecordStream(testFile, write=True, fields=fields) as o:
-    print '.'; o.appendRecord([1,3,6, payload])
-    print '.'; o.appendRecord([2,3,6, payload])
-    print '.'; o.appendRecord([1,4,6, payload])
-    print '.'; o.appendRecord([2,4,6, payload])
-    print '.'; o.appendRecord([1,3,5, payload])
-    print '.'; o.appendRecord([2,3,5, payload])
-    print '.'; o.appendRecord([1,4,5, payload])
-    print '.'; o.appendRecord([2,4,5, payload])
+    print('.'); o.appendRecord([1,3,6, payload])
+    print('.'); o.appendRecord([2,3,6, payload])
+    print('.'); o.appendRecord([1,4,6, payload])
+    print('.'); o.appendRecord([2,4,6, payload])
+    print('.'); o.appendRecord([1,3,5, payload])
+    print('.'); o.appendRecord([2,3,5, payload])
+    print('.'); o.appendRecord([1,4,5, payload])
+    print('.'); o.appendRecord([2,4,5, payload])
 
 def test(long):
   import shutil
   from tempfile import gettempdir
 
-  print 'Running sorter self-test...'
+  print('Running sorter self-test...')
 
   # Switch to a temp dir in order to create files freely
   workDir = os.path.join(gettempdir(), 'sorter_test')
@@ -214,7 +216,7 @@ def test(long):
     shutil.rmtree(workDir)
   os.makedirs(workDir)
   os.chdir(workDir)
-  print 'cwd:', os.getcwd()
+  print('cwd:', os.getcwd())
 
   # The fields definition used by all tests
   fields = [
@@ -227,7 +229,7 @@ def test(long):
   # Create a test file
   testFile = '1.csv'
   if not os.path.isfile(testFile):
-    writeTestFile(testFile, fields, big=long)
+    writeTestFile(testFile, fields, big=int)
 
   # Set watermark here to 300MB bellow current available memory. That ensures
   # multiple chunk files in the big testcase
@@ -235,7 +237,7 @@ def test(long):
   mem = psutil.avail_phymem()
   watermark = mem - 300 * 1024 * 1024
 
-  print 'Test sorting by f1 and f2, watermak:', watermark
+  print('Test sorting by f1 and f2, watermak:', watermark)
   results = []
   sort(testFile,
        key=['f1', 'f2'],
@@ -259,7 +261,7 @@ def test(long):
 
   mem = psutil.avail_phymem()
   watermark = mem - 300 * 1024 * 1024
-  print 'Test sorting by f2 and f1, watermark:', watermark
+  print('Test sorting by f2 and f1, watermark:', watermark)
   results = []
   sort(testFile,
        key=['f2', 'f1'],
@@ -282,7 +284,7 @@ def test(long):
 
   mem = psutil.avail_phymem()
   watermark = mem - 300 * 1024 * 1024
-  print 'Test sorting by f3 and f2, watermark:', watermark
+  print('Test sorting by f3 and f2, watermark:', watermark)
   results = []
   sort(testFile,
        key=['f3', 'f2'],
@@ -308,9 +310,9 @@ def test(long):
   os.chdir('..')
   shutil.rmtree(workDir)
 
-  print 'done'
+  print('done')
 
 if __name__=='__main__':
-  print 'Starting tests...'
+  print('Starting tests...')
   test('--long' in sys.argv)
-  print 'All tests pass'
+  print('All tests pass')

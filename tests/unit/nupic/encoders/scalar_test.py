@@ -138,8 +138,8 @@ class ScalarEncoderTest(unittest.TestCase):
       (fieldsDict, fieldNames) = decoded
       self.assertEqual(len(fieldsDict), 1)
       self.assertEqual(len(fieldNames), 1)
-      self.assertEqual(fieldNames, fieldsDict.keys())
-      (ranges, _) = fieldsDict.values()[0]
+      self.assertEqual(fieldNames, list(fieldsDict.keys()))
+      (ranges, _) = list(fieldsDict.values())[0]
       self.assertEqual(len(ranges), 1)
       (rangeMin, rangeMax) = ranges[0]
       self.assertEqual(rangeMin, rangeMax)
@@ -170,7 +170,7 @@ class ScalarEncoderTest(unittest.TestCase):
     decoded = l.decode(numpy.array([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]))
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldsDict), 1)
-    (ranges, _) = fieldsDict.values()[0]
+    (ranges, _) = list(fieldsDict.values())[0]
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [7.5, 7.5]))
 
@@ -178,7 +178,7 @@ class ScalarEncoderTest(unittest.TestCase):
     decoded = l.decode(numpy.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]))
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldsDict), 1)
-    (ranges, _) = fieldsDict.values()[0]
+    (ranges, _) = list(fieldsDict.values())[0]
     self.assertEqual(len(ranges), 2)
     self.assertTrue(numpy.array_equal(ranges[0], [7.5, 8]))
     self.assertTrue(numpy.array_equal(ranges[1], [1, 1]))
@@ -187,7 +187,7 @@ class ScalarEncoderTest(unittest.TestCase):
     decoded = l.decode(numpy.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldsDict), 1)
-    (ranges, _) = fieldsDict.values()[0]
+    (ranges, _) = list(fieldsDict.values())[0]
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [1.5, 2.5]))
 
@@ -195,7 +195,7 @@ class ScalarEncoderTest(unittest.TestCase):
     decoded = l.decode(numpy.array([1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0]))
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldsDict), 1)
-    (ranges, _) = fieldsDict.values()[0]
+    (ranges, _) = list(fieldsDict.values())[0]
     self.assertEqual(len(ranges), 2)
     self.assertTrue(numpy.array_equal(ranges[0], [1.5, 1.5]))
     self.assertTrue(numpy.array_equal(ranges[1], [5.5, 6.0]))
@@ -204,7 +204,7 @@ class ScalarEncoderTest(unittest.TestCase):
     decoded = l.decode(numpy.array([0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0]))
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldsDict), 1)
-    (ranges, _) = fieldsDict.values()[0]
+    (ranges, _) = list(fieldsDict.values())[0]
     self.assertTrue(len(ranges), 2)
     self.assertTrue(numpy.array_equal(ranges[0], [1.5, 1.5]))
     self.assertTrue(numpy.array_equal(ranges[1], [5.5, 6.0]))
@@ -215,7 +215,7 @@ class ScalarEncoderTest(unittest.TestCase):
     encoder = ScalarEncoder(w=7, minval=0, maxval=7, radius=1, periodic=True,
                             name="day of week", forced=True)
     scores = encoder.closenessScores((2, 4, 7), (4, 2, 1), fractional=False)
-    for actual, score in itertools.izip((2, 2, 1), scores):
+    for actual, score in zip((2, 2, 1), scores):
       self.assertEqual(actual, score)
 
 
@@ -259,7 +259,7 @@ class ScalarEncoderTest(unittest.TestCase):
 
       (fieldsDict, _) = decoded
       self.assertEqual(len(fieldsDict), 1)
-      (ranges, _) = fieldsDict.values()[0]
+      (ranges, _) = list(fieldsDict.values())[0]
       self.assertEqual(len(ranges), 1)
       (rangeMin, rangeMax) = ranges[0]
       self.assertEqual(rangeMin, rangeMax)
@@ -284,14 +284,14 @@ class ScalarEncoderTest(unittest.TestCase):
     decoded = l.decode(numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1]))
     (fieldsDict, _) = decoded
     self.assertEqual(len(fieldsDict), 1)
-    (ranges, _) = fieldsDict.values()[0]
+    (ranges, _) = list(fieldsDict.values())[0]
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [10, 10]))
 
     decoded = l.decode(numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1]))
     (fieldsDict, _) = decoded
     self.assertEqual(len(fieldsDict), 1)
-    (ranges, _) = fieldsDict.values()[0]
+    (ranges, _) = list(fieldsDict.values())[0]
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [10, 10]))
 
@@ -332,7 +332,7 @@ class ScalarEncoderTest(unittest.TestCase):
 
       (fieldsDict, _) = decoded
       self.assertEqual(len(fieldsDict), 1)
-      (ranges, _) = fieldsDict.values()[0]
+      (ranges, _) = list(fieldsDict.values())[0]
       self.assertEqual(len(ranges), 1)
       (rangeMin, rangeMax) = ranges[0]
       self.assertEqual(rangeMin, rangeMax)
@@ -355,7 +355,7 @@ class ScalarEncoderTest(unittest.TestCase):
 
       (fieldsDict, _) = decoded
       self.assertEqual(len(fieldsDict), 1)
-      (ranges, _) = fieldsDict.values()[0]
+      (ranges, _) = list(fieldsDict.values())[0]
       self.assertEqual(len(ranges), 1)
       (rangeMin, rangeMax) = ranges[0]
       self.assertEqual(rangeMin, rangeMax)

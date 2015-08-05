@@ -28,17 +28,16 @@ data source (e.g., .csv file or database, etc.), prediction sink (.csv file or
 databse, etc.), report and serialization destination,  etc.
 """
 
-
+from six import with_metaclass
 
 from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 
 
 
-class PredictionLoggerIface(object):
+class PredictionLoggerIface(with_metaclass(ABCMeta, object)):
   """ This class defines the interface for OPF prediction logger implementations.
   """
-  __metaclass__ = ABCMeta
 
   @abstractmethod
   def close(self):

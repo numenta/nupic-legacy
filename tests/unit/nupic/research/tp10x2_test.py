@@ -26,7 +26,7 @@ import unittest2 as unittest
 
 from nupic.research.TP10X2 import TP10X2
 
-import tp_test
+from . import tp_test
 
 # Run the Python TP test against the TP10X2.
 tp_test.TP = TP10X2

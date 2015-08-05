@@ -27,6 +27,7 @@ stats.py defines functions and data structures related to statistical analysis.
 import random
 
 import numpy
+from functools import reduce
 
 
 dtype = GetNTAReal()
@@ -347,12 +348,12 @@ class ConditionalProbabilityTable2D(object):
     has been called since the last clean_outcpd().
     """
     m = self.hist_.toDense()
-    for j in xrange(m.shape[1]): # For each column.
+    for j in range(m.shape[1]): # For each column.
       cmax = m[:,j].max()
       if cmax:
         m[:,j] = numpy.array(m[:,j] == cmax, dtype=dtype)
     self.hack_ = SparseMatrix(0, self.hist_.nCols())
-    for i in xrange(m.shape[0]):
+    for i in range(m.shape[0]):
       self.hack_.addRow(m[i,:])
 
 def ShannonEntropy(x):
@@ -388,9 +389,9 @@ def fuzzyKmeans(samples,fixCenter=None,iter=5,fuzzParam=1.5):
        dMeans = [min(samples)+0.01 , fixCenter ,max(samples)-0.01]
     else:
        dMeans = [min(samples)+0.01 , mean(samples) ,max(samples)-0.01]
-    begDeg = map(None,numpy.zeros(len(samples)))
-    midDeg = map(None,numpy.zeros(len(samples)))
-    endDeg = map(None,numpy.zeros(len(samples)))
+    begDeg = list(numpy.zeros(len(samples)))
+    midDeg = list(numpy.zeros(len(samples)))
+    endDeg = list(numpy.zeros(len(samples)))
 
     for j in range(iter):
        for k in range(len(samples)):

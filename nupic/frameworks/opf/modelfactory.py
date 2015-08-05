@@ -29,10 +29,10 @@ import logging
 import nupic.frameworks.opf.opfutils as opfutils
 
 # Import models
-from clamodel import CLAModel
-from model import Model
-from two_gram_model import TwoGramModel
-from previousvaluemodel import PreviousValueModel
+from .clamodel import CLAModel
+from .model import Model
+from .two_gram_model import TwoGramModel
+from .previousvaluemodel import PreviousValueModel
 
 class ModelFactory(object):
   """ Static factory class that produces a Model based on a description dict.

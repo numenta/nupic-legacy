@@ -260,7 +260,7 @@ class Connections(object):
     """
     protoCells = proto.init('cells', self.numCells)
 
-    for cell in xrange(self.numCells):
+    for cell in range(self.numCells):
       segments = self.segmentsForCell(cell)
       protoSegments = protoCells[cell].init('segments', len(segments))
 
@@ -288,16 +288,16 @@ class Connections(object):
     protoCells = proto.cells
     connections = cls(len(protoCells))
 
-    for i in xrange(len(protoCells)):
+    for i in range(len(protoCells)):
       protoCell = protoCells[i]
       protoSegments = protoCell.segments
 
-      for j in xrange(len(protoSegments)):
+      for j in range(len(protoSegments)):
         protoSegment = protoSegments[j]
         protoSynapses = protoSegment.synapses
         segment = connections.createSegment(i)
 
-        for k in xrange(len(protoSynapses)):
+        for k in range(len(protoSynapses)):
           protoSynapse = protoSynapses[k]
           synapse = connections.createSynapse(segment,
                                               int(protoSynapse.presynapticCell),
@@ -316,7 +316,7 @@ class Connections(object):
     """
     if self.numCells != other.numCells: return False
 
-    for cell in xrange(self.numCells):
+    for cell in range(self.numCells):
       segmentSet = set()
       for segment in self.segmentsForCell(cell):
         synapseSet = self._synapseSetForSynapses(
