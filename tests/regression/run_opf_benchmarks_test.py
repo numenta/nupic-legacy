@@ -46,7 +46,7 @@ from nupic.frameworks.opf.opfutils import InferenceType
 from nupic.support.configuration import Configuration
 from nupic.support.unittesthelpers.testcasebase import unittest
 from nupic.swarming import permutations_runner
-from nupic.swarming.utils import generatePersistentJobGUID
+from nupic.swarming.hypersearch.utils import generatePersistentJobGUID
 
 
 
@@ -1259,7 +1259,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     self.resultDB[expname + ',' + searchMethod] = resultdict
     self.__resultList.append(resultdict)
     if (resultdict['metric'] / benchmark[0]) > (1+benchmark[1]):
-      print "HyperSearch %s on %s benchmark did not match " \
+      print "hypersearch %s on %s benchmark did not match " \
         "the expected value. (Expected: %f    Observed:  %f)" % \
         (searchMethod, expname, benchmark[0], resultdict['metric'])
       self.__failures+=1

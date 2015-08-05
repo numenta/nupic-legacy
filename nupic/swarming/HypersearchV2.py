@@ -36,14 +36,14 @@ from operator import itemgetter
 from nupic.data import dictutils
 from nupic.frameworks.opf import opfhelpers
 from nupic.frameworks.opf.opfutils import InferenceType
-from nupic.support import clippedObj
+from nupic.swarming.hypersearch.utils import clippedObj
 from nupic.support.serializationutils import sortedJSONDumpS
 from nupic.support.configuration import Configuration
 from nupic.support.errorcodes import ErrorCodes
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
-from nupic.swarming.utils import (runModelGivenBaseAndParams,
-                                                  runDummyModel)
+from nupic.swarming.hypersearch.utils import (runModelGivenBaseAndParams,
+                                              runDummyModel)
 from nupic.swarming.permutationhelpers import *
 from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 
@@ -2943,7 +2943,7 @@ class HypersearchV2(object):
 
   def getExpectedNumModels(self):
     """Computes the number of models that are expected to complete as part of
-    this instances's HyperSearch.
+    this instances's hypersearch.
 
     NOTE: This is compute-intensive for HyperSearches with a huge number of
     combinations.
@@ -2960,7 +2960,7 @@ class HypersearchV2(object):
 
   def getModelNames(self):
     """Generates a list of model names that are expected to complete as part of
-    this instances's HyperSearch.
+    this instances's hypersearch.
 
     NOTE: This is compute-intensive for HyperSearches with a huge number of
     combinations.

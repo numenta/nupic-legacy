@@ -33,7 +33,7 @@ import StringIO
 import traceback
 
 from nupic.data import jsonhelpers
-from nupic.support import clippedObj
+from nupic.swarming.hypersearch.utils import clippedObj
 from nupic.support import initLogging
 from nupic.support.configuration import Configuration
 from nupic.support.ExtendedLogger import ExtendedLogger
