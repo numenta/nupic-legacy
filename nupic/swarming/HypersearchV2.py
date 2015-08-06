@@ -39,7 +39,7 @@ from nupic.frameworks.opf.opfutils import InferenceType
 from nupic.support import clippedObj
 from nupic.support.serializationutils import sortedJSONDumpS
 from nupic.support.configuration import Configuration
-from nupic.support.errorcodes import ErrorCodes
+from nupic.swarming.hypersearch.errorcodes import ErrorCodes
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
 from nupic.swarming.utils import (runModelGivenBaseAndParams,
