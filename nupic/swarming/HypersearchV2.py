@@ -36,13 +36,13 @@ from operator import itemgetter
 from nupic.data import dictutils
 from nupic.frameworks.opf import opfhelpers
 from nupic.frameworks.opf.opfutils import InferenceType
-from nupic.support import clippedObj
+from nupic.swarming.hypersearch.utils import clippedObj
 from nupic.support.serializationutils import sortedJSONDumpS
 from nupic.support.configuration import Configuration
 from nupic.support.errorcodes import ErrorCodes
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
-from nupic.swarming.utils import (runModelGivenBaseAndParams,
+from nupic.swarming.hypersearch.utils import (runModelGivenBaseAndParams,
                                                   runDummyModel)
 from nupic.swarming.permutationhelpers import *
 from nupic.swarming.exp_generator.ExpGenerator import expGenerator

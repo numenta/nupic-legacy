@@ -48,7 +48,7 @@ from nupic.support.unittesthelpers.testcasebase import (unittest,
     TestCaseBase as HelperTestCaseBase)
 from nupic.swarming import HypersearchWorker
 from nupic.swarming.api import getSwarmModelParams, createAndStartSwarm
-from nupic.swarming.utils import generatePersistentJobGUID
+from nupic.swarming.hypersearch.utils import generatePersistentJobGUID
 from nupic.swarming.DummyModelRunner import OPFDummyModelRunner
 
 DEFAULT_JOB_TIMEOUT_SEC = 60 * 2
