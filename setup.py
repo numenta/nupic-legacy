@@ -2,6 +2,7 @@ import glob
 import numpy
 import os
 import re
+import setuptools
 import shutil
 import sys
 import tarfile
@@ -21,6 +22,8 @@ DARWIN_PLATFORM = "darwin"
 LINUX_PLATFORM = "linux"
 UNIX_PLATFORMS = [LINUX_PLATFORM, DARWIN_PLATFORM]
 WINDOWS_PLATFORMS = ["windows"]
+
+print "setuptools version: {}".format(setuptools.__version__)
 
 
 
@@ -196,7 +199,7 @@ def parse_file(requirementFile):
     return []
 
 
-def findRequirements(nupicCoreReleaseDir, options):
+def findRequirements(nupicCoreReleaseDir):
   """
   Read the requirements.txt file and parse into requirements for setup's
   install_requirements option.
@@ -204,23 +207,20 @@ def findRequirements(nupicCoreReleaseDir, options):
   requirementsPath = os.path.join(REPO_DIR, "external/common/requirements.txt")
   coreRequirementsPath = os.path.join(nupicCoreReleaseDir, "requirements.txt")
   
-  requirements = []
+  dependencies = []
   # use develop nupiccore bindings. not PYPI
   wheelFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.whl"))
   for wheel in wheelFiles:
-    requirements.append(wheel)
+    dependencies.append(wheel)
   eggFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.egg"))
   for egg in eggFiles:
-    requirements.append(egg)
+    dependencies.append(egg)
 
-  if requirements:
-    requirements += parse_file(requirementsPath)
-  else:
-    requirements += [r for r in parse_file(requirementsPath) if not r.startswith("nupiccore")]
+  requirements = parse_file(requirementsPath)
 
   requirements += parse_file(coreRequirementsPath)
    
-  return requirements
+  return requirements, dependencies
 
 
 
@@ -388,10 +388,12 @@ if __name__ == "__main__":
 
     copyProtoFiles(nupicCoreReleaseDir)
 
+    requirements, dependencies = findRequirements(nupicCoreReleaseDir)
     setup(
       name="nupic",
       version=getVersion(),
-      install_requires=findRequirements(nupicCoreReleaseDir, options),
+      install_requires=requirements,
+      dependency_links=dependencies,
       packages=find_packages(),
       namespace_packages = ["nupic", "nupic.bindings"],
       package_data={
