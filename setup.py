@@ -206,17 +206,19 @@ def findRequirements(nupicCoreReleaseDir, options):
   
   requirements = []
   # use develop nupiccore bindings. not PYPI
-  if getCommandLineOption("nupic-core-dir", options) is not None:
-    wheelFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.whl"))
-    for wheel in wheelFiles:
-      requirements.append(wheel)
-  
-  if requirements:
-    requirements += parse_file(coreRequirementsPath)
-  else:
-    requirements += [r for r in parse_file(coreRequirementsPath) if "nupiccore" not in r]
+  wheelFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.whl"))
+  for wheel in wheelFiles:
+    requirements.append(wheel)
+  eggFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.egg"))
+  for egg in eggFiles:
+    requirements.append(egg)
 
-  requirements += parse_file(requirementsPath)
+  if requirements:
+    requirements += parse_file(requirementsPath)
+  else:
+    requirements += [r for r in parse_file(requirementsPath) if not r.startswith("nupiccore")]
+
+  requirements += parse_file(coreRequirementsPath)
    
   return requirements
 
