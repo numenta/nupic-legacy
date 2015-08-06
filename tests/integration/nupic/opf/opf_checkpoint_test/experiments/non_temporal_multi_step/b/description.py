@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-
-# ----------------------------------------------------------------------
-#  Copyright (C) 2011 Numenta Inc. All rights reserved.
-#
-#  The information and source code contained herein is the
-#  exclusive property of Numenta Inc. No part of this software
-#  may be used, reproduced, stored or distributed in any form,
-#  without explicit written authorization from Numenta Inc.
-=======
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2011-2015, Numenta, Inc.  Unless you have an agreement
@@ -27,7 +17,6 @@
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
->>>>>>> master
 # ----------------------------------------------------------------------
 
 ## This file defines parameters for a prediction experiment.
