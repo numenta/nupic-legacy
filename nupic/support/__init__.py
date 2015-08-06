@@ -566,76 +566,37 @@ def enableLoggingErrorDebugging():
     handler.handleError = handleErrorPatch
   
   return
-  
-  
 
-def clippedObj(obj, maxElementSize=64):
+
+
+def intto8bytearray(invalue):
   """
-  Return a clipped version of obj suitable for printing, This
-  is useful when generating log messages by printing data structures, but
-  don't want the message to be too long.
-
-  If passed in a dict, list, or namedtuple, each element of the structure's
-  string representation will be limited to 'maxElementSize' characters. This
-  will return a new object where the string representation of each element
-  has been truncated to fit within maxElementSize.
-  """
-
-  # Is it a named tuple?
-  if hasattr(obj, '_asdict'):
-    obj = obj._asdict()
-
-
-  # Printing a dict?
-  if isinstance(obj, dict):
-    objOut = dict()
-    for key,val in obj.iteritems():
-      objOut[key] = clippedObj(val)
-
-  # Printing a list?
-  elif hasattr(obj, '__iter__'):
-    objOut = []
-    for val in obj:
-      objOut.append(clippedObj(val))
-
-  # Some other object
-  else:
-    objOut = str(obj)
-    if len(objOut) > maxElementSize:
-      objOut = objOut[0:maxElementSize] + '...'
-
-  return objOut
-
-
-
-def intTo8ByteArray(inValue):
-  """
-  Converts an int to a packed byte array, with left most significant byte
+  converts an int to a packed byte array, with left most significant byte
   """
 
   values = (
-    (inValue >> 56 ) & 0xff,
-    (inValue >> 48 ) & 0xff,
-    (inValue >> 40 ) & 0xff,
-    (inValue >> 32 ) & 0xff,
-    (inValue >> 24 ) & 0xff,
-    (inValue >> 16 ) & 0xff,
-    (inValue >> 8 ) & 0xff,
-    inValue & 0xff
+    (invalue >> 56 ) & 0xff,
+    (invalue >> 48 ) & 0xff,
+    (invalue >> 40 ) & 0xff,
+    (invalue >> 32 ) & 0xff,
+    (invalue >> 24 ) & 0xff,
+    (invalue >> 16 ) & 0xff,
+    (invalue >> 8 ) & 0xff,
+    invalue & 0xff
   )
 
-  s = struct.Struct('B B B B B B B B')
+  s = struct.struct('b b b b b b b b')
   packed_data = s.pack(*values)
 
   return packed_data
 
 
 
-def byteArrayToInt(packed_data):
+def bytearraytoint(packed_data):
   """
-  Converts a byte array into an integer
+  converts a byte array into an integer
   """
-  value = struct.unpack('B B B B B B B B', packed_data)
+  value = struct.unpack('b b b b b b b b', packed_data)
   return value[0] << 56 | \
          value[1] << 48 | \
          value[2] << 40 | \
@@ -647,12 +608,12 @@ def byteArrayToInt(packed_data):
 
 
 
-def getSpecialRowID():
+def getspecialrowid():
   """
-  Special row id is 0xFF FFFF FFFF FFFF FFFF (9 bytes of 0xFF)
+  special row id is 0xff ffff ffff ffff ffff (9 bytes of 0xff)
   """
-  values = (0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)
-  s = struct.Struct('B B B B B B B B B')
+  values = (0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff)
+  s = struct.struct('b b b b b b b b b')
   packed_data = s.pack(*values)
 
   return packed_data
