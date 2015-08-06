@@ -39,7 +39,7 @@ from nupic.frameworks.opf.periodic import (PeriodicActivityMgr,
                                            PeriodicActivityRequest)
 from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
 from nupic.support.configuration import Configuration
-from nupic.support.errorcodes import ErrorCodes
+from nupic.swarming.hypersearch.errorcodes import ErrorCodes
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.swarming import regression
 from nupic.swarming import utils

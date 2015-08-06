@@ -37,7 +37,7 @@ class KNNClassifierRegion(PyRegion):
   By default it will implement vanilla 1-nearest neighbor using the L2 (Euclidean)
   distance norm.  There are options for using different norms as well as
   various ways of sparsifying the input.
-  
+
   Note: categories are ints >= 0.
   """
 
