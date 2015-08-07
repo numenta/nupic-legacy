@@ -35,6 +35,5 @@ This file declares all dependencies NuPIC has on third-party code, including the
 - pytest-xdist ([MIT License](https://bitbucket.org/pytest-dev/pytest-xdist/src/00cfff4834e718fd3c1ccec40811e734d796f631/LICENSE?at=default))
 - python-dateutil ([License](http://bazaar.launchpad.net/~dateutil/dateutil/trunk/view/head:/LICENSE))
 - PyYAML ([License](https://bitbucket.org/xi/pyyaml/src/ddf211a41bb231c365fece5599b7e484e6dc33fc/LICENSE?at=default))
-- tweepy ([MIT License](https://github.com/tweepy/tweepy/blob/master/LICENSE))
 - unittest2 ([BSD License](https://pypi.python.org/pypi/unittest2))
 - validictory ([License](https://github.com/sunlightlabs/validictory/blob/master/LICENSE.txt))
