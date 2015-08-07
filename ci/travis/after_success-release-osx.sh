@@ -26,10 +26,8 @@ echo
 
 echo "Installing wheel..."
 pip install wheel --user || exit
-# `sudo install twine` doesn't put twine in a place we can use it, so we install
-# it at the --user level.
 echo "Installing twine..."
-pip install twine --user -v || exit
+pip install twine --user || exit
 
 # Twine gets installed into /Users/travis/Library/Python/2.7/bin, which needs to
 # be added to the PATH

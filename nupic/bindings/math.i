@@ -82,7 +82,7 @@ _MATH = _math
 #include <nupic/utils/Random.hpp>
 #include <numpy/arrayobject.h>
 
-#include <py_support/PyCapnp.hpp>
+#include <nupic/py_support/PyCapnp.hpp>
 %}
 
 %naturalvar;

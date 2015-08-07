@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013,2015, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -29,18 +29,24 @@ class FunctionSource(object):
   and user-supplied state. It knows how to serialize
   its function -- this allows a network to be saved."""
 
+  SEQUENCEINFO_RESET_ONLY = 0
+  SEQUENCEINFO_SEQUENCEID_ONLY = 1
+  SEQUENCEINFO_BOTH = 2
+  SEQUENCEINFO_NONE = 3
 
-  def __init__(self, func, state=None, resetFieldName=None, sequenceIdFieldName=None):
+
+  def __init__(self,
+               func,
+               state=None,
+               resetFieldName=None,
+               sequenceIdFieldName=None):
+
     self.func = func
     self.state = state
     self.resetFieldName = resetFieldName
     self.sequenceIdFieldName = sequenceIdFieldName
     self._cacheSequenceInfoType()
 
-  SEQUENCEINFO_RESET_ONLY = 0
-  SEQUENCEINFO_SEQUENCEID_ONLY = 1
-  SEQUENCEINFO_BOTH = 2
-  SEQUENCEINFO_NONE = 3
 
   def _cacheSequenceInfoType(self):
     """Figure out whether reset, sequenceId,
@@ -83,7 +89,8 @@ class FunctionSource(object):
       reset = result[self.resetFieldName]
       sequenceId = result[self.sequenceIdFieldName]
     else:
-      raise RuntimeError("Internal error -- sequence info type not set in RecordSensor")
+      raise RuntimeError(
+          "Internal error -- sequence info type not set in RecordSensor")
 
     # convert to int. Note hash(int) = same value
     sequenceId = hash(sequenceId)
@@ -91,7 +98,7 @@ class FunctionSource(object):
 
     result["_reset"] = reset
     result["_sequenceId"] = sequenceId
-    result["_category"] = None
+    result["_category"] = [None]
 
     return result
 
