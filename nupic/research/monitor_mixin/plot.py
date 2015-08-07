@@ -22,6 +22,8 @@
 """
 Plot class used in monitor mixin framework.
 """
+
+import os
 import traceback
 
 try:
@@ -121,8 +123,10 @@ class Plot(object):
       plt.draw()
 
     if name is not None:
-    plt.savefig("log/{name}.png".format(name=name), bbox_inches="tight",
-                figsize=(8, 6), dpi=400)
+      if not os.path.exists("log"):
+        os.mkdir("log")
+      plt.savefig("log/{name}.png".format(name=name), bbox_inches="tight",
+                  figsize=(8, 6), dpi=400)
 
 
 

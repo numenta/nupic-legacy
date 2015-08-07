@@ -25,7 +25,7 @@ Temporal Memory mixin that enables detailed monitoring of history.
 
 from collections import defaultdict
 
-import numpy, copy
+import copy
 
 from prettytable import PrettyTable
 
@@ -33,7 +33,6 @@ from nupic.research.monitor_mixin.metric import Metric
 from nupic.research.monitor_mixin.monitor_mixin_base import MonitorMixinBase
 from nupic.research.monitor_mixin.trace import (IndicesTrace, CountsTrace,
                                                 BoolsTrace, StringsTrace)
-from nupic.research.monitor_mixin.plot import Plot
 
 
 
@@ -419,9 +418,6 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     """
     if activityType == "predictedActiveCells":
       self._mmComputeTransitionTraces()
-
-    # If the trace contains ConnectionsCell, convert them to int
-    #print type(self._mmTraces["activeCells"].data[0])
 
     cellTrace = copy.deepcopy(self._mmTraces[activityType].data)
     for i in xrange(len(cellTrace)):
