@@ -23,8 +23,6 @@ LINUX_PLATFORM = "linux"
 UNIX_PLATFORMS = [LINUX_PLATFORM, DARWIN_PLATFORM]
 WINDOWS_PLATFORMS = ["windows"]
 
-print "setuptools version: {}".format(setuptools.__version__)
-
 
 
 def downloadFile(url, destFile, silent=False):
@@ -370,6 +368,9 @@ def postProcess():
     shutil.copy(binFile, REPO_DIR + "/bin")
 
 if __name__ == "__main__":
+  print "setuptools version: {}".format(setuptools.__version__)
+  print "numpy version: {}".format(numpy.__version__)
+
   options = getCommandLineOptions()
   platform, bitness = getPlatformInfo()
 
@@ -403,6 +404,7 @@ if __name__ == "__main__":
         "nupic.data": ["*.json"],
         "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
         "nupic.frameworks.opf.jsonschema": ["*.json"],
+        "nupic.swarming.exp_generator": ["*.json", "*.tpl"],
         "nupic.swarming.jsonschema": ["*.json"],
         "nupic.datafiles": ["*.csv", "*.txt"],
         "nupic.encoders": ["*.capnp"],

@@ -31,8 +31,13 @@ git clone https://github.com/numenta/nupic-darwin64.git
 echo ">>> Activating nupic-darwin64..."
 source nupic-darwin64/bin/activate
 
+pip install --upgrade pip
 pip uninstall numpy --yes
+pip install wheel --user
 pip install numpy==1.9.2 --user
+SITEPACKAGES=`pip show numpy | grep -i location | tr " " "\n" | grep site-packages`
+echo $SITEPACKAGES
+export PYTHONPATH="$SITEPACKAGES:$PYTHONPATH"
 
 # Install and start MySQL on OSX
 echo ">>> brew install mysql"
