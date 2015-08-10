@@ -569,34 +569,34 @@ def enableLoggingErrorDebugging():
 
 
 
-def intto8bytearray(invalue):
+def intTo8ByteArray(inValue):
   """
-  converts an int to a packed byte array, with left most significant byte
+  Converts an int to a packed byte array, with left most significant byte
   """
 
   values = (
-    (invalue >> 56 ) & 0xff,
-    (invalue >> 48 ) & 0xff,
-    (invalue >> 40 ) & 0xff,
-    (invalue >> 32 ) & 0xff,
-    (invalue >> 24 ) & 0xff,
-    (invalue >> 16 ) & 0xff,
-    (invalue >> 8 ) & 0xff,
-    invalue & 0xff
+    (inValue >> 56 ) & 0xff,
+    (inValue >> 48 ) & 0xff,
+    (inValue >> 40 ) & 0xff,
+    (inValue >> 32 ) & 0xff,
+    (inValue >> 24 ) & 0xff,
+    (inValue >> 16 ) & 0xff,
+    (inValue >> 8 ) & 0xff,
+    inValue & 0xff
   )
 
-  s = struct.struct('b b b b b b b b')
+  s = struct.Struct('B B B B B B B B')
   packed_data = s.pack(*values)
 
   return packed_data
 
 
 
-def bytearraytoint(packed_data):
+def byteArrayToInt(packed_data):
   """
-  converts a byte array into an integer
+  Converts a byte array into an integer
   """
-  value = struct.unpack('b b b b b b b b', packed_data)
+  value = struct.unpack('B B B B B B B B', packed_data)
   return value[0] << 56 | \
          value[1] << 48 | \
          value[2] << 40 | \
@@ -608,12 +608,12 @@ def bytearraytoint(packed_data):
 
 
 
-def getspecialrowid():
+def getSpecialRowID():
   """
-  special row id is 0xff ffff ffff ffff ffff (9 bytes of 0xff)
+  Special row id is 0xFF FFFF FFFF FFFF FFFF (9 bytes of 0xFF)
   """
-  values = (0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff)
-  s = struct.struct('b b b b b b b b b')
+  values = (0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)
+  s = struct.Struct('B B B B B B B B B')
   packed_data = s.pack(*values)
 
   return packed_data

@@ -43,7 +43,7 @@ from nupic.swarming.hypersearch.errorcodes import ErrorCodes
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
 from nupic.swarming.hypersearch.utils import (runModelGivenBaseAndParams,
-                                                  runDummyModel)
+                                              runDummyModel)
 from nupic.swarming.permutationhelpers import *
 from nupic.swarming.exp_generator.ExpGenerator import expGenerator
 
