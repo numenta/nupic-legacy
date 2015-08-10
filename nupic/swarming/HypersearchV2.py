@@ -33,7 +33,7 @@ import copy
 import pprint
 from operator import itemgetter
 
-from nupic.data import dictutils
+from nupic.swarming.hypersearch.utils import rApply, rCopy
 from nupic.frameworks.opf import opfhelpers
 from nupic.frameworks.opf.opfutils import InferenceType
 from nupic.support import clippedObj
@@ -42,7 +42,7 @@ from nupic.support.configuration import Configuration
 from nupic.swarming.hypersearch.errorcodes import ErrorCodes
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
-from nupic.swarming.utils import (runModelGivenBaseAndParams,
+from nupic.swarming.hypersearch.utils import (runModelGivenBaseAndParams,
                                                   runDummyModel)
 from nupic.swarming.permutationhelpers import *
 from nupic.swarming.exp_generator.ExpGenerator import expGenerator
@@ -2939,7 +2939,7 @@ class HypersearchV2(object):
       else:
         if isinstance(value, PermuteVariable):
           self._flattenedPermutations[key] = value
-    dictutils.rApply(self._permutations, _flattenPermutations)
+    rApply(self._permutations, _flattenPermutations)
 
   def getExpectedNumModels(self):
     """Computes the number of models that are expected to complete as part of
@@ -3794,7 +3794,7 @@ class HypersearchV2(object):
           else:
             return value
 
-        structuredParams = dictutils.rCopy(self._permutations,
+        structuredParams = rCopy(self._permutations,
                                            _buildStructuredParams,
                                            discardNoneKeys=False)
 
