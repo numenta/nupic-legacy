@@ -705,6 +705,3 @@ def aggregationDivide(dividend, divisor):
   
   else:
     return float(dividendMonthSec['seconds']) / divisorMonthSec['seconds']
-    
-
-
