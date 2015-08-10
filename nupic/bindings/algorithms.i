@@ -1545,10 +1545,14 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
         self.__dict__.update(state)
   %}
 
-  inline void compute(UInt num, PyObject *py_x, bool learn)
+  inline void compute(PyObject *py_x, bool learn)
   {
-    PyArrayObject* x = (PyArrayObject*) py_x;
-    self->compute((nupic::UInt)num, (nupic::UInt*) x->data, (bool)learn);
+    PyArrayObject* _x = (PyArrayObject*) py_x;
+
+    nupic::UInt32* x = (nupic::UInt32*)(_x->data);
+    nupic::UInt32  n = (nupic::UInt32)(_x->dimensions[0]);
+
+    self->compute(n, x, learn);
   }
 
   inline void write(PyObject* pyBuilder) const

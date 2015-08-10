@@ -331,15 +331,12 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     # Append last cycle's predictiveCells to *predicTEDCells* trace
     self._mmTraces["predictedCells"].data.append(self.predictiveCells)
 
-    # Use the line below for the Python temporal memory (TM)
-    # super(TemporalMemoryMonitorMixin, self).compute(activeColumns, **kwargs)
+    # Use the following line for the Python TM implementation
+    # super(TemporalMemoryMonitorMixin, self).compute(activeColumns, kwargs['learn'])
 
-    # Use the next five lines for the C++ TM
+    # And, use the following two lines for the C++ TM implementation
     array = numpy.array(list(activeColumns), dtype='int32')
-    if kwargs is not None and 'learn' in kwargs:
-      super(TemporalMemoryMonitorMixin, self).compute(len(array), array, kwargs['learn'])
-    else:
-      super(TemporalMemoryMonitorMixin, self).compute(len(array), array, True)
+    super(TemporalMemoryMonitorMixin, self).compute(array, kwargs['learn'])
 
     # Append this cycle's predictiveCells to *predicTIVECells* trace
     self._mmTraces["predictiveCells"].data.append(self.predictiveCells)
