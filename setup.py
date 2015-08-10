@@ -323,7 +323,7 @@ def prepareNupicCore(options, platform, bitness):
   else:
     skipCompareVersions = not fetchNupicCore
 
-  # TODO: Remove
+  # TODO: include Version.hpp in nupic.core release
   #if not skipCompareVersions:
   #  # Compare expected version of nupic.core against installed version
   #  with open(nupicCoreReleaseDir + "/include/nupic/Version.hpp",
