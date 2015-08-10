@@ -82,8 +82,8 @@ def convertSP(pySp, newSeed):
   Given an instance of a python spatial_pooler return an instance of the CPP
   spatial_pooler with identical parameters.
   """
-  columnDim = pySp._columnDimensions
-  inputDim = pySp._inputDimensions
+  columnDim = pySp.columnDimensions
+  inputDim = pySp.inputDimensions
   numInputs = pySp.getNumInputs()
   numColumns = pySp.getNumColumns()
   cppSp = CPPSpatialPooler(inputDim, columnDim)

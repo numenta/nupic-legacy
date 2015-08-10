@@ -23,7 +23,6 @@
 # Disable since test code accesses private members in the class to be tested
 # pylint: disable=W0212
 
-import numbers
 import tempfile
 import unittest
 from copy import copy
@@ -62,8 +61,8 @@ class SpatialPoolerTest(unittest.TestCase):
       "synPermInactiveDec": 0.01,
       "synPermActiveInc": 0.1,
       "synPermConnected": 0.10,
-      "minPctOverlapDutyCycle": 0.1,
-      "minPctActiveDutyCycle": 0.1,
+      "minPctOverlapDutyCycles": 0.1,
+      "minPctActiveDutyCycles": 0.1,
       "dutyCyclePeriod": 10,
       "maxBoost": 10.0,
       "seed": getSeed(),
@@ -89,8 +88,8 @@ class SpatialPoolerTest(unittest.TestCase):
         synPermInactiveDec=0.1,
         synPermActiveInc=0.1,
         synPermConnected=0.10,
-        minPctOverlapDutyCycle=0.1,
-        minPctActiveDutyCycle=0.1,
+        minPctOverlapDutyCycles=0.1,
+        minPctActiveDutyCycles=0.1,
         dutyCyclePeriod=10,
         maxBoost=10.0,
         seed=getSeed(),
@@ -126,8 +125,8 @@ class SpatialPoolerTest(unittest.TestCase):
         synPermInactiveDec=0.01,
         synPermActiveInc=0.1,
         synPermConnected=0.10,
-        minPctOverlapDutyCycle=0.1,
-        minPctActiveDutyCycle=0.1,
+        minPctOverlapDutyCycles=0.1,
+        minPctActiveDutyCycles=0.1,
         dutyCyclePeriod=10,
         maxBoost=10.0,
         seed=getSeed(),
@@ -171,8 +170,8 @@ class SpatialPoolerTest(unittest.TestCase):
       synPermInactiveDec = 0.01,
       synPermActiveInc = 0.1,
       synPermConnected = 0.1,
-      minPctOverlapDutyCycle=0.001,
-      minPctActiveDutyCycle=0.001,
+      minPctOverlapDutyCycles=0.001,
+      minPctActiveDutyCycles=0.001,
       dutyCyclePeriod = 1000,
       maxBoost = 10.0,
       seed = 1956,
@@ -405,16 +404,16 @@ class SpatialPoolerTest(unittest.TestCase):
     randomState = getNumpyRandomGenerator()
     sp._numColumns = 5
     sp._inhibitionRadius = 10
-    sp._columnDimensions = [5]
+    sp.columnDimensions = [5]
     overlaps = randomState.random_sample(sp._numColumns)
 
     sp._inhibitColumnsGlobal.reset_mock()
     sp._inhibitColumnsLocal.reset_mock()
-    sp._numActiveColumnsPerInhArea = 5
-    sp._localAreaDensity = 0.1
-    sp._globalInhibition = True
+    sp.numActiveColumnsPerInhArea = 5
+    sp.localAreaDensity = 0.1
+    sp.globalInhibition = True
     sp._inhibitionRadius = 5
-    trueDensity = sp._localAreaDensity
+    trueDensity = sp.localAreaDensity
     sp._inhibitColumns(overlaps)
     self.assertEqual(True, sp._inhibitColumnsGlobal.called)
     self.assertEqual(False, sp._inhibitColumnsLocal.called)
@@ -425,13 +424,13 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inhibitColumnsLocal.reset_mock()
     sp._numColumns = 500
     sp._tieBreaker = numpy.zeros(500)
-    sp._columnDimensions = numpy.array([50, 10])
-    sp._numActiveColumnsPerInhArea = -1
-    sp._localAreaDensity = 0.1
-    sp._globalInhibition = False
+    sp.columnDimensions = numpy.array([50, 10])
+    sp.numActiveColumnsPerInhArea = -1
+    sp.localAreaDensity = 0.1
+    sp.globalInhibition = False
     sp._inhibitionRadius = 7
     # 0.1 * (2*9+1)**2 = 22.5
-    trueDensity = sp._localAreaDensity
+    trueDensity = sp.localAreaDensity
     overlaps = randomState.random_sample(sp._numColumns)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False, sp._inhibitColumnsGlobal.called)
@@ -441,12 +440,12 @@ class SpatialPoolerTest(unittest.TestCase):
     # Test translation of numColumnsPerInhArea into local area density
     sp._numColumns = 1000
     sp._tieBreaker = numpy.zeros(1000)
-    sp._columnDimensions = numpy.array([100, 10])
+    sp.columnDimensions = numpy.array([100, 10])
     sp._inhibitColumnsGlobal.reset_mock()
     sp._inhibitColumnsLocal.reset_mock()
-    sp._numActiveColumnsPerInhArea = 3
-    sp._localAreaDensity = -1
-    sp._globalInhibition = False
+    sp.numActiveColumnsPerInhArea = 3
+    sp.localAreaDensity = -1
+    sp.globalInhibition = False
     sp._inhibitionRadius = 4
     trueDensity = 3.0/81.0
     overlaps = randomState.random_sample(sp._numColumns)
@@ -461,12 +460,12 @@ class SpatialPoolerTest(unittest.TestCase):
     # Test clipping of local area density to 0.5
     sp._numColumns = 1000
     sp._tieBreaker = numpy.zeros(1000)
-    sp._columnDimensions = numpy.array([100, 10])
+    sp.columnDimensions = numpy.array([100, 10])
     sp._inhibitColumnsGlobal.reset_mock()
     sp._inhibitColumnsLocal.reset_mock()
-    sp._numActiveColumnsPerInhArea = 7
-    sp._localAreaDensity = -1
-    sp._globalInhibition = False
+    sp.numActiveColumnsPerInhArea = 7
+    sp.localAreaDensity = -1
+    sp.globalInhibition = False
     sp._inhibitionRadius = 1
     trueDensity = 0.5
     overlaps = randomState.random_sample(sp._numColumns)
@@ -479,7 +478,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
   def testUpdateBoostFactors(self):
     sp = self._sp
-    sp._maxBoost = 10.0
+    sp.maxBoost = 10.0
     sp._numColumns = 6
     sp._minActiveDutyCycles = numpy.zeros(sp._numColumns) + 1e-6
     sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
@@ -489,7 +488,7 @@ class SpatialPoolerTest(unittest.TestCase):
     for i in range(sp._boostFactors.size):
       self.assertAlmostEqual(trueBoostFactors[i], sp._boostFactors[i])
 
-    sp._maxBoost = 10.0
+    sp.maxBoost = 10.0
     sp._numColumns = 6
     sp._minActiveDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
     sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
@@ -498,7 +497,7 @@ class SpatialPoolerTest(unittest.TestCase):
     for i in range(sp._boostFactors.size):
       self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
 
-    sp._maxBoost = 10.0
+    sp.maxBoost = 10.0
     sp._numColumns = 6
     sp._minActiveDutyCycles = numpy.array([0.1, 0.2, 0.02, 0.03, 0.7, 0.12])
     sp._activeDutyCycles = numpy.array([0.01, 0.02, 0.002, 0.003, 0.07, 0.012])
@@ -507,11 +506,11 @@ class SpatialPoolerTest(unittest.TestCase):
     for i in range(sp._boostFactors.size):
       self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
 
-    sp._maxBoost = 10.0
+    sp.maxBoost = 10.0
     sp._numColumns = 6
     sp._minActiveDutyCycles = numpy.array([0.1, 0.2, 0.02, 0.03, 0.7, 0.12])
     sp._activeDutyCycles = numpy.zeros(sp._numColumns)
-    trueBoostFactors = 6*[sp._maxBoost]
+    trueBoostFactors = 6*[sp.maxBoost]
     sp._updateBoostFactors()
     for i in range(sp._boostFactors.size):
       self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
@@ -521,12 +520,12 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = self._sp
 
     # Test global inhibition case
-    sp._globalInhibition = True
-    sp._columnDimensions = numpy.array([57, 31, 2])
+    sp.globalInhibition = True
+    sp.columnDimensions = numpy.array([57, 31, 2])
     sp._updateInhibitionRadius()
     self.assertEqual(sp._inhibitionRadius, 57)
 
-    sp._globalInhibition = False
+    sp.globalInhibition = False
     sp._avgConnectedSpanForColumnND = Mock(return_value = 3)
     sp._avgColumnsPerInput = Mock(return_value = 4)
     trueInhibitionRadius = 6
@@ -535,7 +534,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertEqual(trueInhibitionRadius, sp._inhibitionRadius)
 
     # Test clipping at 1.0
-    sp._globalInhibition = False
+    sp.globalInhibition = False
     sp._avgConnectedSpanForColumnND = Mock(return_value = 0.5)
     sp._avgColumnsPerInput = Mock(return_value = 1.2)
     trueInhibitionRadius = 1
@@ -543,7 +542,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertEqual(trueInhibitionRadius, sp._inhibitionRadius)
 
     # Test rounding up
-    sp._globalInhibition = False
+    sp.globalInhibition = False
     sp._avgConnectedSpanForColumnND = Mock(return_value = 2.4)
     sp._avgColumnsPerInput = Mock(return_value = 2)
     trueInhibitionRadius = 2
@@ -554,36 +553,36 @@ class SpatialPoolerTest(unittest.TestCase):
 
   def testAvgColumnsPerInput(self):
     sp = self._sp
-    sp._columnDimensions = numpy.array([2, 2, 2, 2])
-    sp._inputDimensions = numpy.array([4, 4, 4, 4])
+    sp.columnDimensions = numpy.array([2, 2, 2, 2])
+    sp.inputDimensions = numpy.array([4, 4, 4, 4])
     self.assertEqual(sp._avgColumnsPerInput(), 0.5)
 
-    sp._columnDimensions = numpy.array([2, 2, 2, 2])
-    sp._inputDimensions = numpy.array( [7, 5, 1, 3])
+    sp.columnDimensions = numpy.array([2, 2, 2, 2])
+    sp.inputDimensions = numpy.array( [7, 5, 1, 3])
                                     #  2/7 0.4 2 0.666
     trueAvgColumnPerInput = (2.0/7 + 2.0/5 + 2.0/1 + 2/3.0) / 4
     self.assertEqual(sp._avgColumnsPerInput(), trueAvgColumnPerInput)
 
-    sp._columnDimensions = numpy.array([3, 3])
-    sp._inputDimensions = numpy.array( [3, 3])
+    sp.columnDimensions = numpy.array([3, 3])
+    sp.inputDimensions = numpy.array( [3, 3])
                                     #   1  1
     trueAvgColumnPerInput = 1
     self.assertEqual(sp._avgColumnsPerInput(), trueAvgColumnPerInput)
 
-    sp._columnDimensions = numpy.array([25])
-    sp._inputDimensions = numpy.array( [5])
+    sp.columnDimensions = numpy.array([25])
+    sp.inputDimensions = numpy.array( [5])
                                     #   5
     trueAvgColumnPerInput = 5
     self.assertEqual(sp._avgColumnsPerInput(), trueAvgColumnPerInput)
 
-    sp._columnDimensions = numpy.array([3, 3, 3, 5, 5, 6, 6])
-    sp._inputDimensions = numpy.array( [3, 3, 3, 5, 5, 6, 6])
+    sp.columnDimensions = numpy.array([3, 3, 3, 5, 5, 6, 6])
+    sp.inputDimensions = numpy.array( [3, 3, 3, 5, 5, 6, 6])
                                     #   1  1  1  1  1  1  1
     trueAvgColumnPerInput = 1
     self.assertEqual(sp._avgColumnsPerInput(), trueAvgColumnPerInput)
 
-    sp._columnDimensions = numpy.array([3, 6, 9, 12])
-    sp._inputDimensions = numpy.array( [3, 3, 3 , 3])
+    sp.columnDimensions = numpy.array([3, 6, 9, 12])
+    sp.inputDimensions = numpy.array( [3, 3, 3 , 3])
                                     #   1  2  3   4
     trueAvgColumnPerInput = 2.5
     self.assertEqual(sp._avgColumnsPerInput(), trueAvgColumnPerInput)
@@ -592,8 +591,8 @@ class SpatialPoolerTest(unittest.TestCase):
   def testAvgConnectedSpanForColumn1D(self):
     sp = self._sp
     sp._numColumns = 9
-    sp._columnDimensions = numpy.array([9])
-    sp._inputDimensions = numpy.array([12])
+    sp.columnDimensions = numpy.array([9])
+    sp.inputDimensions = numpy.array([12])
     sp._connectedSynapses = (
         SparseBinaryMatrix([[0, 1, 0, 1, 0, 1, 0, 1],
                             [0, 0, 0, 1, 0, 0, 0, 1],
@@ -614,9 +613,9 @@ class SpatialPoolerTest(unittest.TestCase):
   def testAvgConnectedSpanForColumn2D(self):
     sp = self._sp
     sp._numColumns = 9
-    sp._columnDimensions = numpy.array([9])
+    sp.columnDimensions = numpy.array([9])
     sp._numInpts = 8
-    sp._inputDimensions = numpy.array([8])
+    sp.inputDimensions = numpy.array([8])
     sp._connectedSynapses = SparseBinaryMatrix([
         [0, 1, 0, 1, 0, 1, 0, 1],
         [0, 0, 0, 1, 0, 0, 0, 1],
@@ -634,9 +633,9 @@ class SpatialPoolerTest(unittest.TestCase):
       self.assertEqual(trueAvgConnectedSpan[i], connectedSpan)
 
     sp._numColumns = 7
-    sp._columnDimensions = numpy.array([7])
+    sp.columnDimensions = numpy.array([7])
     sp._numInputs = 20
-    sp._inputDimensions = numpy.array([5, 4])
+    sp.inputDimensions = numpy.array([5, 4])
     sp._connectedSynapses = SparseBinaryMatrix(sp._numInputs)
     sp._connectedSynapses.resize(sp._numColumns, sp._numInputs)
 
@@ -705,14 +704,14 @@ class SpatialPoolerTest(unittest.TestCase):
 
   def testAvgConnectedSpanForColumnND(self):
     sp = self._sp
-    sp._inputDimensions = numpy.array([4, 4, 2, 5])
-    sp._numInputs = numpy.prod(sp._inputDimensions)
+    sp.inputDimensions = numpy.array([4, 4, 2, 5])
+    sp._numInputs = numpy.prod(sp.inputDimensions)
     sp._numColumns = 5
-    sp._columnDimensions = numpy.array([5])
+    sp.columnDimensions = numpy.array([5])
     sp._connectedSynapses = SparseBinaryMatrix(sp._numInputs)
     sp._connectedSynapses.resize(sp._numColumns, sp._numInputs)
 
-    connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
+    connected = numpy.zeros(sp._numInputs).reshape(sp.inputDimensions)
     connected[1][0][1][0] = 1
     connected[1][0][1][1] = 1
     connected[3][2][1][0] = 1
@@ -724,7 +723,7 @@ class SpatialPoolerTest(unittest.TestCase):
       0, connected.reshape(-1).nonzero()[0]
     )
 
-    connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
+    connected = numpy.zeros(sp._numInputs).reshape(sp.inputDimensions)
     connected[2][0][1][0] = 1
     connected[2][0][0][0] = 1
     connected[3][0][0][0] = 1
@@ -734,7 +733,7 @@ class SpatialPoolerTest(unittest.TestCase):
       1, connected.reshape(-1).nonzero()[0]
     )
 
-    connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
+    connected = numpy.zeros(sp._numInputs).reshape(sp.inputDimensions)
     connected[0][0][1][4] = 1
     connected[0][0][0][3] = 1
     connected[0][0][0][1] = 1
@@ -746,7 +745,7 @@ class SpatialPoolerTest(unittest.TestCase):
       2, connected.reshape(-1).nonzero()[0]
     )
 
-    connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
+    connected = numpy.zeros(sp._numInputs).reshape(sp.inputDimensions)
     connected[3][3][1][4] = 1
     connected[0][0][0][0] = 1
     # span:   4  4  2  5, avg = 15/4
@@ -754,7 +753,7 @@ class SpatialPoolerTest(unittest.TestCase):
       3, connected.reshape(-1).nonzero()[0]
     )
 
-    connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
+    connected = numpy.zeros(sp._numInputs).reshape(sp.inputDimensions)
     # span:   0  0  0  0, avg = 0
     sp._connectedSynapses.replaceSparseRow(
       4, connected.reshape(-1).nonzero()[0]
@@ -820,12 +819,12 @@ class SpatialPoolerTest(unittest.TestCase):
                                            [0, 2, 4],
                                            [0, 1, 3]])
 
-    sp._minPctOverlapDutyCycles = 0.04
+    sp.minPctOverlapDutyCycles = 0.04
     sp._overlapDutyCycles = numpy.array([1.4, 0.5, 1.2, 0.8, 0.1])
     trueMinOverlapDutyCycles = [0.04*1.4, 0.04*1.2, 0.04*1.2, 0.04*1.4,
                                 0.04*1.4]
 
-    sp._minPctActiveDutyCycles = 0.02
+    sp.minPctActiveDutyCycles = 0.02
     sp._activeDutyCycles = numpy.array([0.4, 0.5, 0.2, 0.18, 0.1])
     trueMinActiveDutyCycles = [0.02*0.5, 0.02*0.5, 0.02*0.2, 0.02*0.4,
                                0.02*0.5]
@@ -847,13 +846,13 @@ class SpatialPoolerTest(unittest.TestCase):
                                             [1, 4, 5, 6],
                                             [2, 3, 6, 7]])
 
-    sp._minPctOverlapDutyCycles = 0.01
+    sp.minPctOverlapDutyCycles = 0.01
     sp._overlapDutyCycles = numpy.array(
         [1.2, 2.7, 0.9, 1.1, 4.3, 7.1, 2.3, 0.0])
     trueMinOverlapDutyCycles = [0.01*4.3, 0.01*7.1, 0.01*4.3, 0.01*4.3,
                                 0.01*4.3, 0.01*7.1, 0.01*7.1, 0.01*2.3]
 
-    sp._minPctActiveDutyCycles = 0.03
+    sp.minPctActiveDutyCycles = 0.03
     sp._activeDutyCycles = numpy.array(
         [0.14, 0.25, 0.125, 0.33, 0.27, 0.11, 0.76, 0.31])
     trueMinActiveDutyCycles = [0.03*0.33, 0.03*0.33, 0.03*0.76, 0.03*0.76,
@@ -868,8 +867,8 @@ class SpatialPoolerTest(unittest.TestCase):
 
   def testUpdateMinDutyCyclesGlobal(self):
     sp = self._sp
-    sp._minPctOverlapDutyCycles = 0.01
-    sp._minPctActiveDutyCycles = 0.02
+    sp.minPctOverlapDutyCycles = 0.01
+    sp.minPctActiveDutyCycles = 0.02
     sp._numColumns = 5
     sp._overlapDutyCycles = numpy.array([0.06, 1, 3, 6, 0.5])
     sp._activeDutyCycles = numpy.array([0.6, 0.07, 0.5, 0.4, 0.3])
@@ -882,8 +881,8 @@ class SpatialPoolerTest(unittest.TestCase):
       self.assertAlmostEqual(trueMinOverlapDutyCycles[i],
                              sp._minOverlapDutyCycles[i])
 
-    sp._minPctOverlapDutyCycles = 0.015
-    sp._minPctActiveDutyCycles = 0.03
+    sp.minPctOverlapDutyCycles = 0.015
+    sp.minPctActiveDutyCycles = 0.03
     sp._numColumns = 5
     sp._overlapDutyCycles = numpy.array([0.86, 2.4, 0.03, 1.6, 1.5])
     sp._activeDutyCycles = numpy.array([0.16, 0.007, 0.15, 0.54, 0.13])
@@ -893,8 +892,8 @@ class SpatialPoolerTest(unittest.TestCase):
       self.assertAlmostEqual(trueMinOverlapDutyCycles[i],
                              sp._minOverlapDutyCycles[i])
 
-    sp._minPctOverlapDutyCycles = 0.015
-    sp._minPctActiveDutyCycles= 0.03
+    sp.minPctOverlapDutyCycles = 0.015
+    sp.minPctActiveDutyCycles= 0.03
     sp._numColumns = 5
     sp._overlapDutyCycles = numpy.zeros(5)
     sp._activeDutyCycles = numpy.zeros(5)
@@ -1009,10 +1008,10 @@ class SpatialPoolerTest(unittest.TestCase):
 
   def testRaisePermanenceThreshold(self):
     sp = self._sp
-    sp._inputDimensions=numpy.array([5])
-    sp._columnDimensions=numpy.array([5])
-    sp._synPermConnected=0.1
-    sp._stimulusThreshold=3
+    sp.inputDimensions=numpy.array([5])
+    sp.columnDimensions=numpy.array([5])
+    sp.synPermConnected=0.1
+    sp.stimulusThreshold=3
     sp._synPermBelowStimulusInc = 0.01
     sp._permanences = SparseMatrix(
         [[0.0, 0.11, 0.095, 0.092, 0.01],
@@ -1165,36 +1164,36 @@ class SpatialPoolerTest(unittest.TestCase):
     the correct ranges
     """
     sp = self._sp
-    sp._inputDimensions = numpy.array([10])
+    sp.inputDimensions = numpy.array([10])
     sp._numInputs = 10
     sp._raisePermanenceToThreshold = Mock()
 
-    sp._potentialRadius = 2
+    sp.potentialRadius = 2
     connectedPct = 1
     mask = numpy.array([1, 1, 1, 0, 0, 0, 0, 0, 1, 1])
     perm = sp._initPermanence(mask, connectedPct)
-    connected = (perm >= sp._synPermConnected).astype(int)
+    connected = (perm >= sp.synPermConnected).astype(int)
     numcon = (connected.nonzero()[0]).size
     self.assertEqual(numcon, 5)
 
     connectedPct = 0
     perm = sp._initPermanence(mask, connectedPct)
-    connected = (perm >= sp._synPermConnected).astype(int)
+    connected = (perm >= sp.synPermConnected).astype(int)
     numcon = (connected.nonzero()[0]).size
     self.assertEqual(numcon, 0)
 
     connectedPct = 0.5
-    sp._potentialRadius = 100
+    sp.potentialRadius = 100
     sp._numInputs = 100
     mask = numpy.ones(100)
     perm = sp._initPermanence(mask, connectedPct)
-    connected = (perm >= sp._synPermConnected).astype(int)
+    connected = (perm >= sp.synPermConnected).astype(int)
     numcon = (connected.nonzero()[0]).size
     self.assertGreater(numcon, 0)
     self.assertLess(numcon, sp._numInputs)
     
     minThresh = 0.0
-    maxThresh = sp._synPermMax
+    maxThresh = sp.synPermMax
     self.assertEqual(numpy.logical_and((perm >= minThresh),
                                        (perm <= maxThresh)).all(), True)
 
@@ -1304,7 +1303,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = self._sp
     density = 0.5
     sp._numColumns = 10
-    sp._columnDimensions = numpy.array([sp._numColumns])
+    sp.columnDimensions = numpy.array([sp._numColumns])
     sp._inhibitionRadius = 2
     overlaps = numpy.array([1, 2, 7, 0, 3, 4, 16, 1, 1.5, 1.7])
                         #   L  W  W  L  L  W  W   L   L    W
@@ -1314,7 +1313,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     density = 0.5
     sp._numColumns = 10
-    sp._columnDimensions = numpy.array([sp._numColumns])
+    sp.columnDimensions = numpy.array([sp._numColumns])
     sp._inhibitionRadius = 3
     overlaps = numpy.array([1, 2, 7, 0, 3, 4, 16, 1, 1.5, 1.7])
                         #   L  W  W  L  L  W  W   L   L    L
@@ -1325,7 +1324,7 @@ class SpatialPoolerTest(unittest.TestCase):
     # Test add to winners
     density = 0.3333
     sp._numColumns = 10
-    sp._columnDimensions = numpy.array([sp._numColumns])
+    sp.columnDimensions = numpy.array([sp._numColumns])
     sp._inhibitionRadius = 3
     overlaps = numpy.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
                         #   W  W  L  L  W  W  L  L  L  W
@@ -1723,29 +1722,11 @@ class SpatialPoolerTest(unittest.TestCase):
         synPermInactiveDec=0.01,
         synPermActiveInc=0.1,
         synPermConnected=0.10,
-        minPctOverlapDutyCycle=0.1,
-        minPctActiveDutyCycle=0.1,
+        minPctOverlapDutyCycles=0.1,
+        minPctActiveDutyCycles=0.1,
         dutyCyclePeriod=10,
         maxBoost=10.0,
         seed=42,
-        spVerbosity=0)
-    sp2 = SpatialPooler(
-        inputDimensions=[3, 3],
-        columnDimensions=[2, 2],
-        potentialRadius=5,
-        potentialPct=0.4,
-        globalInhibition=True,
-        localAreaDensity=1.0,
-        numActiveColumnsPerInhArea=4,
-        stimulusThreshold=2,
-        synPermInactiveDec=0.05,
-        synPermActiveInc=0.2,
-        synPermConnected=0.15,
-        minPctOverlapDutyCycle=0.2,
-        minPctActiveDutyCycle=0.2,
-        dutyCyclePeriod=11,
-        maxBoost=14.0,
-        seed=10,
         spVerbosity=0)
 
     # Run a record through before serializing
@@ -1763,26 +1744,9 @@ class SpatialPoolerTest(unittest.TestCase):
       proto2 = SpatialPoolerProto_capnp.SpatialPoolerProto.read(f)
 
     # Load the deserialized proto
-    sp2.read(proto2)
+    sp2 = SpatialPooler.read(proto2)
 
-    # Check that the two spatial poolers have the same attributes
-    self.assertSetEqual(set(sp1.__dict__.keys()), set(sp2.__dict__.keys()))
-    for k, v1 in sp1.__dict__.iteritems():
-      v2 = getattr(sp2, k)
-      if isinstance(v1, numpy.ndarray):
-        self.assertEqual(v1.dtype, v2.dtype,
-                         "Key %s has differing dtypes: %s vs %s" % (
-                             k, v1.dtype, v2.dtype))
-        self.assertTrue(numpy.isclose(v1, v2).all(), k)
-      elif isinstance(v1, Random) or isinstance(v1, SparseBinaryMatrix):
-        pass
-      elif isinstance(v1, float):
-        self.assertAlmostEqual(v1, v2)
-      elif isinstance(v1, numbers.Integral):
-        self.assertEqual(long(v1), long(v2), k)
-      else:
-        self.assertEqual(type(v1), type(v2), k)
-        self.assertEqual(v1, v2, k)
+    self.assertEqual(sp1, sp2)
 
     # Run a record through after deserializing and check results match
     activeArray2 = numpy.zeros(5)

@@ -1080,8 +1080,8 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
                  synPermInactiveDec=0.01,
                  synPermActiveInc=0.1,
                  synPermConnected=0.10,
-                 minPctOverlapDutyCycle=0.001,
-                 minPctActiveDutyCycle=0.001,
+                 minPctOverlapDutyCycles=0.001,
+                 minPctActiveDutyCycles=0.001,
                  dutyCyclePeriod=1000,
                  maxBoost=10.0,
                  seed=-1,
@@ -1091,7 +1091,7 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
         self, inputDimensions, columnDimensions, potentialRadius, potentialPct,
         globalInhibition, localAreaDensity, numActiveColumnsPerInhArea,
         stimulusThreshold, synPermInactiveDec, synPermActiveInc, synPermConnected,
-        minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost,
+        minPctOverlapDutyCycles, minPctActiveDutyCycles, dutyCyclePeriod, maxBoost,
         seed, spVerbosity)
 
     def __getstate__(self):
