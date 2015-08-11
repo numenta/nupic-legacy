@@ -370,7 +370,7 @@ class CLAModel(Model):
     self._input = inputRecord
 
     # Check if the input includes the predicted field.
-    if not self._predictedFieldName in self._input:
+    if self._predictedFieldName not in self._input:
       raise ValueError("Expected predicted field '%s' in input row, "
                        "but was not found! Raw input is: %s"
                        % (self._predictedFieldName, self._input))

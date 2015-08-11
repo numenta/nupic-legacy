@@ -160,7 +160,6 @@ class Model(object):
     """
     self.__inferenceEnabled = True
     self.__inferenceArgs = inferenceArgs
-    # Update predicted field
     self._predictedFieldName = self.__inferenceArgs.get('predictedField', None)
 
 
