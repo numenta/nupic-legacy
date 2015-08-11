@@ -10,6 +10,7 @@ RUN apt-get install -y gcc g++
 RUN apt-get install -y cmake
 RUN apt-get install -y python2.7 python 2.7-dev
 RUN apt-get install -y zlib1g-dev bzip2 libyaml-dev libyaml-0-2
+RUN apt-get install -y python-numpy
 RUN wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O - | python
 RUN pip install --upgrade setuptools
 RUN pip install wheel

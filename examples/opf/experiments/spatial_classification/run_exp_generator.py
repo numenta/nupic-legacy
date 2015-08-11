@@ -29,7 +29,7 @@ import os
 import json
 from optparse import OptionParser
 
-from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
+from nupic.swarming.exp_generator.ExpGenerator import expGenerator
 
 
 
@@ -41,7 +41,7 @@ if __name__ == '__main__':
   for an experiment. The searchDef argument should be the name of a python
   script with a getSearch() method which returns the search definition as a
   dict. The schema for this dict can be found at
-  py/nupic/frameworks/opf/exp_generator/experimentDescriptionSchema.json
+  py/nupic/swarming/exp_generator/experimentDescriptionSchema.json
   """
   
   

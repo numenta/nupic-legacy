@@ -25,6 +25,8 @@ Temporal Memory mixin that enables detailed monitoring of history.
 
 from collections import defaultdict
 
+import copy
+
 from prettytable import PrettyTable
 
 from nupic.research.monitor_mixin.metric import Metric
@@ -209,10 +211,9 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
           synapseList = []
 
           for synapse in self.connections.synapsesForSegment(seg):
-            (_, sourceCell, permanence) = self.connections.dataForSynapse(
-              synapse)
-
-            synapseList.append((sourceCell, permanence))
+            synapseData = self.connections.dataForSynapse(synapse)
+            synapseList.append(
+                (synapseData.presynapticCell, synapseData.permanence))
 
           synapseList.sort()
           synapseStringList = ["{0:3}={1:.2f}".format(sourceCell, permanence) for
@@ -418,10 +419,10 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     if activityType == "predictedActiveCells":
       self._mmComputeTransitionTraces()
 
-    # If the trace contains ConnectionsCell, convert them to int
-    cellTrace = self._mmTraces[activityType].data
+    cellTrace = copy.deepcopy(self._mmTraces[activityType].data)
     for i in xrange(len(cellTrace)):
       cellTrace[i] = self.getCellIndices(cellTrace[i])
 
     return self.mmGetCellTracePlot(cellTrace, self.numberOfCells(),
-                                   activityType, title, showReset, resetShading)
+                                   activityType, title, showReset,
+                                   resetShading)

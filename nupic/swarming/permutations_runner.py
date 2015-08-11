@@ -39,9 +39,10 @@ import uuid
 
 from nupic.support import object_json as json
 import nupic.database.ClientJobsDAO as cjdao
-from nupic.swarming import HypersearchWorker, utils
+from nupic.swarming import HypersearchWorker
+from nupic.swarming.hypersearch import utils
 from nupic.swarming.HypersearchV2 import HypersearchV2
-from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
+from nupic.swarming.exp_generator.ExpGenerator import expGenerator
 
 
 g_currentVerbosityLevel = 0

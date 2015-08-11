@@ -1,12 +1,13 @@
-import sys
-import os
-import subprocess
-import shutil
 import glob
-import urllib2
-import tarfile
-import re
 import numpy
+import os
+import re
+import setuptools
+import shutil
+import sys
+import tarfile
+import urllib2
+
 from setuptools import setup, find_packages, Extension
 
 """
@@ -124,23 +125,6 @@ def getCommandLineOptions():
      "",
      "(optional) Skip nupic.core version comparison"]
   )
-  optionsDesc.append(
-    ["optimizations-native",
-    "value",
-    "(optional) enable aggressive compiler optimizations"]
-  )
-  optionsDesc.append(
-    ["optimizations-lto",
-    "value",
-    "(optional) enable link-time optimizations (LTO); currently only for gcc and linker ld.gold"]
-  )
-  optionsDesc.append(
-    ["debug",
-    "value",
-    "(optional) compile in mode suitable for debugging; overrides any optimizations"]
-  )
-
-
 
   # Read command line options looking for extra options
   # For example, an user could type:
@@ -202,70 +186,39 @@ def getVersion():
     return versionFile.read().strip()
 
 
-
-def generateSwigWrap(swigExecutable, swigFlags, interfaceFile):
-  """
-  Generate C++ code from the specified SWIG interface file.
-  """
-  wrap = interfaceFile.replace(".i", "_wrap.cxx")
-
-  cmd = swigExecutable + " -c++ -python "
-  for flag in swigFlags:
-    cmd += flag + " "
-  cmd += interfaceFile
-  print cmd
-  proc = subprocess.Popen(cmd, shell=True)
-  proc.wait()
-
-  return wrap
+def parse_file(requirementFile):
+  try:
+    return [
+      line.strip()
+      for line in open(requirementFile).readlines()
+      if not line.startswith("#")
+    ]
+  except IOError:
+    return []
 
 
-
-def findRequirements():
+def findRequirements(nupicCoreReleaseDir):
   """
   Read the requirements.txt file and parse into requirements for setup's
   install_requirements option.
   """
   requirementsPath = os.path.join(REPO_DIR, "external/common/requirements.txt")
-  return [
-    line.strip()
-    for line in open(requirementsPath).readlines()
-    if not line.startswith("#")
-  ]
+  coreRequirementsPath = os.path.join(nupicCoreReleaseDir, "requirements.txt")
+  
+  dependencies = []
+  # use develop nupiccore bindings. not PYPI
+  wheelFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.whl"))
+  for wheel in wheelFiles:
+    dependencies.append(wheel)
+  eggFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.egg"))
+  for egg in eggFiles:
+    dependencies.append(egg)
 
+  requirements = parse_file(requirementsPath)
 
-
-def getLibPrefix(platform):
-  """
-  Returns the default system prefix of a compiled library.
-  """
-  if platform in UNIX_PLATFORMS:
-    return "lib"
-  elif platform in WINDOWS_PLATFORMS:
-    return ""
-
-
-
-def getStaticLibExtension(platform):
-  """
-  Returns the default system extension of a compiled static library.
-  """
-  if platform in UNIX_PLATFORMS:
-    return ".a"
-  elif platform in WINDOWS_PLATFORMS:
-    return ".lib"
-
-
-
-def getSharedLibExtension(platform):
-  """
-  Returns the default system extension of a compiled shared library.
-  """
-  if platform in UNIX_PLATFORMS:
-    return ".so"
-  elif platform in WINDOWS_PLATFORMS:
-    return ".dll"
-
+  requirements += parse_file(coreRequirementsPath)
+   
+  return requirements, dependencies
 
 
 
@@ -294,225 +247,6 @@ def getDefaultNupicCoreDirectories():
     REPO_DIR + "/extensions/core/build/release",
     REPO_DIR + "/extensions/core"
   )
-
-
-
-def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None):
-  #
-  # Gives the version of Python necessary to get installation directories
-  # for use with pythonVersion, etc.
-  #
-  if sys.version_info < (2, 7):
-    raise Exception("Fatal Error: Python 2.7 or later is required.")
-
-  pythonVersion = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
-
-  #
-  # Find out where system installation of python is.
-  #
-  pythonPrefix = sys.prefix
-  pythonPrefix = pythonPrefix.replace("\\", "/")
-  pythonIncludeDir = pythonPrefix + "/include/python" + pythonVersion
-
-  #
-  # Finds out version of Numpy and headers' path.
-  #
-  numpyIncludeDir = numpy.get_include()
-  numpyIncludeDir = numpyIncludeDir.replace("\\", "/")
-
-  commonDefines = [
-    ("NUPIC2", None),
-    ("NTA_OS_" + platform.upper(), None),
-    ("NTA_ARCH_" + bitness, None),
-    ("NTA_PYTHON_SUPPORT", pythonVersion),
-    ("NTA_INTERNAL", None),
-    ("NTA_ASSERTIONS_ON", None),
-    ("NTA_ASM", None),
-    ("HAVE_CONFIG_H", None),
-    ("BOOST_NO_WREGEX", None)]
-
-  commonIncludeDirs = [
-    REPO_DIR + "/external/" + platform + bitness + "/include",
-    REPO_DIR + "/external/common/include",
-    REPO_DIR + "/extensions",
-    REPO_DIR,
-    nupicCoreReleaseDir + "/include",
-    pythonIncludeDir,
-    numpyIncludeDir]
-
-  commonCompileFlags = [
-    # Adhere to c++11 spec
-    "-std=c++11",
-    # Generate 32 or 64 bit code
-    "-m" + bitness,
-    # `position independent code`, required for shared libraries
-    "-fPIC",
-    "-fvisibility=hidden",
-    "-Wall",
-    "-Wextra",
-    "-Wreturn-type",
-    "-Wunused",
-    "-Wno-unused-parameter",
-    # optimization flags (generic builds used for binary distribution)
-    "-mtune=generic",
-    "-O2",
-  ]
-  if platform == "darwin":
-    commonCompileFlags.append("-stdlib=libc++")
-
-  commonLinkFlags = [
-    "-m" + bitness,
-    "-fPIC",
-    "-L" + nupicCoreReleaseDir + "/lib",
-    # for Cap'n'Proto serialization
-    "-lkj",
-    "-lcapnp",
-    "-lcapnpc",
-    # optimization (safe defaults)
-    "-O2",
-  ]
-
-  # Optimizations
-  if getCommandLineOption("debug", cmdOptions):
-    commonCompileFlags.append("-Og")
-    commonCompileFlags.append("-g")
-    commonLinkFlags.append("-O0")
-  else:
-    if getCommandLineOption("optimizations-native", cmdOptions):
-      commonCompileFlags.append("-march=native")
-      commonCompileFlags.append("-O3")
-      commonLinkFlags.append("-O3")
-    if getCommandLineOption("optimizations-lto", cmdOptions):
-      commonCompileFlags.append("-fuse-linker-plugin")
-      commonCompileFlags.append("-flto-report")
-      commonCompileFlags.append("-fuse-ld=gold")
-      commonCompileFlags.append("-flto")
-      commonLinkFlags.append("-flto")
-
-
-
-  commonLibraries = [
-    "dl",
-    "python" + pythonVersion,
-    "kj",
-    "capnp",
-    "capnpc"]
-  if platform == "linux":
-    commonLibraries.extend(["pthread"])
-
-  commonObjects = [
-    nupicCoreReleaseDir + "/lib/" +
-      getLibPrefix(platform) + "nupic_core" + getStaticLibExtension(platform)]
-
-  pythonSupportSources = [
-    "extensions/py_support/NumpyVector.cpp",
-    "extensions/py_support/PyArray.cpp",
-    "extensions/py_support/PyHelpers.cpp",
-    "extensions/py_support/PythonStream.cpp"]
-
-  extensions = []
-
-  libDynamicCppRegion = Extension(
-    "nupic." + getLibPrefix(platform) + "cpp_region",
-    extra_compile_args=commonCompileFlags,
-    define_macros=commonDefines,
-    extra_link_args=commonLinkFlags,
-    include_dirs=commonIncludeDirs,
-    libraries=commonLibraries,
-    sources=pythonSupportSources +
-      ["extensions/cpp_region/PyRegion.cpp",
-       "extensions/cpp_region/unittests/PyHelpersTest.cpp"],
-    extra_objects=commonObjects)
-  extensions.append(libDynamicCppRegion)
-
-  #
-  # SWIG
-  #
-  swigDir = REPO_DIR + "/external/common/share/swig/3.0.2"
-  swigExecutable = (
-    REPO_DIR + "/external/" + platform + bitness + "/bin/swig"
-  )
-
-  # SWIG options from:
-  # https://github.com/swig/swig/blob/master/Source/Modules/python.cxx#L111
-  swigFlags = [
-    "-features",
-    "autodoc=0,directors=0",
-    "-noproxyimport",
-    "-keyword",
-    "-modern",
-    "-modernargs",
-    "-noproxydel",
-    "-fvirtual",
-    "-fastunpack",
-    "-nofastproxy",
-    "-fastquery",
-    "-outputtuple",
-    "-castmode",
-    "-nosafecstrings",
-    "-w402", #TODO silence warnings
-    "-w503",
-    "-w511",
-    "-w302",
-    "-w362",
-    "-w312",
-    "-w389",
-    "-DSWIG_PYTHON_LEGACY_BOOL",
-    "-I" + swigDir + "/python",
-    "-I" + swigDir]
-  for define in commonDefines:
-    item = "-D" + define[0]
-    if define[1]:
-      item += "=" + define[1]
-    swigFlags.append(item)
-  for includeDir in commonIncludeDirs:
-    item = "-I" + includeDir
-    swigFlags.append(item)
-
-  wrapAlgorithms = generateSwigWrap(swigExecutable,
-                                    swigFlags,
-                                    "nupic/bindings/algorithms.i")
-  libModuleAlgorithms = Extension(
-    "nupic.bindings._algorithms",
-    extra_compile_args=commonCompileFlags,
-    define_macros=commonDefines,
-    extra_link_args=commonLinkFlags,
-    include_dirs=commonIncludeDirs,
-    libraries=commonLibraries,
-    sources=pythonSupportSources + [wrapAlgorithms],
-    extra_objects=commonObjects)
-  extensions.append(libModuleAlgorithms)
-
-  wrapEngineInternal = generateSwigWrap(swigExecutable,
-                                        swigFlags,
-                                        "nupic/bindings/engine_internal.i")
-  libModuleEngineInternal = Extension(
-    "nupic.bindings._engine_internal",
-    extra_compile_args=commonCompileFlags,
-    define_macros=commonDefines,
-    extra_link_args=commonLinkFlags,
-    include_dirs=commonIncludeDirs,
-    libraries=commonLibraries,
-    sources=pythonSupportSources + [wrapEngineInternal],
-    extra_objects=commonObjects)
-  extensions.append(libModuleEngineInternal)
-
-  wrapMath = generateSwigWrap(swigExecutable,
-                              swigFlags,
-                              "nupic/bindings/math.i")
-  libModuleMath = Extension(
-    "nupic.bindings._math",
-    extra_compile_args=commonCompileFlags,
-    define_macros=commonDefines,
-    extra_link_args=commonLinkFlags,
-    include_dirs=commonIncludeDirs,
-    libraries=commonLibraries,
-    sources=pythonSupportSources + [wrapMath,
-                                    "nupic/bindings/PySparseTensor.cpp"],
-    extra_objects=commonObjects)
-  extensions.append(libModuleMath)
-
-  return extensions
 
 
 
@@ -548,8 +282,10 @@ def prepareNupicCore(options, platform, bitness):
                           + nupicCoreCommitish + "-" + platform + bitness + ".tar.gz")
     nupicCoreLocalPackage = (nupicCoreSourceDir + "/nupic_core-"
                              + nupicCoreCommitish + "-" + platform + bitness + ".tar.gz")
-    nupicCoreLocalDirToUnpack = ("nupic_core-"
-                                 + nupicCoreCommitish + "-" + platform + bitness)
+    if getPlatformInfo()[0] == "darwin":
+      nupicCoreLocalDirToUnpack = "/Users/travis/build/numenta/nupic.core/bindings/py/dist"
+    elif getPlatformInfo()[0] == "linux":
+      nupicCoreLocalDirToUnpack = "/home/travis/build/numenta/nupic.core/bindings/py/dist"
 
     if os.path.exists(nupicCoreLocalPackage):
       print ("Target nupic.core package already exists at "
@@ -602,7 +338,13 @@ def prepareNupicCore(options, platform, bitness):
         % (nupicCoreCommitish, nupicCoreVersionFound)
       )
 
+  return nupicCoreReleaseDir
+
+
+
+def copyProtoFiles(nupicCoreReleaseDir):
   # Copy proto files located at nupic.core dir into nupic dir
+  print "Copying capnp files from nupic core"
   protoSourceDir = glob.glob(os.path.join(nupicCoreReleaseDir, "include/nupic/proto/"))[0]
   protoTargetDir = REPO_DIR + "/nupic/bindings/proto"
   if not os.path.exists(protoTargetDir):
@@ -610,93 +352,86 @@ def prepareNupicCore(options, platform, bitness):
   for fileName in glob.glob(protoSourceDir + "/*.capnp"):
     shutil.copy(fileName, protoTargetDir)
 
-  return nupicCoreReleaseDir
-
 
 
 def postProcess():
-  buildDir = glob.glob(REPO_DIR + "/build/lib.*/")[0]
-
   # Copy binaries located at nupic.core dir into source dir
   print ("Copying binaries from " + nupicCoreReleaseDir + "/bin" + " to "
          + REPO_DIR + "/bin...")
   if not os.path.exists(REPO_DIR + "/bin"):
     os.makedirs(REPO_DIR + "/bin")
-  shutil.copy(
-    nupicCoreReleaseDir + "/bin/py_region_test", REPO_DIR + "/bin"
-  )
-  # Copy cpp_region located at build dir into source dir
-  shutil.copy(buildDir + "/nupic/" + getLibPrefix(platform) + "cpp_region" +
-              getSharedLibExtension(platform), REPO_DIR + "/nupic")
 
-options = getCommandLineOptions()
-platform, bitness = getPlatformInfo()
+  for binFile in glob.glob(nupicCoreReleaseDir + "/bin/*"):
+    shutil.copy(binFile, REPO_DIR + "/bin")
 
-if platform == DARWIN_PLATFORM and not "ARCHFLAGS" in os.environ:
-  raise Exception("To build NuPIC in OS X, you must "
-                  "`export ARCHFLAGS=\"-arch x86_64\"`.")
+if __name__ == "__main__":
+  print "setuptools version: {}".format(setuptools.__version__)
+  print "numpy version: {}".format(numpy.__version__)
 
-# Build and setup NuPIC
-cwd = os.getcwd()
-os.chdir(REPO_DIR)
+  options = getCommandLineOptions()
+  platform, bitness = getPlatformInfo()
 
-try:
-  haveBuild = False
-  buildCommands = ["build", "install", "develop", "bdist", "bdist_wheel"]
-  for arg in sys.argv[:]:
-    if arg in buildCommands:
-      haveBuild = True
+  # Build and setup NuPIC
+  cwd = os.getcwd()
+  os.chdir(REPO_DIR)
 
-  if haveBuild:
+  try:
+    haveBuild = False
+    buildCommands = ["build", "install", "develop", "bdist", "bdist_wheel"]
+    for arg in sys.argv[:]:
+      if arg in buildCommands:
+        haveBuild = True
+
     nupicCoreReleaseDir = prepareNupicCore(options, platform, bitness)
-    extensions = getExtensionModules(
-      nupicCoreReleaseDir, platform, bitness, cmdOptions=options
-    )
-  else:
-    extensions = []
 
-  setup(
-    name="nupic",
-    version=getVersion(),
-    install_requires=findRequirements(),
-    packages=find_packages(),
-    package_data={
-      "nupic.support": ["nupic-default.xml",
-                        "nupic-logging.conf"],
-      "nupic": ["README.md", "LICENSE.txt"],
-      "nupic.data": ["*.json"],
-      "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
-      "nupic.frameworks.opf.jsonschema": ["*.json"],
-      "nupic.swarming.jsonschema": ["*.json"],
-      "nupic.datafiles": ["*.csv", "*.txt"],
-      "nupic.encoders": ["*.capnp"],
-      "nupic.bindings.proto": ["*.capnp"],
-    },
-    include_package_data=True,
-    ext_modules=extensions,
-    description="Numenta Platform for Intelligent Computing",
-    author="Numenta",
-    author_email="help@numenta.org",
-    url="https://github.com/numenta/nupic",
-    classifiers=[
-      "Programming Language :: Python",
-      "Programming Language :: Python :: 2",
-      "License :: OSI Approved :: GNU General Public License (GPL)",
-      "Operating System :: MacOS :: MacOS X",
-      "Operating System :: POSIX :: Linux",
-      # It has to be "5 - Production/Stable" or else pypi rejects it!
-      "Development Status :: 5 - Production/Stable",
-      "Environment :: Console",
-      "Intended Audience :: Science/Research",
-      "Topic :: Scientific/Engineering :: Artificial Intelligence"
-    ],
-    long_description = """\
-  Numenta Platform for Intelligent Computing: a machine intelligence platform that implements the HTM learning algorithms. HTM is a detailed computational theory of the neocortex. At the core of HTM are time-based continuous learning algorithms that store and recall spatial and temporal patterns. NuPIC is suited to a variety of problems, particularly anomaly detection and prediction of streaming data sources.
+    copyProtoFiles(nupicCoreReleaseDir)
 
-  For more information, see http://numenta.org or the NuPIC wiki at https://github.com/numenta/nupic/wiki.
-  """)
+    requirements, dependencies = findRequirements(nupicCoreReleaseDir)
+    setup(
+      name="nupic",
+      version=getVersion(),
+      install_requires=requirements,
+      dependency_links=dependencies,
+      packages=find_packages(),
+      namespace_packages = ["nupic", "nupic.bindings"],
+      package_data={
+        "nupic.support": ["nupic-default.xml",
+                          "nupic-logging.conf"],
+        "nupic": ["README.md", "LICENSE.txt"],
+        "nupic.data": ["*.json"],
+        "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
+        "nupic.frameworks.opf.jsonschema": ["*.json"],
+        "nupic.swarming.exp_generator": ["*.json", "*.tpl"],
+        "nupic.swarming.jsonschema": ["*.json"],
+        "nupic.datafiles": ["*.csv", "*.txt"],
+        "nupic.encoders": ["*.capnp"],
+        "nupic.bindings.proto": ["*.capnp"],
+      },
+      include_package_data=True,
+      zip_safe=False,
+      description="Numenta Platform for Intelligent Computing",
+      author="Numenta",
+      author_email="help@numenta.org",
+      url="https://github.com/numenta/nupic",
+      classifiers=[
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "License :: OSI Approved :: GNU General Public License (GPL)",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: POSIX :: Linux",
+        # It has to be "5 - Production/Stable" or else pypi rejects it!
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence"
+      ],
+      long_description = """\
+    Numenta Platform for Intelligent Computing: a machine intelligence platform that implements the HTM learning algorithms. HTM is a detailed computational theory of the neocortex. At the core of HTM are time-based continuous learning algorithms that store and recall spatial and temporal patterns. NuPIC is suited to a variety of problems, particularly anomaly detection and prediction of streaming data sources.
 
-  if haveBuild:
-    postProcess()
-finally:
-  os.chdir(cwd)
+    For more information, see http://numenta.org or the NuPIC wiki at https://github.com/numenta/nupic/wiki.
+    """)
+
+    if haveBuild:
+      postProcess()
+  finally:
+    os.chdir(cwd)

@@ -41,12 +41,12 @@ from Queue import Empty
 from collections import deque
 
 from nupic.database import ClientJobsDAO as cjdao
-from nupic.frameworks.opf.exp_generator import ExpGenerator
+from nupic.swarming.exp_generator import ExpGenerator
 from nupic.frameworks.opf.opfutils import InferenceType
 from nupic.support.configuration import Configuration
 from nupic.support.unittesthelpers.testcasebase import unittest
 from nupic.swarming import permutations_runner
-from nupic.swarming.utils import generatePersistentJobGUID
+from nupic.swarming.hypersearch.utils import generatePersistentJobGUID
 
 
 
