@@ -9,6 +9,7 @@ import tarfile
 import urllib2
 
 from setuptools import setup, find_packages, Extension
+from subprocess import call
 
 """
 This file builds and installs the NuPIC binaries.
@@ -212,7 +213,13 @@ def findRequirements(nupicCoreReleaseDir):
     dependencies.append(wheel)
   eggFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.egg"))
   for egg in eggFiles:
-    dependencies.append(egg)
+    filename = os.path.splitext(egg)[0]
+    currentDir = os.getcwd()
+    os.chdir(nupicCoreReleaseDir)
+    print "python -m wheel convert {}".format(egg)
+    call(["python", "-m", "wheel", "convert", egg])
+    os.chdir(currentDir)
+    dependencies.append(filename + ".whl")
 
   requirements = parse_file(requirementsPath)
 
