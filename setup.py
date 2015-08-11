@@ -323,9 +323,7 @@ def prepareNupicCore(options, platform, bitness):
 
   if not skipCompareVersions:
     # Compare expected version of nupic.core against installed version
-    # TODO: put Version.hpp in dir /include/nupic so local version can be used
-    #with open(nupicCoreReleaseDir + "/include/nupic/Version.hpp"),
-    with open(os.path.join(nupicCoreReleaseDir, "Version.hpp"),
+    with open(nupicCoreReleaseDir + "/include/nupic/Version.hpp",
               "r") as fileObj:
       content = fileObj.read()
 
@@ -347,7 +345,7 @@ def prepareNupicCore(options, platform, bitness):
 def copyProtoFiles(nupicCoreReleaseDir):
   # Copy proto files located at nupic.core dir into nupic dir
   print "Copying capnp files from nupic core"
-  protoSourceDir = glob.glob(os.path.join(nupicCoreReleaseDir, "proto/"))[0]
+  protoSourceDir = glob.glob(os.path.join(nupicCoreReleaseDir, "include/nupic/proto/"))[0]
   protoTargetDir = REPO_DIR + "/nupic/bindings/proto"
   if not os.path.exists(protoTargetDir):
     os.makedirs(protoTargetDir)
