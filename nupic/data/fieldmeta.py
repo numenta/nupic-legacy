@@ -28,6 +28,9 @@ from collections import namedtuple
 
 
 
+# :param str name: field name
+# :param str type: one of the values from FieldMetaType
+# :param str special: one of the values from FieldMetaSpecial
 FieldMetaInfoBase = namedtuple('FieldMetaInfoBase', ['name', 'type', 'special'])
 
 class FieldMetaInfo(FieldMetaInfoBase):
@@ -56,6 +59,7 @@ class FieldMetaInfo(FieldMetaInfoBase):
 
   3.
   """
+
 
   @staticmethod
   def createFromFileFieldElement(fieldInfoTuple):
@@ -92,6 +96,7 @@ class FieldMetaType(object):
   list = 'list'
 
 
+
 class FieldMetaSpecial(object):
   """
   Public values for the "special" field attribute
@@ -101,3 +106,6 @@ class FieldMetaSpecial(object):
   sequence = 'S'
   timestamp = 'T'
   category = 'C'
+  learning = 'L'
+
+  ALL = (none, reset, sequence, timestamp, category, learning)

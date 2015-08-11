@@ -63,10 +63,9 @@ contents using a for loop:
 
 import os
 import csv
-import copy
 import json
 
-from nupic.data.fieldmeta import FieldMetaInfo
+from nupic.data.fieldmeta import FieldMetaInfo, FieldMetaSpecial
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.record_stream import RecordStreamIface
 from nupic.data.utils import (intOrNone, floatOrNone, parseBool, parseTimestamp,
@@ -78,7 +77,7 @@ from nupic.data.utils import (intOrNone, floatOrNone, parseBool, parseTimestamp,
 class FileRecordStream(RecordStreamIface):
   """ CSV file based RecordStream implementation
   """
-  
+
   # Private: number of header rows (field names, types, special)
   _NUM_HEADER_ROWS = 3
 
@@ -91,7 +90,7 @@ class FileRecordStream(RecordStreamIface):
 
   def __init__(self, streamID, write=False, fields=None, missingValues=None,
                bookmark=None, includeMS=True, firstRecord=None):
-    """ 
+    """
     streamID:
         CSV file name, input or output
     write:
@@ -103,17 +102,17 @@ class FileRecordStream(RecordStreamIface):
         what missing values should be replaced with?
     bookmark:
         a reference to the previous reader, if passed in, the records will be
-        returned starting from the point where bookmark was requested. Either 
-        bookmark or firstRecord can be specified, not both. If bookmark is used, 
-        then firstRecord MUST be None. 
+        returned starting from the point where bookmark was requested. Either
+        bookmark or firstRecord can be specified, not both. If bookmark is used,
+        then firstRecord MUST be None.
     includeMS:
         If false, the microseconds portion is not included in the
         generated output file timestamp fields. This makes it compatible
         with reading in from Excel.
-    firstRecord: 
+    firstRecord:
         0-based index of the first record to start reading from. Either bookmark
         or firstRecord can be specified, not both. If bookmark is used, then
-        firstRecord MUST be None. 
+        firstRecord MUST be None.
 
     Each field is a 3-tuple (name, type, special or '')
 
@@ -121,45 +120,31 @@ class FileRecordStream(RecordStreamIface):
     'int', 'float', 'bool' The special is either empty or one of S, R, T, C that
     designate their field as the sequenceId, reset, timestamp, or category.
     With exception of multiple categories, there can be at most one of each.
-    There may be multiple fields of type datetime, but no more than one of them 
-    may be the timestamp field (T). The sequence id field must be either a 
-    string or an int. The reset field must be an int (and must contain 0 or 1). 
-    
-    The category field must be an int or space-separated list of ints, where 
-    the former represents single-label classification and the latter is for 
-    multi-label classification (e.g. "1 3 4" designates a record for labels 1, 
-    3, and 4). The number of categories is allowed to vary record to record; 
-    sensor regions represent non-categories with -1, thus the category values 
+    There may be multiple fields of type datetime, but no more than one of them
+    may be the timestamp field (T). The sequence id field must be either a
+    string or an int. The reset field must be an int (and must contain 0 or 1).
+
+    The category field must be an int or space-separated list of ints, where
+    the former represents single-label classification and the latter is for
+    multi-label classification (e.g. "1 3 4" designates a record for labels 1,
+    3, and 4). The number of categories is allowed to vary record to record;
+    sensor regions represent non-categories with -1, thus the category values
     must be >= 0.
 
     The FileRecordStream iterates over the field names, types and specials and
     stores the information.
     """
-    super(FileRecordStream, self).__init__()
 
-    # Only bookmark or firstRow can be specified, not both
-    if bookmark is not None and firstRecord is not None:
-      raise RuntimeError(
-          "Only bookmark or firstRecord can be specified, not both")
-
-    if fields is None:
-      fields = []
-    if missingValues is None:
-      missingValues = ['']
-    
-    # We'll be operating on csvs with arbitrarily long fields
+    # We'll be operating on CSVs with arbitrarily long fields
     size = 2**27
     csv.field_size_limit(size)
 
-    self._filename = streamID
-    # We can't guarantee what system files are coming from, use universal
-    # newlines
-    self._write = write
-    self._mode = self._FILE_WRITE_MODE if write else self._FILE_READ_MODE
-    self._file = open(self._filename, self._mode)
-    self._sequences = set()
-    self.rewindAtEOF = False
-    
+    mode = self._FILE_WRITE_MODE if write else self._FILE_READ_MODE
+    fileObj = open(streamID, mode)
+
+    if fields is None:
+      fields = []
+
     if write:
       assert fields is not None
       assert isinstance(fields, (tuple, list))
@@ -167,25 +152,25 @@ class FileRecordStream(RecordStreamIface):
       assert all(isinstance(f, (tuple, FieldMetaInfo)) and len(f) == 3
                  for f in fields)
       names, types, specials = zip(*fields)
-      self._writer = csv.writer(self._file)
+      csvWriter = csv.writer(fileObj)
     else:
       # Make sure readline() works on windows too
       os.linesep = '\n'
       # Read header lines
-      self._reader = csv.reader(self._file, dialect="excel")
+      csvReader = csv.reader(fileObj, dialect="excel")
       try:
-        names = [n.strip() for n in self._reader.next()]
+        names = [n.strip() for n in csvReader.next()]
       except:
-        raise Exception('The header line of the file %s contained a NULL byte' \
-                        % self._filename)
-      types = [t.strip() for t in self._reader.next()]
-      specials = [s.strip() for s in self._reader.next()]
+        raise Exception('The header line of the file %s contained a NULL byte'
+                        % streamID)
+      types = [t.strip() for t in csvReader.next()]
+      specials = [s.strip() for s in csvReader.next()]
 
       # If there are no specials, this means there was a blank line
       if len(specials) == 0:
         specials=[""]
 
-    if not(len(names) == len(types) == len(specials)):
+    if not len(names) == len(types) == len(specials):
       raise Exception('Invalid file format: different number of fields '
                       'in the header rows of file %s (%d, %d, %d)' %
                       (streamID, len(names), len(types), len(specials)))
@@ -202,25 +187,55 @@ class FileRecordStream(RecordStreamIface):
 
       if t not in allowedTypes:
         raise Exception('Invalid file format for "%s" - field type "%s" '
-                        'not one of %s ' % (self._filename, t, allowedTypes))
+                        'not one of %s ' % (streamID, t, allowedTypes))
 
     for s in specials:
-      if s not in ('', 'T', 'R', 'S', 'C', 'L'):
+      if s not in FieldMetaSpecial.ALL:
         raise Exception('Invalid file format. \'%s\' is not a valid special '
                         'flag' % s)
 
-    self._fields = [FieldMetaInfo(*attrs)
-                    for attrs in zip(names, types, specials)]
+    fields = tuple(FieldMetaInfo(*attrs)
+                   for attrs in zip(names, types, specials))
+
+    # Call superclass constructor
+    super(FileRecordStream, self).__init__(fields=fields)
+
+    # Only bookmark or firstRow can be specified, not both
+    if bookmark is not None and firstRecord is not None:
+      raise RuntimeError(
+          "Only bookmark or firstRecord can be specified, not both")
+
+    if missingValues is None:
+      missingValues = ['']
+
+    self._filename = streamID
+    self._write = write
+    self._mode = mode
+    self._file = fileObj
+    self._sequences = set()
+    self.rewindAtEOF = False
+
+    if write:
+      self._writer = csvWriter
+    else:
+      self._reader = csvReader
+
+    self._fields = fields
     self._fieldCount = len(self._fields)
 
     # Keep track on how many records have been read/written
     self._recordCount = 0
 
-    self._timeStampIdx = specials.index('T') if 'T' in specials else None
-    self._resetIdx = specials.index('R') if 'R' in specials else None
-    self._sequenceIdIdx = specials.index('S') if 'S' in specials else None
-    self._categoryIdx = specials.index('C') if 'C' in specials else None
-    self._learningIdx = specials.index('L') if 'L' in specials else None
+    self._timeStampIdx = (specials.index(FieldMetaSpecial.timestamp)
+                          if FieldMetaSpecial.timestamp in specials else None)
+    self._resetIdx = (specials.index(FieldMetaSpecial.reset)
+                      if FieldMetaSpecial.reset in specials else None)
+    self._sequenceIdIdx = (specials.index(FieldMetaSpecial.sequence)
+                           if FieldMetaSpecial.sequence in specials else None)
+    self._categoryIdx = (specials.index(FieldMetaSpecial.category)
+                         if FieldMetaSpecial.category in specials else None)
+    self._learningIdx = (specials.index(FieldMetaSpecial.learning)
+                         if FieldMetaSpecial.learning in specials else None)
 
     # keep track of the current sequence
     self._currSequence = None
@@ -272,7 +287,7 @@ class FileRecordStream(RecordStreamIface):
       rowsToSkip = firstRecord
     else:
       rowsToSkip = 0
-      
+
     while rowsToSkip > 0:
       self.next()
       rowsToSkip -= 1
@@ -313,19 +328,19 @@ class FileRecordStream(RecordStreamIface):
     self.close()
     self._file = open(self._filename, self._mode)
     self._reader = csv.reader(self._file, dialect="excel")
-    
+
     # Skip header rows
-    row = self._reader.next()
-    row = self._reader.next()
-    row = self._reader.next()
-    
+    self._reader.next()
+    self._reader.next()
+    self._reader.next()
+
     # Reset record count, etc.
     self._recordCount = 0
 
 
   def getNextRecord(self, useCache=True):
     """ Returns next available data record from the file.
-    
+
     retval: a data row (a list or tuple) if available; None, if no more records
              in the table (End of Stream - EOS); empty sequence (list or tuple)
              when timing out while waiting for the next record.
@@ -336,7 +351,7 @@ class FileRecordStream(RecordStreamIface):
     # Read the line
     try:
       line = self._reader.next()
-    
+
     except StopIteration:
       if self.rewindAtEOF:
         if self._recordCount == 0:
@@ -344,7 +359,7 @@ class FileRecordStream(RecordStreamIface):
                           "'%s' appears to be empty" % self._filename)
         self.rewind()
         line = self._reader.next()
-        
+
       else:
         return None
 
@@ -373,10 +388,10 @@ class FileRecordStream(RecordStreamIface):
   def getRecordsRange(self, bookmark=None, range=None):
     """ Returns a range of records, starting from the bookmark. If 'bookmark'
     is None, then records read from the first available. If 'range' is
-    None, all available records will be returned (caution: this could be 
+    None, all available records will be returned (caution: this could be
     a lot of records and require a lot of memory).
     """
-  
+
     raise Exception('getRecordsRange() is not supported for the file storage')
 
 
@@ -388,7 +403,7 @@ class FileRecordStream(RecordStreamIface):
                        getLastRecords will be not returned until the next
                        call to either getNextRecord() or getLastRecords()
     """
-    
+
     raise Exception('getLastRecords() is not supported for the file storage')
 
 
@@ -398,15 +413,15 @@ class FileRecordStream(RecordStreamIface):
 
   def appendRecord(self, record, inputBookmark=None):
     """ Saves the record in the underlying csv file.
-        
+
         record: a list of Python objects that will be string-ified
-        
+
         Returns: nothing
     """
-    
+
     # input bookmark is not applicable in case of a file storage
     inputBookmark = inputBookmark
-    
+
     assert self._file is not None
     assert self._mode == self._FILE_WRITE_MODE
     assert isinstance(record, (list, tuple)), \
@@ -429,23 +444,23 @@ class FileRecordStream(RecordStreamIface):
 
     self._writer.writerow(line)
     self._recordCount += 1
-    
+
 
   def appendRecords(self, records, inputRef=None, progressCB=None):
     """ Saves multiple records in the underlying storage.
-        
+
         Params: records - array of records as in 'appendRecord'
                 inputRef - reference to the corresponding input (not applicable
                   in case of a file storage)
                 progressCB - callback to report progress
 
         Returns: nothing
-        
+
     """
-    
+
     # input ref is not applicable in case of a file storage
     inputRef = inputRef
-    
+
     for record in records:
       self.appendRecord(record, None)
       if progressCB is not None:
@@ -457,10 +472,10 @@ class FileRecordStream(RecordStreamIface):
     anchor to a constructor makes the current position to be the first
     returned record.
     """
-    
+
     if self._write and self._recordCount==0:
       return None
-    
+
     rowDict = dict(filepath=os.path.realpath(self._filename),
                    currentRow=self._recordCount)
     return json.dumps(rowDict)
@@ -497,14 +512,14 @@ class FileRecordStream(RecordStreamIface):
 
     Returns: a dictionary of stats. In the current implementation, min and max
              fields are supported. Example of the return dictionary is:
-             
-             { 
+
+             {
                'min' : [f1_min, f2_min, None, None, fn_min],
                'max' : [f1_max, f2_max, None, None, fn_max]
              }
-             
+
              (where fx_min/fx_max are set for scalar fields, or None if not)
-               
+
     """
 
     # Collect stats only once per File object, use fresh csv iterator
@@ -512,7 +527,7 @@ class FileRecordStream(RecordStreamIface):
     # caller asks for stats
     if self._stats == None:
       # Stats are only available when reading csv file
-      assert (self._mode == self._FILE_READ_MODE)
+      assert self._mode == self._FILE_READ_MODE
 
       inFile = open(self._filename, self._FILE_READ_MODE)
       os.linesep = '\n' # make sure readline() works on windows too.
@@ -528,7 +543,7 @@ class FileRecordStream(RecordStreamIface):
       self._stats = dict()
       self._stats['min'] = []
       self._stats['max'] = []
-      
+
       for i in xrange(len(names)):
         self._stats['min'].append(None)
         self._stats['max'].append(None)
@@ -538,7 +553,8 @@ class FileRecordStream(RecordStreamIface):
         try:
           line = reader.next()
           for i, f in enumerate(line):
-            if len(types) > i and types[i] in ['int', 'float'] and f not in self._missingValues:
+            if (len(types) > i and types[i] in ['int', 'float'] and
+                f not in self._missingValues):
               value = self._adapters[i](f)
               if self._stats['max'][i] == None or \
                  self._stats['max'][i] < value:
@@ -579,31 +595,15 @@ class FileRecordStream(RecordStreamIface):
     """
     # CSV file is always considered completed
     return True
-  
+
 
   def setCompleted(self, completed=True):
     """ Marks the stream completed (True or False)
     """
     # CSV file is always considered completed, nothing to do
     return
-  
-  
-  def getFieldNames(self):
-    """ Returns an array of field names associated with the data.
-    """
-    return [f[0] for f in self._fields]
-  
-  
-  def getFields(self):
-    """ Returns a sequence of nupic.data.fieldmeta.FieldMetaInfo
-    name/type/special tuples for each field in the stream.
-    """
-    if self._fields == None:
-      return None
-    else:
-      return copy.copy(self._fields)
-    
-    
+
+
   def _updateSequenceInfo(self, r):
     """Keep track of sequence and make sure time goes forward
 
@@ -621,7 +621,8 @@ class FileRecordStream(RecordStreamIface):
 
     # Get current sequence id (if any)
     newSequence = False
-    sequenceId = r[self._sequenceIdIdx] if self._sequenceIdIdx is not None else None
+    sequenceId = (r[self._sequenceIdIdx]
+                  if self._sequenceIdIdx is not None else None)
     if sequenceId != self._currSequence:
       # verify that the new sequence didn't show up before
       if sequenceId in self._sequences:
@@ -664,7 +665,7 @@ class FileRecordStream(RecordStreamIface):
     realpath = os.path.realpath(self._filename)
 
     bookMarkFile = bookMarkDict.get('filepath', None)
-    
+
     if bookMarkFile != realpath:
       print ("Ignoring bookmark due to mismatch between File's "
              "filename realpath vs. bookmark; realpath: %r; bookmark: %r") % (
@@ -672,7 +673,7 @@ class FileRecordStream(RecordStreamIface):
       return 0
     else:
       return bookMarkDict['currentRow']
-  
+
 
   def _getTotalLineCount(self):
     """ Returns:  count of ALL lines in dataset, including header lines
@@ -681,14 +682,15 @@ class FileRecordStream(RecordStreamIface):
     if self._mode == self._FILE_WRITE_MODE:
       self._file.flush()
     return sum(1 for line in open(self._filename, self._FILE_READ_MODE))
-  
+
 
   def getNextRecordIdx(self):
-    """Returns the index of the record that will be read next from getNextRecord()
+    """Returns the index of the record that will be read next from
+    getNextRecord()
     """
     return self._recordCount
 
-  
+
   def getDataRowCount(self):
     """
     Returns:  count of data rows in dataset (excluding header lines)
@@ -706,7 +708,7 @@ class FileRecordStream(RecordStreamIface):
     assert numDataRows >= 0
 
     return numDataRows
-  
+
 
   def setTimeout(self, timeout):
     """ Set the read timeout """
@@ -738,7 +740,7 @@ class FileRecordStream(RecordStreamIface):
   def __iter__(self):
     """Support for the iterator protocol. Return itself"""
     return self
-  
+
 
   def next(self):
     """Implement the iterator protocol """
