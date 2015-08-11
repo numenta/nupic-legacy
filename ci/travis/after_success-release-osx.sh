@@ -36,7 +36,7 @@ export PATH=/Users/travis/Library/Python/2.7/bin:${PATH}
 echo "Creating distribution files..."
 # We are not creating sdist here, because it's being created and uploaded in the
 # linux Travis-CI release build.
-ARCHFLAGS="-arch x86_64" python setup.py bdist bdist_wheel || exit
+python setup.py bdist bdist_wheel || exit
 
 echo "Created the following distribution files:"
 ls -l dist
