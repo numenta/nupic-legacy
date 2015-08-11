@@ -282,8 +282,6 @@ def prepareNupicCore(options, platform, bitness):
                           + nupicCoreCommitish + "-" + platform + bitness + ".tar.gz")
     nupicCoreLocalPackage = (nupicCoreSourceDir + "/nupic_core-"
                              + nupicCoreCommitish + "-" + platform + bitness + ".tar.gz")
-    #nupicCoreLocalDirToUnpack = ("nupic_core-"
-    #                             + nupicCoreCommitish + "-" + platform + bitness)
     if getPlatformInfo()[0] == "darwin":
       nupicCoreLocalDirToUnpack = "/Users/travis/build/numenta/nupic.core/bindings/py/dist"
     elif getPlatformInfo()[0] == "linux":
@@ -323,23 +321,24 @@ def prepareNupicCore(options, platform, bitness):
   else:
     skipCompareVersions = not fetchNupicCore
 
-  # TODO: include Version.hpp in nupic.core release
-  #if not skipCompareVersions:
-  #  # Compare expected version of nupic.core against installed version
-  #  with open(nupicCoreReleaseDir + "/include/nupic/Version.hpp",
-  #            "r") as fileObj:
-  #    content = fileObj.read()
+  if not skipCompareVersions:
+    # Compare expected version of nupic.core against installed version
+    # TODO: put Version.hpp in dir /include/nupic so local version can be used
+    #with open(nupicCoreReleaseDir + "/include/nupic/Version.hpp"),
+    with open(os.path.join(nupicCoreReleaseDir, "Version.hpp"),
+              "r") as fileObj:
+      content = fileObj.read()
 
-  #  nupicCoreVersionFound = re.search(
-  #    "#define NUPIC_CORE_VERSION \"([a-z0-9]+)\"", content
-  #  ).group(1)
+    nupicCoreVersionFound = re.search(
+      "#define NUPIC_CORE_VERSION \"([a-z0-9]+)\"", content
+    ).group(1)
 
-  #  if nupicCoreCommitish != nupicCoreVersionFound:
-  #    raise Exception(
-  #      "Fatal Error: Unexpected version of nupic.core! "
-  #      "Expected %s, but detected %s."
-  #      % (nupicCoreCommitish, nupicCoreVersionFound)
-  #    )
+    if nupicCoreCommitish != nupicCoreVersionFound:
+      raise Exception(
+        "Fatal Error: Unexpected version of nupic.core! "
+        "Expected %s, but detected %s."
+        % (nupicCoreCommitish, nupicCoreVersionFound)
+      )
 
   return nupicCoreReleaseDir
 
