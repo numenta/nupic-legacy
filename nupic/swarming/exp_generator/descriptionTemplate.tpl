@@ -36,8 +36,8 @@ from nupic.frameworks.opf.expdescriptionhelpers import (
 
 from nupic.frameworks.opf.clamodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                                           InferenceElement)
+from nupic.swarming.hypersearch.experimentutils import (InferenceType,
+                                                        InferenceElement)
 from nupic.support import aggregationDivide
 
 from nupic.frameworks.opf.opftaskdriver import (
