@@ -85,7 +85,16 @@ class CLAClassifierRegion(PyRegion):
             requireSplitterMap=False),
         ),
 
-        outputs=dict(),
+        outputs=dict(
+            classificationResult=dict(
+            description='Classification results',
+            dataType='Real32',
+            count=0,
+            required=True,
+            regionLevel=True,
+            isDefaultOutput=True,
+            requireSplitterMap=False),
+        ),
 
         parameters=dict(
           learningMode=dict(
@@ -171,7 +180,7 @@ class CLAClassifierRegion(PyRegion):
         )
     self.learningMode = True
     self.inferenceMode = False
-
+    self.recordNum = 0
     self._initEphemerals()
 
 
@@ -224,20 +233,39 @@ class CLAClassifierRegion(PyRegion):
     Process one input sample.
     This method is called by the runtime engine.
 
-    We don't use this method in this region because the inputs and outputs don't
-    fit the standard "vector of reals" used by the engine. Instead, call
-    the customCompute() method directly
     """
 
-    pass
+    # An input can potenatially belong to multiple categories. 
+    # If a category value is < 0, it means that the input does not belong to that category.
+    categories = []
+    for category in inputs['categoryIn']:
+      # if a category value <0, then it means 
+      # the input record does not belong to that category.
+      if category >= 0:
+        categories.append(category)
+  
+    activeCells = inputs["bottomUpIn"]
+    patternNZ = activeCells.nonzero()[0]
+    
+    # Only support training on 1 category for now
+    classificationIn = {"bucketIdx": int(categories[0]),
+                        "actValue": int(categories[0])}
+    
+    # Run inference and train.
+    clResults = self._claClassifier.compute(
+      recordNum=self.recordNum, patternNZ=patternNZ, classification=classificationIn, learn=self.learningMode, infer=self.inferenceMode)
+    
+    
+    inferredValue = clResults["actualValues"][clResults[int(self.steps)].argmax()]
+    
+    outputs['classificationResult'][0] = inferredValue
+    
+    self.recordNum += 1   
 
 
   def customCompute(self, recordNum, patternNZ, classification):
     """
     Process one input sample.
-    This method is called by outer loop code outside the nupic-engine. We
-    use this instead of the nupic engine compute() because our inputs and
-    outputs aren't fixed size vectors of reals.
 
     Parameters:
     --------------------------------------------------------------------
@@ -262,6 +290,22 @@ class CLAClassifierRegion(PyRegion):
                                         learn = self.learningMode,
                                         infer = self.inferenceMode)
 
+
+  def getOutputValues(self, outputName):
+    """Return the dictionary of output values. Note that these are normal Python
+    lists, rather than numpy arrays. This is to support lists with mixed scalars
+    and strings, as in the case of records with categorical variables
+    """
+    return self._outputValues[outputName]
+
+
+  def getOutputElementCount(self, name):
+    """Returns the width of dataOut."""
+   
+    if name == "classificationResult":
+      return 1
+    else:
+      raise Exception("Unknown output {}.".format(name))
 
 
 if __name__=='__main__':
