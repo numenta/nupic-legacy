@@ -220,15 +220,17 @@ class CLAModelTest(unittest.TestCase):
       self.assertIsInstance(result, ModelResult) #should run OK
 
 
-    # unknown predicted field - TemporalAnomaly model
+    # test unknown predicted field on TemporalAnomaly model
     inferenceArgsWrong = copy.copy(inferenceArgs)
-    inferenceArgsWrong['predictedField']='mispeltField' #make a typo
+    inferenceArgsWrong['predictedField']='mispeltField' # user made a typo in given name
 
     model = ModelFactory.create(modelConfig=modelConfig)
     model.enableLearning()
     model.enableInference(inferenceArgsWrong)
 
-    expMsg="Expected predicted field 'mispeltField' in input row, but was not found! Raw input is: {'_timestamp': datetime.datetime(2013, 12, 5, 0, 0), '_category': None, '_sequenceId': 0, u'c1': 5.0, u'c0': datetime.datetime(2013, 12, 5, 0, 0), '_timestampRecordIdx': None, '_reset': 0}"
+    expMsg="Expected predicted field 'mispeltField' in input row, "
+           "but was not found!"
+           "Raw input is: %r" % (data)
 
     for row in data:
       with self.assertRaises(ValueError) as ve:
@@ -236,8 +238,8 @@ class CLAModelTest(unittest.TestCase):
       self.assertEqual(str(ve.exception), expMsg) #should fail
 
 
-    # unknown predicted field - TemporalMultiStep model
-    modelConfig['modelParams']['inferenceType']='TemporalMultiStep' # change to MultiStep model
+    # test unknown predicted field check on TemporalMultiStep model
+    modelConfig['modelParams']['inferenceType']='TemporalMultiStep'
 
     model = ModelFactory.create(modelConfig=modelConfig)
     model.enableLearning()
