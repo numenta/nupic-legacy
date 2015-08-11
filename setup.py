@@ -9,6 +9,7 @@ import tarfile
 import urllib2
 
 from setuptools import setup, find_packages, Extension
+from wheel import egg2wheel
 
 """
 This file builds and installs the NuPIC binaries.
@@ -207,12 +208,14 @@ def findRequirements(nupicCoreReleaseDir):
   
   dependencies = []
   # use develop nupiccore bindings. not PYPI
+  eggFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.egg"))
+  for egg in eggFiles:
+    egg2wheel.egg2wheel(egg, nupicCoreReleaseDir)
+    dependencies.append(egg)
+
   wheelFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.whl"))
   for wheel in wheelFiles:
     dependencies.append(wheel)
-  eggFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.egg"))
-  for egg in eggFiles:
-    dependencies.append(egg)
 
   requirements = parse_file(requirementsPath)
 
@@ -383,6 +386,7 @@ if __name__ == "__main__":
         haveBuild = True
 
     nupicCoreReleaseDir = prepareNupicCore(options, platform, bitness)
+    print "nupic core release directory: {}".format(nupicCoreReleaseDir)
 
     copyProtoFiles(nupicCoreReleaseDir)
 

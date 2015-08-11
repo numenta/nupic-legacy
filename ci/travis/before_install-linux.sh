@@ -38,8 +38,13 @@ git clone https://github.com/numenta/nupic-linux64.git
 source nupic-linux64/bin/activate
 
 # TODO: remove after nupic-linux64 has been updated
+pip install --upgrade pip
 pip uninstall numpy --yes
 pip install numpy==1.9.2 --user
+
+# Assuming pip 1.5.X is installed.
+echo "pip install wheel --user"
+pip install wheel --user
 
 # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
 # See: https://github.com/travis-ci/travis-cookbooks/issues/155

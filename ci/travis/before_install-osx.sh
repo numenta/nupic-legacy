@@ -39,6 +39,10 @@ pip install --use-wheel numpy==1.9.2 --user
 PY_VERSION=`python -c 'import sys; print(sys.version[:3])'`
 export PYTHONPATH="/Users/travis/Library/Python/$PY_VERSION/lib/python/site-packages:$PYTHONPATH"
 
+# Assuming pip 1.5.X is installed.
+echo "pip install wheel --user"
+pip install wheel --user
+
 # Install and start MySQL on OSX
 echo ">>> brew install mysql"
 brew install mysql
