@@ -216,7 +216,8 @@ def findRequirements(nupicCoreReleaseDir):
     filename = os.path.splitext(egg)[0]
     currentDir = os.getcwd()
     os.chdir(nupicCoreReleaseDir)
-    call(["wheel", "convert", egg])
+    print "python -m wheel convert {}".format(egg)
+    call(["python", "-m", "wheel", "convert", egg])
     os.chdir(currentDir)
     dependencies.append(filename + ".whl")
 
