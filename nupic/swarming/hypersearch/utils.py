@@ -561,8 +561,12 @@ def generatePersistentJobGUID():
   """
   return "JOB_UUID1-" + str(uuid.uuid1())
 
+
+
 def identityConversion(value, _keys):
   return value
+
+
 
 def rCopy(d, f=identityConversion, discardNoneKeys=True, deepCopy=True):
   """Recursively copies a dict and returns the result.
@@ -598,6 +602,7 @@ def rCopy(d, f=identityConversion, discardNoneKeys=True, deepCopy=True):
       if not discardNoneKeys or newV is not None:
         d[k] = newV
   return newDict
+
 
 
 def rApply(d, f):
