@@ -30,6 +30,16 @@ from nupic.algorithms.cla_classifier_factory import CLAClassifierFactory
 
 
 
+class _NumCatgoriesNotSpecified(Exception):
+  pass
+
+
+
+class _UnknownOutput(Exception):
+  pass
+
+
+
 class CLAClassifierRegion(PyRegion):
   """
   CLAClassifierRegion implements a CLA specific classifier that accepts a binary
@@ -83,16 +93,40 @@ class CLAClassifierRegion(PyRegion):
             regionLevel=False,
             isDefaultInput=True,
             requireSplitterMap=False),
-        ),
-
-        outputs=dict(
-            classificationResult=dict(
-            description='Classification results',
+          
+          predictedActiveCells=dict(
+            description="The cells that are active and predicted",
             dataType='Real32',
             count=0,
             required=True,
             regionLevel=True,
-            isDefaultOutput=True,
+            isDefaultInput=False,
+            requireSplitterMap=False),
+        ),
+
+        outputs=dict(
+          classificationResults=dict(
+            description='Classification results',
+            dataType='Real32',
+            count=0,
+            regionLevel=True,
+            isDefaultOutput=False,
+            requireSplitterMap=False),
+          
+          actualValues=dict(
+            description='Classification results',
+            dataType='Real32',
+            count=0,
+            regionLevel=True,
+            isDefaultOutput=False,
+            requireSplitterMap=False),
+          
+          probabilities=dict(
+            description='Classification results',
+            dataType='Real32',
+            count=0,
+            regionLevel=True,
+            isDefaultOutput=False,
             requireSplitterMap=False),
         ),
 
@@ -114,6 +148,15 @@ class CLAClassifierRegion(PyRegion):
             constraints='bool',
             defaultValue=0,
             accessMode='ReadWrite'),
+          
+          numCategories=dict(
+            description='Number of categories from the sensor region',
+            dataType='UInt32',
+            required=True,
+            count=1,
+            constraints='bool',
+            defaultValue=None,
+            accessMode='ReadWrite'),
 
           steps=dict(
             description='Comma separated list of the desired steps of '
@@ -121,7 +164,7 @@ class CLAClassifierRegion(PyRegion):
             dataType="Byte",
             count=0,
             constraints='',
-            defaultValue='1',
+            defaultValue='0',
             accessMode='Create'),
 
           alpha=dict(
@@ -163,6 +206,7 @@ class CLAClassifierRegion(PyRegion):
                alpha=0.001,
                clVerbosity=0,
                implementation=None,
+               numCategories=None
                ):
 
     # Convert the steps designation to a list
@@ -180,6 +224,7 @@ class CLAClassifierRegion(PyRegion):
         )
     self.learningMode = True
     self.inferenceMode = False
+    self.numCategories = numCategories
     self.recordNum = 0
     self._initEphemerals()
 
@@ -235,7 +280,7 @@ class CLAClassifierRegion(PyRegion):
 
     """
 
-    # An input can potenatially belong to multiple categories. 
+    # An input can potentially belong to multiple categories. 
     # If a category value is < 0, it means that the input does not belong to that category.
     categories = []
     for category in inputs['categoryIn']:
@@ -247,18 +292,34 @@ class CLAClassifierRegion(PyRegion):
     activeCells = inputs["bottomUpIn"]
     patternNZ = activeCells.nonzero()[0]
     
-    # Only support training on 1 category for now
+    # Only support training on the first category for now
     classificationIn = {"bucketIdx": int(categories[0]),
                         "actValue": int(categories[0])}
     
     # Run inference and train.
-    clResults = self._claClassifier.compute(
-      recordNum=self.recordNum, patternNZ=patternNZ, classification=classificationIn, learn=self.learningMode, infer=self.inferenceMode)
+    clResults = self._claClassifier.compute(recordNum=self.recordNum, 
+                                            patternNZ=patternNZ, 
+                                            classification=classificationIn, 
+                                            learn=self.learningMode, 
+                                            infer=self.inferenceMode)
     
-    
-    inferredValue = clResults["actualValues"][clResults[int(self.steps)].argmax()]
-    
-    outputs['classificationResult'][0] = inferredValue
+    outputs['actualValues'] = clResults["actualValues"]
+    for step in self.stepsList:
+      stepIndex = self.stepsList.index(step)
+      outputs['classificationResults'][stepIndex] = clResults["actualValues"][clResults[step].argmax()]
+      
+      # Flaten the rest of the output. For example:
+      #   Original dict  {1 : [0.1, 0.3, 0.2, 0.7]
+      #                   4 : [0.2, 0.4, 0.3, 0.5]}
+      #   becomes: [0.1, 0.3, 0.2, 0.7, 0.2, 0.4, 0.3, 0.5] 
+      stepProbabilities = clResults[step]
+      for categoryIndex in xrange(self.numCategories):
+        flatIndex = stepIndex + categoryIndex
+        if categoryIndex < len(stepProbabilities):        
+          outputs['probabilities'][flatIndex] = stepProbabilities[categoryIndex]
+        else:
+          outputs['probabilities'][flatIndex] = 0.0
+          
     
     self.recordNum += 1   
 
@@ -302,10 +363,18 @@ class CLAClassifierRegion(PyRegion):
   def getOutputElementCount(self, name):
     """Returns the width of dataOut."""
    
-    if name == "classificationResult":
-      return 1
+    if name == "classificationResults":
+      return len(self.stepsList)
+    elif name == "probabilities":
+      if not self.numCategories:
+        raise _NumCatgoriesNotSpecified("The parameter 'numCategories' has not been initialized.")
+      return len(self.stepsList) * self.numCategories
+    elif name == "actualValues":
+      if not self.numCategories:
+        raise _NumCatgoriesNotSpecified("The parameter 'numCategories' has not been initialized.")
+      return self.numCategories
     else:
-      raise Exception("Unknown output {}.".format(name))
+      raise _UnknownOutput("Unknown output {}.".format(name))
 
 
 if __name__=='__main__':
