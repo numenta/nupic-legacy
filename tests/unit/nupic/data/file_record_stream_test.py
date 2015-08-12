@@ -71,7 +71,7 @@ class TestFileRecordStream(unittest.TestCase):
         ['rec_2', datetime(day=2, month=3, year=2010), 8, 7.5, 0, 'seq-1', 11],
         ['rec_3', datetime(day=3, month=3, year=2010), 12, 8.5, 0, 'seq-1', 12])
 
-      self.assertEqual(fields, s.getFields())
+      self.assertSequenceEqual(fields, s.getFields())
       self.assertEqual(0, s.getNextRecordIdx())
 
       print 'Writing records ...'
@@ -96,7 +96,7 @@ class TestFileRecordStream(unittest.TestCase):
 
       # Read the standard file
       self.assertEqual(6, s.getDataRowCount())
-      self.assertEqual(fieldNames, s.getFieldNames())
+      self.assertSequenceEqual(fieldNames, s.getFieldNames())
 
       # Note! this is the number of records read so far
       self.assertEqual(0, s.getNextRecordIdx())
@@ -154,7 +154,7 @@ class TestFileRecordStream(unittest.TestCase):
         ['rec_3', datetime(day=3, month=3, year=2010), 2, 8.5, 0, 'seq-1',
          [6, 7, 8,]])
 
-      self.assertEqual(fields, s.getFields())
+      self.assertSequenceEqual(fields, s.getFields())
       self.assertEqual(0, s.getNextRecordIdx())
 
       print 'Writing records ...'
@@ -182,7 +182,7 @@ class TestFileRecordStream(unittest.TestCase):
 
       # Read the standard file
       self.assertEqual(6, s.getDataRowCount())
-      self.assertEqual(fieldNames, s.getFieldNames())
+      self.assertSequenceEqual(fieldNames, s.getFieldNames())
 
       # Note! this is the number of records read so far
       self.assertEqual(0, s.getNextRecordIdx())
@@ -305,7 +305,7 @@ class TestFileRecordStream(unittest.TestCase):
     s = FileRecordStream(streamID=filename, write=False)
 
     fieldsRead = s.getFields()
-    self.assertEqual(fields, fieldsRead)
+    self.assertSequenceEqual(fields, fieldsRead)
 
     recordsRead = []
     while True:

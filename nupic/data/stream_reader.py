@@ -24,16 +24,15 @@ import os
 import logging
 import tempfile
 
-from pkg_resources import resource_filename
+import pkg_resources
 
 from nupic.data.aggregator import Aggregator
-from nupic.data.fieldmeta import FieldMetaInfo
+from nupic.data.fieldmeta import FieldMetaInfo, FieldMetaSpecial
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data import jsonhelpers
 from nupic.data.record_stream import RecordStreamIface
 from nupic.frameworks.opf import jsonschema
 import nupic.support
-from nupic.support.configuration import Configuration
 
 
 TYPES = ['float', 'int', 'string', 'datetime', 'bool', 'address', 'list',
@@ -60,9 +59,9 @@ class StreamReader(RecordStreamIface):
   implements the raw reading of records from the record store (which could be a
   file, hbase table or something else).
 
-  In the future, we will support joining of two or more RecordStreamIFace's (which
-  is why the streamDef accepts a list of 'stream' elements), but for now only
-  1 source is supported.
+  In the future, we will support joining of two or more RecordStreamIFace's (
+  which is why the streamDef accepts a list of 'stream' elements), but for now
+  only 1 source is supported.
 
   The class also implements aggregation of the (in the future) joined records
   from the sources.
@@ -135,98 +134,79 @@ class StreamReader(RecordStreamIface):
                 completed.
 
     """
+    self._logger = logging.getLogger('com.numenta.nupic.data.StreamReader')
 
-    # Call superclass constructor
-    super(StreamReader, self).__init__()
-
-    loggerPrefix = 'com.numenta.nupic.data.StreamReader'
-    self._logger = logging.getLogger(loggerPrefix)
     jsonhelpers.validate(streamDef,
-                         schemaPath=resource_filename(
-                             jsonschema.__name__, "stream_def.json"))
+                         schemaPath=pkg_resources.resource_filename(
+                           jsonschema.__name__, "stream_def.json"))
     assert len(streamDef['streams']) == 1, "Only 1 source stream is supported"
 
-    # Save constructor args
+
+    # Compute the aggregation period in terms of months and seconds
+    if 'aggregation' in streamDef:
+      aggregationPeriod = nupic.support.aggregationToMonthsSeconds(
+        streamDef.get('aggregation'))
+    else:
+      aggregationPeriod = None
+
     sourceDict = streamDef['streams'][0]
-    self._recordCount = 0
-    self._eofOnTimeout = eofOnTimeout
     self._logger.debug('Reading stream with the def: %s', sourceDict)
 
-    # Dictionary to store record statistics (min and max of scalars for now)
-    self._stats = None
-
-    # ---------------------------------------------------------------------
-    # Get the stream definition params
-
-    # Limiting window of the stream. It would not return any records until
-    # 'first_record' ID is read (or very first with the ID above that). The
-    # stream will return EOS once it reads record with ID 'last_record' or
-    # above (NOTE: the name 'lastRecord' is misleading because it is NOT
-    #  inclusive).
     firstRecordIdx = sourceDict.get('first_record', None)
-    self._sourceLastRecordIdx = sourceDict.get('last_record', None)
 
     # If a bookmark was given, then override first_record from the stream
     #  definition.
     if bookmark is not None:
       firstRecordIdx = None
 
-
-    # Column names must be provided in the streamdef json
-    # Special case is ['*'], meaning all available names from the record stream
-    self._streamFieldNames = sourceDict.get('columns', None)
-    if self._streamFieldNames != None and self._streamFieldNames[0] == '*':
-      self._needFieldsFiltering = False
-    else:
-      self._needFieldsFiltering = True
+    # Open up the underlying record store
+    recordStore = self._openStream(sourceDict.get('source'), isBlocking,
+                                   maxTimeout, bookmark, firstRecordIdx)
 
     # Types must be specified in streamdef json, or in case of the
     #  file_recod_stream types could be implicit from the file
     streamFieldTypes = sourceDict.get('types', None)
     self._logger.debug('Types from the def: %s', streamFieldTypes)
     # Validate that all types are valid
-    if streamFieldTypes != None:
+    if streamFieldTypes is not None:
       for dataType in streamFieldTypes:
-        assert(dataType in TYPES)
+        assert dataType in TYPES
 
     # Reset, sequence and time fields might be provided by streamdef json
     streamResetFieldName = streamDef.get('resetField', None)
     streamTimeFieldName = streamDef.get('timeField', None)
     streamSequenceFieldName = streamDef.get('sequenceIdField', None)
-    self._logger.debug('r, t, s fields: %s, %s, %s', streamResetFieldName,
-                                                      streamTimeFieldName,
-                                                      streamSequenceFieldName)
+    self._logger.debug('r, t, s fields: %s, %s, %s',
+                       streamResetFieldName,
+                       streamTimeFieldName,
+                       streamSequenceFieldName)
 
-
-    # =======================================================================
-    # Open up the underlying record store
-    dataUrl = sourceDict.get('source', None)
-    assert(dataUrl is not None)
-    self._openStream(dataUrl, isBlocking, maxTimeout, bookmark, firstRecordIdx)
-    assert(self._recordStore is not None)
-
-
-    # =======================================================================
     # Prepare the data structures we need for returning just the fields
     #  the caller wants from each record
-    self._recordStoreFields = self._recordStore.getFields()
-    self._recordStoreFieldNames = self._recordStore.getFieldNames()
+    recordStoreFields = recordStore.getFields()
+    recordStoreFieldNames = recordStore.getFieldNames()
 
-    if not self._needFieldsFiltering:
-      self._streamFieldNames = self._recordStoreFieldNames
+    # Column names must be provided in the streamdef json
+    # Special case is ['*'], meaning all available names from the record stream
+    streamFieldNames = sourceDict.get('columns')
+    if streamFieldNames != None and streamFieldNames[0] == '*':
+      needFieldsFiltering = False
+      streamFieldNames = recordStoreFieldNames
+    else:
+      needFieldsFiltering = True
 
-    # Build up the field definitions for each field. This is a list of tuples
-    #  of (name, type, special)
-    self._streamFields = []
-    for dstIdx, name in enumerate(self._streamFieldNames):
-      if name not in self._recordStoreFieldNames:
+    # Build up the field definitions for each field; this is a list of
+    # FieldMetaInfo objects
+    streamFields = []
+    for dstIdx, name in enumerate(streamFieldNames):
+      if name not in recordStoreFieldNames:
         raise RuntimeError("The column '%s' from the stream definition "
           "is not present in the underlying stream which has the following "
-          "columns: %s" % (name, self._recordStoreFieldNames))
+          "columns: %s" % (name, recordStoreFieldNames))
 
-      fieldIdx = self._recordStoreFieldNames.index(name)
-      fieldType = self._recordStoreFields[fieldIdx][1]
-      fieldSpecial = self._recordStoreFields[fieldIdx][2]
+      fieldIdx = recordStoreFieldNames.index(name)
+      fieldType = recordStoreFields[fieldIdx][1]
+      fieldSpecial = recordStoreFields[fieldIdx][2]
 
       # If the types or specials were defined in the stream definition,
       #   then override what was found in the record store
@@ -234,13 +214,39 @@ class StreamReader(RecordStreamIface):
         fieldType = streamFieldTypes[dstIdx]
 
       if streamResetFieldName is not None and streamResetFieldName == name:
-        fieldSpecial = 'R'
+        fieldSpecial = FieldMetaSpecial.reset
       if streamTimeFieldName is not None and streamTimeFieldName == name:
-        fieldSpecial = 'T'
-      if streamSequenceFieldName is not None and streamSequenceFieldName == name:
-        fieldSpecial = 'S'
+        fieldSpecial = FieldMetaSpecial.timestamp
+      if (streamSequenceFieldName is not None and
+          streamSequenceFieldName == name):
+        fieldSpecial = FieldMetaSpecial.sequence
 
-      self._streamFields.append(FieldMetaInfo(name, fieldType, fieldSpecial))
+      streamFields.append(FieldMetaInfo(name, fieldType, fieldSpecial))
+
+    streamFields = tuple(streamFields)
+
+    # Call superclass constructor
+    super(StreamReader, self).__init__(fields=streamFields,
+                                       aggregationPeriod=aggregationPeriod)
+
+    # Save constructor args
+    self._recordCount = 0
+    self._eofOnTimeout = eofOnTimeout
+
+    self._streamFieldNames = streamFieldNames
+    self._needFieldsFiltering = needFieldsFiltering
+    self._recordStore = recordStore
+    self._streamFields = streamFields
+
+    # Dictionary to store record statistics (min and max of scalars for now)
+    self._stats = None
+
+    # Limiting window of the stream. It would not return any records until
+    # 'first_record' ID is read (or very first with the ID above that). The
+    # stream will return EOS once it reads record with ID 'last_record' or
+    # above (NOTE: the name 'lastRecord' is misleading because it is NOT
+    #  inclusive).
+    self._sourceLastRecordIdx = sourceDict.get('last_record', None)
 
 
     # ========================================================================
@@ -248,7 +254,7 @@ class StreamReader(RecordStreamIface):
     #  returning them.
     self._aggregator = Aggregator(
             aggregationInfo=streamDef.get('aggregation', None),
-            inputFields=self._recordStoreFields,
+            inputFields=recordStoreFields,
             timeFieldName=streamDef.get('timeField', None),
             sequenceIdFieldName=streamDef.get('sequenceIdField', None),
             resetFieldName=streamDef.get('resetField', None))
@@ -256,13 +262,6 @@ class StreamReader(RecordStreamIface):
     # We rely on the aggregator to tell us the bookmark of the last raw input
     #  that contributed to the aggregated record
     self._aggBookmark = None
-
-    # Compute the aggregation period in terms of months and seconds
-    if 'aggregation' in streamDef:
-      self._aggMonthsAndSeconds = nupic.support.aggregationToMonthsSeconds(
-                streamDef.get('aggregation'))
-    else:
-      self._aggMonthsAndSeconds = None
 
 
     # ========================================================================
@@ -279,20 +278,28 @@ class StreamReader(RecordStreamIface):
       self._writer = None
 
 
-  def _openStream(self, dataUrl, isBlocking, maxTimeout, bookmark,
+  @staticmethod
+  def _openStream(dataUrl,
+                  isBlocking,  # pylint: disable=W0613
+                  maxTimeout,  # pylint: disable=W0613
+                  bookmark,
                   firstRecordIdx):
     """Open the underlying file stream.
 
     This only supports 'file://' prefixed paths.
+
+    :rtype: FileRecordStream
     """
+    assert dataUrl is not None
+
     filePath = dataUrl[len(FILE_PREF):]
     if not os.path.isabs(filePath):
       filePath = os.path.join(os.getcwd(), filePath)
-    self._recordStoreName = filePath 
-    self._recordStore = FileRecordStream(streamID=self._recordStoreName,
-                                         write=False,
-                                         bookmark=bookmark,
-                                         firstRecord=firstRecordIdx)
+
+    return FileRecordStream(streamID=filePath,
+                            write=False,
+                            bookmark=bookmark,
+                            firstRecord=firstRecordIdx)
 
 
   def close(self):
@@ -350,7 +357,7 @@ class StreamReader(RecordStreamIface):
     # Do we need to re-order the fields in the record?
     if self._needFieldsFiltering:
       values = []
-      srcDict = dict(zip(self._recordStoreFieldNames, fieldValues))
+      srcDict = dict(zip(self._recordStore.getFieldNames(), fieldValues))
       for name in self._streamFieldNames:
         values.append(srcDict[name])
       fieldValues = values
@@ -398,7 +405,8 @@ class StreamReader(RecordStreamIface):
 
 
   def getNextRecordIdx(self):
-    """Returns the index of the record that will be read next from getNextRecord()
+    """Returns the index of the record that will be read next from
+    getNextRecord()
     """
     return self._recordCount
 
@@ -406,29 +414,6 @@ class StreamReader(RecordStreamIface):
   def recordsExistAfter(self, bookmark):
     """Returns True iff there are records left after the  bookmark."""
     return self._recordStore.recordsExistAfter(bookmark)
-
-
-  def getAggregationMonthsAndSeconds(self):
-    """ Returns the aggregation period of the record stream as a dict
-    containing 'months' and 'seconds'. The months is always an integer and
-    seconds is a floating point. Only one is allowed to be non-zero at a
-    time.
-
-    If there is no aggregation associated with the stream, returns None.
-
-    Typically, a raw file or hbase stream will NOT have any aggregation info,
-    but subclasses of RecordStreamIFace, like StreamReader, will and will
-    return the aggregation period from this call. This call is used by the
-    getNextRecordDict() method to assign a record number to a record given
-    its timestamp and the aggregation interval
-
-    Parameters:
-    ------------------------------------------------------------------------
-    retval: aggregationPeriod (as a dict) or None
-              'months': number of months in aggregation period
-              'seconds': number of seconds in aggregation period (as a float)
-    """
-    return self._aggMonthsAndSeconds
 
 
   def appendRecord(self, record, inputRef=None):
@@ -452,56 +437,10 @@ class StreamReader(RecordStreamIface):
     raise RuntimeError("Not implemented in StreamReader")
 
 
-  def getFieldNames(self):
-    """ Returns all fields in all inputs (list of plain names).
-    NOTE: currently, only one input is supported
-    """
-    return [f[0] for f in self._streamFields]
-
-
-  def getFields(self):
-    """ Returns a sequence of nupic.data.fieldmeta.FieldMetaInfo
-    name/type/special tuples for each field in the stream.
-    """
-    return self._streamFields
-
-
   def getBookmark(self):
     """ Returns a bookmark to the current position
     """
     return self._aggBookmark
-
-
-  def getResetFieldIdx(self):
-    """ Return index of the 'reset' field. """
-    for i, field in enumerate(self._streamFields):
-      if field[2] == 'R' or field[2] == 'r':
-        return i
-    return None
-
-
-  def getTimestampFieldIdx(self):
-    """ Return index of the 'timestamp' field. """
-    for i, field in enumerate(self._streamFields):
-      if field[2] == 'T' or field[2] == 't':
-        return i
-    return None
-
-
-  def getSequenceIdFieldIdx(self):
-    """ Return index of the 'sequenceId' field. """
-    for i, field in enumerate(self._streamFields):
-      if field[2] == 'S' or field[2] == 's':
-        return i
-    return None
-
-
-  def getCategoryFieldIdx(self):
-    """ Return index of the 'category' field. """
-    for i, field in enumerate(self._streamFields):
-      if field[2] == 'C' or field[2] == 'c':
-        return i
-    return None
 
 
   def clearStats(self):
@@ -528,7 +467,7 @@ class StreamReader(RecordStreamIface):
     # We need to convert each item to represent the fields of the *stream*
     streamStats = dict()
     for (key, values) in recordStoreStats.items():
-      fieldStats = dict(zip(self._recordStoreFieldNames, values))
+      fieldStats = dict(zip(self._recordStore.getFieldNames(), values))
       streamValues = []
       for name in self._streamFieldNames:
         streamValues.append(fieldStats[name])
