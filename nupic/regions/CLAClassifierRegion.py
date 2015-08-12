@@ -314,7 +314,7 @@ class CLAClassifierRegion(PyRegion):
       #   becomes: [0.1, 0.3, 0.2, 0.7, 0.2, 0.4, 0.3, 0.5] 
       stepProbabilities = clResults[step]
       for categoryIndex in xrange(self.numCategories):
-        flatIndex = stepIndex + categoryIndex
+        flatIndex = categoryIndex + stepIndex * self.numCategories
         if categoryIndex < len(stepProbabilities):        
           outputs['probabilities'][flatIndex] = stepProbabilities[categoryIndex]
         else:
