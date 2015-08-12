@@ -33,6 +33,8 @@
 #
 # TODO: offer a combined json parsing/validation function that applies
 #       defaults from the schema
+# TODO: duplicate of 'validate', 'ValidationError', 'loadJSONValueFromFile'
+# in swarming.hypersearch.utils -- will want to remove that later
 
 import json
 import math
