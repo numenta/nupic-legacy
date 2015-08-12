@@ -41,6 +41,8 @@ from nupic.database.ClientJobsDAO import (
 
 # TODO: Note the function 'rUpdate' is also duplicated in the
 # nupic.data.dictutils module -- we will eventually want to change this
+# TODO: 'ValidationError', 'validate', 'loadJSONValueFromFile' duplicated in
+# nupic.data.jsonhelpers -- will want to remove later
 
 class JobFailException(Exception):
   """ If a model raises this exception, then the runModelXXX code will
@@ -667,8 +669,11 @@ def clippedObj(obj, maxElementSize=64):
   return objOut
 
 
+
 class ValidationError(validictory.ValidationError):
   pass
+
+
 
 def validate(value, **kwds):
   """ Validate a python value against json schema:
