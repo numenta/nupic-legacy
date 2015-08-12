@@ -33,10 +33,8 @@ import copy
 import pprint
 from operator import itemgetter
 
-from nupic.swarming.hypersearch.utils import rApply, rCopy
 from nupic.frameworks.opf import opfhelpers
-
-from nupic.support.serializationutils import sortedJSONDumpS
+from nupic.swarming.hypersearch.utils import sortedJSONDumpS, rApply, rCopy
 from nupic.support.configuration import Configuration
 from nupic.swarming.hypersearch.utils import clippedObj
 from nupic.swarming.hypersearch.errorcodes import ErrorCodes
