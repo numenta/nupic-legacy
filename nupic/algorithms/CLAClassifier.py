@@ -299,7 +299,6 @@ class CLAClassifier(object):
     self._recordNumMinusLearnIteration = None
 
     # Max # of steps of prediction we need to support
-    # TODO: Do we need the +1?
     maxSteps = max(self.steps) + 1
 
     # History of the last _maxSteps activation patterns. We need to keep
