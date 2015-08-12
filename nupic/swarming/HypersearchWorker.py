@@ -32,14 +32,14 @@ import itertools
 import StringIO
 import traceback
 
-from nupic.data import jsonhelpers
-from nupic.swarming.hypersearch.utils import clippedObj
 from nupic.support import initLogging
 from nupic.support.configuration import Configuration
 from nupic.support.ExtendedLogger import ExtendedLogger
 from nupic.swarming.hypersearch.errorcodes import ErrorCodes
+from nupic.swarming.hypersearch.utils import clippedObj, validate
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from HypersearchV2 import HypersearchV2
+
 
 
 class HypersearchWorker(object):
@@ -298,7 +298,7 @@ class HypersearchWorker(object):
     jsonSchemaPath = os.path.join(os.path.dirname(__file__),
                                   "jsonschema",
                                   "jobParamsSchema.json")
-    jsonhelpers.validate(jobParams, schemaPath=jsonSchemaPath)
+    validate(jobParams, schemaPath=jsonSchemaPath)
 
 
     hsVersion = jobParams.get('hsVersion', None)
