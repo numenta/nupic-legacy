@@ -43,6 +43,7 @@ from nupic.database.ClientJobsDAO import (
 # nupic.data.dictutils module -- we will eventually want to change this
 # TODO: 'ValidationError', 'validate', 'loadJSONValueFromFile' duplicated in
 # nupic.data.jsonhelpers -- will want to remove later
+# TODO: 'matchPatterns' duplicated from nupic.frameworks.opf.opfutils
 
 class JobFailException(Exception):
   """ If a model raises this exception, then the runModelXXX code will
@@ -753,3 +754,25 @@ def sortedJSONDumpS(obj):
 
   else:
     return json.dumps(obj)
+
+
+
+def matchPatterns(patterns, keys):
+  """Returns a subset of the keys that match any of the given patterns
+
+  Parameters:
+  -----------------------------------------------------------------------
+  patterns:   A list of regular expressions to match
+  keys:       A list of keys to search for matches
+  """
+  results = []
+  if patterns:
+    for pattern in patterns:
+      prog = re.compile(pattern)
+      for key in keys:
+        if prog.match(key):
+          results.append(key)
+  else:
+    return None
+
+  return results
