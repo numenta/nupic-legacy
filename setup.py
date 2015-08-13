@@ -9,7 +9,6 @@ import tarfile
 import urllib2
 
 from setuptools import setup, find_packages, Extension
-from wheel import egg2wheel
 
 """
 This file builds and installs the NuPIC binaries.
@@ -210,6 +209,7 @@ def findRequirements(nupicCoreReleaseDir):
   # use develop nupiccore bindings. not PYPI
   eggFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.egg"))
   for egg in eggFiles:
+    from wheel import egg2wheel
     egg2wheel.egg2wheel(egg, nupicCoreReleaseDir)
     dependencies.append(egg)
 
