@@ -209,13 +209,13 @@ def findRequirements(nupicCoreReleaseDir):
   # use develop nupiccore bindings. not PYPI
   eggFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.egg"))
   for egg in eggFiles:
+    dependencies.append(egg)
     # Temporary situation. Fix later
     try:
       from wheel import egg2wheel
       egg2wheel.egg2wheel(egg, nupicCoreReleaseDir)
     except ImportError:
-      pass
-    dependencies.append(egg)
+      continue
 
   wheelFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.whl"))
   for wheel in wheelFiles:
