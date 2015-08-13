@@ -26,7 +26,7 @@ import datetime
 import StringIO
 
 from nupic.data.inference_shifter import InferenceShifter
-from nupic.support import object_json as json
+from nupic.swarming import object_json as json
 from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
                                                         unittest)
 
