@@ -29,10 +29,6 @@ from PyRegion import PyRegion
 from nupic.algorithms.cla_classifier_factory import CLAClassifierFactory
 
 
-class _NumCatgoriesNotSpecified(Exception):
-  pass
-
-
 
 class CLAClassifierRegion(PyRegion):
   """
