@@ -44,7 +44,11 @@ if [ "${TRAVIS_BRANCH}" = "swig" ]; then
     # Build all NuPIC and all required python packages into dist/wheels as .whl
     # files.
     echo "pip wheel --wheel-dir=dist/wheels . --find-links=extensions/core/build/release"
-    pip wheel --wheel-dir=dist/wheels . --find-links=dist/wheels --global-option="--wheel-dir=${TRAVIS_BUILD_DIR}/dist/wheels"
+    pip wheel --wheel-dir=dist/wheels . extensions/core/requirements.txt
+    wheel convert extensions/core/*.egg --dest-dir=dist/wheels
+    pip wheel --wheel-dir=dist/wheels . external/common/requirements.txt --find-links=dist/wheels
+    python setup.py bdist_wheel -d dist/wheels
+    python setup.py bdist_egg -d dist
 
     # The dist/wheels folder is expected to be deployed to S3.
 
