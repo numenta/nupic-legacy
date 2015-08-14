@@ -347,14 +347,14 @@ class CLAClassifierRegion(PyRegion):
     """
     return self._outputValues[outputName]
 
-  def getOutputElementCount(self, name):
+  def getOutputElementCount(self, outputName):
     """Returns the width of dataOut."""
 
-    if name == "categoriesOut":
+    if outputName == "categoriesOut":
       return len(self.stepsList)
-    elif name == "probabilities":
+    elif outputName == "probabilities":
       return len(self.stepsList) * self.numCategories
-    elif name == "actualValues":
+    elif outputName == "actualValues":
       return self.numCategories
     else:
       raise ValueError("Unknown output {}.".format(name))
