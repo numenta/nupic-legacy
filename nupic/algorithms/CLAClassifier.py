@@ -452,9 +452,9 @@ class CLAClassifier(object):
         self._actualValues[bucketIdx] = actValue
       else:
         if isinstance(actValue, int) or isinstance(actValue, float):
-          self._actualValues[bucketIdx] = \
-            (1.0 - self.actValueAlpha) * self._actualValues[bucketIdx] \
-            + self.actValueAlpha * actValue
+          self._actualValues[bucketIdx] = ((1.0 - self.actValueAlpha)
+                                           * self._actualValues[bucketIdx]
+                                           + self.actValueAlpha * actValue)
         else:
           self._actualValues[bucketIdx] = actValue
 
@@ -498,10 +498,9 @@ class CLAClassifier(object):
           continue
         print "    %d steps: " % (nSteps), _pFormatArray(votes)
         bestBucketIdx = votes.argmax()
-        print "      most likely bucket idx: %d, value: %s" % (bestBucketIdx,
-                                                               retval[
-                                                                 "actualValues"][
-                                                                 bestBucketIdx])
+        print ("      most likely bucket idx: "
+               "%d, value: %s" % (bestBucketIdx,
+                                  retval["actualValues"][bestBucketIdx]))
       print
 
     return retval
@@ -548,8 +547,8 @@ class CLAClassifier(object):
     classifier.alpha = proto.alpha
     classifier.actValueAlpha = proto.actValueAlpha
     classifier._learnIteration = proto.learnIteration
-    classifier._recordNumMinusLearnIteration = \
-      proto.recordNumMinusLearnIteration
+    classifier._recordNumMinusLearnIteration = (
+      proto.recordNumMinusLearnIteration)
 
     classifier._patternNZHistory = deque(maxlen=max(classifier.steps) + 1)
     patternNZHistoryProto = proto.patternNZHistory
