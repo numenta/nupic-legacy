@@ -25,9 +25,13 @@
 ## @file
 This file defines the k Nearest Neighbor classifier region.
 """
+import numbers
+
 import numpy
 from PyRegion import PyRegion
 from nupic.algorithms import KNNClassifier
+from nupic.bindings.math import (GetNTAReal,
+                                 Random)
 
 
 
@@ -526,7 +530,7 @@ class KNNClassifierRegion(PyRegion):
     self.inferenceMode = False
     self._epoch = 0
     self.acceptanceProbability = acceptanceProbability
-    self._rgen = numpy.random.RandomState(seed)
+    self._rgen = Random(seed)
     self.confusion = numpy.zeros((1, 1))
     self.keepAllDistances = False
     self._protoScoreCount = 0
@@ -554,10 +558,155 @@ class KNNClassifierRegion(PyRegion):
     self._tapFileOut = None
 
     self._initEphemerals()
+    self._knn = KNNClassifier.KNNClassifier(**self.knnParams)
 
     self.maxStoredPatterns = maxStoredPatterns
     self.maxCategoryCount = maxCategoryCount
     self._bestPrototypeIndexCount = bestPrototypeIndexCount
+
+
+  def __eq__(self, other):
+    membersToIgnore = self._getEphemeralAttributes() +\
+                      ['knnParams']
+    for k, v1 in self.__dict__.iteritems():
+      if k in membersToIgnore:
+        pass
+      else:
+        if not k in other.__dict__:
+          print 'not found: ', k
+          return False
+        v2 = getattr(other, k)
+        if isinstance(v1, Random):
+          pass
+        elif isinstance(v1, numpy.ndarray):
+          if v1.dtype != v2.dtype:
+            print v1, v2, k, 'v1.dtype != v2.dtype'
+            return False
+          if not numpy.isclose(v1, v2).all():
+            print v1, v2, k, 'not numpy.isclose(v1, v2).all()'
+            return False
+        elif isinstance(v1, float):
+          if abs(v1 - v2) > 0.00000001:
+            print v1, v2, k, 'abs(v1 - v2) > 0.00000001'
+            return False
+        elif isinstance(v1, numbers.Integral):
+          if long(v1) != long(v2):
+            print v1, v2, k, 'long(v1) != long(v2)'
+            return False
+        else:
+          if type(v1) != type(v2):
+            print v1, v2, k, 'type(v1) != type(v2)'
+            return False
+          if v1 != v2:
+            print v1, v2, k, 'v1 != v2'
+            return False
+    return True
+
+
+  def __ne__(self, other):
+    return not self == other
+
+
+  @classmethod
+  def read(cls, proto):
+    knnRegion = object.__new__(cls)
+
+    knnRegion.version = KNNClassifierRegion.__VERSION__
+    knnRegion.verbosity = proto.verbosity
+    knnRegion._rgen = Random()
+    knnRegion._rgen.read(proto.random)
+
+    knnRegion._knn = KNNClassifier.KNNClassifier.read(proto.classifierInstance)
+
+    knnRegion.learningMode = proto.learningMode
+    knnRegion.inferenceMode = proto.inferenceMode
+
+    knnRegion.outputProbabilitiesByDist = proto.outputProbabilitiesByDist
+    knnRegion._epoch = proto.epoch
+    knnRegion.acceptanceProbability = proto.acceptanceProbability
+
+    knnRegion.confusion = numpy.zeros(len(proto.confusion))
+    for i in xrange(len(proto.confusion)):
+      knnRegion.confusion[i] = numpy.array(proto.confusion[i])
+    knnRegion.keepAllDistances = proto.keepAllDistances
+    knnRegion._protoScoreCount = proto.protoScoreCount
+    knnRegion._useAuxiliary = proto.useAuxiliary
+    knnRegion._justUseAuxiliary = proto.justUseAuxiliary
+
+    knnRegion._doSphering = proto.doSphering
+    if int(proto.normOffset) != -1:
+      knnRegion._normOffset = proto.normOffset
+    else:
+      knnRegion._normOffset = None
+    if int(proto.normScale) != -1:
+      knnRegion._normScale = proto.normScale
+    else:
+      knnRegion._normScale = None
+    if list(proto.samples) != [-1]:
+      knnRegion._samples = proto.samples
+    else:
+      knnRegion._samples = None
+    if list(proto.labels) != [-1]:
+      knnRegion._labels = proto.labels
+    else:
+      knnRegion._labels = None
+
+    knnRegion.doSelfValidation = proto.doSelfValidation
+
+    knnRegion._tapFileIn = None
+    knnRegion._tapFileOut = None
+
+    knnRegion._initEphemerals()
+
+    setattr(knnRegion, 'maxStoredPatterns', knnRegion._knn.maxStoredPatterns)
+    knnRegion.maxCategoryCount = proto.maxCategoryCount
+    knnRegion._bestPrototypeIndexCount = proto.bestPrototypeIndexCount
+
+    return knnRegion
+
+
+  def write(self, proto):
+    proto.verbosity = self.verbosity
+    self._rgen.write(proto.random)
+
+    self._knn.write(proto.classifierInstance)
+
+    proto.learningMode = self.learningMode
+    proto.inferenceMode = self.inferenceMode
+
+    proto.outputProbabilitiesByDist = self.outputProbabilitiesByDist
+    proto.epoch = self._epoch
+    proto.acceptanceProbability = self.acceptanceProbability
+    confusionProto = proto.init('confusion', len(self.confusion))
+    for i in xrange(len(self.confusion)):
+      confusionProto[i] = self.confusion[i].tolist()
+    proto.keepAllDistances = self.keepAllDistances
+    proto.protoScoreCount = self._protoScoreCount
+    proto.useAuxiliary = self._useAuxiliary
+    proto.justUseAuxiliary = self._justUseAuxiliary
+
+    proto.doSphering = self._doSphering
+    if self._normOffset is not None:
+      proto.normOffset = self._normOffset
+    else:
+      proto.normOffset = -1
+    if self._normScale is not None:
+      proto.normScale = self._normScale
+    else:
+      proto.normScale = -1
+    if self._samples is not None:
+      proto.samples = self._samples
+    else:
+      proto.samples = [-1]
+    if self._labels is not None:
+      proto.labels = self._labels
+    else:
+      proto.labels = [-1]
+
+    proto.doSelfValidation = self.doSelfValidation
+
+    proto.maxCategoryCount = self.maxCategoryCount
+    proto.bestPrototypeIndexCount = self._bestPrototypeIndexCount
 
 
   def _getEphemeralAttributes(self):
@@ -577,8 +726,6 @@ class KNNClassifierRegion(PyRegion):
     self._protoScores = None
     self._categoryDistances = None
 
-    self._knn = KNNClassifier.KNNClassifier(**self.knnParams)
-
     for x in ('_partitions', '_useAuxialiary', '_doSphering',
               '_scanInfo', '_protoScores', 'doSelfValidation'):
       if not hasattr(self, x):
@@ -596,6 +743,7 @@ class KNNClassifierRegion(PyRegion):
 
       self.__dict__.update(state)
       self._initEphemerals()
+      self._knn = KNNClassifier.KNNClassifier(**self.knnParams)
       self._knn.__setstate__(knnState)
     else:
       raise RuntimeError("Invalid KNNClassifierRegion version for __setstate__")
@@ -817,7 +965,7 @@ class KNNClassifierRegion(PyRegion):
     # If this is the first sample, then allocate a numpy array
     # of the appropriate size in which to store all samples.
     if self._samples is None:
-      self._samples = numpy.zeros((0, len(inputVector)), dtype=RealNumpyDType)
+      self._samples = numpy.zeros((0, len(inputVector)), dtype=GetNTAReal())
       assert self._labels is None
       self._labels = []
 
