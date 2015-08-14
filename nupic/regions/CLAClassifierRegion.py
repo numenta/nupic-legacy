@@ -369,12 +369,8 @@ class CLAClassifierRegion(PyRegion):
     if name == "classificationResults":
       return len(self.stepsList)
     elif name == "probabilities":
-      if not self.numCategories:
-        raise _NumCatgoriesNotSpecified("The parameter 'numCategories' has not been initialized.")
       return len(self.stepsList) * self.numCategories
     elif name == "actualValues":
-      if not self.numCategories:
-        raise _NumCatgoriesNotSpecified("The parameter 'numCategories' has not been initialized.")
       return self.numCategories
     else:
       raise _UnknownOutput("Unknown output {}.".format(name))
