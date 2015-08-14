@@ -28,7 +28,7 @@ cd ${TRAVIS_BUILD_DIR}
 
 # If this branch is master, this is an iterative deployment, so we'll package
 # wheels ourselves for deployment to S3. No need to build docs.
-if [ "${TRAVIS_BRANCH}" = "swig" ]; then
+if [ "${TRAVIS_BRANCH}" = "master" ]; then
     # There are now a bunch of symlinks in ${TRAVIS_BUILD_DIR}/extensions that
     # need to be converted to real files. We will do this with a tar hack.
     echo "Removing symlinks from extensions..."

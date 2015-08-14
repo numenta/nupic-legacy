@@ -385,7 +385,6 @@ if __name__ == "__main__":
     copyProtoFiles(nupicCoreReleaseDir)
 
     requirements, dependencies = findRequirements(nupicCoreReleaseDir)
-    print dependencies
     setup(
       name="nupic",
       version=getVersion(),
