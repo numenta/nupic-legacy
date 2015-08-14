@@ -360,7 +360,7 @@ class CLAClassifierRegion(PyRegion):
       raise ValueError("Unknown output {}.".format(name))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
   from nupic.engine import Network
 
   n = Network()
