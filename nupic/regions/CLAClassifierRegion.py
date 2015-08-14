@@ -282,12 +282,7 @@ class CLAClassifierRegion(PyRegion):
 
     # An input can potentially belong to multiple categories. 
     # If a category value is < 0, it means that the input does not belong to that category.
-    categories = []
-    for category in inputs['categoryIn']:
-      # if a category value <0, then it means 
-      # the input record does not belong to that category.
-      if category >= 0:
-        categories.append(category)
+    categories = [category for category in inputs["categoryIn"] if category >= 0]
   
     activeCells = inputs["bottomUpIn"]
     patternNZ = activeCells.nonzero()[0]
