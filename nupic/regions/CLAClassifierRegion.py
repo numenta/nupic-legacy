@@ -33,9 +33,6 @@ class _NumCatgoriesNotSpecified(Exception):
   pass
 
 
-class _UnknownOutput(Exception):
-  pass
-
 
 class CLAClassifierRegion(PyRegion):
   """
@@ -364,7 +361,7 @@ class CLAClassifierRegion(PyRegion):
     elif name == "actualValues":
       return self.numCategories
     else:
-      raise _UnknownOutput("Unknown output {}.".format(name))
+      raise ValueError("Unknown output {}.".format(name))
 
 
 if __name__ == '__main__':
