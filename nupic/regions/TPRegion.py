@@ -19,9 +19,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import numbers
 import os
 import numpy
 
+import numpy
 from nupic.research import TP
 from nupic.research import TP10X2
 from nupic.research import TP_shim
@@ -86,7 +88,7 @@ def _buildArgs(f, self=None, kwargs={}):
       argName = argTuple[0]
       if argName in kwargs:
         # Argument was provided
-        argValue = kwargs.pop(argName)
+        argValue = kwargs[argName]
       else:
         # Argument was not provided; use the default value if there is one, and
         #  raise an exception otherwise
@@ -355,6 +357,96 @@ class TPRegion(PyRegion):
     self._tfdr                = None  # FDRTemporal instance
 
 
+  def __eq__(self, other):
+    membersToIgnore = self._getEphemeralMembersAll()
+    for k, v1 in self.__dict__.iteritems():
+      if k in membersToIgnore:
+        pass
+      else:
+        if not k in other.__dict__:
+          print 'not found: ', k
+          return False
+        v2 = getattr(other, k)
+        if isinstance(v1, float):
+          if abs(v1 - v2) > 0.00000001:
+            print v1, v2, k, 'abs(v1 - v2) > 0.00000001'
+            return False
+        elif isinstance(v1, numbers.Integral):
+          if long(v1) != long(v2):
+            print v1, v2, k, 'long(v1) != long(v2)'
+            return False
+        else:
+          if type(v1) != type(v2):
+            print v1, v2, k, 'type(v1) != type(v2)'
+            return False
+          if v1 != v2:
+            print v1, v2, k, 'v1 != v2'
+            return False
+    return True
+
+
+  def __ne__(self, other):
+    return not self == other
+
+
+  @classmethod
+  def read(cls, proto):
+    tpRegion = object.__new__(cls)
+
+    tpRegion.temporalImp = proto.temporalImp
+    TemporalClass = _getTPClass(tpRegion.temporalImp)
+    tpRegion._tfdr = TemporalClass.read(proto.temporalInstance)
+    tArgTuples = _buildArgs(TemporalClass.__init__, tpRegion, tpRegion._tfdr.__dict__)
+    tpRegion._temporalArgNames = [t[0] for t in tArgTuples]
+
+    tpRegion.columnCount = proto.columnCount
+    tpRegion.inputWidth = proto.inputWidth
+    tpRegion.cellsPerColumn = proto.cellsPerColumn
+    tpRegion.outputWidth = tpRegion.columnCount * tpRegion.cellsPerColumn
+    tpRegion.learningMode = proto.learningMode
+    tpRegion.inferenceMode = proto.inferenceMode
+    tpRegion.anomalyMode = proto.anomalyMode
+    tpRegion.topDownMode = proto.topDownMode
+    tpRegion.computePredictedActiveCellIndices = proto.computePredictedActiveCellIndices
+
+    tpRegion._loaded = True
+    tpRegion._initialize()
+
+    tpRegion.breakPdb = proto.breakPdb
+    tpRegion.breakKomodo = proto.breakKomodo
+
+    tpRegion.orColumnOutputs = proto.orColumnOutputs
+
+    tpRegion.logPathOutput = ''
+    tpRegion._fpLogTPOutput = None
+    tpRegion.storeDenseOutput = proto.storeDenseOutput
+    tpRegion.cellsSavePath = proto.cellsSavePath
+
+    return tpRegion
+
+
+  def write(self, proto):
+    proto.temporalImp = self.temporalImp
+    self._tfdr.write(proto.temporalInstance)
+
+    proto.columnCount = self.columnCount
+    proto.inputWidth = self.inputWidth
+    proto.cellsPerColumn = self.cellsPerColumn
+    proto.learningMode = self.learningMode
+    proto.inferenceMode = self.inferenceMode
+    proto.anomalyMode = self.anomalyMode
+    proto.topDownMode = self.topDownMode
+    proto.computePredictedActiveCellIndices = self.computePredictedActiveCellIndices
+
+    proto.breakPdb = self.breakPdb
+    proto.breakKomodo = self.breakKomodo
+
+    proto.orColumnOutputs = self.orColumnOutputs
+
+    proto.storeDenseOutput = self.storeDenseOutput
+    proto.cellsSavePath = self.cellsSavePath
+
+
   #############################################################################
   #
   # Initialization code
@@ -414,6 +506,12 @@ class TPRegion(PyRegion):
              numberOfCols=self.columnCount,
              cellsPerColumn=self.cellsPerColumn,
              **autoArgs)
+
+        # Sometimes spatial processor can change parameters, so it's need update
+        # them after initialization
+        for name in self._temporalArgNames:
+          if hasattr(self._tfdr, name):
+            setattr(self, name, getattr(self._tfdr, name))
       else:
         raise RuntimeError("Invalid temporalImp")
 
