@@ -381,7 +381,7 @@ class CLAClassifier(object):
     # Store pattern in our history
     self._patternNZHistory.append((self._learnIteration, patternNZ))
 
-    # To allow multi-class classification, we need to be able to run leaning
+    # To allow multi-class classification, we need to be able to run learning
     # without inference being on. So initialize retval outside 
     # of the inference block.
     retval = None
