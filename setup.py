@@ -125,6 +125,11 @@ def getCommandLineOptions():
      "",
      "(optional) Skip nupic.core version comparison"]
   )
+  optionsDesc.append(
+    ["wheel-dir",
+     "dir",
+     "(optional) Absolute path to wheel distribution directory for dependencies"]
+  )
 
   # Read command line options looking for extra options
   # For example, an user could type:
@@ -197,7 +202,7 @@ def parse_file(requirementFile):
     return []
 
 
-def findRequirements(nupicCoreReleaseDir):
+def findRequirements(nupicCoreReleaseDir, options):
   """
   Read the requirements.txt file and parse into requirements for setup's
   install_requirements option.
@@ -211,11 +216,14 @@ def findRequirements(nupicCoreReleaseDir):
   for egg in eggFiles:
     dependencies.append(egg)
     # Temporary situation. Fix later
-    try:
+    # Only make wheel if told to
+    wheelDir = getCommandLineOption("wheel-dir", options)
+    if wheelDir is not None:
+      if not os.path.exists(wheelDir):
+        os.makedirs(wheelDir)
+
       from wheel import egg2wheel
-      egg2wheel.egg2wheel(egg, nupicCoreReleaseDir)
-    except ImportError:
-      continue
+      egg2wheel.egg2wheel(egg, wheelDir)
 
   wheelFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.whl"))
   for wheel in wheelFiles:
@@ -394,7 +402,8 @@ if __name__ == "__main__":
 
     copyProtoFiles(nupicCoreReleaseDir)
 
-    requirements, dependencies = findRequirements(nupicCoreReleaseDir)
+    requirements, dependencies = findRequirements(nupicCoreReleaseDir, options)
+    print dependencies
     setup(
       name="nupic",
       version=getVersion(),
