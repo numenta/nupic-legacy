@@ -134,8 +134,8 @@ class BitHistory(object):
 
     # This is to prevent errors associated with inf rescale if too large
     if denom == 0 or dcNew > DUTY_CYCLE_UPDATE_INTERVAL:
-      exp = (1.0 - self._classifier.alpha) ** (
-      iteration - self._lastTotalUpdate)
+      exp = ((1.0 - self._classifier.alpha) **
+             (iteration - self._lastTotalUpdate))
       for (bucketIdxT, dcT) in enumerate(self._stats):
         dcT *= exp
         self._stats[bucketIdxT] = dcT
