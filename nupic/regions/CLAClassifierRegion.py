@@ -142,9 +142,9 @@ class CLAClassifierRegion(PyRegion):
           description='Number of categories from the sensor region',
           dataType='UInt32',
           required=True,
-          count=1,
+          count=1, 
           constraints='bool',
-          defaultValue=None,
+          defaultValue=1000, # Large default value for backward compatibility 
           accessMode='ReadWrite'),
 
         steps=dict(
@@ -189,6 +189,7 @@ class CLAClassifierRegion(PyRegion):
 
     return ns
 
+
   def __init__(self,
                steps='1',
                alpha=0.001,
@@ -216,14 +217,18 @@ class CLAClassifierRegion(PyRegion):
     self.recordNum = 0
     self._initEphemerals()
 
+
   def _initEphemerals(self):
     pass
+
 
   def initialize(self, dims, splitterMaps):
     pass
 
+
   def clear(self):
     self._claClassifier.clear()
+
 
   def getParameter(self, name, index=-1):
     """
@@ -235,6 +240,7 @@ class CLAClassifierRegion(PyRegion):
     # If any spec parameter name is the same as an attribute, this call
     # will get it automatically, e.g. self.learningMode
     return PyRegion.getParameter(self, name, index)
+
 
   def setParameter(self, name, index, value):
     """
@@ -251,13 +257,17 @@ class CLAClassifierRegion(PyRegion):
     else:
       return PyRegion.setParameter(self, name, index, value)
 
+
   def reset(self):
     pass
+
 
   def compute(self, inputs, outputs):
     """
     Process one input sample.
     This method is called by the runtime engine.
+    @param inputs -- inputs of the classifier region
+    @param outputs -- outputs of the classifier region
 
     """
 
@@ -298,7 +308,7 @@ class CLAClassifierRegion(PyRegion):
       categoryOut = clResults["actualValues"][clResults[step].argmax()]
       outputs['categoriesOut'][stepIndex] = categoryOut
 
-      # Flaten the rest of the output. For example:
+      # Flatten the rest of the output. For example:
       #   Original dict  {1 : [0.1, 0.3, 0.2, 0.7]
       #                   4 : [0.2, 0.4, 0.3, 0.5]}
       #   becomes: [0.1, 0.3, 0.2, 0.7, 0.2, 0.4, 0.3, 0.5] 
@@ -311,15 +321,21 @@ class CLAClassifierRegion(PyRegion):
           outputs['probabilities'][flatIndex] = 0.0
 
     self.recordNum += 1
+    
 
   def customCompute(self, recordNum, patternNZ, classification):
     """
-    Process one input sample.
+    Just return the inference value from one input sample. The actual 
+    learning happens in compute() -- if, and only if learning is enabled -- 
+    which is called when you run the network.
+    The method customCompute() is here to maintain backward compatibility. 
 
     Parameters:
     --------------------------------------------------------------------
-    patternNZ:      list of the active indices from the output below
-    classification: dict of the classification information:
+    recordNum:      Record number of the input sample. Not in use here. Kept 
+                    for backward compatibility.
+    patternNZ:      List of the active indices from the output below
+    classification: Dict of the classification information:
                       bucketIdx: index of the encoder bucket
                       actValue:  actual value going into the encoder
 
@@ -329,15 +345,13 @@ class CLAClassifierRegion(PyRegion):
                 starting from bucketIdx 0.
 
                 for example:
-                  {1 : [0.1, 0.3, 0.2, 0.7]
-                   4 : [0.2, 0.4, 0.3, 0.5]}
+                  {'actualValues': [0.0, 1.0, 2.0, 3.0]
+                    1 : [0.1, 0.3, 0.2, 0.7]
+                    4 : [0.2, 0.4, 0.3, 0.5]}
     """
 
-    return self._claClassifier.compute(recordNum=recordNum,
-                                       patternNZ=patternNZ,
-                                       classification=classification,
-                                       learn=self.learningMode,
-                                       infer=self.inferenceMode)
+    return self._claClassifier.infer(patternNZ, classification)
+
 
   def getOutputValues(self, outputName):
     """
@@ -346,6 +360,7 @@ class CLAClassifierRegion(PyRegion):
     and strings, as in the case of records with categorical variables
     """
     return self._outputValues[outputName]
+
 
   def getOutputElementCount(self, outputName):
     """Returns the width of dataOut."""
@@ -357,7 +372,7 @@ class CLAClassifierRegion(PyRegion):
     elif outputName == "actualValues":
       return self.numCategories
     else:
-      raise ValueError("Unknown output {}.".format(name))
+      raise ValueError("Unknown output {}.".format(outputName))
 
 
 if __name__ == "__main__":
