@@ -676,9 +676,9 @@ class TemporalMemory(object):
     """
     self._validateColumn(column)
 
-    start = self.cellsPerColumn * column
+    start = self.cellsPerColumn * self.getCellIndex(column)
     end = start + self.cellsPerColumn
-    return set([cell for cell in range(start, end)])
+    return set(xrange(start, end))
 
 
   def numberOfColumns(self):

@@ -42,7 +42,7 @@ from nupic.support.configuration import Configuration
 from nupic.swarming.hypersearch.errorcodes import ErrorCodes
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.swarming import regression
-from nupic.swarming import utils
+from nupic.swarming.hypersearch import utils
 
 
 

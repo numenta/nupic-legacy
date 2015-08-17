@@ -37,6 +37,10 @@ git clone https://github.com/numenta/nupic-linux64.git
 (cd nupic-linux64 && git reset --hard 99863c7da8b923c57bb4e59530ab087c91fd3992)
 source nupic-linux64/bin/activate
 
+# TODO: remove after nupic-linux64 has been updated
+pip uninstall numpy --yes
+pip install numpy==1.9.2 --user
+
 # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
 # See: https://github.com/travis-ci/travis-cookbooks/issues/155
 # Commented out to test to see if it works witout it in container mode.

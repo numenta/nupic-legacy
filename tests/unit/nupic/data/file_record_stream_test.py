@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -25,6 +25,7 @@ import unittest
 
 from datetime import datetime
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.data.fieldmeta import FieldMetaInfo, FieldMetaType, FieldMetaSpecial
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data.utils import (
     parseTimestamp, serializeTimestamp, escape, unescape)
@@ -49,13 +50,20 @@ class TestFileRecordStream(unittest.TestCase):
     filename = _getTempFileName()
 
     # Write a standard file
-    fields = [('name', 'string', ''),
-              ('timestamp', 'datetime', 'T'),
-              ('integer', 'int', ''),
-              ('real', 'float', ''),
-              ('reset', 'int', 'R'),
-              ('sid', 'string', 'S'),
-              ('categoryField', 'int', 'C'),]
+    fields = [FieldMetaInfo('name', FieldMetaType.string,
+                            FieldMetaSpecial.none),
+              FieldMetaInfo('timestamp', FieldMetaType.datetime,
+                            FieldMetaSpecial.timestamp),
+              FieldMetaInfo('integer', FieldMetaType.integer,
+                            FieldMetaSpecial.none),
+              FieldMetaInfo('real', FieldMetaType.float,
+                            FieldMetaSpecial.none),
+              FieldMetaInfo('reset', FieldMetaType.integer,
+                            FieldMetaSpecial.reset),
+              FieldMetaInfo('sid', FieldMetaType.string,
+                            FieldMetaSpecial.sequence),
+              FieldMetaInfo('categoryField', FieldMetaType.integer,
+                            FieldMetaSpecial.category),]
     fieldNames = ['name', 'timestamp', 'integer', 'real', 'reset', 'sid',
                   'categoryField']
 
@@ -84,7 +92,8 @@ class TestFileRecordStream(unittest.TestCase):
       recordsBatch = (
         ['rec_4', datetime(day=4, month=3, year=2010), 2, 9.5, 1, 'seq-1', 13],
         ['rec_5', datetime(day=5, month=3, year=2010), 6, 10.5, 0, 'seq-1', 14],
-        ['rec_6', datetime(day=6, month=3, year=2010), 11, 11.5, 0, 'seq-1', 15])
+        ['rec_6', datetime(day=6, month=3, year=2010), 11, 11.5, 0, 'seq-1', 15]
+      )
 
       print 'Adding batch of records...'
       for rec in recordsBatch:
@@ -129,13 +138,21 @@ class TestFileRecordStream(unittest.TestCase):
     filename = _getTempFileName()
 
     # Write a standard file
-    fields = [('name', 'string', ''),
-              ('timestamp', 'datetime', 'T'),
-              ('integer', 'int', ''),
-              ('real', 'float', ''),
-              ('reset', 'int', 'R'),
-              ('sid', 'string', 'S'),
-              ('categories', 'list', 'C')]
+    fields = [
+      FieldMetaInfo('name', FieldMetaType.string,
+                    FieldMetaSpecial.none),
+      FieldMetaInfo('timestamp', FieldMetaType.datetime,
+                    FieldMetaSpecial.timestamp),
+      FieldMetaInfo('integer', FieldMetaType.integer,
+                    FieldMetaSpecial.none),
+      FieldMetaInfo('real', FieldMetaType.float,
+                    FieldMetaSpecial.none),
+      FieldMetaInfo('reset', FieldMetaType.integer,
+                    FieldMetaSpecial.reset),
+      FieldMetaInfo('sid', FieldMetaType.string,
+                    FieldMetaSpecial.sequence),
+      FieldMetaInfo('categories', FieldMetaType.list,
+                    FieldMetaSpecial.category)]
     fieldNames = ['name', 'timestamp', 'integer', 'real', 'reset', 'sid',
                   'categories']
 
@@ -245,7 +262,8 @@ class TestFileRecordStream(unittest.TestCase):
     print 'Creating tempfile:', filename
 
     # Write bad dataset with records going backwards in time
-    fields = [('timestamp', 'datetime', 'T')]
+    fields = [FieldMetaInfo('timestamp', FieldMetaType.datetime,
+                            FieldMetaSpecial.timestamp)]
     o = FileRecordStream(streamID=filename, write=True, fields=fields)
     # Records
     records = (
@@ -257,7 +275,8 @@ class TestFileRecordStream(unittest.TestCase):
     o.close()
 
     # Write bad dataset with broken sequences
-    fields = [('sid', 'int', 'S')]
+    fields = [FieldMetaInfo('sid', FieldMetaType.integer,
+                            FieldMetaSpecial.sequence)]
     o = FileRecordStream(streamID=filename, write=True, fields=fields)
     # Records
     records = ([1], [2], [1])
@@ -280,10 +299,14 @@ class TestFileRecordStream(unittest.TestCase):
     print 'Creating tempfile:', filename
 
     # write dataset to disk with float, int, and string fields
-    fields = [('timestamp', 'datetime', 'T'),
-              ('name', 'string', ''),
-              ('integer', 'int', ''),
-              ('real', 'float', '')]
+    fields = [FieldMetaInfo('timestamp', FieldMetaType.datetime,
+                            FieldMetaSpecial.timestamp),
+              FieldMetaInfo('name', FieldMetaType.string,
+                            FieldMetaSpecial.none),
+              FieldMetaInfo('integer', FieldMetaType.integer,
+                            FieldMetaSpecial.none),
+              FieldMetaInfo('real', FieldMetaType.float,
+                            FieldMetaSpecial.none)]
     s = FileRecordStream(streamID=filename, write=True, fields=fields)
 
     # Records
