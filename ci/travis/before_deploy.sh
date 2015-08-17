@@ -28,7 +28,7 @@ cd ${TRAVIS_BUILD_DIR}
 
 # If this branch is master, this is an iterative deployment, so we'll package
 # wheels ourselves for deployment to S3. No need to build docs.
-if [ "${TRAVIS_BRANCH}" = "master" ]; then
+if [ "${TRAVIS_BRANCH}" = "swig" ]; then
     # There are now a bunch of symlinks in ${TRAVIS_BUILD_DIR}/extensions that
     # need to be converted to real files. We will do this with a tar hack.
     echo "Removing symlinks from extensions..."
@@ -44,11 +44,12 @@ if [ "${TRAVIS_BRANCH}" = "master" ]; then
     # Build all NuPIC and all required python packages into dist/wheels as .whl
     # files.
     echo "pip wheel --wheel-dir=dist/wheels . --find-links=extensions/core/build/release"
-    pip wheel --wheel-dir=dist/wheels . extensions/core/requirements.txt
+    pip wheel --wheel-dir=dist/wheels -r extensions/core/requirements.txt
     wheel convert extensions/core/*.egg --dest-dir=dist/wheels
-    pip wheel --wheel-dir=dist/wheels . external/common/requirements.txt --find-links=dist/wheels
+    pip wheel --wheel-dir=dist/wheels -r external/common/requirements.txt --find-links=dist/wheels
     python setup.py bdist_wheel -d dist/wheels
     python setup.py bdist_egg -d dist
+    ls dist/wheels
 
     # The dist/wheels folder is expected to be deployed to S3.
 

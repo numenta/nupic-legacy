@@ -81,7 +81,7 @@ deploy:
     skip_cleanup: true
     # Only deploy on master from linux/clang job
     on:
-      branch: master
+      branch: swig
       condition:
         - "$TRAVIS_OS_NAME == linux"
         - "$CC == gcc-4.8"
