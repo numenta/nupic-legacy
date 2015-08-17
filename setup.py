@@ -207,9 +207,6 @@ def findRequirements(nupicCoreReleaseDir):
   
   dependencies = []
   # use develop nupiccore bindings. not PYPI
-  wheelFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.whl"))
-  for wheel in wheelFiles:
-    dependencies.append(wheel)
   eggFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.egg"))
   for egg in eggFiles:
     dependencies.append(egg)
@@ -383,6 +380,7 @@ if __name__ == "__main__":
         haveBuild = True
 
     nupicCoreReleaseDir = prepareNupicCore(options, platform, bitness)
+    print "nupic core release directory: {}".format(nupicCoreReleaseDir)
 
     copyProtoFiles(nupicCoreReleaseDir)
 
