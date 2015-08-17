@@ -14,7 +14,7 @@
                             Preamble
 
   The licenses for most software are designed to take away your
-freedom to share and change it.  By contrast, the GNU General Public
+freedom to share and change it.  By contrast, the GNU Affero Public
 Licenses are intended to guarantee your freedom to share and change
 free software--to make sure the software is free for all its users.
 
@@ -66,7 +66,7 @@ any patent license obtained for a version of the library must be
 consistent with the full freedom of use specified in this license.
 
   Most GNU software, including some libraries, is covered by the
-ordinary GNU General Public License.  This license, the GNU Lesser
+ordinary GNU Affero Public License.  This license, the GNU Lesser
 General Public License, applies to certain designated libraries, and
 is quite different from the ordinary General Public License.  We use
 this license for certain libraries in order to permit linking those
@@ -210,17 +210,17 @@ with the Library (or with a work based on the Library) on a volume of
 a storage or distribution medium does not bring the other work under
 the scope of this License.
 
-  3. You may opt to apply the terms of the ordinary GNU General Public
+  3. You may opt to apply the terms of the ordinary GNU Affero Public
 License instead of this License to a given copy of the Library.  To do
 this, you must alter all the notices that refer to this License, so
-that they refer to the ordinary GNU General Public License, version 2,
+that they refer to the ordinary GNU Affero Public License, version 2,
 instead of to this License.  (If a newer version than version 2 of the
-ordinary GNU General Public License has appeared, then you can specify
+ordinary GNU Affero Public License has appeared, then you can specify
 that version instead if you wish.)  Do not make any other change in
 these notices.
 
   Once this change is made in a given copy, it is irreversible for
-that copy, so the ordinary GNU General Public License applies to all
+that copy, so the ordinary GNU Affero Public License applies to all
 subsequent copies and derivative works made from that copy.
 
   This option is useful when you wish to copy part of the code of
