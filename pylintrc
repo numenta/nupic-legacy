@@ -177,6 +177,9 @@ max-line-length=80
 # String used as indentation unit (2 spaces).
 indent-string='  '
 
+# Number of spaces of indent required inside a hanging or continued line.
+indent-after-paren=2
+
 
 [MISCELLANEOUS]
 
