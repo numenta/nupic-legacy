@@ -414,7 +414,7 @@ if __name__ == "__main__":
       classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
-        "License :: OSI Approved :: GNU General Public License (GPL)",
+        "License :: OSI Approved :: GNU Affero Public License (GPL)",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: POSIX :: Linux",
         # It has to be "5 - Production/Stable" or else pypi rejects it!
