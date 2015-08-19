@@ -26,7 +26,7 @@ import numpy
 from nupic.bindings.math import (GetNTAReal,
                                  Random as NupicRandom)
 from nupic.network.column import Column
-from nupic.network.region import Region
+from nupic.network.layer import Layer
 
 
 realDType = GetNTAReal()
@@ -51,7 +51,7 @@ class SpatialPooler(object):
   """
 
   def __init__(self,
-               region=Region(columnDimensions=(64,64)),
+               layer=Layer(columnDimensions=(64,64)),
                inputDimensions=(32,32),
                potentialRadius=16,
                potentialPct=0.5,
@@ -73,8 +73,8 @@ class SpatialPooler(object):
     """
     Parameters:
     ----------------------------
-    @param region:
-      The region which will be processed.
+    @param layer:
+      The cortical layer which will be processed.
     @param inputDimensions:
       A list representing the dimensions of the input vector. Format is [height,
       width, depth, ...], where each value represents the size of the dimension.
@@ -178,8 +178,8 @@ class SpatialPooler(object):
     """
     # Verify input is valid
     inputDimensions = numpy.array(inputDimensions, ndmin=1)
-    columnDimensions = region.columnDimensions
-    numColumns = region.numColumns
+    columnDimensions = layer.columnDimensions
+    numColumns = layer.numColumns
     numInputs = inputDimensions.prod()
 
     assert numColumns > 0, "No columns specified"
@@ -193,7 +193,7 @@ class SpatialPooler(object):
     self._seed(seed)
 
     # save arguments
-    self._region = region
+    self._layer = layer
     self._numInputs = int(numInputs)
     self._inputDimensions = inputDimensions
     self._potentialRadius = int(min(potentialRadius, numInputs))
@@ -233,7 +233,7 @@ class SpatialPooler(object):
     # Initialize a tiny random tie breaker. This is used to determine winning
     # columns where the overlaps are identical.
     self._tieBreaker = 0.01*numpy.array([self._random.getReal64() for i in
-                                        xrange(region.numColumns)])
+                                        xrange(layer.numColumns)])
 
     # 'self._connectedSynapses' is a matrix whose entries represent whether the
     # cortical column is connected to the input bit, i.e. its synapse permanence
@@ -276,7 +276,7 @@ class SpatialPooler(object):
 
   def getColumnDimensions(self):
     """Returns the dimensions of the columns in the region"""
-    return self._region.columnDimensions
+    return self._layer.columnDimensions
 
 
   def getInputDimensions(self):
@@ -286,7 +286,7 @@ class SpatialPooler(object):
 
   def getNumColumns(self):
     """Returns the total number of columns"""
-    return self._region.numColumns
+    return self._layer.numColumns
 
 
   def getNumInputs(self):
@@ -574,8 +574,8 @@ class SpatialPooler(object):
   def getPotential(self, column, potential):
     """Returns the potential mapping for a given column. 'potential' size
     must match the number of inputs"""
-    assert(column < self._region.numColumns)
-    synapses = self._region.columns[column].segment.synapses
+    assert(column < self._layer.numColumns)
+    synapses = self._layer.columns[column].segment.synapses
     presynapticCells = [synapse.presynapticCellIndex for synapse in synapses]
     potential[presynapticCells] = 1
 
@@ -583,7 +583,7 @@ class SpatialPooler(object):
   def setPotential(self, column, potential):
     """Sets the potential mapping for a given column. 'potential' size
     must match the number of inputs, and must be greater than _stimulusThreshold """
-    assert(column < self._region.numColumns)
+    assert(column < self._layer.numColumns)
 
     potentialSparse = numpy.where(potential > 0)[0]
     if len(potentialSparse) < self._stimulusThreshold:
@@ -597,21 +597,21 @@ class SpatialPooler(object):
   def getPermanence(self, column, permanence):
     """Returns the permanence values for a given column. 'permanence' size
     must match the number of inputs"""
-    assert(column < self._region.numColumns)
+    assert(column < self._layer.numColumns)
     permanence[:] = self._getPermanencesFromColumn(column)
 
 
   def setPermanence(self, column, permanence):
     """Sets the permanence values for a given column. 'permanence' size
     must match the number of inputs"""
-    assert(column < self._region.numColumns)
+    assert(column < self._layer.numColumns)
     self._updatePermanencesForColumn(permanence, column, raisePerm=False)
 
 
   def getConnectedSynapses(self, column, connectedSynapses):
     """Returns the connected synapses for a given column.
     'connectedSynapses' size must match the number of inputs"""
-    assert(column < self._region.numColumns)
+    assert(column < self._layer.numColumns)
     connectedSynapses[:] = self._connectedSynapses[column][:]
 
 
@@ -734,9 +734,9 @@ class SpatialPooler(object):
     _updateMinDutyCyclesGlobal, here the values can be quite different for
     different columns.
     """
-    for i in xrange(self._region.numColumns):
+    for i in xrange(self._layer.numColumns):
       maskNeighbors = numpy.append(i,
-        self._getNeighborsND(i, self._region.columnDimensions,
+        self._getNeighborsND(i, self._layer.columnDimensions,
         self._inhibitionRadius))
       self._minOverlapDutyCycles[i] = (
         self._overlapDutyCycles[maskNeighbors].max() *
@@ -766,8 +766,8 @@ class SpatialPooler(object):
                     An array containing the indices of the active columns,
                     the sparse set of columns which survived inhibition
     """
-    overlapArray = numpy.zeros(self._region.numColumns, dtype=realDType)
-    activeArray = numpy.zeros(self._region.numColumns, dtype=realDType)
+    overlapArray = numpy.zeros(self._layer.numColumns, dtype=realDType)
+    activeArray = numpy.zeros(self._layer.numColumns, dtype=realDType)
     overlapArray[overlaps > 0] = 1
     if activeColumns.size > 0:
       activeArray[activeColumns] = 1
@@ -802,12 +802,12 @@ class SpatialPooler(object):
     value is meaningless if global inhibition is enabled.
     """
     if self._globalInhibition:
-      self._inhibitionRadius = self._region.columnDimensions.max()
+      self._inhibitionRadius = self._layer.columnDimensions.max()
       return
 
     avgConnectedSpan = numpy.average(
                           [self._avgConnectedSpanForColumnND(i)
-                          for i in xrange(self._region.numColumns)]
+                          for i in xrange(self._layer.numColumns)]
                         )
     columnsPerInput = self._avgColumnsPerInput()
     diameter = avgConnectedSpan * columnsPerInput
@@ -826,9 +826,9 @@ class SpatialPooler(object):
     """
     #TODO: extend to support different number of dimensions for inputs and
     # columns
-    numDim = max(self._region.columnDimensions.size, self._inputDimensions.size)
+    numDim = max(self._layer.columnDimensions.size, self._inputDimensions.size)
     colDim = numpy.ones(numDim)
-    colDim[:self._region.columnDimensions.size] = self._region.columnDimensions
+    colDim[:self._layer.columnDimensions.size] = self._layer.columnDimensions
 
     inputDim = numpy.ones(numDim)
     inputDim[:self._inputDimensions.size] = self._inputDimensions
@@ -918,7 +918,7 @@ class SpatialPooler(object):
                     survived inhibition.
     """
     for i in activeColumns:
-      synapses = self._region.columns[i].segment.synapses
+      synapses = self._layer.columns[i].segment.synapses
       for synapse in synapses:
         if inputVector[synapse.presynapticCellIndex] == 1.0:
           synapse.permanence += self._synPermActiveInc
@@ -937,7 +937,7 @@ class SpatialPooler(object):
     weakColumns = numpy.where(self._overlapDutyCycles
                                 < self._minOverlapDutyCycles)[0]
     for i in weakColumns:
-      synapses = self._region.columns[i].segment.synapses
+      synapses = self._layer.columns[i].segment.synapses
       for synapse in synapses:
         synapse.permanence += self._synPermBelowStimulusInc
       self._adjustPermanencesForColumn(i, raisePerm=False)
@@ -960,7 +960,7 @@ class SpatialPooler(object):
                     "dense", i.e. it contains an entry for each input bit, even
                     if the permanence value is 0.
     """
-    synapses = self._region.columns[index].segment.synapses
+    synapses = self._layer.columns[index].segment.synapses
     if len(synapses) < self._stimulusThreshold:
       raise Exception("This is likely due to a " +
       "value of stimulusThreshold that is too large relative " +
@@ -996,7 +996,7 @@ class SpatialPooler(object):
       self._raisePermanenceToThreshold(index)
 
     self._connectedSynapses[index] = numpy.zeros(self._numInputs)
-    synapses = self._region.columns[index].segment.synapses
+    synapses = self._layer.columns[index].segment.synapses
     for synapse in synapses:
       if synapse.permanence < self._synPermMin or \
          synapse.permanence < self._synPermTrimThreshold:
@@ -1021,7 +1021,7 @@ class SpatialPooler(object):
     """
 
     perm = numpy.zeros(self._numInputs, dtype=realDType)
-    synapses = self._region.columns[column].segment.synapses
+    synapses = self._layer.columns[column].segment.synapses
     for synapse in synapses:
       perm[synapse.presynapticCellIndex] = synapse.permanence
 
@@ -1046,7 +1046,7 @@ class SpatialPooler(object):
                     assignment is required.
     """
 
-    synapses = self._region.columns[index].segment.synapses
+    synapses = self._layer.columns[index].segment.synapses
     for synapse in synapses:
       synapse.permanence = perm[synapse.presynapticCellIndex]
     self._adjustPermanencesForColumn(index, raisePerm)
@@ -1103,7 +1103,7 @@ class SpatialPooler(object):
                          be a value that is considered connected.
     """
 
-    segment = self._region.columns[index].segment
+    segment = self._layer.columns[index].segment
     segment.destroyAllSynapses()
 
     # Determine which inputs bits will start out as connected
@@ -1152,11 +1152,11 @@ class SpatialPooler(object):
     @param wrapAround: A boolean value indicating that boundaries should be
                     ignored.
     """
-    columnCoords = numpy.unravel_index(index, self._region.columnDimensions)
+    columnCoords = numpy.unravel_index(index, self._layer.columnDimensions)
     columnCoords = numpy.array(columnCoords, dtype=realDType)
-    ratios = columnCoords / self._region.columnDimensions
+    ratios = columnCoords / self._layer.columnDimensions
     inputCoords = self._inputDimensions * ratios
-    inputCoords += 0.5 * self._inputDimensions / self._region.columnDimensions
+    inputCoords += 0.5 * self._inputDimensions / self._layer.columnDimensions
     inputCoords = inputCoords.astype(int)
     inputIndex = numpy.ravel_multi_index(inputCoords, self._inputDimensions)
     return inputIndex
@@ -1336,8 +1336,8 @@ class SpatialPooler(object):
       density = self._localAreaDensity
     else:
       inhibitionArea = ((2*self._inhibitionRadius + 1)
-                                    ** self._region.columnDimensions.size)
-      inhibitionArea = min(self._region.numColumns, inhibitionArea)
+                                    ** self._layer.columnDimensions.size)
+      inhibitionArea = min(self._layer.numColumns, inhibitionArea)
       density = float(self._numActiveColumnsPerInhArea) / inhibitionArea
       density = min(density, 0.5)
 
@@ -1345,7 +1345,7 @@ class SpatialPooler(object):
     overlaps += self._tieBreaker
 
     if self._globalInhibition or \
-      self._inhibitionRadius > max(self._region.columnDimensions):
+      self._inhibitionRadius > max(self._layer.columnDimensions):
       return self._inhibitColumnsGlobal(overlaps, density)
     else:
       return self._inhibitColumnsLocal(overlaps, density)
@@ -1368,8 +1368,8 @@ class SpatialPooler(object):
     """
     #calculate num active per inhibition area
 
-    numActive = int(density * self._region.numColumns)
-    activeColumns = numpy.zeros(self._region.numColumns)
+    numActive = int(density * self._layer.numColumns)
+    activeColumns = numpy.zeros(self._layer.numColumns)
     winners = sorted(range(overlaps.size),
                      key=lambda k: overlaps[k],
                      reverse=True)[0:numActive]
@@ -1396,11 +1396,11 @@ class SpatialPooler(object):
                     columns are picked in a local fashion, the exact fraction
                     of surviving columns is likely to vary.
     """
-    activeColumns = numpy.zeros(self._region.numColumns)
+    activeColumns = numpy.zeros(self._layer.numColumns)
     addToWinners = max(overlaps)/1000.0
     overlaps = numpy.array(overlaps, dtype=realDType)
-    for i in xrange(self._region.numColumns):
-      maskNeighbors = self._getNeighborsND(i, self._region.columnDimensions,
+    for i in xrange(self._layer.numColumns):
+      maskNeighbors = self._getNeighborsND(i, self._layer.columnDimensions,
         self._inhibitionRadius)
       overlapSlice = overlaps[maskNeighbors]
       numActive = int(0.5 + density * (len(maskNeighbors) + 1))
@@ -1597,8 +1597,8 @@ class SpatialPooler(object):
   def write(self, proto):
     self._random.write(proto.random)
     proto.numInputs = self._numInputs
-    cdimsProto = proto.init("columnDimensions", len(self._region.columnDimensions))
-    for i, dim in enumerate(self._region.columnDimensions):
+    cdimsProto = proto.init("columnDimensions", len(self._layer.columnDimensions))
+    for i, dim in enumerate(self._layer.columnDimensions):
       cdimsProto[i] = int(dim)
     idimsProto = proto.init("inputDimensions", len(self._inputDimensions))
     for i, dim in enumerate(self._inputDimensions):
@@ -1719,7 +1719,7 @@ class SpatialPooler(object):
     print "------------PY  SpatialPooler Parameters ------------------"
     print "numInputs                  = ", self.getNumInputs()
     print "numColumns                 = ", self.getNumColumns()
-    print "columnDimensions           = ", self._region.columnDimensions
+    print "columnDimensions           = ", self._layer.columnDimensions
     print "numActiveColumnsPerInhArea = ", self.getNumActiveColumnsPerInhArea()
     print "potentialPct               = ", self.getPotentialPct()
     print "globalInhibition           = ", self.getGlobalInhibition()
