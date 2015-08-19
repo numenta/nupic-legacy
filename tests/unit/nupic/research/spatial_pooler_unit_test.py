@@ -37,7 +37,7 @@ from nupic.support.unittesthelpers.algorithm_test_helpers import (
 from nupic.bindings.math import (GetNTAReal,
                                  Random)
 from nupic.bindings.proto import SpatialPoolerProto_capnp
-from nupic.network.region import Region
+from nupic.network.layer import Layer
 from nupic.research.spatial_pooler import SpatialPooler
 
 uintDType = "uint32"
@@ -50,7 +50,7 @@ class SpatialPoolerTest(unittest.TestCase):
   def setUp(self):
 
     self._params = {
-      "region": Region(columnDimensions=[5]),
+      "layer": Layer(columnDimensions=[5]),
       "inputDimensions": [5],
       "potentialRadius": 5,
       "potentialPct": 0.5,
@@ -77,7 +77,7 @@ class SpatialPoolerTest(unittest.TestCase):
     permanence values: either zeros or ones, but no fractions"""
 
     sp = SpatialPooler(
-        region=Region(columnDimensions=[5]),
+        layer=Layer(columnDimensions=[5]),
         inputDimensions=[9],
         potentialRadius=9,
         potentialPct=1,
@@ -112,7 +112,7 @@ class SpatialPoolerTest(unittest.TestCase):
        inputs that are within their potential pool"""
 
     sp = SpatialPooler(
-        region=Region(columnDimensions=[5]),
+        layer=Layer(columnDimensions=[5]),
         inputDimensions=[10],
         potentialRadius=3,
         potentialPct=0.5,
@@ -158,7 +158,7 @@ class SpatialPoolerTest(unittest.TestCase):
                       1497, 1580, 1671, 1701, 1774, 1787, 1830, 1868, 1878]
 
     sp = SpatialPooler(
-      region=Region(columnDimensions=[2048, 1]),
+      layer=Layer(columnDimensions=[2048, 1]),
       inputDimensions = [1,188],
       potentialRadius = 94,
       potentialPct = 0.5,
@@ -244,7 +244,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     # Test 1D
     params.update({
-      "region": Region(columnDimensions=[4]),
+      "layer": Layer(columnDimensions=[4]),
       "inputDimensions": [12]
     })
     sp = SpatialPooler(**params)
@@ -256,7 +256,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     # Test 1D with same dimensions of columns and inputs
     params.update({
-      "region": Region(columnDimensions=[4]),
+      "layer": Layer(columnDimensions=[4]),
       "inputDimensions": [4]
     })
     sp = SpatialPooler(**params)
@@ -268,7 +268,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     # Test 1D with dimensions of length 1
     params.update({
-      "region": Region(columnDimensions=[1]),
+      "layer": Layer(columnDimensions=[1]),
       "inputDimensions": [1]
     })
     sp = SpatialPooler(**params)
@@ -277,7 +277,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     # Test 2D
     params.update({
-      "region": Region(columnDimensions=[12, 4]),
+      "layer": Layer(columnDimensions=[12, 4]),
       "inputDimensions": [36, 12]
     })
     sp = SpatialPooler(**params)
@@ -293,7 +293,7 @@ class SpatialPoolerTest(unittest.TestCase):
     params = self._params.copy()
 
     params.update({
-      "region": Region(columnDimensions=[4]),
+      "layer": Layer(columnDimensions=[4]),
       "inputDimensions": [12],
       "potentialRadius": 2
     })
@@ -337,7 +337,7 @@ class SpatialPoolerTest(unittest.TestCase):
     params = self._params.copy()
 
     params.update({
-      "region": Region(columnDimensions=[2, 4]),
+      "layer": Layer(columnDimensions=[2, 4]),
       "inputDimensions": [6, 12],
       "potentialRadius": 1,
       "potentialPct": 1
@@ -385,7 +385,7 @@ class SpatialPoolerTest(unittest.TestCase):
     params = self._params.copy()
 
     params.update({
-      "region": Region(columnDimensions=[1]),
+      "layer": Layer(columnDimensions=[1]),
       "inputDimensions": [1],
       "potentialRadius": 2
     })
@@ -594,7 +594,7 @@ class SpatialPoolerTest(unittest.TestCase):
     params = self._params.copy()
 
     params.update({
-      "region": Region(columnDimensions=[9]),
+      "layer": Layer(columnDimensions=[9]),
       "inputDimensions": [8],
       "potentialRadius": 8,
       "potentialPct": 1
@@ -622,7 +622,7 @@ class SpatialPoolerTest(unittest.TestCase):
     params = self._params.copy()
 
     params.update({
-      "region": Region(columnDimensions=[7, 1]),
+      "layer": Layer(columnDimensions=[7, 1]),
       "inputDimensions": [5, 4],
       "potentialRadius": 20,
       "potentialPct": 1
@@ -691,7 +691,7 @@ class SpatialPoolerTest(unittest.TestCase):
     params = self._params.copy()
 
     params.update({
-      "region": Region(columnDimensions=[5, 1, 1, 1]),
+      "layer": Layer(columnDimensions=[5, 1, 1, 1]),
       "inputDimensions": [4, 4, 2, 5],
     })
     sp = SpatialPooler(**params)
@@ -746,7 +746,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
   def testBumpUpWeakColumns(self):
-    sp = SpatialPooler(region=Region(columnDimensions=[5]),
+    sp = SpatialPooler(layer=Layer(columnDimensions=[5]),
                        inputDimensions=[8])
 
     sp._synPermBelowStimulusInc = 0.01
@@ -921,7 +921,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
   def testAdaptSynapses(self):
-    sp = SpatialPooler(region=Region(columnDimensions=[4]),
+    sp = SpatialPooler(layer=Layer(columnDimensions=[4]),
                        inputDimensions=[8],
                        synPermInactiveDec=0.01,
                        synPermActiveInc=0.1)
@@ -1005,7 +1005,7 @@ class SpatialPoolerTest(unittest.TestCase):
     params = self._params.copy()
 
     params.update({
-      "region": Region(columnDimensions=[5]),
+      "layer": Layer(columnDimensions=[5]),
       "inputDimensions": [5],
       "potentialRadius": 5,
       "potentialPct": 1,
@@ -1039,7 +1039,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
   def testUpdatePermanencesForColumn(self):
-    sp = SpatialPooler(region=Region(columnDimensions=[5]),
+    sp = SpatialPooler(layer=Layer(columnDimensions=[5]),
                        inputDimensions=[5],
                        potentialRadius=5,
                        potentialPct=1,
@@ -1089,7 +1089,7 @@ class SpatialPoolerTest(unittest.TestCase):
     params = self._params.copy()
 
     params.update({
-      "region": Region(columnDimensions=[5]),
+      "layer": Layer(columnDimensions=[5]),
       "inputDimensions": [10],
       "potentialRadius": 10,
       "potentialPct": 1
@@ -1735,7 +1735,7 @@ class SpatialPoolerTest(unittest.TestCase):
   @unittest.skip("Remove this skip")
   def testWrite(self):
     sp1 = SpatialPooler(
-        region=Region(columnDimensions=[5]),
+        layer=Layer(columnDimensions=[5]),
         inputDimensions=[9],
         potentialRadius=3,
         potentialPct=0.5,
@@ -1753,7 +1753,7 @@ class SpatialPoolerTest(unittest.TestCase):
         seed=42,
         spVerbosity=0)
     sp2 = SpatialPooler(
-        region=Region(columnDimensions=[2, 2]),
+        layer=Layer(columnDimensions=[2, 2]),
         inputDimensions=[3, 3],
         potentialRadius=5,
         potentialPct=0.4,
@@ -1818,7 +1818,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
   def testRandomSPDoesNotLearn(self):
 
-    sp = SpatialPooler(region=Region(columnDimensions=[10]),
+    sp = SpatialPooler(layer=Layer(columnDimensions=[10]),
                        inputDimensions=[5])
     inputArray = (numpy.random.rand(5) > 0.5).astype(uintDType)
     activeArray = numpy.zeros(sp._region.numColumns).astype(realDType)
@@ -1854,7 +1854,7 @@ class SpatialPoolerTest(unittest.TestCase):
     for i in [1, 10, 50]:
       numActive = i
       inputShape = 10
-      sp = SpatialPooler(region=Region(columnDimensions=[100]),
+      sp = SpatialPooler(layer=Layer(columnDimensions=[100]),
                          inputDimensions=[inputShape],
                          numActiveColumnsPerInhArea=numActive)
       inputArray = (numpy.random.rand(inputShape) > 0.5).astype(uintDType)
