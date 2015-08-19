@@ -29,6 +29,9 @@ NuPIC binaries are available for:
 
 > The Linux wheel file is hosted on AWS S3 instead of on the standard PyPi servers because [Linux wheels are not allowed to be uploaded to pypi](https://bitbucket.org/pypa/pypi-metadata-formats/issue/15/enhance-the-platform-tag-definition-for) yet.
 
+    # Install the C++ bindings for nupic.core.
+    pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.1.5-cp27-none-linux_x86_64.whl
+    # Install NuPIC.
     pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic/releases/nupic-0.2.8-cp27-none-linux_x86_64.whl
 
 
