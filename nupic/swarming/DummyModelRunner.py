@@ -31,7 +31,7 @@ import time
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf import opfhelpers
 from nupic.frameworks.opf.opfutils import ModelResult
-from nupic.swarming import utils
+from nupic.swarming.hypersearch import utils
 from nupic.swarming.ModelRunner import OPFModelRunner
 
 

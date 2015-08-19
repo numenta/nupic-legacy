@@ -35,14 +35,14 @@ import sys
 from pkg_resources import resource_filename
 import unittest2 as unittest
 
-from nupic.data import dictutils
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.support import aggregationDivide
 from nupic.support.unittesthelpers.testcasebase import (
   TestCaseBase as HelperTestCaseBase)
 from nupic.swarming import HypersearchWorker
 from nupic.swarming.permutationhelpers import PermuteChoices
-from nupic.swarming.utils import generatePersistentJobGUID
+from nupic.swarming.hypersearch.utils import generatePersistentJobGUID, \
+                                             rCopy
 from nupic.frameworks.opf.expdescriptionapi import OpfEnvironment
 from nupic.swarming.exp_generator import ExpGenerator
 from nupic.frameworks.opf.opfutils import (InferenceType,
@@ -304,7 +304,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
                      expDesc['inferenceArgs']['predictionSteps'])
     #self.assertEqual(base.config['modelParams']['clParams']['steps'],
     #                 '%s' % (predictionSteps))
-    tmpAggregationInfo = dictutils.rCopy(
+    tmpAggregationInfo = rCopy(
         base.config['aggregationInfo'],
         lambda value, _: value)
     tmpAggregationInfo.pop('fields')

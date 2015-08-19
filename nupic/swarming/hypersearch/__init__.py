@@ -1,7 +1,6 @@
-#!/bin/bash
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2012-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -19,21 +18,3 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-
-echo
-echo Running install-osx.sh...
-echo
-
-# Verify cmake version
-cmake --version
-
-# Verify python version
-python --version
-
-# Build NuPIC
-cd ${TRAVIS_BUILD_DIR}
-python setup.py install --user
-
-# Show nupic installation folder by trying to import nupic, if works, it prints
-# the absolute path of nupic.__file__, which the installation folder itself.
-python -c 'import sys;import os;import nupic;sys.stdout.write(os.path.abspath(os.path.join(nupic.__file__, "../..")))' || exit
