@@ -28,7 +28,7 @@ from operator import mul
 
 from nupic.bindings.math import Random
 from nupic.network.cell import Cell
-from nupic.network.region import Region
+from nupic.network.layer import Layer
 
 
 
@@ -42,7 +42,7 @@ class TemporalMemory(object):
   """
 
   def __init__(self,
-               region=Region(columnDimensions=(2048,), numCellsPerColumn=32),
+               layer=Layer(columnDimensions=(2048,), numCellsPerColumn=32),
                activationThreshold=13,
                initialPermanence=0.21,
                connectedPermanence=0.50,
@@ -53,7 +53,7 @@ class TemporalMemory(object):
                predictedSegmentDecrement = 0.0,
                seed=42):
     """
-    @param region                    (Region) The region which will be processed.
+    @param layer                     (Layer)  The cortical layer which will be processed.
     @param activationThreshold       (int)    If the number of active connected synapses on a segment is at least this threshold, the segment is said to be active.
     @param initialPermanence         (float)  Initial permanence of a new synapse.
     @param connectedPermanence       (float)  If the permanence value for a synapse is greater than this value, it is said to be connected.
@@ -66,11 +66,11 @@ class TemporalMemory(object):
     """
 
     # TODO: Validate all parameters (and add validation tests)
-    if region is None:
-      raise ValueError("Region must be an instance of Region class")
+    if layer is None:
+      raise ValueError("Layer must be an instance of Layer class")
 
     # Save member variables
-    self.region = region
+    self.layer = layer
     self.activationThreshold = activationThreshold
     self.initialPermanence = initialPermanence
     self.connectedPermanence = connectedPermanence
