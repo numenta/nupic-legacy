@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.2.7
+
+* Changed all copyright headers on all files to AGPL.
+* split up pip wheel to multiple commands
+* Fixed fast_temporal_memory cellsForColumn calculation. Column is an int (specifically a numpy.int64 and getCellIndex would fail in this), not a cell
+* Broke out model record encoding functionality from RecordStreamIface into ModelRecordEncoder class.
+* Convert nupic to namespace
+* updated include statements in swig files
+* added dict utils to hypersearch specific utils file and modified dependencies accordingly
+* Updated to AGPL.
+* Remove tweepy.
+* KNNClassifier input multiple categories, and integration test
+* enable multiple categories in Network API
+* Makes nupic a namespace package that other projects can extend.
+* Added NRMSE metric
+* Allow Connections to be serialized.
+* Added ability to unregister python regions and updated core sha
+* Remove unused synapses in Temporal Memory
+* Fix: TemporalMemory.getCellIndex doesn't work correctly when running through OPF
+
 ## 0.2.6
 
 * Sets zip-safe to false to make sure relative capnp schema imports will work and importing .capnp files will work.
