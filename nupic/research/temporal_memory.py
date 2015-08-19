@@ -27,7 +27,8 @@ from collections import defaultdict, namedtuple
 from operator import mul
 
 from nupic.bindings.math import Random
-from nupic.research.connections import Connections
+from nupic.network.cell import Cell
+from nupic.network.region import Region
 
 
 
@@ -41,8 +42,7 @@ class TemporalMemory(object):
   """
 
   def __init__(self,
-               columnDimensions=(2048,),
-               cellsPerColumn=32,
+               region=Region(columnDimensions=(2048,), numCellsPerColumn=32),
                activationThreshold=13,
                initialPermanence=0.21,
                connectedPermanence=0.50,
@@ -53,30 +53,24 @@ class TemporalMemory(object):
                predictedSegmentDecrement = 0.0,
                seed=42):
     """
-    @param columnDimensions          (list)  Dimensions of the column space
-    @param cellsPerColumn            (int)   Number of cells per column
-    @param activationThreshold       (int)   If the number of active connected synapses on a segment is at least this threshold, the segment is said to be active.
-    @param initialPermanence         (float) Initial permanence of a new synapse.
-    @param connectedPermanence       (float) If the permanence value for a synapse is greater than this value, it is said to be connected.
-    @param minThreshold              (int)   If the number of synapses active on a segment is at least this threshold, it is selected as the best matching cell in a bursting column.
-    @param maxNewSynapseCount        (int)   The maximum number of synapses added to a segment during learning.
-    @param permanenceIncrement       (float) Amount by which permanences of synapses are incremented during learning.
-    @param permanenceDecrement       (float) Amount by which permanences of synapses are decremented during learning.
-    @param predictedSegmentDecrement (float) Amount by which active permanences of synapses of previously predicted but inactive segments are decremented.
-    @param seed                      (int)   Seed for the random number generator.
+    @param region                    (Region) The region which will be processed.
+    @param activationThreshold       (int)    If the number of active connected synapses on a segment is at least this threshold, the segment is said to be active.
+    @param initialPermanence         (float)  Initial permanence of a new synapse.
+    @param connectedPermanence       (float)  If the permanence value for a synapse is greater than this value, it is said to be connected.
+    @param minThreshold              (int)    If the number of synapses active on a segment is at least this threshold, it is selected as the best matching cell in a bursting column.
+    @param maxNewSynapseCount        (int)    The maximum number of synapses added to a segment during learning.
+    @param permanenceIncrement       (float)  Amount by which permanences of synapses are incremented during learning.
+    @param permanenceDecrement       (float)  Amount by which permanences of synapses are decremented during learning.
+    @param predictedSegmentDecrement (float)  Amount by which active permanences of synapses of previously predicted but inactive segments are decremented.
+    @param seed                      (int)    Seed for the random number generator.
     """
-    # Error checking
-    if not len(columnDimensions):
-      raise ValueError("Number of column dimensions must be greater than 0")
-
-    if not cellsPerColumn > 0:
-      raise ValueError("Number of cells per column must be greater than 0")
 
     # TODO: Validate all parameters (and add validation tests)
+    if region is None:
+      raise ValueError("Region must be an instance of Region class")
 
     # Save member variables
-    self.columnDimensions = columnDimensions
-    self.cellsPerColumn = cellsPerColumn
+    self.region = region
     self.activationThreshold = activationThreshold
     self.initialPermanence = initialPermanence
     self.connectedPermanence = connectedPermanence
@@ -86,7 +80,6 @@ class TemporalMemory(object):
     self.permanenceDecrement = permanenceDecrement
     self.predictedSegmentDecrement = predictedSegmentDecrement
     # Initialize member variables
-    self.connections = Connections(self.numberOfCells())
     self._random = Random(seed)
 
     self.activeCells = set()
@@ -120,7 +113,6 @@ class TemporalMemory(object):
                                      self.winnerCells,
                                      self.matchingSegments,
                                      self.matchingCells,
-                                     self.connections,
                                      learn=learn)
 
     self.activeCells = activeCells
@@ -138,7 +130,6 @@ class TemporalMemory(object):
                 prevWinnerCells,
                 prevMatchingSegments,
                 prevMatchingCells,
-                connections,
                 learn=True):
     """
     'Functional' version of compute.
@@ -151,7 +142,6 @@ class TemporalMemory(object):
     @param prevWinnerCells       (set)         Indices of winner cells in `t-1`
     @param prevMatchingSegments  (set)         Indices of matching segments in `t-1`
     @param prevMatchingCells     (set)         Indices of matching cells in `t-1`
-    @param connections           (Connections) Connectivity of layer
     @param learn                 (bool)        Whether or not learning is enabled
 
     @return (tuple) Contains:
@@ -181,8 +171,7 @@ class TemporalMemory(object):
      learningSegments) = self.burstColumns(activeColumns,
                                            predictedColumns,
                                            prevActiveCells,
-                                           prevWinnerCells,
-                                           connections)
+                                           prevWinnerCells)
 
     activeCells.update(_activeCells)
     winnerCells.update(_winnerCells)
@@ -193,14 +182,13 @@ class TemporalMemory(object):
                            prevActiveCells,
                            winnerCells,
                            prevWinnerCells,
-                           connections,
                            predictedInactiveCells,
                            prevMatchingSegments)
 
     (activeSegments,
      predictiveCells,
      matchingSegments,
-     matchingCells) = self.computePredictiveCells(activeCells, connections)
+     matchingCells) = self.computePredictiveCells(activeCells)
 
     return (activeCells,
             winnerCells,
@@ -257,7 +245,7 @@ class TemporalMemory(object):
     predictedInactiveCells = set()
 
     for cell in prevPredictiveCells:
-      column = self.columnForCell(cell)
+      column = cell.column
 
       if column in activeColumns:
         activeCells.add(cell)
@@ -266,7 +254,7 @@ class TemporalMemory(object):
 
     if self.predictedSegmentDecrement > 0:
       for cell in prevMatchingCells:
-        column = self.columnForCell(cell)
+        column = cell.column
 
         if column not in activeColumns:
           predictedInactiveCells.add(cell)
@@ -278,8 +266,7 @@ class TemporalMemory(object):
                    activeColumns,
                    predictedColumns,
                    prevActiveCells,
-                   prevWinnerCells,
-                   connections):
+                   prevWinnerCells):
     """
     Phase 2: Burst unpredicted columns.
 
@@ -298,7 +285,6 @@ class TemporalMemory(object):
     @param predictedColumns                (set)         Indices of predicted columns in `t`
     @param prevActiveCells                 (set)         Indices of active cells in `t-1`
     @param prevWinnerCells                 (set)         Indices of winner cells in `t-1`
-    @param connections                     (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       `activeCells`      (set),
@@ -312,17 +298,16 @@ class TemporalMemory(object):
     unpredictedColumns = activeColumns - predictedColumns
 
     for column in unpredictedColumns:
-      cells = self.cellsForColumn(column)
+      cells = column.cells
       activeCells.update(cells)
 
       (bestCell,
        bestSegment) = self.bestMatchingCell(cells,
-                                            prevActiveCells,
-                                            connections)
+                                            prevActiveCells)
       winnerCells.add(bestCell)
 
       if bestSegment is None and len(prevWinnerCells):
-        bestSegment = connections.createSegment(bestCell)
+        bestSegment = bestCell.createSegment()
 
       if bestSegment is not None:
         learningSegments.add(bestSegment)
@@ -336,7 +321,6 @@ class TemporalMemory(object):
                       prevActiveCells,
                       winnerCells,
                       prevWinnerCells,
-                      connections,
                       predictedInactiveCells,
                       prevMatchingSegments):
     """
@@ -362,19 +346,18 @@ class TemporalMemory(object):
     @param prevActiveCells              (set)         Indices of active cells in `t-1`
     @param winnerCells                  (set)         Indices of winner cells in `t`
     @param prevWinnerCells              (set)         Indices of winner cells in `t-1`
-    @param connections                  (Connections) Connectivity of layer
     @param predictedInactiveCells       (set)         Indices of predicted inactive cells
     @param prevMatchingSegments         (set)         Indices of segments with
     """
     for segment in prevActiveSegments | learningSegments:
       isLearningSegment = segment in learningSegments
-      isFromWinnerCell = connections.cellForSegment(segment) in winnerCells
+      isFromWinnerCell = segment.cell in winnerCells
 
       activeSynapses = self.activeSynapsesForSegment(
-        segment, prevActiveCells, connections)
+        segment, prevActiveCells)
 
       if isLearningSegment or isFromWinnerCell:
-        self.adaptSegment(segment, activeSynapses, connections,
+        self.adaptSegment(segment, activeSynapses,
                           self.permanenceIncrement,
                           self.permanenceDecrement)
 
@@ -383,26 +366,24 @@ class TemporalMemory(object):
 
         for presynapticCell in self.pickCellsToLearnOn(n,
                                                        segment,
-                                                       prevWinnerCells,
-                                                       connections):
-          connections.createSynapse(segment,
-                                    presynapticCell,
-                                    self.initialPermanence)
+                                                       prevWinnerCells):
+          segment.createSynapse(presynapticCell=presynapticCell,
+                                permanence=self.initialPermanence)
 
     if self.predictedSegmentDecrement > 0:
       for segment in prevMatchingSegments:
-        isPredictedInactiveCell = connections.cellForSegment(segment) in predictedInactiveCells
+        isPredictedInactiveCell = segment.cell in predictedInactiveCells
         activeSynapses = self.activeSynapsesForSegment(
-          segment, prevActiveCells, connections)
+          segment, prevActiveCells)
 
         if isPredictedInactiveCell:
-          self.adaptSegment(segment, activeSynapses, connections,
+          self.adaptSegment(segment, activeSynapses,
                             -self.predictedSegmentDecrement,
                             0.0)
 
 
 
-  def computePredictiveCells(self, activeCells, connections):
+  def computePredictiveCells(self, activeCells):
     """
     Phase 4: Compute predictive cells due to lateral input
     on distal dendrites.
@@ -423,7 +404,6 @@ class TemporalMemory(object):
     them, to determine which synapses are active.
 
     @param activeCells (set)         Indices of active cells in `t`
-    @param connections (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       `activeSegments`  (set),
@@ -440,9 +420,9 @@ class TemporalMemory(object):
     matchingCells = set()
 
     for cell in activeCells:
-      for synapseData in connections.synapsesForPresynapticCell(cell).values():
-        segment = synapseData.segment
-        permanence = synapseData.permanence
+      for synapse in cell.postsynapticCellsSynapses:
+        segment = synapse.segment
+        permanence = synapse.permanence
 
         if permanence >= self.connectedPermanence:
           numActiveConnectedSynapsesForSegment[segment] += 1
@@ -450,14 +430,14 @@ class TemporalMemory(object):
           if (numActiveConnectedSynapsesForSegment[segment] >=
               self.activationThreshold):
             activeSegments.add(segment)
-            predictiveCells.add(connections.cellForSegment(segment))
+            predictiveCells.add(segment.cell)
 
         if permanence > 0 and self.predictedSegmentDecrement > 0:
           numActiveSynapsesForSegment[segment] += 1
 
           if numActiveSynapsesForSegment[segment] >= self.minThreshold:
             matchingSegments.add(segment)
-            matchingCells.add(connections.cellForSegment(segment))
+            matchingCells.add(segment.cell)
 
     return activeSegments, predictiveCells, matchingSegments, matchingCells
 
@@ -466,7 +446,7 @@ class TemporalMemory(object):
   # Helper functions
   # ==============================
 
-  def bestMatchingCell(self, cells, activeCells, connections):
+  def bestMatchingCell(self, cells, activeCells):
     """
     Gets the cell with the best matching segment
     (see `TM.bestMatchingSegment`) that has the largest number of active
@@ -476,7 +456,6 @@ class TemporalMemory(object):
 
     @param cells                       (set)         Indices of cells
     @param activeCells                 (set)         Indices of active cells
-    @param connections                 (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       `cell`        (int),
@@ -488,7 +467,7 @@ class TemporalMemory(object):
 
     for cell in cells:
       segment, numActiveSynapses = self.bestMatchingSegment(
-        cell, activeCells, connections)
+        cell, activeCells)
 
       if segment is not None and numActiveSynapses > maxSynapses:
         maxSynapses = numActiveSynapses
@@ -496,19 +475,18 @@ class TemporalMemory(object):
         bestSegment = segment
 
     if bestCell is None:
-      bestCell = self.leastUsedCell(cells, connections)
+      bestCell = self.leastUsedCell(cells)
 
     return bestCell, bestSegment
 
 
-  def bestMatchingSegment(self, cell, activeCells, connections):
+  def bestMatchingSegment(self, cell, activeCells):
     """
     Gets the segment on a cell with the largest number of activate synapses,
     including all synapses with non-zero permanences.
 
     @param cell                        (int)         Cell index
     @param activeCells                 (set)         Indices of active cells
-    @param connections                 (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       `segment`                 (int),
@@ -518,13 +496,12 @@ class TemporalMemory(object):
     bestSegment = None
     bestNumActiveSynapses = None
 
-    for segment in connections.segmentsForCell(cell):
+    for segment in cell.segments:
       numActiveSynapses = 0
 
-      for synapse in connections.synapsesForSegment(segment):
-        synapseData = connections.dataForSynapse(synapse)
-        if ( (synapseData.presynapticCell in activeCells) and
-            synapseData.permanence > 0):
+      for synapse in segment.synapses:
+        if synapse.presynapticCell in activeCells and \
+           synapse.permanence > 0:
           numActiveSynapses += 1
 
       if numActiveSynapses >= maxSynapses:
@@ -535,13 +512,12 @@ class TemporalMemory(object):
     return bestSegment, bestNumActiveSynapses
 
 
-  def leastUsedCell(self, cells, connections):
+  def leastUsedCell(self, cells):
     """
     Gets the cell with the smallest number of segments.
     Break ties randomly.
 
     @param cells       (set)         Indices of cells
-    @param connections (Connections) Connectivity of layer
 
     @return (int) Cell index
     """
@@ -549,7 +525,7 @@ class TemporalMemory(object):
     minNumSegments = float("inf")
 
     for cell in cells:
-      numSegments = len(connections.segmentsForCell(cell))
+      numSegments = len(cell.segments)
 
       if numSegments < minNumSegments:
         minNumSegments = numSegments
@@ -563,29 +539,27 @@ class TemporalMemory(object):
 
 
   @staticmethod
-  def activeSynapsesForSegment(segment, activeCells, connections):
+  def activeSynapsesForSegment(segment, activeCells):
     """
     Returns the synapses on a segment that are active due to lateral input
     from active cells.
 
     @param segment     (int)         Segment index
     @param activeCells (set)         Indices of active cells
-    @param connections (Connections) Connectivity of layer
 
     @return (set) Indices of active synapses on segment
     """
     synapses = set()
 
-    for synapse in connections.synapsesForSegment(segment):
-      synapseData = connections.dataForSynapse(synapse)
+    for synapse in segment.synapses:
 
-      if synapseData.presynapticCell in activeCells:
+      if synapse.presynapticCell in activeCells:
         synapses.add(synapse)
 
     return synapses
 
 
-  def adaptSegment(self, segment, activeSynapses, connections,
+  def adaptSegment(self, segment, activeSynapses,
                    permanenceIncrement, permanenceDecrement):
     """
     Updates synapses on segment.
@@ -593,15 +567,14 @@ class TemporalMemory(object):
 
     @param segment              (int)         Segment index
     @param activeSynapses       (set)         Indices of active synapses
-    @param connections          (Connections) Connectivity of layer
     @param permanenceIncrement  (float)  Amount to increment active synapses
     @param permanenceDecrement  (float)  Amount to decrement inactive synapses
     """
     # Need to copy synapses for segment set below because it will be modified
     # during iteration by `destroySynapse`
-    for synapse in set(connections.synapsesForSegment(segment)):
-      synapseData = connections.dataForSynapse(synapse)
-      permanence = synapseData.permanence
+    synapsesToDestroy = set()
+    for synapse in segment.synapses:
+      permanence = synapse.permanence
 
       if synapse in activeSynapses:
         permanence += permanenceIncrement
@@ -612,12 +585,15 @@ class TemporalMemory(object):
       permanence = max(0.0, min(1.0, permanence))
 
       if (abs(permanence) < EPSILON):
-        connections.destroySynapse(synapse)
+        synapsesToDestroy.add(synapse)
       else:
-        connections.updateSynapsePermanence(synapse, permanence)
+        synapse.permanence = permanence
+
+    for synapse in synapsesToDestroy:
+      segment.destroySynapse(synapse)
 
 
-  def pickCellsToLearnOn(self, n, segment, winnerCells, connections):
+  def pickCellsToLearnOn(self, n, segment, winnerCells):
     """
     Pick cells to form distal connections to.
 
@@ -626,16 +602,14 @@ class TemporalMemory(object):
     @param n           (int)         Number of cells to pick
     @param segment     (int)         Segment index
     @param winnerCells (set)         Indices of winner cells in `t`
-    @param connections (Connections) Connectivity of layer
 
     @return (set) Indices of cells picked
     """
     candidates = set(winnerCells)
 
     # Remove cells that are already synapsed on by this segment
-    for synapse in connections.synapsesForSegment(segment):
-      synapseData = connections.dataForSynapse(synapse)
-      presynapticCell = synapseData.presynapticCell
+    for synapse in segment.synapses:
+      presynapticCell = synapse.presynapticCell
 
       if presynapticCell in candidates:
         candidates.remove(presynapticCell)
@@ -653,199 +627,6 @@ class TemporalMemory(object):
     return cells
 
 
-  def columnForCell(self, cell):
-    """
-    Returns the index of the column that a cell belongs to.
-
-    @param cell (int) Cell index
-
-    @return (int) Column index
-    """
-    self._validateCell(cell)
-
-    return int(cell / self.cellsPerColumn)
-
-
-  def cellsForColumn(self, column):
-    """
-    Returns the indices of cells that belong to a column.
-
-    @param column (int) Column index
-
-    @return (set) Cell indices
-    """
-    self._validateColumn(column)
-
-    start = self.cellsPerColumn * column
-    end = start + self.cellsPerColumn
-    return set([cell for cell in range(start, end)])
-
-
-  def numberOfColumns(self):
-    """
-    Returns the number of columns in this layer.
-
-    @return (int) Number of columns
-    """
-    return reduce(mul, self.columnDimensions, 1)
-
-
-  def numberOfCells(self):
-    """
-    Returns the number of cells in this layer.
-
-    @return (int) Number of cells
-    """
-    return self.numberOfColumns() * self.cellsPerColumn
-
-
-  def mapCellsToColumns(self, cells):
-    """
-    Maps cells to the columns they belong to
-
-    @param cells (set) Cells
-
-    @return (dict) Mapping from columns to their cells in `cells`
-    """
-    cellsForColumns = defaultdict(set)
-
-    for cell in cells:
-      column = self.columnForCell(cell)
-      cellsForColumns[column].add(cell)
-
-    return cellsForColumns
-
-
-  def write(self, proto):
-    """
-    Writes serialized data to proto object
-
-    @param proto (DynamicStructBuilder) Proto object
-    """
-    proto.columnDimensions = self.columnDimensions
-    proto.cellsPerColumn = self.cellsPerColumn
-    proto.activationThreshold = self.activationThreshold
-    proto.initialPermanence = self.initialPermanence
-    proto.connectedPermanence = self.connectedPermanence
-    proto.minThreshold = self.minThreshold
-    proto.maxNewSynapseCount = self.maxNewSynapseCount
-    proto.permanenceIncrement = self.permanenceIncrement
-    proto.permanenceDecrement = self.permanenceDecrement
-    proto.predictedSegmentDecrement = self.predictedSegmentDecrement
-
-    self.connections.write(proto.connections)
-    self._random.write(proto.random)
-
-    proto.activeCells = list(self.activeCells)
-    proto.predictiveCells = list(self.predictiveCells)
-    proto.activeSegments = list(self.activeSegments)
-    proto.winnerCells = list(self.winnerCells)
-    proto.matchingSegments = list(self.matchingSegments)
-    proto.matchingCells = list(self.matchingCells)
-
-
-  @classmethod
-  def read(cls, proto):
-    """
-    Reads deserialized data from proto object
-
-    @param proto (DynamicStructBuilder) Proto object
-
-    @return (TemporalMemory) TemporalMemory instance
-    """
-    tm = object.__new__(cls)
-
-    tm.columnDimensions = list(proto.columnDimensions)
-    tm.cellsPerColumn = int(proto.cellsPerColumn)
-    tm.activationThreshold = int(proto.activationThreshold)
-    tm.initialPermanence = proto.initialPermanence
-    tm.connectedPermanence = proto.connectedPermanence
-    tm.minThreshold = int(proto.minThreshold)
-    tm.maxNewSynapseCount = int(proto.maxNewSynapseCount)
-    tm.permanenceIncrement = proto.permanenceIncrement
-    tm.permanenceDecrement = proto.permanenceDecrement
-    tm.predictedSegmentDecrement = proto.predictedSegmentDecrement
-
-    tm.connections = Connections.read(proto.connections)
-    tm._random = Random()
-    tm._random.read(proto.random)
-
-    tm.activeCells = set([int(x) for x in proto.activeCells])
-    tm.predictiveCells = set([int(x) for x in proto.predictiveCells])
-    tm.activeSegments = set([int(x) for x in proto.activeSegments])
-    tm.winnerCells = set([int(x) for x in proto.winnerCells])
-    tm.matchingSegments = set([int(x) for x in proto.matchingSegments])
-    tm.matchingCells = set([int(x) for x in proto.matchingCells])
-
-    return tm
-
-
-  def __eq__(self, other):
-    """
-    Equality operator for TemporalMemory instances.
-    Checks if two instances are functionally identical
-    (might have different internal state).
-
-    @param other (TemporalMemory) TemporalMemory instance to compare to
-    """
-    if self.columnDimensions != other.columnDimensions: return False
-    if self.cellsPerColumn != other.cellsPerColumn: return False
-    if self.activationThreshold != other.activationThreshold: return False
-    if abs(self.initialPermanence - other.initialPermanence) > EPSILON:
-      return False
-    if abs(self.connectedPermanence - other.connectedPermanence) > EPSILON:
-      return False
-    if self.minThreshold != other.minThreshold: return False
-    if self.maxNewSynapseCount != other.maxNewSynapseCount: return False
-    if abs(self.permanenceIncrement - other.permanenceIncrement) > EPSILON:
-      return False
-    if abs(self.permanenceDecrement - other.permanenceDecrement) > EPSILON:
-      return False
-    if abs(self.predictedSegmentDecrement - other.predictedSegmentDecrement) > EPSILON:
-      return False
-
-    if self.connections != other.connections: return False
-
-    if self.activeCells != other.activeCells: return False
-    if self.predictiveCells != other.predictiveCells: return False
-    if self.winnerCells != other.winnerCells: return False
-    if self.matchingSegments != other.matchingSegments: return False
-    if self.matchingCells != other.matchingCells: return False
-
-    return True
-
-
-  def __ne__(self, other):
-    """
-    Non-equality operator for TemporalMemory instances.
-    Checks if two instances are not functionally identical
-    (might have different internal state).
-
-    @param other (TemporalMemory) TemporalMemory instance to compare to
-    """
-    return not self.__eq__(other)
-
-
-  def _validateColumn(self, column):
-    """
-    Raises an error if column index is invalid.
-
-    @param column (int) Column index
-    """
-    if column >= self.numberOfColumns() or column < 0:
-      raise IndexError("Invalid column")
-
-
-  def _validateCell(self, cell):
-    """
-    Raises an error if cell index is invalid.
-
-    @param cell (int) Cell index
-    """
-    if cell >= self.numberOfCells() or cell < 0:
-      raise IndexError("Invalid cell")
-
-
   @classmethod
   def getCellIndices(cls, cells):
     return [cls.getCellIndex(c) for c in cells]
@@ -853,4 +634,4 @@ class TemporalMemory(object):
 
   @staticmethod
   def getCellIndex(cell):
-    return cell
+    return cell.idx
