@@ -102,7 +102,7 @@ class SpatialPoolerTest(unittest.TestCase):
     for i in xrange(20):
       sp.compute(inputVector, True, activeArray)
 
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       perm = sp._getPermanencesFromColumn(i)
       self.assertEqual(list(perm), list(inputVector))
 
@@ -137,7 +137,7 @@ class SpatialPoolerTest(unittest.TestCase):
     for i in xrange(20):
       sp.compute(inputVector, True, activeArray)
 
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       potential = numpy.zeros(sp._numInputs)
       sp.getPotential(i, potential)
       perm = sp._getPermanencesFromColumn(i)
@@ -404,10 +404,10 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inhibitColumnsGlobal = Mock(return_value = 1)
     sp._inhibitColumnsLocal = Mock(return_value = 2)
     randomState = getNumpyRandomGenerator()
-    sp._region.numColumns = 5
+    sp._layer.numColumns = 5
     sp._inhibitionRadius = 10
-    sp._region.columnDimensions = [5]
-    overlaps = randomState.random_sample(sp._region.numColumns)
+    sp._layer.columnDimensions = [5]
+    overlaps = randomState.random_sample(sp._layer.numColumns)
 
     sp._inhibitColumnsGlobal.reset_mock()
     sp._inhibitColumnsLocal.reset_mock()
@@ -424,25 +424,25 @@ class SpatialPoolerTest(unittest.TestCase):
 
     sp._inhibitColumnsGlobal.reset_mock()
     sp._inhibitColumnsLocal.reset_mock()
-    sp._region.numColumns = 500
+    sp._layer.numColumns = 500
     sp._tieBreaker = numpy.zeros(500)
-    sp._region.columnDimensions = numpy.array([50, 10])
+    sp._layer.columnDimensions = numpy.array([50, 10])
     sp._numActiveColumnsPerInhArea = -1
     sp._localAreaDensity = 0.1
     sp._globalInhibition = False
     sp._inhibitionRadius = 7
     # 0.1 * (2*9+1)**2 = 22.5
     trueDensity = sp._localAreaDensity
-    overlaps = randomState.random_sample(sp._region.numColumns)
+    overlaps = randomState.random_sample(sp._layer.numColumns)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False, sp._inhibitColumnsGlobal.called)
     self.assertEqual(True, sp._inhibitColumnsLocal.called)
     self.assertEqual(trueDensity, density)
 
     # Test translation of numColumnsPerInhArea into local area density
-    sp._region.numColumns = 1000
+    sp._layer.numColumns = 1000
     sp._tieBreaker = numpy.zeros(1000)
-    sp._region.columnDimensions = numpy.array([100, 10])
+    sp._layer.columnDimensions = numpy.array([100, 10])
     sp._inhibitColumnsGlobal.reset_mock()
     sp._inhibitColumnsLocal.reset_mock()
     sp._numActiveColumnsPerInhArea = 3
@@ -450,7 +450,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._globalInhibition = False
     sp._inhibitionRadius = 4
     trueDensity = 3.0/81.0
-    overlaps = randomState.random_sample(sp._region.numColumns)
+    overlaps = randomState.random_sample(sp._layer.numColumns)
     # 3.0 / (((2*4) + 1) ** 2)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False, sp._inhibitColumnsGlobal.called)
@@ -460,9 +460,9 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
     # Test clipping of local area density to 0.5
-    sp._region.numColumns = 1000
+    sp._layer.numColumns = 1000
     sp._tieBreaker = numpy.zeros(1000)
-    sp._region.columnDimensions = numpy.array([100, 10])
+    sp._layer.columnDimensions = numpy.array([100, 10])
     sp._inhibitColumnsGlobal.reset_mock()
     sp._inhibitColumnsLocal.reset_mock()
     sp._numActiveColumnsPerInhArea = 7
@@ -470,7 +470,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._globalInhibition = False
     sp._inhibitionRadius = 1
     trueDensity = 0.5
-    overlaps = randomState.random_sample(sp._region.numColumns)
+    overlaps = randomState.random_sample(sp._layer.numColumns)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False, sp._inhibitColumnsGlobal.called)
     self.assertEqual(True, sp._inhibitColumnsLocal.called)
@@ -481,17 +481,17 @@ class SpatialPoolerTest(unittest.TestCase):
   def testUpdateBoostFactors(self):
     sp = self._sp
     sp._maxBoost = 10.0
-    sp._region.numColumns = 6
-    sp._minActiveDutyCycles = numpy.zeros(sp._region.numColumns) + 1e-6
+    sp._layer.numColumns = 6
+    sp._minActiveDutyCycles = numpy.zeros(sp._layer.numColumns) + 1e-6
     sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
-    sp._boostFactors = numpy.zeros(sp._region.numColumns)
+    sp._boostFactors = numpy.zeros(sp._layer.numColumns)
     trueBoostFactors = [1, 1, 1, 1, 1, 1]
     sp._updateBoostFactors()
     for i in range(sp._boostFactors.size):
       self.assertAlmostEqual(trueBoostFactors[i], sp._boostFactors[i])
 
     sp._maxBoost = 10.0
-    sp._region.numColumns = 6
+    sp._layer.numColumns = 6
     sp._minActiveDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
     sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
     trueBoostFactors = [1, 1, 1, 1, 1, 1]
@@ -500,7 +500,7 @@ class SpatialPoolerTest(unittest.TestCase):
       self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
 
     sp._maxBoost = 10.0
-    sp._region.numColumns = 6
+    sp._layer.numColumns = 6
     sp._minActiveDutyCycles = numpy.array([0.1, 0.2, 0.02, 0.03, 0.7, 0.12])
     sp._activeDutyCycles = numpy.array([0.01, 0.02, 0.002, 0.003, 0.07, 0.012])
     trueBoostFactors = [9.1, 9.1, 9.1, 9.1, 9.1, 9.1]
@@ -509,9 +509,9 @@ class SpatialPoolerTest(unittest.TestCase):
       self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
 
     sp._maxBoost = 10.0
-    sp._region.numColumns = 6
+    sp._layer.numColumns = 6
     sp._minActiveDutyCycles = numpy.array([0.1, 0.2, 0.02, 0.03, 0.7, 0.12])
-    sp._activeDutyCycles = numpy.zeros(sp._region.numColumns)
+    sp._activeDutyCycles = numpy.zeros(sp._layer.numColumns)
     trueBoostFactors = 6*[sp._maxBoost]
     sp._updateBoostFactors()
     for i in range(sp._boostFactors.size):
@@ -523,7 +523,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     # Test global inhibition case
     sp._globalInhibition = True
-    sp._region.columnDimensions = numpy.array([57, 31, 2])
+    sp._layer.columnDimensions = numpy.array([57, 31, 2])
     sp._updateInhibitionRadius()
     self.assertEqual(sp._inhibitionRadius, 57)
 
@@ -555,35 +555,35 @@ class SpatialPoolerTest(unittest.TestCase):
 
   def testAvgColumnsPerInput(self):
     sp = self._sp
-    sp._region.columnDimensions = numpy.array([2, 2, 2, 2])
+    sp._layer.columnDimensions = numpy.array([2, 2, 2, 2])
     sp._inputDimensions = numpy.array([4, 4, 4, 4])
     self.assertEqual(sp._avgColumnsPerInput(), 0.5)
 
-    sp._region.columnDimensions = numpy.array([2, 2, 2, 2])
+    sp._layer.columnDimensions = numpy.array([2, 2, 2, 2])
     sp._inputDimensions = numpy.array( [7, 5, 1, 3])
                                     #  2/7 0.4 2 0.666
     trueAvgColumnPerInput = (2.0/7 + 2.0/5 + 2.0/1 + 2/3.0) / 4
     self.assertEqual(sp._avgColumnsPerInput(), trueAvgColumnPerInput)
 
-    sp._region.columnDimensions = numpy.array([3, 3])
+    sp._layer.columnDimensions = numpy.array([3, 3])
     sp._inputDimensions = numpy.array( [3, 3])
                                     #   1  1
     trueAvgColumnPerInput = 1
     self.assertEqual(sp._avgColumnsPerInput(), trueAvgColumnPerInput)
 
-    sp._region.columnDimensions = numpy.array([25])
+    sp._layer.columnDimensions = numpy.array([25])
     sp._inputDimensions = numpy.array( [5])
                                     #   5
     trueAvgColumnPerInput = 5
     self.assertEqual(sp._avgColumnsPerInput(), trueAvgColumnPerInput)
 
-    sp._region.columnDimensions = numpy.array([3, 3, 3, 5, 5, 6, 6])
+    sp._layer.columnDimensions = numpy.array([3, 3, 3, 5, 5, 6, 6])
     sp._inputDimensions = numpy.array( [3, 3, 3, 5, 5, 6, 6])
                                     #   1  1  1  1  1  1  1
     trueAvgColumnPerInput = 1
     self.assertEqual(sp._avgColumnsPerInput(), trueAvgColumnPerInput)
 
-    sp._region.columnDimensions = numpy.array([3, 6, 9, 12])
+    sp._layer.columnDimensions = numpy.array([3, 6, 9, 12])
     sp._inputDimensions = numpy.array( [3, 3, 3 , 3])
                                     #   1  2  3   4
     trueAvgColumnPerInput = 2.5
@@ -613,7 +613,7 @@ class SpatialPoolerTest(unittest.TestCase):
       [1, 1, 1, 1, 1, 1, 1, 1]])
 
     trueAvgConnectedSpan = [7, 5, 1, 5, 0, 2, 3, 3, 8]
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       connectedSpan = sp._avgConnectedSpanForColumn1D(i)
       self.assertEqual(trueAvgConnectedSpan[i], connectedSpan)
 
@@ -682,7 +682,7 @@ class SpatialPoolerTest(unittest.TestCase):
       ])
 
     trueAvgConnectedSpan = [3, 3, 4.5, 3, 2.5, 2, 0]
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       connectedSpan = sp._avgConnectedSpanForColumn2D(i)
       self.assertEqual(trueAvgConnectedSpan[i], connectedSpan)
 
@@ -740,7 +740,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     trueAvgConnectedSpan = [11.0/4, 6.0/4, 14.0/4, 15.0/4, 0]
 
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       connectedSpan = sp._avgConnectedSpanForColumnND(i)
       self.assertAlmostEqual(trueAvgConnectedSpan[i], connectedSpan)
 
@@ -768,7 +768,7 @@ class SpatialPoolerTest(unittest.TestCase):
       [0.100, 0.738, 0.045, 0.002, 0.050, 0.008, 0.208, 0.034]])
 
     sp._synPermTrimThreshold = 0.
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       sp._createSynapsesForColumn(potentialPools[i], i)
       sp._updatePermanencesForColumn(permanences[i], i, False)
 
@@ -785,7 +785,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     sp._synPermTrimThreshold = 0.05
     sp._bumpUpWeakColumns()
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       perm = sp._getPermanencesFromColumn(i)
       for j in xrange(sp._numInputs):
         self.assertAlmostEqual(truePermanences[i][j], perm[j])
@@ -796,7 +796,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     # Replace the get neighbors function with a mock to know exactly
     # the neighbors of each column.
-    sp._region.numColumns = 5
+    sp._layer.numColumns = 5
     sp._getNeighborsND = Mock(side_effect=[[0, 1, 2],
                                            [1, 2, 3],
                                            [2, 3, 4],
@@ -813,14 +813,14 @@ class SpatialPoolerTest(unittest.TestCase):
     trueMinActiveDutyCycles = [0.02*0.5, 0.02*0.5, 0.02*0.2, 0.02*0.4,
                                0.02*0.5]
 
-    sp._minOverlapDutyCycles = numpy.zeros(sp._region.numColumns)
-    sp._minActiveDutyCycles = numpy.zeros(sp._region.numColumns)
+    sp._minOverlapDutyCycles = numpy.zeros(sp._layer.numColumns)
+    sp._minActiveDutyCycles = numpy.zeros(sp._layer.numColumns)
     sp._updateMinDutyCyclesLocal()
     self.assertListEqual(trueMinOverlapDutyCycles,
                          list(sp._minOverlapDutyCycles))
     self.assertListEqual(trueMinActiveDutyCycles, list(sp._minActiveDutyCycles))
 
-    sp._region.numColumns = 8
+    sp._layer.numColumns = 8
     sp._getNeighborsND = Mock(side_effect= [[0, 1, 2, 3, 4],
                                             [1, 2, 3, 4, 5],
                                             [2, 3, 4, 6, 7],
@@ -841,8 +841,8 @@ class SpatialPoolerTest(unittest.TestCase):
         [0.14, 0.25, 0.125, 0.33, 0.27, 0.11, 0.76, 0.31])
     trueMinActiveDutyCycles = [0.03*0.33, 0.03*0.33, 0.03*0.76, 0.03*0.76,
                                0.03*0.76, 0.03*0.33, 0.03*0.76, 0.03*0.76]
-    sp._minOverlapDutyCycles = numpy.zeros(sp._region.numColumns)
-    sp._minActiveDutyCycles = numpy.zeros(sp._region.numColumns)
+    sp._minOverlapDutyCycles = numpy.zeros(sp._layer.numColumns)
+    sp._minActiveDutyCycles = numpy.zeros(sp._layer.numColumns)
     sp._updateMinDutyCyclesLocal()
     self.assertListEqual(trueMinOverlapDutyCycles,
                          list(sp._minOverlapDutyCycles))
@@ -853,13 +853,13 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = self._sp
     sp._minPctOverlapDutyCycles = 0.01
     sp._minPctActiveDutyCycles = 0.02
-    sp._region.numColumns = 5
+    sp._layer.numColumns = 5
     sp._overlapDutyCycles = numpy.array([0.06, 1, 3, 6, 0.5])
     sp._activeDutyCycles = numpy.array([0.6, 0.07, 0.5, 0.4, 0.3])
     sp._updateMinDutyCyclesGlobal()
-    trueMinActiveDutyCycles = sp._region.numColumns*[0.02*0.6]
-    trueMinOverlapDutyCycles = sp._region.numColumns*[0.01*6]
-    for i in xrange(sp._region.numColumns):
+    trueMinActiveDutyCycles = sp._layer.numColumns*[0.02*0.6]
+    trueMinOverlapDutyCycles = sp._layer.numColumns*[0.01*6]
+    for i in xrange(sp._layer.numColumns):
       self.assertAlmostEqual(trueMinActiveDutyCycles[i],
                              sp._minActiveDutyCycles[i])
       self.assertAlmostEqual(trueMinOverlapDutyCycles[i],
@@ -867,24 +867,24 @@ class SpatialPoolerTest(unittest.TestCase):
 
     sp._minPctOverlapDutyCycles = 0.015
     sp._minPctActiveDutyCycles = 0.03
-    sp._region.numColumns = 5
+    sp._layer.numColumns = 5
     sp._overlapDutyCycles = numpy.array([0.86, 2.4, 0.03, 1.6, 1.5])
     sp._activeDutyCycles = numpy.array([0.16, 0.007, 0.15, 0.54, 0.13])
     sp._updateMinDutyCyclesGlobal()
-    trueMinOverlapDutyCycles = sp._region.numColumns*[0.015*2.4]
-    for i in xrange(sp._region.numColumns):
+    trueMinOverlapDutyCycles = sp._layer.numColumns*[0.015*2.4]
+    for i in xrange(sp._layer.numColumns):
       self.assertAlmostEqual(trueMinOverlapDutyCycles[i],
                              sp._minOverlapDutyCycles[i])
 
     sp._minPctOverlapDutyCycles = 0.015
     sp._minPctActiveDutyCycles= 0.03
-    sp._region.numColumns = 5
+    sp._layer.numColumns = 5
     sp._overlapDutyCycles = numpy.zeros(5)
     sp._activeDutyCycles = numpy.zeros(5)
     sp._updateMinDutyCyclesGlobal()
-    trueMinOverlapDutyCycles = sp._region.numColumns * [0]
-    trueMinActiveDutyCycles = sp._region.numColumns * [0]
-    for i in xrange(sp._region.numColumns):
+    trueMinOverlapDutyCycles = sp._layer.numColumns * [0]
+    trueMinActiveDutyCycles = sp._layer.numColumns * [0]
+    for i in xrange(sp._layer.numColumns):
       self.assertAlmostEqual(trueMinActiveDutyCycles[i],
                              sp._minActiveDutyCycles[i])
       self.assertAlmostEqual(trueMinOverlapDutyCycles[i],
@@ -942,7 +942,7 @@ class SpatialPoolerTest(unittest.TestCase):
       [0.040, 0.000, 0.000, 0.000, 0.000, 0.000, 0.178, 0.000]])
 
     sp._synPermTrimThreshold = 0.
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       sp._createSynapsesForColumn(potentialPools[i], i)
       sp._updatePermanencesForColumn(permanences[i], i, False)
 
@@ -958,7 +958,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     sp._synPermTrimThreshold = 0.05
     sp._adaptSynapses(inputVector, activeColumns)
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       perm = sp._getPermanencesFromColumn(i)
       for j in xrange(sp._numInputs):
         self.assertAlmostEqual(truePermanences[i][j], perm[j])
@@ -979,7 +979,7 @@ class SpatialPoolerTest(unittest.TestCase):
       [0.170, 0.000, 0.000, 0.000, 0.000, 0.000, 0.380, 0.000]])
 
     sp._synPermTrimThreshold = 0.
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       sp._createSynapsesForColumn(potentialPools[i], i)
       sp._updatePermanencesForColumn(permanences[i], i, False)
 
@@ -995,7 +995,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     sp._synPermTrimThreshold = 0.05
     sp._adaptSynapses(inputVector, activeColumns)
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       perm = sp._getPermanencesFromColumn(i)
       for j in xrange(sp._numInputs):
         self.assertAlmostEqual(truePermanences[i][j], perm[j])
@@ -1030,7 +1030,7 @@ class SpatialPoolerTest(unittest.TestCase):
       [0.220, 0.1001, 0.150, 0.051, 0.070], # increment four times
       [0.101, 0.1010, 0.101, 0.101, 0.101]] #increment 9 times
 
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       sp._updatePermanencesForColumn(permanences[i], i, raisePerm=False)
       sp._raisePermanenceToThreshold(i)
       permanences[i] = sp._getPermanencesFromColumn(i)
@@ -1073,7 +1073,7 @@ class SpatialPoolerTest(unittest.TestCase):
       [1, 1, 0, 0, 1]]
 
     trueConnectedCounts = [2, 2, 2, 2, 3]
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       sp._updatePermanencesForColumn(permanences[i], i, raisePerm=False)
       self.assertListEqual(
         trueConnectedSynapses[i],
@@ -1306,18 +1306,18 @@ class SpatialPoolerTest(unittest.TestCase):
     """
     sp = self._sp
     density = 0.3
-    sp._region.numColumns = 10
+    sp._layer.numColumns = 10
     overlaps = numpy.array([1, 2, 1, 4, 8, 3, 12, 5, 4, 1])
     active = list(sp._inhibitColumnsGlobal(overlaps, density))
-    trueActive = numpy.zeros(sp._region.numColumns)
+    trueActive = numpy.zeros(sp._layer.numColumns)
     trueActive = [4, 6, 7]
     self.assertListEqual(list(trueActive), active)
 
     density = 0.5
-    sp._region.numColumns = 10
+    sp._layer.numColumns = 10
     overlaps = numpy.array(range(10))
     active = list(sp._inhibitColumnsGlobal(overlaps, density))
-    trueActive = numpy.zeros(sp._region.numColumns)
+    trueActive = numpy.zeros(sp._layer.numColumns)
     trueActive = range(5, 10)
     self.assertListEqual(trueActive, active)
 
@@ -1325,8 +1325,8 @@ class SpatialPoolerTest(unittest.TestCase):
   def testInhibitColumnsLocal(self):
     sp = self._sp
     density = 0.5
-    sp._region.numColumns = 10
-    sp._region.columnDimensions = numpy.array([sp._region.numColumns])
+    sp._layer.numColumns = 10
+    sp._layer.columnDimensions = numpy.array([sp._layer.numColumns])
     sp._inhibitionRadius = 2
     overlaps = numpy.array([1, 2, 7, 0, 3, 4, 16, 1, 1.5, 1.7])
                         #   L  W  W  L  L  W  W   L   L    W
@@ -1335,8 +1335,8 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(trueActive, active)
 
     density = 0.5
-    sp._region.numColumns = 10
-    sp._region.columnDimensions = numpy.array([sp._region.numColumns])
+    sp._layer.numColumns = 10
+    sp._layer.columnDimensions = numpy.array([sp._layer.numColumns])
     sp._inhibitionRadius = 3
     overlaps = numpy.array([1, 2, 7, 0, 3, 4, 16, 1, 1.5, 1.7])
                         #   L  W  W  L  L  W  W   L   L    L
@@ -1346,8 +1346,8 @@ class SpatialPoolerTest(unittest.TestCase):
 
     # Test add to winners
     density = 0.3333
-    sp._region.numColumns = 10
-    sp._region.columnDimensions = numpy.array([sp._region.numColumns])
+    sp._layer.numColumns = 10
+    sp._layer.columnDimensions = numpy.array([sp._layer.numColumns])
     sp._inhibitionRadius = 3
     overlaps = numpy.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
                         #   W  W  L  L  W  W  L  L  L  W
@@ -1821,14 +1821,14 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = SpatialPooler(layer=Layer(columnDimensions=[10]),
                        inputDimensions=[5])
     inputArray = (numpy.random.rand(5) > 0.5).astype(uintDType)
-    activeArray = numpy.zeros(sp._region.numColumns).astype(realDType)
+    activeArray = numpy.zeros(sp._layer.numColumns).astype(realDType)
     # Should start off at 0
     self.assertEqual(sp._iterationNum, 0)
     self.assertEqual(sp._iterationLearnNum, 0)
 
     # Store the initialized state
     initialPerms = dict()
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       perm = sp._getPermanencesFromColumn(i)
       initialPerms[i] = perm
 
@@ -1838,7 +1838,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertEqual(sp._iterationLearnNum, 0)
 
     # Check the initial perm state was not modified either
-    for i in xrange(sp._region.numColumns):
+    for i in xrange(sp._layer.numColumns):
       perm = sp._getPermanencesFromColumn(i)
       self.assertEqual(perm.all(), initialPerms[i].all())
 
@@ -1859,7 +1859,7 @@ class SpatialPoolerTest(unittest.TestCase):
                          numActiveColumnsPerInhArea=numActive)
       inputArray = (numpy.random.rand(inputShape) > 0.5).astype(uintDType)
       inputArray2 = (numpy.random.rand(inputShape) > 0.8).astype(uintDType)
-      activeArray = numpy.zeros(sp._region.numColumns).astype(realDType)
+      activeArray = numpy.zeros(sp._layer.numColumns).astype(realDType)
 
       # Default, learning on
       sp.compute(inputArray, True, activeArray)
