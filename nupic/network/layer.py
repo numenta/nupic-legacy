@@ -35,7 +35,7 @@ class Layer(object):
     ----------------------------
     @param columnDimensions (list): 
       A list representing the dimensions of the columns in the layer. Format is
-      [height, width, depth, ...], where each value represents the size of the
+      [height, width, depth, ...], where each value represents the size of the 
       dimension.  For a topology of one dimension with 2000 columns use 2000, or
       [2000]. For a three dimensional topology of 32x64x16 use [32, 64, 16].
     @param cellsPerColumn   (int):
