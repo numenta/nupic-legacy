@@ -138,14 +138,15 @@ class CLAClassifierRegion(PyRegion):
           defaultValue=0,
           accessMode='ReadWrite'),
 
-        numCategories=dict(
-          description='Number of categories from the sensor region',
+        maxCategoryCount=dict(
+          description='The maximal number of categories the '
+                        'classifier will distinguish between.',
           dataType='UInt32',
           required=True,
           count=1, 
-          constraints='bool',
+          constraints='',
           defaultValue=1000, # Large default value for backward compatibility 
-          accessMode='ReadWrite'),
+          accessMode='Create'),
 
         steps=dict(
           description='Comma separated list of the desired steps of '
@@ -195,7 +196,7 @@ class CLAClassifierRegion(PyRegion):
                alpha=0.001,
                clVerbosity=0,
                implementation=None,
-               numCategories=None
+               maxCategoryCount=None
                ):
 
     # Convert the steps designation to a list
@@ -213,7 +214,7 @@ class CLAClassifierRegion(PyRegion):
     )
     self.learningMode = True
     self.inferenceMode = False
-    self.numCategories = numCategories
+    self.maxCategoryCount = maxCategoryCount
     self.recordNum = 0
     self._initEphemerals()
 
@@ -313,8 +314,8 @@ class CLAClassifierRegion(PyRegion):
       #                   4 : [0.2, 0.4, 0.3, 0.5]}
       #   becomes: [0.1, 0.3, 0.2, 0.7, 0.2, 0.4, 0.3, 0.5] 
       stepProbabilities = clResults[step]
-      for categoryIndex in xrange(self.numCategories):
-        flatIndex = categoryIndex + stepIndex * self.numCategories
+      for categoryIndex in xrange(self.maxCategoryCount):
+        flatIndex = categoryIndex + stepIndex * self.maxCategoryCount
         if categoryIndex < len(stepProbabilities):
           outputs['probabilities'][flatIndex] = stepProbabilities[categoryIndex]
         else:
@@ -368,9 +369,9 @@ class CLAClassifierRegion(PyRegion):
     if outputName == "categoriesOut":
       return len(self.stepsList)
     elif outputName == "probabilities":
-      return len(self.stepsList) * self.numCategories
+      return len(self.stepsList) * self.maxCategoryCount
     elif outputName == "actualValues":
-      return self.numCategories
+      return self.maxCategoryCount
     else:
       raise ValueError("Unknown output {}.".format(outputName))
 
