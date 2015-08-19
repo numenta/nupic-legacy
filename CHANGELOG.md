@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.8
+
+* Updated to correct pypi license string.
+
 ## 0.2.7
 
 * Changed all copyright headers on all files to AGPL.
