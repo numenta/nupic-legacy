@@ -2,7 +2,7 @@
 import random
 import time
 
-from nupic.network.region import Region
+from nupic.network.layer import Layer
 from nupic.research.spatial_pooler import SpatialPooler as SpatialPooler1
 from nupic.research_oo.spatial_pooler import SpatialPooler as SpatialPooler2
 from nupic.research.temporal_memory import TemporalMemory as TemporalMemory1
@@ -92,10 +92,10 @@ if __name__ == '__main__':
 
   startTime = time.time()
   
-  region = Region(columnDimensions=[columnDimensions], numCellsPerColumn=numCellsPerColumn)
+  layer = Layer(columnDimensions=[columnDimensions], numCellsPerColumn=numCellsPerColumn)
 
   elapsedTime = time.time() - startTime
-  print "Region Initialization: ", elapsedTime
+  print "Layer Initialization: ", elapsedTime
 
   inputSize = 30
   numpy.random.seed()
@@ -108,7 +108,7 @@ if __name__ == '__main__':
                'seed': seed}
   testSP("SP original", SpatialPooler1, sp1Params, inputMatrix)
 
-  sp2Params = {'region': region,
+  sp2Params = {'layer': layer,
                'inputDimensions': (inputSize),
                'potentialRadius': inputSize,
                'globalInhibition': True,
@@ -143,9 +143,9 @@ if __name__ == '__main__':
   for input in inputList:
     columns = set()
     for columnIdx in input[0]:
-      columns.add(region.columns[columnIdx])
+      columns.add(layer.columns[columnIdx])
     inputList2.append(columns)
-  tm2Params = {'region': region,
+  tm2Params = {'layer': layer,
                'activationThreshold': 7,
                'initialPermanence': 0.37,
                'connectedPermanence': 0.58,
