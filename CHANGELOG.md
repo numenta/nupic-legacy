@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.11
+
+* Updating nupic.core sha.
+* Updated location of NuPIC Linux wheel on S3.
+
 ## 0.2.10
 
 * Updating bindings version.
