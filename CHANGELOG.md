@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.9
+
+* Added pip install command for linux bindings.
+* Change term predictedColumns to predictedActiveColumns in the TemporalMemory
+
 ## 0.2.8
 
 * Updated to correct pypi license string.
