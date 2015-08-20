@@ -32,8 +32,7 @@ NuPIC binaries are available for:
     # Install the C++ bindings for nupic.core.
     pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.1.5-cp27-none-linux_x86_64.whl
     # Install NuPIC.
-    pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic/releases/nupic-0.2.10-cp27-none-linux_x86_64.whl
-
+    pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic/releases/nupic-0.2.10-py2-none-any.whl
 
 ### _Having problems?_
 
