@@ -6,7 +6,7 @@ The Numenta Platform for Intelligent Computing (**NuPIC**) is a machine intellig
 
 For more information, see [numenta.org](http://numenta.org) or the [NuPIC wiki](https://github.com/numenta/nupic/wiki).
 
-## Installing NuPIC 0.2.9
+## Installing NuPIC 0.2.10
 
 NuPIC binaries are available for:
 
@@ -32,7 +32,7 @@ NuPIC binaries are available for:
     # Install the C++ bindings for nupic.core.
     pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.1.5-cp27-none-linux_x86_64.whl
     # Install NuPIC.
-    pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic/releases/nupic-0.2.9-cp27-none-linux_x86_64.whl
+    pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic/releases/nupic-0.2.10-cp27-none-linux_x86_64.whl
 
 
 ### _Having problems?_

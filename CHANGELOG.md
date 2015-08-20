@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.10
+
+* Updating bindings version.
+
 ## 0.2.9
 
 * Added pip install command for linux bindings.
