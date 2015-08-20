@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -24,20 +24,15 @@ import os
 import logging
 import tempfile
 
-from pkg_resources import resource_filename
+import pkg_resources
 
 from nupic.data.aggregator import Aggregator
-from nupic.data.fieldmeta import FieldMetaInfo
+from nupic.data.fieldmeta import FieldMetaInfo, FieldMetaType, FieldMetaSpecial
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data import jsonhelpers
 from nupic.data.record_stream import RecordStreamIface
 from nupic.frameworks.opf import jsonschema
 import nupic.support
-from nupic.support.configuration import Configuration
-
-
-TYPES = ['float', 'int', 'string', 'datetime', 'bool', 'address', 'list',
-         'FLOAT', 'INT', 'STRING', 'DATETIME', 'BOOL', 'ADDRESS', 'LIST']
 
 FILE_PREF = 'file://'
 
@@ -60,9 +55,9 @@ class StreamReader(RecordStreamIface):
   implements the raw reading of records from the record store (which could be a
   file, hbase table or something else).
 
-  In the future, we will support joining of two or more RecordStreamIFace's (which
-  is why the streamDef accepts a list of 'stream' elements), but for now only
-  1 source is supported.
+  In the future, we will support joining of two or more RecordStreamIface's (
+  which is why the streamDef accepts a list of 'stream' elements), but for now
+  only 1 source is supported.
 
   The class also implements aggregation of the (in the future) joined records
   from the sources.
@@ -142,7 +137,7 @@ class StreamReader(RecordStreamIface):
     loggerPrefix = 'com.numenta.nupic.data.StreamReader'
     self._logger = logging.getLogger(loggerPrefix)
     jsonhelpers.validate(streamDef,
-                         schemaPath=resource_filename(
+                         schemaPath=pkg_resources.resource_filename(
                              jsonschema.__name__, "stream_def.json"))
     assert len(streamDef['streams']) == 1, "Only 1 source stream is supported"
 
@@ -185,9 +180,9 @@ class StreamReader(RecordStreamIface):
     streamFieldTypes = sourceDict.get('types', None)
     self._logger.debug('Types from the def: %s', streamFieldTypes)
     # Validate that all types are valid
-    if streamFieldTypes != None:
+    if streamFieldTypes is not None:
       for dataType in streamFieldTypes:
-        assert(dataType in TYPES)
+        assert FieldMetaType.isValid(dataType)
 
     # Reset, sequence and time fields might be provided by streamdef json
     streamResetFieldName = streamDef.get('resetField', None)
@@ -201,15 +196,16 @@ class StreamReader(RecordStreamIface):
     # =======================================================================
     # Open up the underlying record store
     dataUrl = sourceDict.get('source', None)
-    assert(dataUrl is not None)
-    self._openStream(dataUrl, isBlocking, maxTimeout, bookmark, firstRecordIdx)
-    assert(self._recordStore is not None)
+    assert dataUrl is not None
+    self._recordStore = self._openStream(dataUrl, isBlocking, maxTimeout,
+                                         bookmark, firstRecordIdx)
+    assert self._recordStore is not None
 
 
     # =======================================================================
     # Prepare the data structures we need for returning just the fields
     #  the caller wants from each record
-    self._recordStoreFields = self._recordStore.getFields()
+    recordStoreFields = self._recordStore.getFields()
     self._recordStoreFieldNames = self._recordStore.getFieldNames()
 
     if not self._needFieldsFiltering:
@@ -225,8 +221,8 @@ class StreamReader(RecordStreamIface):
           "columns: %s" % (name, self._recordStoreFieldNames))
 
       fieldIdx = self._recordStoreFieldNames.index(name)
-      fieldType = self._recordStoreFields[fieldIdx][1]
-      fieldSpecial = self._recordStoreFields[fieldIdx][2]
+      fieldType = recordStoreFields[fieldIdx].type
+      fieldSpecial = recordStoreFields[fieldIdx].special
 
       # If the types or specials were defined in the stream definition,
       #   then override what was found in the record store
@@ -234,11 +230,12 @@ class StreamReader(RecordStreamIface):
         fieldType = streamFieldTypes[dstIdx]
 
       if streamResetFieldName is not None and streamResetFieldName == name:
-        fieldSpecial = 'R'
+        fieldSpecial = FieldMetaSpecial.reset
       if streamTimeFieldName is not None and streamTimeFieldName == name:
-        fieldSpecial = 'T'
-      if streamSequenceFieldName is not None and streamSequenceFieldName == name:
-        fieldSpecial = 'S'
+        fieldSpecial = FieldMetaSpecial.timestamp
+      if (streamSequenceFieldName is not None and
+          streamSequenceFieldName == name):
+        fieldSpecial = FieldMetaSpecial.sequence
 
       self._streamFields.append(FieldMetaInfo(name, fieldType, fieldSpecial))
 
@@ -248,7 +245,7 @@ class StreamReader(RecordStreamIface):
     #  returning them.
     self._aggregator = Aggregator(
             aggregationInfo=streamDef.get('aggregation', None),
-            inputFields=self._recordStoreFields,
+            inputFields=recordStoreFields,
             timeFieldName=streamDef.get('timeField', None),
             sequenceIdFieldName=streamDef.get('sequenceIdField', None),
             resetFieldName=streamDef.get('resetField', None))
@@ -279,20 +276,25 @@ class StreamReader(RecordStreamIface):
       self._writer = None
 
 
-  def _openStream(self, dataUrl, isBlocking, maxTimeout, bookmark,
+  @staticmethod
+  def _openStream(dataUrl,
+                  isBlocking,  # pylint: disable=W0613
+                  maxTimeout,  # pylint: disable=W0613
+                  bookmark,
                   firstRecordIdx):
-    """Open the underlying file stream.
-
+    """Open the underlying file stream
     This only supports 'file://' prefixed paths.
+
+    :returns: record stream instance
+    :rtype: FileRecordStream
     """
     filePath = dataUrl[len(FILE_PREF):]
     if not os.path.isabs(filePath):
       filePath = os.path.join(os.getcwd(), filePath)
-    self._recordStoreName = filePath 
-    self._recordStore = FileRecordStream(streamID=self._recordStoreName,
-                                         write=False,
-                                         bookmark=bookmark,
-                                         firstRecord=firstRecordIdx)
+    return FileRecordStream(streamID=filePath,
+                            write=False,
+                            bookmark=bookmark,
+                            firstRecord=firstRecordIdx)
 
 
   def close(self):
@@ -398,7 +400,8 @@ class StreamReader(RecordStreamIface):
 
 
   def getNextRecordIdx(self):
-    """Returns the index of the record that will be read next from getNextRecord()
+    """Returns the index of the record that will be read next from
+    getNextRecord()
     """
     return self._recordCount
 
@@ -456,7 +459,7 @@ class StreamReader(RecordStreamIface):
     """ Returns all fields in all inputs (list of plain names).
     NOTE: currently, only one input is supported
     """
-    return [f[0] for f in self._streamFields]
+    return [f.name for f in self._streamFields]
 
 
   def getFields(self):
@@ -470,38 +473,6 @@ class StreamReader(RecordStreamIface):
     """ Returns a bookmark to the current position
     """
     return self._aggBookmark
-
-
-  def getResetFieldIdx(self):
-    """ Return index of the 'reset' field. """
-    for i, field in enumerate(self._streamFields):
-      if field[2] == 'R' or field[2] == 'r':
-        return i
-    return None
-
-
-  def getTimestampFieldIdx(self):
-    """ Return index of the 'timestamp' field. """
-    for i, field in enumerate(self._streamFields):
-      if field[2] == 'T' or field[2] == 't':
-        return i
-    return None
-
-
-  def getSequenceIdFieldIdx(self):
-    """ Return index of the 'sequenceId' field. """
-    for i, field in enumerate(self._streamFields):
-      if field[2] == 'S' or field[2] == 's':
-        return i
-    return None
-
-
-  def getCategoryFieldIdx(self):
-    """ Return index of the 'category' field. """
-    for i, field in enumerate(self._streamFields):
-      if field[2] == 'C' or field[2] == 'c':
-        return i
-    return None
 
 
   def clearStats(self):

@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -29,16 +29,11 @@ cd ${TRAVIS_BUILD_DIR}
 # If this branch is master, this is an iterative deployment, so we'll package
 # wheels ourselves for deployment to S3. No need to build docs.
 if [ "${TRAVIS_BRANCH}" = "master" ]; then
-
-    # Assuming pip 1.5.X is installed.
-    echo "pip install wheel --user"
-    pip install wheel --user
-
     # There are now a bunch of symlinks in ${TRAVIS_BUILD_DIR}/extensions that
     # need to be converted to real files. We will do this with a tar hack.
     echo "Removing symlinks from extensions..."
     mkdir tmp_extensions
-    tar -hcf - extensions | tar -xf - -C tmp_extensions
+    tar -hcf - -C extensions . | tar -xf - -C tmp_extensions
     rm -rf extensions
     mv tmp_extensions extensions
 
@@ -48,8 +43,13 @@ if [ "${TRAVIS_BRANCH}" = "master" ]; then
 
     # Build all NuPIC and all required python packages into dist/wheels as .whl
     # files.
-    echo "pip wheel --wheel-dir=dist/wheels ."
-    pip wheel --wheel-dir=dist/wheels .
+    echo "pip wheel --wheel-dir=dist/wheels . --find-links=extensions/core/build/release"
+    pip wheel --wheel-dir=dist/wheels -r extensions/core/build/release/requirements.txt
+    wheel convert extensions/core/build/release/*.egg --dest-dir=dist/wheels
+    pip wheel --wheel-dir=dist/wheels -r external/common/requirements.txt --find-links=dist/wheels
+    python setup.py bdist_wheel -d dist/wheels
+    python setup.py bdist_egg -d dist
+    ls dist/wheels
 
     # The dist/wheels folder is expected to be deployed to S3.
 

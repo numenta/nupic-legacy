@@ -18,4 +18,4 @@ PyMySQL==0.6.2
 DBUtils==1.1
 pyproj==1.9.3
 prettytable==0.7.2
-nupic.bindings==0.1.0
+nupic.bindings==0.1.5
