@@ -39,10 +39,6 @@ import validictory
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
 
-# TODO: Note the function 'rUpdate' is also duplicated in the
-# nupic.data.dictutils module -- we will eventually want to change this
-# TODO: 'ValidationError', 'validate', 'loadJSONValueFromFile' duplicated in
-# nupic.data.jsonhelpers -- will want to remove later
 
 class JobFailException(Exception):
   """ If a model raises this exception, then the runModelXXX code will
@@ -669,7 +665,8 @@ def clippedObj(obj, maxElementSize=64):
   return objOut
 
 
-
+# TODO: 'ValidationError', 'validate', 'loadJSONValueFromFile' duplicated in
+# nupic.data.jsonhelpers -- will want to refactor this later
 class ValidationError(validictory.ValidationError):
   pass
 
@@ -753,3 +750,25 @@ def sortedJSONDumpS(obj):
 
   else:
     return json.dumps(obj)
+
+
+# TODO: 'matchPatterns' duplicated from nupic.frameworks.opf.opfutils -- refactoring necessary later
+def matchPatterns(patterns, keys):
+  """Returns a subset of the keys that match any of the given patterns
+
+  Parameters:
+  -----------------------------------------------------------------------
+  patterns:   A list of regular expressions to match
+  keys:       A list of keys to search for matches
+  """
+  results = []
+  if patterns:
+    for pattern in patterns:
+      prog = re.compile(pattern)
+      for key in keys:
+        if prog.match(key):
+          results.append(key)
+  else:
+    return None
+
+  return results

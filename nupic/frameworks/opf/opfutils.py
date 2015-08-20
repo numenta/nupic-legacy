@@ -33,7 +33,7 @@ from collections import namedtuple
 import nupic.data.jsonhelpers as jsonhelpers
 from nupic.support.enum import Enum
 
-
+# TODO: 'matchPatterns' duplicated in nupic.swarming.hypersearch.utils
 
 class InferenceElement(Enum(
               prediction="prediction",

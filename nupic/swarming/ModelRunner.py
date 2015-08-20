@@ -33,8 +33,7 @@ from collections import deque
 from nupic.frameworks.opf import opfhelpers
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf.opfbasicenvironment import BasicPredictionLogger
-from nupic.frameworks.opf.opfutils import (InferenceElement,
-                                           matchPatterns)
+from nupic.frameworks.opf.opfutils import InferenceElement
 from nupic.frameworks.opf.periodic import (PeriodicActivityMgr,
                                            PeriodicActivityRequest)
 from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
@@ -255,7 +254,7 @@ class OPFModelRunner(object):
     self.__loggedMetricPatterns = self._modelControl.get("loggedMetrics", [])
 
     self._optimizedMetricLabel = self.__getOptimizedMetricLabel()
-    self._reportMetricLabels = matchPatterns(self._reportKeyPatterns,
+    self._reportMetricLabels = utils.matchPatterns(self._reportKeyPatterns,
                                               self._getMetricLabels())
 
 
@@ -492,7 +491,7 @@ class OPFModelRunner(object):
 
     if self.__loggedMetricPatterns:
       metricLabels = self.__metricMgr.getMetricLabels()
-      loggedMetrics = matchPatterns(self.__loggedMetricPatterns, metricLabels)
+      loggedMetrics = utils.matchPatterns(self.__loggedMetricPatterns, metricLabels)
       self._predictionLogger.setLoggedMetrics(loggedMetrics)
 
 
@@ -506,7 +505,7 @@ class OPFModelRunner(object):
 
     Returns:        The label for the metric being optmized over
     """
-    matchingKeys = matchPatterns([self._optimizeKeyPattern],
+    matchingKeys = utils.matchPatterns([self._optimizeKeyPattern],
                                   self._getMetricLabels())
 
     if len(matchingKeys) == 0:

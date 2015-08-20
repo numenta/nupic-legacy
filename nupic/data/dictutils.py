@@ -22,9 +22,6 @@
 import copy
 
 
-# TODO: Note the functions 'rUpdate' are duplicated in
-# the swarming.hypersearch.utils.py module
-
 
 class DictObj(dict):
   """Dictionary that allows attribute-like access to its elements.
