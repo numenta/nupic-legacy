@@ -1,19 +1,19 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -25,6 +25,191 @@ from abc import ABCMeta, abstractmethod
 import datetime
 
 
+from nupic.data.fieldmeta import FieldMetaSpecial
+
+
+
+def _getFieldIndexBySpecial(fields, special):
+  """ Return index of the field matching the field meta special value.
+  :param fields: sequence of nupic.data.fieldmeta.FieldMetaInfo objects
+    representing the fields of a stream
+  :param special: one of the special field attribute values from
+    nupic.data.fieldmeta.FieldMetaSpecial
+  :returns: first zero-based index of the field tagged with the target field
+    meta special attribute; None if no such field
+  """
+  for i, field in enumerate(fields):
+    if field.special == special:
+      return i
+  return None
+
+
+
+class ModelRecordEncoder(object):
+  """Encodes metric data input rows  for consumption by OPF models. See
+  the `ModelRecordEncoder.encode` method for more details.
+  """
+
+
+  def __init__(self, fields, aggregationPeriod=None):
+    """
+    :param fields: non-empty sequence of nupic.data.fieldmeta.FieldMetaInfo
+      objects corresponding to fields in input rows.
+    :param dict aggregationPeriod: aggregation period of the record stream as a
+      dict containing 'months' and 'seconds'. The months is always an integer
+      and seconds is a floating point. Only one is allowed to be non-zero at a
+      time. If there is no aggregation associated with the stream, pass None.
+      Typically, a raw file or hbase stream will NOT have any aggregation info,
+      but subclasses of RecordStreamIface, like StreamReader, will and will
+      provide the aggregation period. This is used by the encode method to
+      assign a record number to a record given its timestamp and the aggregation
+      interval.
+    """
+    if not fields:
+      raise ValueError('fields arg must be non-empty, but got %r' % (fields,))
+
+    self._fields = fields
+    self._aggregationPeriod = aggregationPeriod
+
+    self._sequenceId = -1
+
+    self._fieldNames = tuple(f.name for f in fields)
+
+    self._categoryFieldIndex = _getFieldIndexBySpecial(
+      fields,
+      FieldMetaSpecial.category)
+
+    self._resetFieldIndex = _getFieldIndexBySpecial(
+      fields,
+      FieldMetaSpecial.reset)
+
+    self._sequenceFieldIndex = _getFieldIndexBySpecial(
+      fields,
+      FieldMetaSpecial.sequence)
+
+    self._timestampFieldIndex = _getFieldIndexBySpecial(
+      fields,
+      FieldMetaSpecial.timestamp)
+
+    self._learningFieldIndex = _getFieldIndexBySpecial(
+      fields,
+      FieldMetaSpecial.learning)
+
+
+  def rewind(self):
+    """Put us back at the beginning of the file again """
+    self._sequenceId = -1
+
+
+  def encode(self, inputRow):
+    """Encodes the given input row as a dict, with the
+    keys being the field names. This also adds in some meta fields:
+      '_category': The value from the category field (if any)
+      '_reset': True if the reset field was True (if any)
+      '_sequenceId': the value from the sequenceId field (if any)
+
+    :param inputRow: sequence of values corresponding to a single input metric
+      data row
+    :rtype: dict
+    """
+
+    # Create the return dict
+    result = dict(zip(self._fieldNames, inputRow))
+
+    # Add in the special fields
+    if self._categoryFieldIndex is not None:
+      # category value can be an int or a list
+      if isinstance(inputRow[self._categoryFieldIndex], int):
+        result['_category'] = [inputRow[self._categoryFieldIndex]]
+      else:
+        result['_category'] = (inputRow[self._categoryFieldIndex]
+                               if inputRow[self._categoryFieldIndex]
+                               else [None])
+    else:
+      result['_category'] = [None]
+
+    if self._resetFieldIndex is not None:
+      result['_reset'] = int(bool(inputRow[self._resetFieldIndex]))
+    else:
+      result['_reset'] = 0
+
+    if self._learningFieldIndex is not None:
+      result['_learning'] = int(bool(inputRow[self._learningFieldIndex]))
+
+    result['_timestampRecordIdx'] = None
+    if self._timestampFieldIndex is not None:
+      result['_timestamp'] = inputRow[self._timestampFieldIndex]
+      # Compute the record index based on timestamp
+      result['_timestampRecordIdx'] = self._computeTimestampRecordIdx(
+        inputRow[self._timestampFieldIndex])
+    else:
+      result['_timestamp'] = None
+
+    # -----------------------------------------------------------------------
+    # Figure out the sequence ID
+    hasReset = self._resetFieldIndex is not None
+    hasSequenceId = self._sequenceFieldIndex is not None
+    if hasReset and not hasSequenceId:
+      # Reset only
+      if result['_reset']:
+        self._sequenceId += 1
+      sequenceId = self._sequenceId
+
+    elif not hasReset and hasSequenceId:
+      sequenceId = inputRow[self._sequenceFieldIndex]
+      result['_reset'] = int(sequenceId != self._sequenceId)
+      self._sequenceId = sequenceId
+
+    elif hasReset and hasSequenceId:
+      sequenceId = inputRow[self._sequenceFieldIndex]
+
+    else:
+      sequenceId = 0
+
+    if sequenceId is not None:
+      result['_sequenceId'] = hash(sequenceId)
+    else:
+      result['_sequenceId'] = None
+
+    return result
+
+
+  def _computeTimestampRecordIdx(self, recordTS):
+    """ Give the timestamp of a record (a datetime object), compute the record's
+    timestamp index - this is the timestamp divided by the aggregation period.
+
+
+    Parameters:
+    ------------------------------------------------------------------------
+    recordTS:  datetime instance
+    retval:    record timestamp index, or None if no aggregation period
+    """
+
+    if self._aggregationPeriod is None:
+      return None
+
+    # Base record index on number of elapsed months if aggregation is in
+    #  months
+    if self._aggregationPeriod['months'] > 0:
+      assert self._aggregationPeriod['seconds'] == 0
+      result = int(
+        (recordTS.year * 12 + (recordTS.month-1)) /
+        self._aggregationPeriod['months'])
+
+    # Base record index on elapsed seconds
+    elif self._aggregationPeriod['seconds'] > 0:
+      delta = recordTS - datetime.datetime(year=1, month=1, day=1)
+      deltaSecs = delta.days * 24 * 60 * 60   \
+                + delta.seconds               \
+                + delta.microseconds / 1000000.0
+      result = int(deltaSecs / self._aggregationPeriod['seconds'])
+
+    else:
+      result = None
+
+    return result
+
+
 
 class RecordStreamIface(object):
   """This is the interface for the record input/output storage classes."""
@@ -33,7 +218,9 @@ class RecordStreamIface(object):
 
 
   def __init__(self):
-    self._sequenceId = -1
+    # Will be initialized on-demand in getNextRecordDict with a
+    # ModelRecordEncoder instance, once encoding metadata is available
+    self._modelRecordEncoder = None
 
 
   @abstractmethod
@@ -44,17 +231,18 @@ class RecordStreamIface(object):
 
   def rewind(self):
     """Put us back at the beginning of the file again) """
-    self._sequenceId = -1
+    if self._modelRecordEncoder is not None:
+      self._modelRecordEncoder.rewind()
 
 
   @abstractmethod
   def getNextRecord(self, useCache=True):
     """Returns next available data record from the storage. If useCache is
     False, then don't read ahead and don't cache any records.
-    
+
     Raises nupic.support.exceptions.StreamDisappearedError if stream
     disappears (e.g., gets garbage-collected).
-    
+
     retval: a data row (a list or tuple) if available; None, if no more records
              in the table (End of Stream - EOS); empty sequence (list or tuple)
              when timing out while waiting for the next record.
@@ -67,136 +255,41 @@ class RecordStreamIface(object):
       '_category': The value from the category field (if any)
       '_reset': True if the reset field was True (if any)
       '_sequenceId': the value from the sequenceId field (if any)
-    
+
     """
-    
+
     values = self.getNextRecord()
     if values is None:
       return None
-    
+
     if not values:
       return dict()
-    
-    # Create the return dict
-    result = dict(zip(self.getFieldNames(), values))
-    
-    # Add in the special fields
-    catIdx = self.getCategoryFieldIdx()
-    resetIdx = self.getResetFieldIdx()
-    sequenceIdx = self.getSequenceIdFieldIdx()
-    timeIdx = self.getTimestampFieldIdx()
-    learningIdx = self.getLearningFieldIdx()
 
-    if catIdx is not None:
-      # category value can be an int or a list
-      if isinstance(values[catIdx], int):
-        result['_category'] = [values[catIdx]]
-      else:
-        result['_category'] = values[catIdx] if values[catIdx] else [None]
-    else:
-      result['_category'] = [None]
+    if self._modelRecordEncoder is None:
+      self._modelRecordEncoder = ModelRecordEncoder(
+        fields=self.getFields(),
+        aggregationPeriod=self.getAggregationMonthsAndSeconds())
 
-    if resetIdx is not None:
-      result['_reset'] = int(bool(values[resetIdx]))
-    else:
-      result['_reset'] = 0
-      
-    if learningIdx is not None:
-      result['_learning'] = int(bool(values[learningIdx]))
-      
-    result['_timestampRecordIdx'] = None
-    if timeIdx is not None:
-      result['_timestamp'] = values[timeIdx]      
-      # Compute the record index based on timestamp
-      result['_timestampRecordIdx'] = self._computeTimestampRecordIdx(
-                                                        values[timeIdx])
-    else:
-      result['_timestamp'] = None
-    
-    # -----------------------------------------------------------------------
-    # Figure out the sequence ID
-    hasReset = resetIdx is not None
-    hasSequenceId = sequenceIdx is not None
-    if hasReset and not hasSequenceId:
-      # Reset only
-      if result['_reset']:
-        try:
-          self._sequenceId += 1
-        except:
-          import pdb; pdb.set_trace() 
-      sequenceId = self._sequenceId
-      
-    elif not hasReset and hasSequenceId:
-      sequenceId = values[sequenceIdx]
-      result['_reset'] = int(sequenceId != self._sequenceId)
-      self._sequenceId = sequenceId
-      
-    elif hasReset and hasSequenceId:
-      sequenceId = values[sequenceIdx]
-      
-    else:
-      sequenceId = 0
-      
-    if sequenceId is not None:
-      result['_sequenceId'] = hash(sequenceId)
-    else:
-      result['_sequenceId'] = None
-    
-    return result
+    return self._modelRecordEncoder.encode(values)
 
-
-  def _computeTimestampRecordIdx(self, recordTS):
-    """ Give the timestamp of a record (a datetime object), compute the record's
-    timestamp index - this is the timestamp divided by the aggregation period. 
-    
-    
-    Parameters:
-    ------------------------------------------------------------------------
-    recordTS:  datetime instance
-    retval:    record timestamp index, or None if no aggregation period 
-    """
-    
-    aggPeriod = self.getAggregationMonthsAndSeconds()
-    if aggPeriod is None:
-      return None
-    
-    # Base record index on number of elapsed months if aggregation is in 
-    #  months
-    if aggPeriod['months'] > 0:
-      assert aggPeriod['seconds'] == 0
-      result = \
-        int((recordTS.year * 12 + (recordTS.month-1)) / aggPeriod['months'])
-        
-    # Base record index on elapsed seconds
-    elif aggPeriod['seconds'] > 0:
-      delta = recordTS - datetime.datetime(year=1, month=1, day=1)
-      deltaSecs = delta.days * 24 * 60 * 60   \
-                + delta.seconds               \
-                + delta.microseconds / 1000000.0
-      result = int(deltaSecs / aggPeriod['seconds'])
-    
-    else:
-      result = None
-      
-    return result
 
 
   def getAggregationMonthsAndSeconds(self):
-    """ Returns the aggregation period of the record stream as a dict 
+    """ Returns the aggregation period of the record stream as a dict
     containing 'months' and 'seconds'. The months is always an integer and
-    seconds is a floating point. Only one is allowed to be non-zero.  
-    
-    If there is no aggregation associated with the stream, returns None. 
-    
+    seconds is a floating point. Only one is allowed to be non-zero.
+
+    If there is no aggregation associated with the stream, returns None.
+
     Typically, a raw file or hbase stream will NOT have any aggregation info,
     but subclasses of RecordStreamIFace, like StreamReader, will and will
     return the aggregation period from this call. This call is used by the
     getNextRecordDict() method to assign a record number to a record given
     its timestamp and the aggregation interval
-    
+
     Parameters:
     ------------------------------------------------------------------------
-    retval: aggregationPeriod (as a dict) or None  
+    retval: aggregationPeriod (as a dict) or None
               'months': number of months in aggregation period
               'seconds': number of seconds in aggregation period (as a float)
     """
@@ -214,7 +307,8 @@ class RecordStreamIface(object):
 
   @abstractmethod
   def getNextRecordIdx(self):
-    """Returns the index of the record that will be read next from getNextRecord()
+    """Returns the index of the record that will be read next from
+    getNextRecord()
     """
 
 
@@ -343,43 +437,29 @@ class RecordStreamIface(object):
 
 
   def getResetFieldIdx(self):
-    """ Return index of the 'reset' field. """
-    for i, field in enumerate(self.getFields()):
-      if field[2] == 'R' or field[2] == 'r':
-        return i
-    return None
+    """
+    :returns: index of the 'reset' field; None if no such field. """
+    return _getFieldIndexBySpecial(self.getFields(), FieldMetaSpecial.reset)
 
 
   def getTimestampFieldIdx(self):
     """ Return index of the 'timestamp' field. """
-    for i, field in enumerate(self.getFields()):
-      if field[2] == 'T' or field[2] == 't':
-        return i
-    return None
+    return _getFieldIndexBySpecial(self.getFields(), FieldMetaSpecial.timestamp)
 
 
   def getSequenceIdFieldIdx(self):
     """ Return index of the 'sequenceId' field. """
-    for i, field in enumerate(self.getFields()):
-      if field[2] == 'S' or field[2] == 's':
-        return i
-    return None
+    return _getFieldIndexBySpecial(self.getFields(), FieldMetaSpecial.sequence)
 
 
   def getCategoryFieldIdx(self):
     """ Return index of the 'category' field. """
-    for i, field in enumerate(self.getFields()):
-      if field[2] == 'C' or field[2] == 'c':
-        return i
-    return None
+    return _getFieldIndexBySpecial(self.getFields(), FieldMetaSpecial.category)
 
 
   def getLearningFieldIdx(self):
     """ Return index of the 'learning' field. """
-    for i, field in enumerate(self.getFields()):
-      if field[2] == 'L' or field[2] == 'l':
-        return i
-    return None
+    return _getFieldIndexBySpecial(self.getFields(), FieldMetaSpecial.learning)
 
 
   @abstractmethod
