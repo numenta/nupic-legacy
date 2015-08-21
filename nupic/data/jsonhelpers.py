@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -33,6 +33,8 @@
 #
 # TODO: offer a combined json parsing/validation function that applies
 #       defaults from the schema
+# TODO: duplicate of 'validate', 'ValidationError', 'loadJSONValueFromFile'
+# in swarming.hypersearch.utils -- will want to remove that later
 
 import json
 import math
@@ -59,7 +61,6 @@ class NaNInvalidator(validictory.SchemaValidator):
 
 
 
-###############################################################################
 def validate(value, **kwds):
   """ Validate a python value against json schema:
   validate(value, schemaPath)
@@ -96,7 +97,6 @@ def validate(value, **kwds):
 
 
 
-###############################################################################
 def loadJsonValueFromFile(inputFilePath):
   """ Loads a json value from a file and converts it to the corresponding python
   object.
@@ -115,7 +115,6 @@ def loadJsonValueFromFile(inputFilePath):
 
 
 
-###############################################################################
 def test():
   """
   """
@@ -174,6 +173,5 @@ def test():
 
 
 
-###############################################################################
 if __name__ == "__main__":
   test()

@@ -2,20 +2,20 @@
 
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -29,18 +29,21 @@ import numpy
 from PyRegion import PyRegion
 from nupic.algorithms import KNNClassifier
 
-#---------------------------------------------------------------------------------
+
+
 class KNNClassifierRegion(PyRegion):
   """
   KNNClassifierRegion implements the k Nearest Neighbor classification algorithm.
   By default it will implement vanilla 1-nearest neighbor using the L2 (Euclidean)
   distance norm.  There are options for using different norms as well as
   various ways of sparsifying the input.
+  
+  Note: categories are ints >= 0.
   """
 
   __VERSION__ = 1
 
-  #---------------------------------------------------------------------------------
+
   @classmethod
   def getSpec(cls):
     ns = dict(
@@ -48,9 +51,9 @@ class KNNClassifierRegion(PyRegion):
         singleNodeOnly=True,
         inputs=dict(
           categoryIn=dict(
-            description='Category of the input sample',
+            description='Vector of categories of the input sample',
             dataType='Real32',
-            count=1,
+            count=0,
             required=True,
             regionLevel=True,
             isDefaultInput=False,
@@ -445,7 +448,7 @@ class KNNClassifierRegion(PyRegion):
 
     return ns
 
-  #---------------------------------------------------------------------------------
+
   def __init__(self,
                maxCategoryCount=0,
                bestPrototypeIndexCount=0,
@@ -612,11 +615,10 @@ class KNNClassifierRegion(PyRegion):
     return state
 
 
-  #---------------------------------------------------------------------------------
   def initialize(self, dims, splitterMaps):
     assert tuple(dims) == (1,) * len(dims)
 
-  #---------------------------------------------------------------------------------
+
   def _getActiveOutputCount(self):
     if self._knn._categoryList:
       return int(max(self._knn._categoryList)+1)
@@ -626,14 +628,12 @@ class KNNClassifierRegion(PyRegion):
   activeOutputCount = property(fget=_getActiveOutputCount)
 
 
-  #---------------------------------------------------------------------------------
   def _getSeenCategoryCount(self):
     return len(set(self._knn._categoryList))
 
   categoryCount = property(fget=_getSeenCategoryCount)
 
 
-  #---------------------------------------------------------------------------------
   def _getPatternMatrix(self):
 
     if self._knn._M is not None:
@@ -641,7 +641,7 @@ class KNNClassifierRegion(PyRegion):
     else:
       return self._knn._Memory
 
-  #---------------------------------------------------------------------------------
+
   def _getAccuracy(self):
 
     n = self.confusion.shape[0]
@@ -651,13 +651,11 @@ class KNNClassifierRegion(PyRegion):
   accuracy = property(fget=_getAccuracy)
 
 
-  #---------------------------------------------------------------------------------
   def clear(self):
 
     self._knn.clear()
 
 
-  #---------------------------------------------------------------------------------
   def getParameter(self, name, index=-1):
     """
     Get the value of the parameter.
@@ -716,7 +714,6 @@ class KNNClassifierRegion(PyRegion):
       return PyRegion.getParameter(self, name, index)
 
 
-  #---------------------------------------------------------------------------------
   def setParameter(self, name, index, value):
     """
     Set the value of the parameter.
@@ -758,13 +755,11 @@ class KNNClassifierRegion(PyRegion):
       return PyRegion.setParameter(self, name, index, value)
 
 
-  #---------------------------------------------------------------------------------
   def reset(self):
 
     self.confusion = numpy.zeros((1, 1))
 
 
-  #---------------------------------------------------------------------------------
   def doInference(self, activeInput):
     """Explicitly run inference on a vector that is passed in and return the
     category id. Useful for debugging."""
@@ -773,7 +768,6 @@ class KNNClassifierRegion(PyRegion):
     return inference
 
 
-  #---------------------------------------------------------------------------------
   def enableTap(self, tapPath):
     """
     Begin writing output tap files.
@@ -785,7 +779,6 @@ class KNNClassifierRegion(PyRegion):
     self._tapFileOut = open(tapPath + '.out', 'w')
 
 
-  #---------------------------------------------------------------------------------
   def disableTap(self):
     """Disable writing of output tap files. """
 
@@ -797,7 +790,6 @@ class KNNClassifierRegion(PyRegion):
       self._tapFileOut = None
 
 
-  #---------------------------------------------------------------------------------
   def handleLogInput(self, inputs):
     """Write inputs to output tap file."""
 
@@ -808,7 +800,6 @@ class KNNClassifierRegion(PyRegion):
         print >> self._tapFileIn
 
 
-  #---------------------------------------------------------------------------------
   def handleLogOutput(self, output):
     """Write outputs to output tap file."""
     #raise Exception('MULTI-LINE DUMMY\nMULTI-LINE DUMMY')
@@ -818,7 +809,6 @@ class KNNClassifierRegion(PyRegion):
       print >> self._tapFileOut
 
 
-  #---------------------------------------------------------------------------------
   def _storeSample(self, inputVector, trueCatIndex, partition=0):
     """
     Store a training sample and associated category label
@@ -842,11 +832,16 @@ class KNNClassifierRegion(PyRegion):
       partition = 0
     self._partitions += [partition]
 
-  #---------------------------------------------------------------------------------
+
   def compute(self, inputs, outputs):
     """
-    Process one input sample.
-    This method is called by the runtime engine.
+    Process one input sample. This method is called by the runtime engine.
+    
+    NOTE: the number of input categories may vary, but the array size is fixed
+    to the max number of categories allowed (by a lower region), so "unused"
+    indices of the input category array are filled with -1s. 
+    
+    TODO: confusion matrix does not support multi-label classification
     """
 
     #raise Exception('MULTI-LINE DUMMY\nMULTI-LINE DUMMY')
@@ -886,13 +881,8 @@ class KNNClassifierRegion(PyRegion):
     self.handleLogInput([inputVector])
 
     # Read the category.
-    category = -1
     assert "categoryIn" in inputs, "No linked category input."
-    assert len(inputs["categoryIn"]) == 1, "Must have exactly one link to category input."
-    #catInput = inputs["categoryIn"][0].wvector()
-    catInput = inputs['categoryIn']
-    assert len(catInput) == 1, "Category input element count must be exactly 1."
-    category = catInput[0]
+    categories = inputs['categoryIn']
 
     # Read the partition ID.
     if "partitionIn" in inputs:
@@ -984,14 +974,15 @@ class KNNClassifierRegion(PyRegion):
         self._scanResults = [tuple(inference[:nout])]
 
       # Update the stored confusion matrix.
-      if category >= 0:
-        dims = max(category+1, len(inference))
-        oldDims = len(self.confusion)
-        if oldDims < dims:
-          confusion = numpy.zeros((dims, dims))
-          confusion[0:oldDims, 0:oldDims] = self.confusion
-          self.confusion = confusion
-        self.confusion[inference.argmax(), category] += 1
+      for category in categories:
+        if category >= 0:
+          dims = max(category+1, len(inference))
+          oldDims = len(self.confusion)
+          if oldDims < dims:
+            confusion = numpy.zeros((dims, dims))
+            confusion[0:oldDims, 0:oldDims] = self.confusion
+            self.confusion = confusion
+          self.confusion[inference.argmax(), category] += 1
 
       # Calculate the best prototype indices
       if nPrototypes > 1:
@@ -1014,30 +1005,25 @@ class KNNClassifierRegion(PyRegion):
     if self.learningMode:
       if (self.acceptanceProbability < 1.0) and \
             (self._rgen.uniform(0.0, 1.0) > self.acceptanceProbability):
-        pass # Skip.
+        pass
 
-      # Accept the input
       else:
-
-        # If we are sphering, then we can't provide the data to the KNN
-        # library until we have computed per-dimension normalization constants.
-        # So instead, we'll just store each training sample.
-        if self._doSphering:
-          # If this is our first sample:
-          self._storeSample(inputVector, category, partition)
-        # If we are not sphering, then we just go ahead and pass the raw
-        # training sample directly to the KNN library.
-        else:
-          try:
-            self._knn.learn(inputVector, category, partition)
-          except:
-            self._knn.learn(inputVector, category, partition)
-
+        # Accept the input
+        for category in categories:
+          if category >= 0:
+            # category values of -1 are to be skipped (they are non-categories)
+            if self._doSphering:
+              # If we are sphering, then we can't provide the data to the KNN
+              # library until we have computed per-dimension normalization
+              # constants. So instead, we'll just store each training sample.
+              self._storeSample(inputVector, category, partition)
+            else:
+              # Pass the raw training sample directly to the KNN library.
+              self._knn.learn(inputVector, category, partition)
 
     self._epoch += 1
 
 
-  #---------------------------------------------------------------------------------
   def getCategoryList(self):
     """
     Public API for returning the category list
@@ -1050,11 +1036,10 @@ class KNNClassifierRegion(PyRegion):
     return self._knn._categoryList
 
 
-  #---------------------------------------------------------------------------------
   def removeCategory(self, categoryToRemove):
     return self._knn.removeCategory(categoryToRemove)
 
-  #---------------------------------------------------------------------------------
+
   def getLatestDistances(self):
     """
     Public API for returning the full scores
@@ -1075,7 +1060,6 @@ class KNNClassifierRegion(PyRegion):
       return None
 
 
-  #---------------------------------------------------------------------------------
   def getAllDistances(self):
     """
     Return all the prototype distances from all computes available.
@@ -1088,7 +1072,7 @@ class KNNClassifierRegion(PyRegion):
       return None
     return self._protoScores[:self._protoScoreCount, :]
 
-  #---------------------------------------------------------------------------------
+
   def calculateProbabilities(self):
     # Get the scores, from 0 to 1
     scores = 1.0 - self._categoryDistances
@@ -1102,7 +1086,6 @@ class KNNClassifierRegion(PyRegion):
     return scores / total
 
 
-  #---------------------------------------------------------------------------------
   def _restartLearning(self):
     """
     Currently, we allow learning mode to be "re-started" after being
@@ -1111,7 +1094,7 @@ class KNNClassifierRegion(PyRegion):
     """
     self._knn.restartLearning()
 
-  #---------------------------------------------------------------------------------
+
   def _finishLearning(self):
     """Does nothing. Kept here for API compatibility """
     if self._doSphering:
@@ -1132,7 +1115,7 @@ class KNNClassifierRegion(PyRegion):
           print "Leave-one-out validation: %d of %d correct ==> %.3f%%" % \
                  (numCorrect, numSamples, self._accuracy * 100.0)
 
-  #---------------------------------------------------------------------------------
+
   def _finishSphering(self):
     """
     Compute normalization constants for each feature dimension
@@ -1162,14 +1145,14 @@ class KNNClassifierRegion(PyRegion):
                       self._labels[sampleIndex],
                       self._partitions[sampleIndex])
 
-  #---------------------------------------------------------------------------------
+
   def _arraysToLists(self, samplesArray, labelsArray):
 
     labelsList = list(labelsArray)
     samplesList = [[float(y) for y in x] for x in [list(x) for x in samplesArray]]
     return samplesList, labelsList
 
-  #---------------------------------------------------------------------------------
+
   def getOutputElementCount(self, name):
     """This method will be called only when the node is used in nuPIC 2"""
     if name == 'categoriesOut':
@@ -1181,7 +1164,7 @@ class KNNClassifierRegion(PyRegion):
     else:
       raise Exception('Unknown output: ' + name)
 
-#---------------------------------------------------------------------------------
+
 
 if __name__=='__main__':
   from nupic.engine import Network

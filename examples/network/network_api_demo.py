@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -147,8 +147,6 @@ def createNetwork(dataSource):
   network.link("temporalPoolerRegion", "anomalyRegion", "UniformLink", "",
                srcOutput="topDownOut", destInput="predictedColumns")
 
-  network.initialize()
-
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
 
   # Make sure learning is enabled
@@ -186,8 +184,7 @@ def runNetwork(network, writer):
 
   prevPredictedColumns = []
 
-  i = 0
-  for _ in xrange(_NUM_RECORDS):
+  for i in xrange(_NUM_RECORDS):
     # Run the network for a single iteration
     network.run(1)
 
@@ -196,9 +193,6 @@ def runNetwork(network, writer):
     anomalyScore = anomalyRegion.getOutputData("rawAnomalyScore")[0]
     consumption = sensorRegion.getOutputData("sourceOut")[0]
     writer.writerow((i, consumption, anomalyScore))
-
-    i += 1
-
 
 
 if __name__ == "__main__":

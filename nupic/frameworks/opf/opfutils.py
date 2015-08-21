@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -33,9 +33,6 @@ from collections import namedtuple
 import nupic.data.jsonhelpers as jsonhelpers
 from nupic.support.enum import Enum
 
-
-
-###############################################################################
 
 
 class InferenceElement(Enum(
@@ -173,7 +170,7 @@ class InferenceType(Enum("TemporalNextStep",
     return inferenceType in InferenceType.__temporalInferenceTypes
 
 
-################################################################################
+
 # SensorInput - represents the mapping of a given inputRecord by the
 #   sensor region's encoder.
 #
@@ -225,7 +222,8 @@ class SensorInput(object):
                 sequenceReset=self.sequenceReset,
                 category=self.category)
 
-################################################################################
+
+
 # PredictionElement- represents a predicted record and its asssociated
 #                     bit-string encoding for a network's sensor region and/or
 #                     the classification of that input as produced by
@@ -247,7 +245,8 @@ PredictionElement = namedtuple("PredictionElement",
                                  "predictionEncodings",
                                  "classification"))
 
-################################################################################
+
+
 # ModelResult - A structure that contains the input to a model and the resulting
 # predictions as well as any related information related to the predictions.
 #
@@ -311,7 +310,7 @@ class ModelResult(object):
                         self.predictedFieldName)
 
 
-###############################################################################
+
 def validateOpfJsonValue(value, opfJsonSchemaFilename):
   """ Validate a python object against an OPF json schema file
 
@@ -335,7 +334,8 @@ def validateOpfJsonValue(value, opfJsonSchemaFilename):
 
   return
 
-############################################################################
+
+
 def initLogger(obj):
   """Helper function to create a logger object for the current object with
   the standard Numenta prefix """
@@ -347,7 +347,8 @@ def initLogger(obj):
     ['com.numenta', myClass.__module__, myClass.__name__]))
   return logger
 
-############################################################################
+
+
 def matchPatterns(patterns, keys):
   """Returns a subset of the keys that match any of the given patterns
 

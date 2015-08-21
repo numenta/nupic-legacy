@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -113,6 +113,11 @@ class FastTemporalMemory(TemporalMemory):
         - mark the segment as active
         - mark the cell as predictive
 
+      - for each distal dendrite segment with unconnected
+        activity >=  minThreshold
+        - mark the segment as matching
+        - mark the cell as matching
+
     Forward propagates activity from active cells to the synapses that touch
     them, to determine which synapses are active.
 
@@ -120,8 +125,10 @@ class FastTemporalMemory(TemporalMemory):
     @param connections (Connections) Connectivity of layer
 
     @return (tuple) Contains:
-                      `activeSegments`  (set),
-                      `predictiveCells` (set)
+                      `activeSegments`   (set),
+                      `predictiveCells`  (set),
+                      `matchingSegments` (set),
+                      `matchingCells`    (set)
     """
     activity = connections.computeActivity(list(activeCells),
                                            self.connectedPermanence,
@@ -129,7 +136,23 @@ class FastTemporalMemory(TemporalMemory):
     activeSegments = set(connections.activeSegments(activity))
     predictiveCells = set(connections.activeCells(activity))
 
-    return activeSegments, predictiveCells
+    if self.predictedSegmentDecrement > 0:
+      activity = connections.computeActivity(list(activeCells),
+                                             0,
+                                             self.minThreshold)
+
+      matchingSegments = set(connections.activeSegments(activity))
+      matchingCells = set(connections.activeCells(activity))
+    else:
+      matchingSegments = set()
+      matchingCells = set()
+
+    return activeSegments, predictiveCells, matchingSegments, matchingCells
+
+
+  @staticmethod
+  def getCellIndex(cell):
+    return cell.idx
 
 
   # ==============================
@@ -161,7 +184,7 @@ class FastTemporalMemory(TemporalMemory):
 
     start = self.cellsPerColumn * column
     end = start + self.cellsPerColumn
-    return set([ConnectionsCell(idx) for idx in range(start, end)])
+    return set([ConnectionsCell(idx) for idx in xrange(start, end)])
 
 
   def _validateCell(self, cell):

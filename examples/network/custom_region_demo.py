@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -90,8 +90,11 @@ def createNetwork(dataSource):
   # In this demo, we have modified it using sys.path.append since we need it to
   # have an effect on this program.
   sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-  # Add custom region package to network
-  Network.registerRegionPackage("custom_region")
+  
+  from custom_region.identity_region import IdentityRegion
+
+  # Add custom region class to the network
+  Network.registerRegion(IdentityRegion)
 
   # Create a custom region
   network.addRegion("identityRegion", "py.IdentityRegion", json.dumps(I_PARAMS))

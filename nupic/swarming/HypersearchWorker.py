@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -32,14 +32,14 @@ import itertools
 import StringIO
 import traceback
 
-from nupic.data import jsonhelpers
-from nupic.support import clippedObj
 from nupic.support import initLogging
 from nupic.support.configuration import Configuration
 from nupic.support.ExtendedLogger import ExtendedLogger
-from nupic.support.errorcodes import ErrorCodes
+from nupic.swarming.hypersearch.errorcodes import ErrorCodes
+from nupic.swarming.hypersearch.utils import clippedObj, validate
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from HypersearchV2 import HypersearchV2
+
 
 
 class HypersearchWorker(object):
@@ -67,7 +67,7 @@ class HypersearchWorker(object):
 
   """
 
-  ########################################################################
+
   def __init__(self, options, cmdLineArgs):
     """ Instantiate the Hypersearch worker
 
@@ -125,7 +125,6 @@ class HypersearchWorker(object):
     self._workerID = None
 
 
-  ########################################################################
   def _processUpdatedModels(self, cjDAO):
     """ For all models that modified their results since last time this method
     was called, send their latest results to the Hypersearch implementation.
@@ -233,10 +232,6 @@ class HypersearchWorker(object):
       self._modelIDCtrList.sort()
 
 
-
-
-
-  ########################################################################
   def run(self):
     """ Run this worker.
 
@@ -303,7 +298,7 @@ class HypersearchWorker(object):
     jsonSchemaPath = os.path.join(os.path.dirname(__file__),
                                   "jsonschema",
                                   "jobParamsSchema.json")
-    jsonhelpers.validate(jobParams, schemaPath=jsonSchemaPath)
+    validate(jobParams, schemaPath=jsonSchemaPath)
 
 
     hsVersion = jobParams.get('hsVersion', None)
@@ -475,7 +470,6 @@ class HypersearchWorker(object):
 
 
 
-#####################################################################################
 helpString = \
 """%prog [options]
 This script runs as a Hypersearch worker process. It loops, looking for and
@@ -483,7 +477,7 @@ evaluating prospective models from a Hypersearch database.
 """
 
 
-#####################################################################################
+
 def main(argv):
   """
   The main function of the HypersearchWorker script. This parses the command
@@ -597,7 +591,7 @@ def main(argv):
 
   return jobID
 
-#############################################################################
+
 
 if __name__ == "__main__":
   logging.setLoggerClass(ExtendedLogger)

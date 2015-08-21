@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -85,6 +85,11 @@ class MovingAverage(object):
     return self.slidingWindow
 
 
+  def getCurrentAvg(self):
+    """get current average"""
+    return float(self.total) / len(self.slidingWindow)
+
+  # TODO obsoleted by capnp, will be removed in future
   def __setstate__(self, state):
     """ for loading this object"""
     self.__dict__.update(state)
@@ -95,6 +100,13 @@ class MovingAverage(object):
     if not hasattr(self, "total"):
       self.total = 0
       self.slidingWindow = sum(self.slidingWindow)
+
+
+  def __eq__(self, o):
+    return (isinstance(o, MovingAverage) and
+            o.slidingWindow == self.slidingWindow and
+            o.total == self.total and
+            o.windowSize == self.windowSize)
 
 
   def __call__(self, value):

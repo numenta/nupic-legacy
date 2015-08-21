@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -79,12 +79,24 @@ class TPShim(TemporalMemory):
     """
     super(TPShim, self).compute(set(bottomUpInput.nonzero()[0]),
                                             learn=enableLearn)
-    numberOfCells = self.connections.numberOfCells()
+    numberOfCells = self.numberOfCells()
 
     activeState = numpy.zeros(numberOfCells)
-    activeState[list(self.activeCells)] = 1
+    activeState[self.getCellIndices(self.activeCells)] = 1
     self.infActiveState["t"] = activeState
 
     output = numpy.zeros(numberOfCells)
-    output[list(self.predictiveCells | self.activeCells)] = 1
+    output[self.getCellIndices(self.predictiveCells | self.activeCells)] = 1
     return output
+  
+  
+  def getActiveState(self):
+    activeState = numpy.zeros(self.numberOfCells())
+    activeState[self.getCellIndices(self.activeCells)] = 1
+    return activeState
+  
+  
+  def getPredictedState(self):
+    predictedState = numpy.zeros(self.numberOfCells())
+    predictedState[self.getCellIndices(self.predictiveCells)] = 1
+    return predictedState

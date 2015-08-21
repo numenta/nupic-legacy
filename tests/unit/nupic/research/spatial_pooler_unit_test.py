@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -213,26 +213,30 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = self._sp
 
     sp._activeDutyCycles = numpy.array([0.5, 0.1, 0, 0.2, 0.4, 0])
-    activeColumns = numpy.array([0, 1, 2, 4])
-    stripped = sp.stripUnlearnedColumns(activeColumns)
+    activeArray = numpy.array([1, 1, 1, 0, 1, 0])
+    sp.stripUnlearnedColumns(activeArray)
+    stripped = numpy.where(activeArray == 1)[0]
     trueStripped = [0, 1, 4]
     self.assertListEqual(trueStripped, list(stripped))
 
     sp._activeDutyCycles = numpy.array([0.9, 0, 0, 0, 0.4, 0.3])
-    activeColumns = numpy.array(range(6))
-    stripped = sp.stripUnlearnedColumns(activeColumns)
+    activeArray = numpy.ones(6)
+    sp.stripUnlearnedColumns(activeArray)
+    stripped = numpy.where(activeArray == 1)[0]
     trueStripped = [0, 4, 5]
     self.assertListEqual(trueStripped, list(stripped))
 
     sp._activeDutyCycles = numpy.array([0, 0, 0, 0, 0, 0])
-    activeColumns = numpy.array(range(6))
-    stripped = sp.stripUnlearnedColumns(activeColumns)
+    activeArray = numpy.ones(6)
+    sp.stripUnlearnedColumns(activeArray)
+    stripped = numpy.where(activeArray == 1)[0]
     trueStripped = []
     self.assertListEqual(trueStripped, list(stripped))
 
     sp._activeDutyCycles = numpy.ones(6)
-    activeColumns = numpy.array(range(6))
-    stripped = sp.stripUnlearnedColumns(activeColumns)
+    activeArray = numpy.ones(6)
+    sp.stripUnlearnedColumns(activeArray)
+    stripped = numpy.where(activeArray == 1)[0]
     trueStripped = range(6)
     self.assertListEqual(trueStripped, list(stripped))
 

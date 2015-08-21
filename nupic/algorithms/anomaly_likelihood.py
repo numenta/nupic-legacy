@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -60,8 +60,6 @@ updateAnomalyLikelihoods. The details of these are described below.
 """
 
 import math
-import datetime
-
 import numpy
 
 from nupic.utils import MovingAverage
@@ -103,6 +101,26 @@ class AnomalyLikelihood(object):
     self._reestimationPeriod = 100 
 
 
+  def __eq__(self, o):
+    return (isinstance(o, AnomalyLikelihood) and
+            self._iteration == o._iteration and
+            self._historicalScores == o._historicalScores and
+            self._distribution == o._distribution and
+            self._probationaryPeriod == o._probationaryPeriod and
+            self._claLearningPeriod == o._claLearningPeriod and
+            self._reestimationPeriod == o._reestimationPeriod)
+
+
+  def __str__(self):
+    return ("AnomalyLikelihood: %s %s %s %s %s %s" % (
+            self._iteration,
+            self._historicalScores,
+            self._distribution,
+            self._probationaryPeriod,
+            self._claLearningPeriod,
+            self._reestimationPeriod) )
+
+
   @staticmethod
   def computeLogLikelihood(likelihood):
     """
@@ -118,15 +136,19 @@ class AnomalyLikelihood(object):
 
   def anomalyProbability(self, value, anomalyScore, timestamp=None):
     """
-    Return the probability that the current value plus anomaly score represents
+    Compute the probability that the current value plus anomaly score represents
     an anomaly given the historical distribution of anomaly scores. The closer
     the number is to 1, the higher the chance it is an anomaly.
 
-    Given the current metric value, plus the current anomaly score, output the
-    anomalyLikelihood for this record.
+    @param value - the current metric ("raw") input value, eg. "orange", or 
+                   '21.2' (deg. Celsius), ...
+    @param anomalyScore - the current anomaly score
+    @param timestamp - (optional) timestamp of the ocurrence, 
+                       default (None) results in using iteration step.
+    @return theanomalyLikelihood for this record.
     """
     if timestamp is None:
-      timestamp = datetime.datetime.now()
+      timestamp = self._iteration
       
     dataPoint = (timestamp, value, anomalyScore)
     # We ignore the first probationaryPeriod data points

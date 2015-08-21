@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -29,7 +29,6 @@ from abc import ABCMeta, abstractmethod
 import nupic.frameworks.opf.opfutils as opfutils
 
 
-###############################################################
 
 class Model(object):
   """ This is the base class that all OPF Model implementations should
@@ -181,6 +180,7 @@ class Model(object):
   ###############################################################################
   # Implementation of common save/load functionality
   ###############################################################################
+
   def save(self, saveModelDir):
     """ Save the model in the given directory.
     @param saveModelDir (string)

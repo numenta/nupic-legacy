@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -76,6 +76,39 @@ class AnomalyRegion(PyRegion):
 
   def __init__(self, *args, **kwargs):
     self.prevPredictedColumns = numpy.zeros([], dtype="float32")
+
+
+  def __eq__(self, other):
+    for k, v1 in self.__dict__.iteritems():
+      if not k in other.__dict__:
+        return False
+      v2 = getattr(other, k)
+      if isinstance(v1, numpy.ndarray):
+        if v1.dtype != v2.dtype:
+          return False
+        if not numpy.isclose(v1, v2).all():
+          return False
+      else:
+        if type(v1) != type(v2):
+          return False
+        if v1 != v2:
+          return False
+    return True
+
+
+  def __ne__(self, other):
+    return not self == other
+
+
+  @classmethod
+  def read(cls, proto):
+    anomalyRegion = object.__new__(cls)
+    anomalyRegion.prevPredictedColumns = numpy.array(proto.prevPredictedColumns)
+    return anomalyRegion
+
+
+  def write(self, proto):
+    proto.prevPredictedColumns = self.prevPredictedColumns.tolist()
 
 
   def initialize(self, inputs, outputs):

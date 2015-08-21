@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -61,60 +61,95 @@ class TemporalMemoryTest(unittest.TestCase):
 
     prevPredictiveCells = set([0, 237, 1026, 26337, 26339, 55536])
     activeColumns = set([32, 47, 823])
+    prevMatchingCells = set()
 
     (activeCells,
     winnerCells,
-    predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            activeColumns)
+    predictedColumns,
+    predictedInactiveCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
+                                                                  prevMatchingCells,
+                                                                  activeColumns)
 
     self.assertEqual(activeCells, set([1026, 26337, 26339]))
     self.assertEqual(winnerCells, set([1026, 26337, 26339]))
     self.assertEqual(predictedColumns, set([32, 823]))
+    self.assertEqual(predictedInactiveCells, set())
 
 
   def testActivateCorrectlyPredictiveCellsEmpty(self):
     tm = self.tm
 
+    # No previous predictive cells, no active columns
     prevPredictiveCells = set()
     activeColumns      = set()
+    prevMatchingCells = set()
 
     (activeCells,
     winnerCells,
-    predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            activeColumns)
+    predictedColumns,
+    predictedInactiveCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
+                                                                  prevMatchingCells,
+                                                                  activeColumns)
 
     self.assertEqual(activeCells,      set())
     self.assertEqual(winnerCells,      set())
     self.assertEqual(predictedColumns, set())
+    self.assertEqual(predictedInactiveCells, set())
 
-    # No previous predictive cells
+    # No previous predictive cells, with active columns
 
     prevPredictiveCells = set()
     activeColumns = set([32, 47, 823])
+    prevMatchingCells = set()
 
     (activeCells,
     winnerCells,
-    predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            activeColumns)
+    predictedColumns,
+    predictedInactiveCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
+                                                                  prevMatchingCells,
+                                                                  activeColumns)
 
     self.assertEqual(activeCells,      set())
     self.assertEqual(winnerCells,      set())
     self.assertEqual(predictedColumns, set())
+    self.assertEqual(predictedInactiveCells, set())
 
-    # No active columns
+    # No active columns, with previously predictive cells
 
     prevPredictiveCells = set([0, 237, 1026, 26337, 26339, 55536])
     activeColumns = set()
+    prevMatchingCells = set()
 
     (activeCells,
     winnerCells,
-    predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            activeColumns)
+    predictedColumns,
+    predictedInactiveCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
+                                                                  prevMatchingCells,
+                                                                  activeColumns)
 
     self.assertEqual(activeCells,      set())
     self.assertEqual(winnerCells,      set())
     self.assertEqual(predictedColumns, set())
+    self.assertEqual(predictedInactiveCells, set())
 
+  def testActivateCorrectlyPredictiveCellsOrphan(self):
+    tm = self.tm
+    tm.predictedSegmentDecrement = 0.001
+    prevPredictiveCells = set([])
+    activeColumns = set([32, 47, 823])
+    prevMatchingCells = set([32, 47])
+
+    (activeCells,
+    winnerCells,
+    predictedColumns,
+    predictedInactiveCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
+                                                                  prevMatchingCells,
+                                                                  activeColumns)
+
+    self.assertEqual(activeCells, set([]))
+    self.assertEqual(winnerCells, set([]))
+    self.assertEqual(predictedColumns, set([]))
+    self.assertEqual(predictedInactiveCells, set([32,47]))
 
   def testBurstColumns(self):
     tm = TemporalMemory(
@@ -205,13 +240,16 @@ class TemporalMemoryTest(unittest.TestCase):
     prevActiveCells = set([23, 37, 733])
     winnerCells = set([0])
     prevWinnerCells = set([10, 11, 12, 13, 14])
-
+    predictedInactiveCells = set()
+    prevMatchingSegments = set()
     tm.learnOnSegments(prevActiveSegments,
                        learningSegments,
                        prevActiveCells,
                        winnerCells,
                        prevWinnerCells,
-                       connections)
+                       connections,
+                       predictedInactiveCells,
+                       prevMatchingSegments)
 
     # Check segment 0
     synapseData = connections.dataForSynapse(0)
@@ -240,7 +278,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
 
   def testComputePredictiveCells(self):
-    tm = TemporalMemory(activationThreshold=2)
+    tm = TemporalMemory(activationThreshold=2, minThreshold=2, predictedSegmentDecrement=0.004)
 
     connections = tm.connections
     connections.createSegment(0)
@@ -263,9 +301,13 @@ class TemporalMemoryTest(unittest.TestCase):
     activeCells = set([23, 37, 733, 974])
 
     (activeSegments,
-     predictiveCells) = tm.computePredictiveCells(activeCells, connections)
+     predictiveCells,
+     matchingSegments,
+     matchingCells) = tm.computePredictiveCells(activeCells, connections)
     self.assertEqual(activeSegments, set([0]))
     self.assertEqual(predictiveCells, set([0]))
+    self.assertEqual(matchingSegments, set([0,1]))
+    self.assertEqual(matchingCells, set([0,1]))
 
 
   def testBestMatchingCell(self):
@@ -404,7 +446,9 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSynapse(0, 37, 0.4)
     connections.createSynapse(0, 477, 0.9)
 
-    tm.adaptSegment(0, set([0, 1]), connections)
+    tm.adaptSegment(0, set([0, 1]), connections,
+                    tm.permanenceIncrement,
+                    tm.permanenceDecrement)
 
     synapseData = connections.dataForSynapse(0)
     self.assertAlmostEqual(synapseData.permanence, 0.7)
@@ -423,12 +467,16 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSegment(0)
     connections.createSynapse(0, 23, 0.9)
 
-    tm.adaptSegment(0, set([0]), connections)
+    tm.adaptSegment(0, set([0]), connections,
+                    tm.permanenceIncrement,
+                    tm.permanenceDecrement)
     synapseData = connections.dataForSynapse(0)
     self.assertAlmostEqual(synapseData.permanence, 1.0)
 
     # Now permanence should be at max
-    tm.adaptSegment(0, set([0]), connections)
+    tm.adaptSegment(0, set([0]), connections,
+                    tm.permanenceIncrement,
+                    tm.permanenceDecrement)
     synapseData = connections.dataForSynapse(0)
     self.assertAlmostEqual(synapseData.permanence, 1.0)
 
@@ -440,14 +488,12 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSegment(0)
     connections.createSynapse(0, 23, 0.1)
 
-    tm.adaptSegment(0, set(), connections)
-    synapseData = connections.dataForSynapse(0)
-    self.assertAlmostEqual(synapseData.permanence, 0.0)
+    tm.adaptSegment(0, set(), connections,
+                    tm.permanenceIncrement,
+                    tm.permanenceDecrement)
 
-    # Now permanence should be at min
-    tm.adaptSegment(0, set(), connections)
-    synapseData = connections.dataForSynapse(0)
-    self.assertAlmostEqual(synapseData.permanence, 0.0)
+    synapses = connections.synapsesForSegment(0)
+    self.assertFalse(0 in synapses)
 
 
   def testPickCellsToLearnOn(self):

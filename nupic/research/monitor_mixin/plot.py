@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -22,6 +22,8 @@
 """
 Plot class used in monitor mixin framework.
 """
+
+import os
 import traceback
 
 try:
@@ -36,7 +38,7 @@ except ImportError:
 class Plot(object):
 
 
-  def __init__(self, monitor, title):
+  def __init__(self, monitor, title, show=True):
     """
 
     @param monitor (MonitorMixinBase) Monitor Mixin instance that generated
@@ -47,8 +49,10 @@ class Plot(object):
     self._monitor = monitor
     self._title = title
     self._fig = self._initFigure()
-    plt.ion()
-    plt.show()
+    self._show = show
+    if self._show:
+      plt.ion()
+      plt.show()
 
 
   def _initFigure(self):
@@ -95,7 +99,7 @@ class Plot(object):
 
 
   def add2DArray(self, data, position=111, xlabel=None, ylabel=None, cmap=None,
-                 aspect="auto", interpolation="nearest"):
+                 aspect="auto", interpolation="nearest", name=None):
     """ Adds an image to the plot's figure.
 
     @param data a 2D array. See matplotlib.Axes.imshow documentation.
@@ -114,7 +118,16 @@ class Plot(object):
 
     ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
     ax.imshow(data, cmap=cmap, aspect=aspect, interpolation=interpolation)
-    plt.draw()
+
+    if self._show:
+      plt.draw()
+
+    if name is not None:
+      if not os.path.exists("log"):
+        os.mkdir("log")
+      plt.savefig("log/{name}.png".format(name=name), bbox_inches="tight",
+                  figsize=(8, 6), dpi=400)
+
 
 
   def _addBase(self, position, xlabel=None, ylabel=None):

@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -43,6 +43,7 @@ from functools import partial
 ###############################################################################
 # Public Metric specification class
 ###############################################################################
+
 class MetricSpec(object):
   """ This class represents a single Metrics specification in the TaskControl
   block
@@ -135,7 +136,6 @@ class MetricSpec(object):
     return infType
 
 
-################################################################################
 
 def getModule(metricSpec):
   """
@@ -154,6 +154,8 @@ def getModule(metricSpec):
 
   if metricName == 'rmse':
     return MetricRMSE(metricSpec)
+  if metricName == 'nrmse':
+    return MetricNRMSE(metricSpec)
   elif metricName == 'aae':
     return MetricAAE(metricSpec)
   elif metricName == 'acc':
@@ -194,6 +196,7 @@ def getModule(metricSpec):
 ################################################################################
 #               Helper Methods and Classes                                    #
 ################################################################################
+
 class _MovingMode(object):
   """ Helper class for computing windowed moving
   mode of arbitrary values """
@@ -232,12 +235,12 @@ class _MovingMode(object):
     return pred
 
 
-############################################################################
+
 def _isNumber(value):
   return isinstance(value, (numbers.Number, np.number))
 
 
-################################################################################
+
 class MetricsIface(object):
   """
   A Metrics module compares a prediction Y to corresponding ground truth X and returns a single
@@ -290,7 +293,8 @@ class MetricsIface(object):
 
     """
 
-################################################################################
+
+
 class AggregateMetric(MetricsIface):
   """
       Partial implementation of Metrics Interface for metrics that
@@ -479,7 +483,8 @@ class AggregateMetric(MetricsIface):
                                          self.steps)
     return self.aggregateError
 
-################################################################################
+
+
 class MetricRMSE(AggregateMetric):
   """
       computes root-mean-square error
@@ -503,7 +508,30 @@ class MetricRMSE(AggregateMetric):
     return np.sqrt(accumulatedError / float(n))
 
 
-################################################################################
+
+class MetricNRMSE(MetricRMSE):
+  """computes normalized root-mean-square error"""
+  def __init__(self, *args, **kwargs):
+    super(MetricNRMSE, self).__init__(*args, **kwargs)
+    self.groundTruths = []
+
+  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
+    self.groundTruths.append(groundTruth)
+
+    return super(MetricNRMSE, self).accumulate(groundTruth,
+                                               prediction,
+                                               accumulatedError,
+                                               historyBuffer)
+
+  def aggregate(self, accumulatedError, historyBuffer, steps):
+    rmse = super(MetricNRMSE, self).aggregate(accumulatedError,
+                                              historyBuffer,
+                                              steps)
+    denominator = np.std(self.groundTruths)
+    return rmse / denominator if denominator > 0 else float("inf")
+
+
+
 class MetricAAE(AggregateMetric):
   """
       computes average absolute error
@@ -526,7 +554,8 @@ class MetricAAE(AggregateMetric):
 
     return accumulatedError/ float(n)
 
-################################################################################
+
+
 class MetricAltMAPE(AggregateMetric):
   """
   computes the "Alternative" Mean Absolute Percent Error.
@@ -585,7 +614,7 @@ class MetricAltMAPE(AggregateMetric):
     return self.aggregateError
 
 
-################################################################################
+
 class MetricMAPE(AggregateMetric):
   """
   computes the "Classic" Mean Absolute Percent Error.
@@ -645,7 +674,7 @@ class MetricMAPE(AggregateMetric):
     return self.aggregateError
 
 
-################################################################################
+
 class MetricPassThruPrediction(MetricsIface):
   """
   This is not a metric, but rather a facility for passing the predictions
@@ -685,7 +714,6 @@ class MetricPassThruPrediction(MetricsIface):
 
 
 
-################################################################################
 class MetricMovingMean(AggregateMetric):
   """
       computes error metric based on moving mean prediction
@@ -743,7 +771,8 @@ def evalCustomErrorMetric(expr, prediction, groundTruth, tools):
   error = sandbox(expr)
   return error
 
-################################################################################
+
+
 class CustomErrorMetric(MetricsIface):
   """
     Custom Error Metric class that handles user defined error metrics
@@ -909,7 +938,7 @@ class CustomErrorMetric(MetricsIface):
     return self.averageError
 
 
-################################################################################
+
 class MetricMovingMode(AggregateMetric):
   """
       computes error metric based on moving mode prediction
@@ -956,7 +985,7 @@ class MetricMovingMode(AggregateMetric):
     return result
 
 
-################################################################################
+
 class MetricTrivial(AggregateMetric):
   """
   computes a metric against the ground truth N steps ago. The metric to
@@ -998,7 +1027,7 @@ class MetricTrivial(AggregateMetric):
     return self._subErrorMetrics[0].addInstance(groundTruth, prediction, record)
 
 
-################################################################################
+
 class MetricTwoGram(AggregateMetric):
   """
   computes error metric based on one-grams. The groundTruth passed into
@@ -1095,7 +1124,8 @@ class MetricTwoGram(AggregateMetric):
 
     return self._subErrorMetrics[0].addInstance(actualGroundTruth, pred, record)
 
-################################################################################
+
+
 class MetricAccuracy(AggregateMetric):
   """
   computes simple accuracy for an enumerated type. all inputs are treated as
@@ -1126,8 +1156,6 @@ class MetricAccuracy(AggregateMetric):
 
 
 
-
-################################################################################
 class MetricAveError(AggregateMetric):
   """Simply the inverse of the Accuracy metric
         More consistent with scalar metrics because
@@ -1154,8 +1182,6 @@ class MetricAveError(AggregateMetric):
 
 
 
-
-################################################################################
 class MetricNegAUC(AggregateMetric):
   """ Computes -1 * AUC (Area Under the Curve) of the ROC (Receiver Operator
       Characteristics) curve. We compute -1 * AUC because metrics are optimized
@@ -1249,7 +1275,7 @@ class MetricNegAUC(AggregateMetric):
     return -1 * auc
 
 
-################################################################################
+
 class MetricMultiStep(AggregateMetric):
   """
   This is an "uber" metric which is used to apply one of the other basic
@@ -1328,7 +1354,7 @@ class MetricMultiStep(AggregateMetric):
     return self.aggregateError
 
 
-################################################################################
+
 class MetricMultiStepProbability(AggregateMetric):
   """
   This is an "uber" metric which is used to apply one of the other basic
@@ -1424,7 +1450,8 @@ class MetricMultiStepProbability(AggregateMetric):
 
     return self.aggregateError
 
-###################################################################################
+
+
 class MetricMulti(MetricsIface):
   """Multi metric can combine multiple other (sub)metrics and 
      weight them to provide combined score."""

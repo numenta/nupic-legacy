@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -33,9 +33,7 @@ class GaborConvolution(Convolution):
   containing the Gabor responses.
   """
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-  # Class constants
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
+
   def __init__(self,
                scaleDecimation=[1],
                filterDim=9,
@@ -205,7 +203,6 @@ class GaborConvolution(Convolution):
     # during our compute() calls.
     self._filterBank = (gaborBank.astype(numpy.float32) * 4096.0).astype(numpy.int32)
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _calcPlaneCount(self):
     """Computes the number of responses planes for a particular Gabor
@@ -216,7 +213,6 @@ class GaborConvolution(Convolution):
     else:
       return self._orientationCount
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _getNeededBufferCount(self):
     """Compute the number of allocated buffers to hold the responses.

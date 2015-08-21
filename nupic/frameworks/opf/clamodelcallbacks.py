@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -29,7 +29,7 @@ from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
 from clamodel import CLAModel
 
 
-################################################################################
+
 def claModelControlEnableSPLearningCb(claModel):
   """ Enables learning in the CLA model's Spatial Pooler
 
@@ -46,7 +46,7 @@ def claModelControlEnableSPLearningCb(claModel):
   return
 
 
-################################################################################
+
 def claModelControlDisableSPLearningCb(claModel):
   """ Disables learning in the CLA model's Spatial Pooler, while retaining
   the ability to re-enable SP learning in the future.
@@ -65,7 +65,7 @@ def claModelControlDisableSPLearningCb(claModel):
   return
 
 
-################################################################################
+
 def claModelControlEnableTPLearningCb(claModel):
   """ Enables learning in the CLA model's Temporal Pooler
 
@@ -82,7 +82,7 @@ def claModelControlEnableTPLearningCb(claModel):
   return
 
 
-################################################################################
+
 def claModelControlDisableTPLearningCb(claModel):
   """ Disables learning in the CLA model's Temporal Pooler, while retaining
   the ability to re-enable TP learning in the future.
@@ -102,7 +102,6 @@ def claModelControlDisableTPLearningCb(claModel):
 
 
 
-################################################################################
 class CLAModelPickleSPInitArgs(object):
   """ Saves SP initialization args
   """
@@ -143,7 +142,6 @@ class CLAModelPickleSPInitArgs(object):
 
 
 
-################################################################################
 class CLAModelPickleTPInitArgs(object):
   """ Saves TP10X2 initialization args
   """

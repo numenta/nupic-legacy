@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -59,12 +59,6 @@ class SpatialPoolerComputeTest(unittest.TestCase):
 
     y = numpy.zeros(columnDimensions, dtype = uintType)
     dutyCycles = numpy.zeros(columnDimensions, dtype = uintType)
-
-    # With learning off and no prior training we should get no winners
-    for v in inputMatrix:
-      y.fill(0)
-      sp.compute(v, False, y)
-      self.assertEqual(0,y.sum())
 
     # With learning on we should get the requested number of winners
     for v in inputMatrix:

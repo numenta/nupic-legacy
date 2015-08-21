@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -23,14 +23,28 @@ from collections import defaultdict, namedtuple
 
 
 
+class SynapseData(object):
+
+
+  __slots__ = ("segment", "presynapticCell", "permanence")
+
+
+  def __init__(self, segment, presynapticCell, permanence):
+    self.segment = segment
+    self.presynapticCell = presynapticCell
+    self.permanence = permanence
+
+
+  def __eq__(self, other):
+    return (self.segment, self.presynapticCell, self.permanence) == other
+
+
+
 class Connections(object):
   """
   Class to hold data representing the connectivity of a collection of cells.
   """
 
-  SynapseData = namedtuple("SynapseData", ["segment",
-                                           "presynapticCell",
-                                           "permanence"])
 
   def __init__(self, numCells):
     """
@@ -177,7 +191,7 @@ class Connections(object):
 
     # Add data
     synapse = self._nextSynapseIdx
-    synapseData = self.SynapseData(segment, presynapticCell, permanence)
+    synapseData = SynapseData(segment, presynapticCell, permanence)
     self._synapses[synapse] = synapseData
     self._nextSynapseIdx += 1
 
@@ -215,9 +229,9 @@ class Connections(object):
     self._validatePermanence(permanence)
 
     data = self._synapses[synapse]
-    newData = self.SynapseData(data.segment,
-                               data.presynapticCell,
-                               permanence)
+    newData = SynapseData(data.segment,
+                          data.presynapticCell,
+                          permanence)
     self._synapses[synapse] = newData
 
     # Update indexes
@@ -398,4 +412,3 @@ class Connections(object):
     """
     if permanence < 0 or permanence > 1:
       raise ValueError("Invalid permanence")
-

@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -26,6 +26,7 @@ import copy
 import datetime
 import math
 import numpy
+import pickle
 import unittest2 as unittest
 
 from nupic.algorithms import anomaly_likelihood as an
@@ -512,7 +513,8 @@ class AnomalyLikelihoodTest(TestCaseBase):
     [self.assertAlmostEqual(n2[i], filtered[i],
       msg="Input of type numpy array returns incorrect result")
       for i in range(len(n))]
-  
+
+
   def testFilterLikelihoods(self):
     """
     Tests _filterLikelihoods function for several cases:
@@ -565,6 +567,42 @@ class AnomalyLikelihoodTest(TestCaseBase):
       for i in range(len(l2b))]
     self.assertFalse(numpy.array_equal(l3a, l3b),
       msg="Failure in case (iii), list 3")
+
+
+  def testEquals(self):
+    l = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
+    l2 = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
+    self.assertEqual(l, l2)
+
+    l2.anomalyProbability(5, 0.1, timestamp=1) # burn in
+    l2.anomalyProbability(5, 0.1, timestamp=2)
+    l2.anomalyProbability(5, 0.1, timestamp=3)
+    l2.anomalyProbability(5, 0.1, timestamp=4) # use 5>2+2 probatory period samples
+    # to create distribution estimate
+    l2.anomalyProbability(1, 0.3, timestamp=5)
+    self.assertNotEqual(l, l2)
+
+    l.anomalyProbability(5, 0.1, timestamp=1) # burn in
+    l.anomalyProbability(5, 0.1, timestamp=2)
+    l.anomalyProbability(5, 0.1, timestamp=3)
+    l.anomalyProbability(5, 0.1, timestamp=4)
+    l.anomalyProbability(1, 0.3, timestamp=5)
+    self.assertEqual(l, l2, "equal? \n%s\n vs. \n%s" % (l, l2))
+
+
+  def testSerialization(self):
+    """serialization using pickle"""
+    l = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
+
+    l.anomalyProbability("hi", 0.1, timestamp=1) # burn in
+    l.anomalyProbability("hi", 0.1, timestamp=2)
+    l.anomalyProbability("hello", 0.3, timestamp=3)
+
+    stored = pickle.dumps(l)
+    restored = pickle.loads(stored)
+
+    self.assertEqual(l, restored)
+
 
 
 if __name__ == "__main__":

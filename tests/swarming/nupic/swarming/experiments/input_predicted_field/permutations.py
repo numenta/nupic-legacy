@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -101,7 +101,7 @@ minParticlesPerSwarm = None
 inputPredictedField = os.environ.get("NTA_TEST_inputPredictedField", "auto")
 
 
-#############################################################################
+
 def dummyModelParams(perm):
   """ This function can be used for Hypersearch algorithm development. When
   present, Hypersearch doesn't actually run the CLA model in the OPF, but 
@@ -150,7 +150,6 @@ def dummyModelParams(perm):
 
 
 
-#############################################################################
 def permutationFilter(perm):
   """ This function can be used to selectively filter out specific permutation
   combinations. It is called by RunPermutations for every possible permutation

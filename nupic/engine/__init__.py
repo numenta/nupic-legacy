@@ -7,15 +7,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -29,6 +29,33 @@ import functools
 
 basicTypes = ['Byte', 'Int16', 'UInt16', 'Int32', 'UInt32', 'Int64', 'UInt64', 'Real32', 'Real64', 'Handle']
 
+pyRegions = (("nupic.regions.AnomalyRegion", "AnomalyRegion"),
+             ("nupic.regions.CLAClassifierRegion", "CLAClassifierRegion"),
+             ("nupic.regions.ImageSensor", "ImageSensor"),
+             ("nupic.regions.KNNAnomalyClassifierRegion", "KNNAnomalyClassifierRegion"),
+             ("nupic.regions.KNNClassifierRegion", "KNNClassifierRegion"),
+             ("nupic.regions.PCANode", "PCANode"),
+             ("nupic.regions.PyRegion", "PyRegion"),
+             ("nupic.regions.RecordSensor", "RecordSensor"),
+             ("nupic.regions.SPRegion", "SPRegion"),
+             ("nupic.regions.SVMClassifierNode", "SVMClassifierNode"),
+             ("nupic.regions.TPRegion", "TPRegion"),
+             ("nupic.regions.TestNode", "TestNode"),
+             ("nupic.regions.TestRegion", "TestRegion"),
+             ("nupic.regions.UnimportableNode", "UnimportableNode"),
+             ("nupic.regions.extra.GaborNode2", "GaborNode2"))
+
+registeredRegions = False
+
+def registerBuiltInRegions():
+  global registeredRegions
+
+  # Initialize nupic regions
+  if not registeredRegions:
+    for module, className in pyRegions:
+      engine.Network.registerPyRegion(module, className)
+  registeredRegions = True
+registerBuiltInRegions()
 
 # Import all the array types from engine (there is no HandleArray)
 arrayTypes = [t + 'Array' for t in basicTypes[:-1]]
@@ -100,11 +127,7 @@ if not 'NTA_STANDARD_PYTHON_UNHANDLED_EXCEPTIONS' in os.environ:
 
   #sys.excepthook = customExceptionHandler
 
-# ------------------------------
-#
-#   T I M E R
-#
-# ------------------------------
+
 
 # Expose the timer class directly
 # Do it this way instead of bringing engine.Timer 
@@ -113,22 +136,15 @@ if not 'NTA_STANDARD_PYTHON_UNHANDLED_EXCEPTIONS' in os.environ:
 class Timer(engine.Timer):
   pass
 
-# ------------------------------
-#
-#   O S
-#
-# ------------------------------
+
 
 # Expose the os class directly
 # The only wrapped method is getProcessMemoryUsage()
 class OS(engine.OS):
   pass
 
-# ------------------------------
-#
-#   D I M E N S I O N S
-#
-# ------------------------------
+
+
 class Dimensions(engine.Dimensions):
   """Represent the topology of an N-dimensional region
   
@@ -152,11 +168,8 @@ class Dimensions(engine.Dimensions):
   def __str__(self):
     return self.toString()
 
-# ------------------------------
-#
-#   A R R A Y
-#
-# ------------------------------
+
+
 def Array(dtype, size=None, ref=False):
   """Factory function that creates typed Array or ArrayRef objects
   
@@ -199,11 +212,8 @@ def Array(dtype, size=None, ref=False):
 def ArrayRef(dtype):
   return Array(dtype, None, True)
 
-# -------------------------------------
-#
-#   C O L L E C T I O N   W R A P P E R
-#
-# -------------------------------------
+
+
 class CollectionIterator(object):
   def __init__(self, collection):
     self.collection = collection
@@ -291,11 +301,8 @@ class CollectionWrapper(object):
   def __hash__(self):
     return hash(self.collection)
 
-# -----------------------------
-#
-#   S P E C   I T E M
-#
-# -----------------------------
+
+
 class SpecItem(object):
   """Wrapper that translates the data type and access code to a string
   
@@ -336,11 +343,8 @@ class SpecItem(object):
     
     return str(d)
 
-# -------------------
-#
-#   S P E C
-#
-# -------------------
+
+
 class Spec(object):
   def __init__(self, spec):
     self.spec = spec
@@ -378,11 +382,8 @@ class _ArrayParameterHelper:
     self._region.getParameterArray(paramName, a)
     return a
 
-# -------------------------------------
-#
-#   R E G I O N
-#
-# -------------------------------------
+
+
 class Region(LockAttributesMixin):
   """
   @doc:place_holder(Region.description)
@@ -565,11 +566,8 @@ class Region(LockAttributesMixin):
   executeTimer = property(functools.partial(_get, method='getExecuteTimer'),
                           doc='@property:place_holder(Region.getExecuteTimer)')
 
-# ------------------------------
-#
-#   N E T W O R K
-#
-# ------------------------------
+
+
 class Network(engine.Network):
   """
   @doc:place_holder(Network.description)
@@ -730,12 +728,22 @@ class Network(engine.Network):
     inspect(self)
 
   @staticmethod
-  def registerRegionPackage(package):
+  def registerRegion(regionClass):
     """
-    Adds the package to the list of packages the network can access for regions
-    package: name of Python package, that is reachable through the PYTHONPATH
+    Adds the module and class name for the region to the list of classes the network can use
+    regionClass: a pointer to a subclass of PyRegion
     """
-    engine.Network.registerPyRegionPackage(package)
+    engine.Network.registerPyRegion(regionClass.__module__, regionClass.__name__)
+
+  @staticmethod
+  def unregisterRegion(regionName):
+    """
+    Unregisters a region from the internal list of regions
+
+    :param str regionName: The name of the region to unregister
+        (ex: regionName=regionClass.__name__)
+    """
+    engine.Network.unregisterPyRegion(regionName)
 
   # Syntactic sugar properties
   regions = property(_getRegions, doc='@property:place_holder(Network.getRegions)')

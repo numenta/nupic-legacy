@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -30,7 +30,7 @@ import numpy
 from nupic.data.file import File
 
 
-###########################################################################
+
 def scaleData(data, newScale=[0,100]):
   
   minVals = data.min(axis=0)
@@ -39,8 +39,9 @@ def scaleData(data, newScale=[0,100]):
   data = (data-minVals)*(newScale[1]-newScale[0])/(maxVals-minVals) + newScale[0]
  
   return data 
-    
-###########################################################################
+
+
+
 def generatePolyData(numDataPoints=100,
                      coefficients=[1, 0],
                      noiseLevel = 0.1,
@@ -55,7 +56,8 @@ def generatePolyData(numDataPoints=100,
 
   return scaledData
 
-###########################################################################
+
+
 def generateLinearData(numDataPoints=100,
                        coefficients=[1, 1],
                        noiseLevel = 0.1,
@@ -69,8 +71,9 @@ def generateLinearData(numDataPoints=100,
   scaledData = scaleData(data, newScale=dataScale)
 
   return scaledData
-  
-###########################################################################
+
+
+
 def _generateLinearModel(numTrainingRecords, numTestingRecords,
                           coefficients=[1], noiseLevel=0.1, dataScale=[0,100]):
   """ 
@@ -87,7 +90,7 @@ def _generateLinearModel(numTrainingRecords, numTestingRecords,
   return trainData, testData
 
 
-###########################################################################
+
 def _generateFile(filename, data):
   """ 
   Parameters:
@@ -110,7 +113,6 @@ def _generateFile(filename, data):
 
 
 
-########################################################################
 def generate(model, filenameTrain, filenameTest,
              numTrainingRecords=10000, numTestingRecords=1000,):
   """

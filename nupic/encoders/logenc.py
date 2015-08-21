@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -120,22 +120,22 @@ class LogEncoder(Encoder):
     #  and re-created whenever our buckets would be re-arranged.
     self._bucketValues = None
 
-  ############################################################################
+
   def getWidth(self):
     return self.width
 
-  ############################################################################
+
   def getDescription(self):
     return self.description
 
-  ############################################################################
+
   def getDecoderOutputFieldTypes(self):
     """
     Encoder class virtual method override
     """
     return (FieldMetaType.float, )
 
-  ############################################################################
+
   def _getScaledValue(self, inpt):
     """
     Convert the input, which is in normal space, into log space
@@ -152,7 +152,7 @@ class LogEncoder(Encoder):
       scaledVal = math.log10(val)
       return scaledVal
 
-  ############################################################################
+
   def getBucketIndices(self, inpt):
     """
     See the function description in base.py
@@ -166,7 +166,7 @@ class LogEncoder(Encoder):
     else:
       return self.encoder.getBucketIndices(scaledVal)
 
-  ############################################################################
+
   def encodeIntoArray(self, inpt, output):
     """
     See the function description in base.py
@@ -184,7 +184,7 @@ class LogEncoder(Encoder):
         print "input:", inpt, "scaledVal:", scaledVal, "output:", output
         print "decoded:", self.decodedToStr(self.decode(output))
 
-  ############################################################################
+
   def decode(self, encoded, parentFieldName=''):
     """
     See the function description in base.py
@@ -223,7 +223,7 @@ class LogEncoder(Encoder):
       fieldName = self.name
     return ({fieldName: (outRanges, desc)}, [fieldName])
 
-  ############################################################################
+
   def getBucketValues(self):
     """
     See the function description in base.py
@@ -239,7 +239,7 @@ class LogEncoder(Encoder):
 
     return self._bucketValues
 
-  ############################################################################
+
   def getBucketInfo(self, buckets):
     """
     See the function description in base.py
@@ -252,7 +252,7 @@ class LogEncoder(Encoder):
     return [EncoderResult(value=value, scalar=value,
                          encoding = scaledResult.encoding)]
 
-  ############################################################################
+
   def topDownCompute(self, encoded):
     """
     See the function description in base.py
@@ -265,7 +265,7 @@ class LogEncoder(Encoder):
     return EncoderResult(value=value, scalar=value,
                          encoding = scaledResult.encoding)
 
-  ############################################################################
+
   def closenessScores(self, expValues, actValues, fractional=True):
     """
     See the function description in base.py

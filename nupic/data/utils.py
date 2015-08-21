@@ -1,19 +1,19 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -24,6 +24,7 @@ Collection of utilities to process input data
 """
 
 import datetime
+import string
 # Workaround for this error: 
 #  "ImportError: Failed to import _strptime because the import lockis held by 
 #     another thread"
@@ -38,7 +39,7 @@ DATETIME_FORMATS = ('%Y-%m-%d %H:%M:%S.%f', '%Y-%m-%d %H:%M:%S:%f',
                     '%Y-%m-%dT%H:%M:%S')
 
 
-#############################################################################
+
 def parseTimestamp(s):
   """Parses a textual datetime format and return a Python datetime object.
 
@@ -60,17 +61,17 @@ def parseTimestamp(s):
                    'formats are: [%s]' % (s, ', '.join(DATETIME_FORMATS)))
 
 
-#############################################################################
+
 def serializeTimestamp(t):
   return t.strftime(DATETIME_FORMATS[0])
 
 
-#############################################################################
+
 def serializeTimestampNoMS(t):
   return t.strftime(DATETIME_FORMATS[2])
 
 
-#############################################################################
+
 def parseBool(s):
   l = s.lower()
   if l in ("true", "t", "1"):
@@ -80,21 +81,21 @@ def parseBool(s):
   raise Exception("Unable to convert string '%s' to a boolean value" % s)
 
 
-#############################################################################
+
 def floatOrNone(f):
   if f == 'None':
     return None
   return float(f)
 
 
-#############################################################################
+
 def intOrNone(i):
   if i.strip() == 'None' or i.strip() == 'NULL':
     return None
   return int(i)
 
 
-#############################################################################
+
 def escape(s):
   """Escape commas, tabs, newlines and dashes in a string
 
@@ -112,13 +113,12 @@ def escape(s):
   return s
 
 
-#############################################################################
+
 def unescape(s):
   """Unescapes a string that may contain commas, tabs, newlines and dashes
 
   Commas are decoded from tabs
   """
-  #assert isinstance(s, str)
   assert isinstance(s, basestring)
   s = s.replace('\t', ',')
   s = s.replace('\\,', ',')
@@ -128,7 +128,7 @@ def unescape(s):
   return s
 
 
-#############################################################################
+
 def parseSdr(s):
   """Parses a string containing only 0's and 1's and return a Python list object.
   """
@@ -141,9 +141,23 @@ def parseSdr(s):
   return sdr
 
 
-#############################################################################
+
 def serializeSdr(sdr):
   """Serialize Python list object containing only 0's and 1's to string.
   """
 
   return "".join(str(bit) for bit in sdr)
+
+
+
+def parseStringList(s):
+  """Parse a string of space-separated numbers, returning a Python list."""
+  assert isinstance(s, basestring)
+  return [int(i) for i in s.split()]
+
+
+
+def stripList(listObj):
+  """Convert a list of numbers to a string of space-separated numbers."""
+  return " ".join(str(i) for i in listObj)
+  

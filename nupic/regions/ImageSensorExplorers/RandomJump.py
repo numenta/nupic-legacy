@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -28,7 +28,7 @@ class RandomJump(BaseExplorer):
   This explorer randomly selects positions. It does not do any sweeping.
   """
 
-  ############################################################################
+
   def __init__(self, jumpOffObject=False, numJumpsPerImage=None,
                numVisitsPerImage=None, spaceShape=None, *args, **kwargs):
     """
@@ -73,7 +73,7 @@ class RandomJump(BaseExplorer):
     self.numJumpsThisImage = 0
     self.lastImageIndex = None
 
-  ############################################################################
+
   def first(self):
     """
     Set up the position.
@@ -132,7 +132,7 @@ class RandomJump(BaseExplorer):
     self.position['reset'] = True
     self.numJumpsThisImage += 1
 
-  ############################################################################
+
   def next(self, seeking=False):
     """
     Go to the next position (next iteration).
@@ -145,7 +145,7 @@ class RandomJump(BaseExplorer):
 
     self.first()
 
-  ############################################################################
+
   def getNumIterations(self, image):
     """
     Get the number of iterations required to completely explore the input space.
@@ -170,7 +170,7 @@ class RandomJump(BaseExplorer):
     else:
       return totalPerImage
 
-  ############################################################################
+
   def _getEffectiveBoundingBox(self, image):
     """
     Calculate the 'effective' bounding box from the image's bounding box,

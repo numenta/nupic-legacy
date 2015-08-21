@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -24,7 +24,7 @@ import numpy
 from nupic.encoders import pass_through_encoder
 
 
-############################################################################
+
 class SparsePassThroughEncoder(pass_through_encoder.PassThroughEncoder):
   """Convert a bitmap encoded as array indicies to an SDR
 
@@ -38,7 +38,7 @@ class SparsePassThroughEncoder(pass_through_encoder.PassThroughEncoder):
     or for n=24 w=3 "0,2,5" => 111000111000000111000000000
   """
 
-  ############################################################################
+
   def __init__(self, n, w=None, name="sparse_pass_through", forced=False, verbosity=0):
     """
     n is the total bits in input
@@ -47,7 +47,7 @@ class SparsePassThroughEncoder(pass_through_encoder.PassThroughEncoder):
     super(SparsePassThroughEncoder, self).__init__(
         n, w, name, forced, verbosity)
 
-  ############################################################################
+
   def encodeIntoArray(self, input, output):
     """ See method description in base.py """
     denseInput = numpy.zeros(output.shape)

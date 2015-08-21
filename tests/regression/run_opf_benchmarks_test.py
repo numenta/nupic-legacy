@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -41,12 +41,12 @@ from Queue import Empty
 from collections import deque
 
 from nupic.database import ClientJobsDAO as cjdao
-from nupic.frameworks.opf.exp_generator import ExpGenerator
+from nupic.swarming.exp_generator import ExpGenerator
 from nupic.frameworks.opf.opfutils import InferenceType
 from nupic.support.configuration import Configuration
 from nupic.support.unittesthelpers.testcasebase import unittest
 from nupic.swarming import permutations_runner
-from nupic.swarming.utils import generatePersistentJobGUID
+from nupic.swarming.hypersearch.utils import generatePersistentJobGUID
 
 
 

@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -45,6 +45,18 @@ class OPFMetricsTest(unittest.TestCase):
 
     self.assertTrue(abs(rmse.getMetric()["value"]-target)\
 < OPFMetricsTest.DELTA)
+
+
+  def testNRMSE(self):
+    nrmse = getModule(MetricSpec("nrmse", None, None,
+                                 {"verbosity" : OPFMetricsTest.VERBOSITY}))
+    gt = [9, 4, 5, 6]
+    p = [0, 13, 8, 3]
+    for i in xrange(len(gt)):
+      nrmse.addInstance(gt[i], p[i])
+    target = 3.5856858280031814
+
+    self.assertAlmostEqual(nrmse.getMetric()["value"], target)
 
 
   def testWindowedRMSE(self):
@@ -766,7 +778,6 @@ record={"test":gt[i]})
     # create multi metric
     multi = MetricMulti(weights=[0.2, 0.8], metrics=[metric10, metric1000])
     multi.verbosity = 1
-    print multi 
     # create reference metrics (must be diff from metrics above used in MultiMetric, as they keep history)
     metric1000ref = getModule(ms1)
     metric10ref = getModule(ms2)

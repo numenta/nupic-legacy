@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -22,6 +22,7 @@
 
 """Unit tests for utils module."""
 
+import pickle
 import tempfile
 import unittest
 
@@ -145,7 +146,39 @@ class UtilsTest(unittest.TestCase):
     self.assertListEqual(ma.getSlidingWindow(),
                          resurrectedMa.getSlidingWindow())
     self.assertEqual(ma.total, resurrectedMa.total)
+    self.assertTrue(ma, resurrectedMa) #using the __eq__ method
 
+
+  def testSerialization(self):
+    """serialization using pickle"""
+    ma = MovingAverage(windowSize=3)
+
+    ma.next(3)
+    ma.next(4)
+    ma.next(5)
+
+    stored = pickle.dumps(ma)
+    restored = pickle.loads(stored)
+    self.assertEqual(restored, ma) 
+    self.assertEqual(ma.next(6), restored.next(6))
+
+
+  def testEquals(self):
+    ma = MovingAverage(windowSize=3)
+    maP = MovingAverage(windowSize=3)
+    self.assertEqual(ma, maP)
+    
+    maN = MovingAverage(windowSize=10)
+    self.assertNotEqual(ma, maN)
+
+    ma = MovingAverage(windowSize=2, existingHistoricalValues=[3.0, 4.0, 5.0])
+    maP = MovingAverage(windowSize=2, existingHistoricalValues=[3.0, 4.0, 5.0])
+    self.assertEqual(ma, maP)
+    maP.next(6)
+    self.assertNotEqual(ma, maP)
+    ma.next(6)
+    self.assertEqual(ma, maP)
+    
 
 
 

@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -160,21 +160,21 @@ class CLAModelTest(unittest.TestCase):
                      u'predictionSteps': [1]}
 
     data = [
-      {'_category': None,
+      {'_category': [None],
        '_reset': 0,
        '_sequenceId': 0,
        '_timestamp': datetime.datetime(2013, 12, 5, 0, 0),
        '_timestampRecordIdx': None,
        u'c0': datetime.datetime(2013, 12, 5, 0, 0),
        u'c1': 5.0},
-      {'_category': None,
+      {'_category': [None],
        '_reset': 0,
        '_sequenceId': 0,
        '_timestamp': datetime.datetime(2013, 12, 6, 0, 0),
        '_timestampRecordIdx': None,
        u'c0': datetime.datetime(2013, 12, 6, 0, 0),
        u'c1': 6.0},
-      {'_category': None,
+      {'_category': [None],
        '_reset': 0,
        '_sequenceId': 0,
        '_timestamp': datetime.datetime(2013, 12, 7, 0, 0),

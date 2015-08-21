@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -77,7 +77,6 @@ class CategoryEncoder(Encoder):
     self._bucketValues = None
 
 
-  ############################################################################
   def getDecoderOutputFieldTypes(self):
     """ [Encoder class virtual method override]
     """
@@ -87,15 +86,14 @@ class CategoryEncoder(Encoder):
     return (FieldMetaType.integer,)
 
 
-  ############################################################################
   def getWidth(self):
     return self.width
 
-  ############################################################################
+
   def getDescription(self):
     return self.description
 
-  ############################################################################
+
   def getScalars(self, input):
     """ See method description in base.py """
     if input == SENTINEL_VALUE_FOR_MISSING_DATA:
@@ -104,7 +102,6 @@ class CategoryEncoder(Encoder):
       return numpy.array([self.categoryToIndex.get(input, 0)])
 
 
-  ############################################################################
   def getBucketIndices(self, input):
     """ See method description in base.py """
 
@@ -115,8 +112,6 @@ class CategoryEncoder(Encoder):
       return self.encoder.getBucketIndices(self.categoryToIndex.get(input, 0))
 
 
-
-  ############################################################################
   def encodeIntoArray(self, input, output):
     # if not found, we encode category 0
     if input == SENTINEL_VALUE_FOR_MISSING_DATA:
@@ -131,7 +126,6 @@ class CategoryEncoder(Encoder):
       print "decoded:", self.decodedToStr(self.decode(output))
 
 
-  ############################################################################
   def decode(self, encoded, parentFieldName=''):
     """ See the function description in base.py
     """
@@ -167,7 +161,6 @@ class CategoryEncoder(Encoder):
     return ({fieldName: (outRanges, desc)}, [fieldName])
 
 
-  ############################################################################
   def closenessScores(self, expValues, actValues, fractional=True,):
     """ See the function description in base.py
 
@@ -188,8 +181,6 @@ class CategoryEncoder(Encoder):
     return numpy.array([closeness])
 
 
-
-  ############################################################################
   def getBucketValues(self):
     """ See the function description in base.py """
 
@@ -201,7 +192,7 @@ class CategoryEncoder(Encoder):
 
     return self._bucketValues
 
-  ############################################################################
+
   def getBucketInfo(self, buckets):
     """ See the function description in base.py
     """
@@ -216,8 +207,6 @@ class CategoryEncoder(Encoder):
                          encoding=bucketInfo.encoding)]
 
 
-
-  ############################################################################
   def topDownCompute(self, encoded):
     """ See the function description in base.py
     """

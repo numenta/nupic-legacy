@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -88,7 +88,7 @@ from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
 # Local imports
 
 
-#############################################################################
+
 def getCallerInfo(depth=2):
   """Utility function to get information about function callers
 
@@ -110,7 +110,8 @@ def getCallerInfo(depth=2):
     arg_class = args[3][arg_name].__class__.__name__
   return (method_name, filename, arg_class)
 
-#############################################################################
+
+
 def title(s=None, additional='', stream=sys.stdout, frame='-'):
   """Utility function to display nice titles
 
@@ -167,7 +168,8 @@ def title(s=None, additional='', stream=sys.stdout, frame='-'):
   print >> stream, s + additional
   print >> stream, '-' * length
 
-#############################################################################
+
+
 def bringToFront(title):
   """Bring a top-level window with a given title
      to the front on Windows"""
@@ -183,7 +185,7 @@ def bringToFront(title):
   set_foreground_window(hwnd)
 
 
-#############################################################################
+
 def getUserDocumentsPath():
   """
   Find the user's "Documents" directory (OS X), "My Documents" directory
@@ -233,7 +235,7 @@ def getUserDocumentsPath():
   return path
 
 
-#############################################################################
+
 def getArgumentDescriptions(f):
   """
   Get the arguments, default values, and argument descriptions for a function.
@@ -327,7 +329,7 @@ def getArgumentDescriptions(f):
   return args
 
 
-#############################################################################
+
 # TODO queryNumInwardIters appears to be unused and should probably be deleted
 #  from here altogether; it's likely an artifact of the legacy vision support.
 #def queryNumInwardIters(configPath, radialLength, numRepetitions=1):
@@ -344,7 +346,7 @@ def getArgumentDescriptions(f):
 #  return numTrainingItersTP * numRepetitions
 
 
-#############################################################################
+
 gLoggingInitialized = False
 def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   """
@@ -484,7 +486,7 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   gLoggingInitialized = True
 
 
-#############################################################################
+
 def reinitLoggingDir():
   """ (Re-)Initialize the loging directory for the calling application that
   uses initLogging() for logging configuration
@@ -498,7 +500,7 @@ def reinitLoggingDir():
     makeDirectoryFromAbsolutePath(os.path.dirname(_genLoggingFilePath()))
 
 
-#############################################################################
+
 def _genLoggingFilePath():
   """ Generate a filepath for the calling app """
   appName = os.path.splitext(os.path.basename(sys.argv[0]))[0] or 'UnknownApp'
@@ -512,7 +514,6 @@ def _genLoggingFilePath():
   
   
 
-#############################################################################
 def enableLoggingErrorDebugging():
   """ Overrides the python logging facility's Handler.handleError function to
   raise an exception instead of print and suppressing it.  This allows a deeper
@@ -565,50 +566,9 @@ def enableLoggingErrorDebugging():
     handler.handleError = handleErrorPatch
   
   return
-  
-  
-
-#############################################################################
-def clippedObj(obj, maxElementSize=64):
-  """
-  Return a clipped version of obj suitable for printing, This
-  is useful when generating log messages by printing data structures, but
-  don't want the message to be too long.
-
-  If passed in a dict, list, or namedtuple, each element of the structure's
-  string representation will be limited to 'maxElementSize' characters. This
-  will return a new object where the string representation of each element
-  has been truncated to fit within maxElementSize.
-  """
-
-  # Is it a named tuple?
-  if hasattr(obj, '_asdict'):
-    obj = obj._asdict()
-
-
-  # Printing a dict?
-  if isinstance(obj, dict):
-    objOut = dict()
-    for key,val in obj.iteritems():
-      objOut[key] = clippedObj(val)
-
-  # Printing a list?
-  elif hasattr(obj, '__iter__'):
-    objOut = []
-    for val in obj:
-      objOut.append(clippedObj(val))
-
-  # Some other object
-  else:
-    objOut = str(obj)
-    if len(objOut) > maxElementSize:
-      objOut = objOut[0:maxElementSize] + '...'
-
-  return objOut
 
 
 
-###############################################################################
 def intTo8ByteArray(inValue):
   """
   Converts an int to a packed byte array, with left most significant byte
@@ -631,7 +591,7 @@ def intTo8ByteArray(inValue):
   return packed_data
 
 
-###############################################################################
+
 def byteArrayToInt(packed_data):
   """
   Converts a byte array into an integer
@@ -647,7 +607,7 @@ def byteArrayToInt(packed_data):
          value[7]
 
 
-###############################################################################
+
 def getSpecialRowID():
   """
   Special row id is 0xFF FFFF FFFF FFFF FFFF (9 bytes of 0xFF)
@@ -659,7 +619,7 @@ def getSpecialRowID():
   return packed_data
 
 
-################################################################################
+
 _FLOAT_SECONDS_IN_A_DAY = 24.0 * 60.0 * 60.0
 def floatSecondsFromTimedelta(td):
   """ Convert datetime.timedelta to seconds in floating point """
@@ -669,7 +629,7 @@ def floatSecondsFromTimedelta(td):
   return sec
 
 
-#############################################################################
+
 def aggregationToMonthsSeconds(interval):
   """
   Return the number of months and seconds from an aggregation dict that 
@@ -707,7 +667,7 @@ def aggregationToMonthsSeconds(interval):
   return {'months': months, 'seconds': seconds}
 
 
-#############################################################################
+
 def aggregationDivide(dividend, divisor):
   """
   Return the result from dividing two dicts that represent date and time.
@@ -745,6 +705,3 @@ def aggregationDivide(dividend, divisor):
   
   else:
     return float(dividendMonthSec['seconds']) / divisorMonthSec['seconds']
-    
-
-

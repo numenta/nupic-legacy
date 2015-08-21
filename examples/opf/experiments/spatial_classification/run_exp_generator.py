@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -29,10 +29,10 @@ import os
 import json
 from optparse import OptionParser
 
-from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
+from nupic.swarming.exp_generator.ExpGenerator import expGenerator
 
 
-##############################################################################
+
 if __name__ == '__main__':
 
   helpString = \
@@ -41,7 +41,7 @@ if __name__ == '__main__':
   for an experiment. The searchDef argument should be the name of a python
   script with a getSearch() method which returns the search definition as a
   dict. The schema for this dict can be found at
-  py/nupic/frameworks/opf/exp_generator/experimentDescriptionSchema.json
+  py/nupic/swarming/exp_generator/experimentDescriptionSchema.json
   """
   
   
