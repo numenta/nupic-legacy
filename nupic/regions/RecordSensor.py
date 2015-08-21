@@ -417,7 +417,7 @@ class RecordSensor(PyRegion):
       outputs['temporalTopDownOut'][:] = numpy.array(scalars)
       self._outputValues['temporalTopDownEncodings'] = encodings
 
-      assert(len(spatialTopDownOut) == len(temporalTopDownOut), "Error: "
+      assert len(spatialTopDownOut) == len(temporalTopDownOut), ("Error: "
              "spatialTopDownOut and temporalTopDownOut should be the same size")
 
 
