@@ -155,16 +155,14 @@ class BitHistory(object):
       print "updated DC for %s, bucket %d to %f" % (self._id, bucketIdx, dc)
 
 
-  def infer(self, iteration, votes):
+  def infer(self, votes):
     """Look up and return the votes for each bucketIdx for this bit.
 
     Parameters:
     --------------------------------------------------------------------
-    iteration:  the learning iteration number, which is only incremented
-                  when learning is enabled
     votes:      a numpy array, initialized to all 0's, that should be filled
-                  in with the votes for each bucket. The vote for bucket index N
-                  should go into votes[N].
+                in with the votes for each bucket. The vote for bucket index N
+                should go into votes[N].
     """
     # Place the duty cycle into the votes and update the running total for
     # normalization
@@ -392,7 +390,7 @@ class CLAClassifier(object):
     # For each active bit in the activationPattern, get the classification
     # votes
     if infer:
-      retval = self.infer(recordNum, patternNZ, classification)
+      retval = self.infer(patternNZ, classification)
       
     # ------------------------------------------------------------------------
     # Learning:
@@ -471,7 +469,7 @@ class CLAClassifier(object):
     return retval
   
   
-  def infer(self, recordNum, patternNZ, classification):
+  def infer(self, patternNZ, classification):
     """
     Return the inference value from one input sample. The actual 
     learning happens in compute(). The method customCompute() is here to 
@@ -479,11 +477,6 @@ class CLAClassifier(object):
 
     Parameters:
     --------------------------------------------------------------------
-    recordNum:  Record number of this input pattern. Record numbers should
-                normally increase sequentially by 1 each time unless there
-                are missing records in the dataset. Knowing this information
-                insures that we don't get confused by missing records.
-
     patternNZ:      list of the active indices from the output below
     classification: dict of the classification information:
                       bucketIdx: index of the encoder bucket
@@ -529,7 +522,7 @@ class CLAClassifier(object):
           continue
 
         bitVotes.fill(0)
-        history.infer(iteration=self._learnIteration, votes=bitVotes)
+        history.infer(votes=bitVotes)
 
         sumVotes += bitVotes
 
@@ -548,7 +541,6 @@ class CLAClassifier(object):
       retval[nSteps] = sumVotes
     
     return retval
-
     
 
   def __getstate__(self):
