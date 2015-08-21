@@ -59,7 +59,7 @@ class BitHistory(object):
     classifier:    instance of the CLAClassifier that owns us
     bitNum:        activation pattern bit number this history is for,
                         used only for debug messages
-    nSteps:        number of steps of predition this history is for, used
+    nSteps:        number of steps of prediction this history is for, used
                         only for debug messages
     """
     # Store reference to the classifier
@@ -250,9 +250,8 @@ class CLAClassifier(object):
   "classification") describing the input to the system at that time step.
 
   When learning, for every bit in activation pattern, it records a history of 
-  the
-  classification each time that bit was active. The history is weighted so that
-  more recent activity has a bigger impact than older activity. The alpha
+  the classification each time that bit was active. The history is weighted so 
+  that more recent activity has a bigger impact than older activity. The alpha
   parameter controls this weighting.
 
   For inference, it takes an ensemble approach. For every active bit in the
@@ -342,8 +341,8 @@ class CLAClassifier(object):
                 insures that we don't get confused by missing records.
     patternNZ:  list of the active indices from the output below
     classification: dict of the classification information:
-                      bucketIdx: index of the encoder bucket
-                      actValue:  actual value going into the encoder
+                    bucketIdx: index of the encoder bucket
+                    actValue:  actual value going into the encoder
     learn:      if true, learn this sample
     infer:      if true, perform inference
 
@@ -479,8 +478,8 @@ class CLAClassifier(object):
     --------------------------------------------------------------------
     patternNZ:      list of the active indices from the output below
     classification: dict of the classification information:
-                      bucketIdx: index of the encoder bucket
-                      actValue:  actual value going into the encoder
+                    bucketIdx: index of the encoder bucket
+                    actValue:  actual value going into the encoder
 
     retval:     dict containing inference results, one entry for each step in
                 self.steps. The key is the number of steps, the value is an

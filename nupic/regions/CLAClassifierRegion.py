@@ -341,7 +341,7 @@ class CLAClassifierRegion(PyRegion):
     which is called when you run the network.
     
     WARNING: The method customCompute() is here to maintain backward 
-    compatibility. This method is deprecated, and is to be removed.
+    compatibility. This method is deprecated, and will be removed.
     Use network.run() instead, which will call the compute() method.
 
     Parameters:
