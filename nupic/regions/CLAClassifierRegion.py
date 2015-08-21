@@ -145,7 +145,7 @@ class CLAClassifierRegion(PyRegion):
           required=True,
           count=1, 
           constraints='',
-          defaultValue=1000, # Large default value for backward compatibility 
+          defaultValue=None, 
           accessMode='Create'),
 
         steps=dict(
@@ -365,6 +365,11 @@ class CLAClassifierRegion(PyRegion):
 
   def getOutputElementCount(self, outputName):
     """Returns the width of dataOut."""
+    
+    # Check if classifier has a 'maxCategoryCount' attribute
+    if not hasattr(self, "maxCategoryCount"):
+      # Large default value for backward compatibility 
+      self.maxCategoryCount = 1000
 
     if outputName == "categoriesOut":
       return len(self.stepsList)
