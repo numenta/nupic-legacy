@@ -327,7 +327,7 @@ def overlapsForRelativeAreas(n, w, initPosition, initRadius, dPosition=None,
   outputA = encode(encoder, np.array(initPosition), initRadius)
 
   for i in range(num):
-    newPosition = initPosition if dPosition == None else (
+    newPosition = initPosition if dPosition is None else (
       initPosition + (i + 1) * dPosition)
     newRadius = initRadius + (i + 1) * dRadius
     outputB = encode(encoder, newPosition, newRadius)
