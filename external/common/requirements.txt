@@ -7,7 +7,7 @@ mock==1.0.1
 ordereddict==1.1
 pillow==2.3.0
 psutil==1.0.1
-pytest==2.4.2
+pytest==2.5.1
 pytest-cov==1.6
 pytest-xdist==1.8
 python-dateutil==2.1
