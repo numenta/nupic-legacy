@@ -25,6 +25,8 @@ This file implements the CLA Classifier region. See the comments in the class
 definition of CLAClassifierRegion for a description.
 """
 
+import warnings
+
 from PyRegion import PyRegion
 from nupic.algorithms.cla_classifier_factory import CLAClassifierFactory
 
@@ -59,11 +61,6 @@ class CLAClassifierRegion(PyRegion):
       description=CLAClassifierRegion.__doc__,
       singleNodeOnly=True,
 
-      # The inputs and outputs are not used in this region because they are
-      #  either sparse vectors or dictionaries and hence don't fit the "vector
-      #  of real" input/output pattern.
-      # There is a custom compute() function provided that accepts the
-      #  inputs and outputs.
       inputs=dict(
         categoryIn=dict(
           description='Vector of categories of the input sample',
@@ -218,6 +215,13 @@ class CLAClassifierRegion(PyRegion):
     self.recordNum = 0
     self._initEphemerals()
 
+    # Flag to know if the compute() function is ever called. This is to 
+    # prevent backward compatibilities issues with the customCompute() method
+    # being called at the same time as the compute() method. Only compute() 
+    # should be called via network.run(). This flag will be removed once we 
+    # get to cleaning up the clamodel.py file.
+    self._computeFlag = False 
+
 
   def _initEphemerals(self):
     pass
@@ -271,6 +275,12 @@ class CLAClassifierRegion(PyRegion):
     @param outputs -- outputs of the classifier region
 
     """
+
+    # This flag helps to prevent double-computation, in case the deprecated 
+    # customCompute() method is being called in addition to compute() called 
+    # when network.run() is called
+    if not self._computeFlag:
+      self._computeFlag = True
 
     # An input can potentially belong to multiple categories. 
     # If a category value is < 0, it means that the input does not belong to 
@@ -329,12 +339,14 @@ class CLAClassifierRegion(PyRegion):
     Just return the inference value from one input sample. The actual 
     learning happens in compute() -- if, and only if learning is enabled -- 
     which is called when you run the network.
-    The method customCompute() is here to maintain backward compatibility. 
+    
+    WARNING: The method customCompute() is here to maintain backward 
+    compatibility. This method is deprecated, and is to be removed.
+    Use network.run() instead, which will call the compute() method.
 
     Parameters:
     --------------------------------------------------------------------
-    recordNum:      Record number of the input sample. Not in use here. Kept 
-                    for backward compatibility.
+    recordNum:      Record number of the input sample.
     patternNZ:      List of the active indices from the output below
     classification: Dict of the classification information:
                       bucketIdx: index of the encoder bucket
@@ -351,7 +363,26 @@ class CLAClassifierRegion(PyRegion):
                     4 : [0.2, 0.4, 0.3, 0.5]}
     """
 
-    return self._claClassifier.infer(recordNum, patternNZ, classification)
+    # If the compute flag has not been initialized (for example if we 
+    # restored a model from an old checkpoint) initialize it to False.
+    if not hasattr(self, "_computeFlag"):
+      self._computeFlag = False
+
+    if self._computeFlag:
+      # Will raise an exception if the deprecated method customCompute() is 
+      # being used at the same time as the compute function.
+      warnings.simplefilter('error', DeprecationWarning)
+      warnings.warn("The customCompute() method should not be "
+                    "called at the same time as the compute() "
+                    "method. The compute() method is called "
+                    "whenever network.run() is called.",
+                    DeprecationWarning)
+
+    return self._claClassifier.compute(recordNum,
+                                       patternNZ,
+                                       classification,
+                                       self.learningMode,
+                                       self.inferenceMode)
 
 
   def getOutputValues(self, outputName):
