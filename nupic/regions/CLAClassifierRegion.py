@@ -351,7 +351,7 @@ class CLAClassifierRegion(PyRegion):
                     4 : [0.2, 0.4, 0.3, 0.5]}
     """
 
-    return self._claClassifier.infer(patternNZ, classification)
+    return self._claClassifier.infer(recordNum, patternNZ, classification)
 
 
   def getOutputValues(self, outputName):

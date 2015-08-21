@@ -392,7 +392,7 @@ class CLAClassifier(object):
     # For each active bit in the activationPattern, get the classification
     # votes
     if infer:
-      retval = self.infer(patternNZ, classification)
+      retval = self.infer(recordNum, patternNZ, classification)
       
     # ------------------------------------------------------------------------
     # Learning:
@@ -471,7 +471,7 @@ class CLAClassifier(object):
     return retval
   
   
-  def infer(self, patternNZ, classification):
+  def infer(self, recordNum, patternNZ, classification):
     """
     Return the inference value from one input sample. The actual 
     learning happens in compute(). The method customCompute() is here to 
@@ -479,6 +479,11 @@ class CLAClassifier(object):
 
     Parameters:
     --------------------------------------------------------------------
+    recordNum:  Record number of this input pattern. Record numbers should
+                normally increase sequentially by 1 each time unless there
+                are missing records in the dataset. Knowing this information
+                insures that we don't get confused by missing records.
+
     patternNZ:      list of the active indices from the output below
     classification: dict of the classification information:
                       bucketIdx: index of the encoder bucket
