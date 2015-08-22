@@ -55,6 +55,7 @@ class CLAClassifierRegion(PyRegion):
   and infer multi-step predictions for a number of steps in advance.
   """
 
+
   @classmethod
   def getSpec(cls):
     ns = dict(
@@ -137,12 +138,13 @@ class CLAClassifierRegion(PyRegion):
 
         maxCategoryCount=dict(
           description='The maximal number of categories the '
-                        'classifier will distinguish between.',
+                      'classifier will distinguish between.',
           dataType='UInt32',
           required=True,
-          count=1, 
+          count=1,
           constraints='',
-          defaultValue=None, 
+          # arbitrarily large value for backward compatibility 
+          defaultValue=1000,
           accessMode='Create'),
 
         steps=dict(
@@ -336,7 +338,7 @@ class CLAClassifierRegion(PyRegion):
           outputs['probabilities'][flatIndex] = 0.0
 
     self.recordNum += 1
-    
+
 
   def customCompute(self, recordNum, patternNZ, classification):
     """
@@ -400,7 +402,7 @@ class CLAClassifierRegion(PyRegion):
 
   def getOutputElementCount(self, outputName):
     """Returns the width of dataOut."""
-    
+
     # Check if classifier has a 'maxCategoryCount' attribute
     if not hasattr(self, "maxCategoryCount"):
       # Large default value for backward compatibility 
@@ -414,6 +416,7 @@ class CLAClassifierRegion(PyRegion):
       return self.maxCategoryCount
     else:
       raise ValueError("Unknown output {}.".format(outputName))
+
 
 
 if __name__ == "__main__":
