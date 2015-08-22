@@ -291,21 +291,26 @@ class CLAClassifierRegion(PyRegion):
     activeCells = inputs["bottomUpIn"]
     patternNZ = activeCells.nonzero()[0]
 
+    # ==========================================================================
     # Allow to train on multiple input categories. 
     # Do inference first, and then train on all input categories.
+
+    # --------------------------------------------------------------------------
     #   1. Call classifier. Don't train. Just inference. Train after.
+
+    # Dummy classification input, because this param is required. Learning is 
+    # off, so the classifier is not learning this input. Inference only here.
+    classificationIn = {"actValue": 0, "bucketIdx": 0}
     clResults = self._claClassifier.compute(recordNum=self.recordNum,
                                             patternNZ=patternNZ,
-                                            classification=None,
+                                            classification=classificationIn,
                                             learn=False,
                                             infer=self.inferenceMode)
 
     for category in categories:
-      classificationIn = {
-        "bucketIdx": int(category),
-        "actValue": int(category)
-        }
+      classificationIn = {"bucketIdx": int(category), "actValue": int(category)}
 
+      # ------------------------------------------------------------------------
       #   2. Train classifier, no inference
       self._claClassifier.compute(recordNum=self.recordNum,
                                   patternNZ=patternNZ,
