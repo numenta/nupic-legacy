@@ -220,7 +220,7 @@ class CLAClassifierRegion(PyRegion):
     # being called at the same time as the compute() method. Only compute() 
     # should be called via network.run(). This flag will be removed once we 
     # get to cleaning up the clamodel.py file.
-    self._computeFlag = False 
+    self._computeFlag = False
 
 
   def _initEphemerals(self):
@@ -279,8 +279,7 @@ class CLAClassifierRegion(PyRegion):
     # This flag helps to prevent double-computation, in case the deprecated 
     # customCompute() method is being called in addition to compute() called 
     # when network.run() is called
-    if not self._computeFlag:
-      self._computeFlag = True
+    self._computeFlag = True
 
     # An input can potentially belong to multiple categories. 
     # If a category value is < 0, it means that the input does not belong to 
