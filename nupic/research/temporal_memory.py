@@ -64,6 +64,13 @@ class TemporalMemory(object):
     @param permanenceDecrement       (float) Amount by which permanences of synapses are decremented during learning.
     @param predictedSegmentDecrement (float) Amount by which active permanences of synapses of previously predicted but inactive segments are decremented.
     @param seed                      (int)   Seed for the random number generator.
+
+    Notes:
+
+    predictedSegmentDecrement: A good value is just a bit larger than
+    (the column-level sparsity * permanenceIncrement). So, if column-level
+    sparsity is 2% and permanenceIncrement is 0.01, this parameter should be
+    something like 4% * 0.01 = 0.0004).
     """
     # Error checking
     if not len(columnDimensions):
