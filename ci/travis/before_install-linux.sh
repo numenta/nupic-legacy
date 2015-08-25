@@ -46,6 +46,12 @@ pip install numpy==1.9.2 --user
 echo "pip install wheel --user"
 pip install wheel --user
 
+# Fetch nupic.core build
+export NUPIC_CORE_COMMITISH=`python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"`
+echo "Downloading nupic.core build with SHA ${NUPIC_CORE_COMMITISH}..."
+curl -O "https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-linux64.tar.gz"
+tar xzf "nupic_core-${NUPIC_CORE_COMMITISH}-linux64.tar.gz"
+
 # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
 # See: https://github.com/travis-ci/travis-cookbooks/issues/155
 # Commented out to test to see if it works witout it in container mode.
