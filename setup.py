@@ -203,18 +203,14 @@ def findRequirements(nupicCoreReleaseDir):
   install_requirements option.
   """
   requirementsPath = os.path.join(REPO_DIR, "external/common/requirements.txt")
-  coreRequirementsPath = os.path.join(nupicCoreReleaseDir, "requirements.txt")
-  
+  requirements = parse_file(requirementsPath)
+
   dependencies = []
   # use develop nupiccore bindings. not PYPI
   eggFiles = glob.glob(os.path.join(nupicCoreReleaseDir, "*.egg"))
   for egg in eggFiles:
     dependencies.append(egg)
 
-  requirements = parse_file(requirementsPath)
-
-  requirements += parse_file(coreRequirementsPath)
-   
   return requirements, dependencies
 
 
@@ -339,32 +335,7 @@ def prepareNupicCore(options, platform, bitness):
 
 
 
-def copyProtoFiles(nupicCoreReleaseDir):
-  # Copy proto files located at nupic.core dir into nupic dir
-  print "Copying capnp files from nupic core"
-  protoSourceDir = glob.glob(os.path.join(nupicCoreReleaseDir, "include/nupic/proto/"))[0]
-  protoTargetDir = REPO_DIR + "/nupic/bindings/proto"
-  if not os.path.exists(protoTargetDir):
-    os.makedirs(protoTargetDir)
-  for fileName in glob.glob(protoSourceDir + "/*.capnp"):
-    shutil.copy(fileName, protoTargetDir)
-
-
-
-def postProcess():
-  # Copy binaries located at nupic.core dir into source dir
-  print ("Copying binaries from " + nupicCoreReleaseDir + "/bin" + " to "
-         + REPO_DIR + "/bin...")
-  if not os.path.exists(REPO_DIR + "/bin"):
-    os.makedirs(REPO_DIR + "/bin")
-
-  for binFile in glob.glob(nupicCoreReleaseDir + "/bin/*"):
-    shutil.copy(binFile, REPO_DIR + "/bin")
-
 if __name__ == "__main__":
-  print "setuptools version: {}".format(setuptools.__version__)
-  print "numpy version: {}".format(numpy.__version__)
-
   options = getCommandLineOptions()
   platform, bitness = getPlatformInfo()
 
@@ -381,8 +352,6 @@ if __name__ == "__main__":
 
     nupicCoreReleaseDir = prepareNupicCore(options, platform, bitness)
     print "nupic core release directory: {}".format(nupicCoreReleaseDir)
-
-    copyProtoFiles(nupicCoreReleaseDir)
 
     requirements, dependencies = findRequirements(nupicCoreReleaseDir)
     setup(
@@ -428,8 +397,5 @@ if __name__ == "__main__":
 
     For more information, see http://numenta.org or the NuPIC wiki at https://github.com/numenta/nupic/wiki.
     """)
-
-    if haveBuild:
-      postProcess()
   finally:
     os.chdir(cwd)
