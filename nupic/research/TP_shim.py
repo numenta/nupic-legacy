@@ -126,6 +126,7 @@ class MonitoredTPShim(MonitoredTemporalMemory):
                permanenceMax=1.0,
                globalDecay=0.10,
                activationThreshold=12,
+               predictedSegmentDecrement=0,
                seed=42):
     """
     Translate parameters and initialize member variables specific to `TP.py`.
@@ -140,6 +141,7 @@ class MonitoredTPShim(MonitoredTemporalMemory):
       maxNewSynapseCount=newSynapseCount,
       permanenceIncrement=permanenceInc,
       permanenceDecrement=permanenceDec,
+      predictedSegmentDecrement=predictedSegmentDecrement,
       seed=seed)
 
     self.infActiveState = {"t": None}
