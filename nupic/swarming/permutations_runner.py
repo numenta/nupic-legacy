@@ -37,7 +37,7 @@ import subprocess
 import tempfile
 import uuid
 
-from nupic.support import object_json as json
+from nupic.swarming import object_json as json
 import nupic.database.ClientJobsDAO as cjdao
 from nupic.swarming import HypersearchWorker
 from nupic.swarming.hypersearch import utils

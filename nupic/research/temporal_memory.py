@@ -64,6 +64,13 @@ class TemporalMemory(object):
     @param permanenceDecrement       (float) Amount by which permanences of synapses are decremented during learning.
     @param predictedSegmentDecrement (float) Amount by which active permanences of synapses of previously predicted but inactive segments are decremented.
     @param seed                      (int)   Seed for the random number generator.
+
+    Notes:
+
+    predictedSegmentDecrement: A good value is just a bit larger than
+    (the column-level sparsity * permanenceIncrement). So, if column-level
+    sparsity is 2% and permanenceIncrement is 0.01, this parameter should be
+    something like 4% * 0.01 = 0.0004).
     """
     # Error checking
     if not len(columnDimensions):
@@ -111,7 +118,7 @@ class TemporalMemory(object):
      winnerCells,
      activeSegments,
      predictiveCells,
-     predictedColumns,
+     predictedActiveColumns,
      matchingSegments,
      matchingCells) = self.computeFn(activeColumns,
                                      self.predictiveCells,
@@ -167,7 +174,7 @@ class TemporalMemory(object):
 
     (_activeCells,
      _winnerCells,
-     predictedColumns,
+     predictedActiveColumns,
      predictedInactiveCells) = self.activateCorrectlyPredictiveCells(
        prevPredictiveCells,
        prevMatchingCells,
@@ -179,7 +186,7 @@ class TemporalMemory(object):
     (_activeCells,
      _winnerCells,
      learningSegments) = self.burstColumns(activeColumns,
-                                           predictedColumns,
+                                           predictedActiveColumns,
                                            prevActiveCells,
                                            prevWinnerCells,
                                            connections)
@@ -206,7 +213,7 @@ class TemporalMemory(object):
             winnerCells,
             activeSegments,
             predictiveCells,
-            predictedColumns,
+            predictedActiveColumns,
             matchingSegments,
             matchingCells)
 
@@ -238,7 +245,7 @@ class TemporalMemory(object):
         - if in active column
           - mark it as active
           - mark it as winner cell
-          - mark column as predicted
+          - mark column as predicted => active
         - if not in active column
           - mark it as an predicted but inactive cell
 
@@ -248,12 +255,12 @@ class TemporalMemory(object):
     @return (tuple) Contains:
                       `activeCells`               (set),
                       `winnerCells`               (set),
-                      `predictedColumns`          (set),
+                      `predictedActiveColumns`    (set),
                       `predictedInactiveCells`    (set)
     """
     activeCells = set()
     winnerCells = set()
-    predictedColumns = set()
+    predictedActiveColumns = set()
     predictedInactiveCells = set()
 
     for cell in prevPredictiveCells:
@@ -262,7 +269,7 @@ class TemporalMemory(object):
       if column in activeColumns:
         activeCells.add(cell)
         winnerCells.add(cell)
-        predictedColumns.add(column)
+        predictedActiveColumns.add(column)
 
     if self.predictedSegmentDecrement > 0:
       for cell in prevMatchingCells:
@@ -271,12 +278,15 @@ class TemporalMemory(object):
         if column not in activeColumns:
           predictedInactiveCells.add(cell)
 
-    return activeCells, winnerCells, predictedColumns, predictedInactiveCells
+    return (activeCells,
+            winnerCells,
+            predictedActiveColumns,
+            predictedInactiveCells)
 
 
   def burstColumns(self,
                    activeColumns,
-                   predictedColumns,
+                   predictedActiveColumns,
                    prevActiveCells,
                    prevWinnerCells,
                    connections):
@@ -295,7 +305,7 @@ class TemporalMemory(object):
             - mark the segment as learning
 
     @param activeColumns                   (set)         Indices of active columns in `t`
-    @param predictedColumns                (set)         Indices of predicted columns in `t`
+    @param predictedActiveColumns          (set)         Indices of predicted => active columns in `t`
     @param prevActiveCells                 (set)         Indices of active cells in `t-1`
     @param prevWinnerCells                 (set)         Indices of winner cells in `t-1`
     @param connections                     (Connections) Connectivity of layer
@@ -309,9 +319,9 @@ class TemporalMemory(object):
     winnerCells = set()
     learningSegments = set()
 
-    unpredictedColumns = activeColumns - predictedColumns
+    unpredictedActiveColumns = activeColumns - predictedActiveColumns
 
-    for column in unpredictedColumns:
+    for column in unpredictedActiveColumns:
       cells = self.cellsForColumn(column)
       activeCells.update(cells)
 
