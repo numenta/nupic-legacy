@@ -50,7 +50,7 @@ class TemporalMemory(object):
                maxNewSynapseCount=20,
                permanenceIncrement=0.10,
                permanenceDecrement=0.10,
-               predictedSegmentDecrement = 0.0,
+               predictedSegmentDecrement=0.0,
                seed=42):
     """
     @param columnDimensions          (list)  Dimensions of the column space
@@ -110,65 +110,25 @@ class TemporalMemory(object):
   def compute(self, activeColumns, learn=True):
     """
     Feeds input record through TM, performing inference and learning.
-    Updates member variables with new state.
 
-    @param activeColumns (set) Indices of active columns in `t`
+    @param activeColumns (set)  Indices of active columns
+    @param learn         (bool) Whether or not learning is enabled
+
+    Updates member variables:
+      - `activeCells`     (set)
+      - `winnerCells`     (set)
+      - `activeSegments`  (set)
+      - `predictiveCells` (set)
+      - `matchingSegments`(set)
+      - `matchingCells`   (set)
     """
-    (activeCells,
-     winnerCells,
-     activeSegments,
-     predictiveCells,
-     predictedActiveColumns,
-     matchingSegments,
-     matchingCells) = self.computeFn(activeColumns,
-                                     self.predictiveCells,
-                                     self.activeSegments,
-                                     self.activeCells,
-                                     self.winnerCells,
-                                     self.matchingSegments,
-                                     self.matchingCells,
-                                     self.connections,
-                                     learn=learn)
+    prevPredictiveCells = self.predictiveCells
+    prevActiveSegments = self.activeSegments
+    prevActiveCells = self.activeCells
+    prevWinnerCells = self.winnerCells
+    prevMatchingSegments = self.matchingSegments
+    prevMatchingCells = self.matchingCells
 
-    self.activeCells = activeCells
-    self.winnerCells = winnerCells
-    self.activeSegments = activeSegments
-    self.predictiveCells = predictiveCells
-    self.matchingSegments = matchingSegments
-    self.matchingCells = matchingCells
-
-  def computeFn(self,
-                activeColumns,
-                prevPredictiveCells,
-                prevActiveSegments,
-                prevActiveCells,
-                prevWinnerCells,
-                prevMatchingSegments,
-                prevMatchingCells,
-                connections,
-                learn=True):
-    """
-    'Functional' version of compute.
-    Returns new state.
-
-    @param activeColumns         (set)         Indices of active columns in `t`
-    @param prevPredictiveCells   (set)         Indices of predictive cells in `t-1`
-    @param prevActiveSegments    (set)         Indices of active segments in `t-1`
-    @param prevActiveCells       (set)         Indices of active cells in `t-1`
-    @param prevWinnerCells       (set)         Indices of winner cells in `t-1`
-    @param prevMatchingSegments  (set)         Indices of matching segments in `t-1`
-    @param prevMatchingCells     (set)         Indices of matching cells in `t-1`
-    @param connections           (Connections) Connectivity of layer
-    @param learn                 (bool)        Whether or not learning is enabled
-
-    @return (tuple) Contains:
-                      `activeCells`     (set),
-                      `winnerCells`     (set),
-                      `activeSegments`  (set),
-                      `predictiveCells` (set),
-                      'matchingSegments'(set),
-                      'matchingCells'   (set)
-    """
     activeCells = set()
     winnerCells = set()
 
@@ -189,7 +149,7 @@ class TemporalMemory(object):
                                            predictedActiveColumns,
                                            prevActiveCells,
                                            prevWinnerCells,
-                                           connections)
+                                           self.connections)
 
     activeCells.update(_activeCells)
     winnerCells.update(_winnerCells)
@@ -200,22 +160,21 @@ class TemporalMemory(object):
                            prevActiveCells,
                            winnerCells,
                            prevWinnerCells,
-                           connections,
+                           self.connections,
                            predictedInactiveCells,
                            prevMatchingSegments)
 
     (activeSegments,
      predictiveCells,
      matchingSegments,
-     matchingCells) = self.computePredictiveCells(activeCells, connections)
+     matchingCells) = self.computePredictiveCells(activeCells, self.connections)
 
-    return (activeCells,
-            winnerCells,
-            activeSegments,
-            predictiveCells,
-            predictedActiveColumns,
-            matchingSegments,
-            matchingCells)
+    self.activeCells = activeCells
+    self.winnerCells = winnerCells
+    self.activeSegments = activeSegments
+    self.predictiveCells = predictiveCells
+    self.matchingSegments = matchingSegments
+    self.matchingCells = matchingCells
 
 
   def reset(self):
