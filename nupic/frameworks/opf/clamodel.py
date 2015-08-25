@@ -47,6 +47,7 @@ from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
 from nupic.frameworks.opf.opfutils import (InferenceType,
                       InferenceElement,
                       SensorInput,
+                      ClassifierInput,
                       initLogger)
 
 
@@ -406,6 +407,7 @@ class CLAModel(Model):
     # Store the index and name of the predictedField
     results.predictedFieldIdx = self._predictedFieldIdx
     results.predictedFieldName = self._predictedFieldName
+    results.classifierInput = self._getClassifierInputRecord(inputRecord)
 
     # =========================================================================
     # output
@@ -441,6 +443,16 @@ class CLAModel(Model):
                        sequenceReset=resetOut,
                        category=inputRecordCategory)
 
+  def _getClassifierInputRecord(self, inputRecord):
+    """
+    inputRecord - dict containing the input to the sensor
+
+    Return a 'ClassifierInput' object
+    """
+    absoluteValue = inputRecord[self._predictedFieldName]
+    bucketIdx = self._classifierInputEncoder.getBucketIndices(absoluteValue)[0]
+    return ClassifierInput(dataRow=absoluteValue,
+                           bucketIndex=bucketIdx)
 
   def _sensorCompute(self, inputRecord):
     sensor = self._getSensorRegion()
@@ -778,6 +790,7 @@ class CLAModel(Model):
     # the values are the relative likelihoods.
     inferences[InferenceElement.multiStepPredictions] = dict()
     inferences[InferenceElement.multiStepBestPredictions] = dict()
+    inferences[InferenceElement.multiStepBucketLikelihoods] = dict()
 
 
     # ======================================================================
@@ -814,6 +827,12 @@ class CLAModel(Model):
       likelihoodsDict = CLAModel._removeUnlikelyPredictions(
           likelihoodsDict, minLikelihoodThreshold, maxPredictionsPerStep)
 
+      # calculate likelihood for each bucket
+      bucketLikelihood = {}
+      for k in likelihoodsDict.keys():
+        bucketLikelihood[self._classifierInputEncoder.getBucketIndices(k)[0]] = \
+                                                                likelihoodsDict[k]
+
       # ---------------------------------------------------------------------
       # If we have a delta encoder, we have to shift our predicted output value
       #  by the sum of the deltas
@@ -839,6 +858,12 @@ class CLAModel(Model):
             # and the current predicted delta
             offsetDict[absoluteValue+float(k)+sumDelta] = v
 
+        # calculate likelihood for each bucket
+        bucketLikelihoodOffset = {}
+        for k in offsetDict.keys():
+          bucketLikelihoodOffset[self._classifierInputEncoder.getBucketIndices(k)[0]] = \
+                                                                  offsetDict[k]
+
         # Push the current best delta to the history buffer for reconstructing the final delta
         if bestActValue is not None:
           predHistory.append(bestActValue)
@@ -851,9 +876,14 @@ class CLAModel(Model):
         if len(offsetDict)>0:
           inferences[InferenceElement.multiStepPredictions][steps] = \
                                                       offsetDict
+          inferences[InferenceElement.multiStepBucketLikelihoods][steps] = \
+                                                        bucketLikelihoodOffset
         else:
           inferences[InferenceElement.multiStepPredictions][steps] = \
                                                         likelihoodsDict
+          inferences[InferenceElement.multiStepBucketLikelihoods][steps] = \
+                                                        bucketLikelihood
+
         if bestActValue is None:
           inferences[InferenceElement.multiStepBestPredictions][steps] = \
                                                   None
@@ -871,6 +901,9 @@ class CLAModel(Model):
                                                       likelihoodsDict
         inferences[InferenceElement.multiStepBestPredictions][steps] = \
                                                 bestActValue
+        inferences[InferenceElement.multiStepBucketLikelihoods][steps] = \
+                                                      bucketLikelihood
+
 
     return inferences
 
