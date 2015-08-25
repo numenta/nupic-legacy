@@ -190,6 +190,8 @@ def getModule(metricSpec):
     return MetricMAPE(metricSpec)
   elif metricName == 'multi':
     return MetricMulti(metricSpec)
+  elif metricName == 'negLL':
+    return MetricNegLL(metricSpec)
   else:
     raise Exception("Unsupported metric type: %s" % metricName)
 
@@ -261,7 +263,7 @@ class MetricsIface(object):
     """
 
   @abstractmethod
-  def addInstance(self, groundTruth, prediction, record = None):
+  def addInstance(self, groundTruth, prediction, record = None, result = None):
     """ add one instance consisting of ground truth and a prediction.
 
       Parameters:
@@ -277,6 +279,9 @@ class MetricsIface(object):
       predictionEncoding:
         The binary encoding of the prediction value (as a numpy array). Right
         now this is only used by CLA networks
+
+      result:
+        An ModelResult namedtuple (see opfutils.py)
 
         return:
             The average error as computed over the metric's window size
@@ -305,7 +310,7 @@ class AggregateMetric(MetricsIface):
   ___metaclass__ = ABCMeta
 
   #FIXME @abstractmethod - this should be marked abstract method and required to be implemented
-  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
+  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result):
     """
         Updates the accumulated error given the prediction and the
         ground truth.
@@ -322,6 +327,8 @@ class AggregateMetric(MetricsIface):
 
             If historyBuffer = None,  it means that no history is being kept.
 
+        result: An ModelResult namedtuple (see opfutils.py), used for advanced
+          metric calculation (e.g., NegLL metric)
 
           retval:
             The new accumulated error. That is:
@@ -446,7 +453,7 @@ class AggregateMetric(MetricsIface):
         return None
 
 
-  def addInstance(self, groundTruth, prediction, record = None):
+  def addInstance(self, groundTruth, prediction, record = None, result = None):
 
     # This base class does not support time shifting the ground truth or a
     #  subErrorMetric.
@@ -470,7 +477,7 @@ class AggregateMetric(MetricsIface):
     # If there is a sub-metric, chain into it's addInstance
     # Accumulate the error
     self.accumulatedError = self.accumulate(groundTruth, prediction,
-                                            self.accumulatedError, self.history)
+                                            self.accumulatedError, self.history, result)
 
     self.steps += 1
     return self._compute()
@@ -484,12 +491,51 @@ class AggregateMetric(MetricsIface):
     return self.aggregateError
 
 
+class MetricNegLL(AggregateMetric):
+  """
+      computes negative log-likelihood
+  """
+  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result):
+    bucketll = result.inferences['multiStepBucketLikelihoods']
+    bucketIdxTruth = result.classifierInput.bucketIndex
+
+    # a manually set minimum prediction probability so that the log(LL) doesn't blow up
+    minProb = 0.00001
+    LL = 0
+    for step in bucketll.keys():
+      if bucketIdxTruth in bucketll[step].keys():
+        prob = bucketll[step][bucketIdxTruth]
+      else:
+        prob = 0
+
+      if prob < minProb:
+        prob = minProb
+
+      LL += np.log(prob)
+
+    negLL = -LL
+    accumulatedError += negLL
+
+    if historyBuffer is not None:
+      historyBuffer.append(negLL)
+      if len(historyBuffer) > self.spec.params["window"] :
+        accumulatedError -= historyBuffer.popleft()
+
+    return accumulatedError
+
+  def aggregate(self, accumulatedError, historyBuffer, steps):
+    n = steps
+    if historyBuffer is not None:
+      n = len(historyBuffer)
+
+    return accumulatedError / float(n)
+
 
 class MetricRMSE(AggregateMetric):
   """
       computes root-mean-square error
   """
-  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
+  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result = None):
     error = (groundTruth - prediction)**2
     accumulatedError += error
 
@@ -515,13 +561,14 @@ class MetricNRMSE(MetricRMSE):
     super(MetricNRMSE, self).__init__(*args, **kwargs)
     self.groundTruths = []
 
-  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
+  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result = None):
     self.groundTruths.append(groundTruth)
 
     return super(MetricNRMSE, self).accumulate(groundTruth,
                                                prediction,
                                                accumulatedError,
-                                               historyBuffer)
+                                               historyBuffer,
+                                               result)
 
   def aggregate(self, accumulatedError, historyBuffer, steps):
     rmse = super(MetricNRMSE, self).aggregate(accumulatedError,
@@ -536,7 +583,7 @@ class MetricAAE(AggregateMetric):
   """
       computes average absolute error
   """
-  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
+  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result = None):
     error = abs(groundTruth - prediction)
     accumulatedError += error
 
@@ -574,7 +621,7 @@ class MetricAltMAPE(AggregateMetric):
     self._accumulatedGroundTruth = 0
     self._accumulatedError = 0
 
-  def addInstance(self, groundTruth, prediction, record = None):
+  def addInstance(self, groundTruth, prediction, record = None, result = None):
 
     # If missing data,
     if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA or prediction is None:
@@ -633,7 +680,7 @@ class MetricMAPE(AggregateMetric):
     super(MetricMAPE, self).__init__(metricSpec)
     self._accumulatedPctError = 0
 
-  def addInstance(self, groundTruth, prediction, record = None):
+  def addInstance(self, groundTruth, prediction, record = None, result = None):
 
     # If missing data,
     if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA or prediction is None:
@@ -695,7 +742,7 @@ class MetricPassThruPrediction(MetricsIface):
     
     self.value = None
     
-  def addInstance(self, groundTruth, prediction, record = None):
+  def addInstance(self, groundTruth, prediction, record = None, result = None):
     """Compute and store metric value"""
     self.value = self.avg(prediction)
     
@@ -740,7 +787,7 @@ class MetricMovingMean(AggregateMetric):
   def getMetric(self):
     return self._subErrorMetrics[0].getMetric()
 
-  def addInstance(self, groundTruth, prediction, record = None):
+  def addInstance(self, groundTruth, prediction, record = None, result = None):
 
     # If missing data,
     if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA:
@@ -912,7 +959,7 @@ class CustomErrorMetric(MetricsIface):
   def getMetric(self):
     return {'value': self.averageError, "stats" : {"steps" : self.steps}}
 
-  def addInstance(self, groundTruth, prediction, record = None):
+  def addInstance(self, groundTruth, prediction, record = None, result = None):
 
     #If missing data,
     if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA or prediction is None:
@@ -964,7 +1011,7 @@ class MetricMovingMode(AggregateMetric):
   def getMetric(self):
     return self._subErrorMetrics[0].getMetric()
 
-  def addInstance(self, groundTruth, prediction, record = None):
+  def addInstance(self, groundTruth, prediction, record = None, result = None):
 
     # If missing data,
     if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA:
@@ -1011,7 +1058,7 @@ class MetricTrivial(AggregateMetric):
   def getMetric(self):
     return self._subErrorMetrics[0].getMetric()
 
-  def addInstance(self, groundTruth, prediction, record = None):
+  def addInstance(self, groundTruth, prediction, record = None, result = None):
 
     # Use ground truth from 'steps' steps ago as our "prediction"
     prediction = self._getShiftedGroundTruth(groundTruth)
@@ -1055,7 +1102,7 @@ class MetricTwoGram(AggregateMetric):
   def getMetric(self):
     return self._subErrorMetrics[0].getMetric()
 
-  def addInstance(self, groundTruth, prediction, record = None):
+  def addInstance(self, groundTruth, prediction, record = None, result = None):
 
     # If missing data return previous error (assuming one gram will always
     #  receive an instance of ndarray)
@@ -1134,7 +1181,7 @@ class MetricAccuracy(AggregateMetric):
   or reals
   """
 
-  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
+  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result = None):
 
     # This is really an accuracy measure rather than an "error" measure
     error = 1.0 if groundTruth == prediction else 0.0
@@ -1161,7 +1208,7 @@ class MetricAveError(AggregateMetric):
         More consistent with scalar metrics because
         they all report an error to be minimized"""
 
-  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
+  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result = None):
 
     error = 1.0 if groundTruth != prediction else 0.0
     accumulatedError += error
@@ -1192,7 +1239,7 @@ class MetricNegAUC(AggregateMetric):
       category 1 on the y-axis and the FPR (False Positive Rate) on the x-axis.
   """
 
-  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
+  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result = None):
     """ Accumulate history of groundTruth and "prediction" values.
 
     For this metric, groundTruth is the actual category and "prediction" is a
@@ -1303,7 +1350,7 @@ class MetricMultiStep(AggregateMetric):
     return {'value': self.aggregateError, "stats" : {"steps" : self.steps}}
 
 
-  def addInstance(self, groundTruth, prediction, record = None):
+  def addInstance(self, groundTruth, prediction, record = None, result = None):
     
     # If missing data,
     if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA:
@@ -1316,7 +1363,6 @@ class MetricMultiStep(AggregateMetric):
                   zip(self._predictionSteps, self._subErrorMetrics):
         
         stepPrediction = prediction[step]
-  
         # Unless this is a custom_error_metric, when we have a dict of 
         #  probabilities, get the most probable one. For custom error metrics, 
         #  we pass the probabilities in so that it can decide how best to deal with
@@ -1329,7 +1375,7 @@ class MetricMultiStep(AggregateMetric):
           stepPrediction = predictions[-1][1]
           
         # Get sum of the errors
-        aggErr = subErrorMetric.addInstance(groundTruth, stepPrediction, record)
+        aggErr = subErrorMetric.addInstance(groundTruth, stepPrediction, record, result)
         if self.verbosity >= 2:
           print "MetricMultiStep %s: aggErr for stepSize %d: %s" % \
                   (self._predictionSteps, step, aggErr)
@@ -1397,7 +1443,7 @@ class MetricMultiStepProbability(AggregateMetric):
     return {'value': self.aggregateError, "stats" :
             {"steps" : self.steps}}
 
-  def addInstance(self, groundTruth, prediction, record = None):
+  def addInstance(self, groundTruth, prediction, record = None, result = None):
 
     # If missing data,
     if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA:
@@ -1484,7 +1530,7 @@ class MetricMulti(MetricsIface):
       self.movingAvg = None
 
 
-  def addInstance(self, groundTruth, prediction, record = None):
+  def addInstance(self, groundTruth, prediction, record = None, result = None):
     err = 0.0
     subResults = [m.addInstance(groundTruth, prediction, record) for m in self.metrics]
     for i in xrange(len(self.weights)):
