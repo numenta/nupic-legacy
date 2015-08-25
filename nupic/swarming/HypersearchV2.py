@@ -45,7 +45,7 @@ from nupic.database.ClientJobsDAO import (
 from nupic.swarming.utils import (runModelGivenBaseAndParams,
                                                   runDummyModel)
 from nupic.swarming.permutationhelpers import *
-from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
+from nupic.swarming.exp_generator.ExpGenerator import expGenerator
 
 
 def _flattenKeys(keys):
