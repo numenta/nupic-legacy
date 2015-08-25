@@ -32,7 +32,7 @@ python --version
 
 # Build NuPIC
 cd ${TRAVIS_BUILD_DIR}
-python setup.py install --user --find-links=Users/travis/build/numenta/nupic.core/bindings/py/dist/wheels
+pip install --user --find-links=Users/travis/build/numenta/nupic.core/bindings/py/dist/wheels .
 
 # Show nupic installation folder by trying to import nupic, if works, it prints
 # the absolute path of nupic.__file__, which the installation folder itself.
