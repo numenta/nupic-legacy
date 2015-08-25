@@ -40,11 +40,11 @@ from pkg_resources import resource_stream
 
 from nupic.frameworks.opf import jsonschema
 from nupic.frameworks.opf.metrics import MetricSpec
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                                           InferenceElement)
 from nupic.support import aggregationDivide
 from nupic.support.configuration import Configuration
 from nupic.support.enum import Enum
+from nupic.swarming.hypersearch.experimentutils import (InferenceType,
+                                           InferenceElement)
 
 
 

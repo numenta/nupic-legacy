@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.11
+
+* Updating nupic.core sha.
+* Updated location of NuPIC Linux wheel on S3.
+
+## 0.2.10
+
+* Updating bindings version.
+
+## 0.2.9
+
+* Added pip install command for linux bindings.
+* Change term predictedColumns to predictedActiveColumns in the TemporalMemory
+
 ## 0.2.8
 
 * Updated to correct pypi license string.
