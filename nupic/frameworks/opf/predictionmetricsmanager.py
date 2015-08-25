@@ -83,6 +83,7 @@ class MetricsManager(object):
     self.__constructMetricsModules(metricSpecs)
     self.__currentGroundTruth = None
     self.__currentInference = None
+    self.__currentResult = None
 
     self.__isTemporal = InferenceType.isTemporal(inferenceType)
     if self.__isTemporal:
@@ -123,6 +124,7 @@ class MetricsManager(object):
       groundTruth = self._getGroundTruth(inferenceElement)
       inference = self._getInference(inferenceElement)
       rawRecord = self._getRawGroundTruth()
+      results = self.__currentResult
       if field:
         if type(inference) in (list, tuple):
           if field in self.__fieldNameIndexMap:
@@ -145,9 +147,15 @@ class MetricsManager(object):
             # groundTruth could be a dict based off of field names
             groundTruth = groundTruth[field]
 
+      print "groundTruth: ", groundTruth
+      print "inference: ", inference
+      print "rawRecord: ", rawRecord
+      print "results (shifted): ", results.inferences
+
       metric.addInstance(groundTruth=groundTruth,
                          prediction=inference,
-                         record = rawRecord)
+                         record=rawRecord,
+                         result=results)
 
       metricResults[label] = metric.getMetric()['value']
 
@@ -207,11 +215,15 @@ class MetricsManager(object):
     # -----------------------------------------------------------------------
     # If the model potentially has temporal inferences.
     if self.__isTemporal:
-      self.__currentInference = self.__inferenceShifter.shift(results).inferences
+      shiftedInferences = self.__inferenceShifter.shift(results).inferences
+      self.__currentResult = copy.deepcopy(results)
+      self.__currentResult.inferences = shiftedInferences
+      self.__currentInference = shiftedInferences
 
     # -----------------------------------------------------------------------
     # The current model has no temporal inferences.
     else:
+      self.__currentResult = copy.deepcopy(results)
       self.__currentInference = copy.deepcopy(results.inferences)
 
     # -----------------------------------------------------------------------
