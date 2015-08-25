@@ -51,17 +51,19 @@ class HyperSearchState(object):
     self.options= options
     # Dict of (swarmID, globalBest) pairs
     self.bestScore = dict()
+    # (swarmID, swarmState) pairs
+    self.swarmInfo = dict()
 
     # Debugging info
     self.jobIDs = []
     self.modelIDs = []
 
-    # TODO: Define custom jobState module with info about all running jobs?
-    # This instance variable would then be a dict of JobState instances
-    self.jobStates = None
+    # TODO: Define custom JobInfo module with info about all running jobs?
+    # This instance variable would then be a dict of (jobID, JobInfo) instances
+    self.jobStates = dict()
 
     # TODO: Ditto
-    self.modelStates = None
+    self.modelStates = dict()
 
   def getParticleStates(self):
     """
@@ -88,12 +90,12 @@ class HyperSearchState(object):
     self.modelIDs.append(modelID)
 
 
-  def addModel(self, modelInfo):
-    self.modelStates.append(modelInfo)
+  def addModel(self, modelID, modelInfo):
+    self.modelStates[modelID] = modelInfo
 
 
-  def addJob(self, jobInfo):
-    self.jobStates.append(jobInfo)
+  def addJob(self, jobID, jobInfo):
+    self.jobStates[jobID] = jobInfo
 
 
   def getJobInfo(self, jobID):
