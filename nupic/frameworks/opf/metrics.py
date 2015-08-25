@@ -499,27 +499,27 @@ class MetricNegLL(AggregateMetric):
     bucketll = result.inferences['multiStepBucketLikelihoods']
     bucketIdxTruth = result.classifierInput.bucketIndex
 
-    # a manually set minimum prediction probability so that the log(LL) doesn't blow up
-    minProb = 0.00001
-    LL = 0
-    for step in bucketll.keys():
-      if bucketIdxTruth in bucketll[step].keys():
-        prob = bucketll[step][bucketIdxTruth]
-      else:
-        prob = 0
+    if bucketIdxTruth is not None:
+      # a manually set minimum prediction probability so that the log(LL) doesn't blow up
+      minProb = 0.00001
+      negLL = 0
+      for step in bucketll.keys():
+        outOfBucketProb = 1 - sum(bucketll[step].values())
+        if bucketIdxTruth in bucketll[step].keys():
+          prob = bucketll[step][bucketIdxTruth]
+        else:
+          prob = outOfBucketProb
 
-      if prob < minProb:
-        prob = minProb
+        if prob < minProb:
+          prob = minProb
+        negLL -= np.log(prob)
 
-      LL += np.log(prob)
+      accumulatedError += negLL
 
-    negLL = -LL
-    accumulatedError += negLL
-
-    if historyBuffer is not None:
-      historyBuffer.append(negLL)
-      if len(historyBuffer) > self.spec.params["window"] :
-        accumulatedError -= historyBuffer.popleft()
+      if historyBuffer is not None:
+        historyBuffer.append(negLL)
+        if len(historyBuffer) > self.spec.params["window"] :
+          accumulatedError -= historyBuffer.popleft()
 
     return accumulatedError
 
