@@ -29,7 +29,7 @@ import unittest
 
 import capnp
 
-from nupic.bindings.proto import TemporalMemoryProto_capnp
+from nupic.proto import TemporalMemoryProto_capnp
 from nupic.research.temporal_memory import TemporalMemory
 
 from nupic.data.generators.pattern_machine import PatternMachine

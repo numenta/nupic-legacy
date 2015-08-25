@@ -38,7 +38,7 @@ from nupic.bindings.math import (SM_01_32_32 as SparseBinaryMatrix,
                                  SM32 as SparseMatrix,
                                  GetNTAReal,
                                  Random)
-from nupic.bindings.proto import SpatialPoolerProto_capnp
+from nupic.proto import SpatialPoolerProto_capnp
 from nupic.research.spatial_pooler import SpatialPooler
 
 uintDType = "uint32"

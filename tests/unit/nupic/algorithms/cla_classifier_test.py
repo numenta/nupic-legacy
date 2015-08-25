@@ -33,7 +33,7 @@ import numpy
 import tempfile
 
 from nupic.algorithms.CLAClassifier import CLAClassifier
-from nupic.bindings.proto import ClaClassifier_capnp
+from nupic.proto import ClaClassifier_capnp
 
 
 

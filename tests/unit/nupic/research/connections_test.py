@@ -29,7 +29,7 @@ import unittest
 
 import capnp
 
-from nupic.bindings.proto import ConnectionsProto_capnp
+from nupic.proto import ConnectionsProto_capnp
 from nupic.research.connections import Connections
 
 
