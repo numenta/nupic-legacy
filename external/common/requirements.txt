@@ -1,6 +1,7 @@
 #See http://www.pip-installer.org/en/latest/requirements.html for details
 # Check nupic.core requirements before adding any to this list. Do not add
 # any that are there: <nupic.core repo>/external/common/requirements.txt
+# These currently include: numpy, pycapnp
 asteval==0.9.1
 coverage==3.7.1
 mock==1.0.1
