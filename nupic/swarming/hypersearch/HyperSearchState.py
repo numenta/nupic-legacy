@@ -36,8 +36,9 @@ class HyperSearchState(object):
       @param  numParticles  (int)     Client provided number of particles in
                                       swarm. TODO: May want to just provide a
                                       generic param with swarm-specific options?
+      @param  options       (dict)    Dict of client-specified params for
+                                      evaluating models/running jobs.
     """
-    # TODO: Handle implementation of particles for PSO
     # Number of particles in current running instance of swarm
     self.numParticles = numParticles
     # Store collection of user-specified permutation variables
@@ -88,16 +89,10 @@ class HyperSearchState(object):
 
 
   def addModel(self, modelInfo):
-    """
-      Add instance of model to collection of all models
-    """
     self.modelStates.append(modelInfo)
 
 
   def addJob(self, jobInfo):
-    """
-      Add instance of job to collection of all job
-    """
     self.jobStates.append(jobInfo)
 
 
@@ -110,7 +105,4 @@ class HyperSearchState(object):
 
 
   def __repr__(self):
-    """
-    Format to use when printing out instance of state.
-    """
     raise NotImplementedError
