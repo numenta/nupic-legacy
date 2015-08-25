@@ -112,7 +112,8 @@ class InferenceElement(Enum(
     # For multistep prediction, the delay is based on the key in the inference
     # dictionary
     if inferenceElement in (InferenceElement.multiStepPredictions,
-                            InferenceElement.multiStepBestPredictions):
+                            InferenceElement.multiStepBestPredictions,
+                            InferenceElement.multiStepBucketLikelihoods):
       return int(key)
 
     # -----------------------------------------------------------------------
@@ -224,6 +225,26 @@ class SensorInput(object):
 
 
 
+class ClassifierInput(object):
+
+  __slots__ = ("dataRow", "bucketIndex")
+
+  def __init__(self, dataRow=None, bucketIndex=None):
+    self.dataRow = dataRow
+    self.bucketIndex = bucketIndex
+
+  def __repr__(self):
+    return "ClassifierInput("\
+          "\tdataRow={0}\n"\
+          "\tbucketIndex={1}\n"\
+          ")".format(self.dataRow,
+                     self.bucketIndex)
+
+  def _asdict(self):
+    return dict(dataRow=self.dataRow,
+                bucketIndex=self.bucketIndex)
+
+
 # PredictionElement- represents a predicted record and its asssociated
 #                     bit-string encoding for a network's sensor region and/or
 #                     the classification of that input as produced by
@@ -273,7 +294,7 @@ PredictionElement = namedtuple("PredictionElement",
 class ModelResult(object):
 
   __slots__= ("predictionNumber", "rawInput", "sensorInput", "inferences", 
-              "metrics", "predictedFieldIdx", "predictedFieldName")
+              "metrics", "predictedFieldIdx", "predictedFieldName", "classifierInput")
 
   def __init__(self,
                predictionNumber=None,
@@ -282,7 +303,8 @@ class ModelResult(object):
                inferences=None,
                metrics=None,
                predictedFieldIdx=None,
-               predictedFieldName=None):
+               predictedFieldName=None,
+               classifierInput=None):
     self.predictionNumber = predictionNumber
     self.rawInput = rawInput
     self.sensorInput = sensorInput
@@ -290,7 +312,7 @@ class ModelResult(object):
     self.metrics = metrics
     self.predictedFieldIdx = predictedFieldIdx
     self.predictedFieldName = predictedFieldName
-
+    self.classifierInput = classifierInput
 
   def __repr__(self):
      return ("ModelResult("
@@ -301,13 +323,15 @@ class ModelResult(object):
              "\tmetrics={4}\n"
              "\tpredictedFieldIdx={5}\n"
              "\tpredictedFieldName={6}\n"
+             "\tclassifierInput={7}\n"
              ")").format(self.predictionNumber,
                         self.rawInput,
                         self.sensorInput,
                         self.inferences,
                         self.metrics,
                         self.predictedFieldIdx,
-                        self.predictedFieldName)
+                        self.predictedFieldName,
+                        self.classifierInput)
 
 
 
