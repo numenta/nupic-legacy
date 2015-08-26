@@ -147,11 +147,6 @@ class MetricsManager(object):
             # groundTruth could be a dict based off of field names
             groundTruth = groundTruth[field]
 
-      print "groundTruth: ", groundTruth
-      print "inference: ", inference
-      print "rawRecord: ", rawRecord
-      print "results (shifted): ", results.inferences
-
       metric.addInstance(groundTruth=groundTruth,
                          prediction=inference,
                          record=rawRecord,
