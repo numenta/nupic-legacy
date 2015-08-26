@@ -264,7 +264,7 @@ class CoordinateEncoderTest(unittest.TestCase):
 
 
   def assertDecreasingOverlaps(self, overlaps):
-    self.assertEqual((np.diff(overlaps) >= 0).sum(), 0)
+    self.assertEqual((np.diff(overlaps) > 0).sum(), 0)
 
 
   def testReadWrite(self):
