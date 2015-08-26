@@ -176,7 +176,7 @@ class InferenceType(Enum("TemporalNextStep",
 #   sensor region's encoder.
 #
 # dataRow:        A data row that is the sensor's "sourceOut" mapping of the
-#                 supplied intputRecord. The data row is a sequence of field
+#                 supplied inputRecord. The data row is a sequence of field
 #                 values that correspond to the schema returned by the
 #                 getDecodedFieldMetaInfo() method of the ModelIface-based
 #                 instance that returned this mapping.  See
@@ -224,6 +224,15 @@ class SensorInput(object):
                 category=self.category)
 
 
+# ClassifierInput - represents the mapping of a given inputRecord by the
+#   classifier input encoder.
+#
+# dataRow:        A data row that is the sensor's "sourceOut" mapping of the
+#                 supplied inputRecord. See SensorInput class for additional
+#                 details
+#
+# bucketIndex:    bucketIndex is the classifier input encoder's mapping of the
+#                 dataRow
 
 class ClassifierInput(object):
 

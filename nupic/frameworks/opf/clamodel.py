@@ -447,7 +447,8 @@ class CLAModel(Model):
     """
     inputRecord - dict containing the input to the sensor
 
-    Return a 'ClassifierInput' object
+    Return a 'ClassifierInput' object, which contains the mapped
+    bucket index for input Record
     """
     if self._predictedFieldName is not None and self._classifierInputEncoder is not None:
       absoluteValue = inputRecord[self._predictedFieldName]
