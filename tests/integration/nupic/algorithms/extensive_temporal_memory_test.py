@@ -505,41 +505,58 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
       self.tm.mmGetTraceUnpredictedActiveColumns())
     self.assertTrue(unpredictedActiveColumnsMetric.mean < 3)
 
+
   def testH10(self):
     """Orphan Decay mechanism reduce predicted inactive cells (extra predictions).
     Test feeds in noisy sequences (X = 0.05) to TM with and without orphan decay.
     TM with orphan decay should has many fewer predicted inactive columns.
     Parameters the same as B11, and sequences like H9."""
+
+    # train TM on noisy sequences with orphan decay turned off
     self.init({"cellsPerColumn": 4,
                "activationThreshold": 8})
 
     numbers = self.sequenceMachine.generateNumbers(2, 20, (10, 15))
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
     sequenceNoisy = dict()
     for i in xrange(10):
       sequenceNoisy[i] = self.sequenceMachine.addSpatialNoise(sequence, 0.05)
       self.feedTM(sequenceNoisy[i])
+    self.tm.mmClearHistory()
 
     self._testTM(sequence)
+
     predictedInactiveColumnsMetric = self.tm.mmGetMetricFromTrace(
       self.tm.mmGetTracePredictedInactiveColumns())
-    predictedInactiveColumnsMean1 = predictedInactiveColumnsMetric.mean
+    predictedActiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTracePredictedActiveColumns())
 
+    predictedInactiveColumnsMeanNoOrphanDecay = predictedInactiveColumnsMetric.mean
+    predictedActiveColumnsMeanNoOrphanDecay = predictedActiveColumnsMetric.mean
+
+    # train TM on the same set of noisy sequences with orphan decay turned on
     self.init({"cellsPerColumn": 4,
                "activationThreshold": 8,
-               "predictedSegmentDecrement": 0.004})
+               "predictedSegmentDecrement": 0.04})
 
-    for _ in xrange(10):
+    for i in xrange(10):
       self.feedTM(sequenceNoisy[i])
+    self.tm.mmClearHistory()
 
     self._testTM(sequence)
+
     predictedInactiveColumnsMetric = self.tm.mmGetMetricFromTrace(
       self.tm.mmGetTracePredictedInactiveColumns())
-    predictedInactiveColumnsMean2 = predictedInactiveColumnsMetric.mean
+    predictedActiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTracePredictedActiveColumns())
 
-    self.assertGreater(predictedInactiveColumnsMean1, 0)
-    self.assertGreater(predictedInactiveColumnsMean1, predictedInactiveColumnsMean2)
+    predictedInactiveColumnsMeanOrphanDecay = predictedInactiveColumnsMetric.mean
+    predictedActiveColumnsMeanOrphanDecay = predictedActiveColumnsMetric.mean
 
+    self.assertGreater(predictedInactiveColumnsMeanNoOrphanDecay, 0)
+    self.assertGreater(predictedInactiveColumnsMeanNoOrphanDecay, predictedInactiveColumnsMeanOrphanDecay)
+    self.assertAlmostEqual(predictedActiveColumnsMeanNoOrphanDecay, predictedActiveColumnsMeanOrphanDecay)
   # ==============================
   # Overrides
   # ==============================
