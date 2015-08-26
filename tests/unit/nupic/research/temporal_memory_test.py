@@ -189,11 +189,12 @@ class TemporalMemoryTest(unittest.TestCase):
                                          connections)
 
     self.assertEqual(activeCells, set([0, 1, 2, 3, 4, 5, 6, 7]))
-    self.assertEqual(winnerCells, set([0, 6]))  # 6 is randomly chosen cell
+    randomWinner = 4
+    self.assertEqual(winnerCells, set([0, randomWinner]))  # 4 is randomly chosen cell
     self.assertEqual(learningSegments, set([0, 4]))  # 4 is new segment created
 
     # Check that new segment was added to winner cell (6) in column 1
-    self.assertEqual(connections.segmentsForCell(6), set([4]))
+    self.assertEqual(connections.segmentsForCell(randomWinner), set([4]))
 
 
   def testBurstColumnsEmpty(self):
@@ -343,12 +344,12 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(tm.bestMatchingCell(tm.cellsForColumn(3),  # column containing cell 108
                                          activeCells,
                                          connections),
-                     (96, None))  # Random cell from column
+                     (103, None))  # Random cell from column
 
     self.assertEqual(tm.bestMatchingCell(tm.cellsForColumn(999),
                                          activeCells,
                                          connections),
-                     (31972, None))  # Random cell from column
+                     (31979, None))  # Random cell from column
 
 
   def testBestMatchingCellFewestSegments(self):
@@ -505,7 +506,7 @@ class TemporalMemoryTest(unittest.TestCase):
     winnerCells = set([4, 47, 58, 93])
 
     self.assertEqual(tm.pickCellsToLearnOn(2, 0, winnerCells, connections),
-                     set([4, 58]))  # randomly picked
+                     set([4, 93]))  # randomly picked
 
     self.assertEqual(tm.pickCellsToLearnOn(100, 0, winnerCells, connections),
                      set([4, 47, 58, 93]))
