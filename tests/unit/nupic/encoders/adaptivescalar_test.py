@@ -21,13 +21,15 @@
 # ----------------------------------------------------------------------
 
 import tempfile
-import unittest2 as unittest
-from nupic.encoders.base import defaultDtype
-from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+import unittest
+
+import capnp
 import numpy
 
+from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
 from nupic.encoders.adaptivescalar_capnp import AdaptiveScalarEncoderProto
+from nupic.encoders.base import defaultDtype
 
 
 

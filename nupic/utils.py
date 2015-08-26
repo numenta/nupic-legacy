@@ -27,6 +27,7 @@ in our codebase.
 import numbers
 
 
+
 class MovingAverage(object):
   """Helper class for computing moving average and sliding window"""
 
