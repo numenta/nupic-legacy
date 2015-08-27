@@ -32,7 +32,7 @@ echo ">>> Activating nupic-darwin64..."
 source nupic-darwin64/bin/activate
 
 # TODO: remove after nupic-darwin64 has been updated
-pip install --upgrade pip
+pip install --upgrade pip --user
 pip uninstall numpy --yes
 pip install wheel --user
 pip install --use-wheel numpy==1.9.2 --user

@@ -38,7 +38,7 @@ git clone https://github.com/numenta/nupic-linux64.git
 source nupic-linux64/bin/activate
 
 # TODO: remove after nupic-linux64 has been updated
-pip install --upgrade pip
+pip install --upgrade pip --user
 pip uninstall numpy --yes
 pip install numpy==1.9.2 --user
 
