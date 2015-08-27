@@ -32,10 +32,10 @@ echo ">>> Activating nupic-darwin64..."
 source nupic-darwin64/bin/activate
 
 # TODO: remove after nupic-darwin64 has been updated
-pip install --upgrade pip --user
+pip install --upgrade pip --user --quiet
 pip uninstall numpy --yes
-pip install wheel --user
-pip install --use-wheel numpy==1.9.2 --user
+pip install wheel --user -q
+pip install --use-wheel numpy==1.9.2 --user -q
 PY_VERSION=`python -c 'import sys; print(sys.version[:3])'`
 export PYTHONPATH="/Users/travis/Library/Python/$PY_VERSION/lib/python/site-packages:$PYTHONPATH"
 
