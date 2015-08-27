@@ -167,6 +167,13 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
       count=1,
       constraints=''),
 
+    predictedSegmentDecrement=dict(
+      description='Predicted segment decrement',
+      accessMode='Read',
+      dataType='Real',
+      count=1,
+      constraints=''),
+
     orColumnOutputs=dict(
       description="""OR together the cell outputs from each column to produce
       the temporal pooler output. When this mode is enabled, the number of
