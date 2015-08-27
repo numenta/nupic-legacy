@@ -20,6 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import time
 import numpy as np
 
 import unittest2 as unittest
@@ -796,6 +797,18 @@ record={"test":gt[i]})
       metricValue = multi.addInstance(gt[i], p[i])
       self.assertEqual(check, metricValue, "iter i= %s gt=%s pred=%s multi=%s sub1=%s sub2=%s" % (i, gt[i], p[i], metricValue, v10, v1000))
 
+
+
+  def testSpeedMetric(self):
+    """testing the speed metric"""
+    ms = MetricSpec(field='a', metric='speed',  inferenceElement='multistepBestPredictions', params={'window': 1, 'steps': 1})
+    mSpeed = getModule(ms)
+
+    for _ in xrange(5):
+      rand_delay=np.random.randint(1, 10)/float(10)
+      time.sleep(rand_delay)
+      metricValue = float(mSpeed.addInstance(0, 0))
+      self.assertAlmostEqual(rand_delay, metricValue, 2) # check to 2 places only
 
 
 if __name__ == "__main__":

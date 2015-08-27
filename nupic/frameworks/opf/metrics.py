@@ -27,6 +27,7 @@ import numbers
 import copy
 import random
 import numpy as np
+import time
 
 from nupic.data.fieldmeta import FieldMetaType
 import nupic.math.roc_utils as roc
@@ -190,6 +191,9 @@ def getModule(metricSpec):
     return MetricMAPE(metricSpec)
   elif metricName == 'multi':
     return MetricMulti(metricSpec)
+  elif metricName == 'speed':
+    return MetricSpeed(metricSpec)
+
   else:
     raise Exception("Unsupported metric type: %s" % metricName)
 
@@ -264,22 +268,11 @@ class MetricsIface(object):
   def addInstance(self, groundTruth, prediction, record = None):
     """ add one instance consisting of ground truth and a prediction.
 
-      Parameters:
-      -----------------------------------------------------------------------
-      groundTruth:
-        The actual measured value at the current timestep
-      prediction:
-        The value predicted by the network at the current timestep
+      @param groundTruth The actual measured value at the current timestep
+      @param prediction  The value predicted by the network at the current timestep
+      @param record (opt) TODO explain?
 
-      groundTruthEncoding:
-        The binary encoding of the groundTruth value (as a numpy array). Right
-        now this is only used by CLA networks
-      predictionEncoding:
-        The binary encoding of the prediction value (as a numpy array). Right
-        now this is only used by CLA networks
-
-        return:
-            The average error as computed over the metric's window size
+      @return The average error as computed over the metric's window size
     """
 
   @abstractmethod
@@ -697,6 +690,8 @@ class MetricPassThruPrediction(MetricsIface):
     
   def addInstance(self, groundTruth, prediction, record = None):
     """Compute and store metric value"""
+    if prediction is None: # hack if None is passed #TODO when?
+      prediction = 0.0
     self.value = self.avg(prediction)
     
   def getMetric(self):
@@ -1509,3 +1504,22 @@ class MetricMulti(MetricsIface):
   def getMetric(self):
     return {'value': self.err, "stats" : {"weights" : self.weights}}
 
+
+###################################
+class MetricSpeed(MetricsIface):
+  """ 
+  This metric optimizes for speed - time per iteraton.
+  Time is measured between each call of the metric's addInstance() method.
+  """
+  def __init__(self, metricSpec):
+    super(MetricSpeed, self).__init__(metricSpec)
+    self._last = time.time() # get current time
+
+  def getMetric(self):
+    return {'value': self.err, "stats" : {"weights" : self.weights}}
+
+  def addInstance(self, groundTruth, prediction, record = None):
+    now = time.time()
+    self.err = now - float(self._last) # elapsed time = compute diff
+    self._last = now
+    return self.err

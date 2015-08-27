@@ -396,10 +396,9 @@ class CLAModel(Model):
     # For temporal classification. Not used, and might not work anymore
     elif self._isClassificationModel():
       inferences = self._classificationCompute()
-
-    results.inferences.update(inferences)
-
-    inferences = self._anomalyCompute()
+    else:
+      inferences = self._anomalyCompute()
+    
     results.inferences.update(inferences)
 
     # -----------------------------------------------------------------------
