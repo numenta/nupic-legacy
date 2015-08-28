@@ -50,9 +50,9 @@ pip install wheel --user -q
 
 # Fetch nupic.core build
 export NUPIC_CORE_COMMITISH=`python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"`
-echo "Downloading nupic.core build with SHA ${NUPIC_CORE_COMMITISH}..."
+echo "Downloading nupic.core build: https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-linux64.tar.gz"
 curl -O "https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-linux64.tar.gz"
-tar xzfv "nupic_core-${NUPIC_CORE_COMMITISH}-linux64.tar.gz"
+tar xzf "nupic_core-${NUPIC_CORE_COMMITISH}-linux64.tar.gz"
 
 ls home/travis/build/numenta/nupic.core/bindings/py/dist/wheels
 
