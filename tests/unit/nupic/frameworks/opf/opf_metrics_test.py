@@ -485,14 +485,14 @@ record={"test":gt[i]})
 
   def testNegLL(self):
     # mock objects for ClassifierInput and ModelResult (see opfutils.py)
-    class ClassifierInput(object):
+    class MockClassifierInput(object):
       def __init__(self, bucketIdx):
         self.bucketIndex = bucketIdx
 
-    class ModelResult(object):
+    class MockModelResult(object):
       def __init__(self, bucketll, bucketIdx):
         self.inferences = {'multiStepBucketLikelihoods': {1: bucketll}}
-        self.classifierInput = ClassifierInput(bucketIdx)
+        self.classifierInput = MockClassifierInput(bucketIdx)
 
     # predicted prob. distribution
     bucketLL = []
@@ -507,7 +507,7 @@ record={"test":gt[i]})
                                 {"verbosity" : OPFMetricsTest.VERBOSITY}))
     for i in xrange(len(bucketLL)):
       negLL.addInstance(0, 0, record = None,
-                        result=ModelResult(bucketLL[i], gt_bucketIdx[i]))
+                        result=MockModelResult(bucketLL[i], gt_bucketIdx[i]))
     negLL.getMetric()
     target = 0.0
     self.assertAlmostEqual(negLL.getMetric()["value"], target)
@@ -517,11 +517,56 @@ record={"test":gt[i]})
                                 {"verbosity" : OPFMetricsTest.VERBOSITY}))
     for i in xrange(len(bucketLL)):
       negLL.addInstance(0, 0, record = None,
-                        result=ModelResult(bucketLL[i], gt_bucketIdx[i]))
+                        result=MockModelResult(bucketLL[i], gt_bucketIdx[i]))
     negLL.getMetric()
     target = 5.756462
     self.assertTrue(abs(negLL.getMetric()["value"]-target)
                     < OPFMetricsTest.DELTA)
+
+
+  def testNegLLMultiplePrediction(self):
+    # mock objects for ClassifierInput and ModelResult (see opfutils.py)
+    class MockClassifierInput(object):
+      def __init__(self, bucketIdx):
+        self.bucketIndex = bucketIdx
+
+    class MockModelResult(object):
+      def __init__(self, bucketll, bucketIdx):
+        self.inferences = {'multiStepBucketLikelihoods': {1: bucketll}}
+        self.classifierInput = MockClassifierInput(bucketIdx)
+
+    # the ground truth lies in bucket 0 with p=0.45, in bucket 1 with p=0.0
+    # and in bucket 2 with p=0.55
+    import random
+    gt_bucketIdx = [0]*45+[2]*55
+    random.shuffle(gt_bucketIdx)
+
+    # compare neg log-likelihood for three type of model predictions
+    # a model that predicts ground truth distribution
+    prediction_gt = {0: 0.5, 1: 0, 2: 0.5}
+
+    # a model that predicts only the most likely outcome
+    prediction_ml = {0: 0.0, 1: 0, 2: 1.0}
+
+    # a model that only predicts mean (bucket 1)
+    prediction_mean = {0: 0, 1: 1, 2: 0}
+
+    negLL_gt = getModule(MetricSpec("negLL", None, None,
+                                {"verbosity" : OPFMetricsTest.VERBOSITY}))
+    negLL_ml = getModule(MetricSpec("negLL", None, None,
+                                {"verbosity" : OPFMetricsTest.VERBOSITY}))
+    negLL_mean = getModule(MetricSpec("negLL", None, None,
+                                {"verbosity" : OPFMetricsTest.VERBOSITY}))
+    for i in xrange(len(gt_bucketIdx)):
+      negLL_gt.addInstance(0, 0, record = None,
+                        result=MockModelResult(prediction_gt, gt_bucketIdx[i]))
+      negLL_ml.addInstance(0, 0, record = None,
+                        result=MockModelResult(prediction_ml, gt_bucketIdx[i]))
+      negLL_mean.addInstance(0, 0, record = None,
+                        result=MockModelResult(prediction_mean, gt_bucketIdx[i]))
+
+    self.assertTrue(negLL_gt.getMetric()["value"] < negLL_ml.getMetric()["value"])
+    self.assertTrue(negLL_gt.getMetric()["value"] < negLL_mean.getMetric()["value"])
 
 
   def testCustomErrorMetric(self):
