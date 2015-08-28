@@ -30,7 +30,13 @@ from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 import unittest2 as unittest
 
 from nupic.encoders.date import DateEncoder
-from nupic.encoders.date_capnp import DateEncoderProto
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.date_capnp import DateEncoderProto
 
 
 
@@ -173,6 +179,8 @@ class DateEncoderTest(unittest.TestCase):
         self.assertNotEqual(d.weekday(), 0)
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testReadWrite(self):
     originalTS = datetime.datetime(1997, 8, 29, 2, 14)
     originalValue = self._e.encode(originalTS)

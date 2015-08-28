@@ -23,13 +23,18 @@
 import tempfile
 import unittest
 
-import capnp
 import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
-from nupic.encoders.adaptivescalar_capnp import AdaptiveScalarEncoderProto
 from nupic.encoders.base import defaultDtype
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.adaptivescalar_capnp import AdaptiveScalarEncoderProto
 
 
 
@@ -206,6 +211,8 @@ class AdaptiveScalarTest(unittest.TestCase):
                       "should be equivalent to initialization."))
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testReadWrite(self):
 
     originalValue = self._l.encode(1)

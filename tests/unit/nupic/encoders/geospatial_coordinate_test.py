@@ -26,9 +26,16 @@ import unittest
 
 from nupic.encoders.base import defaultDtype
 from nupic.encoders.geospatial_coordinate import GeospatialCoordinateEncoder
-from nupic.encoders.geospatial_coordinate_capnp import (
-  GeospatialCoordinateEncoderProto
-)
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.geospatial_coordinate_capnp import (
+    GeospatialCoordinateEncoderProto
+  )
+
 # Disable warnings about accessing protected members
 # pylint: disable=W0212
 
@@ -154,6 +161,8 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
     self.assertGreater(overlap1, overlap2)
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testReadWrite(self):
     scale = 30 # meters
     timestep = 60 # seconds

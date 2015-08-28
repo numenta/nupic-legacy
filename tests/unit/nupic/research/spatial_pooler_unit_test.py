@@ -28,7 +28,6 @@ import tempfile
 import unittest
 from copy import copy
 
-import capnp
 from mock import Mock
 import numpy
 
@@ -38,11 +37,19 @@ from nupic.bindings.math import (SM_01_32_32 as SparseBinaryMatrix,
                                  SM32 as SparseMatrix,
                                  GetNTAReal,
                                  Random)
-from nupic.proto import SpatialPoolerProto_capnp
 from nupic.research.spatial_pooler import SpatialPooler
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.proto import SpatialPoolerProto_capnp
 
 uintDType = "uint32"
 realDType = GetNTAReal()
+
+
 
 class SpatialPoolerTest(unittest.TestCase):
   """Unit Tests for SpatialPooler class."""
@@ -1710,7 +1717,9 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertEqual(layout1D[list(negative)].any(), False)
 
 
-  def testWrite(self):
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
+  def testWriteRead(self):
     sp1 = SpatialPooler(
         inputDimensions=[9],
         columnDimensions=[5],

@@ -27,10 +27,14 @@ TODO: Move all duplicate connections logic into shared function.
 import tempfile
 import unittest
 
-import capnp
-
-from nupic.proto import ConnectionsProto_capnp
 from nupic.research.connections import Connections
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.proto import ConnectionsProto_capnp
 
 
 
@@ -216,7 +220,9 @@ class ConnectionsTest(unittest.TestCase):
     self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
 
 
-  def testWrite(self):
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
+  def testWriteRead(self):
     c1 = Connections(1024)
 
     # Add data before serializing

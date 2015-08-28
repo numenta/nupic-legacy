@@ -27,13 +27,16 @@ TODO: Make default test TM instance simpler, with 4 cells per column.
 import tempfile
 import unittest
 
-import capnp
-
-from nupic.proto import TemporalMemoryProto_capnp
-from nupic.research.temporal_memory import TemporalMemory
-
 from nupic.data.generators.pattern_machine import PatternMachine
 from nupic.data.generators.sequence_machine import SequenceMachine
+from nupic.research.temporal_memory import TemporalMemory
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.proto import TemporalMemoryProto_capnp
 
 
 
@@ -610,7 +613,9 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(columnsForCells[99], set([399]))
 
 
-  def testWrite(self):
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
+  def testWriteRead(self):
     tm1 = TemporalMemory(
       columnDimensions=[100],
       cellsPerColumn=4,

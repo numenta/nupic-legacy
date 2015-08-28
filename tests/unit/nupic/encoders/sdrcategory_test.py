@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -25,10 +25,17 @@
 import numpy
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 import tempfile
-import unittest2 as unittest
+import unittest
 
 from nupic.encoders.sdrcategory import SDRCategoryEncoder
-from nupic.encoders.sdrcategory_capnp import SDRCategoryEncoderProto
+
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.sdrcategory_capnp import SDRCategoryEncoderProto
 
 
 
@@ -243,6 +250,8 @@ class SDRCategoryEncoderTest(unittest.TestCase):
     self.assertEqual(s.topDownCompute(encoded).value, "catC")
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testReadWrite(self):
     categories = ["ES", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8",
                   "S9","S10", "S11", "S12", "S13", "S14", "S15", "S16",

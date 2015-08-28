@@ -23,11 +23,16 @@
 import tempfile
 import unittest
 
-import capnp
 import numpy
 
 from nupic.regions.AnomalyRegion import AnomalyRegion
-from nupic.regions.AnomalyRegion_capnp import AnomalyRegionProto
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.regions.AnomalyRegion_capnp import AnomalyRegionProto
 
 
 
@@ -35,6 +40,8 @@ class AnomalyRegionTest(unittest.TestCase):
   """Tests for anomaly region"""
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testWriteRead(self):
     predictedColumns = [[0, 1 ,1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
                         [0, 1 ,1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
