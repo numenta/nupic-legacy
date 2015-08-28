@@ -132,7 +132,7 @@ parser.add_option(
   "-x",
   "--failfast",
   action="store_true",
-  default=True,
+  default=False,
   dest="failfast")
 
 
