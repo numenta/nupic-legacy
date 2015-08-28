@@ -59,6 +59,7 @@ ls home/travis/build/numenta/nupic.core/bindings/py/dist/wheels
 # Install nupic.bindings and dependencies from wheels
 pip install --user pycapnp==0.5.5
 pip install --user --no-index --find-links=home/travis/build/numenta/nupic.core/bindings/py/dist/wheels nupic.bindings
+pip uninstall pycapnp --yes
 
 # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
 # See: https://github.com/travis-ci/travis-cookbooks/issues/155

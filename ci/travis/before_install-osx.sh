@@ -52,6 +52,7 @@ tar xzf "nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
 # Install nupic.bindings and dependencies from wheels
 pip install --user pycapnp==0.5.5
 pip install --user --no-index --find-links=Users/travis/build/numenta/nupic.core/bindings/py/dist/wheels nupic.bindings
+pip uninstall pycapnp --yes
 
 # Install and start MySQL on OSX
 echo ">>> brew install mysql"
