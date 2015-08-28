@@ -46,7 +46,7 @@ pip uninstall numpy --yes
 
 # Assuming pip 1.5.X is installed.
 echo "pip install wheel --user"
-pip install wheel --user
+pip install wheel --user -q
 
 # Fetch nupic.core build
 export NUPIC_CORE_COMMITISH=`python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"`

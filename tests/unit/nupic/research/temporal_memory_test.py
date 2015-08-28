@@ -185,8 +185,7 @@ class TemporalMemoryTest(unittest.TestCase):
      learningSegments) = tm.burstColumns(activeColumns,
                                          predictedColumns,
                                          prevActiveCells,
-                                         prevWinnerCells,
-                                         connections)
+                                         prevWinnerCells)
 
     self.assertEqual(activeCells, set([0, 1, 2, 3, 4, 5, 6, 7]))
     randomWinner = 4
@@ -211,8 +210,7 @@ class TemporalMemoryTest(unittest.TestCase):
      learningSegments) = tm.burstColumns(activeColumns,
                                          predictedColumns,
                                          prevActiveCells,
-                                         prevWinnerCells,
-                                         connections)
+                                         prevWinnerCells)
 
     self.assertEqual(activeCells,      set())
     self.assertEqual(winnerCells,      set())
@@ -248,7 +246,6 @@ class TemporalMemoryTest(unittest.TestCase):
                        prevActiveCells,
                        winnerCells,
                        prevWinnerCells,
-                       connections,
                        predictedInactiveCells,
                        prevMatchingSegments)
 
@@ -279,7 +276,9 @@ class TemporalMemoryTest(unittest.TestCase):
 
 
   def testComputePredictiveCells(self):
-    tm = TemporalMemory(activationThreshold=2, minThreshold=2, predictedSegmentDecrement=0.004)
+    tm = TemporalMemory(activationThreshold=2,
+                        minThreshold=2,
+                        predictedSegmentDecrement=0.004)
 
     connections = tm.connections
     connections.createSegment(0)
@@ -304,7 +303,7 @@ class TemporalMemoryTest(unittest.TestCase):
     (activeSegments,
      predictiveCells,
      matchingSegments,
-     matchingCells) = tm.computePredictiveCells(activeCells, connections)
+     matchingCells) = tm.computePredictiveCells(activeCells)
     self.assertEqual(activeSegments, set([0]))
     self.assertEqual(predictiveCells, set([0]))
     self.assertEqual(matchingSegments, set([0,1]))
@@ -337,19 +336,16 @@ class TemporalMemoryTest(unittest.TestCase):
     activeCells = set([23, 37, 49, 733])
 
     self.assertEqual(tm.bestMatchingCell(tm.cellsForColumn(0),
-                                         activeCells,
-                                         connections),
+                                         activeCells),
                      (0, 0))
 
     self.assertEqual(tm.bestMatchingCell(tm.cellsForColumn(3),  # column containing cell 108
-                                         activeCells,
-                                         connections),
-                     (103, None))  # Random cell from column
+                                         activeCells),
+                     (96, None))  # Random cell from column
 
     self.assertEqual(tm.bestMatchingCell(tm.cellsForColumn(999),
-                                         activeCells,
-                                         connections),
-                     (31979, None))  # Random cell from column
+                                         activeCells),
+                     (31972, None))  # Random cell from column
 
 
   def testBestMatchingCellFewestSegments(self):
@@ -370,8 +366,7 @@ class TemporalMemoryTest(unittest.TestCase):
     for _ in range(100):
       # Never pick cell 0, always pick cell 1
       (cell, _) = tm.bestMatchingCell(tm.cellsForColumn(0),
-                                      activeSynapsesForSegment,
-                                      connections)
+                                      activeSynapsesForSegment)
       self.assertEqual(cell, 1)
 
 
@@ -399,25 +394,10 @@ class TemporalMemoryTest(unittest.TestCase):
 
     activeCells = set([23, 37, 49, 733])
 
-    self.assertEqual(tm.bestMatchingSegment(0,
-                                            activeCells,
-                                            connections),
-                     (0, 2))
-
-    self.assertEqual(tm.bestMatchingSegment(1,
-                                            activeCells,
-                                            connections),
-                     (2, 1))
-
-    self.assertEqual(tm.bestMatchingSegment(8,
-                                            activeCells,
-                                            connections),
-                     (None, None))
-
-    self.assertEqual(tm.bestMatchingSegment(100,
-                                            activeCells,
-                                            connections),
-                     (None, None))
+    self.assertEqual(tm.bestMatchingSegment(0, activeCells), (0, 2))
+    self.assertEqual(tm.bestMatchingSegment(1, activeCells), (2, 1))
+    self.assertEqual(tm.bestMatchingSegment(8, activeCells), (None, None))
+    self.assertEqual(tm.bestMatchingSegment(100, activeCells), (None, None))
 
 
   def testLeastUsedCell(self):
@@ -433,9 +413,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
     for _ in range(100):
       # Never pick cell 0, always pick cell 1
-      self.assertEqual(tm.leastUsedCell(tm.cellsForColumn(0),
-                                        connections),
-                       1)
+      self.assertEqual(tm.leastUsedCell(tm.cellsForColumn(0)), 1)
 
 
   def testAdaptSegment(self):
@@ -447,7 +425,7 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSynapse(0, 37, 0.4)
     connections.createSynapse(0, 477, 0.9)
 
-    tm.adaptSegment(0, set([0, 1]), connections,
+    tm.adaptSegment(0, set([0, 1]),
                     tm.permanenceIncrement,
                     tm.permanenceDecrement)
 
@@ -468,14 +446,14 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSegment(0)
     connections.createSynapse(0, 23, 0.9)
 
-    tm.adaptSegment(0, set([0]), connections,
+    tm.adaptSegment(0, set([0]),
                     tm.permanenceIncrement,
                     tm.permanenceDecrement)
     synapseData = connections.dataForSynapse(0)
     self.assertAlmostEqual(synapseData.permanence, 1.0)
 
     # Now permanence should be at max
-    tm.adaptSegment(0, set([0]), connections,
+    tm.adaptSegment(0, set([0]),
                     tm.permanenceIncrement,
                     tm.permanenceDecrement)
     synapseData = connections.dataForSynapse(0)
@@ -489,7 +467,7 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSegment(0)
     connections.createSynapse(0, 23, 0.1)
 
-    tm.adaptSegment(0, set(), connections,
+    tm.adaptSegment(0, set(),
                     tm.permanenceIncrement,
                     tm.permanenceDecrement)
 
@@ -505,13 +483,13 @@ class TemporalMemoryTest(unittest.TestCase):
 
     winnerCells = set([4, 47, 58, 93])
 
-    self.assertEqual(tm.pickCellsToLearnOn(2, 0, winnerCells, connections),
-                     set([4, 93]))  # randomly picked
+    self.assertEqual(tm.pickCellsToLearnOn(2, 0, winnerCells),
+                     set([4, 58]))  # randomly picked
 
-    self.assertEqual(tm.pickCellsToLearnOn(100, 0, winnerCells, connections),
+    self.assertEqual(tm.pickCellsToLearnOn(100, 0, winnerCells),
                      set([4, 47, 58, 93]))
 
-    self.assertEqual(tm.pickCellsToLearnOn(0, 0, winnerCells, connections),
+    self.assertEqual(tm.pickCellsToLearnOn(0, 0, winnerCells),
                      set())
 
 
@@ -525,7 +503,7 @@ class TemporalMemoryTest(unittest.TestCase):
     winnerCells = set([23])
 
     # Ensure that no additional (duplicate) cells were picked
-    self.assertEqual(tm.pickCellsToLearnOn(2, 0, winnerCells, connections),
+    self.assertEqual(tm.pickCellsToLearnOn(2, 0, winnerCells),
                      set())
 
 
