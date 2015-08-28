@@ -55,6 +55,7 @@ curl -O "https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.
 tar xzf "nupic_core-${NUPIC_CORE_COMMITISH}-linux64.tar.gz"
 
 # Install nupic.bindings and dependencies from wheels
+pip install --user pycapnp==0.5.5
 pip install --user --no-index --find-links=home/travis/build/numenta/nupic.core/bindings/py/dist/wheels nupic.bindings
 
 # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
