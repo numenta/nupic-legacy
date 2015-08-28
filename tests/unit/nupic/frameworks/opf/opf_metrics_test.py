@@ -483,6 +483,47 @@ record={"test":gt[i]})
 < OPFMetricsTest.DELTA)
 
 
+  def testNegLL(self):
+    # mock objects for ClassifierInput and ModelResult (see opfutils.py)
+    class ClassifierInput(object):
+      def __init__(self, bucketIdx):
+        self.bucketIndex = bucketIdx
+
+    class ModelResult(object):
+      def __init__(self, bucketll, bucketIdx):
+        self.inferences = {'multiStepBucketLikelihoods': {1: bucketll}}
+        self.classifierInput = ClassifierInput(bucketIdx)
+
+    # predicted prob. distribution
+    bucketLL = []
+    bucketLL.append({0: 1, 1: 0, 2: 0, 3: 0})
+    bucketLL.append({0: 0, 1: 1, 2: 0, 3: 0})
+    bucketLL.append({0: 0, 1: 0, 2: 1, 3: 0})
+    bucketLL.append({0: 0, 1: 0, 2: 0, 3: 1})
+
+    # bucket index for ground truth
+    gt_bucketIdx = [0, 1, 2, 3] # prediction is perfect for this ground truth
+    negLL = getModule(MetricSpec("negLL", None, None,
+                                {"verbosity" : OPFMetricsTest.VERBOSITY}))
+    for i in xrange(len(bucketLL)):
+      negLL.addInstance(0, 0, record = None,
+                        result=ModelResult(bucketLL[i], gt_bucketIdx[i]))
+    negLL.getMetric()
+    target = 0.0
+    self.assertAlmostEqual(negLL.getMetric()["value"], target)
+
+    gt_bucketIdx = [0, 2, 1, 3] # prediction is not perfect for this ground truth
+    negLL = getModule(MetricSpec("negLL", None, None,
+                                {"verbosity" : OPFMetricsTest.VERBOSITY}))
+    for i in xrange(len(bucketLL)):
+      negLL.addInstance(0, 0, record = None,
+                        result=ModelResult(bucketLL[i], gt_bucketIdx[i]))
+    negLL.getMetric()
+    target = 5.756462
+    self.assertTrue(abs(negLL.getMetric()["value"]-target)
+                    < OPFMetricsTest.DELTA)
+
+
   def testCustomErrorMetric(self):
     customFunc = """def getError(pred,ground,tools):
                       return abs(pred-ground)"""

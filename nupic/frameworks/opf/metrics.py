@@ -191,7 +191,7 @@ def getModule(metricSpec):
   elif metricName == 'multi':
     return MetricMulti(metricSpec)
   elif metricName == 'negLL':
-    return MetricNegLL(metricSpec)
+    return MetricNegLogLikelihood(metricSpec)
   else:
     raise Exception("Unsupported metric type: %s" % metricName)
 
@@ -491,7 +491,7 @@ class AggregateMetric(MetricsIface):
     return self.aggregateError
 
 
-class MetricNegLL(AggregateMetric):
+class MetricNegLogLikelihood(AggregateMetric):
   """
       computes negative log-likelihood
   """
