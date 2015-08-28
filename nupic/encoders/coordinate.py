@@ -165,15 +165,6 @@ class CoordinateEncoder(Encoder):
     return coordinates[indices]
 
 
-  @staticmethod
-  def _hashCoordinate(coordinate):
-    """Hash a coordinate to a 64 bit integer."""
-    coordinateStr = ",".join(str(v) for v in coordinate)
-    # Compute the hash and convert to 64 bit int.
-    hash = int(int(hashlib.md5(coordinateStr).hexdigest(), 16) % (2 ** 64))
-    return hash
-
-
   @classmethod
   def _orderForCoordinate(cls, coordinate):
     """
@@ -183,7 +174,7 @@ class CoordinateEncoder(Encoder):
     @return (float) A value in the interval [0, 1), representing the
                     order of the coordinate
     """
-    seed = cls._hashCoordinate(coordinate)
+    seed = hash(coordinate.data)
     rng = Random(seed)
     return rng.getReal64()
 
@@ -197,7 +188,7 @@ class CoordinateEncoder(Encoder):
     @param n (int) The number of available bits in the SDR
     @return (int) The index to a bit in the SDR
     """
-    seed = cls._hashCoordinate(coordinate)
+    seed = hash(coordinate.data)
     rng = Random(seed)
     return rng.getUInt32(n)
 
