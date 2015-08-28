@@ -19,6 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from fastcache import clru_cache as cache
 import hashlib
 import itertools
 
@@ -57,6 +58,7 @@ class CoordinateEncoder(Encoder):
                w=21,
                n=1000,
                name=None,
+               cacheSize=10000,
                verbosity=0):
     """
     See `nupic.encoders.base.Encoder` for more information.
@@ -76,6 +78,7 @@ class CoordinateEncoder(Encoder):
     self.n = n
     self.verbosity = verbosity
     self.encoders = None
+    self.cacheSize = cacheSize
 
     if name is None:
       name = "[%s:%s]" % (self.n, self.w)
@@ -96,6 +99,20 @@ class CoordinateEncoder(Encoder):
     """See `nupic.encoders.base.Encoder` for more information."""
     return numpy.array([0]*len(inputData))
 
+  
+  @cache(maxsize=100, typed=False)
+  def encode(self, coordinate, radius):
+    """
+    @param coordinate - a tuple (is hashable) of each axis, eg (x,y,z)
+    @param radius - float
+    """
+    out = numpy.zeros(self.n)
+    coordArr = numpy.array(coordinate)
+    # make ndarray read-only so it can be hashed
+    coordArr.flags.writeable = False
+    self.encodeIntoArray((coordArr, radius), out)
+    return out
+    
 
   def encodeIntoArray(self, inputData, output):
     """
@@ -189,6 +206,7 @@ class CoordinateEncoder(Encoder):
     print "CoordinateEncoder:"
     print "  w:   %d" % self.w
     print "  n:   %d" % self.n
+    print self.encode.cache_info()
 
 
   @classmethod
@@ -198,6 +216,7 @@ class CoordinateEncoder(Encoder):
     encoder.n = proto.n
     encoder.verbosity = proto.verbosity
     encoder.name = proto.name
+    encoder.cacheSize = proto.cacheSize
     return encoder
 
 
@@ -206,3 +225,4 @@ class CoordinateEncoder(Encoder):
     proto.n = self.n
     proto.verbosity = self.verbosity
     proto.name = self.name
+    proto.cacheSize = self.cacheSize

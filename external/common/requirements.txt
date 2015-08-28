@@ -3,6 +3,7 @@
 # any that are there: <nupic.core repo>/external/common/requirements.txt
 asteval==0.9.1
 coverage==3.7.1
+fastcache==1.0.2
 mock==1.0.1
 ordereddict==1.1
 pillow==2.3.0

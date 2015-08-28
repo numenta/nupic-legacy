@@ -42,6 +42,10 @@ def profileEnc(maxValue, nRuns):
   for d in data:
     encScalar.encode(d)
     encRDSE.encode(d)
+    encCoord.encode((d, d), 2)
+
+  print "Scalar n=",encScalar.n," RDSE n=",encRDSE.n," Coord n=",encCoord.n
+  print encCoord.encode.cache_info()
 
   print "Scalar n=",encScalar.n," RDSE n=",encRDSE.n
 
