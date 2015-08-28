@@ -190,7 +190,7 @@ def getModule(metricSpec):
     return MetricMAPE(metricSpec)
   elif metricName == 'multi':
     return MetricMulti(metricSpec)
-  elif metricName == 'negLL':
+  elif metricName == 'negativeLogLikelihood':
     return MetricNegLogLikelihood(metricSpec)
   else:
     raise Exception("Unsupported metric type: %s" % metricName)
@@ -493,7 +493,13 @@ class AggregateMetric(MetricsIface):
 
 class MetricNegLogLikelihood(AggregateMetric):
   """
-      computes negative log-likelihood
+      computes negative log-likelihood. Likelihood is the predicted probability of
+      the true data from a model. It is more powerful than metrics that only considers
+      the single best prediction (e.g. MSE) as it considers the entire probability
+      distribution predicted by a model.
+
+      It is more appropriate to use likelihood as the error metric when multiple
+      predictions are possible.
   """
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result):
     bucketll = result.inferences['multiStepBucketLikelihoods']
@@ -518,7 +524,7 @@ class MetricNegLogLikelihood(AggregateMetric):
 
       if historyBuffer is not None:
         historyBuffer.append(negLL)
-        if len(historyBuffer) > self.spec.params["window"] :
+        if len(historyBuffer) > self.spec.params["window"]:
           accumulatedError -= historyBuffer.popleft()
 
     return accumulatedError
