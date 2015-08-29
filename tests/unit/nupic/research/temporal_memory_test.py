@@ -344,11 +344,11 @@ class TemporalMemoryTest(unittest.TestCase):
 
     self.assertEqual(tm.bestMatchingCell(tm.cellsForColumn(3),  # column containing cell 108
                                          activeCells),
-                     (96, None))  # Random cell from column
+                     (103, None))  # Random cell from column
 
     self.assertEqual(tm.bestMatchingCell(tm.cellsForColumn(999),
                                          activeCells),
-                     (31972, None))  # Random cell from column
+                     (31979, None))  # Random cell from column
 
 
   def testBestMatchingCellFewestSegments(self):
@@ -487,7 +487,7 @@ class TemporalMemoryTest(unittest.TestCase):
     winnerCells = set([4, 47, 58, 93])
 
     self.assertEqual(tm.pickCellsToLearnOn(2, 0, winnerCells),
-                     set([4, 58]))  # randomly picked
+                     set([4, 93]))  # randomly picked
 
     self.assertEqual(tm.pickCellsToLearnOn(100, 0, winnerCells),
                      set([4, 47, 58, 93]))
