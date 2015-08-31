@@ -22,6 +22,7 @@
 
 """Unit tests for utils module."""
 
+import numpy
 import pickle
 import tempfile
 import unittest
@@ -194,9 +195,39 @@ class UtilsTest(unittest.TestCase):
       resRef.append(d**2)
       resCached.append(foo(d))
     
-    self.assertListEqual(resRef, resCached, ("Values retrieved from cache differ!: %r vs. %r" % (resRef, resCached))
+    self.assertListEqual(resRef, resCached, "Values retrieved from cache differ!: %r vs. %r" % (resRef, resCached))
+    print foo.cache_info()
 
-    
+
+  def testCacheSetSize(self):
+    # just a mock object
+    class A(object):
+      def __init__(self, cacheSize):
+        self._cacheSize = cacheSize
+      @cache(maxsize = 100)
+      def foo(self, x, **kwds):
+        return x**2
+
+    # test itself
+    a = A(42)
+
+    # method 1: maxsize explicitely given in decorator (=100)
+    for d in xrange(10):
+      a.foo(d)
+    mx = int(a.foo.cache_info().maxsize)
+    self.assertEqual(mx, 100, "Cache maxsize was given by decorator to 100, but is %r" % (mx))
+
+    # method 2: maxsize by 'cahesize' **kwarg passed to method
+    for d in xrange(10):
+      a.foo(d, cachesize="5")
+    mx = int(a.foo.cache_info().maxsize)
+    self.assertEqual(mx, 5, "Cache maxsize was given by method arg 'cachesize' to 5, but is %r" % (mx))
+
+    # method 3: maxsize accessed by 'cacheSizeName' reference to a._cacheSize
+    for d in xrange(10):
+      a.foo(d, cacheSizeName='_cacheSize')
+    mx = int(a.foo.cache_info().maxsize)
+    self.assertEqual(mx, 42, "Cache maxsize was given by method arg 'cacheSizeName' to self._cacheSize (=42), but is %r" % (mx))
 
 
 
