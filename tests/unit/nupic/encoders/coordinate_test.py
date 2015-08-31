@@ -305,6 +305,7 @@ class CoordinateEncoderTest(unittest.TestCase):
 
       res1 = encode(eDefault, np.array([x,y]), 2) # uses encodeIntoArray() directly
       res2 = eCached.encode((x,y), 2, cachesize=10, cacheSizeName='cacheSize') # calls encode() with cache
+      # both methods to set cache size are shown: cachesize=10, and cacheSizeName; the latter takes preference.
 
       self.assertTrue(np.array_equal(res1, res2), "Cached and non-cached encodings differ! %r %r" % (res1, res2))
     print eCached.dump()

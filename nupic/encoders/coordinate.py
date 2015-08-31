@@ -101,10 +101,14 @@ class CoordinateEncoder(Encoder):
 
   
   @cache(maxsize=100, typed=False)
-  def encode(self, coordinate, radius, **kwds):
+  def encode(self, coordinate, radius, cacheSizeName='cacheSize', **kwds):
     """
     @param coordinate - a tuple (is hashable) of each axis, eg (x,y,z)
     @param radius - float
+    @param cacheSizeName - string (opt), points to the attribute of the object
+                         (CoordinateEncoder().cacheSize) which holds value for
+                         the size of the cache. 
+                         See nupic.utils.lru_cache and tests for explanation.
     """
     out = numpy.zeros(self.n)
     coordArr = numpy.array(coordinate)
