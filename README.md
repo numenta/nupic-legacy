@@ -21,6 +21,8 @@ NuPIC binaries are available for:
 - [wheel](http://pythonwheels.com)
 - [numpy](http://www.numpy.org/)
 
+> **WARNING**: The [Anaconda](http://continuum.io/downloads) python distribution is currently not supported.
+
 ### Install
 
     pip install nupic
