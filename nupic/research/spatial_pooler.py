@@ -34,6 +34,12 @@ uintType = "uint32"
 VERSION = 2
 
 
+
+class InvalidSPParamUserValueError(ValueError):
+  pass
+
+
+
 class SpatialPooler(object):
   """
   This class implements the spatial pooler. It is in charge of handling the
@@ -50,8 +56,8 @@ class SpatialPooler(object):
   """
 
   def __init__(self,
-               inputDimensions=(32,32),
-               columnDimensions=(64,64),
+               inputDimensions=(32, 32),
+               columnDimensions=(64, 64),
                potentialRadius=16,
                potentialPct=0.5,
                globalInhibition=False,
@@ -73,15 +79,16 @@ class SpatialPooler(object):
     Parameters:
     ----------------------------
     @param inputDimensions:
-      A list representing the dimensions of the input vector. Format is [height,
-      width, depth, ...], where each value represents the size of the dimension.
-      For a topology of one dimension with 100 inputs use 100, or [100]. For a
-      two dimensional topology of 10x5 use [10,5].
+      A sequence representing the dimensions of the input vector. Format is
+      (height, width, depth, ...), where each value represents the size of the
+      dimension.  For a topology of one dimension with 100 inputs use 100, or
+      (100,). For a two dimensional topology of 10x5 use (10,5).
     @param columnDimensions:
-      A list representing the dimensions of the columns in the region. Format is
-      [height, width, depth, ...], where each value represents the size of the
-      dimension.  For a topology of one dimension with 2000 columns use 2000, or
-      [2000]. For a three dimensional topology of 32x64x16 use [32, 64, 16].
+      A sequence representing the dimensions of the columns in the region.
+      Format is (height, width, depth, ...), where each value represents the
+      size of the dimension.  For a topology of one dimension with 2000 columns
+      use 2000, or (2000,). For a three dimensional topology of 32x64x16 use
+      (32, 64, 16).
     @param potentialRadius:
       This parameter determines the extent of the input that each column can
       potentially be connected to.  This can be thought of as the input bits
@@ -113,22 +120,22 @@ class SpatialPooler(object):
       N = localAreaDensity * (total number of columns in inhibition area).
     @param numActiveColumnsPerInhArea:
       An alternate way to control the density of the active columns. If
-      numActiveColumnsPerInhArea is specified then localAreaDensity must be less than
-      0, and vice versa.  When using numActiveColumnsPerInhArea, the inhibition logic
-      will insure that at most 'numActiveColumnsPerInhArea' columns remain ON within a
-      local inhibition area (the size of which is set by the internally
-      calculated inhibitionRadius, which is in turn determined from the average
-      size of the connected receptive fields of all columns). When using this
-      method, as columns learn and grow their effective receptive fields, the
-      inhibitionRadius will grow, and hence the net density of the active
-      columns will *decrease*. This is in contrast to the localAreaDensity
-      method, which keeps the density of active columns the same regardless of
-      the size of their receptive fields.
+      numActiveColumnsPerInhArea is specified then localAreaDensity must be
+      less than 0, and vice versa.  When using numActiveColumnsPerInhArea, the
+      inhibition logic will insure that at most 'numActiveColumnsPerInhArea'
+      columns remain ON within a local inhibition area (the size of which is
+      set by the internally calculated inhibitionRadius, which is in turn
+      determined from the average size of the connected receptive fields of all
+      columns). When using this method, as columns learn and grow their
+      effective receptive fields, the inhibitionRadius will grow, and hence the
+      net density of the active columns will *decrease*. This is in contrast to
+      the localAreaDensity method, which keeps the density of active columns
+      the same regardless of the size of their receptive fields.
     @param stimulusThreshold:
-      This is a number specifying the minimum number of synapses that must be on
-      in order for a columns to turn ON. The purpose of this is to prevent noise
-      input from activating columns. Specified as a percent of a fully grown
-      synapse.
+      This is a number specifying the minimum number of synapses that must be
+      on in order for a columns to turn ON. The purpose of this is to prevent
+      noise input from activating columns. Specified as a percent of a fully
+      grown synapse.
     @param synPermInactiveDec:
       The amount by which an inactive synapse is decremented in each round.
       Specified as a percent of a fully grown synapse.
@@ -178,23 +185,29 @@ class SpatialPooler(object):
       Determines if inputs at the beginning and end of an input dimension should
       be considered neighbors when mapping columns to inputs.
     """
-    # Verify input is valid
-    inputDimensions = numpy.array(inputDimensions, ndmin=1)
+    if (numActiveColumnsPerInhArea == 0 and
+        (localAreaDensity == 0 or localAreaDensity > 0.5)):
+      raise InvalidSPParamUserValueError("Inhibition parameters are invalid")
+
     columnDimensions = numpy.array(columnDimensions, ndmin=1)
     numColumns = columnDimensions.prod()
+
+    if not isinstance(numColumns, (int, long)) or numColumns <= 0:
+      raise InvalidSPParamUserValueError("Invalid number of columns ({})"
+                                         .format(repr(numColumns)))
+    inputDimensions = numpy.array(inputDimensions, ndmin=1)
     numInputs = inputDimensions.prod()
 
-    assert numColumns > 0, "No columns specified"
-    assert numInputs > 0, "No inputs specified"
-    assert inputDimensions.size == columnDimensions.size, (
-             "Input dimensions must match column dimensions")
-    assert (numActiveColumnsPerInhArea > 0 or
-           (localAreaDensity > 0 and localAreaDensity <= 0.5)), (
-             "Inhibition parameters are invalid")
+    if not isinstance(numInputs, (int, long)) or numInputs <= 0:
+      raise InvalidSPParamUserValueError("Invalid number of inputs ({}"
+                                         .format(repr(numInputs)))
+
+    if inputDimensions.size != columnDimensions.size:
+      raise InvalidSPParamUserValueError(
+        "Input dimensions must match column dimensions")
 
     self._seed(seed)
 
-    # save arguments
     self._numInputs = int(numInputs)
     self._numColumns = int(numColumns)
     self._columnDimensions = columnDimensions
@@ -215,23 +228,21 @@ class SpatialPooler(object):
     self._maxBoost = maxBoost
     self._spVerbosity = spVerbosity
     self._wrapAround = wrapAround
-
-    # Extra parameter settings
     self._synPermMin = 0.0
     self._synPermMax = 1.0
     self._synPermTrimThreshold = synPermActiveInc / 2.0
-    assert (self._synPermTrimThreshold < self._synPermConnected), (
-             "synPermTrimThreshold must be less than synPermConnected")
+
+    if self._synPermTrimThreshold >= self._synPermConnected:
+      raise InvalidSPParamUserValueError(
+        "synPermTrimThreshold ({}) must be less than synPermConnected ({})"
+        .format(repr(self._synPermTrimThreshold),
+                repr(self._synPermConnected)))
+
     self._updatePeriod = 50
     initConnectedPct = 0.5
-
-    # Internal state
     self._version = VERSION
     self._iterationNum = 0
     self._iterationLearnNum = 0
-
-    # initialize the random number generators
-    self._seed(seed)
 
     # Store the set of all inputs that are within each column's potential pool.
     # 'potentialPools' is a matrix, whose rows represent cortical columns, and
@@ -264,7 +275,6 @@ class SpatialPooler(object):
     self._tieBreaker = 0.01*numpy.array([self._random.getReal64() for i in
                                         xrange(self._numColumns)])
 
-
     # 'self._connectedSynapses' is a similar matrix to 'self._permanences'
     # (rows represent cortical columns, columns represent input bits) whose
     # entries represent whether the cortical column is connected to the input
@@ -288,7 +298,6 @@ class SpatialPooler(object):
       self._potentialPools.replaceSparseRow(i, potential.nonzero()[0])
       perm = self._initPermanence(potential, initConnectedPct)
       self._updatePermanencesForColumn(perm, i, raisePerm=True)
-
 
     self._overlapDutyCycles = numpy.zeros(numColumns, dtype=realDType)
     self._activeDutyCycles = numpy.zeros(numColumns, dtype=realDType)
