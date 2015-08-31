@@ -124,7 +124,7 @@ class MetricsManager(object):
       groundTruth = self._getGroundTruth(inferenceElement)
       inference = self._getInference(inferenceElement)
       rawRecord = self._getRawGroundTruth()
-      results = self.__currentResult
+      result = self.__currentResult
       if field:
         if type(inference) in (list, tuple):
           if field in self.__fieldNameIndexMap:
@@ -150,7 +150,7 @@ class MetricsManager(object):
       metric.addInstance(groundTruth=groundTruth,
                          prediction=inference,
                          record=rawRecord,
-                         result=results)
+                         result=result)
 
       metricResults[label] = metric.getMetric()['value']
 

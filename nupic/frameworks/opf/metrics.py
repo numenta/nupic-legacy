@@ -191,7 +191,7 @@ def getModule(metricSpec):
   elif metricName == 'multi':
     return MetricMulti(metricSpec)
   elif metricName == 'negativeLogLikelihood':
-    return MetricNegLogLikelihood(metricSpec)
+    return MetricNegativeLogLikelihood(metricSpec)
   else:
     raise Exception("Unsupported metric type: %s" % metricName)
 
@@ -281,7 +281,7 @@ class MetricsIface(object):
         now this is only used by CLA networks
 
       result:
-        An ModelResult namedtuple (see opfutils.py)
+        An ModelResult class (see opfutils.py)
 
         return:
             The average error as computed over the metric's window size
@@ -327,8 +327,8 @@ class AggregateMetric(MetricsIface):
 
             If historyBuffer = None,  it means that no history is being kept.
 
-        result: An ModelResult namedtuple (see opfutils.py), used for advanced
-          metric calculation (e.g., NegLL metric)
+        result: An ModelResult class (see opfutils.py), used for advanced
+          metric calculation (e.g., MetricNegativeLogLikelihood)
 
           retval:
             The new accumulated error. That is:
@@ -491,7 +491,7 @@ class AggregateMetric(MetricsIface):
     return self.aggregateError
 
 
-class MetricNegLogLikelihood(AggregateMetric):
+class MetricNegativeLogLikelihood(AggregateMetric):
   """
       computes negative log-likelihood. Likelihood is the predicted probability of
       the true data from a model. It is more powerful than metrics that only considers
