@@ -19,8 +19,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import capnp
-
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
@@ -37,9 +35,6 @@ from nupic.encoders.geospatial_coordinate import GeospatialCoordinateEncoder
 # multiencoder must be imported last because it imports * from this module!
 from nupic.encoders.utils import bitsToString
 from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
-
-from nupic.encoders.base import Encoder
-from nupic.encoders.scalar_capnp import ScalarEncoderProto
 
 
 

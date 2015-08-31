@@ -30,9 +30,15 @@ import unittest2 as unittest
 import numpy
 
 from nupic.encoders.sparse_pass_through_encoder import SparsePassThroughEncoder
-from nupic.encoders.sparse_pass_through_encoder_capnp import (
-  SparsePassThroughEncoderProto
-)
+
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.sparse_pass_through_encoder_capnp import (
+      SparsePassThroughEncoderProto)
 
 
 
@@ -120,6 +126,8 @@ class SparsePassThroughEncoderTest(unittest.TestCase):
     self.assertEqual(c[0], 0.8)
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testReadWrite(self):
     original = self._encoder(self.n, name=self.name)
     originalValue = original.encode([1,0,1,0,1,0,1,0,1])

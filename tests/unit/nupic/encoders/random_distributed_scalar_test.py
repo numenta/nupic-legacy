@@ -33,9 +33,15 @@ from nupic.support.unittesthelpers.algorithm_test_helpers import getSeed
 from nupic.encoders.random_distributed_scalar import (
   RandomDistributedScalarEncoder
 )
-from nupic.encoders.random_distributed_scalar_capnp import (
-  RandomDistributedScalarEncoderProto
-)
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.random_distributed_scalar_capnp import (
+    RandomDistributedScalarEncoderProto
+  )
 
 
 
@@ -451,10 +457,11 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
       encoder.encode("String")
 
 
-
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testCapNProtoSerialization(self):
-    original = RandomDistributedScalarEncoder(name="encoder", resolution=1.0, w=23,
-                                              n=500, offset=0.0)
+    original = RandomDistributedScalarEncoder(
+        name="encoder", resolution=1.0, w=23, n=500, offset=0.0)
 
     originalValue = original.encode(1)
 

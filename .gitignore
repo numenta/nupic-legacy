@@ -62,12 +62,6 @@ conf/default/nupic-site.xml
 extensions/core/
 experimental/
 
-# nupic bindings swig libraries
-nupic/bindings/*.cxx
-nupic/bindings/*.py
-nupic/bindings/*.so
-nupic/bindings/proto/*.capnp
-
 # Pip stuff
 dist/
 nupic.egg-info/

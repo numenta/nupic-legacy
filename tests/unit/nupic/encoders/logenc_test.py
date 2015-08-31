@@ -27,11 +27,17 @@ import math
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
 import tempfile
-import unittest2 as unittest
+import unittest
 
 from nupic.encoders.logenc import LogEncoder
 from nupic.encoders.scalar import ScalarEncoder
-from nupic.encoders.log_capnp import LogEncoderProto
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.log_capnp import LogEncoderProto
 
 
 
@@ -269,6 +275,8 @@ class LogEncoderTest(unittest.TestCase):
     self.assertAlmostEqual(le.encoder.resolution, expectedResolution)
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testReadWrite(self):
     le = LogEncoder(w=5,
                     resolution=0.1,
