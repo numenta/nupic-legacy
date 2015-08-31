@@ -301,7 +301,7 @@ class CoordinateEncoderTest(unittest.TestCase):
     eCached  = CoordinateEncoder(cacheSize=10)
     iters = 10
     for _ in xrange(iters):
-      (x,y) = np.random.randint(0, 10, 2) 
+      (x,y) = np.random.randint(0, 2, 2) 
 
       res1 = encode(eDefault, np.array([x,y]), 2) # uses encodeIntoArray() directly
       res2 = eCached.encode((x,y), 2) # calls encode() with cache
