@@ -29,7 +29,12 @@ import unittest
 from nupic.encoders.delta import (DeltaEncoder,
                                   AdaptiveScalarEncoder)
 
-from nupic.encoders.delta_capnp import DeltaEncoderProto
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.delta_capnp import DeltaEncoderProto
 
 
 
@@ -106,8 +111,9 @@ class DeltaEncoderTest(unittest.TestCase):
                 "with scalar encoder.")
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testReadWrite(self):
-
     feedIn  = [1, 10, 4, 7, 9, 6, 3, 1]
     expectedOut = [0, 9, -6, 3, 2, -3, -3, -2]
     self._dencoder.setStateLock(False)

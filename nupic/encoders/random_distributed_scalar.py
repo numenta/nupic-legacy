@@ -24,17 +24,12 @@ import numbers
 import pprint
 import sys
 
-import capnp
 import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.encoders.base import Encoder
 from nupic.bindings.math import Random as NupicRandom
-
-from nupic.encoders.random_distributed_scalar_capnp import (
-  RandomDistributedScalarEncoderProto
-)
 
 
 

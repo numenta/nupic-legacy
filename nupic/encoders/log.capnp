@@ -1,6 +1,6 @@
 @0x94b5c39874f24431;
 
-using import "scalar.capnp".ScalarEncoderProto;
+using import "/nupic/encoders/scalar.capnp".ScalarEncoderProto;
 
 struct LogEncoderProto {
   verbosity @0 :UInt8;

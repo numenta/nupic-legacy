@@ -30,7 +30,12 @@ from nupic.encoders.multi import MultiEncoder
 from nupic.encoders import ScalarEncoder, SDRCategoryEncoder
 from nupic.data.dictutils import DictObj
 
-from nupic.encoders.multi_capnp import MultiEncoderProto
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.multi_capnp import MultiEncoderProto
 
 
 
@@ -87,6 +92,8 @@ class MultiEncoderTest(unittest.TestCase):
 
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testReadWrite(self):
     original = MultiEncoder()
     original.addEncoder("dow",
