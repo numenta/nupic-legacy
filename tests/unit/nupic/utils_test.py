@@ -27,6 +27,7 @@ import tempfile
 import unittest
 
 from nupic.utils import MovingAverage
+from nupic.utils import lru_cache as cache
 
 # Import capnp to force import hook
 import capnp
@@ -178,6 +179,23 @@ class UtilsTest(unittest.TestCase):
     self.assertNotEqual(ma, maP)
     ma.next(6)
     self.assertEqual(ma, maP)
+
+
+  def testCache(self):
+    data = numpy.random.randint(0, 10, 100) 
+    resRef = []
+    resCached = []
+
+    @cache(maxsize=8)
+    def foo(x):
+      return x**2
+
+    for d in data:
+      resRef.append(d**2)
+      resCached.append(foo(d))
+    
+    self.assertListEqual(resRef, resCached, ("Values retrieved from cache differ!: %r vs. %r" % (resRef, resCached))
+
     
 
 
