@@ -27,10 +27,17 @@ import itertools
 import tempfile
 from nupic.encoders.base import defaultDtype
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-import unittest2 as unittest
+import unittest
 
 from nupic.encoders.scalar import ScalarEncoder
-from nupic.encoders.scalar_capnp import ScalarEncoderProto
+
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.scalar_capnp import ScalarEncoderProto
 
 
 
@@ -381,6 +388,8 @@ class ScalarEncoderTest(unittest.TestCase):
                      encoder.topDownCompute(encoder.encode(4.5))[0].scalar)
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testReadWrite(self):
     """Test ScalarEncoder Cap'n Proto serialization implementation."""
     originalValue = self._l.encode(1)

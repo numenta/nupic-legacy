@@ -31,13 +31,26 @@ git clone https://github.com/numenta/nupic-darwin64.git
 echo ">>> Activating nupic-darwin64..."
 source nupic-darwin64/bin/activate
 
+# Upgrade the version of pip included with nupic-darwin64
 # TODO: remove after nupic-darwin64 has been updated
-pip install --upgrade pip --user --quiet
+pip install --upgrade --install-option="--prefix=`pwd`/nupic-darwin64" pip
+pip --version
+
 pip uninstall numpy --yes
-pip install wheel --user -q
-pip install --use-wheel numpy==1.9.2 --user -q
-PY_VERSION=`python -c 'import sys; print(sys.version[:3])'`
+
+pip install wheel --user
+
+# Add --user location to PYTHONPATH
 export PYTHONPATH="/Users/travis/Library/Python/$PY_VERSION/lib/python/site-packages:$PYTHONPATH"
+
+# Fetch nupic.core build
+export NUPIC_CORE_COMMITISH=`python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"`
+echo "Downloading nupic.core build: https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
+curl -O "https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
+tar xzf "nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
+
+# Install nupic.bindings and dependencies from wheels
+pip install --user --no-index --find-links=Users/travis/build/numenta/nupic.core/bindings/py/dist/wheels nupic.bindings
 
 # Install and start MySQL on OSX
 echo ">>> brew install mysql"

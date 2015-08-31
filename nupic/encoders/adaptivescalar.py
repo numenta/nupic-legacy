@@ -26,6 +26,8 @@ from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.utils import MovingAverage
 
+
+
 class AdaptiveScalarEncoder(ScalarEncoder):
   """
   This is an implementation of the scalar encoder that adapts the min and

@@ -25,13 +25,18 @@
 import tempfile
 import unittest
 
-import capnp
 import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.base import defaultDtype
 from nupic.encoders.category import CategoryEncoder, UNKNOWN
-from nupic.encoders.category_capnp import CategoryEncoderProto
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.category_capnp import CategoryEncoderProto
 
 
 
@@ -204,6 +209,8 @@ class CategoryEncoderTest(unittest.TestCase):
 
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testReadWrite(self):
     categories = ["ES", "GB", "US"]
 

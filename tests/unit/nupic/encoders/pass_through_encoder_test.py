@@ -30,7 +30,13 @@ import unittest2 as unittest
 import numpy
 
 from nupic.encoders.pass_through_encoder import PassThroughEncoder
-from nupic.encoders.pass_through_capnp import PassThroughEncoderProto
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.pass_through_capnp import PassThroughEncoderProto
 
 
 
@@ -121,6 +127,8 @@ class PassThroughEncoderTest(unittest.TestCase):
     self.assertEqual(c[0], 0.8)
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testReadWrite(self):
     original = self._encoder(self.n, name=self.name)
     originalValue = original.encode([1,0,1,0,1,0,1,0,1])
