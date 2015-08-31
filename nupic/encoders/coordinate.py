@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from fastcache import clru_cache as cache
+from nupic.utils import lru_cache as cache
 import hashlib
 import itertools
 
