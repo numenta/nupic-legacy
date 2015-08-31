@@ -298,13 +298,13 @@ class CoordinateEncoderTest(unittest.TestCase):
 
   def testCachedEncoding(self):
     eDefault = CoordinateEncoder()
-    eCached  = CoordinateEncoder(cacheSize=10)
+    eCached  = CoordinateEncoder(cacheSize=9)
     iters = 10
     for _ in xrange(iters):
       (x,y) = np.random.randint(0, 2, 2) 
 
       res1 = encode(eDefault, np.array([x,y]), 2) # uses encodeIntoArray() directly
-      res2 = eCached.encode((x,y), 2) # calls encode() with cache
+      res2 = eCached.encode((x,y), 2, cachesize=10, cacheSizeName='cacheSize') # calls encode() with cache
 
       self.assertTrue(np.array_equal(res1, res2), "Cached and non-cached encodings differ! %r %r" % (res1, res2))
     print eCached.dump()

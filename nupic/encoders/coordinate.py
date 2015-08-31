@@ -101,7 +101,7 @@ class CoordinateEncoder(Encoder):
 
   
   @cache(maxsize=100, typed=False)
-  def encode(self, coordinate, radius):
+  def encode(self, coordinate, radius, **kwds):
     """
     @param coordinate - a tuple (is hashable) of each axis, eg (x,y,z)
     @param radius - float

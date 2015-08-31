@@ -207,8 +207,11 @@ def lru_cache(maxsize=100, typed=False):
         root[:] = [root, root, None, None]      # initialize by pointing to self
         nonlocal_root = [root]                  # make updateable non-locally
         PREV, NEXT, KEY, RESULT = 0, 1, 2, 3    # names for the link fields
+        #mmm: replaced maxsize with properties['maxsize'] is it can be overriden from inner functions
+        properties = dict()
+        properties['maxsize'] = maxsize         # make maxsize updatable non-locally
 
-        if maxsize == 0:
+        if properties['maxsize'] == 0:
 
             def wrapper(*args, **kwds):
                 # no caching, just do a statistics update after a successful call
@@ -216,7 +219,7 @@ def lru_cache(maxsize=100, typed=False):
                 stats[MISSES] += 1
                 return result
 
-        elif maxsize is None:
+        elif properties['maxsize'] is None:
 
             def wrapper(*args, **kwds):
                 # simple caching without ordering or size limit
@@ -233,8 +236,22 @@ def lru_cache(maxsize=100, typed=False):
         else:
 
             def wrapper(*args, **kwds):
+
+                #mmm: if function provides 'cachesize' argument, use that to replace the cache's maxsize
+                sz = kwds.get('cachesize', None)
+                caller = args[0]
+                if sz is not None:
+                  properties['maxsize'] = sz
+                #mmm: if function provides 'cacheSizeRef' argument (string), use that to get objects attribute of that name
+                # and replace maxsize
+                name = kwds.get('cacheSizeName', None)
+                if name is not None:
+                  sz = caller.__dict__[name] 
+                  properties['maxsize'] = sz
+
                 # size limited caching that tracks accesses by recency
                 key = make_key(args, kwds, typed) if kwds or typed else args
+                
                 with lock:
                     link = cache_get(key)
                     if link is not None:
@@ -258,7 +275,7 @@ def lru_cache(maxsize=100, typed=False):
                         # update is already done, we need only return the
                         # computed result and update the count of misses.
                         pass
-                    elif _len(cache) >= maxsize:
+                    elif _len(cache) >= properties['maxsize']:
                         # use the old root to store the new key and result
                         oldroot = root
                         oldroot[KEY] = key
@@ -282,7 +299,7 @@ def lru_cache(maxsize=100, typed=False):
         def cache_info():
             """Report cache statistics"""
             with lock:
-                return _CacheInfo(stats[HITS], stats[MISSES], maxsize, len(cache))
+                return _CacheInfo(stats[HITS], stats[MISSES], properties['maxsize'], len(cache))
 
         def cache_clear():
             """Clear the cache and cache statistics"""
