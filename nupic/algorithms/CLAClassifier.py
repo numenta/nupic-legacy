@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -31,7 +31,7 @@ import numpy
 # This determines how large one of the duty cycles must get before each of the
 # duty cycles are updated to the current iteration.
 # This must be less than float32 size since storage is float32 size
-DUTY_CYCLE_UPDATE_INTERVAL = numpy.finfo(numpy.float32).max / ( 2**20 )
+DUTY_CYCLE_UPDATE_INTERVAL = numpy.finfo(numpy.float32).max / (2 ** 20)
 
 g_debugPrefix = "CLAClassifier"
 
@@ -40,7 +40,6 @@ def _pFormatArray(array_, fmt="%.2f"):
   """Return a string with pretty-print of a numpy array using the given format
   for each element"""
   return "[ " + " ".join(fmt % x for x in array_) + " ]"
-
 
 
 class BitHistory(object):
@@ -60,7 +59,7 @@ class BitHistory(object):
     classifier:    instance of the CLAClassifier that owns us
     bitNum:        activation pattern bit number this history is for,
                         used only for debug messages
-    nSteps:        number of steps of predition this history is for, used
+    nSteps:        number of steps of prediction this history is for, used
                         only for debug messages
     """
     # Store reference to the classifier
@@ -131,13 +130,14 @@ class BitHistory(object):
     # to denote that this is the new duty cycle at that iteration. This is
     # equivalent to the duty cycle dc{-n}
     denom = ((1.0 - self._classifier.alpha) **
-                                  (iteration - self._lastTotalUpdate))
+             (iteration - self._lastTotalUpdate))
     if denom > 0:
       dcNew = dc + (self._classifier.alpha / denom)
 
     # This is to prevent errors associated with inf rescale if too large
     if denom == 0 or dcNew > DUTY_CYCLE_UPDATE_INTERVAL:
-      exp =  (1.0 - self._classifier.alpha) ** (iteration-self._lastTotalUpdate)
+      exp = ((1.0 - self._classifier.alpha) **
+             (iteration - self._lastTotalUpdate))
       for (bucketIdxT, dcT) in enumerate(self._stats):
         dcT *= exp
         self._stats[bucketIdxT] = dcT
@@ -155,22 +155,20 @@ class BitHistory(object):
       print "updated DC for %s, bucket %d to %f" % (self._id, bucketIdx, dc)
 
 
-  def infer(self, iteration, votes):
+  def infer(self, votes):
     """Look up and return the votes for each bucketIdx for this bit.
 
     Parameters:
     --------------------------------------------------------------------
-    iteration:  the learning iteration number, which is only incremented
-                  when learning is enabled
     votes:      a numpy array, initialized to all 0's, that should be filled
-                  in with the votes for each bucket. The vote for bucket index N
-                  should go into votes[N].
+                in with the votes for each bucket. The vote for bucket index N
+                should go into votes[N].
     """
     # Place the duty cycle into the votes and update the running total for
     # normalization
     total = 0
     for (bucketIdx, dc) in enumerate(self._stats):
-    # Not updating to current iteration since we are normalizing anyway
+      # Not updating to current iteration since we are normalizing anyway
       if dc > 0.0:
         votes[bucketIdx] = dc
         total += dc
@@ -196,7 +194,7 @@ class BitHistory(object):
       stats = state.pop("_stats")
       assert isinstance(stats, dict)
       maxBucket = max(stats.iterkeys())
-      self._stats = array.array("f", itertools.repeat(0.0, maxBucket+1))
+      self._stats = array.array("f", itertools.repeat(0.0, maxBucket + 1))
       for (index, value) in stats.iteritems():
         self._stats[index] = value
     elif version == 1:
@@ -205,7 +203,7 @@ class BitHistory(object):
       pass
     else:
       raise Exception("Error while deserializing %s: Invalid version %s"
-                      %(self.__class__, version))
+                      % (self.__class__, version))
 
     for (attr, value) in state.iteritems():
       setattr(self, attr, value)
@@ -234,7 +232,8 @@ class BitHistory(object):
     for statProto in proto.stats:
       statsLen = len(bitHistory._stats) - 1
       if statProto.index > statsLen:
-        bitHistory._stats.extend(itertools.repeat(0.0, statProto.index - statsLen))
+        bitHistory._stats.extend(
+          itertools.repeat(0.0, statProto.index - statsLen))
       bitHistory._stats[statProto.index] = statProto.dutyCycle
 
     bitHistory._lastTotalUpdate = proto.lastTotalUpdate
@@ -250,9 +249,9 @@ class CLAClassifier(object):
   "activationPattern") and information from the sensor and encoders (the
   "classification") describing the input to the system at that time step.
 
-  When learning, for every bit in activation pattern, it records a history of the
-  classification each time that bit was active. The history is weighted so that
-  more recent activity has a bigger impact than older activity. The alpha
+  When learning, for every bit in activation pattern, it records a history of 
+  the classification each time that bit was active. The history is weighted so 
+  that more recent activity has a bigger impact than older activity. The alpha
   parameter controls this weighting.
 
   For inference, it takes an ensemble approach. For every active bit in the
@@ -299,7 +298,6 @@ class CLAClassifier(object):
     self._recordNumMinusLearnIteration = None
 
     # Max # of steps of prediction we need to support
-    # TODO: Do we need the +1?
     maxSteps = max(self.steps) + 1
 
     # History of the last _maxSteps activation patterns. We need to keep
@@ -343,8 +341,8 @@ class CLAClassifier(object):
                 insures that we don't get confused by missing records.
     patternNZ:  list of the active indices from the output below
     classification: dict of the classification information:
-                      bucketIdx: index of the encoder bucket
-                      actValue:  actual value going into the encoder
+                    bucketIdx: index of the encoder bucket
+                    actValue:  actual value going into the encoder
     learn:      if true, learn this sample
     infer:      if true, perform inference
 
@@ -371,7 +369,6 @@ class CLAClassifier(object):
     # Update the learn iteration
     self._learnIteration = recordNum - self._recordNumMinusLearnIteration
 
-
     if self.verbosity >= 1:
       print "\n%s: compute" % g_debugPrefix
       print "  recordNum:", recordNum
@@ -382,58 +379,18 @@ class CLAClassifier(object):
     # Store pattern in our history
     self._patternNZHistory.append((self._learnIteration, patternNZ))
 
+    # To allow multi-class classification, we need to be able to run learning
+    # without inference being on. So initialize retval outside 
+    # of the inference block.
+    retval = None
+
     # ------------------------------------------------------------------------
     # Inference:
     # For each active bit in the activationPattern, get the classification
     # votes
     if infer:
-      # Return value dict. For buckets which we don't have an actual value
-      # for yet, just plug in any valid actual value. It doesn't matter what
-      # we use because that bucket won't have non-zero likelihood anyways.
-
-      # NOTE: If doing 0-step prediction, we shouldn't use any knowledge
-      #  of the classification input during inference.
-      if self.steps[0] == 0:
-        defaultValue = 0
-      else:
-        defaultValue = classification["actValue"]
-      actValues = [x if x is not None else defaultValue
-                   for x in self._actualValues]
-      retval = {"actualValues": actValues}
-
-      # For each n-step prediction...
-      for nSteps in self.steps:
-
-        # Accumulate bucket index votes and actValues into these arrays
-        sumVotes = numpy.zeros(self._maxBucketIdx+1)
-        bitVotes = numpy.zeros(self._maxBucketIdx+1)
-
-        # For each active bit, get the votes
-        for bit in patternNZ:
-          key = (bit, nSteps)
-          history = self._activeBitHistory.get(key, None)
-          if history is None:
-            continue
-
-          bitVotes.fill(0)
-          history.infer(iteration=self._learnIteration, votes=bitVotes)
-
-          sumVotes += bitVotes
-
-        # Return the votes for each bucket, normalized
-        total = sumVotes.sum()
-        if total > 0:
-          sumVotes /= total
-        else:
-          # If all buckets have zero probability then simply make all of the
-          # buckets equally likely. There is no actual prediction for this
-          # timestep so any of the possible predictions are just as good.
-          if sumVotes.size > 0:
-            sumVotes = numpy.ones(sumVotes.shape)
-            sumVotes /= sumVotes.size
-
-        retval[nSteps] = sumVotes
-
+      retval = self.infer(patternNZ, classification)
+      
     # ------------------------------------------------------------------------
     # Learning:
     # For each active bit in the activationPattern, store the classification
@@ -451,15 +408,15 @@ class CLAClassifier(object):
       # Update rolling average of actual values if it's a scalar. If it's
       # not, it must be a category, in which case each bucket only ever
       # sees one category so we don't need a running average.
-      while self._maxBucketIdx > len(self._actualValues)-1:
+      while self._maxBucketIdx > len(self._actualValues) - 1:
         self._actualValues.append(None)
       if self._actualValues[bucketIdx] is None:
         self._actualValues[bucketIdx] = actValue
       else:
         if isinstance(actValue, int) or isinstance(actValue, float):
-          self._actualValues[bucketIdx] = \
-                  (1.0 - self.actValueAlpha) * self._actualValues[bucketIdx] \
-                   + self.actValueAlpha * actValue
+          self._actualValues[bucketIdx] = ((1.0 - self.actValueAlpha)
+                                           * self._actualValues[bucketIdx]
+                                           + self.actValueAlpha * actValue)
         else:
           self._actualValues[bucketIdx] = actValue
 
@@ -486,7 +443,8 @@ class CLAClassifier(object):
           history = self._activeBitHistory.get(key, None)
           if history is None:
             history = self._activeBitHistory[key] = BitHistory(self,
-                        bitNum=bit, nSteps=nSteps)
+                                                               bitNum=bit,
+                                                               nSteps=nSteps)
 
           # Store new sample
           history.store(iteration=self._learnIteration,
@@ -502,12 +460,87 @@ class CLAClassifier(object):
           continue
         print "    %d steps: " % (nSteps), _pFormatArray(votes)
         bestBucketIdx = votes.argmax()
-        print "      most likely bucket idx: %d, value: %s" % (bestBucketIdx,
-                            retval["actualValues"][bestBucketIdx])
+        print ("      most likely bucket idx: "
+               "%d, value: %s" % (bestBucketIdx,
+                                  retval["actualValues"][bestBucketIdx]))
       print
 
     return retval
+  
+  
+  def infer(self, patternNZ, classification):
+    """
+    Return the inference value from one input sample. The actual 
+    learning happens in compute(). The method customCompute() is here to 
+    maintain backward compatibility. 
 
+    Parameters:
+    --------------------------------------------------------------------
+    patternNZ:      list of the active indices from the output below
+    classification: dict of the classification information:
+                    bucketIdx: index of the encoder bucket
+                    actValue:  actual value going into the encoder
+
+    retval:     dict containing inference results, one entry for each step in
+                self.steps. The key is the number of steps, the value is an
+                array containing the relative likelihood for each bucketIdx
+                starting from bucketIdx 0.
+
+                for example:
+                  {'actualValues': [0.0, 1.0, 2.0, 3.0]
+                    1 : [0.1, 0.3, 0.2, 0.7]
+                    4 : [0.2, 0.4, 0.3, 0.5]}
+    """
+    
+    # Return value dict. For buckets which we don't have an actual value
+    # for yet, just plug in any valid actual value. It doesn't matter what
+    # we use because that bucket won't have non-zero likelihood anyways.
+
+    # NOTE: If doing 0-step prediction, we shouldn't use any knowledge
+    #  of the classification input during inference.
+    if self.steps[0] == 0:
+      defaultValue = 0
+    else:
+      defaultValue = classification["actValue"]
+    actValues = [x if x is not None else defaultValue
+                 for x in self._actualValues]
+    retval = {"actualValues": actValues}
+
+    # For each n-step prediction...
+    for nSteps in self.steps:
+
+      # Accumulate bucket index votes and actValues into these arrays
+      sumVotes = numpy.zeros(self._maxBucketIdx + 1)
+      bitVotes = numpy.zeros(self._maxBucketIdx + 1)
+
+      # For each active bit, get the votes
+      for bit in patternNZ:
+        key = (bit, nSteps)
+        history = self._activeBitHistory.get(key, None)
+        if history is None:
+          continue
+
+        bitVotes.fill(0)
+        history.infer(votes=bitVotes)
+
+        sumVotes += bitVotes
+
+      # Return the votes for each bucket, normalized
+      total = sumVotes.sum()
+      if total > 0:
+        sumVotes /= total
+      else:
+        # If all buckets have zero probability then simply make all of the
+        # buckets equally likely. There is no actual prediction for this
+        # timestep so any of the possible predictions are just as good.
+        if sumVotes.size > 0:
+          sumVotes = numpy.ones(sumVotes.shape)
+          sumVotes /= sumVotes.size
+
+      retval[nSteps] = sumVotes
+    
+    return retval
+    
 
   def __getstate__(self):
     return self.__dict__
@@ -528,7 +561,7 @@ class CLAClassifier(object):
       #  compatible with the new format
       historyLen = len(self._patternNZHistory)
       for (i, pattern) in enumerate(self._patternNZHistory):
-        self._patternNZHistory[i] = (self._learnIteration-(historyLen-i),
+        self._patternNZHistory[i] = (self._learnIteration - (historyLen - i),
                                      pattern)
 
 
@@ -553,13 +586,15 @@ class CLAClassifier(object):
     classifier.alpha = proto.alpha
     classifier.actValueAlpha = proto.actValueAlpha
     classifier._learnIteration = proto.learnIteration
-    classifier._recordNumMinusLearnIteration = proto.recordNumMinusLearnIteration
+    classifier._recordNumMinusLearnIteration = (
+      proto.recordNumMinusLearnIteration)
 
     classifier._patternNZHistory = deque(maxlen=max(classifier.steps) + 1)
     patternNZHistoryProto = proto.patternNZHistory
     learnIteration = classifier._learnIteration - len(patternNZHistoryProto) + 1
     for i in xrange(len(patternNZHistoryProto)):
-      classifier._patternNZHistory.append((learnIteration, list(patternNZHistoryProto[i])))
+      classifier._patternNZHistory.append((learnIteration,
+                                           list(patternNZHistoryProto[i])))
       learnIteration += 1
 
     classifier._activeBitHistory = dict()
@@ -603,7 +638,8 @@ class CLAClassifier(object):
     proto.patternNZHistory = patternNZHistory
 
     i = 0
-    activeBitHistoryProtos = proto.init("activeBitHistory", len(self._activeBitHistory))
+    activeBitHistoryProtos = proto.init("activeBitHistory",
+                                        len(self._activeBitHistory))
     if len(self._activeBitHistory) > 0:
       for nSteps in self.steps:
         stepBitHistory = {bit: self._activeBitHistory[(bit, step)]
@@ -611,7 +647,8 @@ class CLAClassifier(object):
                           if step == nSteps}
         stepBitHistoryProto = activeBitHistoryProtos[i]
         stepBitHistoryProto.steps = nSteps
-        indexBitHistoryListProto = stepBitHistoryProto.init("bitHistories", len(stepBitHistory))
+        indexBitHistoryListProto = stepBitHistoryProto.init("bitHistories",
+                                                            len(stepBitHistory))
         j = 0
         for indexBitHistory in stepBitHistory:
           indexBitHistoryProto = indexBitHistoryListProto[j]

@@ -1,12 +1,10 @@
 #See http://www.pip-installer.org/en/latest/requirements.html for details
-# Check nupic.core requirements before adding any to this list. Do not add
-# any that are there: <nupic.core repo>/external/common/requirements.txt
 asteval==0.9.1
 coverage==3.7.1
 mock==1.0.1
 ordereddict==1.1
 psutil==1.0.1
-pytest==2.4.2
+pytest==2.5.1
 pytest-cov==1.6
 pytest-xdist==1.8
 python-dateutil==2.1
@@ -17,4 +15,7 @@ PyMySQL==0.6.2
 DBUtils==1.1
 pyproj==1.9.3
 prettytable==0.7.2
-nupic.bindings==0.1.0
+# When updating nupic.bindings, also update any shared dependencies to keep
+# versions in sync.
+nupic.bindings==0.1.5
+numpy==1.9.2

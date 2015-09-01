@@ -6,21 +6,20 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import capnp  # For import hook
 import numpy as np
 import tempfile
 import unittest
@@ -28,7 +27,13 @@ from mock import patch
 
 from nupic.encoders.base import defaultDtype
 from nupic.encoders.coordinate import CoordinateEncoder
-from nupic.encoders.coordinate_capnp import CoordinateEncoderProto
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.coordinate_capnp import CoordinateEncoderProto
 
 # Disable warnings about accessing protected members
 # pylint: disable=W0212
@@ -264,9 +269,11 @@ class CoordinateEncoderTest(unittest.TestCase):
 
 
   def assertDecreasingOverlaps(self, overlaps):
-    self.assertEqual((np.diff(overlaps) >= 0).sum(), 0)
+    self.assertEqual((np.diff(overlaps) > 0).sum(), 0)
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testReadWrite(self):
     coordinate = np.array([100, 200])
     radius = 5
@@ -327,7 +334,7 @@ def overlapsForRelativeAreas(n, w, initPosition, initRadius, dPosition=None,
   outputA = encode(encoder, np.array(initPosition), initRadius)
 
   for i in range(num):
-    newPosition = initPosition if dPosition == None else (
+    newPosition = initPosition if dPosition is None else (
       initPosition + (i + 1) * dPosition)
     newRadius = initRadius + (i + 1) * dRadius
     outputB = encode(encoder, newPosition, newRadius)

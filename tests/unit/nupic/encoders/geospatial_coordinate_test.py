@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -26,9 +26,16 @@ import unittest
 
 from nupic.encoders.base import defaultDtype
 from nupic.encoders.geospatial_coordinate import GeospatialCoordinateEncoder
-from nupic.encoders.geospatial_coordinate_capnp import (
-  GeospatialCoordinateEncoderProto
-)
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.geospatial_coordinate_capnp import (
+    GeospatialCoordinateEncoderProto
+  )
+
 # Disable warnings about accessing protected members
 # pylint: disable=W0212
 
@@ -154,6 +161,8 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
     self.assertGreater(overlap1, overlap2)
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testReadWrite(self):
     scale = 30 # meters
     timestep = 60 # seconds

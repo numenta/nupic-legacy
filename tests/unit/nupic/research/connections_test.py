@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -27,10 +27,14 @@ TODO: Move all duplicate connections logic into shared function.
 import tempfile
 import unittest
 
-import capnp
-
-from nupic.bindings.proto import ConnectionsProto_capnp
 from nupic.research.connections import Connections
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.proto import ConnectionsProto_capnp
 
 
 
@@ -216,7 +220,9 @@ class ConnectionsTest(unittest.TestCase):
     self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
 
 
-  def testWrite(self):
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
+  def testWriteRead(self):
     c1 = Connections(1024)
 
     # Add data before serializing
