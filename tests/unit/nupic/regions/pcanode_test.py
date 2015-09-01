@@ -28,34 +28,34 @@ from nupic.engine import *
 class PCANodeTest(unittest.TestCase):
 
 
- def testPCANode(self):
-  rgen = numpy.random.RandomState(37)
+  def testPCANode(self):
+    rgen = numpy.random.RandomState(37)
 
-  inputSize = 8
+    inputSize = 8
 
-  net = Network()
-  sensor = net.addRegion('sensor', 'py.ImageSensor' ,
+    net = Network()
+    sensor = net.addRegion('sensor', 'py.ImageSensor' ,
           '{ width: %d, height: %d }' % (inputSize, inputSize))
 
-  params = """{bottomUpCount: %d,
-              SVDSampleCount: 5,
-              SVDDimCount: 2}""" % inputSize
+    params = """{bottomUpCount: %d,
+                SVDSampleCount: 5,
+                SVDDimCount: 2}""" % inputSize
 
-  pca = net.addRegion('pca', 'py.PCANode', params)
+    pca = net.addRegion('pca', 'py.PCANode', params)
 
-  #nodeAbove = CreateNode("py.ImageSensor", phase=0, categoryOut=1, dataOut=3,
-  #                       width=3, height=1)
-  #net.addElement('nodeAbove', nodeAbove)
+    #nodeAbove = CreateNode("py.ImageSensor", phase=0, categoryOut=1, dataOut=3,
+    #                       width=3, height=1)
+    #net.addElement('nodeAbove', nodeAbove)
 
-  linkParams = '{ mapping: in, rfSize: [%d, %d] }' % (inputSize, inputSize)
-  net.link('sensor', 'pca', 'UniformLink', linkParams, 'dataOut', 'bottomUpIn')
+    linkParams = '{ mapping: in, rfSize: [%d, %d] }' % (inputSize, inputSize)
+    net.link('sensor', 'pca', 'UniformLink', linkParams, 'dataOut', 'bottomUpIn')
 
-  net.initialize()
+    net.initialize()
 
-  for i in range(10):
-    pca.getSelf()._testInputs = numpy.random.random([inputSize])
-    net.run(1)
-    #print s.sendRequest('nodeOPrint pca_node')
+    for i in range(10):
+      pca.getSelf()._testInputs = numpy.random.random([inputSize])
+      net.run(1)
+      #print s.sendRequest('nodeOPrint pca_node')
 
 
 
