@@ -311,11 +311,12 @@ class CoordinateEncoderTest(unittest.TestCase):
       (x,y) = np.random.randint(0, 2, 2) 
 
       res1 = encode(eDefault, np.array([x,y]), 2) # uses encodeIntoArray() directly
-      res2 = eCached.encode((x,y), 2, cachesize=10, cacheSizeName='cacheSize') # calls encode() with cache
-      # both methods to set cache size are shown: cachesize=10, and cacheSizeName; the latter takes preference.
+      res2 = eCached.encode((x,y), 2) # calls encode() with cache
 
       self.assertTrue(np.array_equal(res1, res2), "Cached and non-cached encodings differ! %r %r" % (res1, res2))
     print eCached.dump()
+    sz = eCached.encode.cache_info().maxsize
+    self.assertEqual(sz, 9, "cache size was not properly set: 9 != %i" % (sz))
 
 
 def encode(encoder, coordinate, radius):
