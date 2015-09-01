@@ -84,7 +84,7 @@ class AnomalyLikelihood(object):
     reasonable - we just need sufficient samples to get a decent estimate for
     the Gaussian. It's unlikely you will need to tune this since the Gaussian is
     re-estimated every 100 iterations.
-    
+
     Anomaly likelihood scores are reported at a flat 0.5 for claLearningPeriod +
     estimationSamples iterations.
     """
@@ -93,15 +93,16 @@ class AnomalyLikelihood(object):
     self._distribution = None
     self._probationaryPeriod = claLearningPeriod + estimationSamples
     self._claLearningPeriod = claLearningPeriod
-    
+
     # How often we re-estimate the Gaussian distribution. The ideal is to
     # re-estimate every iteration but this is a performance hit. In general the
     # system is not very sensitive to this number as long as it is small
     # relative to the total number of records processed.
-    self._reestimationPeriod = 100 
+    self._reestimationPeriod = 100
 
 
   def __eq__(self, o):
+    # pylint: disable=W0212
     return (isinstance(o, AnomalyLikelihood) and
             self._iteration == o._iteration and
             self._historicalScores == o._historicalScores and
@@ -109,16 +110,17 @@ class AnomalyLikelihood(object):
             self._probationaryPeriod == o._probationaryPeriod and
             self._claLearningPeriod == o._claLearningPeriod and
             self._reestimationPeriod == o._reestimationPeriod)
+    # pylint: enable=W0212
 
 
   def __str__(self):
     return ("AnomalyLikelihood: %s %s %s %s %s %s" % (
-            self._iteration,
-            self._historicalScores,
-            self._distribution,
-            self._probationaryPeriod,
-            self._claLearningPeriod,
-            self._reestimationPeriod) )
+      self._iteration,
+      self._historicalScores,
+      self._distribution,
+      self._probationaryPeriod,
+      self._claLearningPeriod,
+      self._reestimationPeriod) )
 
 
   @staticmethod
@@ -140,16 +142,16 @@ class AnomalyLikelihood(object):
     an anomaly given the historical distribution of anomaly scores. The closer
     the number is to 1, the higher the chance it is an anomaly.
 
-    @param value - the current metric ("raw") input value, eg. "orange", or 
+    @param value - the current metric ("raw") input value, eg. "orange", or
                    '21.2' (deg. Celsius), ...
     @param anomalyScore - the current anomaly score
-    @param timestamp - (optional) timestamp of the ocurrence, 
+    @param timestamp - (optional) timestamp of the ocurrence,
                        default (None) results in using iteration step.
     @return theanomalyLikelihood for this record.
     """
     if timestamp is None:
       timestamp = self._iteration
-      
+
     dataPoint = (timestamp, value, anomalyScore)
     # We ignore the first probationaryPeriod data points
     if len(self._historicalScores) < self._probationaryPeriod:
@@ -166,7 +168,7 @@ class AnomalyLikelihood(object):
 
       likelihoods, _, self._distribution = (
         updateAnomalyLikelihoods([dataPoint],
-          self._distribution)
+                                 self._distribution)
       )
       likelihood = 1.0 - likelihoods[0]
 
@@ -298,9 +300,9 @@ def estimateAnomalyLikelihoods(anomalyScores,
 
   # Compute averaged anomaly scores
   aggRecordList, historicalValues, total =  _anomalyScoreMovingAverage(
-                                              anomalyScores,
-                                              windowSize = averagingWindow,
-                                              verbosity = verbosity)
+    anomalyScores,
+    windowSize = averagingWindow,
+    verbosity = verbosity)
   s = [r[2] for r in aggRecordList]
   dataValues = numpy.array(s)
 
@@ -340,7 +342,7 @@ def estimateAnomalyLikelihoods(anomalyScores,
       "windowSize":       averagingWindow,
     },
     "historicalLikelihoods":
-          list(likelihoods[-min(averagingWindow, len(likelihoods)):]),
+      list(likelihoods[-min(averagingWindow, len(likelihoods)):]),
   }
 
   if verbosity > 1:
@@ -358,7 +360,7 @@ def estimateAnomalyLikelihoods(anomalyScores,
 
 def updateAnomalyLikelihoods(anomalyScores,
                              params,
-                             verbosity=0): # pylint: disable=W0613
+                             verbosity=0):
   """
   Compute updated probabilities for anomalyScores using the given params.
 
@@ -459,7 +461,7 @@ def _filterLikelihoods(likelihoods,
   """
   redThreshold    = 1.0 - redThreshold
   yellowThreshold = 1.0 - yellowThreshold
-  
+
   # The first value is untouched
   filteredLikelihoods = [likelihoods[0]]
 
@@ -521,7 +523,7 @@ def _anomalyScoreMovingAverage(anomalyScores,
 
 
 
-def estimateNormal(sampleData, performLowerBoundCheck=True):  # pylint: disable=W0613
+def estimateNormal(sampleData, performLowerBoundCheck=True):
   """
   :param sampleData:
   :type sampleData: Numpy array.
@@ -531,9 +533,9 @@ def estimateNormal(sampleData, performLowerBoundCheck=True):  # pylint: disable=
       the ``sampleData``.
   """
   params = {
-      "name": "normal",
-      "mean": numpy.mean(sampleData),
-      "variance": numpy.var(sampleData),
+    "name": "normal",
+    "mean": numpy.mean(sampleData),
+    "variance": numpy.var(sampleData),
   }
 
   if performLowerBoundCheck:
@@ -567,10 +569,10 @@ def nullDistribution(verbosity=0):
   if verbosity>0:
     print "Returning nullDistribution"
   return {
-      "name": "normal",
-      "mean": 0.5,
-      "variance": 1e6,
-      "stdev": 1e3,
+    "name": "normal",
+    "mean": 0.5,
+    "variance": 1e6,
+    "stdev": 1e3,
   }
 
 
@@ -603,7 +605,7 @@ def isValidEstimatorParams(p):
     by ``estimateAnomalyLikelihoods()`` or ``updateAnomalyLikelihoods``,
     ``False`` otherwise.  Just does some basic validation.
   """
-  if type(p) != type({}):
+  if not isinstance(p, dict):
     return False
   if not p.has_key("distribution"):
     return False
@@ -611,8 +613,7 @@ def isValidEstimatorParams(p):
     return False
   dist = p["distribution"]
   if not (dist.has_key("mean") and dist.has_key("name")
-          and dist.has_key("variance") and dist.has_key("stdev")
-          ):
+          and dist.has_key("variance") and dist.has_key("stdev")):
     return False
 
   return True
