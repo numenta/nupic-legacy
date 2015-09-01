@@ -214,7 +214,6 @@ class UtilsTest(unittest.TestCase):
       def foo(self, x, **kwds):
         return x**2
 
-    # test itself
     a = A(42)
 
     # method 1: maxsize from method's arg, this is an override
@@ -222,6 +221,7 @@ class UtilsTest(unittest.TestCase):
       a.foo(d, cacheSize="5")
     mx = int(a.foo.cache_info().maxsize)
     self.assertEqual(mx, 5, "Cache size from method's arg 'cacheSize' was set to 5, but is %r" % (mx))
+    print a.foo.cache_info()
     a.foo.cache_clear()
 
     # method 2: maxsize from object's member variable
@@ -229,6 +229,18 @@ class UtilsTest(unittest.TestCase):
       a.foo(d)
     mx = int(a.foo.cache_info().maxsize)
     self.assertEqual(mx, 42, "Cache size from object's member 'encoder.cacheSize' was set to 42, but is %r" % (mx))
+    print a.foo.cache_info()
+    a.foo.cache_clear()
+
+    # test for unstandard options - maxsize = None / 0:
+
+    # no cache
+    a = A(0)
+    for d in xrange(10):
+      a.foo(d)
+    mx = int(a.foo.cache_info().maxsize)
+    self.assertEqual(mx, 0, "Cache size set to 0, but is %r" % (mx))
+    print a.foo.cache_info()
     a.foo.cache_clear()
 
 

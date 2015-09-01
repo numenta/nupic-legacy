@@ -259,79 +259,100 @@ def lru_cache(maxsize=100, typed=False, sizeref=None):
         properties = dict()
         properties['maxsize'] = maxsize         # make maxsize updatable non-locally
         properties['init'] = True               # do _setSize
-                  
-        if properties['maxsize'] == 0:
+                 
+        ### cache wrappers
+        # exported methods optimized for specific cache settings
+        def wrapperNoCache(*args, **kwds):
+            # no caching, just do a statistics update after a successful call
+            result = user_function(*args, **kwds)
+            stats[MISSES] += 1
+            return result
 
-            def wrapper(*args, **kwds):
-                # no caching, just do a statistics update after a successful call
-                result = user_function(*args, **kwds)
-                stats[MISSES] += 1
+
+        def wrapperUnlimitedCache(*args, **kwds):
+            # simple caching without ordering or size limit
+            key = make_key(args, kwds, typed)
+            result = cache_get(key, root)   # root used here as a unique not-found sentinel
+            if result is not root:
+                stats[HITS] += 1
                 return result
+            result = user_function(*args, **kwds)
+            cache[key] = result
+            stats[MISSES] += 1
+            return result
 
-        elif properties['maxsize'] is None:
 
-            def wrapper(*args, **kwds):
-                # simple caching without ordering or size limit
-                key = make_key(args, kwds, typed)
-                result = cache_get(key, root)   # root used here as a unique not-found sentinel
-                if result is not root:
+        def wrapperLimitedCache(*args, **kwds):
+            # size limited caching that tracks accesses by recency
+            key = make_key(args, kwds, typed) if kwds or typed else args
+
+            with lock:
+                link = cache_get(key)
+                if link is not None:
+                    # record recent use of the key by moving it to the front of the list
+                    root, = nonlocal_root
+                    link_prev, link_next, key, result = link
+                    link_prev[NEXT] = link_next
+                    link_next[PREV] = link_prev
+                    last = root[PREV]
+                    last[NEXT] = root[PREV] = link
+                    link[PREV] = last
+                    link[NEXT] = root
                     stats[HITS] += 1
                     return result
-                result = user_function(*args, **kwds)
-                cache[key] = result
+            result = user_function(*args, **kwds)
+            with lock:
+                root, = nonlocal_root
+                if key in cache:
+                  # getting here means that this same key was added to the
+                  # cache while the lock was released.  since the link
+                  # update is already done, we need only return the
+                  # computed result and update the count of misses.
+                  pass
+                elif _len(cache) >= properties['maxsize']:
+                  # use the old root to store the new key and result
+                  oldroot = root
+                  oldroot[KEY] = key
+                  oldroot[RESULT] = result
+                  # empty the oldest link and make it the new root
+                  root = nonlocal_root[0] = oldroot[NEXT]
+                  oldkey = root[KEY]
+                  oldvalue = root[RESULT]
+                  root[KEY] = root[RESULT] = None
+                  # now update the cache dictionary for the new links
+                  del cache[oldkey]
+                  cache[key] = oldroot
+                else:
+                  # put result in a new link at the front of the list
+                  last = root[PREV]
+                  link = [last, root, key, result]
+                  last[NEXT] = root[PREV] = cache[key] = link
                 stats[MISSES] += 1
-                return result
+            return result
+###
+
+        if properties['maxsize'] == 0:
+            def wrapper(*args, **kwds):
+                return wrapperNoCache(*args, **kwds)
+
+        elif properties['maxsize'] is None:
+            def wrapper(*args, **kwds):
+                return wrapperUnlimitedCache(*args, **kwds)
+
+        elif isinstance(sizeref, str):
+            def wrapper(*args, **kwds):
+              _setSize(sizeref, properties, *args, **kwds)
+              mx = properties['maxsize']
+              if mx == 0:
+                return wrapperNoCache(*args, **kwds)
+              elif mx is None:
+                return wrapperUnlimitedCache(*args, **kwds)
+              else:
+                return wrapperLimitedCache(*args, **kwds)
 
         else:
-
             def wrapper(*args, **kwds):
-                # size limited caching that tracks accesses by recency
-                _setSize(sizeref, properties, *args, **kwds)
-                key = make_key(args, kwds, typed) if kwds or typed else args
-                
-                with lock:
-                    link = cache_get(key)
-                    if link is not None:
-                        # record recent use of the key by moving it to the front of the list
-                        root, = nonlocal_root
-                        link_prev, link_next, key, result = link
-                        link_prev[NEXT] = link_next
-                        link_next[PREV] = link_prev
-                        last = root[PREV]
-                        last[NEXT] = root[PREV] = link
-                        link[PREV] = last
-                        link[NEXT] = root
-                        stats[HITS] += 1
-                        return result
-                result = user_function(*args, **kwds)
-                with lock:
-                    root, = nonlocal_root
-                    if key in cache:
-                        # getting here means that this same key was added to the
-                        # cache while the lock was released.  since the link
-                        # update is already done, we need only return the
-                        # computed result and update the count of misses.
-                        pass
-                    elif _len(cache) >= properties['maxsize']:
-                        # use the old root to store the new key and result
-                        oldroot = root
-                        oldroot[KEY] = key
-                        oldroot[RESULT] = result
-                        # empty the oldest link and make it the new root
-                        root = nonlocal_root[0] = oldroot[NEXT]
-                        oldkey = root[KEY]
-                        oldvalue = root[RESULT]
-                        root[KEY] = root[RESULT] = None
-                        # now update the cache dictionary for the new links
-                        del cache[oldkey]
-                        cache[key] = oldroot
-                    else:
-                        # put result in a new link at the front of the list
-                        last = root[PREV]
-                        link = [last, root, key, result]
-                        last[NEXT] = root[PREV] = cache[key] = link
-                    stats[MISSES] += 1
-                return result
+                return wrapperLimitedCache(*args, **kwds)
 
         def cache_info():
             """Report cache statistics"""
