@@ -38,7 +38,7 @@ def profileEnc(maxValue, nRuns):
   # instantiate measured encoders
   encScalar = ScalarEncoder(w=21, minval=minV, maxval=maxV, resolution=1)
   encRDSE = RDSE(resolution=1)
-  encCoord = CoordinateEncoder(cacheSize = 1)
+  encCoord = CoordinateEncoder(cacheSize = maxV)
   
   # profile!  
   for d in data:
