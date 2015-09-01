@@ -112,7 +112,8 @@ class InferenceElement(Enum(
     # For multistep prediction, the delay is based on the key in the inference
     # dictionary
     if inferenceElement in (InferenceElement.multiStepPredictions,
-                            InferenceElement.multiStepBestPredictions):
+                            InferenceElement.multiStepBestPredictions,
+                            InferenceElement.multiStepBucketLikelihoods):
       return int(key)
 
     # -----------------------------------------------------------------------
@@ -175,7 +176,7 @@ class InferenceType(Enum("TemporalNextStep",
 #   sensor region's encoder.
 #
 # dataRow:        A data row that is the sensor's "sourceOut" mapping of the
-#                 supplied intputRecord. The data row is a sequence of field
+#                 supplied inputRecord. The data row is a sequence of field
 #                 values that correspond to the schema returned by the
 #                 getDecodedFieldMetaInfo() method of the ModelIface-based
 #                 instance that returned this mapping.  See
@@ -222,6 +223,35 @@ class SensorInput(object):
                 sequenceReset=self.sequenceReset,
                 category=self.category)
 
+
+# ClassifierInput - represents the mapping of a given inputRecord by the
+#   classifier input encoder.
+#
+# dataRow:        A data row that is the sensor's "sourceOut" mapping of the
+#                 supplied inputRecord. See SensorInput class for additional
+#                 details
+#
+# bucketIndex:    bucketIndex is the classifier input encoder's mapping of the
+#                 dataRow
+
+class ClassifierInput(object):
+
+  __slots__ = ("dataRow", "bucketIndex")
+
+  def __init__(self, dataRow=None, bucketIndex=None):
+    self.dataRow = dataRow
+    self.bucketIndex = bucketIndex
+
+  def __repr__(self):
+    return "ClassifierInput("\
+          "\tdataRow={0}\n"\
+          "\tbucketIndex={1}\n"\
+          ")".format(self.dataRow,
+                     self.bucketIndex)
+
+  def _asdict(self):
+    return dict(dataRow=self.dataRow,
+                bucketIndex=self.bucketIndex)
 
 
 # PredictionElement- represents a predicted record and its asssociated
@@ -273,7 +303,7 @@ PredictionElement = namedtuple("PredictionElement",
 class ModelResult(object):
 
   __slots__= ("predictionNumber", "rawInput", "sensorInput", "inferences", 
-              "metrics", "predictedFieldIdx", "predictedFieldName")
+              "metrics", "predictedFieldIdx", "predictedFieldName", "classifierInput")
 
   def __init__(self,
                predictionNumber=None,
@@ -282,7 +312,8 @@ class ModelResult(object):
                inferences=None,
                metrics=None,
                predictedFieldIdx=None,
-               predictedFieldName=None):
+               predictedFieldName=None,
+               classifierInput=None):
     self.predictionNumber = predictionNumber
     self.rawInput = rawInput
     self.sensorInput = sensorInput
@@ -290,7 +321,7 @@ class ModelResult(object):
     self.metrics = metrics
     self.predictedFieldIdx = predictedFieldIdx
     self.predictedFieldName = predictedFieldName
-
+    self.classifierInput = classifierInput
 
   def __repr__(self):
      return ("ModelResult("
@@ -301,13 +332,15 @@ class ModelResult(object):
              "\tmetrics={4}\n"
              "\tpredictedFieldIdx={5}\n"
              "\tpredictedFieldName={6}\n"
+             "\tclassifierInput={7}\n"
              ")").format(self.predictionNumber,
                         self.rawInput,
                         self.sensorInput,
                         self.inferences,
                         self.metrics,
                         self.predictedFieldIdx,
-                        self.predictedFieldName)
+                        self.predictedFieldName,
+                        self.classifierInput)
 
 
 
