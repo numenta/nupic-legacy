@@ -27,16 +27,18 @@ import numpy
 # chose desired Encoder implementations to compare:
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder as RDSE
+from nupic.encoders.coordinate import CoordinateEncoder
 
 
 def profileEnc(maxValue, nRuns):
   minV=0
-  maxV=nRuns
+  maxV=maxValue
   # generate input data
   data=numpy.random.randint(minV, maxV+1, nRuns)
   # instantiate measured encoders
   encScalar = ScalarEncoder(w=21, minval=minV, maxval=maxV, resolution=1)
   encRDSE = RDSE(resolution=1)
+  encCoord = CoordinateEncoder(cacheSize = 1)
   
   # profile!  
   for d in data:
@@ -45,17 +47,17 @@ def profileEnc(maxValue, nRuns):
     encCoord.encode((d, d), 2)
 
   print "Scalar n=",encScalar.n," RDSE n=",encRDSE.n," Coord n=",encCoord.n
-  print encCoord.encode.cache_info()
-
-  print "Scalar n=",encScalar.n," RDSE n=",encRDSE.n
+  print encCoord.dump()
 
 
 
 if __name__ == "__main__":
   maxV=500
-  epochs=10000
+  iters=10000
+  epochs = 10
   if len(sys.argv) == 3: # 2 args + name
     columns=int(sys.argv[1])
     epochs=int(sys.argv[2])
 
-  profileEnc(maxV, epochs)
+  for _ in xrange(epochs):
+    profileEnc(maxV, iters)
