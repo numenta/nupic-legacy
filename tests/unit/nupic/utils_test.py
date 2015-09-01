@@ -205,34 +205,31 @@ class UtilsTest(unittest.TestCase):
 
 
   def testCacheSetSize(self):
+    """test setting cache's size at runtime"""
     # just a mock object
     class A(object):
       def __init__(self, cacheSize):
-        self._cacheSize = cacheSize
-      @cache(maxsize = 100)
+        self.cacheSize = cacheSize
+      @cache(sizeref='cacheSize')
       def foo(self, x, **kwds):
         return x**2
 
     # test itself
     a = A(42)
 
-    # method 1: maxsize explicitely given in decorator (=100)
+    # method 1: maxsize from method's arg, this is an override
+    for d in xrange(10):
+      a.foo(d, cacheSize="5")
+    mx = int(a.foo.cache_info().maxsize)
+    self.assertEqual(mx, 5, "Cache size from method's arg 'cacheSize' was set to 5, but is %r" % (mx))
+    a.foo.cache_clear()
+
+    # method 2: maxsize from object's member variable
     for d in xrange(10):
       a.foo(d)
     mx = int(a.foo.cache_info().maxsize)
-    self.assertEqual(mx, 100, "Cache maxsize was given by decorator to 100, but is %r" % (mx))
-
-    # method 2: maxsize by 'cahesize' **kwarg passed to method
-    for d in xrange(10):
-      a.foo(d, cachesize="5")
-    mx = int(a.foo.cache_info().maxsize)
-    self.assertEqual(mx, 5, "Cache maxsize was given by method arg 'cachesize' to 5, but is %r" % (mx))
-
-    # method 3: maxsize accessed by 'cacheSizeName' reference to a._cacheSize
-    for d in xrange(10):
-      a.foo(d, cacheSizeName='_cacheSize')
-    mx = int(a.foo.cache_info().maxsize)
-    self.assertEqual(mx, 42, "Cache maxsize was given by method arg 'cacheSizeName' to self._cacheSize (=42), but is %r" % (mx))
+    self.assertEqual(mx, 42, "Cache size from object's member 'encoder.cacheSize' was set to 42, but is %r" % (mx))
+    a.foo.cache_clear()
 
 
 

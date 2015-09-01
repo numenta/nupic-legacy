@@ -170,7 +170,49 @@ def _make_key(args, kwds, typed,
         return key[0]
     return _HashedSeq(key)
 
-def lru_cache(maxsize=100, typed=False):
+def _setSize(sizeref, properties, *args, **kwds):
+  """
+  set size for the cache
+  from parsing method's arguments or object's member variable
+  specified by sizeref value.
+  @param sizeref - string, name of variable which holds the size
+                   If sizeref is None, the call is ignored.
+  @param properties - dict with 'maxsize' and 'init' keys, 
+                   passed from the wrapper function.
+  @except ValueError if specified sizeref was not retrieved
+  """
+  if not properties['init']: # already initiated
+    return
+  properties['init'] = False
+  if not isinstance(sizeref, str): # no sizeref
+    return
+
+  mxArg = -1
+  mxRef = -1
+
+  # 1st from the method's arguments:
+  mxArg = int(kwds.pop(sizeref, -1))
+  # 2nd from caller object's member of name as sizeref's value:
+  # try to get attribute of value sizeref from methods parent object, if it is called from an object
+  # otherwise just ignore
+  try:
+    caller = args[0]
+    mxRef = int(caller.__dict__.get(sizeref, -1))
+  except AttributeError:
+    # ignore missing attribute of the object
+    pass
+
+  if mxArg >= 0:
+    print "setting maxsize to methods arg %s = %i" % (sizeref, mxArg)
+    properties['maxsize'] = mxArg
+  elif mxRef >= 0:
+    print "setting maxsize to object's member %s = %i" % (sizeref, mxRef)
+    properties['maxsize'] = mxRef
+  else:
+    raise ValueError("lru_cache: No arg or object's member of name %s, as specified in 'sizeref'" % (sizeref))
+
+
+def lru_cache(maxsize=100, typed=False, sizeref=None):
     """Least-recently-used cache decorator.
 
     If *maxsize* is set to None, the LRU features are disabled and the cache
@@ -179,6 +221,11 @@ def lru_cache(maxsize=100, typed=False):
     If *typed* is True, arguments of different types will be cached separately.
     For example, f(3.0) and f(3) will be treated as distinct calls with
     distinct results.
+
+    If *sizeref* string is defined, it overrides maxsize value and will attempt
+    to read it from a decorated method's argument of the same name as its value,
+    or from the decorated method's object instance member of that name. In this
+    order. Raises exception of no such variables exist. 
 
     Arguments to the cached function must be hashable.
 
@@ -211,7 +258,8 @@ def lru_cache(maxsize=100, typed=False):
         #mmm: replaced maxsize with properties['maxsize'] is it can be overriden from inner functions
         properties = dict()
         properties['maxsize'] = maxsize         # make maxsize updatable non-locally
-
+        properties['init'] = True               # do _setSize
+                  
         if properties['maxsize'] == 0:
 
             def wrapper(*args, **kwds):
@@ -237,20 +285,8 @@ def lru_cache(maxsize=100, typed=False):
         else:
 
             def wrapper(*args, **kwds):
-
-                #mmm: if function provides 'cachesize' argument, use that to replace the cache's maxsize
-                sz = kwds.get('cachesize', None)
-                caller = args[0]
-                if sz is not None:
-                  properties['maxsize'] = sz
-                #mmm: if function provides 'cacheSizeRef' argument (string), use that to get objects attribute of that name
-                # and replace maxsize
-                name = kwds.get('cacheSizeName', None)
-                if name is not None:
-                  sz = caller.__dict__[name] 
-                  properties['maxsize'] = sz
-
                 # size limited caching that tracks accesses by recency
+                _setSize(sizeref, properties, *args, **kwds)
                 key = make_key(args, kwds, typed) if kwds or typed else args
                 
                 with lock:
@@ -309,6 +345,7 @@ def lru_cache(maxsize=100, typed=False):
                 root = nonlocal_root[0]
                 root[:] = [root, root, None, None]
                 stats[:] = [0, 0]
+                properties['init'] = True
 
         wrapper.__wrapped__ = user_function
         wrapper.cache_info = cache_info
