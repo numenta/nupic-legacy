@@ -228,9 +228,9 @@ class CLAModelTest(unittest.TestCase):
     model.enableLearning()
     model.enableInference(inferenceArgsWrong)
 
-    expMsg="Expected predicted field 'mispeltField' in input row, "
-           "but was not found!"
-           "Raw input is: %r" % (data)
+    expMsg=("Expected predicted field 'mispeltField' in input row, "
+            "but was not found!"
+            "Raw input is: %r" % (data))
 
     for row in data:
       with self.assertRaises(ValueError) as ve:
