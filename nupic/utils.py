@@ -191,13 +191,17 @@ def _setSize(sizeref, properties, *args, **kwds):
   mxRef = -1
 
   # 1st from the method's arguments:
-  mxArg = int(kwds.pop(sizeref, -1))
+  mxArg = kwds.pop(sizeref, -1) # None, >=0, -1
+  if mxArg is not None:
+    mxArg = int(mxArg)
   # 2nd from caller object's member of name as sizeref's value:
   # try to get attribute of value sizeref from methods parent object, if it is called from an object
   # otherwise just ignore
   try:
     caller = args[0]
-    mxRef = int(caller.__dict__.get(sizeref, -1))
+    mxRef = caller.__dict__.get(sizeref, -1) # None, >=0, -1
+    if mxRef is not None:
+      mxRef = int(mxRef)
   except AttributeError:
     # ignore missing attribute of the object
     pass
@@ -208,6 +212,9 @@ def _setSize(sizeref, properties, *args, **kwds):
   elif mxRef >= 0:
     print "setting maxsize to object's member %s = %i" % (sizeref, mxRef)
     properties['maxsize'] = mxRef
+  elif mxRef is None or mxArg is None:
+    print "setting unlimited cache (None)"
+    properties['maxsize'] = None
   else:
     raise ValueError("lru_cache: No arg or object's member of name %s, as specified in 'sizeref'" % (sizeref))
 

@@ -243,6 +243,16 @@ class UtilsTest(unittest.TestCase):
     print a.foo.cache_info()
     a.foo.cache_clear()
 
+    # unlimited cache
+    a = A(None)
+    for d in xrange(10):
+      a.foo(d)
+    mx = a.foo.cache_info().maxsize
+    self.assertEqual(mx, None, "Cache size set to unlimited (None), but is %r" % (mx))
+    print a.foo.cache_info()
+    a.foo.cache_clear()
+
+
 
 
 if __name__ == "__main__":
