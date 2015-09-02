@@ -211,8 +211,9 @@ class AnomalyLikelihood(object):
 
       likelihood = 1.0 - likelihoods[0]
 
-      # If anomaly score > 0.99, then we greedily force update of statistics.
-      # 0.99 should not repeat too often.
+      # If anomaly score > 0.99 then we greedily update the statistics.
+      # This should have minimal performance impact as it only occurs
+      # about 1% of the time.
       if likelihood > 0.99:
         self._distribution = None
 
