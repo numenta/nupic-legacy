@@ -35,7 +35,9 @@ VERSION = 2
 
 
 
-class InvalidSPParamUserValueError(ValueError):
+class InvalidSPParamValueError(ValueError):
+  """The user passed an invalid value for a SpatialPooler parameter
+  """
   pass
 
 
@@ -187,23 +189,23 @@ class SpatialPooler(object):
     """
     if (numActiveColumnsPerInhArea == 0 and
         (localAreaDensity == 0 or localAreaDensity > 0.5)):
-      raise InvalidSPParamUserValueError("Inhibition parameters are invalid")
+      raise InvalidSPParamValueError("Inhibition parameters are invalid")
 
     columnDimensions = numpy.array(columnDimensions, ndmin=1)
     numColumns = columnDimensions.prod()
 
     if not isinstance(numColumns, (int, long)) or numColumns <= 0:
-      raise InvalidSPParamUserValueError("Invalid number of columns ({})"
-                                         .format(repr(numColumns)))
+      raise InvalidSPParamValueError("Invalid number of columns ({})"
+                                     .format(repr(numColumns)))
     inputDimensions = numpy.array(inputDimensions, ndmin=1)
     numInputs = inputDimensions.prod()
 
     if not isinstance(numInputs, (int, long)) or numInputs <= 0:
-      raise InvalidSPParamUserValueError("Invalid number of inputs ({}"
-                                         .format(repr(numInputs)))
+      raise InvalidSPParamValueError("Invalid number of inputs ({}"
+                                     .format(repr(numInputs)))
 
     if inputDimensions.size != columnDimensions.size:
-      raise InvalidSPParamUserValueError(
+      raise InvalidSPParamValueError(
         "Input dimensions must match column dimensions")
 
     self._seed(seed)
@@ -233,7 +235,7 @@ class SpatialPooler(object):
     self._synPermTrimThreshold = synPermActiveInc / 2.0
 
     if self._synPermTrimThreshold >= self._synPermConnected:
-      raise InvalidSPParamUserValueError(
+      raise InvalidSPParamValueError(
         "synPermTrimThreshold ({}) must be less than synPermConnected ({})"
         .format(repr(self._synPermTrimThreshold),
                 repr(self._synPermConnected)))
