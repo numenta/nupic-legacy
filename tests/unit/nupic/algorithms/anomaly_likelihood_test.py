@@ -22,6 +22,9 @@
 
 """Unit tests for anomaly likelihood module."""
 
+# disable pylint warning: "Access to a protected member xxxxx of a client class"
+# pylint: disable=W0212
+
 import copy
 import datetime
 import math
@@ -498,7 +501,7 @@ class AnomalyLikelihoodTest(TestCaseBase):
 
   def testFilterLikelihodsInputType(self):
     """
-    Calls _filterLikelihoods with both input types -- numpy array of floats and 
+    Calls _filterLikelihoods with both input types -- numpy array of floats and
     list of floats.
     """
     l =[0.0, 0.0, 0.3, 0.3, 0.5]
@@ -533,10 +536,10 @@ class AnomalyLikelihoodTest(TestCaseBase):
     l2[1] = 1 - yellowThreshold
     l2[7] = 1 - yellowThreshold
     l3 = an._filterLikelihoods(l, redThreshold=redThreshold)
-    
+
     [self.assertAlmostEqual(l2[i], l3[i], msg="Failure in case (i)")
       for i in range(len(l2))]
-    
+
     # Case (ii): values at indices 1-10 should be filtered to yellowzone
     l = numpy.array([0.999978229, 0.999978229, 0.999999897, 1, 1, 1, 1,
                      0.999999994, 0.999999966, 0.999999966, 0.999994331,
@@ -545,7 +548,7 @@ class AnomalyLikelihoodTest(TestCaseBase):
     l2 = copy.copy(l)
     l2[1:11] = 1 - yellowThreshold
     l3 = an._filterLikelihoods(l, redThreshold=redThreshold)
-    
+
     [self.assertAlmostEqual(l2[i], l3[i], msg="Failure in case (ii)")
       for i in range(len(l2))]
 
@@ -567,6 +570,44 @@ class AnomalyLikelihoodTest(TestCaseBase):
       for i in range(len(l2b))]
     self.assertFalse(numpy.array_equal(l3a, l3b),
       msg="Failure in case (iii), list 3")
+
+
+  def testForceModelRefresh(self):
+    l = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
+
+    self.assertIsNone(l._distribution)
+
+    l.anomalyProbability(5, 0.1, timestamp=1) # burn in
+    l.anomalyProbability(5, 0.1, timestamp=2)
+    l.anomalyProbability(5, 0.1, timestamp=3)
+    l.anomalyProbability(5, 0.1, timestamp=4)
+    l.anomalyProbability(1, 0.3, timestamp=5)
+
+    self.assertIsNotNone(l._distribution)
+
+    l.forceModelRefresh()
+    self.assertIsNone(l._distribution)
+
+    l.anomalyProbability(1, 0.3, timestamp=5)
+    self.assertIsNotNone(l._distribution)
+
+
+  def testEstimationWindowSize(self):
+    l = an.AnomalyLikelihood(claLearningPeriod=2,
+                             estimationSamples=2,
+                             estimationWindowSize=3)
+
+    l.anomalyProbability(5, 0.1, timestamp=1) # burn in
+    self.assertEqual(len(l._historicalScores), 1)
+
+    l.anomalyProbability(5, 0.1, timestamp=2)
+    self.assertEqual(len(l._historicalScores), 2)
+
+    l.anomalyProbability(5, 0.1, timestamp=3)
+    self.assertEqual(len(l._historicalScores), 3)
+
+    l.anomalyProbability(5, 0.1, timestamp=4)
+    self.assertEqual(len(l._historicalScores), 3)
 
 
   def testEquals(self):
