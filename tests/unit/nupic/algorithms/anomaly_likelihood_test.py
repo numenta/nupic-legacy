@@ -22,6 +22,9 @@
 
 """Unit tests for anomaly likelihood module."""
 
+# disable pylint warning: "Access to a protected member xxxxx of a client class"
+# pylint: disable=W0212
+
 import copy
 import datetime
 import math
