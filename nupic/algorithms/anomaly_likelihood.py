@@ -59,6 +59,7 @@ updateAnomalyLikelihoods. The details of these are described below.
 
 """
 
+import collections
 import math
 import numpy
 
@@ -71,7 +72,10 @@ class AnomalyLikelihood(object):
   """
 
 
-  def __init__(self, claLearningPeriod=300, estimationSamples=300):
+  def __init__(self,
+               claLearningPeriod=300,
+               estimationSamples=300,
+               estimationWindowSize=8640):
     """
     :param claLearningPeriod: the number of iterations required for the CLA to
     learn the basic patterns in the dataset and for the anomaly score to 'settle
@@ -85,11 +89,19 @@ class AnomalyLikelihood(object):
     the Gaussian. It's unlikely you will need to tune this since the Gaussian is
     re-estimated every 100 iterations.
 
+    :param int estimationWindowSize: size of sliding window of historical
+      data points to maintain for periodic reestimation of the Gaussian. Note:
+      the default of 8640 is based on a month's worth of history at 5-minute
+      intervals.
+
     Anomaly likelihood scores are reported at a flat 0.5 for claLearningPeriod +
     estimationSamples iterations.
     """
+    if estimationWindowSize < estimationSamples:
+      raise ValueError("estimationSamples exceeds estimationWindowSize")
+
     self._iteration = 0
-    self._historicalScores = []
+    self._historicalScores = collections.deque(maxlen=estimationWindowSize)
     self._distribution = None
     self._probationaryPeriod = claLearningPeriod + estimationSamples
     self._claLearningPeriod = claLearningPeriod
@@ -136,6 +148,26 @@ class AnomalyLikelihood(object):
     return math.log(1.0000000001 - likelihood) / -23.02585084720009
 
 
+  @staticmethod
+  def _calcSkipRecords(numIngested, windowSize, learningPeriod):
+    """Return the value of skipRecords for passing to estimateAnomalyLikelihoods
+
+    :param int numIngested: number of data points that have been added to the
+      sliding window of historical data points.
+    :param int windowSize: size of sliding window of historical data points.
+    :param int learningPeriod: the number of iterations required for the CLA to
+      learn the basic patterns in the dataset and for the anomaly score to
+      'settle down'.
+    """
+    numShiftedOut = max(0, numIngested - windowSize)
+    return max(0, learningPeriod - numShiftedOut)
+
+
+  def forceModelRefresh(self):
+    """Force refresh of the anomaly likelihood model's state"""
+    self._distribution = None
+
+
   def anomalyProbability(self, value, anomalyScore, timestamp=None):
     """
     Compute the probability that the current value plus anomaly score represents
@@ -154,16 +186,22 @@ class AnomalyLikelihood(object):
 
     dataPoint = (timestamp, value, anomalyScore)
     # We ignore the first probationaryPeriod data points
-    if len(self._historicalScores) < self._probationaryPeriod:
+    if self._iteration < self._probationaryPeriod:
       likelihood = 0.5
     else:
       # On a rolling basis we re-estimate the distribution
       if ( (self._distribution is None) or
            (self._iteration % self._reestimationPeriod == 0) ):
+
+        numSkipRecords = self._calcSkipRecords(
+          numIngested=self._iteration,
+          windowSize=self._historicalScores.maxlen,
+          learningPeriod=self._claLearningPeriod)
+
         _, _, self._distribution = (
           estimateAnomalyLikelihoods(
             self._historicalScores,
-            skipRecords = self._claLearningPeriod)
+            skipRecords=numSkipRecords)
           )
 
       likelihoods, _, self._distribution = (
