@@ -73,10 +73,14 @@ class AnomalyLikelihood(object):
 
 
   def __init__(self,
-               claLearningPeriod=300,
-               estimationSamples=300,
-               estimationWindowSize=8640):
+               claLearningPeriod=288,
+               estimationSamples=100,
+               estimationWindowSize=8640,
+               reestimationPeriod=10):
     """
+    NOTE: Anomaly likelihood scores are reported at a flat 0.5 for
+    claLearningPeriod + estimationSamples iterations.
+
     :param claLearningPeriod: the number of iterations required for the CLA to
     learn the basic patterns in the dataset and for the anomaly score to 'settle
     down'. The default is based on empirical observations but in reality this
@@ -84,18 +88,20 @@ class AnomalyLikelihood(object):
     is that real anomalies might get ignored and not flagged.
 
     :param estimationSamples: the number of reasonable anomaly scores required
-    for the initial estimate of the Gaussian. The default of 300 records is
+    for the initial estimate of the Gaussian. The default of 100 records is
     reasonable - we just need sufficient samples to get a decent estimate for
     the Gaussian. It's unlikely you will need to tune this since the Gaussian is
-    re-estimated every 100 iterations.
+    re-estimated every 10 iterations by default.
 
     :param int estimationWindowSize: size of sliding window of historical
-      data points to maintain for periodic reestimation of the Gaussian. Note:
-      the default of 8640 is based on a month's worth of history at 5-minute
-      intervals.
+    data points to maintain for periodic reestimation of the Gaussian. Note:
+    the default of 8640 is based on a month's worth of history at 5-minute
+    intervals.
 
-    Anomaly likelihood scores are reported at a flat 0.5 for claLearningPeriod +
-    estimationSamples iterations.
+    :param int reestimationPeriod: How often we re-estimate the Gaussian
+    distribution. The ideal is to re-estimate every iteration but this is a
+    performance hit. In general the system is not very sensitive to this number
+    as long as it is small relative to the total number of records processed.
     """
     if estimationWindowSize < estimationSamples:
       raise ValueError("estimationSamples exceeds estimationWindowSize")
@@ -106,11 +112,7 @@ class AnomalyLikelihood(object):
     self._probationaryPeriod = claLearningPeriod + estimationSamples
     self._claLearningPeriod = claLearningPeriod
 
-    # How often we re-estimate the Gaussian distribution. The ideal is to
-    # re-estimate every iteration but this is a performance hit. In general the
-    # system is not very sensitive to this number as long as it is small
-    # relative to the total number of records processed.
-    self._reestimationPeriod = 100
+    self._reestimationPeriod = reestimationPeriod
 
 
   def __eq__(self, o):
@@ -166,12 +168,7 @@ class AnomalyLikelihood(object):
       'settle down'.
     """
     numShiftedOut = max(0, numIngested - windowSize)
-    return max(0, learningPeriod - numShiftedOut)
-
-
-  def forceModelRefresh(self):
-    """Force refresh of the anomaly likelihood model's state"""
-    self._distribution = None
+    return min(numIngested, max(0, learningPeriod - numShiftedOut))
 
 
   def anomalyProbability(self, value, anomalyScore, timestamp=None):
@@ -204,17 +201,20 @@ class AnomalyLikelihood(object):
           windowSize=self._historicalScores.maxlen,
           learningPeriod=self._claLearningPeriod)
 
-        _, _, self._distribution = (
-          estimateAnomalyLikelihoods(
-            self._historicalScores,
-            skipRecords=numSkipRecords)
-          )
+        _, _, self._distribution = estimateAnomalyLikelihoods(
+          self._historicalScores,
+          skipRecords=numSkipRecords)
 
-      likelihoods, _, self._distribution = (
-        updateAnomalyLikelihoods([dataPoint],
-                                 self._distribution)
-      )
+      likelihoods, _, self._distribution = updateAnomalyLikelihoods(
+        [dataPoint],
+        self._distribution)
+
       likelihood = 1.0 - likelihoods[0]
+
+      # If anomaly score > 0.99, then we greedily force update of statistics.
+      # 0.99 should not repeat too often.
+      if likelihood > 0.99:
+        self._distribution = None
 
     # Before we exit update historical scores and iteration
     self._historicalScores.append(dataPoint)
