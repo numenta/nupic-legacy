@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013-2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -98,7 +98,291 @@ def _generateSampleData(mean=0.2, variance=0.2, metricMean=0.2,
 
 
 
-class AnomalyLikelihoodTest(TestCaseBase):
+class AnomalyLikelihoodClassTest(TestCaseBase):
+  """Tests the high-level AnomalyLikelihood class"""
+
+
+  def testCalcSkipRecords(self):
+
+    # numIngested is less than both learningPeriod and windowSize
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=5,
+      windowSize=10,
+      learningPeriod=10)
+    self.assertEqual(numSkip, 5)
+
+    # numIngested is equal to learningPeriod, but less than windowSize
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=10,
+      windowSize=15,
+      learningPeriod=10)
+    self.assertEqual(numSkip, 10)
+
+    # edge case: learningPeriod is 0
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=10,
+      windowSize=10,
+      learningPeriod=0)
+    self.assertEqual(numSkip, 0)
+
+    # boundary case: numIngested is equal to learningPeriod and windowSize
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=10,
+      windowSize=10,
+      learningPeriod=10)
+    self.assertEqual(numSkip, 10)
+
+    # learning samples partially shifted out
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=14,
+      windowSize=10,
+      learningPeriod=10)
+    self.assertEqual(numSkip, 6)
+
+    # learning samples fully shifted out
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=20,
+      windowSize=10,
+      learningPeriod=10)
+    self.assertEqual(numSkip, 0)
+
+    # learning samples plus others shifted out
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=25,
+      windowSize=10,
+      learningPeriod=10)
+    self.assertEqual(numSkip, 0)
+
+
+  def testHistoricWindowSize(self):
+    l = an.AnomalyLikelihood(claLearningPeriod=2,
+                             estimationSamples=2,
+                             historicWindowSize=3)
+
+    l.anomalyProbability(5, 0.1, timestamp=1) # burn in
+    self.assertEqual(len(l._historicalScores), 1)
+
+    l.anomalyProbability(5, 0.1, timestamp=2)
+    self.assertEqual(len(l._historicalScores), 2)
+
+    l.anomalyProbability(5, 0.1, timestamp=3)
+    self.assertEqual(len(l._historicalScores), 3)
+
+    l.anomalyProbability(5, 0.1, timestamp=4)
+    self.assertEqual(len(l._historicalScores), 3)
+
+
+  def testdWindowSizeImpactOnEstimateAnomalyLikelihoodsArgs(self):
+
+    # Verify that AnomalyLikelihood's historicWindowSize plays nice with args
+    # passed to estimateAnomalyLikelihoods"""
+
+    originalEstimateAnomalyLikelihoods = an.estimateAnomalyLikelihoods
+
+    estimationArgs = []
+
+    def estimateAnomalyLikelihoodsWrap(anomalyScores,
+                                       averagingWindow=10,
+                                       skipRecords=0,
+                                       verbosity=0):
+      estimationArgs.append((tuple(anomalyScores), skipRecords))
+
+      return originalEstimateAnomalyLikelihoods(anomalyScores,
+                                                averagingWindow=averagingWindow,
+                                                skipRecords=skipRecords,
+                                                verbosity=verbosity)
+
+
+    estimateAnomalyLikelihoodsPatch = mock.patch(
+      "nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods",
+      side_effect=estimateAnomalyLikelihoodsWrap, autospec=True)
+    with estimateAnomalyLikelihoodsPatch as estimateAnomalyLikelihoodsMock:
+      l = an.AnomalyLikelihood(claLearningPeriod=2,
+                               estimationSamples=2,
+                               historicWindowSize=3)
+
+      l.anomalyProbability(10, 0.1, timestamp=1)
+      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 0)
+
+      l.anomalyProbability(20, 0.2, timestamp=2)
+      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 0)
+
+      l.anomalyProbability(30, 0.3, timestamp=3)
+      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 0)
+
+      l.anomalyProbability(40, 0.4, timestamp=4)
+      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 0)
+
+      # Estimation should kick in after claLearningPeriod + estimationSamples
+      # samples have been ingested
+      l.anomalyProbability(50, 0.5, timestamp=5)
+      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 1)
+      # NOTE: we cannot use mock's assert_called_with, because the sliding
+      # window container changes in-place after estimateAnomalyLikelihoods is
+      # called
+      scores, numSkip = estimationArgs.pop()
+      self.assertEqual(scores, ((2, 20, 0.2), (3, 30, 0.3), (4, 40, 0.4)))
+      self.assertEqual(numSkip, 1)
+
+
+  def testReestimationPeriodArg(self):
+    estimateAnomalyLikelihoodsWrap = mock.Mock(
+      wraps=an.estimateAnomalyLikelihoods,
+      autospec=True)
+
+    estimateAnomalyLikelihoodsPatch = mock.patch(
+      "nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods",
+      side_effect=estimateAnomalyLikelihoodsWrap, autospec=True)
+    with estimateAnomalyLikelihoodsPatch:
+      l = an.AnomalyLikelihood(claLearningPeriod=2,
+                               estimationSamples=2,
+                               historicWindowSize=3,
+                               reestimationPeriod=2)
+
+      # burn-in
+      l.anomalyProbability(10, 0.1, timestamp=1)
+      l.anomalyProbability(10, 0.1, timestamp=2)
+      l.anomalyProbability(10, 0.1, timestamp=3)
+      l.anomalyProbability(10, 0.1, timestamp=4)
+      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 0)
+
+      l.anomalyProbability(10, 0.1, timestamp=5)
+      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 1)
+      l.anomalyProbability(10, 0.1, timestamp=6)
+      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 1)
+      l.anomalyProbability(10, 0.1, timestamp=7)
+      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 2)
+      l.anomalyProbability(10, 0.1, timestamp=8)
+      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 2)
+
+
+  def testAnomalyProbabilityResultsDuringProbationaryPeriod(self):
+    originalUpdateAnomalyLikelihoods = an.updateAnomalyLikelihoods
+
+    def updateAnomalyLikelihoodsWrap(anomalyScores, params, verbosity=0):
+      likelihoods, avgRecordList, params = originalUpdateAnomalyLikelihoods(
+        anomalyScores=anomalyScores,
+        params=params,
+        verbosity=verbosity)
+
+      self.assertEqual(len(likelihoods), 1)
+
+      return [0.1], avgRecordList, params
+
+
+    updateAnomalyLikelihoodsPatch = mock.patch(
+      "nupic.algorithms.anomaly_likelihood.updateAnomalyLikelihoods",
+      side_effect=updateAnomalyLikelihoodsWrap, autospec=True)
+    with updateAnomalyLikelihoodsPatch:
+      l = an.AnomalyLikelihood(claLearningPeriod=2,
+                               estimationSamples=2,
+                               historicWindowSize=3)
+
+      # 0.5 result is expected during burn-in
+      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=1), 0.5)
+      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=2), 0.5)
+      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=3), 0.5)
+      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=4), 0.5)
+
+      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=5), 0.9)
+      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=6), 0.9)
+
+
+  def testAboveZeroPointNinetyNineForcesReestimation(self):
+    originalUpdateAnomalyLikelihoods = an.updateAnomalyLikelihoods
+
+    def updateAnomalyLikelihoodsWrap(anomalyScores, params, verbosity=0):
+      likelihoods, avgRecordList, params = originalUpdateAnomalyLikelihoods(
+        anomalyScores=anomalyScores,
+        params=params,
+        verbosity=verbosity)
+
+      self.assertEqual(len(likelihoods), 1)
+
+      return [0.009], avgRecordList, params
+
+    estimateAnomalyLikelihoodsWrap = mock.Mock(
+      wraps=an.estimateAnomalyLikelihoods,
+      autospec=True)
+
+    estimateAnomalyLikelihoodsPatch = mock.patch(
+      "nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods",
+      side_effect=estimateAnomalyLikelihoodsWrap, autospec=True)
+    with estimateAnomalyLikelihoodsPatch:
+      l = an.AnomalyLikelihood(claLearningPeriod=2,
+                               estimationSamples=2,
+                               historicWindowSize=3,
+                               reestimationPeriod=10)
+
+      # burn-in
+      l.anomalyProbability(10, 0.1, timestamp=1)
+      l.anomalyProbability(10, 0.1, timestamp=2)
+      l.anomalyProbability(10, 0.1, timestamp=3)
+      l.anomalyProbability(10, 0.1, timestamp=4)
+      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 0)
+
+      anomalyProbability = l.anomalyProbability(10, 0.1, timestamp=5)
+      self.assertLessEqual(anomalyProbability, 0.99)
+      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 1)
+
+      # Verify that anomaly probability above 0.99 forces reestimation on
+      # subsequent iteration
+      updateAnomalyLikelihoodsPatch = mock.patch(
+        "nupic.algorithms.anomaly_likelihood.updateAnomalyLikelihoods",
+        side_effect=updateAnomalyLikelihoodsWrap, autospec=True)
+      with updateAnomalyLikelihoodsPatch:
+
+        anomalyProbability = l.anomalyProbability(10, 0.1, timestamp=6)
+        self.assertEqual(anomalyProbability, 0.991)
+        self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 1)
+
+        l.anomalyProbability(10, 0.1, timestamp=7)
+        self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 2)
+
+
+  def testEquals(self):
+    l = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
+    l2 = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
+    self.assertEqual(l, l2)
+
+    # Use 5 iterations to force the distribution to be created (4 probationary
+    # samples + 1)
+    l2.anomalyProbability(5, 0.1, timestamp=1) # burn in
+    l2.anomalyProbability(5, 0.1, timestamp=2)
+    l2.anomalyProbability(5, 0.1, timestamp=3)
+    l2.anomalyProbability(5, 0.1, timestamp=4)
+    self.assertIsNone(l2._distribution)
+    l2.anomalyProbability(1, 0.3, timestamp=5)
+    self.assertIsNotNone(l2._distribution)
+    self.assertNotEqual(l, l2)
+
+    l.anomalyProbability(5, 0.1, timestamp=1) # burn in
+    l.anomalyProbability(5, 0.1, timestamp=2)
+    l.anomalyProbability(5, 0.1, timestamp=3)
+    l.anomalyProbability(5, 0.1, timestamp=4)
+    self.assertIsNone(l._distribution)
+    l.anomalyProbability(1, 0.3, timestamp=5)
+    self.assertIsNotNone(l._distribution)
+    self.assertEqual(l, l2, "equal? \n%s\n vs. \n%s" % (l, l2))
+
+
+  def testSerialization(self):
+    """serialization using pickle"""
+    l = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
+
+    l.anomalyProbability("hi", 0.1, timestamp=1) # burn in
+    l.anomalyProbability("hi", 0.1, timestamp=2)
+    l.anomalyProbability("hello", 0.3, timestamp=3)
+
+    stored = pickle.dumps(l)
+    restored = pickle.loads(stored)
+
+    self.assertEqual(l, restored)
+
+
+
+class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
+  """Tests the low-level algorithm functions"""
 
 
   def assertWithinEpsilon(self, a, b, epsilon=0.001):
@@ -582,280 +866,6 @@ class AnomalyLikelihoodTest(TestCaseBase):
 
     self.assertFalse(numpy.array_equal(l3a, l3b),
                      msg="Failure in case (iii), list 3")
-
-
-  def testCalcSkipRecords(self):
-
-    # numIngested is less than both learningPeriod and windowSize
-    numSkip = an.AnomalyLikelihood._calcSkipRecords(
-      numIngested=5,
-      windowSize=10,
-      learningPeriod=10)
-    self.assertEqual(numSkip, 5)
-
-    # numIngested is equal to learningPeriod, but less than windowSize
-    numSkip = an.AnomalyLikelihood._calcSkipRecords(
-      numIngested=10,
-      windowSize=15,
-      learningPeriod=10)
-    self.assertEqual(numSkip, 10)
-
-    # edge case: learningPeriod is 0
-    numSkip = an.AnomalyLikelihood._calcSkipRecords(
-      numIngested=10,
-      windowSize=10,
-      learningPeriod=0)
-    self.assertEqual(numSkip, 0)
-
-    # boundary case: numIngested is equal to learningPeriod and windowSize
-    numSkip = an.AnomalyLikelihood._calcSkipRecords(
-      numIngested=10,
-      windowSize=10,
-      learningPeriod=10)
-    self.assertEqual(numSkip, 10)
-
-    # learning samples partially shifted out
-    numSkip = an.AnomalyLikelihood._calcSkipRecords(
-      numIngested=14,
-      windowSize=10,
-      learningPeriod=10)
-    self.assertEqual(numSkip, 6)
-
-    # learning samples fully shifted out
-    numSkip = an.AnomalyLikelihood._calcSkipRecords(
-      numIngested=20,
-      windowSize=10,
-      learningPeriod=10)
-    self.assertEqual(numSkip, 0)
-
-    # learning samples plus others shifted out
-    numSkip = an.AnomalyLikelihood._calcSkipRecords(
-      numIngested=25,
-      windowSize=10,
-      learningPeriod=10)
-    self.assertEqual(numSkip, 0)
-
-
-  def testEstimationWindowSize(self):
-    l = an.AnomalyLikelihood(claLearningPeriod=2,
-                             estimationSamples=2,
-                             estimationWindowSize=3)
-
-    l.anomalyProbability(5, 0.1, timestamp=1) # burn in
-    self.assertEqual(len(l._historicalScores), 1)
-
-    l.anomalyProbability(5, 0.1, timestamp=2)
-    self.assertEqual(len(l._historicalScores), 2)
-
-    l.anomalyProbability(5, 0.1, timestamp=3)
-    self.assertEqual(len(l._historicalScores), 3)
-
-    l.anomalyProbability(5, 0.1, timestamp=4)
-    self.assertEqual(len(l._historicalScores), 3)
-
-
-  def testAnomalyLikelihoodWindowSizeImpactOnDistributionEstimateScoreArgs(
-      self):
-
-    # Verify that AnomalyLikelihood's estimationWindowSize plays nice with args
-    # passed to estimateAnomalyLikelihoods"""
-
-    originalEstimateAnomalyLikelihoods = an.estimateAnomalyLikelihoods
-
-    estimationArgs = []
-
-    def estimateAnomalyLikelihoodsWrap(anomalyScores,
-                                       averagingWindow=10,
-                                       skipRecords=0,
-                                       verbosity=0):
-      estimationArgs.append((tuple(anomalyScores), skipRecords))
-
-      return originalEstimateAnomalyLikelihoods(anomalyScores,
-                                                averagingWindow=averagingWindow,
-                                                skipRecords=skipRecords,
-                                                verbosity=verbosity)
-
-
-    estimateAnomalyLikelihoodsPatch = mock.patch(
-      "nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods",
-      side_effect=estimateAnomalyLikelihoodsWrap, autospec=True)
-    with estimateAnomalyLikelihoodsPatch as estimateAnomalyLikelihoodsMock:
-      l = an.AnomalyLikelihood(claLearningPeriod=2,
-                               estimationSamples=2,
-                               estimationWindowSize=3)
-
-      l.anomalyProbability(10, 0.1, timestamp=1)
-      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 0)
-
-      l.anomalyProbability(20, 0.2, timestamp=2)
-      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 0)
-
-      l.anomalyProbability(30, 0.3, timestamp=3)
-      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 0)
-
-      l.anomalyProbability(40, 0.4, timestamp=4)
-      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 0)
-
-      # Estimation should kick in after claLearningPeriod + estimationSamples
-      # samples have been ingested
-      l.anomalyProbability(50, 0.5, timestamp=5)
-      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 1)
-      # NOTE: we cannot use mock's assert_called_with, because the sliding
-      # window container changes in-place after estimateAnomalyLikelihoods is
-      # called
-      scores, numSkip = estimationArgs.pop()
-      self.assertEqual(scores, ((2, 20, 0.2), (3, 30, 0.3), (4, 40, 0.4)))
-      self.assertEqual(numSkip, 1)
-
-
-  def testAnomalyLikelihoodReestimationPeriodArg(self):
-    estimateAnomalyLikelihoodsWrap = mock.Mock(
-      wraps=an.estimateAnomalyLikelihoods,
-      autospec=True)
-
-    estimateAnomalyLikelihoodsPatch = mock.patch(
-      "nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods",
-      side_effect=estimateAnomalyLikelihoodsWrap, autospec=True)
-    with estimateAnomalyLikelihoodsPatch:
-      l = an.AnomalyLikelihood(claLearningPeriod=2,
-                               estimationSamples=2,
-                               estimationWindowSize=3,
-                               reestimationPeriod=2)
-
-      # burn-in
-      l.anomalyProbability(10, 0.1, timestamp=1)
-      l.anomalyProbability(10, 0.1, timestamp=2)
-      l.anomalyProbability(10, 0.1, timestamp=3)
-      l.anomalyProbability(10, 0.1, timestamp=4)
-      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 0)
-
-      l.anomalyProbability(10, 0.1, timestamp=5)
-      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 1)
-      l.anomalyProbability(10, 0.1, timestamp=6)
-      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 1)
-      l.anomalyProbability(10, 0.1, timestamp=7)
-      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 2)
-      l.anomalyProbability(10, 0.1, timestamp=8)
-      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 2)
-
-
-  def testAnomalyLikelihoodProbationaryPeriodAnomalyProbabilityResults(self):
-    originalUpdateAnomalyLikelihoods = an.updateAnomalyLikelihoods
-
-    def updateAnomalyLikelihoodsWrap(anomalyScores, params, verbosity=0):
-      likelihoods, avgRecordList, params = originalUpdateAnomalyLikelihoods(
-        anomalyScores=anomalyScores,
-        params=params,
-        verbosity=verbosity)
-
-      self.assertEqual(len(likelihoods), 1)
-
-      return [0.1], avgRecordList, params
-
-
-    updateAnomalyLikelihoodsPatch = mock.patch(
-      "nupic.algorithms.anomaly_likelihood.updateAnomalyLikelihoods",
-      side_effect=updateAnomalyLikelihoodsWrap, autospec=True)
-    with updateAnomalyLikelihoodsPatch:
-      l = an.AnomalyLikelihood(claLearningPeriod=2,
-                               estimationSamples=2,
-                               estimationWindowSize=3)
-
-      # 0.5 result is expected during burn-in
-      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=1), 0.5)
-      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=2), 0.5)
-      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=3), 0.5)
-      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=4), 0.5)
-
-      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=5), 0.9)
-      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=6), 0.9)
-
-
-  def testAnomalyLikelihoodAboveZeroPointNinetyNineForcesReestimation(self):
-    originalUpdateAnomalyLikelihoods = an.updateAnomalyLikelihoods
-
-    def updateAnomalyLikelihoodsWrap(anomalyScores, params, verbosity=0):
-      likelihoods, avgRecordList, params = originalUpdateAnomalyLikelihoods(
-        anomalyScores=anomalyScores,
-        params=params,
-        verbosity=verbosity)
-
-      self.assertEqual(len(likelihoods), 1)
-
-      return [0.009], avgRecordList, params
-
-    estimateAnomalyLikelihoodsWrap = mock.Mock(
-      wraps=an.estimateAnomalyLikelihoods,
-      autospec=True)
-
-    estimateAnomalyLikelihoodsPatch = mock.patch(
-      "nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods",
-      side_effect=estimateAnomalyLikelihoodsWrap, autospec=True)
-    with estimateAnomalyLikelihoodsPatch:
-      l = an.AnomalyLikelihood(claLearningPeriod=2,
-                               estimationSamples=2,
-                               estimationWindowSize=3,
-                               reestimationPeriod=10)
-
-      # burn-in
-      l.anomalyProbability(10, 0.1, timestamp=1)
-      l.anomalyProbability(10, 0.1, timestamp=2)
-      l.anomalyProbability(10, 0.1, timestamp=3)
-      l.anomalyProbability(10, 0.1, timestamp=4)
-      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 0)
-
-      anomalyProbability = l.anomalyProbability(10, 0.1, timestamp=5)
-      self.assertLessEqual(anomalyProbability, 0.99)
-      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 1)
-
-      # Verify that anomaly probability above 0.99 forces reestimation on
-      # subsequent iteration
-      updateAnomalyLikelihoodsPatch = mock.patch(
-        "nupic.algorithms.anomaly_likelihood.updateAnomalyLikelihoods",
-        side_effect=updateAnomalyLikelihoodsWrap, autospec=True)
-      with updateAnomalyLikelihoodsPatch:
-
-        anomalyProbability = l.anomalyProbability(10, 0.1, timestamp=6)
-        self.assertEqual(anomalyProbability, 0.991)
-        self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 1)
-
-        l.anomalyProbability(10, 0.1, timestamp=7)
-        self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 2)
-
-
-  def testEquals(self):
-    l = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
-    l2 = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
-    self.assertEqual(l, l2)
-
-    # use 5>2+2 probationary samples to create distribution estimate
-    l2.anomalyProbability(5, 0.1, timestamp=1) # burn in
-    l2.anomalyProbability(5, 0.1, timestamp=2)
-    l2.anomalyProbability(5, 0.1, timestamp=3)
-    l2.anomalyProbability(5, 0.1, timestamp=4)
-    l2.anomalyProbability(1, 0.3, timestamp=5)
-    self.assertNotEqual(l, l2)
-
-    l.anomalyProbability(5, 0.1, timestamp=1) # burn in
-    l.anomalyProbability(5, 0.1, timestamp=2)
-    l.anomalyProbability(5, 0.1, timestamp=3)
-    l.anomalyProbability(5, 0.1, timestamp=4)
-    l.anomalyProbability(1, 0.3, timestamp=5)
-    self.assertEqual(l, l2, "equal? \n%s\n vs. \n%s" % (l, l2))
-
-
-  def testSerialization(self):
-    """serialization using pickle"""
-    l = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
-
-    l.anomalyProbability("hi", 0.1, timestamp=1) # burn in
-    l.anomalyProbability("hi", 0.1, timestamp=2)
-    l.anomalyProbability("hello", 0.3, timestamp=3)
-
-    stored = pickle.dumps(l)
-    restored = pickle.loads(stored)
-
-    self.assertEqual(l, restored)
 
 
 

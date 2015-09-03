@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -75,39 +75,41 @@ class AnomalyLikelihood(object):
   def __init__(self,
                claLearningPeriod=288,
                estimationSamples=100,
-               estimationWindowSize=8640,
+               historicWindowSize=8640,
                reestimationPeriod=10):
     """
     NOTE: Anomaly likelihood scores are reported at a flat 0.5 for
     claLearningPeriod + estimationSamples iterations.
 
-    :param claLearningPeriod: the number of iterations required for the CLA to
-    learn the basic patterns in the dataset and for the anomaly score to 'settle
-    down'. The default is based on empirical observations but in reality this
-    could be larger for more complex domains. The downside if this is too large
-    is that real anomalies might get ignored and not flagged.
+    @param claLearningPeriod - (int) the number of iterations required for the
+      CLA to learn the basic patterns in the dataset and for the anomaly score
+      to 'settle down'. The default is based on empirical observations but in
+      reality this could be larger for more complex domains. The downside if
+      this is too large is that real anomalies might get ignored and not
+      flagged.
 
-    :param estimationSamples: the number of reasonable anomaly scores required
-    for the initial estimate of the Gaussian. The default of 100 records is
-    reasonable - we just need sufficient samples to get a decent estimate for
-    the Gaussian. It's unlikely you will need to tune this since the Gaussian is
-    re-estimated every 10 iterations by default.
+    @param estimationSamples - (int) the number of reasonable anomaly scores
+      required for the initial estimate of the Gaussian. The default of 100
+      records is reasonable - we just need sufficient samples to get a decent
+      estimate for the Gaussian. It's unlikely you will need to tune this since
+      the Gaussian is re-estimated every 10 iterations by default.
 
-    :param int estimationWindowSize: size of sliding window of historical
-    data points to maintain for periodic reestimation of the Gaussian. Note:
-    the default of 8640 is based on a month's worth of history at 5-minute
-    intervals.
+    @param historicWindowSize - (int) size of sliding window of historical
+      data points to maintain for periodic reestimation of the Gaussian. Note:
+      the default of 8640 is based on a month's worth of history at 5-minute
+      intervals.
 
-    :param int reestimationPeriod: How often we re-estimate the Gaussian
-    distribution. The ideal is to re-estimate every iteration but this is a
-    performance hit. In general the system is not very sensitive to this number
-    as long as it is small relative to the total number of records processed.
+    @param reestimationPeriod - (int) how often we re-estimate the Gaussian
+      distribution. The ideal is to re-estimate every iteration but this is a
+      performance hit. In general the system is not very sensitive to this
+      number as long as it is small relative to the total number of records
+      processed.
     """
-    if estimationWindowSize < estimationSamples:
-      raise ValueError("estimationSamples exceeds estimationWindowSize")
+    if historicWindowSize < estimationSamples:
+      raise ValueError("estimationSamples exceeds historicWindowSize")
 
     self._iteration = 0
-    self._historicalScores = collections.deque(maxlen=estimationWindowSize)
+    self._historicalScores = collections.deque(maxlen=historicWindowSize)
     self._distribution = None
     self._probationaryPeriod = claLearningPeriod + estimationSamples
     self._claLearningPeriod = claLearningPeriod
@@ -160,11 +162,11 @@ class AnomalyLikelihood(object):
     into account as well so we return the `learningPeriod` minus the number
     shifted out.
 
-    :param int numIngested: number of data points that have been added to the
+    @param numIngested - (int) number of data points that have been added to the
       sliding window of historical data points.
-    :param int windowSize: size of sliding window of historical data points.
-    :param int learningPeriod: the number of iterations required for the CLA to
-      learn the basic patterns in the dataset and for the anomaly score to
+    @param windowSize - (int) size of sliding window of historical data points.
+    @param learningPeriod - (int) the number of iterations required for the CLA
+      to learn the basic patterns in the dataset and for the anomaly score to
       'settle down'.
     """
     numShiftedOut = max(0, numIngested - windowSize)
@@ -211,9 +213,10 @@ class AnomalyLikelihood(object):
 
       likelihood = 1.0 - likelihoods[0]
 
-      # If anomaly score > 0.99 then we greedily update the statistics.
-      # This should have minimal performance impact as it only occurs
-      # about 1% of the time.
+      # Mitigate the impact of not updating the distribution at every iteration:
+      # if we have a very high anomaly likelihood, then we need it to be
+      # accurate, so force an update. (this should have minimal performance
+      # impact as it only occurs about 1% of the time)
       if likelihood > 0.99:
         self._distribution = None
 
