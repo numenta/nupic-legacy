@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+* Updated comment about greedy stats refresh when likelihood > 0.99
+
 ## 0.2.12
 
 * Implemented unit tests for the new features in AnomalyLikelihood class.
