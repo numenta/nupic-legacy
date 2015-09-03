@@ -28,6 +28,7 @@ from nupic.bindings.math import (SM32 as SparseMatrix,
                                  Random as NupicRandom)
 
 
+
 realDType = GetNTAReal()
 uintType = "uint32"
 
@@ -37,6 +38,57 @@ VERSION = 2
 
 class InvalidSPParamValueError(ValueError):
   """The user passed an invalid value for a SpatialPooler parameter
+  """
+  pass
+
+
+
+class _SparseMatrixCorticalColumnAdapter(object):
+  """ Many functions in SpatialPooler operate on a columnIndex but use an
+  underlying storage implementation based on a Sparse Matrix in which cortical
+  columns are represented as rows.  This can be confusing to someone trying to
+  follow the algorithm, confusing terminology between matrix math and cortical
+  columns.  This class is provided to abstract away some of the details of the
+  underlying implementation, providing a cleaner API that isn't specific to
+  sparse matrices.
+  """
+
+  def __getitem__(self, columnIndex):
+    """ Wraps getRow() such that instances may be indexed by columnIndex.
+    """
+    return super(_SparseMatrixCorticalColumnAdapter, self).getRow(columnIndex)
+
+
+  def replace(self, columnIndex, bitmap):
+    """ Wraps replaceSparseRow()
+    """
+    return super(_SparseMatrixCorticalColumnAdapter, self).replaceSparseRow(
+      columnIndex, bitmap
+    )
+
+
+  def update(self, columnIndex, vector):
+    """ Wraps setRowFromDense()
+    """
+    return super(_SparseMatrixCorticalColumnAdapter, self).setRowFromDense(
+      columnIndex, vector
+    )
+
+
+
+class CorticalColumns(_SparseMatrixCorticalColumnAdapter, SparseMatrix):
+  """ SparseMatrix variant of _SparseMatrixCorticalColumnAdapter.  Use in cases
+  where column connections are represented as float values, such as permanence
+  values
+  """
+  pass
+
+
+
+class BinaryCorticalColumns(_SparseMatrixCorticalColumnAdapter,
+                            SparseBinaryMatrix):
+  """ SparseBinaryMatrix variant of _SparseMatrixCorticalColumnAdapter.  Use in
+  cases where column connections are represented as bitmaps.
   """
   pass
 
@@ -246,31 +298,30 @@ class SpatialPooler(object):
     self._iterationNum = 0
     self._iterationLearnNum = 0
 
-    # Store the set of all inputs that are within each column's potential pool.
-    # 'potentialPools' is a matrix, whose rows represent cortical columns, and
-    # whose columns represent the input bits. if potentialPools[i][j] == 1,
+    # Store the set of all inputs within each columns potential pool as a
+    # single adjacency matrix such that matrix rows map to cortical columns,
+    # and matrix columns map to input buts.  If potentialPools[i][j] == 1,
     # then input bit 'j' is in column 'i's potential pool. A column can only be
-    # connected to inputs in its potential pool. The indices refer to a
-    # flattened version of both the inputs and columns. Namely, irrespective
-    # of the topology of the inputs and columns, they are treated as being a
-    # one dimensional array. Since a column is typically connected to only a
-    # subset of the inputs, many of the entries in the matrix are 0. Therefore
-    # the potentialPool matrix is stored using the SparseBinaryMatrix
-    # class, to reduce memory footprint and computation time of algorithms that
-    # require iterating over the data structure.
-    self._potentialPools = SparseBinaryMatrix(numInputs)
+    # connected to inputs in its potential pool.  Here, BinaryCorticalColumns
+    # is used to provide cortical column-centric semantics for what is
+    # otherwise a sparse binary matrix implementation.  Sparse binary matrix is
+    # used as an optimization since a column will only be connected to a small
+    # fraction of input bits.
+    self._potentialPools = BinaryCorticalColumns(numInputs)
     self._potentialPools.resize(numColumns, numInputs)
 
     # Initialize the permanences for each column. Similar to the
     # 'self._potentialPools', the permanences are stored in a matrix whose rows
     # represent the cortical columns, and whose columns represent the input
     # bits. If self._permanences[i][j] = 0.2, then the synapse connecting
-    # cortical column 'i' to input bit 'j'  has a permanence of 0.2. Here we
-    # also use the SparseMatrix class to reduce the memory footprint and
-    # computation time of algorithms that require iterating over the data
-    # structure. This permanence matrix is only allowed to have non-zero
-    # elements where the potential pool is non-zero.
-    self._permanences = SparseMatrix(numColumns, numInputs)
+    # cortical column 'i' to input bit 'j'  has a permanence of 0.2. Here,
+    # CorticalColumns is used to provide cortical column-centric semantics for
+    # what is otherwise a sparse matrix implementation.  Sparse matrix is used
+    # as an optimization to improve computation time of alforithms that
+    # require iterating over the data  structure. This permanence matrix is
+    # only allowed to have non-zero elements where the potential pool is
+    # non-zero.
+    self._permanences = CorticalColumns(numColumns, numInputs)
 
     # Initialize a tiny random tie breaker. This is used to determine winning
     # columns where the overlaps are identical.
@@ -283,7 +334,7 @@ class SpatialPooler(object):
     # bit, i.e. its permanence value is greater than 'synPermConnected'. While
     # this information is readily available from the 'self._permanence' matrix,
     # it is stored separately for efficiency purposes.
-    self._connectedSynapses = SparseBinaryMatrix(numInputs)
+    self._connectedSynapses = BinaryCorticalColumns(numInputs)
     self._connectedSynapses.resize(numColumns, numInputs)
 
     # Stores the number of connected synapses for each column. This is simply
@@ -295,11 +346,11 @@ class SpatialPooler(object):
     # Initialize the set of permanence values for each column. Ensure that
     # each column is connected to enough input bits to allow it to be
     # activated.
-    for i in xrange(numColumns):
-      potential = self._mapPotential(i, wrapAround=self._wrapAround)
-      self._potentialPools.replaceSparseRow(i, potential.nonzero()[0])
+    for columnIndex in xrange(numColumns):
+      potential = self._mapPotential(columnIndex, wrapAround=self._wrapAround)
+      self._potentialPools.replace(columnIndex, potential.nonzero()[0])
       perm = self._initPermanence(potential, initConnectedPct)
-      self._updatePermanencesForColumn(perm, i, raisePerm=True)
+      self._updatePermanencesForColumn(perm, columnIndex, raisePerm=True)
 
     self._overlapDutyCycles = numpy.zeros(numColumns, dtype=realDType)
     self._activeDutyCycles = numpy.zeros(numColumns, dtype=realDType)
@@ -310,10 +361,10 @@ class SpatialPooler(object):
     self._boostFactors = numpy.ones(numColumns, dtype=realDType)
 
     # The inhibition radius determines the size of a column's local
-    # neighborhood. of a column. A cortical column must overcome the overlap
-    # score of columns in his neighborhood in order to become actives. This
-    # radius is updated every learning round. It grows and shrinks with the
-    # average number of connected synapses per column.
+    # neighborhood.  A cortical column must overcome the overlap score of
+    # columns in its neighborhood in order to become active. This radius is
+    # updated every learning round. It grows and shrinks with the average
+    # number of connected synapses per column.
     self._inhibitionRadius = 0
     self._updateInhibitionRadius()
 
@@ -618,14 +669,14 @@ class SpatialPooler(object):
     self._minActiveDutyCycles = minActiveDutyCycles
 
 
-  def getPotential(self, column, potential):
+  def getPotential(self, columnIndex, potential):
     """Returns the potential mapping for a given column. 'potential' size
     must match the number of inputs"""
-    assert(column < self._numColumns)
-    potential[:] = self._potentialPools.getRow(column)
+    assert(columnIndex < self._numColumns)
+    potential[:] = self._potentialPools[columnIndex]
 
 
-  def setPotential(self, column, potential):
+  def setPotential(self, columnIndex, potential):
     """Sets the potential mapping for a given column. 'potential' size
     must match the number of inputs, and must be greater than _stimulusThreshold """
     assert(column < self._numColumns)
@@ -636,28 +687,28 @@ class SpatialPooler(object):
       "value of stimulusThreshold that is too large relative " +
       "to the input size.")
 
-    self._potentialPools.replaceSparseRow(column, potentialSparse)
+    self._potentialPools.replace(columnIndex, potentialSparse)
 
 
-  def getPermanence(self, column, permanence):
+  def getPermanence(self, columnIndex, permanence):
     """Returns the permanence values for a given column. 'permanence' size
     must match the number of inputs"""
-    assert(column < self._numColumns)
-    permanence[:] = self._permanences.getRow(column)
+    assert(columnIndex < self._numColumns)
+    permanence[:] = self._permanences[columnIndex]
 
 
-  def setPermanence(self, column, permanence):
+  def setPermanence(self, columnIndex, permanence):
     """Sets the permanence values for a given column. 'permanence' size
     must match the number of inputs"""
-    assert(column < self._numColumns)
-    self._updatePermanencesForColumn(permanence, column, raisePerm=False)
+    assert(columnIndex < self._numColumns)
+    self._updatePermanencesForColumn(permanence, columnIndex, raisePerm=False)
 
 
-  def getConnectedSynapses(self, column, connectedSynapses):
+  def getConnectedSynapses(self, columnIndex, connectedSynapses):
     """Returns the connected synapses for a given column.
     'connectedSynapses' size must match the number of inputs"""
-    assert(column < self._numColumns)
-    connectedSynapses[:] = self._connectedSynapses.getRow(column)
+    assert(columnIndex < self._numColumns)
+    connectedSynapses[:] = self._connectedSynapses[columnIndex]
 
 
   def getConnectedCounts(self, connectedCounts):
@@ -882,7 +933,7 @@ class SpatialPooler(object):
     return numpy.average(columnsPerInput)
 
 
-  def _avgConnectedSpanForColumn1D(self, index):
+  def _avgConnectedSpanForColumn1D(self, columnIndex):
     """
     The range of connected synapses for column. This is used to
     calculate the inhibition radius. This variation of the function only
@@ -890,18 +941,18 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param index:   The index identifying a column in the permanence, potential
-                    and connectivity matrices,
+    @param columnIndex:   The index identifying a column in the permanence,
+                          potential and connectivity matrices
     """
     assert(self._inputDimensions.size == 1)
-    connected = self._connectedSynapses.getRow(index).nonzero()[0]
+    connected = self._connectedSynapses[columnIndex].nonzero()[0]
     if connected.size == 0:
       return 0
     else:
       return max(connected) - min(connected) + 1
 
 
-  def _avgConnectedSpanForColumn2D(self, index):
+  def _avgConnectedSpanForColumn2D(self, columnIndex):
     """
     The range of connectedSynapses per column, averaged for each dimension.
     This value is used to calculate the inhibition radius. This variation of
@@ -909,11 +960,11 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param index:   The index identifying a column in the permanence, potential
-                    and connectivity matrices,
+    @param columnIndex:   The index identifying a column in the permanence,
+                          potential and connectivity matrices
     """
     assert(self._inputDimensions.size == 2)
-    connected = self._connectedSynapses.getRow(index)
+    connected = self._connectedSynapses[columnIndex]
     (rows, cols) = connected.reshape(self._inputDimensions).nonzero()
     if  rows.size == 0 and cols.size == 0:
       return 0
@@ -922,7 +973,7 @@ class SpatialPooler(object):
     return numpy.average([rowSpan, colSpan])
 
 
-  def _avgConnectedSpanForColumnND(self, index):
+  def _avgConnectedSpanForColumnND(self, columnIndex):
     """
     The range of connectedSynapses per column, averaged for each dimension.
     This value is used to calculate the inhibition radius. This variation of
@@ -934,7 +985,7 @@ class SpatialPooler(object):
                     and connectivity matrices.
     """
     dimensions = self._inputDimensions
-    connected = self._connectedSynapses.getRow(index).nonzero()[0]
+    connected = self._connectedSynapses[columnIndex].nonzero()[0]
     if connected.size == 0:
       return 0
     maxCoord = numpy.empty(self._inputDimensions.size)
@@ -969,11 +1020,11 @@ class SpatialPooler(object):
     permChanges = numpy.zeros(self._numInputs)
     permChanges.fill(-1 * self._synPermInactiveDec)
     permChanges[inputIndices] = self._synPermActiveInc
-    for i in activeColumns:
-      perm = self._permanences.getRow(i)
-      maskPotential = numpy.where(self._potentialPools.getRow(i) > 0)[0]
+    for columnIndex in activeColumns:
+      perm = self._permanences[columnIndex]
+      maskPotential = numpy.where(self._potentialPools[columnIndex] > 0)[0]
       perm[maskPotential] += permChanges[maskPotential]
-      self._updatePermanencesForColumn(perm, i, raisePerm=True)
+      self._updatePermanencesForColumn(perm, columnIndex, raisePerm=True)
 
 
   def _bumpUpWeakColumns(self):
@@ -985,11 +1036,11 @@ class SpatialPooler(object):
     """
     weakColumns = numpy.where(self._overlapDutyCycles
                                 < self._minOverlapDutyCycles)[0]
-    for i in weakColumns:
-      perm = self._permanences.getRow(i).astype(realDType)
-      maskPotential = numpy.where(self._potentialPools.getRow(i) > 0)[0]
+    for columnIndex in weakColumns:
+      perm = self._permanences[columnIndex].astype(realDType)
+      maskPotential = numpy.where(self._potentialPools[columnIndex] > 0)[0]
       perm[maskPotential] += self._synPermBelowStimulusInc
-      self._updatePermanencesForColumn(perm, i, raisePerm=False)
+      self._updatePermanencesForColumn(perm, columnIndex, raisePerm=False)
 
 
   def _raisePermanenceToThreshold(self, perm, mask):
@@ -1024,7 +1075,7 @@ class SpatialPooler(object):
       perm[mask] += self._synPermBelowStimulusInc
 
 
-  def _updatePermanencesForColumn(self, perm, index, raisePerm=True):
+  def _updatePermanencesForColumn(self, perm, columnIndex, raisePerm=True):
     """
     This method updates the permanence matrix with a column's new permanence
     values. The column is identified by its index, which reflects the row in
@@ -1052,15 +1103,15 @@ class SpatialPooler(object):
                     assignment is required.
     """
 
-    maskPotential = numpy.where(self._potentialPools.getRow(index) > 0)[0]
+    maskPotential = numpy.where(self._potentialPools[columnIndex] > 0)[0]
     if raisePerm:
       self._raisePermanenceToThreshold(perm, maskPotential)
     perm[perm < self._synPermTrimThreshold] = 0
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
     newConnected = numpy.where(perm >= self._synPermConnected)[0]
-    self._permanences.setRowFromDense(index, perm)
-    self._connectedSynapses.replaceSparseRow(index, newConnected)
-    self._connectedCounts[index] = newConnected.size
+    self._permanences.update(columnIndex, perm)
+    self._connectedSynapses.replace(columnIndex, newConnected)
+    self._connectedCounts[columnIndex] = newConnected.size
 
 
   def _initPermConnected(self):
@@ -1305,7 +1356,7 @@ class SpatialPooler(object):
     that are connected (permanence value is greater than '_synPermConnected')
     to input bits which are turned on. Overlap values that are lower than
     the 'stimulusThreshold' are ignored. The implementation takes advantage of
-    the SpraseBinaryMatrix class to perform this calculation efficiently.
+    the SparseBinaryMatrix class to perform this calculation efficiently.
 
     Parameters:
     ----------------------------
@@ -1714,10 +1765,12 @@ class SpatialPooler(object):
     self._permanences.read(proto.permanences)
     # Initialize ephemerals and make sure they get updated
     self._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
-    self._connectedSynapses = SparseBinaryMatrix(numInputs)
+    self._connectedSynapses = BinaryCorticalColumns(numInputs)
     self._connectedSynapses.resize(numColumns, numInputs)
-    for i in xrange(proto.numColumns):
-      self._updatePermanencesForColumn(self._permanences.getRow(i), i, False)
+    for columnIndex in xrange(proto.numColumns):
+      self._updatePermanencesForColumn(
+        self._permanences[columnIndex], columnIndex, False
+      )
 
     self._tieBreaker = numpy.array(proto.tieBreaker)
 
