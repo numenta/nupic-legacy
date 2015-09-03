@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.2.12
+
+* Implemented unit tests for the new features in AnomalyLikelihood class.
+* Convert AnomalyLikelihood._historicalScores to a user-configurable sliding window, instead of accumulating all of the incoming data points. This improved performance a ton! Added AnomalyLikelihood.forceModelRefresh() method.
+* Update nupic.core to include backwards compatibility fix for RandomImpl.
+* Uninstall pycapnp to avoid running tests that utilize the functionality and currently fail with Duplicate ID error.
+* Makes pycapnp and corresponding serialization optional. If pycapnp is not installed then the corresponding serialization tests will be skipped.
+* Add Multiple Prediction Test for NegLL Metric
+* Add test for NegLL Error Metric
+* Fix Orphan Decay Bug in temporal memory test
+* Change decreasing overlaps test for coordinate encoder to not require a strict decrease (staying the same is ok).
+* Allow specifying MonitoredTemporalMemory as TM implementation through OPF
+* include bucket likelihood and classifier input in clamodel
+* update metrics managers to pass model results to metrics
+* introducting a computeFlag to prevent double-computation. * The flag is used to prevent double computation in the event that customCompute() is called at the same time as compute()
+* Added `numRecords` param for consitency with the newly added `infer` method in FastCLACLassifier
+* checking if classifier has a `maxCategoryCount` attribute. If not, set it to solve backward compatibilities issues
+* renaming numCategories to maxCategoryCount to be constistent between KNN and CLA classifier
+* made new experimentutils file containing InferenceElement, InferenceType, and ModelResult duplicates which we will want to change in the future
+
 ## 0.2.11
 
 * Updating nupic.core sha.
