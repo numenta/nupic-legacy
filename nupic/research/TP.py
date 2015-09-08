@@ -85,8 +85,8 @@ class TP(ConsolePrinterMixin):
                maxLrnBacktrack=5,
                maxAge=100000,
                maxSeqLength=32,
-               maxSegmentsPerCell=-1,
-               maxSynapsesPerSegment=-1,
+               maxSegmentsPerCell=0,
+               maxSynapsesPerSegment=0,
                outputType='normal',
               ):
     """
@@ -120,16 +120,16 @@ class TP(ConsolePrinterMixin):
                   limit how much the TP tries to learn.
 
     @param maxSegmentsPerCell The maximum number of segments allowed on a cell. This
-                  is used to turn on "fixed size CLA" mode. When in effect,
-                  globalDecay is not applicable and must be set to 0 and
-                  maxAge must be set to 0. When this is used (> 0),
-                  maxSynapsesPerSegment must also be > 0.
+                  is used to turn on "fixed size CLA" mode (value > 0). 
+                  When in effect, globalDecay, maxAge params are ignored (=0).
+                  Non zero value implies also maxSynapsesPerSegment > 0.
+                  For non fixed-sized HTM, which grows synapses & segments, use 0.
 
     @param maxSynapsesPerSegment The maximum number of synapses allowed in a segment.
-                  This is used to turn on "fixed size CLA" mode. When in effect,
-                  globalDecay is not applicable and must be set to 0 and maxAge
-                  must be set to 0. When this is used (> 0), maxSegmentsPerCell
-                  must also be > 0.
+                  This is used to turn on "fixed size CLA" mode (value > 0). 
+                  When in effect, globalDecay, maxAge params are ignored (=0).
+                  Non zero value implies also maxSegmentsPerCell > 0.
+                  For non fixed-sized HTM, which grows synapses & segments, use 0.
 
     @param outputType Can be one of the following: 'normal', 'activeState',
                   'activeState1CellPerCol'.
@@ -156,16 +156,6 @@ class TP(ConsolePrinterMixin):
 
     # Check arguments
     assert pamLength > 0, "This implementation must have pamLength > 0"
-
-    # Fixed size CLA mode?
-    if maxSegmentsPerCell != -1 or maxSynapsesPerSegment != -1:
-      assert (maxSegmentsPerCell > 0 and maxSynapsesPerSegment > 0)
-      assert (globalDecay == 0.0)
-      assert (maxAge == 0)
-
-      assert maxSynapsesPerSegment >= newSynapseCount, ("TP requires that "
-          "maxSynapsesPerSegment >= newSynapseCount. (Currently %s >= %s)" % (
-          maxSynapsesPerSegment, newSynapseCount))
 
     # Seed random number generator
     if seed >= 0:
@@ -226,6 +216,15 @@ class TP(ConsolePrinterMixin):
     assert outputType in ('normal', 'activeState', 'activeState1CellPerCol')
     ## @todo document
     self.outputType = outputType
+
+    # will set some dependent parameters in fixed-sized CLA
+    if self.isFixedSized():
+      self.globalDecay = 0.0
+      self.maxAge = 0
+      if maxSynapsesPerSegment < newSynapseCount: 
+        raise ValueError("TP requires maxSynapsesPerSegment >= newSynapseCount."
+            " (Currently %s >= %s)" % (maxSynapsesPerSegment, newSynapseCount))
+
 
     # No point having larger expiration if we are not doing pooling
     if not doPooling:
@@ -2837,7 +2836,7 @@ class TP(ConsolePrinterMixin):
     @returns cell index
     """
     # Not fixed size CLA, just choose a cell randomly
-    if self.maxSegmentsPerCell < 0:
+    if not self.isFixedSized():
       if self.cellsPerColumn > 1:
         # Don't ever choose the start cell (cell # 0) in each column
         i = self._random.getUInt32(self.cellsPerColumn-1) + 1
@@ -3125,10 +3124,8 @@ class TP(ConsolePrinterMixin):
       # syn is now a tuple (src col, src cell)
       synsToAdd = [syn for syn in activeSynapses if type(syn) != int]
       # If we have fixed resources, get rid of some old syns if necessary
-      if self.maxSynapsesPerSegment > 0 \
-          and len(synsToAdd) + len(segment.syns) > self.maxSynapsesPerSegment:
-        numToFree = (len(segment.syns) + len(synsToAdd) -
-                     self.maxSynapsesPerSegment)
+      numToFree = len(segment.syns) + len(synsToAdd) - self.maxSynapsesPerSegment
+      if self.isFixedSized() and numToFree > 0:
         segment.freeNSynapses(numToFree, inactiveSynIndices, self.verbosity)
       for newSyn in synsToAdd:
         segment.addSynapse(newSyn[0], newSyn[1], self.initialPerm)
@@ -3238,6 +3235,25 @@ class TP(ConsolePrinterMixin):
 
     return (nSegments, nSynapses, nActiveSegs, nActiveSynapses,
             distSegSizes, distNSegsPerCell, distPermValues, distAges)
+
+
+  def isFixedSized(self):
+    """
+    check if model should be fixed-sized CLA, or not.
+
+    @return True if fixed-sized CLA, implied by either of maxSegmentsPerCell
+    or maxSynapsesPerSegment params set to > 0. 
+    """
+    # fixed-sized CLA
+    if self.maxSegmentsPerCell > 0 and self.maxSynapsesPerSegment > 0:
+      return True
+    # growing CLA
+    elif self.maxSegmentsPerCell == 0 and self.maxSynapsesPerSegment == 0:
+      return False
+    else:
+      raise ValueError("Either set both 'maxSegmentsPerCell' and "
+                       "'maxSynapsesPerSegment' (>0) for fixed-sized CLA,"
+                       "or set them both 0 for growing CLA")
 
 
 

@@ -98,8 +98,8 @@ class TP10X2(TP):
                maxSeqLength = 32,
 
                # Fixed size mode params
-               maxSegmentsPerCell = -1,
-               maxSynapsesPerSegment = -1,
+               maxSegmentsPerCell = 0,
+               maxSynapsesPerSegment = 0,
 
                # Output control
                outputType = 'normal',
@@ -181,7 +181,7 @@ class TP10X2(TP):
       self.cells4.setMaxLrnBacktrack(self.maxLrnBacktrack)
       self.cells4.setMaxSeqLength(self.maxSeqLength)
       self.cells4.setMaxSegmentsPerCell(self.maxSegmentsPerCell)
-      self.cells4.setMaxSynapsesPerCell(self.maxSynapsesPerSegment)
+      self.cells4.setMaxSynapsesPerSegment(self.maxSynapsesPerSegment)
 
     # Reset internal C++ pointers to states
     self._setStatePointers()
@@ -239,7 +239,7 @@ class TP10X2(TP):
       self.cells4.setMaxLrnBacktrack(self.maxLrnBacktrack)
       self.cells4.setMaxSeqLength(self.maxSeqLength)
       self.cells4.setMaxSegmentsPerCell(self.maxSegmentsPerCell)
-      self.cells4.setMaxSynapsesPerCell(self.maxSynapsesPerSegment)
+      self.cells4.setMaxSynapsesPerSegment(self.maxSynapsesPerSegment)
 
       self._setStatePointers()
 

@@ -184,6 +184,31 @@ class TPTest(unittest.TestCase):
     self.assertTPsEqual(tp2, tp4)
 
 
+  def testFixedSizedCLA(self):
+    "test TP init and run in fixed-sized mode"
+    # fixed sized CLA
+    fixed = TP(maxSegmentsPerCell = 128, maxSynapsesPerSegment = 28,
+            globalDecay = 0.1, maxAge = 1000)
+    self.assertTrue(fixed.isFixedSized())
+    # these params should be zeroed
+    self.assertEqual(fixed.globalDecay, 0.0)
+    self.assertEqual(fixed.maxAge, 0)
+    # this combination is not acceptable
+    self.assertRaises(ValueError,  TP, maxSegmentsPerCell = 0, maxSynapsesPerSegment = 28)
+
+    # non fixed-sized CLA
+    grow = TP(maxSegmentsPerCell = 0, maxSynapsesPerSegment = 0,
+            globalDecay = 0.1, maxAge = 1000)
+    self.assertFalse(grow.isFixedSized())
+    # these params should be set
+    self.assertAlmostEqual(grow.globalDecay, 0.1) #FIXME assertEqual(grow.globalDecay, 0.1) -> False: 0.1 != 0.1 can this be a problem elsewhere? bcs globalDecay is np.float32()
+    self.assertEqual(grow.maxAge, 1000)
+    # this combination is not acceptable
+    self.assertRaises(ValueError,  TP, maxSegmentsPerCell = 0, maxSynapsesPerSegment = 28)
+
+    
+    
+# Helper methods:
   def assertTPsEqual(self, tp1, tp2):
     """Asserts that two TP instances are the same.
 
