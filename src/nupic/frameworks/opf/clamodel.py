@@ -704,8 +704,8 @@ class CLAModel(Model):
 
       # This is getting index of predicted field if being fed to CLA.
       fieldNames = sensor.getSelf().encoder.getScalarNames()
-      if predictedFieldName in fieldNames:
-        self._predictedFieldIdx = fieldNames.index(predictedFieldName)
+      if self._predictedFieldName in fieldNames:
+        self._predictedFieldIdx = fieldNames.index(self._predictedFieldName)
       else:
         # Predicted field was not fed into the network, only to the classifier
         self._predictedFieldIdx = None
@@ -717,15 +717,15 @@ class CLAModel(Model):
         encoderList = sensor.getSelf().disabledEncoder.getEncoderList()
       else:
         encoderList = []
-      if len(encoderList) >= 1:
+
+      if encoderList: # not empty
         fieldNames = sensor.getSelf().disabledEncoder.getScalarNames()
-        self._classifierInputEncoder = encoderList[fieldNames.index(
-                                                        predictedFieldName)]
       else:
         # Legacy multi-step networks don't have a separate encoder for the
         #  classifier, so use the one that goes into the bottom of the network
         encoderList = sensor.getSelf().encoder.getEncoderList()
-        self._classifierInputEncoder = encoderList[self._predictedFieldIdx]
+      
+      self._classifierInputEncoder = encoderList[self._predictedFieldIdx]
 
 
 
@@ -733,11 +733,11 @@ class CLAModel(Model):
     # predicted field may not be enabled for input to the network, so we
     # explicitly encode it outside of the sensor
     # TODO: All this logic could be simpler if in the encoder itself
-    if not predictedFieldName in rawInput:
+    if not self._predictedFieldName in rawInput:
       raise ValueError("Input row does not contain a value for the predicted "
                        "field configured for this model. Missing value for '%s'"
-                       % predictedFieldName)
-    absoluteValue = rawInput[predictedFieldName]
+                       % self._predictedFieldName)
+    absoluteValue = rawInput[self._predictedFieldName]
     bucketIdx = self._classifierInputEncoder.getBucketIndices(absoluteValue)[0]
 
     # Convert the absolute values to deltas if necessary
