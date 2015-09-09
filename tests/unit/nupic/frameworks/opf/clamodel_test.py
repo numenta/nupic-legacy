@@ -129,7 +129,7 @@ class CLAModelTest(unittest.TestCase):
                      u'predictionSteps': [1]}
 
     data = [
-      {'_category': None,
+      {'_category': [None],
        '_reset': 0,
        '_sequenceId': 0,
        '_timestamp': datetime.datetime(2013, 12, 5, 0, 0),
