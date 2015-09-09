@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -59,6 +59,7 @@ updateAnomalyLikelihoods. The details of these are described below.
 
 """
 
+import collections
 import math
 import numpy
 
@@ -71,37 +72,53 @@ class AnomalyLikelihood(object):
   """
 
 
-  def __init__(self, claLearningPeriod=300, estimationSamples=300):
+  def __init__(self,
+               claLearningPeriod=288,
+               estimationSamples=100,
+               historicWindowSize=8640,
+               reestimationPeriod=10):
     """
-    :param claLearningPeriod: the number of iterations required for the CLA to
-    learn the basic patterns in the dataset and for the anomaly score to 'settle
-    down'. The default is based on empirical observations but in reality this
-    could be larger for more complex domains. The downside if this is too large
-    is that real anomalies might get ignored and not flagged.
+    NOTE: Anomaly likelihood scores are reported at a flat 0.5 for
+    claLearningPeriod + estimationSamples iterations.
 
-    :param estimationSamples: the number of reasonable anomaly scores required
-    for the initial estimate of the Gaussian. The default of 300 records is
-    reasonable - we just need sufficient samples to get a decent estimate for
-    the Gaussian. It's unlikely you will need to tune this since the Gaussian is
-    re-estimated every 100 iterations.
-    
-    Anomaly likelihood scores are reported at a flat 0.5 for claLearningPeriod +
-    estimationSamples iterations.
+    @param claLearningPeriod - (int) the number of iterations required for the
+      CLA to learn the basic patterns in the dataset and for the anomaly score
+      to 'settle down'. The default is based on empirical observations but in
+      reality this could be larger for more complex domains. The downside if
+      this is too large is that real anomalies might get ignored and not
+      flagged.
+
+    @param estimationSamples - (int) the number of reasonable anomaly scores
+      required for the initial estimate of the Gaussian. The default of 100
+      records is reasonable - we just need sufficient samples to get a decent
+      estimate for the Gaussian. It's unlikely you will need to tune this since
+      the Gaussian is re-estimated every 10 iterations by default.
+
+    @param historicWindowSize - (int) size of sliding window of historical
+      data points to maintain for periodic reestimation of the Gaussian. Note:
+      the default of 8640 is based on a month's worth of history at 5-minute
+      intervals.
+
+    @param reestimationPeriod - (int) how often we re-estimate the Gaussian
+      distribution. The ideal is to re-estimate every iteration but this is a
+      performance hit. In general the system is not very sensitive to this
+      number as long as it is small relative to the total number of records
+      processed.
     """
+    if historicWindowSize < estimationSamples:
+      raise ValueError("estimationSamples exceeds historicWindowSize")
+
     self._iteration = 0
-    self._historicalScores = []
+    self._historicalScores = collections.deque(maxlen=historicWindowSize)
     self._distribution = None
     self._probationaryPeriod = claLearningPeriod + estimationSamples
     self._claLearningPeriod = claLearningPeriod
-    
-    # How often we re-estimate the Gaussian distribution. The ideal is to
-    # re-estimate every iteration but this is a performance hit. In general the
-    # system is not very sensitive to this number as long as it is small
-    # relative to the total number of records processed.
-    self._reestimationPeriod = 100 
+
+    self._reestimationPeriod = reestimationPeriod
 
 
   def __eq__(self, o):
+    # pylint: disable=W0212
     return (isinstance(o, AnomalyLikelihood) and
             self._iteration == o._iteration and
             self._historicalScores == o._historicalScores and
@@ -109,16 +126,17 @@ class AnomalyLikelihood(object):
             self._probationaryPeriod == o._probationaryPeriod and
             self._claLearningPeriod == o._claLearningPeriod and
             self._reestimationPeriod == o._reestimationPeriod)
+    # pylint: enable=W0212
 
 
   def __str__(self):
     return ("AnomalyLikelihood: %s %s %s %s %s %s" % (
-            self._iteration,
-            self._historicalScores,
-            self._distribution,
-            self._probationaryPeriod,
-            self._claLearningPeriod,
-            self._reestimationPeriod) )
+      self._iteration,
+      self._historicalScores,
+      self._distribution,
+      self._probationaryPeriod,
+      self._claLearningPeriod,
+      self._reestimationPeriod) )
 
 
   @staticmethod
@@ -134,41 +152,73 @@ class AnomalyLikelihood(object):
     return math.log(1.0000000001 - likelihood) / -23.02585084720009
 
 
+  @staticmethod
+  def _calcSkipRecords(numIngested, windowSize, learningPeriod):
+    """Return the value of skipRecords for passing to estimateAnomalyLikelihoods
+
+    If `windowSize` is very large (bigger than the amount of data) then this
+    could just return `learningPeriod`. But when some values have fallen out of
+    the historical sliding window of anomaly records, then we have to take those
+    into account as well so we return the `learningPeriod` minus the number
+    shifted out.
+
+    @param numIngested - (int) number of data points that have been added to the
+      sliding window of historical data points.
+    @param windowSize - (int) size of sliding window of historical data points.
+    @param learningPeriod - (int) the number of iterations required for the CLA
+      to learn the basic patterns in the dataset and for the anomaly score to
+      'settle down'.
+    """
+    numShiftedOut = max(0, numIngested - windowSize)
+    return min(numIngested, max(0, learningPeriod - numShiftedOut))
+
+
   def anomalyProbability(self, value, anomalyScore, timestamp=None):
     """
     Compute the probability that the current value plus anomaly score represents
     an anomaly given the historical distribution of anomaly scores. The closer
     the number is to 1, the higher the chance it is an anomaly.
 
-    @param value - the current metric ("raw") input value, eg. "orange", or 
+    @param value - the current metric ("raw") input value, eg. "orange", or
                    '21.2' (deg. Celsius), ...
     @param anomalyScore - the current anomaly score
-    @param timestamp - (optional) timestamp of the ocurrence, 
+    @param timestamp - (optional) timestamp of the ocurrence,
                        default (None) results in using iteration step.
     @return theanomalyLikelihood for this record.
     """
     if timestamp is None:
       timestamp = self._iteration
-      
+
     dataPoint = (timestamp, value, anomalyScore)
     # We ignore the first probationaryPeriod data points
-    if len(self._historicalScores) < self._probationaryPeriod:
+    if self._iteration < self._probationaryPeriod:
       likelihood = 0.5
     else:
       # On a rolling basis we re-estimate the distribution
       if ( (self._distribution is None) or
            (self._iteration % self._reestimationPeriod == 0) ):
-        _, _, self._distribution = (
-          estimateAnomalyLikelihoods(
-            self._historicalScores,
-            skipRecords = self._claLearningPeriod)
-          )
 
-      likelihoods, _, self._distribution = (
-        updateAnomalyLikelihoods([dataPoint],
-          self._distribution)
-      )
+        numSkipRecords = self._calcSkipRecords(
+          numIngested=self._iteration,
+          windowSize=self._historicalScores.maxlen,
+          learningPeriod=self._claLearningPeriod)
+
+        _, _, self._distribution = estimateAnomalyLikelihoods(
+          self._historicalScores,
+          skipRecords=numSkipRecords)
+
+      likelihoods, _, self._distribution = updateAnomalyLikelihoods(
+        [dataPoint],
+        self._distribution)
+
       likelihood = 1.0 - likelihoods[0]
+
+      # Mitigate the impact of not updating the distribution at every iteration:
+      # if we have a very high anomaly likelihood, then we need it to be
+      # accurate, so force an update. (this should have minimal performance
+      # impact as it only occurs about 1% of the time)
+      if likelihood > 0.99:
+        self._distribution = None
 
     # Before we exit update historical scores and iteration
     self._historicalScores.append(dataPoint)
@@ -298,9 +348,9 @@ def estimateAnomalyLikelihoods(anomalyScores,
 
   # Compute averaged anomaly scores
   aggRecordList, historicalValues, total =  _anomalyScoreMovingAverage(
-                                              anomalyScores,
-                                              windowSize = averagingWindow,
-                                              verbosity = verbosity)
+    anomalyScores,
+    windowSize = averagingWindow,
+    verbosity = verbosity)
   s = [r[2] for r in aggRecordList]
   dataValues = numpy.array(s)
 
@@ -340,7 +390,7 @@ def estimateAnomalyLikelihoods(anomalyScores,
       "windowSize":       averagingWindow,
     },
     "historicalLikelihoods":
-          list(likelihoods[-min(averagingWindow, len(likelihoods)):]),
+      list(likelihoods[-min(averagingWindow, len(likelihoods)):]),
   }
 
   if verbosity > 1:
@@ -358,7 +408,7 @@ def estimateAnomalyLikelihoods(anomalyScores,
 
 def updateAnomalyLikelihoods(anomalyScores,
                              params,
-                             verbosity=0): # pylint: disable=W0613
+                             verbosity=0):
   """
   Compute updated probabilities for anomalyScores using the given params.
 
@@ -459,7 +509,7 @@ def _filterLikelihoods(likelihoods,
   """
   redThreshold    = 1.0 - redThreshold
   yellowThreshold = 1.0 - yellowThreshold
-  
+
   # The first value is untouched
   filteredLikelihoods = [likelihoods[0]]
 
@@ -521,7 +571,7 @@ def _anomalyScoreMovingAverage(anomalyScores,
 
 
 
-def estimateNormal(sampleData, performLowerBoundCheck=True):  # pylint: disable=W0613
+def estimateNormal(sampleData, performLowerBoundCheck=True):
   """
   :param sampleData:
   :type sampleData: Numpy array.
@@ -531,9 +581,9 @@ def estimateNormal(sampleData, performLowerBoundCheck=True):  # pylint: disable=
       the ``sampleData``.
   """
   params = {
-      "name": "normal",
-      "mean": numpy.mean(sampleData),
-      "variance": numpy.var(sampleData),
+    "name": "normal",
+    "mean": numpy.mean(sampleData),
+    "variance": numpy.var(sampleData),
   }
 
   if performLowerBoundCheck:
@@ -567,10 +617,10 @@ def nullDistribution(verbosity=0):
   if verbosity>0:
     print "Returning nullDistribution"
   return {
-      "name": "normal",
-      "mean": 0.5,
-      "variance": 1e6,
-      "stdev": 1e3,
+    "name": "normal",
+    "mean": 0.5,
+    "variance": 1e6,
+    "stdev": 1e3,
   }
 
 
@@ -603,7 +653,7 @@ def isValidEstimatorParams(p):
     by ``estimateAnomalyLikelihoods()`` or ``updateAnomalyLikelihoods``,
     ``False`` otherwise.  Just does some basic validation.
   """
-  if type(p) != type({}):
+  if not isinstance(p, dict):
     return False
   if not p.has_key("distribution"):
     return False
@@ -611,8 +661,7 @@ def isValidEstimatorParams(p):
     return False
   dist = p["distribution"]
   if not (dist.has_key("mean") and dist.has_key("name")
-          and dist.has_key("variance") and dist.has_key("stdev")
-          ):
+          and dist.has_key("variance") and dist.has_key("stdev")):
     return False
 
   return True
