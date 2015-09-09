@@ -296,7 +296,7 @@ class RecordSensor(PyRegion):
     Populate the output array with the category indices.
     Note: non-categories are represented with -1.
     """
-    if categories is None or categories[0] is None:
+    if categories[0] is None:
       # The record has no entry in category field.
       output[:] = -1
     else:
