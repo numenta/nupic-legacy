@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -566,45 +566,6 @@ def enableLoggingErrorDebugging():
     handler.handleError = handleErrorPatch
   
   return
-  
-  
-
-def clippedObj(obj, maxElementSize=64):
-  """
-  Return a clipped version of obj suitable for printing, This
-  is useful when generating log messages by printing data structures, but
-  don't want the message to be too long.
-
-  If passed in a dict, list, or namedtuple, each element of the structure's
-  string representation will be limited to 'maxElementSize' characters. This
-  will return a new object where the string representation of each element
-  has been truncated to fit within maxElementSize.
-  """
-
-  # Is it a named tuple?
-  if hasattr(obj, '_asdict'):
-    obj = obj._asdict()
-
-
-  # Printing a dict?
-  if isinstance(obj, dict):
-    objOut = dict()
-    for key,val in obj.iteritems():
-      objOut[key] = clippedObj(val)
-
-  # Printing a list?
-  elif hasattr(obj, '__iter__'):
-    objOut = []
-    for val in obj:
-      objOut.append(clippedObj(val))
-
-  # Some other object
-  else:
-    objOut = str(obj)
-    if len(objOut) > maxElementSize:
-      objOut = objOut[0:maxElementSize] + '...'
-
-  return objOut
 
 
 
@@ -744,6 +705,3 @@ def aggregationDivide(dividend, divisor):
   
   else:
     return float(dividendMonthSec['seconds']) / divisorMonthSec['seconds']
-    
-
-

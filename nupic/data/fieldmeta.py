@@ -1,19 +1,19 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -29,6 +29,8 @@ from collections import namedtuple
 
 
 FieldMetaInfoBase = namedtuple('FieldMetaInfoBase', ['name', 'type', 'special'])
+
+
 
 class FieldMetaInfo(FieldMetaInfoBase):
   """
@@ -57,6 +59,27 @@ class FieldMetaInfo(FieldMetaInfoBase):
   3.
   """
 
+
+  def __init__(self,
+               name,
+               type,  # pylint: disable=W0622
+               special):
+    """
+    :param str name: field name
+    :param str type: one of the values from FieldMetaType
+    :param str special: one of the values from FieldMetaSpecial
+    :raises ValueError: if type or special arg values are invalid
+    """
+
+    if not FieldMetaType.isValid(type):
+      raise ValueError('Unexpected field type %r' % (type,))
+
+    if not FieldMetaSpecial.isValid(special):
+      raise ValueError('Unexpected field special attribute %r' % (special,))
+
+    super(FieldMetaInfo, self).__init__(name, type, special)
+
+
   @staticmethod
   def createFromFileFieldElement(fieldInfoTuple):
     """ Creates a FieldMetaInfo instance from an element of the File.fields list
@@ -76,7 +99,7 @@ class FieldMetaInfo(FieldMetaInfoBase):
     Returns:  A list of FieldMetaInfo elements corresponding to the given
               'fields' list.
     """
-    return map(lambda x: cls.createFromFileFieldElement(x), fields)
+    return [cls.createFromFileFieldElement(f) for f in fields]
 
 
 
@@ -90,6 +113,22 @@ class FieldMetaType(object):
   float = 'float'
   boolean = 'bool'
   list = 'list'
+  sdr = 'sdr'  # sparse distributed representation
+
+  _ALL = (string, datetime, integer, float, boolean, list, sdr)
+
+
+  @classmethod
+  def isValid(cls, fieldDataType):
+    """Check a candidate value whether it's one of the valid field data types
+
+    :param str fieldDataType: candidate field data type
+    :returns: True if the candidate value is a legitimate field data type value;
+      False if not
+    :rtype: bool
+    """
+    return fieldDataType in cls._ALL
+
 
 
 class FieldMetaSpecial(object):
@@ -101,3 +140,18 @@ class FieldMetaSpecial(object):
   sequence = 'S'
   timestamp = 'T'
   category = 'C'
+  learning = 'L'
+
+  _ALL = (none, reset, sequence, timestamp, category, learning,)
+
+
+  @classmethod
+  def isValid(cls, attr):
+    """Check a candidate value whether it's one of the valid attributes
+
+    :param str attr: candidate value
+    :returns: True if the candidate value is a legitimate "special" field
+      attribute; False if not
+    :rtype: bool
+    """
+    return attr in cls._ALL

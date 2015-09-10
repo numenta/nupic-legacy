@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -24,6 +24,8 @@ Temporal Memory mixin that enables detailed monitoring of history.
 """
 
 from collections import defaultdict
+
+import copy
 
 from prettytable import PrettyTable
 
@@ -417,10 +419,10 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     if activityType == "predictedActiveCells":
       self._mmComputeTransitionTraces()
 
-    # If the trace contains ConnectionsCell, convert them to int
-    cellTrace = self._mmTraces[activityType].data
+    cellTrace = copy.deepcopy(self._mmTraces[activityType].data)
     for i in xrange(len(cellTrace)):
       cellTrace[i] = self.getCellIndices(cellTrace[i])
 
     return self.mmGetCellTracePlot(cellTrace, self.numberOfCells(),
-                                   activityType, title, showReset, resetShading)
+                                   activityType, title, showReset,
+                                   resetShading)

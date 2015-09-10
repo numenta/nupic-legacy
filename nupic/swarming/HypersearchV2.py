@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -33,17 +33,16 @@ import copy
 import pprint
 from operator import itemgetter
 
-from nupic.data import dictutils
 from nupic.frameworks.opf import opfhelpers
-from nupic.frameworks.opf.opfutils import InferenceType
-from nupic.support import clippedObj
-from nupic.support.serializationutils import sortedJSONDumpS
+from nupic.swarming.hypersearch.utils import sortedJSONDumpS, rApply, rCopy
 from nupic.support.configuration import Configuration
-from nupic.support.errorcodes import ErrorCodes
+from nupic.swarming.hypersearch.utils import clippedObj
+from nupic.swarming.hypersearch.errorcodes import ErrorCodes
+from nupic.swarming.hypersearch.experimentutils import InferenceType
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
-from nupic.swarming.utils import (runModelGivenBaseAndParams,
-                                                  runDummyModel)
+from nupic.swarming.hypersearch.utils import (runModelGivenBaseAndParams,
+                                              runDummyModel)
 from nupic.swarming.permutationhelpers import *
 from nupic.swarming.exp_generator.ExpGenerator import expGenerator
 
@@ -2939,7 +2938,7 @@ class HypersearchV2(object):
       else:
         if isinstance(value, PermuteVariable):
           self._flattenedPermutations[key] = value
-    dictutils.rApply(self._permutations, _flattenPermutations)
+    rApply(self._permutations, _flattenPermutations)
 
   def getExpectedNumModels(self):
     """Computes the number of models that are expected to complete as part of
@@ -3794,7 +3793,7 @@ class HypersearchV2(object):
           else:
             return value
 
-        structuredParams = dictutils.rCopy(self._permutations,
+        structuredParams = rCopy(self._permutations,
                                            _buildStructuredParams,
                                            discardNoneKeys=False)
 

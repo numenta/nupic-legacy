@@ -5,20 +5,22 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import copy
+import json
 import os
 import sys
 import tempfile
@@ -32,10 +34,15 @@ import shutil
 import types
 import signal
 import uuid
+import validictory
 
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
 
+# TODO: Note the function 'rUpdate' is also duplicated in the
+# nupic.data.dictutils module -- we will eventually want to change this
+# TODO: 'ValidationError', 'validate', 'loadJSONValueFromFile' duplicated in
+# nupic.data.jsonhelpers -- will want to remove later
 
 class JobFailException(Exception):
   """ If a model raises this exception, then the runModelXXX code will
@@ -54,15 +61,15 @@ def getCopyrightHead():
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -559,3 +566,190 @@ def generatePersistentJobGUID():
 
   """
   return "JOB_UUID1-" + str(uuid.uuid1())
+
+
+
+def identityConversion(value, _keys):
+  return value
+
+
+
+def rCopy(d, f=identityConversion, discardNoneKeys=True, deepCopy=True):
+  """Recursively copies a dict and returns the result.
+
+  Args:
+    d: The dict to copy.
+    f: A function to apply to values when copying that takes the value and the
+        list of keys from the root of the dict to the value and returns a value
+        for the new dict.
+    discardNoneKeys: If True, discard key-value pairs when f returns None for
+        the value.
+    deepCopy: If True, all values in returned dict are true copies (not the
+        same object).
+  Returns:
+    A new dict with keys and values from d replaced with the result of f.
+  """
+  # Optionally deep copy the dict.
+  if deepCopy:
+    d = copy.deepcopy(d)
+
+  newDict = {}
+  toCopy = [(k, v, newDict, ()) for k, v in d.iteritems()]
+  while len(toCopy) > 0:
+    k, v, d, prevKeys = toCopy.pop()
+    prevKeys = prevKeys + (k,)
+    if isinstance(v, dict):
+      d[k] = dict()
+      toCopy[0:0] = [(innerK, innerV, d[k], prevKeys)
+                     for innerK, innerV in v.iteritems()]
+    else:
+      #print k, v, prevKeys
+      newV = f(v, prevKeys)
+      if not discardNoneKeys or newV is not None:
+        d[k] = newV
+  return newDict
+
+
+
+def rApply(d, f):
+  """Recursively applies f to the values in dict d.
+
+  Args:
+    d: The dict to recurse over.
+    f: A function to apply to values in d that takes the value and a list of
+        keys from the root of the dict to the value.
+  """
+  remainingDicts = [(d, ())]
+  while len(remainingDicts) > 0:
+    current, prevKeys = remainingDicts.pop()
+    for k, v in current.iteritems():
+      keys = prevKeys + (k,)
+      if isinstance(v, dict):
+        remainingDicts.insert(0, (v, keys))
+      else:
+        f(v, keys)
+
+
+
+def clippedObj(obj, maxElementSize=64):
+  """
+  Return a clipped version of obj suitable for printing, This
+  is useful when generating log messages by printing data structures, but
+  don't want the message to be too long.
+
+  If passed in a dict, list, or namedtuple, each element of the structure's
+  string representation will be limited to 'maxElementSize' characters. This
+  will return a new object where the string representation of each element
+  has been truncated to fit within maxElementSize.
+  """
+
+  # Is it a named tuple?
+  if hasattr(obj, '_asdict'):
+    obj = obj._asdict()
+
+
+  # Printing a dict?
+  if isinstance(obj, dict):
+    objOut = dict()
+    for key,val in obj.iteritems():
+      objOut[key] = clippedObj(val)
+
+  # Printing a list?
+  elif hasattr(obj, '__iter__'):
+    objOut = []
+    for val in obj:
+      objOut.append(clippedObj(val))
+
+  # Some other object
+  else:
+    objOut = str(obj)
+    if len(objOut) > maxElementSize:
+      objOut = objOut[0:maxElementSize] + '...'
+
+  return objOut
+
+
+
+class ValidationError(validictory.ValidationError):
+  pass
+
+
+
+def validate(value, **kwds):
+  """ Validate a python value against json schema:
+  validate(value, schemaPath)
+  validate(value, schemaDict)
+
+  value:          python object to validate against the schema
+
+  The json schema may be specified either as a path of the file containing
+  the json schema or as a python dictionary using one of the
+  following keywords as arguments:
+    schemaPath:     Path of file containing the json schema object.
+    schemaDict:     Python dictionary containing the json schema object
+
+  Returns: nothing
+
+  Raises:
+          ValidationError when value fails json validation
+  """
+
+  assert len(kwds.keys()) >= 1
+  assert 'schemaPath' in kwds or 'schemaDict' in kwds
+
+  schemaDict = None
+  if 'schemaPath' in kwds:
+    schemaPath = kwds.pop('schemaPath')
+    schemaDict = loadJsonValueFromFile(schemaPath)
+  elif 'schemaDict' in kwds:
+    schemaDict = kwds.pop('schemaDict')
+
+  try:
+    validictory.validate(value, schemaDict, **kwds)
+  except validictory.ValidationError as e:
+    raise ValidationError(e)
+
+
+
+def loadJsonValueFromFile(inputFilePath):
+  """ Loads a json value from a file and converts it to the corresponding python
+  object.
+
+  inputFilePath:
+                  Path of the json file;
+
+  Returns:
+                  python value that represents the loaded json value
+
+  """
+  with open(inputFilePath) as fileObj:
+    value = json.load(fileObj)
+
+  return value
+
+
+
+def sortedJSONDumpS(obj):
+  """
+  Return a JSON representation of obj with sorted keys on any embedded dicts.
+  This insures that the same object will always be represented by the same
+  string even if it contains dicts (where the sort order of the keys is
+  normally undefined).
+  """
+
+  itemStrs = []
+
+  if isinstance(obj, dict):
+    items = obj.items()
+    items.sort()
+    for key, value in items:
+      itemStrs.append('%s: %s' % (json.dumps(key), sortedJSONDumpS(value)))
+    return '{%s}' % (', '.join(itemStrs))
+
+  elif hasattr(obj, '__iter__'):
+    for val in obj:
+      itemStrs.append(sortedJSONDumpS(val))
+    return '[%s]' % (', '.join(itemStrs))
+
+  else:
+    return json.dumps(obj)

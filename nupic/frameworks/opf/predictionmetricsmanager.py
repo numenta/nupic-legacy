@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -83,6 +83,7 @@ class MetricsManager(object):
     self.__constructMetricsModules(metricSpecs)
     self.__currentGroundTruth = None
     self.__currentInference = None
+    self.__currentResult = None
 
     self.__isTemporal = InferenceType.isTemporal(inferenceType)
     if self.__isTemporal:
@@ -123,6 +124,7 @@ class MetricsManager(object):
       groundTruth = self._getGroundTruth(inferenceElement)
       inference = self._getInference(inferenceElement)
       rawRecord = self._getRawGroundTruth()
+      result = self.__currentResult
       if field:
         if type(inference) in (list, tuple):
           if field in self.__fieldNameIndexMap:
@@ -147,7 +149,8 @@ class MetricsManager(object):
 
       metric.addInstance(groundTruth=groundTruth,
                          prediction=inference,
-                         record = rawRecord)
+                         record=rawRecord,
+                         result=result)
 
       metricResults[label] = metric.getMetric()['value']
 
@@ -207,11 +210,15 @@ class MetricsManager(object):
     # -----------------------------------------------------------------------
     # If the model potentially has temporal inferences.
     if self.__isTemporal:
-      self.__currentInference = self.__inferenceShifter.shift(results).inferences
+      shiftedInferences = self.__inferenceShifter.shift(results).inferences
+      self.__currentResult = copy.deepcopy(results)
+      self.__currentResult.inferences = shiftedInferences
+      self.__currentInference = shiftedInferences
 
     # -----------------------------------------------------------------------
     # The current model has no temporal inferences.
     else:
+      self.__currentResult = copy.deepcopy(results)
       self.__currentInference = copy.deepcopy(results.inferences)
 
     # -----------------------------------------------------------------------
