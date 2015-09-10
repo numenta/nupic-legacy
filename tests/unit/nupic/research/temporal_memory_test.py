@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -27,13 +27,16 @@ TODO: Make default test TM instance simpler, with 4 cells per column.
 import tempfile
 import unittest
 
-import capnp
-
-from nupic.bindings.proto import TemporalMemoryProto_capnp
-from nupic.research.temporal_memory import TemporalMemory
-
 from nupic.data.generators.pattern_machine import PatternMachine
 from nupic.data.generators.sequence_machine import SequenceMachine
+from nupic.research.temporal_memory import TemporalMemory
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.proto import TemporalMemoryProto_capnp
 
 
 
@@ -189,11 +192,12 @@ class TemporalMemoryTest(unittest.TestCase):
                                          connections)
 
     self.assertEqual(activeCells, set([0, 1, 2, 3, 4, 5, 6, 7]))
-    self.assertEqual(winnerCells, set([0, 6]))  # 6 is randomly chosen cell
+    randomWinner = 4
+    self.assertEqual(winnerCells, set([0, randomWinner]))  # 4 is randomly chosen cell
     self.assertEqual(learningSegments, set([0, 4]))  # 4 is new segment created
 
     # Check that new segment was added to winner cell (6) in column 1
-    self.assertEqual(connections.segmentsForCell(6), set([4]))
+    self.assertEqual(connections.segmentsForCell(randomWinner), set([4]))
 
 
   def testBurstColumnsEmpty(self):
@@ -343,12 +347,12 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(tm.bestMatchingCell(tm.cellsForColumn(3),  # column containing cell 108
                                          activeCells,
                                          connections),
-                     (96, None))  # Random cell from column
+                     (103, None))  # Random cell from column
 
     self.assertEqual(tm.bestMatchingCell(tm.cellsForColumn(999),
                                          activeCells,
                                          connections),
-                     (31972, None))  # Random cell from column
+                     (31979, None))  # Random cell from column
 
 
   def testBestMatchingCellFewestSegments(self):
@@ -505,7 +509,7 @@ class TemporalMemoryTest(unittest.TestCase):
     winnerCells = set([4, 47, 58, 93])
 
     self.assertEqual(tm.pickCellsToLearnOn(2, 0, winnerCells, connections),
-                     set([4, 58]))  # randomly picked
+                     set([4, 93]))  # randomly picked
 
     self.assertEqual(tm.pickCellsToLearnOn(100, 0, winnerCells, connections),
                      set([4, 47, 58, 93]))
@@ -631,7 +635,9 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(columnsForCells[99], set([399]))
 
 
-  def testWrite(self):
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
+  def testWriteRead(self):
     tm1 = TemporalMemory(
       columnDimensions=[100],
       cellsPerColumn=4,

@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -36,8 +36,8 @@ from nupic.frameworks.opf.expdescriptionhelpers import (
 
 from nupic.frameworks.opf.clamodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                                           InferenceElement)
+from nupic.swarming.hypersearch.experimentutils import (InferenceType,
+                                                        InferenceElement)
 from nupic.support import aggregationDivide
 
 from nupic.frameworks.opf.opftaskdriver import (

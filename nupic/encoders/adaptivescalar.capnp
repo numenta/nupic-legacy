@@ -1,6 +1,6 @@
 @0xf11485b8c813b489;
 
-using import "../movingaverage.capnp".MovingAverageProto;
+using import "/nupic/movingaverage.capnp".MovingAverageProto;
 
 # Next ID: 10
 struct AdaptiveScalarEncoderProto {

@@ -5,21 +5,22 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
 import copy
+import json
 import os
 import sys
 import tempfile
@@ -33,12 +34,15 @@ import shutil
 import types
 import signal
 import uuid
+import validictory
 
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
 
 # TODO: Note the function 'rUpdate' is also duplicated in the
 # nupic.data.dictutils module -- we will eventually want to change this
+# TODO: 'ValidationError', 'validate', 'loadJSONValueFromFile' duplicated in
+# nupic.data.jsonhelpers -- will want to remove later
 
 class JobFailException(Exception):
   """ If a model raises this exception, then the runModelXXX code will
@@ -57,15 +61,15 @@ def getCopyrightHead():
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -663,3 +667,89 @@ def clippedObj(obj, maxElementSize=64):
       objOut = objOut[0:maxElementSize] + '...'
 
   return objOut
+
+
+
+class ValidationError(validictory.ValidationError):
+  pass
+
+
+
+def validate(value, **kwds):
+  """ Validate a python value against json schema:
+  validate(value, schemaPath)
+  validate(value, schemaDict)
+
+  value:          python object to validate against the schema
+
+  The json schema may be specified either as a path of the file containing
+  the json schema or as a python dictionary using one of the
+  following keywords as arguments:
+    schemaPath:     Path of file containing the json schema object.
+    schemaDict:     Python dictionary containing the json schema object
+
+  Returns: nothing
+
+  Raises:
+          ValidationError when value fails json validation
+  """
+
+  assert len(kwds.keys()) >= 1
+  assert 'schemaPath' in kwds or 'schemaDict' in kwds
+
+  schemaDict = None
+  if 'schemaPath' in kwds:
+    schemaPath = kwds.pop('schemaPath')
+    schemaDict = loadJsonValueFromFile(schemaPath)
+  elif 'schemaDict' in kwds:
+    schemaDict = kwds.pop('schemaDict')
+
+  try:
+    validictory.validate(value, schemaDict, **kwds)
+  except validictory.ValidationError as e:
+    raise ValidationError(e)
+
+
+
+def loadJsonValueFromFile(inputFilePath):
+  """ Loads a json value from a file and converts it to the corresponding python
+  object.
+
+  inputFilePath:
+                  Path of the json file;
+
+  Returns:
+                  python value that represents the loaded json value
+
+  """
+  with open(inputFilePath) as fileObj:
+    value = json.load(fileObj)
+
+  return value
+
+
+
+def sortedJSONDumpS(obj):
+  """
+  Return a JSON representation of obj with sorted keys on any embedded dicts.
+  This insures that the same object will always be represented by the same
+  string even if it contains dicts (where the sort order of the keys is
+  normally undefined).
+  """
+
+  itemStrs = []
+
+  if isinstance(obj, dict):
+    items = obj.items()
+    items.sort()
+    for key, value in items:
+      itemStrs.append('%s: %s' % (json.dumps(key), sortedJSONDumpS(value)))
+    return '{%s}' % (', '.join(itemStrs))
+
+  elif hasattr(obj, '__iter__'):
+    for val in obj:
+      itemStrs.append(sortedJSONDumpS(val))
+    return '[%s]' % (', '.join(itemStrs))
+
+  else:
+    return json.dumps(obj)

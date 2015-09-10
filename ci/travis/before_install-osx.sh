@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -31,13 +31,26 @@ git clone https://github.com/numenta/nupic-darwin64.git
 echo ">>> Activating nupic-darwin64..."
 source nupic-darwin64/bin/activate
 
+# Upgrade the version of pip included with nupic-darwin64
 # TODO: remove after nupic-darwin64 has been updated
-pip install --upgrade pip
+pip install --upgrade --install-option="--prefix=`pwd`/nupic-darwin64" pip
+pip --version
+
 pip uninstall numpy --yes
+
 pip install wheel --user
-pip install --use-wheel numpy==1.9.2 --user
-PY_VERSION=`python -c 'import sys; print(sys.version[:3])'`
+
+# Add --user location to PYTHONPATH
 export PYTHONPATH="/Users/travis/Library/Python/$PY_VERSION/lib/python/site-packages:$PYTHONPATH"
+
+# Fetch nupic.core build
+export NUPIC_CORE_COMMITISH=`python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"`
+echo "Downloading nupic.core build: https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
+curl -O "https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
+tar xzf "nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
+
+# Install nupic.bindings and dependencies from wheels
+pip install --user --no-index --find-links=Users/travis/build/numenta/nupic.core/bindings/py/dist/wheels nupic.bindings
 
 # Install and start MySQL on OSX
 echo ">>> brew install mysql"

@@ -1,6 +1,6 @@
 @0x9b23d989c61ef9e5;
 
-using import "scalar.capnp".ScalarEncoderProto;
+using import "/nupic/encoders/scalar.capnp".ScalarEncoderProto;
 
 struct DateEncoderProto {
   name @0 :Text;
