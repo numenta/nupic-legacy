@@ -24,7 +24,8 @@ Utilities for generating and manipulating sequences, for use in
 experimentation and tests.
 """
 
-import numpy
+import numpy as np
+from nupic.bindings.math import Random
 
 
 
@@ -43,7 +44,7 @@ class SequenceMachine(object):
     self.patternMachine = patternMachine
 
     # Initialize member variables
-    self._random = numpy.random.RandomState(seed)
+    self._random = Random(seed)
 
 
   def generateFromNumbers(self, numbers):
@@ -132,13 +133,14 @@ class SequenceMachine(object):
 
     for i in xrange(numSequences):
       start = i * sequenceLength
-      newNumbers = range(start, start + sequenceLength)
+      newNumbers = np.array(range(start, start + sequenceLength), np.uint64)
       self._random.shuffle(newNumbers)
 
       if sharedRange is not None:
+        newNumbers = list(newNumbers)
         newNumbers[sharedStart:sharedEnd] = sharedNumbers
 
-      numbers += newNumbers
+      numbers += list(newNumbers)
       numbers.append(None)
 
     return numbers
