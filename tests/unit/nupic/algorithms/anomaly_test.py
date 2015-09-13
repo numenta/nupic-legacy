@@ -110,9 +110,39 @@ class AnomalyTest(unittest.TestCase):
 
 
   def testComputeAnomalySelectModePure(self):
+    """Anomaly with selected mode (pure) """
     anomalyComputer = anomaly.Anomaly(mode=anomaly.Anomaly.MODE_PURE)
     score = anomalyComputer.compute(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
+
+
+  def testComputeAnomalySelectModeLikelihood(self):
+    """Anomaly with selected mode (likelihood) """
+    anomalyComputer = anomaly.Anomaly(mode=anomaly.Anomaly.MODE_LIKELIHOOD)
+    score = anomalyComputer.compute(array([2, 3, 6]), array([3, 5, 7]), "someRawInput")
+    self.assertAlmostEqual(score, 0.5) 
+
+
+  def testComputeAnomalySelectModeWeighted(self):
+    """Anomaly with selected mode (weighted) """
+    anomalyComputer = anomaly.Anomaly(mode=anomaly.Anomaly.MODE_WEIGHTED)
+    score = anomalyComputer.compute(array([2, 3, 6]), array([3, 5, 7]), "someRawInput")
+    self.assertAlmostEqual(score, 1/3.0)
+
+
+  def testComputeAnomalyEmpty(self):
+    """Anomaly called with empty params """
+    score = anomaly.computeRawAnomalyScore(array([]), array([]))
+    self.assertEqual(score, 0)
+
+
+  def testComputeAnomalySelectModeCustom(self):
+    """Anomaly using custom compute() function"""
+    def dummyCompute(active, pred, inputVal, timestamp):
+      return 0.1337
+    anomalyComputer = anomaly.Anomaly(mode="custom", customComputeFn=dummyCompute)
+    score = anomalyComputer.compute(array([0, 0, 0]), array([0, 0, 0]))
+    self.assertEqual(score, 0.1337)
 
 
   def testSerialization(self):
@@ -121,14 +151,21 @@ class AnomalyTest(unittest.TestCase):
     aDef = Anomaly()
     aLike = Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
     aWeig = Anomaly(mode=Anomaly.MODE_WEIGHTED)
+    aCust = Anomaly(mode=Anomaly.MODE_CUSTOM, customComputeFn=sum)
     # test anomaly with all whistles (MovingAverage, Likelihood, ...)
     aAll = Anomaly(mode=Anomaly.MODE_LIKELIHOOD, slidingWindowSize=5)
-    inst = [aDef, aLike, aWeig, aAll] 
+    inst = [aDef, aLike, aWeig, aCust, aAll] 
 
     for a in inst:
-      stored = pickle.dumps(a)
-      restored = pickle.loads(stored)
-      self.assertEqual(a, restored)
+      try:
+        stored = pickle.dumps(a)
+        restored = pickle.loads(stored)
+      except ValueError as e:
+        if a == aCust:
+          continue # ok, known - not yet implemented
+        else:
+          raise e
+      self.assertEqual(a, restored, "%s\nvs\n%s" % (a, restored))
 
 
   def testEquals(self):
