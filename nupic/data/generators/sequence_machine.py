@@ -133,7 +133,7 @@ class SequenceMachine(object):
 
     for i in xrange(numSequences):
       start = i * sequenceLength
-      newNumbers = np.array(range(start, start + sequenceLength), np.uint64)
+      newNumbers = np.array(range(start, start + sequenceLength), np.uint32)
       self._random.shuffle(newNumbers)
 
       if sharedRange is not None:
