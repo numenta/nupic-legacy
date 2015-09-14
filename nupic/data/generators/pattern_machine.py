@@ -85,7 +85,7 @@ class PatternMachine(object):
 
     for bit in bits:
       if self._random.getReal64() < amount:
-        newBits.add(self._random.getUInt64(self._n))
+        newBits.add(self._random.getUInt32(self._n))
       else:
         newBits.add(bit)
 
@@ -173,7 +173,7 @@ class PatternMachine(object):
     """
     Generates set of random patterns.
     """
-    candidates = np.array(range(self._n), np.uint64)
+    candidates = np.array(range(self._n), np.uint32)
     for i in xrange(self._num):
       self._random.shuffle(candidates)
       pattern = candidates[0:self._getW()]
@@ -187,7 +187,7 @@ class PatternMachine(object):
     w = self._w
 
     if type(w) is list:
-      return w[self._random.getUInt64(len(w))]
+      return w[self._random.getUInt32(len(w))]
     else:
       return w
 
