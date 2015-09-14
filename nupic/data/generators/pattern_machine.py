@@ -24,7 +24,8 @@ Utilities for generating and manipulating patterns, for use in
 experimentation and tests.
 """
 
-import numpy
+import numpy as np
+from nupic.bindings.math import Random
 
 
 
@@ -51,7 +52,7 @@ class PatternMachine(object):
     self._num = num
 
     # Initialize member variables
-    self._random = numpy.random.RandomState(seed)
+    self._random = Random(seed)
     self._patterns = dict()
 
     self._generate()
@@ -83,8 +84,8 @@ class PatternMachine(object):
     newBits = set()
 
     for bit in bits:
-      if self._random.rand() < amount:
-        newBits.add(self._random.randint(self._n))
+      if self._random.getReal64() < amount:
+        newBits.add(self._random.getUInt32(self._n))
       else:
         newBits.add(bit)
 
@@ -172,7 +173,7 @@ class PatternMachine(object):
     """
     Generates set of random patterns.
     """
-    candidates = range(self._n)
+    candidates = np.array(range(self._n), np.uint32)
     for i in xrange(self._num):
       self._random.shuffle(candidates)
       pattern = candidates[0:self._getW()]
@@ -186,7 +187,7 @@ class PatternMachine(object):
     w = self._w
 
     if type(w) is list:
-      return w[self._random.randint(len(w))]
+      return w[self._random.getUInt32(len(w))]
     else:
       return w
 
