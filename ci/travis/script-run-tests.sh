@@ -22,8 +22,6 @@
 
 echo
 echo Running script-run-tests.sh...
-echo Current directory:
-pwd
 echo
 
 # Python unit tests and prep for coveralls reporting
