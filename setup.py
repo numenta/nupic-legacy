@@ -72,7 +72,8 @@ if __name__ == "__main__":
     name="nupic",
     version=getVersion(),
     install_requires=requirements,
-    packages=find_packages(),
+    package_dir = {"": "src"},
+    packages=find_packages("src"),
     namespace_packages = ["nupic"],
     package_data={
       "nupic.support": ["nupic-default.xml",
