@@ -22,7 +22,7 @@
 
 echo
 echo Running script-run-tests.sh...
-pushd $HOME
+pushd
 echo "Current directory (before tests):"
 pwd
 echo
