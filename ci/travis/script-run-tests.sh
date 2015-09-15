@@ -22,8 +22,7 @@
 
 echo
 echo Running script-run-tests.sh...
-pushd
-echo Current directory (before tests):
+echo Current directory:
 pwd
 echo
 
@@ -35,8 +34,3 @@ mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit
 ${TRAVIS_BUILD_DIR}/scripts/run_nupic_tests -i --coverage --failfast || exit
 
 mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration
-
-popd
-echo Current directory (after tests):
-pwd
-echo
