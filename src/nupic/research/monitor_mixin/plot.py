@@ -25,14 +25,15 @@ Plot class used in monitor mixin framework.
 
 import os
 import traceback
+import sys
 
 try:
   # We import in here to avoid creating a matplotlib dependency in nupic.
   import matplotlib.pyplot as plt
   import matplotlib.cm as cm
 except ImportError:
-  print "Cannot import matplotlib. Plot class will not work."
-  print traceback.format_exc() + "\n"
+  print >> sys.stderr, "Cannot import matplotlib. Plot class will not work."
+  print >> sys.stderr, traceback.format_exc() + "\n"
 
 
 class Plot(object):
