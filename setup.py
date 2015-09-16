@@ -25,7 +25,7 @@ import os
 import setuptools
 import sys
 
-from setuptools import setup, Extension
+from setuptools import setup, find_packages, Extension
 
 REPO_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -67,13 +67,16 @@ def findRequirements():
 
 if __name__ == "__main__":
   requirements = findRequirements()
+  packages = find_packages("src")
+  packages = ["nupic." + package for package in packages]
+  packages.append("nupic")
 
   setup(
     name="nupic",
     version=getVersion(),
     install_requires=requirements,
     package_dir = {"nupic": "src"},
-    packages=["nupic"],
+    packages=packages,
     namespace_packages = ["nupic"],
     package_data={
       "nupic.support": ["nupic-default.xml",
