@@ -22,11 +22,13 @@
 
 """Unit tests for utils module."""
 
+import numpy
 import pickle
 import tempfile
 import unittest
 
 from nupic.utils import MovingAverage
+from nupic.utils import lru_cache as cache
 
 try:
   import capnp
@@ -183,7 +185,73 @@ class UtilsTest(unittest.TestCase):
     self.assertNotEqual(ma, maP)
     ma.next(6)
     self.assertEqual(ma, maP)
+
+
+  def testCache(self):
+    data = numpy.random.randint(0, 10, 100) 
+    resRef = []
+    resCached = []
+
+    @cache(maxsize=8)
+    def foo(x):
+      return x**2
+
+    for d in data:
+      resRef.append(d**2)
+      resCached.append(foo(d))
     
+    self.assertListEqual(resRef, resCached, "Values retrieved from cache differ!: %r vs. %r" % (resRef, resCached))
+    print foo.cache_info()
+
+
+  def testCacheSetSize(self):
+    """test setting cache's size at runtime"""
+    # just a mock object
+    class A(object):
+      def __init__(self, cacheSize):
+        self.cacheSize = cacheSize
+      @cache(sizeref='cacheSize')
+      def foo(self, x, **kwds):
+        return x**2
+
+    a = A(42)
+
+    # method 1: maxsize from method's arg, this is an override
+    for d in xrange(10):
+      a.foo(d, cacheSize="5")
+    mx = int(a.foo.cache_info().maxsize)
+    self.assertEqual(mx, 5, "Cache size from method's arg 'cacheSize' was set to 5, but is %r" % (mx))
+    print a.foo.cache_info()
+    a.foo.cache_clear()
+
+    # method 2: maxsize from object's member variable
+    for d in xrange(10):
+      a.foo(d)
+    mx = int(a.foo.cache_info().maxsize)
+    self.assertEqual(mx, 42, "Cache size from object's member 'encoder.cacheSize' was set to 42, but is %r" % (mx))
+    print a.foo.cache_info()
+    a.foo.cache_clear()
+
+    # test for unstandard options - maxsize = None / 0:
+
+    # no cache
+    a = A(0)
+    for d in xrange(10):
+      a.foo(d)
+    mx = int(a.foo.cache_info().maxsize)
+    self.assertEqual(mx, 0, "Cache size set to 0, but is %r" % (mx))
+    print a.foo.cache_info()
+    a.foo.cache_clear()
+
+    # unlimited cache
+    a = A(None)
+    for d in xrange(10):
+      a.foo(d)
+    mx = a.foo.cache_info().maxsize
+    self.assertEqual(mx, None, "Cache size set to unlimited (None), but is %r" % (mx))
+    print a.foo.cache_info()
+    a.foo.cache_clear()
+
 
 
 
