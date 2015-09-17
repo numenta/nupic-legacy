@@ -135,12 +135,12 @@ class SequenceMachine(object):
       start = i * sequenceLength
       newNumbers = np.array(range(start, start + sequenceLength), np.uint32)
       self._random.shuffle(newNumbers)
+      newNumbers = list(newNumbers)
 
       if sharedRange is not None:
-        newNumbers = list(newNumbers)
         newNumbers[sharedStart:sharedEnd] = sharedNumbers
 
-      numbers += list(newNumbers)
+      numbers += newNumbers
       numbers.append(None)
 
     return numbers
