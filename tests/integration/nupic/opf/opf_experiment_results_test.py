@@ -58,10 +58,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
 
     """
 
-    nupic_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                             "..", "..", "..", "..")
-
-    opfDir = os.path.join(nupic_dir, "examples", "opf")
+    opfDir = resource_filename("nupic", os.path.join("..", "examples", "opf"))
 
     testDir = opfDir
 
@@ -99,7 +96,8 @@ class OPFExperimentResultsTest(unittest.TestCase):
     # Run from the test directory so that we can find our experiments
     os.chdir(testDir)
 
-    runExperiment = os.path.join(nupic_dir, "scripts", "run_opf_experiment.py")
+    runExperiment = resource_filename("nupic", os.path.join("..", 
+                                "scripts", "run_opf_experiment.py"))
 
     # A list of experiments to run.  Valid attributes:
     #   experimentDir - Required, path to the experiment directory containing
