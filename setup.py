@@ -67,16 +67,12 @@ def findRequirements():
 
 if __name__ == "__main__":
   requirements = findRequirements()
-  packages = find_packages("src")
-  packages = ["nupic." + package for package in packages]
-  packages.append("nupic")
 
   setup(
     name="nupic",
     version=getVersion(),
     install_requires=requirements,
-    package_dir = {"nupic": "src"},
-    packages=packages,
+    packages=find_packages(),
     namespace_packages = ["nupic"],
     package_data={
       "nupic.support": ["nupic-default.xml",
@@ -88,6 +84,7 @@ if __name__ == "__main__":
       "nupic.swarming.exp_generator": ["*.json", "*.tpl"],
       "nupic.swarming.jsonschema": ["*.json"],
       "nupic.datafiles": ["*.csv", "*.txt"],
+      "nupic.encoders": ["*.capnp"],
     },
     include_package_data=True,
     zip_safe=False,

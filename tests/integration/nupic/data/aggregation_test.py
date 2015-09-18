@@ -781,7 +781,7 @@ class AggregationTests(HelperTestCaseBase):
     handle = \
       tempfile.NamedTemporaryFile(prefix='agg_gap_hours_24', 
         suffix='.csv', 
-        dir='.')
+        dir='nupic/datafiles')
     outputFile = handle.name
     handle.close()
     
