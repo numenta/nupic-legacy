@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.1
+
+* Specify nupic.bindings version to match commit sha (0.2).
+* Use logging.debug for emitting the message about not being able to import matplotlib; we log it at debug level to avoid polluting the logs of apps and services that don't care about plotting.
+* Add Dockerfile ready to perform swarming.
+* Removes PCANode
+* Updated Linux binary install instructions.
+
 ## 0.3.0
 
 * Updated comment about greedy stats refresh when likelihood > 0.99
