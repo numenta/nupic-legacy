@@ -67,16 +67,13 @@ def findRequirements():
 
 if __name__ == "__main__":
   requirements = findRequirements()
-  packages = find_packages("src")
-  packages = ["nupic." + package for package in packages]
-  packages.append("nupic")
 
   setup(
     name="nupic",
     version=getVersion(),
     install_requires=requirements,
-    package_dir = {"nupic": "src"},
-    packages=packages,
+    package_dir = {"": "src"},
+    packages=find_packages("src"),
     namespace_packages = ["nupic"],
     package_data={
       "nupic.support": ["nupic-default.xml",
