@@ -40,8 +40,6 @@ class HotgymRegressionTest(unittest.TestCase):
   """Hotgym regression test to validate that predictions don't change."""
 
 
-  @unittest.skip("This currently fails on Travis. The issue is being tracked "
-                 "at: https://github.com/numenta/nupic/issues/2358")
   def testHotgymRegression(self):
     experimentDir = pkg_resources.resource_filename(
         "nupic",
