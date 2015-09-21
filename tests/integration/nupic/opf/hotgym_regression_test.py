@@ -57,7 +57,7 @@ class HotgymRegressionTest(unittest.TestCase):
       with open(resultsPath) as f:
         reader = csv.reader(f)
         headers = reader.next()
-        self.assertEqual(headers[12],
+        self.assertEqual(headers[14],
                          "multiStepBestPredictions:multiStep:errorMetric='aae':"
                          "steps=1:window=1000:field=consumption")
         lastRow = collections.deque(reader, 1)[0]
@@ -65,7 +65,7 @@ class HotgymRegressionTest(unittest.TestCase):
       # Changes that affect prediction results will cause this test to fail.
       # If the change is understood and reviewers agree that there has not been a
       # regression then this value can be updated to reflect the new result.
-      self.assertAlmostEqual(float(lastRow[12]), 6.0933712258)
+      self.assertAlmostEqual(float(lastRow[14]), 5.92657292088)
 
     finally:
       shutil.rmtree(resultsDir, ignore_errors=True)
