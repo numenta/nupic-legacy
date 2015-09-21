@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.2
+
+* Update to nupic.bindings version with fix for platform differences
+* Rename nupic directory to src/nupic
+* Updated S3 URL to nupic.bindings for Linux install
+* Fix paths for data files in an integration test
+* Fix issue with storing temporary file in wrong location in integration test
+
 ## 0.3.1
 
 * Specify nupic.bindings version to match commit sha (0.2).
