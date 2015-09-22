@@ -26,12 +26,13 @@ This file defines the k Nearest Neighbor classifier region.
 import copy
 
 import numpy
-import numpy.random
 from PyRegion import PyRegion
 from KNNClassifierRegion import KNNClassifierRegion
 from nupic.algorithms.anomaly import computeRawAnomalyScore
+from nupic.bindings.math import Random
 from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError,
                                              CLAModelInvalidArgument)
+
 
 
 class KNNAnomalyClassifierRegion(PyRegion):
@@ -873,7 +874,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
           diff.append((keys, a, b))
         #for i in xrange(len(a)):
         #  toCheck.append((keys + (k, i), a[i], b[i]))
-      elif isinstance(a, numpy.random.RandomState):
+      elif isinstance(a, Random):
         for i, v in enumerate(a.get_state()):
           toCheck.append((keys + (i,), v, b.get_state()[i]))
       else:
