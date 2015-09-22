@@ -41,11 +41,9 @@ class HotgymRegressionTest(unittest.TestCase):
 
 
   def testHotgymRegression(self):
-    experimentDir = pkg_resources.resource_filename(
-        "nupic",
-        os.path.join(os.pardir, os.pardir, "examples", "opf", "experiments",
-                     "multistep", "hotgym")
-    )
+    experimentDir = os.path.join(
+      os.path.dirname(__file__).partition("tests/integration/nupic/opf")[0],
+      "examples", "opf", "experiments", "multistep", "hotgym")
 
     resultsDir = os.path.join(experimentDir, "inference")
     savedModelsDir = os.path.join(experimentDir, "savedmodels")
