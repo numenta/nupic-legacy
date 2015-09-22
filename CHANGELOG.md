@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.3
+
+* Include additional file types in MANIFEST.in, consistent with setup.py
+* Pattern and Sequence machines using nupic::Random
+* Wrap sparse matrix implementations with cortical column-centric semantics as a way to abstract away the underlying implementation
+* Re-enable testHotgymRegression
+
 ## 0.3.2
 
 * Update to nupic.bindings version with fix for platform differences
