@@ -76,7 +76,7 @@ class AnomalyLikelihood(object):
                claLearningPeriod=288,
                estimationSamples=100,
                historicWindowSize=8640,
-               reestimationPeriod=10):
+               reestimationPeriod=100):
     """
     NOTE: Anomaly likelihood scores are reported at a flat 0.5 for
     claLearningPeriod + estimationSamples iterations.
