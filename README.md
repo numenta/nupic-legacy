@@ -23,11 +23,15 @@ NuPIC binaries are available for:
 
 ### Install OS X
 
+> Video installation guide coming soon...
+
     pip install nupic
 
 ### Install Linux
 
 > **NOTE**: The `nupic.bindings` binary distribution is not stored on [PyPi](https://pypi.python.org/pypi/nupic) along with the OS X distribution. NuPIC uses the [wheel](http://pythonwheels.com) binary format, and PyPi does not support hosting Linux wheel files. So we are forced to host our own.
+
+[![Installing NuPIC on Ubuntu Video Thumbnail](http://img.youtube.com/vi/1fIpgXHXAZA/hqdefault.jpg)](http://www.youtube.com/watch?v=1fIpgXHXAZA)
 
     pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.2.1-cp27-none-linux_x86_64.whl
     pip install nupic
