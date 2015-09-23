@@ -288,58 +288,6 @@ class AnomalyLikelihoodClassTest(TestCaseBase):
       self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=6), 0.9)
 
 
-  def testAboveZeroPointNinetyNineForcesReestimation(self):
-    originalUpdateAnomalyLikelihoods = an.updateAnomalyLikelihoods
-
-    def updateAnomalyLikelihoodsWrap(anomalyScores, params, verbosity=0):
-      likelihoods, avgRecordList, params = originalUpdateAnomalyLikelihoods(
-        anomalyScores=anomalyScores,
-        params=params,
-        verbosity=verbosity)
-
-      self.assertEqual(len(likelihoods), 1)
-
-      return [0.009], avgRecordList, params
-
-    estimateAnomalyLikelihoodsWrap = mock.Mock(
-      wraps=an.estimateAnomalyLikelihoods,
-      autospec=True)
-
-    estimateAnomalyLikelihoodsPatch = mock.patch(
-      "nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods",
-      side_effect=estimateAnomalyLikelihoodsWrap, autospec=True)
-    with estimateAnomalyLikelihoodsPatch:
-      l = an.AnomalyLikelihood(claLearningPeriod=2,
-                               estimationSamples=2,
-                               historicWindowSize=3,
-                               reestimationPeriod=10)
-
-      # burn-in
-      l.anomalyProbability(10, 0.1, timestamp=1)
-      l.anomalyProbability(10, 0.1, timestamp=2)
-      l.anomalyProbability(10, 0.1, timestamp=3)
-      l.anomalyProbability(10, 0.1, timestamp=4)
-      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 0)
-
-      anomalyProbability = l.anomalyProbability(10, 0.1, timestamp=5)
-      self.assertLessEqual(anomalyProbability, 0.99)
-      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 1)
-
-      # Verify that anomaly probability above 0.99 forces reestimation on
-      # subsequent iteration
-      updateAnomalyLikelihoodsPatch = mock.patch(
-        "nupic.algorithms.anomaly_likelihood.updateAnomalyLikelihoods",
-        side_effect=updateAnomalyLikelihoodsWrap, autospec=True)
-      with updateAnomalyLikelihoodsPatch:
-
-        anomalyProbability = l.anomalyProbability(10, 0.1, timestamp=6)
-        self.assertEqual(anomalyProbability, 0.991)
-        self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 1)
-
-        l.anomalyProbability(10, 0.1, timestamp=7)
-        self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 2)
-
-
   def testEquals(self):
     l = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
     l2 = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
