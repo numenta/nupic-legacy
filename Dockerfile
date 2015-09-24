@@ -4,13 +4,7 @@ MAINTAINER Allan Costa <allaninocencio@yahoo.com.br>
 
 # Install dependencies
 RUN apt-get update
-RUN apt-get install -y wget
-RUN apt-get install -y git-core
-RUN apt-get install -y gcc g++
-RUN apt-get install -y cmake
-RUN apt-get install -y python2.7 python 2.7-dev
-RUN apt-get install -y zlib1g-dev bzip2 libyaml-dev libyaml-0-2
-RUN apt-get install -y python-numpy
+RUN apt-get install -y wget git-core gcc g++ python2.7 python 2.7-dev
 RUN wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O - | python
 RUN pip install --upgrade setuptools
 RUN pip install wheel
@@ -29,10 +23,10 @@ ENV USER docker
 # Copy context into container file system
 ADD . $NUPIC
 
-# Install Python dependencies
-RUN pip install --allow-all-external --allow-unverified PIL --allow-unverified  psutil -r $NUPIC/external/common/requirements.txt
-
 WORKDIR /usr/local/src/nupic
+
+# Install nupic.bindings
+RUN pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-`git grep nupic.bindings\=\= -- external/common/requirements.txt | cut -d ':' -f 2 | sed "s/nupic\.bindings\=\=//"`-cp27-none-linux_x86_64.whl
 
 # Install NuPIC with using SetupTools
 RUN python setup.py install
