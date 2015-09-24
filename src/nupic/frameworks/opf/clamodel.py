@@ -718,7 +718,7 @@ class CLAModel(Model):
       else:
         encoderList = []
 
-      if encoderList: # not empty
+      if len(encoderList) > 0:
         fieldNames = sensor.getSelf().disabledEncoder.getScalarNames()
       else:
         # Legacy multi-step networks don't have a separate encoder for the
