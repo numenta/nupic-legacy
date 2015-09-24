@@ -20,10 +20,13 @@ NuPIC binaries are available for:
 - [pip](https://pypi.python.org/pypi/pip)
 - [wheel](http://pythonwheels.com)
 - [numpy](http://www.numpy.org/)
+- C++ compiler like [gcc](https://gcc.gnu.org/) or [clang](http://clang.llvm.org/)
 
 ### Install OS X
 
 [Video tutorial for OS X Yosemite.](http://www.youtube.com/watch?v=6OPTMDO17XI)
+
+First, you must install [Xcode command line tools](https://developer.apple.com/library/ios/technotes/tn2339/_index.html), which will get you a C++ compiler.
 
     pip install nupic
 
@@ -32,6 +35,8 @@ NuPIC binaries are available for:
 > **NOTE**: The `nupic.bindings` binary distribution is not stored on [PyPi](https://pypi.python.org/pypi/nupic) along with the OS X distribution. NuPIC uses the [wheel](http://pythonwheels.com) binary format, and PyPi does not support hosting Linux wheel files. So we are forced to host our own.
 
 [Video tutorial for Ubuntu 14 LTS.](http://www.youtube.com/watch?v=1fIpgXHXAZA)
+
+Your version of Linux probably has a C compiler installed. Be sure you have either clang or GCC 4.8.
 
     pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.2.1-cp27-none-linux_x86_64.whl
     pip install nupic
