@@ -34,6 +34,7 @@ savedmodels/
 /*.please_wait
 /auto_specials*.csv
 /weighted_mean*.csv
+/agg_gap_hours_24*.csv
 /test*.txt
 /test*.pkl
 

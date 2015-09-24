@@ -72,7 +72,8 @@ if __name__ == "__main__":
     name="nupic",
     version=getVersion(),
     install_requires=requirements,
-    packages=find_packages(),
+    package_dir = {"": "src"},
+    packages=find_packages("src"),
     namespace_packages = ["nupic"],
     package_data={
       "nupic.support": ["nupic-default.xml",
@@ -84,7 +85,6 @@ if __name__ == "__main__":
       "nupic.swarming.exp_generator": ["*.json", "*.tpl"],
       "nupic.swarming.jsonschema": ["*.json"],
       "nupic.datafiles": ["*.csv", "*.txt"],
-      "nupic.encoders": ["*.capnp"],
     },
     include_package_data=True,
     zip_safe=False,

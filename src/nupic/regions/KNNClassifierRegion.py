@@ -28,7 +28,7 @@ This file defines the k Nearest Neighbor classifier region.
 import numpy
 from PyRegion import PyRegion
 from nupic.algorithms import KNNClassifier
-
+from nupic.bindings.math import Random
 
 
 class KNNClassifierRegion(PyRegion):
@@ -37,7 +37,7 @@ class KNNClassifierRegion(PyRegion):
   By default it will implement vanilla 1-nearest neighbor using the L2 (Euclidean)
   distance norm.  There are options for using different norms as well as
   various ways of sparsifying the input.
-  
+
   Note: categories are ints >= 0.
   """
 
@@ -526,7 +526,7 @@ class KNNClassifierRegion(PyRegion):
     self.inferenceMode = False
     self._epoch = 0
     self.acceptanceProbability = acceptanceProbability
-    self._rgen = numpy.random.RandomState(seed)
+    self._rgen = Random(seed)
     self.confusion = numpy.zeros((1, 1))
     self.keepAllDistances = False
     self._protoScoreCount = 0
@@ -599,7 +599,7 @@ class KNNClassifierRegion(PyRegion):
       self._knn.__setstate__(knnState)
     else:
       raise RuntimeError("Invalid KNNClassifierRegion version for __setstate__")
-    
+
     # Set to current version
     self.version = KNNClassifierRegion.__VERSION__
 
@@ -836,11 +836,11 @@ class KNNClassifierRegion(PyRegion):
   def compute(self, inputs, outputs):
     """
     Process one input sample. This method is called by the runtime engine.
-    
+
     NOTE: the number of input categories may vary, but the array size is fixed
     to the max number of categories allowed (by a lower region), so "unused"
-    indices of the input category array are filled with -1s. 
-    
+    indices of the input category array are filled with -1s.
+
     TODO: confusion matrix does not support multi-label classification
     """
 
@@ -1004,7 +1004,7 @@ class KNNClassifierRegion(PyRegion):
     # Learning mode
     if self.learningMode:
       if (self.acceptanceProbability < 1.0) and \
-            (self._rgen.uniform(0.0, 1.0) > self.acceptanceProbability):
+            (self._rgen.getReal64() > self.acceptanceProbability):
         pass
 
       else:

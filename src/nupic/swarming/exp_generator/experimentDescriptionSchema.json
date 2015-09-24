@@ -273,7 +273,7 @@
       "minLength": 1, 
       "required": true, 
       "type": "object", 
-      "description": "JSON description of the stream to use. The schema for this can be found at nupic.cluster.database.__path__/StreamDef.json"
+      "description": "JSON description of the stream to use. The schema for this can be found at src/nupic/frameworks/opf/jsonschema/stream_def.json"
     }, 
     "inferenceType": {
       "enum": [
