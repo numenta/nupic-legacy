@@ -76,7 +76,7 @@ class AnomalyLikelihood(object):
                claLearningPeriod=288,
                estimationSamples=100,
                historicWindowSize=8640,
-               reestimationPeriod=10):
+               reestimationPeriod=100):
     """
     NOTE: Anomaly likelihood scores are reported at a flat 0.5 for
     claLearningPeriod + estimationSamples iterations.
@@ -212,13 +212,6 @@ class AnomalyLikelihood(object):
         self._distribution)
 
       likelihood = 1.0 - likelihoods[0]
-
-      # Mitigate the impact of not updating the distribution at every iteration:
-      # if we have a very high anomaly likelihood, then we need it to be
-      # accurate, so force an update. (this should have minimal performance
-      # impact as it only occurs about 1% of the time)
-      if likelihood > 0.99:
-        self._distribution = None
 
     # Before we exit update historical scores and iteration
     self._historicalScores.append(dataPoint)
