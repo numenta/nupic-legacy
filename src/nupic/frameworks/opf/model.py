@@ -160,7 +160,7 @@ class Model(object):
     """
     self.__inferenceEnabled = True
     self.__inferenceArgs = inferenceArgs
-    self._predictedFieldName = self.__inferenceArgs.get('predictedField', None)
+    self._predictedFieldName = self.__inferenceArgs.get("predictedField", None)
 
 
   def getInferenceArgs(self):
