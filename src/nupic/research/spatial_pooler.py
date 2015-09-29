@@ -110,17 +110,17 @@ class SpatialPooler(object):
   """
 
   def __init__(self,
-               inputDimensions=(32, 32),
-               columnDimensions=(64, 64),
+               inputDimensions,
+               columnDimensions,
                potentialRadius=16,
                potentialPct=0.5,
-               globalInhibition=False,
+               globalInhibition=True,
                localAreaDensity=-1.0,
                numActiveColumnsPerInhArea=10.0,
                stimulusThreshold=0,
-               synPermInactiveDec=0.008,
-               synPermActiveInc=0.05,
-               synPermConnected=0.10,
+               synPermInactiveDec=0.01,
+               synPermActiveInc=0.1,
+               synPermConnected=0.1,
                minPctOverlapDutyCycle=0.001,
                minPctActiveDutyCycle=0.001,
                dutyCyclePeriod=1000,
@@ -232,7 +232,8 @@ class SpatialPooler(object):
       maxBoost is used if the duty cycle is 0, and any duty cycle in between is
       linearly extrapolated from these 2 endpoints.
     @param seed:
-      Seed for our own pseudo-random number generator.
+      Seed for our own pseudo-random number generator. Default -1 means a random
+      value for a seed is used. 
     @param spVerbosity:
       spVerbosity level: 0, 1, 2, or 3
     @param wrapAround:
