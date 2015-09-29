@@ -441,6 +441,17 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
         d1, d2, "SP outputs are not equal: \n%s \n%s" % (str(d1), str(d2)))
 
 
+  def testSameInitParams(self):
+    """Py and C++ SP implementations must use the same init parameters"""
+    pySp = PySpatialPooler(
+        inputDimensions=[121, 1], columnDimensions=[30, 30])
+    cppSp = CPPSpatialPooler(
+        inputDimensions=[121, 1], columnDimensions=[30, 30])
+
+    self.compare(pySp, cppSp)
+
+
+
 
 if __name__ == "__main__":
   unittest.main()
