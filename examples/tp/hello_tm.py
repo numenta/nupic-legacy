@@ -12,7 +12,7 @@
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
@@ -21,8 +21,8 @@
 # ----------------------------------------------------------------------
 
 print """
-This program shows how to access the Temporal Pooler directly by demonstrating
-how to create a TP instance, train it with vectors, get predictions, and
+This program shows how to access the Temporal Memory directly by demonstrating
+how to create a TM instance, train it with vectors, get predictions, and
 inspect the state.
 
 The code here runs a very simple version of sequence learning, with one
@@ -42,16 +42,17 @@ import numpy
 # izip for maximum efficiency
 from itertools import izip as zip, count
 
-# here we choose TP implementation: (uncomment one only)
-# This is the class corresponding to the C++ optimized Temporal Pooler(default)
-# from nupic.research.TP10X2 import TP10X2 as TP
-# This is simple implementation in Python
+# Python implementation of Temporal Memory
 
 from nupic.research.temporal_memory import TemporalMemory as TM
 
+# FastTemporalMemory Uses C++ Connections data structure for optimization.
+# Uncomment the below line to use FTM and create FTM instance instead of TM.
+
+# from nupic.research.fast_temporal_memory import FastTemporalMemory as FTM
+
+
 # Utility routine for printing the input vector
-
-
 def formatRow(x):
   s = ''
   for c in range(len(x)):
@@ -64,7 +65,7 @@ def formatRow(x):
 
 # Step 1: create Temporal Pooler instance with appropriate parameters
 
-tm = TM(columnDimensions = (50,),
+tm = FTM(columnDimensions = (50,),
         cellsPerColumn=2,
         initialPermanence=0.5,
         connectedPermanence=0.5,
