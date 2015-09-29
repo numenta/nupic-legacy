@@ -159,29 +159,25 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
       description='Total number of columns (coincidences).',
       accessMode='Read',
       dataType='UInt32',
-      count=1,
-      constraints=''),
+      count=1 ),
 
     inputWidth=dict(
       description='Size of inputs to the SP.',
       accessMode='Read',
       dataType='UInt32',
-      count=1,
-      constraints=''),
+      count=1 ),
 
     spInputNonZeros=dict(
       description='The indices of the non-zero inputs to the spatial pooler',
       accessMode='Read',
       dataType='UInt32',
-      count=0,
-      constraints=''),
+      count=0 ),
 
     spOutputNonZeros=dict(
       description='The indices of the non-zero outputs from the spatial pooler',
       accessMode='Read',
       dataType='UInt32',
-      count=0,
-      constraints=''),
+      count=0 ),
 
     spOverlapDistribution=dict(
       description="""The overlaps between the active output coincidences
@@ -189,22 +185,19 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
       from highest to lowest. """,
       accessMode='Read',
       dataType='Real32',
-      count=0,
-      constraints=''),
+      count=0 ),
 
     sparseCoincidenceMatrix=dict(
       description='The coincidences, as a SparseMatrix',
       accessMode='Read',
       dataType='Byte',
-      count=0,
-      constraints=''),
+      count=0 ,
 
     denseOutput=dict(
       description='Score for each coincidence.',
       accessMode='Read',
       dataType='Real32',
-      count=0,
-      constraints=''),
+      count=0 ),
 
     spLearningStatsStr=dict(
       description="""String representation of dictionary containing a number
@@ -260,32 +253,28 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
       description='Number of active elements in bottomUpOut output.',
       accessMode='Read',
       dataType='UInt32',
-      count=1,
-      constraints=''),
+      count=1 ),
 
     logPathInput=dict(
       description='Optional name of input log file. If set, every input vector'
                   ' will be logged to this file.',
       accessMode='ReadWrite',
       dataType='Byte',
-      count=0,
-      constraints=''),
+      count=0 ),
 
     logPathOutput=dict(
       description='Optional name of output log file. If set, every output vector'
                   ' will be logged to this file.',
       accessMode='ReadWrite',
       dataType='Byte',
-      count=0,
-      constraints=''),
+      count=0 ),
 
     logPathOutputDense=dict(
       description='Optional name of output log file. If set, every output vector'
                   ' will be logged to this file as a dense vector.',
       accessMode='ReadWrite',
       dataType='Byte',
-      count=0,
-      constraints=''),
+      count=0 ),
 
   )
 
