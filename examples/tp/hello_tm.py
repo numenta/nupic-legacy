@@ -65,7 +65,7 @@ def formatRow(x):
 
 # Step 1: create Temporal Pooler instance with appropriate parameters
 
-tm = FTM(columnDimensions = (50,),
+tm = TM(columnDimensions = (50,),
         cellsPerColumn=2,
         initialPermanence=0.5,
         connectedPermanence=0.5,
