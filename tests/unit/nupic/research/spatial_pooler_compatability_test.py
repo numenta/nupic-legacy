@@ -56,6 +56,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
 
   def compare(self, pySp, cppSp):
+    self.assertAlmostEqual(pySp.getPrecision(),
+                           cppSp.getPrecision())
     self.assertAlmostEqual(pySp.getNumColumns(),
                            cppSp.getNumColumns())
     self.assertAlmostEqual(pySp.getNumInputs(),
