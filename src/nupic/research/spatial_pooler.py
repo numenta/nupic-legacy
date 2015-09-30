@@ -298,6 +298,12 @@ class SpatialPooler(object):
     self._version = VERSION
     self._iterationNum = 0
     self._iterationLearnNum = 0
+    # Ensure we don't have too much unnecessary precision. A full 64 bits of
+    # precision causes numerical stability issues across platforms and across
+    # implementations. 
+    # The same value must be used in C++ (and other) implementations. 
+    # This is a constant value, but we provide getPrecision() for tests.
+    SpatialPooler.PRECISION = 5
 
     # Store the set of all inputs within each columns potential pool as a
     # single adjacency matrix such that matrix rows map to cortical columns,
@@ -371,6 +377,19 @@ class SpatialPooler(object):
 
     if self._spVerbosity > 0:
       self.printParameters()
+
+
+  def getPrecision(self):
+    return SpatialPooler.PRECISION
+
+
+  def _round5(self, p):
+    """
+    Implementation of C++ 'round5_()' method used for 
+    numerical stability rounding.
+    """
+    prec = 10**self.getPrecision()
+    return int(p * prec) / float(prec)
 
 
   def getColumnDimensions(self):
@@ -1129,7 +1148,7 @@ class SpatialPooler(object):
     # Ensure we don't have too much unnecessary precision. A full 64 bits of
     # precision causes numerical stability issues across platforms and across
     # implementations
-    p = int(p*100000) / 100000.0
+    p = self._round5(p)
     return p
 
 
@@ -1143,8 +1162,9 @@ class SpatialPooler(object):
     # Ensure we don't have too much unnecessary precision. A full 64 bits of
     # precision causes numerical stability issues across platforms and across
     # implementations
-    p = int(p*100000) / 100000.0
+    p = self._round5(p)
     return p
+
 
   def _initPermanence(self, potential, connectedPct):
     """
