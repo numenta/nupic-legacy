@@ -136,9 +136,9 @@ class Boosting(object):
 
 
   def updateBoosting(self, overlaps, activeColumns, doUpdateRound, doGlobal):
-    self._updateBoostFactors()
-    self._bumpUpWeakColumns()
     self._updateDutyCycles(overlaps, activeColumns)
+    self._bumpUpWeakColumns()
+    self._updateBoostFactors()
     if doUpdateRound:
       self._updateMinDutyCycles(doGlobal)
 
