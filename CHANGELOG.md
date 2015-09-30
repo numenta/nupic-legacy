@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.3.4
+
+* Added src/nupic/frameworks/opf/common_models/cluster_params.py and supporting files from numenta-apps htmengine. A separate numenta-apps PR will remove this code from htmengine.
+* fixes #2592
+* fix for #2265
+* fix for bug #2265
+* Fixup Dockerfile to install nupic.bindings, and other cleanup
+* Adding C++ compiler requirement to README.
+* Fix for test failure
+* Fixed stream definition reference error.
+* Reduce default reestimation period.
+* Remove greedy reestimation of distribution
+* Pointing README to proper bindings version.
+* Continuing work on 0.3.4.dev0.
+* removing a test that depends on nupic.vision
+* PCA_Node test: some fixes, WIP
+* formatting
+* test for PCANode region
+* remove Pillow from requirements.txt as it was used for vision only
+* fix merge mistake in csv file
+* move test from PCANode to nupic.vision unittest
+
 ## 0.3.3
 
 * Include additional file types in MANIFEST.in, consistent with setup.py
