@@ -1127,8 +1127,6 @@ class SpatialPooler(object):
       self._raisePermanenceToThreshold(perm, maskPotential)
     perm[perm < self._synPermTrimThreshold] = 0
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
-    # round perm for stability (Py vs Cpp problems)
-    perm = [self._round5(x) for x in perm]
     newConnected = numpy.where(perm >= self._synPermConnected)[0]
     self._permanences.update(columnIndex, perm)
     self._connectedSynapses.replace(columnIndex, newConnected)
