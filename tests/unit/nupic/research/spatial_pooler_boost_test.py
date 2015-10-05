@@ -25,8 +25,7 @@ import time
 import numpy
 import unittest2 as unittest
 
-from nupic.support.unittesthelpers.algorithm_test_helpers \
-     import CreateSP
+from nupic.support.unittesthelpers.algorithm_test_helpers import CreateSP
 from nupic.bindings.math import GetNTAReal
 
 uintType = "uint32"
@@ -358,6 +357,28 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     self.boostTestLoop("py")
     self.boostTestLoop("cpp")
     self.params = orig
+
+
+  def testBoostingSDRPatterns(self):
+    """Boosting test with random patterns, instead of continuous data."""
+    orig = copy.deepcopy(self.x)
+    rng = numpy.random.RandomState(seed=self.params['seed'])
+    idxA = rng.randint(0, self.inputSize, 20)
+    idxAa = copy.deepcopy(idxA)
+    idxAa[0:10] = rng.randint(0, self.inputSize, 10) # now A and A' have 50% in common
+    idxB = rng.randint(0, self.inputSize, 20) # has (almost) 0% (0.5**20) in common with A (A')
+    idxC = rng.randint(0, self.inputSize, 20)
+    idxD = rng.randint(0, self.inputSize, 20)
+    self.x[0, idxA] = 1
+    self.x[1, idxAa] = 1
+    self.x[2, idxB] = 1
+    self.x[3, idxC] = 1
+    self.x[4, idxD] = 1
+
+    self.boostTestLoop("py")
+    self.boostTestLoop("cpp")
+    self.x = orig
+
 
 
 
