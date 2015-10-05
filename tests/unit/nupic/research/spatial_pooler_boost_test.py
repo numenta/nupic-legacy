@@ -20,6 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import copy
 import time
 import numpy
 import unittest2 as unittest
@@ -346,6 +347,17 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   def testBoostingCPP(self):
     self.boostTestLoop("cpp")
 
+
+  def testBoostingDefaultSPParams(self):
+    """Boosting test with SP's default params."""
+    orig = copy.deepcopy(self.params)
+    self.params = {}
+    self.params['seed'] = orig['seed']
+    self.params['columnDimensions'] = orig['columnDimensions']
+    self.params['inputDimensions'] = orig['inputDimensions']
+    self.boostTestLoop("py")
+    self.boostTestLoop("cpp")
+    self.params = orig
 
 
 
