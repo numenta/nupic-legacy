@@ -1423,16 +1423,15 @@ class SpatialPooler(object):
                     of synapses in a "connected state" (connected synapses)
                     that are connected to input bits which are turned on.
     @param density: The fraction of columns to survive inhibition.
+    @return winning columns indices (as a sparse list)
     """
     #calculate num active per inhibition area
 
     numActive = int(density * self._numColumns)
-    activeColumns = numpy.zeros(self._numColumns)
     winners = sorted(range(overlaps.size),
                      key=lambda k: overlaps[k],
                      reverse=True)[0:numActive]
-    activeColumns[winners] = 1
-    return numpy.where(activeColumns > 0)[0]
+    return winners
 
 
   def _inhibitColumnsLocal(self, overlaps, density):
