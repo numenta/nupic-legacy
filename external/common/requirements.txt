@@ -19,4 +19,3 @@ prettytable==0.7.2
 # versions in sync.
 pycapnp==0.5.5
 nupic.bindings==0.2.1
-numpy==1.9.2
