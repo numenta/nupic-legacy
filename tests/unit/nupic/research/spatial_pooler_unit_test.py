@@ -1315,7 +1315,7 @@ class SpatialPoolerTest(unittest.TestCase):
                         #   L  W  W  L  L  W  W   L   L    L
     trueActive = [1, 2, 5, 6]
     active = list(sp._inhibitColumnsLocal(overlaps, density))
-    # self.assertListEqual(trueActive, active) #FIXME why was this commented out? should still be used?
+    self.assertListEqual(trueActive, sorted(active))
 
     # Test add to winners
     density = 0.3333
