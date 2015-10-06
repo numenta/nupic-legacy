@@ -1450,20 +1450,20 @@ class SpatialPooler(object):
                     value is only an intended target. Since the surviving
                     columns are picked in a local fashion, the exact fraction
                     of surviving columns is likely to vary.
+    @return indices of winning columns (as a sparse list)
     """
-    activeColumns = numpy.zeros(self._numColumns)
+    winners = []
     addToWinners = max(overlaps)/1000.0
     overlaps = numpy.array(overlaps, dtype=realDType)
     for i in xrange(self._numColumns):
-      maskNeighbors = self._getNeighborsND(i, self._columnDimensions,
-        self._inhibitionRadius)
+      maskNeighbors = self._getNeighborsND(i, self._columnDimensions, self._inhibitionRadius)
       overlapSlice = overlaps[maskNeighbors]
       numActive = int(0.5 + density * (len(maskNeighbors) + 1))
       numBigger = numpy.count_nonzero(overlapSlice > overlaps[i])
       if numBigger < numActive:
-        activeColumns[i] = 1
+        winners.append(i)
         overlaps[i] += addToWinners
-    return numpy.where(activeColumns > 0)[0]
+    return winners
 
 
   @staticmethod
