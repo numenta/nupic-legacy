@@ -209,7 +209,6 @@ class CLAModel(Model):
     # Initialize Temporal Anomaly detection parameters
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
       self._getTPRegion().setParameter("anomalyMode", True)
-      self._prevPredictedColumns = numpy.array([])
 
     # -----------------------------------------------------------------------
     # This flag, if present tells us not to train the SP network unless
@@ -637,14 +636,8 @@ class CLAModel(Model):
         )
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
-      score = self._anomalyInst.compute(
-                                   activeColumns,
-                                   self._prevPredictedColumns,
-                                   inputValue=self._input[self._predictedFieldName])
-
-      # Store the predicted columns for the next timestep.
-      predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
-      self._prevPredictedColumns = copy.deepcopy(predictedColumns)
+      score = self._anomalyInst.next(activeColumns,
+                                     inputValue=self._input[self._predictedFieldName])
 
       # Calculate the classifier's output and use the result as the anomaly
       # label. Stores as string of results.
