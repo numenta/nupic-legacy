@@ -115,6 +115,7 @@ class Anomaly(object):
           binaryAnomalyThreshold <= 0.0 ):
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
                        "or None if disabled.")
+    self.pastVector = None
 
 
   def compute(self, activeColumns, predictedColumns, 
@@ -162,6 +163,18 @@ class Anomaly(object):
       else:
         score = 0.0
 
+    return score
+
+
+  def next(self, activeColumns, inputValue=None, timestamp=None):
+    """
+    this method behaves exactly like the compute() method, 
+    only requires the current TP output as its input
+    """
+    if self.pastVector is None:
+      self.pastVector = numpy.ones(activeColumns.size)
+    score = self.compute(activeColumns, self.pastVector, inputValue, timestamp)
+    self.pastVector = activeColumns
     return score
 
 
