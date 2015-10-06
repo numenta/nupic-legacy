@@ -330,6 +330,12 @@ class SpatialPooler(object):
     # non-zero.
     self._permanences = CorticalColumns(numColumns, numInputs)
 
+    # Initialize a tiny random tie breaker. This is used to determine winning
+    # columns where the overlaps are identical.
+    # FIXME: this could be only 1/0 at the (PRECISION+1)-th decimal place
+    self._tieBreaker = pow(10, -1*(self.getPrecision()+1))*numpy.array(
+            [self._random.getReal64() for i in xrange(self._numColumns)])
+
     # 'self._connectedSynapses' is a similar matrix to 'self._permanences'
     # (rows represent cortical columns, columns represent input bits) whose
     # entries represent whether the cortical column is connected to the input
@@ -1413,6 +1419,9 @@ class SpatialPooler(object):
       density = float(self._numActiveColumnsPerInhArea) / inhibitionArea
       density = min(density, 0.5)
 
+    # Add our fixed little bit of random noise to the scores to help break ties.
+    overlaps += self._tieBreaker
+
     if self._globalInhibition or \
       self._inhibitionRadius > max(self._columnDimensions):
       return self._inhibitColumnsGlobal(overlaps, density)
@@ -1427,6 +1436,8 @@ class SpatialPooler(object):
     region. At most half of the columns in a local neighborhood are allowed to
     be active.
 
+    Parameters:
+    ----------------------------
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
                     of synapses in a "connected state" (connected synapses)
@@ -1451,6 +1462,8 @@ class SpatialPooler(object):
     neighborhood. At most half of the columns in a local neighborhood are
     allowed to be active.
 
+    Parameters:
+    ----------------------------
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
                     of synapses in a "connected state" (connected synapses)
@@ -1701,6 +1714,10 @@ class SpatialPooler(object):
     self._potentialPools.write(proto.potentialPools)
     self._permanences.write(proto.permanences)
 
+    tieBreakersProto = proto.init("tieBreaker", len(self._tieBreaker))
+    for i, v in enumerate(self._tieBreaker):
+      tieBreakersProto[i] = float(v)
+
     overlapDutyCyclesProto = proto.init("overlapDutyCycles",
                                         len(self._overlapDutyCycles))
     for i, v in enumerate(self._overlapDutyCycles):
@@ -1773,6 +1790,8 @@ class SpatialPooler(object):
       self._updatePermanencesForColumn(
         self._permanences[columnIndex], columnIndex, False
       )
+
+    self._tieBreaker = numpy.array(proto.tieBreaker)
 
     self._overlapDutyCycles = numpy.array(proto.overlapDutyCycles,
                                           dtype=realDType)
