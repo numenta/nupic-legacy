@@ -163,7 +163,7 @@ class SpatialPoolerTest(unittest.TestCase):
     expectedOutput = [57, 80, 135, 215, 280, 281, 350, 431, 534, 556, 565, 574,
                       595, 663, 759, 777, 823, 932, 933, 968, 983, 1031, 1126,
                       1184, 1232, 1262, 1420, 1468, 1479, 1516, 1531, 1585,
-                      1655, 1672, 1755, 1906, 1927, 1936, 1939, 1940] #FIXME are these values computed by hand, or just a worked-before(tm)?
+                      1655, 1672, 1755, 1906, 1927, 1936, 1939, 1940]
 
     sp = SpatialPooler(
       inputDimensions = [1,188],
