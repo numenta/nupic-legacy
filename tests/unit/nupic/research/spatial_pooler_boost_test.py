@@ -35,7 +35,7 @@ from nupic.algorithms.anomaly import Anomaly
 uintType = "uint32"
 
 # set a single seed for running both implementations
-SEED = int((time.time()%10000)*10)
+SEED = 42
 # when we need similar SDRs, they must have overlap of this # columns
 SIMILAR_SDR_OVERLAP = 9 #FIXME is this a magic const? Could it be some numColumns*(2% =SDR active bits)*(50% =overlap of the 2 similars)?
 DIFFERENT_SDR_OVERLAP = 18 #FIXME isn't this too benevolent, that different>>similar? should be more like 9 & 2?
@@ -46,7 +46,6 @@ def _computeOverlap(x, y):
   of bits where x[i] and y[i] are both 1
   """
   return ((x + y) == 2).sum()
-
 
 
 def _areAllSDRsUnique(sdrDict):
