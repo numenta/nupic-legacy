@@ -36,6 +36,9 @@ uintType = "uint32"
 
 # set a single seed for running both implementations
 SEED = int((time.time()%10000)*10)
+# when we need similar SDRs, they must have overlap of this # columns
+SIMILAR_SDR_OVERLAP = 9 #FIXME is this a magic const? Could it be some numColumns*(2% =SDR active bits)*(50% =overlap of the 2 similars)?
+DIFFERENT_SDR_OVERLAP = 18 #FIXME isn't this too benevolent, that different>>similar? should be more like 9 & 2?
 
 def _computeOverlap(x, y):
   """
@@ -213,15 +216,19 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     self.assertTrue(_areAllSDRsUnique(self.lastSDR), "All SDR's are not unique")
 
     # Verify that the first two SDR's have some overlap.
-    self.assertGreater(_computeOverlap(self.lastSDR[0], self.lastSDR[1]), 9,
-                       "First two SDR's don't overlap much: \n%r \nvs. \n%r")
+    self.assertGreater(_computeOverlap(self.lastSDR[0], 
+                       self.lastSDR[1]),
+                       SIMILAR_SDR_OVERLAP,
+                       "First two SDR's don't overlap enough: \n%r \nvs. \n%r" % (self.lastSDR[0], self.lastSDR[1]))
     
     # Verify the last three SDR's have low overlap with everyone else.
     for i in [2, 3, 4]:
       for j in range(5):
         if (i!=j):
-          self.assertLess(_computeOverlap(self.lastSDR[i], self.lastSDR[j]),
-                          18, "One of the last three SDRs has high overlap")
+          self.assertLess(_computeOverlap(self.lastSDR[i], 
+                          self.lastSDR[j]),
+                          DIFFERENT_SDR_OVERLAP, 
+                          "One of the last three SDRs has too high overlap")
 
 
   def boostTestPhase1(self):
@@ -253,7 +260,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     self.assertGreaterEqual(dutyCycles[self.winningIteration > 0].min(),
                             0.2,
                             "Active columns have duty cycle that is too low.")
-
     self.verifySDRProperties()
     
 
@@ -292,7 +298,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
                 "Average on-columns duty cycle is too low.")
     self.assertLessEqual(avg, 0.30,
                 "Average on-columns duty cycle is too high.")
-
     self.verifySDRProperties()
 
 
