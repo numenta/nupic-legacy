@@ -62,7 +62,7 @@ class TP(ConsolePrinterMixin):
   """
 
   def __init__(self,
-               numberOfCols=500,
+               numberOfCols=2048,
                cellsPerColumn=10,
                initialPerm=0.11,
                connectedPerm=0.50,

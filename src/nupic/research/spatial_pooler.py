@@ -111,7 +111,7 @@ class SpatialPooler(object):
 
   def __init__(self,
                inputDimensions,
-               columnDimensions,
+               columnDimensions=(2048,),
                potentialRadius=16,
                potentialPct=0.5,
                globalInhibition=True,

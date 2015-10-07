@@ -72,7 +72,7 @@ class TP10X2(TP):
 
   # We use the same keyword arguments as TP()
   def __init__(self,
-               numberOfCols = 500,
+               numberOfCols = 2048,
                cellsPerColumn = 10,
                initialPerm = 0.11, # TODO: check perm numbers with Ron
                connectedPerm = 0.50,
