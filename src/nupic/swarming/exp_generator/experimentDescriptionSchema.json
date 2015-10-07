@@ -110,10 +110,10 @@
         }, 
         "null"
       ], 
-      "description": ""
+      "description": "inferenceArgs -- arguments for the type of inference you want to use"
     }, 
     "prediction": {
-      "description": " [DEPRECATED] Prediction optimization options; at least oneMUST be enabled. NOTE: at this time, non-temporal and temporalpredictions are mutually-exclusive (RunPermutations cannot yetoptimize for both). This is deprecated. Used inferenceType instead", 
+      "description": " [DEPRECATED] Prediction optimization options; at least one MUST be enabled. NOTE: at this time, non-temporal and temporalpredictions are mutually-exclusive (RunPermutations cannot yetoptimize for both). This is deprecated. Used inferenceType instead", 
       "default": {
         "temporal": {
           "optimize": true
@@ -267,13 +267,13 @@
       "minLength": 1, 
       "required": false, 
       "type": "string", 
-      "description": "[DEPRECATED] Name of field we're trying to predict. This is deprected. Used inferenceArgs.predictedFieldinstead"
+      "description": "[DEPRECATED] Name of field we're trying to predict. This is deprected. Used inferenceArgs.predictedField instead"
     }, 
     "streamDef": {
       "minLength": 1, 
       "required": true, 
       "type": "object", 
-      "description": "JSON description of the stream to use. The schema for this can be found at nupic.cluster.database.__path__/StreamDef.json"
+      "description": "JSON description of the stream to use. The schema for this can be found at https://github.com/numenta/nupic/blob/master/src/nupic/frameworks/opf/jsonschema/stream_def.json"
     }, 
     "inferenceType": {
       "enum": [
