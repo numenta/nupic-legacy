@@ -149,7 +149,19 @@ class AnomalyTest(unittest.TestCase):
     anN = Anomaly(slidingWindowSize=5, mode=Anomaly.MODE_WEIGHTED, binaryAnomalyThreshold=0.5)
     self.assertNotEqual(an, anN)
 
-    
+
+  def testNext(self):
+    """testing anomaly.next() method"""
+    predCols = array([3, 5, 6])
+    actCols = array([3, 5, 7])
+    an = anomaly.Anomaly()
+
+    scoreCompute = an.compute(actCols, predCols)
+    an.next(predCols) # at time T-1
+    scoreNext = an.next(actCols) # at time T
+    self.assertEqual(scoreCompute, scoreNext)
+
+
 
 if __name__ == "__main__":
   unittest.main()
