@@ -1414,14 +1414,12 @@ class SpatialPooler(object):
     region. At most half of the columns in a local neighborhood are allowed to
     be active.
 
-    Parameters:
-    ----------------------------
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
                     of synapses in a "connected state" (connected synapses)
                     that are connected to input bits which are turned on.
     @param density: The fraction of columns to survive inhibition.
-    @return winning columns indices (as a sparse list)
+    @return list with indices of the winning columns
     """
     #calculate num active per inhibition area
 
@@ -1440,8 +1438,6 @@ class SpatialPooler(object):
     neighborhood. At most half of the columns in a local neighborhood are
     allowed to be active.
 
-    Parameters:
-    ----------------------------
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
                     of synapses in a "connected state" (connected synapses)
@@ -1450,7 +1446,7 @@ class SpatialPooler(object):
                     value is only an intended target. Since the surviving
                     columns are picked in a local fashion, the exact fraction
                     of surviving columns is likely to vary.
-    @return indices of winning columns (as a sparse list)
+    @return list with indices of the winning columns
     """
     winners = []
     addToWinners = max(overlaps)/1000.0
