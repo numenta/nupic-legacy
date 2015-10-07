@@ -106,21 +106,58 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   should not change.
   """
 
-  def setUp(self):
+  def setUp(self, defaultParams=None, imp="py", data=None):
     """
     Set various constants. Create the input patterns and the spatial pooler
     """
-    self.inputSize = 90
-    self.columnDimensions = 600
+    # Setup the SP creation parameters we will use
+    if defaultParams is None:
+      self.params = {
+        'inputDimensions':            [90],
+        'columnDimensions':           [600],
+        'potentialRadius': 	      90,
+        'potentialPct':               0.9,
+        'globalInhibition':           True,
+        'numActiveColumnsPerInhArea': 60,
+        'minPctActiveDutyCycle':      0.1,
+        'synPermActiveInc':           0.0,
+        'synPermInactiveDec':         0.0,
+        'dutyCyclePeriod':            10,
+        'maxBoost':                   10.0,
+        'seed':                       SEED,
+      }
+    else:
+      self.params = defaultParams
+
+    # Create SP
+    self.sp = CreateSP(imp, self.params)
+    self.spImplementation = imp
+
+    # set helper variables
+    self.inputSize = numpy.prod(self.sp.getInputDimensions())
+    self.columnDimensions = numpy.prod(self.sp.getColumnDimensions())
 
     # Create a set of input vectors, x
     # B,C,D don't overlap at all with other patterns
-    self.x = numpy.zeros((5, self.inputSize), dtype=uintType)
-    self.x[0, 0:20]  = 1   # Input pattern A
-    self.x[1, 10:30] = 1   # Input pattern A' (half the bits overlap with A)
-    self.x[2, 30:50] = 1   # Input pattern B  (no overlap with others)
-    self.x[3, 50:70] = 1   # Input pattern C  (no overlap with others)
-    self.x[4, 70:90] = 1   # Input pattern D  (no overlap with others)
+    if data is None:
+      self.x = numpy.zeros((5, self.inputSize), dtype=uintType)
+      self.x[0, 0:20]  = 1   # Input pattern A
+      self.x[1, 10:30] = 1   # Input pattern A' (half the bits overlap with A)
+      self.x[2, 30:50] = 1   # Input pattern B  (no overlap with others)
+      self.x[3, 50:70] = 1   # Input pattern C  (no overlap with others)
+      self.x[4, 70:90] = 1   # Input pattern D  (no overlap with others)
+    else:
+      self.x = data
+
+    # verify if inputs are designed correctly
+    tmp = {}
+    tmp[0] = self.x[0]
+    tmp[1] = self.x[1]
+    tmp[2] = self.x[2]
+    tmp[3] = self.x[3]
+    tmp[4] = self.x[4]
+    self.lastSDR = tmp
+    self.verifySDRProperties()
 
     # For each column, this will contain the last iteration number where that
     # column was a winner
@@ -129,34 +166,13 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     # For each input vector i, lastSDR[i] contains the most recent SDR output
     # by the SP.
     self.lastSDR = {}
-    
-    self.spImplementation = "None"
-    
-    self.sp = None
-
-
-    # Setup the SP creation parameters we will use
-    self.params = {
-      'inputDimensions':            [self.inputSize],
-      'columnDimensions':           [self.columnDimensions],
-      'potentialRadius':            self.inputSize,
-      'potentialPct':               0.9,
-      'globalInhibition':           True,
-      'numActiveColumnsPerInhArea': 60,
-      'minPctActiveDutyCycle':      0.1,
-      'synPermActiveInc':           0.0,
-      'synPermInactiveDec':         0.0,
-      'dutyCyclePeriod':            10,
-      'maxBoost':                   10.0,
-      'seed':                       SEED,
-    }
     print "SP seed set to:", self.params['seed']
+
 
   def debugPrint(self):
     """
     Helpful debug print statements while debugging this test.
     """
-
     minDutyCycle = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
     self.sp.getMinActiveDutyCycles(minDutyCycle)
     
@@ -198,7 +214,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
 
     # Verify that the first two SDR's have some overlap.
     self.assertGreater(_computeOverlap(self.lastSDR[0], self.lastSDR[1]), 9,
-                       "First two SDR's don't overlap much")
+                       "First two SDR's don't overlap much: \n%r \nvs. \n%r")
     
     # Verify the last three SDR's have low overlap with everyone else.
     for i in [2, 3, 4]:
@@ -209,7 +225,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
 
 
   def boostTestPhase1(self):
-    
     y = numpy.zeros(self.columnDimensions, dtype = uintType)
 
     # Do one training batch through the input patterns
@@ -243,7 +258,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     
 
   def boostTestPhase2(self):
-
     y = numpy.zeros(self.columnDimensions, dtype = uintType)
     boost = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
 
@@ -283,7 +297,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
 
 
   def boostTestPhase3(self):
-
     # Do two more training batches through the input patterns
     y = numpy.zeros(self.columnDimensions, dtype = uintType)
     for _ in range(2):
@@ -313,7 +326,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
 
 
   def boostTestPhase4(self):
-    
     # The boost factor for all columns that just won should be at 1.
     boostAtBeg = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
     self.sp.getBoostFactors(boostAtBeg)
@@ -331,10 +343,8 @@ class SpatialPoolerBoostTest(unittest.TestCase):
         "Boost factors changed when learning is off")
 
 
-  def boostTestLoop(self, imp):
+  def boostTestLoop(self):
     """Main test loop."""
-    self.sp = CreateSP(imp, self.params)
-    self.spImplementation = imp
     self.winningIteration.fill(0)
     self.lastSDR = {}
     
@@ -343,45 +353,49 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     self.boostTestPhase3()
     self.boostTestPhase4()
 
+
   def testBoostingPY(self):
-    self.boostTestLoop("py")
+    self.setUp(imp="py")
+    self.boostTestLoop()
 
 
   def testBoostingCPP(self):
-    self.boostTestLoop("cpp")
+    self.setUp(imp="cpp")
+    self.boostTestLoop()
 
 
   def testBoostingDefaultSPParams(self):
     """Boosting test with SP's default params."""
-    orig = copy.deepcopy(self.params)
-    self.params = {}
-    self.params['seed'] = orig['seed']
-    self.params['columnDimensions'] = orig['columnDimensions']
-    self.params['inputDimensions'] = orig['inputDimensions']
-    self.boostTestLoop("py")
-    self.boostTestLoop("cpp")
-    self.params = orig
+    params = {}
+    params['seed'] = SEED
+    # py
+    self.setUp(params, "py") # reinitialize with new params
+    self.boostTestLoop()
+    # cpp
+    self.setUp(params, "cpp")
+    self.boostTestLoop()
 
 
   def testBoostingSDRPatterns(self):
     """Boosting test with random patterns, instead of continuous data."""
-    orig = copy.deepcopy(self.x)
-    rng = numpy.random.RandomState(seed=self.params['seed'])
+    rng = numpy.random.RandomState(seed=SEED)
     idxA = rng.randint(0, self.inputSize, 20)
     idxAa = copy.deepcopy(idxA)
     idxAa[0:10] = rng.randint(0, self.inputSize, 10) # now A and A' have 50% in common
     idxB = rng.randint(0, self.inputSize, 20) # has (almost) 0% (0.5**20) in common with A (A')
     idxC = rng.randint(0, self.inputSize, 20)
     idxD = rng.randint(0, self.inputSize, 20)
-    self.x[0, idxA] = 1
-    self.x[1, idxAa] = 1
-    self.x[2, idxB] = 1
-    self.x[3, idxC] = 1
-    self.x[4, idxD] = 1
-
-    self.boostTestLoop("py")
-    self.boostTestLoop("cpp")
-    self.x = orig
+    x = numpy.zeros((5, self.inputSize), dtype=uintType)
+    x[0, idxA] = 1
+    x[1, idxAa] = 1
+    x[2, idxB] = 1
+    x[3, idxC] = 1
+    x[4, idxD] = 1
+    self.setUp(imp="py", data=x)
+    self.boostTestLoop()
+    self.setUp(imp="cpp", data=x)
+    self.boostTestLoop()
+    self.setUp() # set old values
 
 
   def testBoostingNoDisturbances(self):
@@ -394,7 +408,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       tpD = numpy.zeros(tp.numberOfCols)
       tpD = tp.compute(spD, True, True)
       global tpD0
-      anS = an.compute(tpD, tpD0) #FIXME use an.next() when merged
+      anS = an.compute(tpD, tpD0) #FIXME wrong anomaly call params
       tpD0 = tpD
       return anS
 
