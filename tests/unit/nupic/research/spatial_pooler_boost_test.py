@@ -31,6 +31,7 @@ from nupic.bindings.math import GetNTAReal
 from nupic.research.spatial_pooler import SpatialPooler as PySP
 from nupic.research.TP import TP as PyTP
 from nupic.algorithms.anomaly import Anomaly
+from nupic.encoders.scalar import ScalarEncoder
 
 uintType = "uint32"
 
@@ -406,9 +407,10 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     """Boosting should not create any (significant) anomalies/disturbances."""
     # This typically happens on simple, periodic data with a bigger SP (num. columns)
     tpD0 = []
-    def runOnce(inp, sp, tp, an):
+    def runOnce(inp, enc, sp, tp, an):
+      enD = enc.encode(inp)
       spD = numpy.zeros(sp.getColumnDimensions(), dtype='int32')
-      sp.compute(inp, True, spD)
+      sp.compute(enD, True, spD)
       tpD = numpy.zeros(tp.numberOfCols)
       tpD = tp.compute(spD, True, True)
       global tpD0
@@ -416,20 +418,26 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       tpD0 = tpD
       return anS
 
-    sp = PySP(seed=SEED)
-    tp = PyTP(seed=SEED)
-    an = Anomaly()
     x = 0.0
     dx = 0.01
-    ITERS = 5000
+    iters = 5000
+    burnin = 500
     lastRes = -999
+    nCols = 2048
+    nIn = 500
+    enc = ScalarEncoder(w=21, n=nIn, minval=-1, maxval=1)
+    sp = PySP(inputDimensions=(nIn,), 
+              columnDimensions=(nCols,),
+              seed=SEED) #FIXME add cpp SP test too
+    tp = PyTP(nCols, nCols, seed=SEED)
+    an = Anomaly()
 
-    for i in xrange(ITERS):
+    for i in xrange(iters):
       d = sin(x)
       x += dx
-      res = runOnce(d, sp, tp, an)
-      if i > 500: # after burn-in period
-        self.assertEqual(res, lastRes, "There was an artificial disturbance in consecutive results.")
+      res = runOnce(d, enc, sp, tp, an)
+      if i > burnin:
+        self.assertAlmostEqual(res, lastRes, "There was an artificial disturbance in consecutive results.")
       lastRes = res
 
 
