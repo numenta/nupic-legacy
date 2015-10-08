@@ -149,7 +149,7 @@ class Boosting(object):
     increase the overlap of inactive columns to improve their chances of
     becoming active. and hence encourage participation of more columns in the
     learning process. This is a line defined as: y = mx + b boost =
-    (1-maxBoost)/minDuty * dutyCycle + maxFiringBoost. Intuitively this means
+    (1-maxBoost)/minDuty * dutyCycle + maxBoost. Intuitively this means
     that columns that have been active enough have a boost factor of 1, meaning
     their overlap is not boosted. Columns whose active duty cycle drops too much
     below that of their neighbors are boosted depending on how infrequently they
