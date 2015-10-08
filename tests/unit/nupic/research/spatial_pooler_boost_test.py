@@ -29,7 +29,8 @@ from math import sin
 from nupic.support.unittesthelpers.algorithm_test_helpers import CreateSP
 from nupic.bindings.math import GetNTAReal
 from nupic.research.spatial_pooler import SpatialPooler as PySP
-from nupic.research.TP import TP as PyTP
+from nupic.bindings.algorithms import SpatialPooler as CppSP
+from nupic.research.TP10X2 import TP10X2 as CppTP
 from nupic.algorithms.anomaly import Anomaly
 from nupic.encoders.scalar import ScalarEncoder
 
@@ -415,28 +416,32 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       active = spD # active input at T
       tpD = tp.compute(spD, True, True)
       anS = an.compute(active, pastPred)
+      print anS
       return anS
 
     x = 0.0
-    dx = 0.01
+    dx = 0.1
     iters = 5000
-    burnin = 500
+    burnin = 600
     lastRes = -999
     nCols = 2048
     nIn = 500
     enc = ScalarEncoder(w=21, n=nIn, minval=-1, maxval=1)
-    sp = PySP(inputDimensions=(nIn,), 
+    sp = CppSP(inputDimensions=(nIn,), 
               columnDimensions=(nCols,),
+              dutyCyclePeriod=50,
               seed=SEED) #FIXME add cpp SP test too
-    tp = PyTP(nCols, nCols, seed=SEED)
+    tp = CppTP(nCols, 4, seed=SEED)
     an = Anomaly()
 
     for i in xrange(iters):
       d = sin(x)
       x += dx
+      print i,
       res = runOnce(d, enc, sp, tp, an)
       if i > burnin:
-        self.assertAlmostEqual(res, lastRes, "There was an artificial disturbance in consecutive results.")
+        d = abs(res - lastRes)
+        self.assertTrue(d < 0.1, "There was an artificial disturbance in consecutive results.")
       lastRes = res
 
 
