@@ -16,7 +16,8 @@ class Boosting(object):
                numColumns,
                maxBoost,
                minPctOverlapDutyCycle,
-               minPctActiveDutyCycle):
+               minPctActiveDutyCycle,
+               dutyCyclePeriod):
     self._boostFactors = numpy.ones(numColumns, dtype=realDType)
     self._maxBoost = maxBoost
     self._minActiveDutyCycles = numpy.zeros(numColumns, dtype=realDType)
@@ -25,7 +26,10 @@ class Boosting(object):
     self._minOverlapDutyCycles = numpy.zeros(numColumns, dtype=realDType)
     self._minPctOverlapDutyCycles = minPctOverlapDutyCycle
     self._minPctActiveDutyCycles = minPctActiveDutyCycle
+    self._dutyCyclePeriod = dutyCyclePeriod
 
+
+# Setters/getters for SP parameters from boosting:
 
   def getMaxBoost(self):
     """Returns the maximum boost value"""
@@ -121,6 +125,18 @@ class Boosting(object):
     self._minPctActiveDutyCycles = minPctActiveDutyCycles
 
 
+  def getDutyCyclePeriod(self):
+    """Returns the duty cycle period"""
+    return self._dutyCyclePeriod
+
+
+  def setDutyCyclePeriod(self, dutyCyclePeriod):
+    """Sets the duty cycle period"""
+    self._dutyCyclePeriod = dutyCyclePeriod
+
+
+# Boosting logic methods:
+
   def getBoostedOverlaps(self, overlaps, learn=True):
     """
     Compute boosted overlaps, 
@@ -192,6 +208,8 @@ class Boosting(object):
       perm[maskPotential] += self._synPermBelowStimulusInc
       self._updatePermanencesForColumn(perm, columnIndex, raisePerm=False)
 
+
+# Time keeping methods, counters:
 
   def _updateMinDutyCycles(self, doGlobal=False):
     """

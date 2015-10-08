@@ -246,7 +246,8 @@ class SpatialPooler(Boosting):
                numColumns=numColumns,
                maxBoost=maxBoost,
                minPctOverlapDutyCycle=minPctOverlapDutyCycle,
-               minPctActiveDutyCycle=minPctActiveDutyCycle
+               minPctActiveDutyCycle=minPctActiveDutyCycle,
+               dutyCyclePeriod=dutyCyclePeriod
                )
 
     if (numActiveColumnsPerInhArea == 0 and
@@ -283,7 +284,6 @@ class SpatialPooler(Boosting):
     self._synPermActiveInc = synPermActiveInc
     self._synPermBelowStimulusInc = synPermConnected / 10.0
     self._synPermConnected = synPermConnected
-    self._dutyCyclePeriod = dutyCyclePeriod
     self._spVerbosity = spVerbosity
     self._wrapAround = wrapAround
     self._synPermMin = 0.0
@@ -464,16 +464,6 @@ class SpatialPooler(Boosting):
   def setInhibitionRadius(self, inhibitionRadius):
     """Sets the inhibition radius"""
     self._inhibitionRadius = inhibitionRadius
-
-
-  def getDutyCyclePeriod(self):
-    """Returns the duty cycle period"""
-    return self._dutyCyclePeriod
-
-
-  def setDutyCyclePeriod(self, dutyCyclePeriod):
-    """Sets the duty cycle period"""
-    self._dutyCyclePeriod = dutyCyclePeriod
 
 
   def getIterationNum(self):
