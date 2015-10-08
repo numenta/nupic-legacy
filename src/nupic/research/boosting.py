@@ -265,10 +265,7 @@ class Boosting(object):
     activeArray = numpy.zeros(self._numColumns, dtype=realDType)
     overlapArray[overlaps > 0] = 1
     activeArray[activeColumns] = 1
-
-    period = self._dutyCyclePeriod
-    if (period > self._iterationNum):
-      period = self._iterationNum
+    period = min(self._dutyCyclePeriod, self._iterationNum)
 
     self._overlapDutyCycles = self._updateDutyCyclesHelper(
                                 self._overlapDutyCycles,
