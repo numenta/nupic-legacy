@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.5
+
+* Raise explicit exception if user passes non-str path
+* SP: simplify local inhibition
+* SP: adapt tests, sort winning columns output
+* SP: simplify active columns assignment
+* SP: simplify global inhibition
+* file Rename as hello_tm.py and modifications in comments
+
 ## 0.3.4
 
 * Added src/nupic/frameworks/opf/common_models/cluster_params.py and supporting files from numenta-apps htmengine. A separate numenta-apps PR will remove this code from htmengine.
