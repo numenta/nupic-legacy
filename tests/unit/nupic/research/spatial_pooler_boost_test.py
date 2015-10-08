@@ -406,16 +406,15 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   def testBoostingNoDisturbances(self):
     """Boosting should not create any (significant) anomalies/disturbances."""
     # This typically happens on simple, periodic data with a bigger SP (num. columns)
-    tpD0 = []
     def runOnce(inp, enc, sp, tp, an):
       enD = enc.encode(inp)
       spD = numpy.zeros(sp.getColumnDimensions(), dtype='int32')
       sp.compute(enD, True, spD)
       tpD = numpy.zeros(tp.numberOfCols)
+      pastPred = tp.columnConfidences().nonzero()[0] # = predictions at T-1
+      active = spD # active input at T
       tpD = tp.compute(spD, True, True)
-      global tpD0
-      anS = an.compute(tpD, tpD0) #FIXME wrong anomaly call params
-      tpD0 = tpD
+      anS = an.compute(active, pastPred)
       return anS
 
     x = 0.0
