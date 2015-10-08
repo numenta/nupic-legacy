@@ -137,9 +137,9 @@ class Boosting(object):
 
   def updateBoosting(self, overlaps, activeColumns, doUpdateRound, doGlobal):
     self._updateDutyCycles(overlaps, activeColumns)
-    self._bumpUpWeakColumns()
     self._updateBoostFactors()
     if doUpdateRound:
+      self.bumpUpWeakColumns()
       self._updateMinDutyCycles(doGlobal)
 
 
@@ -177,13 +177,14 @@ class Boosting(object):
     self._boostFactors[self._activeDutyCycles > self._minActiveDutyCycles] = 1.0
 
 
-  def _bumpUpWeakColumns(self):
+  def bumpUpWeakColumns(self):
     """
     This method increases the permanence values of synapses of columns whose
     activity level has been too low. Such columns are identified by having an
     overlap duty cycle that drops too much below those of their peers. The
     permanence values for such columns are increased.
     """
+    print "/////////////// BOOST ///////////////////"
     weakColumns = numpy.where(self._overlapDutyCycles
                                 < self._minOverlapDutyCycles)[0]
     for columnIndex in weakColumns:

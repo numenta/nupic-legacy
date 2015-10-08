@@ -797,7 +797,7 @@ class SpatialPoolerTest(unittest.TestCase):
   #    Inc   Trim    Trim    -     -    -    Inc     -
       [0.110, 0.748, 0.055, 0.000, 0.060, 0.000, 0.218, 0.000]]
 
-    sp._bumpUpWeakColumns()
+    sp.bumpUpWeakColumns()
     for i in xrange(sp._numColumns):
       perm = list(sp._permanences.getRow(i))
       for j in xrange(sp._numInputs):
