@@ -359,17 +359,17 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     self.boostTestPhase4()
 
 
-  def tAestBoostingPY(self):
+  def testBoostingPY(self):
     self.setUp(imp="py")
     self.boostTestLoop()
 
 
-  def tAestBoostingCPP(self):
+  def testBoostingCPP(self):
     self.setUp(imp="cpp")
     self.boostTestLoop()
 
 
-  def tAestBoostingDefaultSPParams(self):
+  def testBoostingDefaultSPParams(self):
     """Boosting test with SP's default params."""
     params = {}
     params['seed'] = SEED
@@ -381,7 +381,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     self.boostTestLoop()
 
 
-  def tAestBoostingSDRPatterns(self):
+  def testBoostingSDRPatterns(self):
     """Boosting test with random patterns, instead of continuous data."""
     rng = numpy.random.RandomState(seed=SEED)
     idxA = rng.randint(0, self.inputSize, 20)
