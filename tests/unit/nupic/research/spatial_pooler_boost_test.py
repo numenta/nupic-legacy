@@ -219,7 +219,10 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     self.assertGreater(_computeOverlap(self.lastSDR[0], 
                        self.lastSDR[1]),
                        SIMILAR_SDR_OVERLAP,
-                       "First two SDR's don't overlap enough: \n%r \nvs. \n%r" % (self.lastSDR[0], self.lastSDR[1]))
+                       "First two SDR's don't overlap enough: \n%r \nvs. \n%r" % (
+                          self.lastSDR[0].nonzero()[0], 
+                          self.lastSDR[1].nonzero()[0])
+                      )
     
     # Verify the last three SDR's have low overlap with everyone else.
     for i in [2, 3, 4]:
