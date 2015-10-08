@@ -718,6 +718,8 @@ class Network(engine.Network):
     """
     @doc:place_holder(Network.save)
     """
+    if len(args) > 0 and not isinstance(args[0], str):
+      raise TypeError("Save path must be of type {}.".format(str))
     engine.Network.save(self, *args, **kwargs)
 
 
