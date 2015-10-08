@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -35,6 +36,7 @@ from nupic.algorithms.anomaly import Anomaly
 from nupic.encoders.scalar import ScalarEncoder
 
 uintType = "uint32"
+old = []
 
 # set a single seed for running both implementations
 SEED = 42
@@ -360,17 +362,17 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     self.boostTestPhase4()
 
 
-  def testBoostingPY(self):
+  def tAestBoostingPY(self):
     self.setUp(imp="py")
     self.boostTestLoop()
 
 
-  def testBoostingCPP(self):
+  def tAestBoostingCPP(self):
     self.setUp(imp="cpp")
     self.boostTestLoop()
 
 
-  def testBoostingDefaultSPParams(self):
+  def tAestBoostingDefaultSPParams(self):
     """Boosting test with SP's default params."""
     params = {}
     params['seed'] = SEED
@@ -382,7 +384,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     self.boostTestLoop()
 
 
-  def testBoostingSDRPatterns(self):
+  def tAestBoostingSDRPatterns(self):
     """Boosting test with random patterns, instead of continuous data."""
     rng = numpy.random.RandomState(seed=SEED)
     idxA = rng.randint(0, self.inputSize, 20)
@@ -411,23 +413,25 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       enD = enc.encode(inp)
       spD = numpy.zeros(sp.getColumnDimensions(), dtype='int32')
       sp.compute(enD, True, spD)
-      tpD = numpy.zeros(tp.numberOfCols)
-      pastPred = tp.columnConfidences().nonzero()[0] # = predictions at T-1
-      active = spD # active input at T
-      tpD = tp.compute(spD, True, True)
-      anS = an.compute(active, pastPred)
+#      tpD = numpy.zeros(tp.numberOfCols)
+#      pastPred = tp.columnConfidences().nonzero()[0] # = predictions at T-1
+      active = spD.nonzero()[0] # active input at T
+#      tpD = tp.compute(spD, True, True)
+      global old
+      anS = an.compute(active, old)
+      old = active
       print anS
       return anS
 
     x = 0.0
     dx = 0.1
     iters = 5000
-    burnin = 600
+    burnin =10
     lastRes = -999
     nCols = 2048
     nIn = 500
     enc = ScalarEncoder(w=21, n=nIn, minval=-1, maxval=1)
-    sp = CppSP(inputDimensions=(nIn,), 
+    sp = PySP(inputDimensions=(nIn,), 
               columnDimensions=(nCols,),
               dutyCyclePeriod=50,
               seed=SEED) #FIXME add cpp SP test too
@@ -438,7 +442,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       d = sin(x)
       x += dx
       print i,
-      res = runOnce(d, enc, sp, tp, an)
+      res = runOnce(0.1, enc, sp, tp, an)
       if i > burnin:
         d = abs(res - lastRes)
         self.assertTrue(d < 0.1, "There was an artificial disturbance in consecutive results.")
