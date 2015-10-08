@@ -25,18 +25,15 @@ import copy
 import time
 import numpy
 import unittest2 as unittest
-from math import sin
 
 from nupic.support.unittesthelpers.algorithm_test_helpers import CreateSP
 from nupic.bindings.math import GetNTAReal
 from nupic.research.spatial_pooler import SpatialPooler as PySP
 from nupic.bindings.algorithms import SpatialPooler as CppSP
-from nupic.research.TP10X2 import TP10X2 as CppTP
 from nupic.algorithms.anomaly import Anomaly
 from nupic.encoders.scalar import ScalarEncoder
 
 uintType = "uint32"
-old = []
 
 # set a single seed for running both implementations
 SEED = 42
@@ -409,25 +406,18 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   def testBoostingNoDisturbances(self):
     """Boosting should not create any (significant) anomalies/disturbances."""
     # This typically happens on simple, periodic data with a bigger SP (num. columns)
-    def runOnce(inp, enc, sp, tp, an):
+    def runOnce(inp, enc, sp, an, pastPred):
       enD = enc.encode(inp)
       spD = numpy.zeros(sp.getColumnDimensions(), dtype='int32')
       sp.compute(enD, True, spD)
-#      tpD = numpy.zeros(tp.numberOfCols)
-#      pastPred = tp.columnConfidences().nonzero()[0] # = predictions at T-1
       active = spD.nonzero()[0] # active input at T
-#      tpD = tp.compute(spD, True, True)
-      global old
-      anS = an.compute(active, old)
-      old = active
+      anS = an.compute(active, pastPred)
+      pastPred[:] = active
       print anS
       return anS
 
-    x = 0.0
-    dx = 0.1
-    iters = 5000
+    iters = 300
     burnin =10
-    lastRes = -999
     nCols = 2048
     nIn = 500
     enc = ScalarEncoder(w=21, n=nIn, minval=-1, maxval=1)
@@ -435,18 +425,14 @@ class SpatialPoolerBoostTest(unittest.TestCase):
               columnDimensions=(nCols,),
               dutyCyclePeriod=50,
               seed=SEED) #FIXME add cpp SP test too
-    tp = CppTP(nCols, 4, seed=SEED)
     an = Anomaly()
+    buf=[]
 
     for i in xrange(iters):
-      d = sin(x)
-      x += dx
       print i,
-      res = runOnce(0.1, enc, sp, tp, an)
-      if i > burnin:
-        d = abs(res - lastRes)
-        self.assertTrue(d < 0.1, "There was an artificial disturbance in consecutive results.")
-      lastRes = res
+      res = runOnce(0.1, enc, sp, an, buf)
+      if i > burnin: # anomalyScore should be ~0 since now
+        self.assertTrue(res < 0.1, "There was an artificial disturbance in consecutive results.")
 
 
 
