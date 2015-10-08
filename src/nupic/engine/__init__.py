@@ -27,24 +27,27 @@ import nupic.bindings.engine_internal as engine
 from nupic.support.lockattributes import LockAttributesMixin
 import functools
 
-basicTypes = ['Byte', 'Int16', 'UInt16', 'Int32', 'UInt32', 'Int64', 'UInt64', 'Real32', 'Real64', 'Handle']
+basicTypes = ['Byte', 'Int16', 'UInt16', 'Int32', 'UInt32', 'Int64', 'UInt64',
+              'Real32', 'Real64', 'Handle']
 
-pyRegions = (("nupic.regions.AnomalyRegion", "AnomalyRegion"),
-             ("nupic.regions.CLAClassifierRegion", "CLAClassifierRegion"),
-             ("nupic.regions.ImageSensor", "ImageSensor"),
-             ("nupic.regions.KNNAnomalyClassifierRegion", "KNNAnomalyClassifierRegion"),
-             ("nupic.regions.KNNClassifierRegion", "KNNClassifierRegion"),
-             ("nupic.regions.PyRegion", "PyRegion"),
-             ("nupic.regions.RecordSensor", "RecordSensor"),
-             ("nupic.regions.SPRegion", "SPRegion"),
-             ("nupic.regions.SVMClassifierNode", "SVMClassifierNode"),
-             ("nupic.regions.TPRegion", "TPRegion"),
-             ("nupic.regions.TestNode", "TestNode"),
-             ("nupic.regions.TestRegion", "TestRegion"),
-             ("nupic.regions.UnimportableNode", "UnimportableNode"),
-             ("nupic.regions.extra.GaborNode2", "GaborNode2"))
+pyRegions = (
+    ("nupic.regions.AnomalyRegion", "AnomalyRegion"),
+    ("nupic.regions.CLAClassifierRegion", "CLAClassifierRegion"),
+    ("nupic.regions.ImageSensor", "ImageSensor"),
+    ("nupic.regions.KNNAnomalyClassifierRegion", "KNNAnomalyClassifierRegion"),
+    ("nupic.regions.KNNClassifierRegion", "KNNClassifierRegion"),
+    ("nupic.regions.PyRegion", "PyRegion"),
+    ("nupic.regions.RecordSensor", "RecordSensor"),
+    ("nupic.regions.SPRegion", "SPRegion"),
+    ("nupic.regions.SVMClassifierNode", "SVMClassifierNode"),
+    ("nupic.regions.TPRegion", "TPRegion"),
+    ("nupic.regions.TestNode", "TestNode"),
+    ("nupic.regions.TestRegion", "TestRegion"),
+    ("nupic.regions.UnimportableNode", "UnimportableNode"),
+    ("nupic.regions.extra.GaborNode2", "GaborNode2"))
 
 registeredRegions = False
+
 
 def registerBuiltInRegions():
   global registeredRegions
@@ -54,6 +57,8 @@ def registerBuiltInRegions():
     for module, className in pyRegions:
       engine.Network.registerPyRegion(module, className)
   registeredRegions = True
+
+
 registerBuiltInRegions()
 
 # Import all the array types from engine (there is no HandleArray)
@@ -67,7 +72,7 @@ for a in arrayTypes:
 if not 'NTA_STANDARD_PYTHON_UNHANDLED_EXCEPTIONS' in os.environ:
   import traceback
   import cStringIO
-  
+
   def customExceptionHandler(type, value, tb):
     """Catch unhandled Python exception
     
@@ -83,7 +88,7 @@ if not 'NTA_STANDARD_PYTHON_UNHANDLED_EXCEPTIONS' in os.environ:
     traceback.print_exception(type, value, tb, file=buff)
 
     text = buff.getvalue()
-      
+
     # get the lines skip the first one: "Traceback (most recent call last)"
     lines = text.split('\n')[1:]
     #
@@ -101,15 +106,13 @@ if not 'NTA_STANDARD_PYTHON_UNHANDLED_EXCEPTIONS' in os.environ:
     message = '\n'.join(lines[begin:end])
     message = message[len('Runtime Error:'):]
     #stacktrace = lines[end:]
-    
-    # Get the stack trace if available (default to empty string)
-    stacktrace = getattr(value, 'stackTrace', '')    
 
-        
+    # Get the stack trace if available (default to empty string)
+    stacktrace = getattr(value, 'stackTrace', '')
 
     # Remove engine from stack trace
     lines = [x for x in lines if 'engine' not in x]
-    
+
     failMessage = 'The program failed with the following error message:'
     dashes = '-' * len(failMessage)
     print
@@ -136,12 +139,10 @@ class Timer(engine.Timer):
   pass
 
 
-
 # Expose the os class directly
 # The only wrapped method is getProcessMemoryUsage()
 class OS(engine.OS):
   pass
-
 
 
 class Dimensions(engine.Dimensions):
@@ -155,6 +156,7 @@ class Dimensions(engine.Dimensions):
   and then append dimensions.
   
   """
+
   def __init__(self, *args):
     """Construct a Dimensions object
     
@@ -163,10 +165,9 @@ class Dimensions(engine.Dimensions):
     """
     # Init the base class
     engine.Dimensions.__init__(self, *args)
-    
+
   def __str__(self):
     return self.toString()
-
 
 
 def Array(dtype, size=None, ref=False):
@@ -177,7 +178,7 @@ def Array(dtype, size=None, ref=False):
   
   size - the size of the array. Must be positive integer.
   """
-  
+
   def getArrayType(self):
     """A little function to replace the getType() method of arrays
     
@@ -190,7 +191,7 @@ def Array(dtype, size=None, ref=False):
   # ArrayRef can't be allocated
   if ref:
     assert size is None
-    
+
   index = basicTypes.index(dtype)
   if index == -1:
     raise Exception('Invalid data type: ' + dtype)
@@ -199,31 +200,33 @@ def Array(dtype, size=None, ref=False):
   suffix = 'ArrayRef' if ref else 'Array'
   arrayFactory = getattr(engine, dtype + suffix)
   arrayFactory.getType = getArrayType
-  
+
   if size:
     a = arrayFactory(size)
   else:
     a = arrayFactory()
-    
+
   a._dtype = basicTypes[index]
   return a
+
 
 def ArrayRef(dtype):
   return Array(dtype, None, True)
 
 
-
 class CollectionIterator(object):
+
   def __init__(self, collection):
     self.collection = collection
     self.index = 0
-    
+
   def next(self):
     index = self.index
     if index == self.collection.getCount():
       raise StopIteration
     self.index += 1
     return self.collection.getByIndex(index)[0]
+
 
 class CollectionWrapper(object):
   """Wrap an nupic::Collection with a dict-like interface
@@ -234,72 +237,71 @@ class CollectionWrapper(object):
   collection - the original collection
   valueWrapper - an optional callable object used to wrap values.
   """
+
   def IdentityWrapper(o):
     return o
-  
-  
+
   def __init__(self, collection, valueWrapper=IdentityWrapper):
     self.collection = collection
     self.valueWrapper = valueWrapper
-    self.__class__.__doc__ == collection.__class__.__doc__    
+    self.__class__.__doc__ == collection.__class__.__doc__
 
   def __iter__(self):
     return CollectionIterator(self.collection)
-  
+
   def __str__(self):
     return str(self.collection)
 
   def __repr__(self):
     return repr(self.collection)
-  
+
   def __len__(self):
     return self.collection.getCount()
-    
+
   def __getitem__(self, key):
     if not self.collection.contains(key):
       raise KeyError('Key ' + key + ' not found')
 
-    value =  self.collection.getByName(key)
+    value = self.collection.getByName(key)
     value = self.valueWrapper(key, value)
-    
+
     return value
-  
+
   def get(self, key, default=None):
     try:
       return self.__getitem__(key)
     except KeyError:
       return default
-        
+
   def __contains__(self, key):
     return self.collection.contains(key)
-    
+
   def keys(self):
     keys = set()
     for i in range(self.collection.getCount()):
       keys.add(self.collection.getByIndex(i)[0])
     return keys
-  
+
   def values(self):
     values = set()
-    
+
     for i in range(self.collection.getCount()):
       p = self.collection.getByIndex(i)
       values.add(self.valueWrapper(p[0], p[1]))
     return values
-  
+
   def items(self):
     items = set()
     for i in range(self.collection.getCount()):
       p = self.collection.getByIndex(i)
       items.add((p[0], self.valueWrapper(p[0], p[1])))
     return items
-  
+
   def __cmp__(self, other):
     return self.collection == other.collection
-  
+
   def __hash__(self):
     return hash(self.collection)
-
 
 
 class SpecItem(object):
@@ -322,10 +324,10 @@ class SpecItem(object):
     # Translate access mode to string representation
     if hasattr(item, 'accessMode'): # ParameterSpec only
       self.accessMode = SpecItem.accessModes[item.accessMode]
-            
+
   def __getattr__(self, name):
     return getattr(self.item, name)
-    
+
   def __str__(self):
     d = dict(name=self.name,
              description=self.description,
@@ -339,12 +341,12 @@ class SpecItem(object):
       d['constraints'] = self.constraints
     if hasattr(self.item, 'defaultValue'): # ParameterSpec only
       d['defaultValue'] = self.defaultValue
-    
+
     return str(d)
 
 
-
 class Spec(object):
+
   def __init__(self, spec):
     self.spec = spec
     self.__class__.__doc__ == spec.__class__.__doc__
@@ -354,15 +356,17 @@ class Spec(object):
     self.outputs = CollectionWrapper(spec.outputs, SpecItem)
     self.parameters = CollectionWrapper(spec.parameters, SpecItem)
     self.commands = CollectionWrapper(spec.commands)
-          
+
   def __str__(self):
     return self.spec.toString()
 
   def __repr__(self):
     return self.spec.toString()
-  
+
+
 class _ArrayParameterHelper:
   """This class is used by Region._getParameterMethods"""
+
   def __init__(self, region, datatype):
     self._region = region
     self.datatype = basicTypes[datatype]
@@ -380,7 +384,6 @@ class _ArrayParameterHelper:
     a = Array(self.datatype)
     self._region.getParameterArray(paramName, a)
     return a
-
 
 
 class Region(LockAttributesMixin):
@@ -409,10 +412,10 @@ class Region(LockAttributesMixin):
     self._network = network
     self._region = region
     self.__class__.__doc__ == region.__class__.__doc__
-    
+
     # A cache for typed get/setPArameter() calls
     self._paramTypeCache = {}
-    
+
   def __getattr__(self, name):
     if not '_region' in self.__dict__:
       raise AttributeError
@@ -425,14 +428,14 @@ class Region(LockAttributesMixin):
       self.setDimensions(value)
     else:
       setattr(self._region, name, value)
-        
+
   @staticmethod
   def getSpecFromType(nodeType):
     """
     @doc:place_holder(Region.getSpecFromType)
     """
     return Spec(engine.Region.getSpecFromType(nodeType))
-    
+
   def compute(self):
     """
     @doc:place_holder(Region.compute)
@@ -441,7 +444,7 @@ class Region(LockAttributesMixin):
     
     """
     return self._region.compute()
-    
+
   def getInputData(self, inputName):
     """
     @doc:place_holder(Region.getInputData)
@@ -453,15 +456,13 @@ class Region(LockAttributesMixin):
     @doc:place_holder(Region.getOutputData)
     """
     return self._region.getOutputArray(outputName)
-    
-  
+
   def executeCommand(self, args):
     """
     @doc:place_holder(Region.executeCommand)
-    """    
+    """
     return self._region.executeCommand(args)
-    
-    
+
   def _getSpec(self):
     """Spec of the region"""
     return Spec(self._region.getSpec())
@@ -469,19 +470,18 @@ class Region(LockAttributesMixin):
   def _getDimensions(self):
     """Dimensions of the region"""
     return Dimensions(tuple(self._region.getDimensions()))
-      
+
   def _getNetwork(self):
     """Network for the region"""
     return self._network
-            
+
   def __hash__(self):
     """Hash a region"""
     return self._region.__hash__()
-    
+
   def __cmp__(self, other):
     """Compare regions"""
     return self._region == other._region
- 
 
   def _getParameterMethods(self, paramName):
     """Returns functions to set/get the parameter. These are 
@@ -508,8 +508,9 @@ class Region(LockAttributesMixin):
         g = getattr(self, 'g' + x) # get the typed getParameter method
         s = getattr(self, 's' + x) # get the typed setParameter method
       except AttributeError:
-        raise Exception("Internal error: unknown parameter type %s" % dataTypeName)
-      info = (s, g)      
+        raise Exception("Internal error: unknown parameter type %s" %
+                        dataTypeName)
+      info = (s, g)
     else:
       if dataTypeName == "Byte":
         info = (self.setParameterString, self.getParameterString)
@@ -525,8 +526,9 @@ class Region(LockAttributesMixin):
     (setter, getter) = self._getParameterMethods(paramName)
     if getter is None:
       import exceptions
-      raise exceptions.Exception("getParameter -- parameter name '%s' does not exist in region %s of type %s" %
-                       (paramName, self.name, self.type))
+      raise exceptions.Exception(
+          "getParameter -- parameter name '%s' does not exist in region %s of type %s"
+          % (paramName, self.name, self.type))
     return getter(paramName)
 
   def setParameter(self, paramName, value):
@@ -534,10 +536,10 @@ class Region(LockAttributesMixin):
     (setter, getter) = self._getParameterMethods(paramName)
     if setter is None:
       import exceptions
-      raise exceptions.Exception("setParameter -- parameter name '%s' does not exist in region %s of type %s" %
-                       (paramName, self.name, self.type))
+      raise exceptions.Exception(
+          "setParameter -- parameter name '%s' does not exist in region %s of type %s"
+          % (paramName, self.name, self.type))
     setter(paramName, value)
-
 
   def _get(self, method):
     """Auto forwarding of properties to get methods of internal region"""
@@ -546,25 +548,27 @@ class Region(LockAttributesMixin):
   network = property(_getNetwork,
                      doc='@property:place_holder(Region.getNetwork)')
 
-  name = property(functools.partial(_get, method='getName'),
+  name = property(functools.partial(_get,
+                                    method='getName'),
                   doc="@property:place_holder(Region.getName)")
 
-  type = property(functools.partial(_get, method='getType'),
-                      doc='@property:place_holder(Region.getType)')
+  type = property(functools.partial(_get,
+                                    method='getType'),
+                  doc='@property:place_holder(Region.getType)')
 
-  spec = property(_getSpec,
-                      doc='@property:place_holder(Region.getSpec)')
-      
+  spec = property(_getSpec, doc='@property:place_holder(Region.getSpec)')
+
   dimensions = property(_getDimensions,
                         engine.Region.setDimensions,
                         doc='@property:place_holder(Region.getDimensions)')
-  
-  computeTimer = property(functools.partial(_get, method='getComputeTimer'),
+
+  computeTimer = property(functools.partial(_get,
+                                            method='getComputeTimer'),
                           doc='@property:place_holder(Region.getComputeTimer)')
 
-  executeTimer = property(functools.partial(_get, method='getExecuteTimer'),
+  executeTimer = property(functools.partial(_get,
+                                            method='getExecuteTimer'),
                           doc='@property:place_holder(Region.getExecuteTimer)')
-
 
 
 class Network(engine.Network):
@@ -580,7 +584,7 @@ class Network(engine.Network):
     """
     # Init engine.Network class
     engine.Network.__init__(self, *args)
-    
+
     # Prepare documentation table.
     # Each item is pair of method/property, docstring
     # The docstring is attached later to the method or property.
@@ -596,10 +600,11 @@ class Network(engine.Network):
       if isinstance(obj, str):
         prop = getattr(Network, obj)
         assert isinstance(prop, property)
-        setattr(Network, obj, property(prop.fget, prop.fset, prop.fdel, docString))
+        setattr(Network, obj, property(prop.fget, prop.fset, prop.fdel,
+                                       docString))
       else:
         obj.im_func.__doc__ = docString
-    
+
   def _getRegions(self):
     """Get the collection of regions in a network
     
@@ -622,29 +627,24 @@ class Network(engine.Network):
       r = Region(r, self)
       #r._network = self
       return r
-    
-    regions = CollectionWrapper(engine.Network.getRegions(self), makeRegion)    
+
+    regions = CollectionWrapper(engine.Network.getRegions(self), makeRegion)
     return regions
-    
-  def addRegion(self, name, nodeType, nodeParams):    
+
+  def addRegion(self, name, nodeType, nodeParams):
     """
     @doc:place_holder(Network.addRegion)
     """
     engine.Network.addRegion(self, name, nodeType, nodeParams)
     return self._getRegions()[name]
-    
 
   def addRegionFromBundle(self, name, nodeType, dimensions, bundlePath, label):
     """
     @doc:place_holder(Network.addRegionFromBundle)
     """
 
-    engine.Network.addRegionFromBundle(self,
-                                   name,
-                                   nodeType,
-                                   dimensions,
-                                   bundlePath,
-                                   label)
+    engine.Network.addRegionFromBundle(self, name, nodeType, dimensions,
+                                       bundlePath, label)
     return self._getRegions()[name]
 
   def setPhases(self, name, phases):
@@ -683,7 +683,6 @@ class Network(engine.Network):
     """
     engine.Network.getCallbacks(self, *args, **kwargs)
 
-
   def initialize(self, *args, **kwargs):
     """
     @doc:place_holder(Network.initialize)
@@ -718,12 +717,13 @@ class Network(engine.Network):
     """
     @doc:place_holder(Network.save)
     """
+    if len(args) > 0 and not isinstance(args[0], str):
+      raise TypeError("Save path must be of type {}.".format(str))
     engine.Network.save(self, *args, **kwargs)
-
 
   def inspect(self):
     """Launch a GUI inpector to inspect the network"""
-    from nupic.analysis import inspect    
+    from nupic.analysis import inspect
     inspect(self)
 
   @staticmethod
@@ -732,7 +732,8 @@ class Network(engine.Network):
     Adds the module and class name for the region to the list of classes the network can use
     regionClass: a pointer to a subclass of PyRegion
     """
-    engine.Network.registerPyRegion(regionClass.__module__, regionClass.__name__)
+    engine.Network.registerPyRegion(regionClass.__module__,
+                                    regionClass.__name__)
 
   @staticmethod
   def unregisterRegion(regionName):
@@ -745,32 +746,41 @@ class Network(engine.Network):
     engine.Network.unregisterPyRegion(regionName)
 
   # Syntactic sugar properties
-  regions = property(_getRegions, doc='@property:place_holder(Network.getRegions)')
-  minPhase = property(engine.Network.getMinPhase, doc='@property:place_holder(Network.getMinPhase)')
-  maxPhase = property(engine.Network.getMaxPhase, doc='@property:place_holder(Network.getMaxPhase)')
-  minEnabledPhase = property(engine.Network.getMinEnabledPhase, engine.Network.setMinEnabledPhase, doc='@property:place_holder(Network.getMinEnabledPhase)')
-  maxEnabledPhase = property(engine.Network.getMaxEnabledPhase, engine.Network.setMaxEnabledPhase, doc='@property:place_holder(Network.getMaxEnabledPhase)')
-    
-if __name__=='__main__':
+  regions = property(_getRegions,
+                     doc='@property:place_holder(Network.getRegions)')
+  minPhase = property(engine.Network.getMinPhase,
+                      doc='@property:place_holder(Network.getMinPhase)')
+  maxPhase = property(engine.Network.getMaxPhase,
+                      doc='@property:place_holder(Network.getMaxPhase)')
+  minEnabledPhase = property(
+      engine.Network.getMinEnabledPhase,
+      engine.Network.setMinEnabledPhase,
+      doc='@property:place_holder(Network.getMinEnabledPhase)')
+  maxEnabledPhase = property(
+      engine.Network.getMaxEnabledPhase,
+      engine.Network.setMaxEnabledPhase,
+      doc='@property:place_holder(Network.getMaxEnabledPhase)')
+
+
+if __name__ == '__main__':
   n = Network()
   print n.regions
   print len(n.regions)
   print Network.regions.__doc__
-  
+
   d = Dimensions([3, 4, 5])
   print len(d)
   print d
-  
+
   a = Array('Byte', 5)
   print len(a)
   for i in range(len(a)):
     a[i] = ord('A') + i
-    
+
   for i in range(len(a)):
     print a[i]
-    
+
   r = n.addRegion('r', 'TestNode', '')
   print 'name:', r.name
   print 'node type:', r.type
   print 'node spec:', r.spec
-
