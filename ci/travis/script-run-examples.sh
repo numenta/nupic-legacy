@@ -40,5 +40,5 @@ python ${NUPIC}/scripts/run_opf_experiment.py ${NUPIC}/examples/opf/experiments/
 python ${NUPIC}/scripts/run_opf_experiment.py ${NUPIC}/examples/opf/experiments/spatial_classification/category_1/ || exit
 
 # examples/tp
-python ${NUPIC}/examples/tp/hello_tp.py || exit
+python ${NUPIC}/examples/tp/hello_tm.py || exit
 python ${NUPIC}/examples/tp/tp_test.py || exit
