@@ -2,7 +2,6 @@ import numpy
 
 from nupic.bindings.math import (GetNTAReal,
                                  Random as NupicRandom)
-from nupic.research.spatial_pooler import SpatialPooler
 
 realDType = GetNTAReal()
 
@@ -85,10 +84,6 @@ class Boosting(object):
     """
     @param sp - Instance of the Spatial Pooler we want to modify
     """
-    if not isinstance(sp, SpatialPooler):
-      raise ValueError("Boosting: updateBoosting() must pass a Spatial Pooler"+
-                       " instance as an argument.")
-
     doUpdateRound = sp._isUpdateRound()
     doGlobal = sp._globalInhibition or sp._inhibitionRadius > sp._numInputs
     iteration = sp._iterationNum
