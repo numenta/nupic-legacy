@@ -9,7 +9,39 @@ realDType = GetNTAReal()
 
 class Boosting(object):
   """
-  Implements boosting for columns of the spatial pooler. 
+  Implements boosting for columns of the spatial pooler.
+  Boosting is an optional process that helps the spatial pooler (SP) to adapt
+  faster to changes in the input stream. Boosting acts on 2 levels: "duplicit
+  peer columns activity" and "mismatched input overlap". 
+
+  1/ Boosting of mispatched input:
+  Triggered when the column is "growing" (connected to) the inputs that are 
+  not used (anymore). This can happen in two cases, when a part of the input
+  vector is never used (wrongly, too generic designed encoder, etc.), or when
+  a part of the input that had been used before is not useful anymore for a long
+  period of time. 
+  Biologically the unmatched synapses would die out of hunger, in the current 
+  implementation we increase their improtance in hope that (a few) will start 
+  to act on a subset of the input and become a new feature. 
+  This process is computed from the '*OverlapDutyCycles', and implemented in the
+  'bumpUpWeakColumns()' method.
+
+  2/ Boosting for duplicit peer activity:
+  In this scenario, the column has a good synaptic overlap over the input,
+  but it is very similar to the input field of the neighboring column(s). 
+  It results in a SDR that is not well (D)istributed, and we are wasting 
+  resources on the columns activity, as it is duplicit to others'. This leads
+  to the column never being active (winning in inhobotion). 
+  In this implementation the fix is to temporarily artificially boost 
+  the column's "importance" by a boosting factor, thus giving it a chance to
+  win in some scenario and creating it's niche. 
+  This process is computed from the '*ActivityDutyCycles' and implemented in the
+  'getBoostingFactors()' method.
+  
+  Main methods this class provides are:
+  'updateBoosting()' which keeps track of the internal states, and
+  'getBoostingFactors()' and 'bumpUpWeakColumns()' that apply boosting methods
+  #1 and #2 described above the the columns of the SP.
   """
 
   def __init__(self,
