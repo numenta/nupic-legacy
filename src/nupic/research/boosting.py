@@ -50,6 +50,12 @@ class Boosting(object):
                minPctOverlapDutyCycle,
                minPctActiveDutyCycle,
                dutyCyclePeriod):
+    """
+    construct a boosting object for the SpatialPooler
+
+    @param numColumns -- these all parameters are taken from the SP, please 
+             refer to SP's doc for their exact meaning.
+    """
     self._boostFactors = numpy.ones(numColumns, dtype=realDType)
     self._maxBoost = maxBoost
     self._minActiveDutyCycles = numpy.zeros(numColumns, dtype=realDType)
@@ -66,6 +72,12 @@ class Boosting(object):
 
 # Boosting logic methods:
 
+  def getBoostingUnusedColumns(self):
+    """
+    get boosting for the #2 method - unused peer columns
+    """
+    return self._boostFactors
+
   def getBoostedOverlaps(self, overlaps, learn=True):
     """
     Compute boosted overlaps, 
@@ -80,7 +92,7 @@ class Boosting(object):
     return boostedOverlaps
 
 
-  def updateBoosting(self, overlaps, activeColumns, sp):
+  def update(self, overlaps, activeColumns, sp):
     """
     @param sp - Instance of the Spatial Pooler we want to modify
     """

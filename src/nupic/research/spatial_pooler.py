@@ -761,7 +761,7 @@ class SpatialPooler(object):
 
     if learn:
       self._adaptSynapses(inputVector, activeColumns)
-      self.boosting.updateBoosting(overlaps, activeColumns, self)
+      self.boosting.update(overlaps, activeColumns, self)
       if self._isUpdateRound():
         self._updateInhibitionRadius()
 
