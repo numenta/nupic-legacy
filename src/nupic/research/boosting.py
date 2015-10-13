@@ -72,24 +72,11 @@ class Boosting(object):
 
 # Boosting logic methods:
 
-  def getBoostingUnusedColumns(self):
+  def getBoostingSuppressedColumns(self):
     """
-    get boosting for the #2 method - unused peer columns
+    get boosting for the #2 method - duplicit peer columns
     """
     return self._boostFactors
-
-  def getBoostedOverlaps(self, overlaps, learn=True):
-    """
-    Compute boosted overlaps, 
-    @param inputVector: 1D ndarray of realDType, size of input to SP
-    """
-    # Apply boosting when learning is on
-    if learn:
-      boostedOverlaps = self._boostFactors * overlaps
-    else:
-      boostedOverlaps = overlaps
-
-    return boostedOverlaps
 
 
   def update(self, overlaps, activeColumns, sp):
@@ -101,6 +88,7 @@ class Boosting(object):
     iteration = sp._iterationNum
 
     self._updateDutyCycles(overlaps, activeColumns, iteration)
+    # Boosting #1 - boost columns with weak inputs
     self._bumpUpWeakColumns(sp)
     self._updateBoostFactors()
     if doUpdateRound:

@@ -753,15 +753,20 @@ class SpatialPooler(object):
     inputVector.reshape(-1)
 
     overlaps = self._calculateOverlap(inputVector)
-    # Apply boosting
-    boostedOverlaps = self.boosting.getBoostedOverlaps(overlaps, learn)
+
+    # Boosting #2 - overlaps on peer-suppressed columns
+    if learn:
+      boostedOverlaps = self.boosting.getBoostingSuppressedColumns() * overlaps
+    else:
+      boostedOverlaps = overlaps
 
     # Apply inhibition to determine the winning columns
     activeColumns = self._inhibitColumns(boostedOverlaps)
 
     if learn:
       self._adaptSynapses(inputVector, activeColumns)
-      self.boosting.update(overlaps, activeColumns, self)
+      # apply Boosting
+      overlaps = self.boosting.update(overlaps, activeColumns, self)
       if self._isUpdateRound():
         self._updateInhibitionRadius()
 
