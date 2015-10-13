@@ -2,6 +2,7 @@ import numpy
 
 from nupic.bindings.math import (GetNTAReal,
                                  Random as NupicRandom)
+from nupic.research.spatial_pooler import SpatialPooler
 
 realDType = GetNTAReal()
 
@@ -183,12 +184,23 @@ class Boosting(object):
     return boostedOverlaps
 
 
-  def updateBoosting(self, overlaps, activeColumns, doUpdateRound, doGlobal):
-    self._updateDutyCycles(overlaps, activeColumns)
-    self._bumpUpWeakColumns()
+  def updateBoosting(self, overlaps, activeColumns, sp):
+    """
+    @param sp - Instance of the Spatial Pooler we want to modify
+    """
+    if not isinstance(sp, SpatialPooler):
+      raise ValueError("Boosting: updateBoosting() must pass a Spatial Pooler"+
+                       " instance as an argument.")
+
+    doUpdateRound = sp._isUpdateRound()
+    doGlobal = sp._globalInhibition or sp._inhibitionRadius > sp._numInputs
+    iteration = sp._iterationNum
+
+    self._updateDutyCycles(overlaps, activeColumns, iteration)
+    self._bumpUpWeakColumns(sp)
     self._updateBoostFactors()
     if doUpdateRound:
-      self._updateMinDutyCycles(doGlobal)
+      self._updateMinDutyCycles(sp, doGlobal)
 
 
   def _updateBoostFactors(self):
@@ -225,25 +237,30 @@ class Boosting(object):
     self._boostFactors[self._activeDutyCycles > self._minActiveDutyCycles] = 1.0
 
 
-  def _bumpUpWeakColumns(self):
+  def _bumpUpWeakColumns(self, sp):
     """
     This method increases the permanence values of synapses of columns whose
     activity level has been too low. Such columns are identified by having an
     overlap duty cycle that drops too much below those of their peers. The
     permanence values for such columns are increased.
+
+    @param sp - Instance of the Spatial Pooler we want to modify
     """
     weakColumns = numpy.where(self._overlapDutyCycles
                                 < self._minOverlapDutyCycles)[0]
     for columnIndex in weakColumns:
-      perm = self._permanences[columnIndex].astype(realDType)
-      maskPotential = numpy.where(self._potentialPools[columnIndex] > 0)[0]
+      perm = numpy.array([sp.getInputDimensions()], dtype=realDType)
+      sp.getPermanence(columnIndex, perm)
+      pot = numpy.array([sp.getInputDimensions()], dtype=realDType)
+      sp.getPotential(columnIndex, pot)
+      maskPotential = numpy.where(pot > 0)[0]
       perm[maskPotential] += self._synPermBelowStimulusInc
-      self._updatePermanencesForColumn(perm, columnIndex, raisePerm=False)
+      sp._updatePermanencesForColumn(perm, columnIndex, raisePerm=False)
 
 
 # Time keeping methods, counters:
 
-  def _updateMinDutyCycles(self, doGlobal=False):
+  def _updateMinDutyCycles(self, sp, doGlobal=False):
     """
     Updates the minimum duty cycles defining normal activity for a column. A
     column with activity duty cycle below this minimum threshold is boosted.
@@ -251,7 +268,7 @@ class Boosting(object):
     if doGlobal:
       self._updateMinDutyCyclesGlobal()
     else:
-      self._updateMinDutyCyclesLocal()
+      self._updateMinDutyCyclesLocal(sp)
 
 
   def _updateMinDutyCyclesGlobal(self):
@@ -271,18 +288,20 @@ class Boosting(object):
       )
 
 
-  def _updateMinDutyCyclesLocal(self):
+  def _updateMinDutyCyclesLocal(self, sp):
     """
     Updates the minimum duty cycles. The minimum duty cycles are determined
     locally. Each column's minimum duty cycles are set to be a percent of the
     maximum duty cycles in the column's neighborhood. Unlike
     _updateMinDutyCyclesGlobal, here the values can be quite different for
     different columns.
+
+    @param sp - SpatialPooler instance we act on.
     """
-    for i in xrange(self._numColumns):
+    for i in xrange(sp._numColumns):
       maskNeighbors = numpy.append(i,
-        self._getNeighborsND(i, self._columnDimensions,
-        self._inhibitionRadius))
+        sp._getNeighborsND(i, sp._columnDimensions,
+        sp._inhibitionRadius))
       self._minOverlapDutyCycles[i] = (
         self._overlapDutyCycles[maskNeighbors].max() *
         self._minPctOverlapDutyCycles
@@ -293,7 +312,7 @@ class Boosting(object):
       )
 
 
-  def _updateDutyCycles(self, overlaps, activeColumns):
+  def _updateDutyCycles(self, overlaps, activeColumns, iteration):
     """
     Updates the duty cycles for each column. The OVERLAP duty cycle is a moving
     average of the number of inputs which overlapped with the each column. The
@@ -310,12 +329,14 @@ class Boosting(object):
     @param activeColumns:
                     An array containing the indices of the active columns,
                     the sparse set of columns which survived inhibition
+    @param iteration step of the SP/Boosting
     """
-    overlapArray = numpy.zeros(self._numColumns, dtype=realDType)
-    activeArray = numpy.zeros(self._numColumns, dtype=realDType)
+    nCols = overlaps.size
+    overlapArray = numpy.zeros(nCols, dtype=realDType)
+    activeArray = numpy.zeros(nCols, dtype=realDType)
     overlapArray[overlaps > 0] = 1
     activeArray[activeColumns] = 1
-    period = min(self._dutyCyclePeriod, self._iterationNum)
+    period = min(self._dutyCyclePeriod, iteration)
 
     self._overlapDutyCycles = self._updateDutyCyclesHelper(
                                 self._overlapDutyCycles,
@@ -352,6 +373,6 @@ class Boosting(object):
     @param period:  The period of the duty cycle
     """
     assert(period >= 1)
-    return (dutyCycles * (period -1.0) + newInput) / period
+    return (dutyCycles * (period -1.0) + newInput) / period #FIXME use MovingAverage (update it to accept an array)
 
 

@@ -94,7 +94,7 @@ class BinaryCorticalColumns(_SparseMatrixCorticalColumnAdapter,
 
 
 
-class SpatialPooler(Boosting):
+class SpatialPooler(object):
   """
   This class implements the spatial pooler. It is in charge of handling the
   relationships between the columns of a region and the inputs bits. The
@@ -242,7 +242,7 @@ class SpatialPooler(Boosting):
     columnDimensions = numpy.array(columnDimensions, ndmin=1)
     numColumns = columnDimensions.prod()
 
-    super(SpatialPooler, self).__init__(
+    self.boosting = Boosting(
                numColumns=numColumns,
                maxBoost=maxBoost,
                minPctOverlapDutyCycle=minPctOverlapDutyCycle,
@@ -648,17 +648,15 @@ class SpatialPooler(Boosting):
 
     overlaps = self._calculateOverlap(inputVector)
     # Apply boosting
-    boostedOverlaps = self.getBoostedOverlaps(overlaps, learn)
+    boostedOverlaps = self.boosting.getBoostedOverlaps(overlaps, learn)
 
     # Apply inhibition to determine the winning columns
     activeColumns = self._inhibitColumns(boostedOverlaps)
 
     if learn:
       self._adaptSynapses(inputVector, activeColumns)
-      doUpdateRound = self._isUpdateRound()
-      doGlobal = self._globalInhibition or self._inhibitionRadius > self._numInputs
-      self.updateBoosting(overlaps, activeColumns, doUpdateRound, doGlobal)
-      if doUpdateRound:
+      self.boosting.updateBoosting(overlaps, activeColumns, self)
+      if self._isUpdateRound():
         self._updateInhibitionRadius()
 
     activeArray.fill(0)
