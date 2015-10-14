@@ -760,8 +760,8 @@ class SpatialPooler(object):
 
     if learn:
       self._adaptSynapses(inputVector, activeColumns)
-      # apply Boosting
-      overlaps = self.boosting.update(overlaps, activeColumns, self)
+      # Boosting #1 - boost columns with weak input overlap + do timekeeping
+      self.boosting.update(overlaps, activeColumns, self)
       if self._isUpdateRound():
         self._updateInhibitionRadius()
 
