@@ -153,14 +153,10 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     Helpful debug print statements while debugging this test.
     """
 
-    minDutyCycle = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
-    self.sp.getMinActiveDutyCycles(minDutyCycle)
+    minDutyCycle = self.sp.getMinActiveDutyCycles()
+    activeDutyCycle = self.sp.getActiveDutyCycles()
     
-    activeDutyCycle = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
-    self.sp.getActiveDutyCycles(activeDutyCycle)
-    
-    boost = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
-    self.sp.getBoostFactors(boost)
+    boost = self.sp.getBoostFactors()
     print "\n--------- ITERATION", (
       self.sp.getIterationNum() ),"-----------------------"
     print "SP implementation:", self.spImplementation
@@ -216,8 +212,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       self.lastSDR[idx] = y.copy()
 
     # The boost factor for all columns should be at 1.
-    boost = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
-    self.sp.getBoostFactors(boost)
+    boost = self.sp.getBoostFactors()
     self.assertEqual((boost==1).sum(), self.columnDimensions,
       "Boost factors are not all 1")
     
@@ -227,8 +222,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     
     # All the never-active columns should have duty cycle of 0
     # All the at-least-once-active columns should have duty cycle >= 0.2
-    dutyCycles = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
-    self.sp.getActiveDutyCycles(dutyCycles)
+    dutyCycles = self.sp.getActiveDutyCycles()
     self.assertEqual(dutyCycles[self.winningIteration == 0].sum(), 0,
                      "Inactive columns have positive duty cycle.")
     self.assertGreaterEqual(dutyCycles[self.winningIteration > 0].min(),
@@ -241,7 +235,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   def boostTestPhase2(self):
 
     y = numpy.zeros(self.columnDimensions, dtype = uintType)
-    boost = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
 
     # Do 9 training batch through the input patterns
     for _ in range(9):
@@ -252,7 +245,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
         self.lastSDR[idx] = y.copy()
         
         # The boost factor for all columns should be at 1.
-        self.sp.getBoostFactors(boost)
+        boost = self.sp.getBoostFactors()
         self.assertEqual((boost==1).sum(), self.columnDimensions,
           "Boost factors are not all 1")
     
@@ -262,8 +255,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       "More than 60% of the columns have been active")
     
     # All the never-active columns should have duty cycle of 0
-    dutyCycles = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
-    self.sp.getActiveDutyCycles(dutyCycles)
+    dutyCycles = self.sp.getActiveDutyCycles()
     self.assertEqual(dutyCycles[self.winningIteration == 0].sum(), 0,
                      "Inactive columns have positive duty cycle.")
 
@@ -290,8 +282,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
         self.lastSDR[idx] = y.copy()
 
         # The boost factor for all columns that just won should be at 1.
-        boost = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
-        self.sp.getBoostFactors(boost)
+        boost = self.sp.getBoostFactors()
         self.assertEqual(((boost[y.nonzero()[0]])!=1).sum(), 0,
           "Boost factors of winning columns not 1")
     
@@ -311,8 +302,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   def boostTestPhase4(self):
     
     # The boost factor for all columns that just won should be at 1.
-    boostAtBeg = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
-    self.sp.getBoostFactors(boostAtBeg)
+    boostAtBeg = self.sp.getBoostFactors()
 
     # Do one more iteration through the input patterns with learning OFF
     y = numpy.zeros(self.columnDimensions, dtype=uintType)
@@ -321,8 +311,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       self.sp.compute(v, False, y)
 
       # The boost factor for all columns that just won should be at 1.
-      boost = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
-      self.sp.getBoostFactors(boost)
+      boost = self.sp.getBoostFactors()
       self.assertEqual(boost.sum(), boostAtBeg.sum(),
         "Boost factors changed when learning is off")
 
