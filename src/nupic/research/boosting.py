@@ -79,6 +79,100 @@ class Boosting(object):
     return self._boostFactors
 
 
+  def getMaxBoost(self):
+    """Returns the maximum boost value"""
+    return self._maxBoost
+
+
+  def setMaxBoost(self, maxBoost):
+    """Sets the maximum boost value"""
+    self._maxBoost = maxBoost
+
+
+  def getMinActiveDutyCycles(self, minActiveDutyCycles):
+    """Returns the minimum activity duty cycles for all columns.
+    '_minActiveDutyCycles' size must match the number of columns"""
+    minActiveDutyCycles[:] = self._minActiveDutyCycles[:]
+
+
+  def setMinActiveDutyCycles(self, minActiveDutyCycles):
+    """Sets the minimum activity duty cycles for all columns.
+    '_minActiveDutyCycles' size must match the number of columns"""
+    self._minActiveDutyCycles = minActiveDutyCycles
+
+
+  def getActiveDutyCycles(self, activeDutyCycles):
+    """Returns the activity duty cycles for all columns. 'activeDutyCycles'
+    size must match the number of columns"""
+    activeDutyCycles[:] = self._activeDutyCycles[:]
+
+
+  def setActiveDutyCycles(self, activeDutyCycles):
+    """Sets the activity duty cycles for all columns. 'activeDutyCycles'
+    size must match the number of columns"""
+    self._activeDutyCycles[:] = activeDutyCycles
+
+
+  def getOverlapDutyCycles(self, overlapDutyCycles):
+    """Returns the overlap duty cycles for all columns. 'overlapDutyCycles'
+    size must match the number of columns"""
+    overlapDutyCycles[:] = self._overlapDutyCycles[:]
+
+
+  def setOverlapDutyCycles(self, overlapDutyCycles):
+    """Sets the overlap duty cycles for all columns. 'overlapDutyCycles'
+    size must match the number of columns"""
+    self._overlapDutyCycles[:] = overlapDutyCycles
+
+
+  def getMinOverlapDutyCycles(self, minOverlapDutyCycles):
+    """Returns the minimum overlap duty cycles for all columns.
+    '_minOverlapDutyCycles' size must match the number of columns"""
+    minOverlapDutyCycles[:] = self._minOverlapDutyCycles[:]
+
+
+  def setMinOverlapDutyCycles(self, minOverlapDutyCycles):
+    """Sets the minimum overlap duty cycles for all columns.
+    '_minOverlapDutyCycles' size must match the number of columns"""
+    self._minOverlapDutyCycles[:] = minOverlapDutyCycles[:]
+
+
+  def getMinPctOverlapDutyCycles(self):
+    """Returns the minimum tolerated overlaps, given as percent of
+    neighbors overlap score"""
+    return self._minPctOverlapDutyCycles
+
+
+  def setMinPctOverlapDutyCycles(self, minPctOverlapDutyCycles):
+    """Sets the minimum tolerated activity duty cycle, given as percent of
+    neighbors' activity duty cycle"""
+    self._minPctOverlapDutyCycles = minPctOverlapDutyCycles
+
+
+  def getMinPctActiveDutyCycles(self):
+    """Returns the minimum tolerated activity duty cycle, given as percent of
+    neighbors' activity duty cycle"""
+    return self._minPctActiveDutyCycles
+
+
+  def setMinPctActiveDutyCycles(self, minPctActiveDutyCycles):
+    """Sets the minimum tolerated activity duty, given as percent of
+    neighbors' activity duty cycle"""
+    self._minPctActiveDutyCycles = minPctActiveDutyCycles
+
+
+  def getDutyCyclePeriod(self):
+    """Returns the duty cycle period"""
+    return self._dutyCyclePeriod
+
+
+  def setDutyCyclePeriod(self, dutyCyclePeriod):
+    """Sets the duty cycle period"""
+    self._dutyCyclePeriod = dutyCyclePeriod
+
+
+# Boosting core logic:
+
   def update(self, overlaps, activeColumns, sp):
     """
     @param sp - Instance of the Spatial Pooler we want to modify
