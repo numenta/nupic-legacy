@@ -1,0 +1,2 @@
+data/artificialNoAnomaly/art_daily_small_noise.csv
+data/realKnownCause/nyc_taxi.csv
