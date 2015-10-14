@@ -247,8 +247,7 @@ class SpatialPooler(object):
                maxBoost=maxBoost,
                minPctOverlapDutyCycle=minPctOverlapDutyCycle,
                minPctActiveDutyCycle=minPctActiveDutyCycle,
-               dutyCyclePeriod=dutyCyclePeriod
-               )
+               dutyCyclePeriod=dutyCyclePeriod)
 
     if (numActiveColumnsPerInhArea == 0 and
         (localAreaDensity == 0 or localAreaDensity > 0.5)):
@@ -563,24 +562,24 @@ class SpatialPooler(object):
 # Boosting related get/set() methods
   def getMaxBoost(self):
     """Returns the maximum boost value"""
-    return self.boosting._maxBoost
+    return self.boosting.getMaxBoost()
 
 
   def setMaxBoost(self, maxBoost):
     """Sets the maximum boost value"""
-    self.boosting._maxBoost = maxBoost
+    self.boosting.setMaxBoost(maxBoost)
 
 
   def getBoostFactors(self, boostFactors):
     """Returns the boost factors for all columns. 'boostFactors' size must
     match the number of columns"""
-    boostFactors[:] = self.boosting._boostFactors[:]
+    boostFactors[:] = self.boosting.getBoostFactors()
 
 
   def setBoostFactors(self, boostFactors):
     """Sets the boost factors for all columns. 'boostFactors' size must match
     the number of columns"""
-    self.boosting._boostFactors[:] = boostFactors[:]
+    self.boosting.setBoostFactors(boostFactors)
 
 
   def getMinActiveDutyCycles(self, minActiveDutyCycles):
@@ -756,7 +755,7 @@ class SpatialPooler(object):
 
     # Boosting #2 - overlaps on peer-suppressed columns
     if learn:
-      boostedOverlaps = self.boosting.getBoostingSuppressedColumns() * overlaps
+      boostedOverlaps = self.boosting.getBoostFactors() * overlaps
     else:
       boostedOverlaps = overlaps
 

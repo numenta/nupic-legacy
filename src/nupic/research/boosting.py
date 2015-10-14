@@ -53,8 +53,7 @@ class Boosting(object):
     """
     construct a boosting object for the SpatialPooler
 
-    @param numColumns -- these all parameters are taken from the SP, please 
-             refer to SP's doc for their exact meaning.
+    (See SpatialPooler for descriptions of these parameters.)
     """
     self._boostFactors = numpy.ones(numColumns, dtype=realDType)
     self._maxBoost = maxBoost
@@ -67,16 +66,20 @@ class Boosting(object):
     self._dutyCyclePeriod = dutyCyclePeriod
 
 
-# Setters/getters for SP parameters from boosting:
 
-
-# Boosting logic methods:
-
-  def getBoostingSuppressedColumns(self):
+  def getBoostFactors(self):
     """
     get boosting for the #2 method - duplicit peer columns
     """
-    return self._boostFactors
+    return self._boostFactors[:]
+
+
+  def setBoostFactors(self, newBoost):
+    """
+    set new boosting paramethers for #2 Boosting method
+    @param newBoost - 1D numpy array of floats, size as SP.numColumns
+    """
+    self._boostFactors[:] = newBoost[:]
 
 
   def getMaxBoost(self):
@@ -268,10 +271,10 @@ class Boosting(object):
     """
     self._minOverlapDutyCycles.fill(
         self._minPctOverlapDutyCycles * self._overlapDutyCycles.max()
-      )
+                                   )
     self._minActiveDutyCycles.fill(
         self._minPctActiveDutyCycles * self._activeDutyCycles.max()
-      )
+                                  )
 
 
   def _updateMinDutyCyclesLocal(self, sp):
@@ -359,6 +362,5 @@ class Boosting(object):
     @param period:  The period of the duty cycle
     """
     assert(period >= 1)
-    return (dutyCycles * (period -1.0) + newInput) / period #FIXME use MovingAverage (update it to accept an array)
-
+    return (dutyCycles * (period -1.0) + newInput) / period #FIXME #2673
 
