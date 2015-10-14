@@ -3,6 +3,9 @@ from pprint import pprint as pp
 import numpy
 from PyRegion import PyRegion
 
+import capnp
+from nupic.proto.TestNodeProto_capnp import TestNodeProto
+
 
 class TestNode(PyRegion):
   @classmethod
@@ -259,6 +262,15 @@ class TestNode(PyRegion):
     assert name in self.parameters
     assert array.dtype == self.parameters[name].dtype
     self.parameters[name] = numpy.array(array)
+
+  def write(self, proto):
+    regionImpl = proto.regionImpl.as_struct(TestNodeProto)
+    regionImpl.int32Param = self.getParameter('int32Param', 0)
+
+  def read(self, proto):
+    regionImpl = proto.regionImpl.as_struct(TestNodeProto)
+    self.setParameter('int32Param', 0, regionImpl.int32Param)
+
 
 def test():
   from pprint import pprint as pp
