@@ -33,7 +33,7 @@ realDType = GetNTAReal()
 uintType = "uint32"
 
 VERSION = 2
-
+DEFAULT_RNG_SEED = 42
 
 
 class InvalidSPParamValueError(ValueError):
@@ -125,7 +125,7 @@ class SpatialPooler(object):
                minPctActiveDutyCycle=0.001,
                dutyCyclePeriod=1000,
                maxBoost=10.0,
-               seed=-1,
+               seed=DEFAULT_RNG_SEED,
                spVerbosity=0,
                wrapAround=True
                ):
@@ -232,8 +232,8 @@ class SpatialPooler(object):
       maxBoost is used if the duty cycle is 0, and any duty cycle in between is
       linearly extrapolated from these 2 endpoints.
     @param seed:
-      Seed for our own pseudo-random number generator. Default -1 means a random
-      value for a seed is used. 
+      Seed for our own pseudo-random number generator. Default value used is in
+      DEFAULT_RNG_SEED (=42).
     @param spVerbosity:
       spVerbosity level: 0, 1, 2, or 3
     @param wrapAround:
