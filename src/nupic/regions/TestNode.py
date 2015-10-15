@@ -266,10 +266,12 @@ class TestNode(PyRegion):
   def write(self, proto):
     regionImpl = proto.regionImpl.as_struct(TestNodeProto)
     regionImpl.int32Param = self.getParameter('int32Param', 0)
+    # TODO: Write remaining params
 
   def read(self, proto):
     regionImpl = proto.regionImpl.as_struct(TestNodeProto)
     self.setParameter('int32Param', 0, regionImpl.int32Param)
+    # TODO: Read remaining params
 
 
 def test():
