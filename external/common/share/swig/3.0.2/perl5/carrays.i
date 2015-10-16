@@ -1,2 +1,0 @@
-%include <typemaps/carrays.swg>
-
