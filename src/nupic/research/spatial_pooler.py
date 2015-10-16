@@ -774,8 +774,7 @@ class SpatialPooler(object):
         self._updateMinDutyCycles()
 
     activeArray.fill(0)
-    if activeColumns.size > 0:
-      activeArray[activeColumns] = 1
+    activeArray[activeColumns] = 1
 
 
   def stripUnlearnedColumns(self, activeArray):
@@ -865,8 +864,7 @@ class SpatialPooler(object):
     overlapArray = numpy.zeros(self._numColumns, dtype=realDType)
     activeArray = numpy.zeros(self._numColumns, dtype=realDType)
     overlapArray[overlaps > 0] = 1
-    if activeColumns.size > 0:
-      activeArray[activeColumns] = 1
+    activeArray[activeColumns] = 1
 
     period = self._dutyCyclePeriod
     if (period > self._iterationNum):
@@ -1416,23 +1414,20 @@ class SpatialPooler(object):
     region. At most half of the columns in a local neighborhood are allowed to
     be active.
 
-    Parameters:
-    ----------------------------
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
                     of synapses in a "connected state" (connected synapses)
                     that are connected to input bits which are turned on.
     @param density: The fraction of columns to survive inhibition.
+    @return list with indices of the winning columns
     """
     #calculate num active per inhibition area
 
     numActive = int(density * self._numColumns)
-    activeColumns = numpy.zeros(self._numColumns)
     winners = sorted(range(overlaps.size),
                      key=lambda k: overlaps[k],
                      reverse=True)[0:numActive]
-    activeColumns[winners] = 1
-    return numpy.where(activeColumns > 0)[0]
+    return winners
 
 
   def _inhibitColumnsLocal(self, overlaps, density):
@@ -1443,8 +1438,6 @@ class SpatialPooler(object):
     neighborhood. At most half of the columns in a local neighborhood are
     allowed to be active.
 
-    Parameters:
-    ----------------------------
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
                     of synapses in a "connected state" (connected synapses)
@@ -1453,20 +1446,20 @@ class SpatialPooler(object):
                     value is only an intended target. Since the surviving
                     columns are picked in a local fashion, the exact fraction
                     of surviving columns is likely to vary.
+    @return list with indices of the winning columns
     """
-    activeColumns = numpy.zeros(self._numColumns)
+    winners = []
     addToWinners = max(overlaps)/1000.0
     overlaps = numpy.array(overlaps, dtype=realDType)
     for i in xrange(self._numColumns):
-      maskNeighbors = self._getNeighborsND(i, self._columnDimensions,
-        self._inhibitionRadius)
+      maskNeighbors = self._getNeighborsND(i, self._columnDimensions, self._inhibitionRadius)
       overlapSlice = overlaps[maskNeighbors]
       numActive = int(0.5 + density * (len(maskNeighbors) + 1))
       numBigger = numpy.count_nonzero(overlapSlice > overlaps[i])
       if numBigger < numActive:
-        activeColumns[i] = 1
+        winners.append(i)
         overlaps[i] += addToWinners
-    return numpy.where(activeColumns > 0)[0]
+    return winners
 
 
   @staticmethod

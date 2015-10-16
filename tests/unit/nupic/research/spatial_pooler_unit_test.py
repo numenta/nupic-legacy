@@ -212,7 +212,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     # Get only the active column indices
     spOutput = [i for i, v in enumerate(activeArray) if v != 0]
-    self.assertEqual(spOutput, expectedOutput)
+    self.assertEqual(sorted(spOutput), expectedOutput)
 
 
   def testStripNeverLearned(self):
@@ -1284,7 +1284,7 @@ class SpatialPoolerTest(unittest.TestCase):
     active = list(sp._inhibitColumnsGlobal(overlaps, density))
     trueActive = numpy.zeros(sp._numColumns)
     trueActive = [4, 6, 7]
-    self.assertListEqual(list(trueActive), active)
+    self.assertListEqual(list(trueActive), sorted(active)) # ignore order of columns
 
     density = 0.5
     sp._numColumns = 10
@@ -1292,7 +1292,7 @@ class SpatialPoolerTest(unittest.TestCase):
     active = list(sp._inhibitColumnsGlobal(overlaps, density))
     trueActive = numpy.zeros(sp._numColumns)
     trueActive = range(5, 10)
-    self.assertListEqual(trueActive, active)
+    self.assertListEqual(trueActive, sorted(active))
 
 
   def testInhibitColumnsLocal(self):
@@ -1305,7 +1305,7 @@ class SpatialPoolerTest(unittest.TestCase):
                         #   L  W  W  L  L  W  W   L   L    W
     trueActive = [1, 2, 5, 6, 9]
     active = list(sp._inhibitColumnsLocal(overlaps, density))
-    self.assertListEqual(trueActive, active)
+    self.assertListEqual(trueActive, sorted(active))
 
     density = 0.5
     sp._numColumns = 10
@@ -1315,7 +1315,7 @@ class SpatialPoolerTest(unittest.TestCase):
                         #   L  W  W  L  L  W  W   L   L    L
     trueActive = [1, 2, 5, 6]
     active = list(sp._inhibitColumnsLocal(overlaps, density))
-    # self.assertListEqual(trueActive, active)
+    # self.assertListEqual(trueActive, active) #FIXME see issue #2639
 
     # Test add to winners
     density = 0.3333
@@ -1326,7 +1326,7 @@ class SpatialPoolerTest(unittest.TestCase):
                         #   W  W  L  L  W  W  L  L  L  W
     trueActive = [0, 1, 4, 5, 8]
     active = list(sp._inhibitColumnsLocal(overlaps, density))
-    self.assertListEqual(trueActive, active)
+    self.assertListEqual(trueActive, sorted(active))
 
 
   def testGetNeighbors1D(self):
