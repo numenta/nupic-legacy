@@ -273,6 +273,25 @@ class PyRegion(object):
     array: the value to assign to the requested parameter (a numpy array)
     """
 
+
+  def write(self, proto):
+    """This method is called during network serialization with a proto object
+    so that this region can write its data to it.
+
+    proto: PyRegionProto capnproto object
+    """
+    pass
+
+
+  def read(self, proto):
+    """This method is called during network serialization with a proto object
+    so that this region can read its data from it.
+
+    proto: PyRegionProto capnproto object
+    """
+    pass
+
+
   def serializeExtraData(self, filePath):
     """This method is called during network serialization with an external
     filename that can be used to bypass pickle for saving large binary states.
