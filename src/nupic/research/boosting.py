@@ -92,9 +92,10 @@ class Boosting(object):
     self._maxBoost = maxBoost
 
 
-  def getMinActiveDutyCycles(self):
-    """Returns the minimum activity duty cycles for all columns."""
-    return self._minActiveDutyCycles[:]
+  def getMinActiveDutyCycles(self, minActiveDutyCycles):
+    """Returns the minimum activity duty cycles for all columns.
+    '_minActiveDutyCycles' size must match the number of columns"""
+    minActiveDutyCycles[:] = self._minActiveDutyCycles[:]
 
 
   def setMinActiveDutyCycles(self, minActiveDutyCycles):
@@ -103,9 +104,10 @@ class Boosting(object):
     self._minActiveDutyCycles = minActiveDutyCycles
 
 
-  def getActiveDutyCycles(self):
-    """Returns the activity duty cycles for all columns."""
-    return self._activeDutyCycles[:]
+  def getActiveDutyCycles(self, activeDutyCycles):
+    """Returns the activity duty cycles for all columns. 'activeDutyCycles'
+    size must match the number of columns"""
+    activeDutyCycles[:] = self._activeDutyCycles[:]
 
 
   def setActiveDutyCycles(self, activeDutyCycles):
@@ -115,8 +117,9 @@ class Boosting(object):
 
 
   def getOverlapDutyCycles(self, overlapDutyCycles):
-    """Returns the overlap duty cycles for all columns."""
-    return self._overlapDutyCycles[:]
+    """Returns the overlap duty cycles for all columns. 'overlapDutyCycles'
+    size must match the number of columns"""
+    overlapDutyCycles[:] = self._overlapDutyCycles[:]
 
 
   def setOverlapDutyCycles(self, overlapDutyCycles):
@@ -126,8 +129,9 @@ class Boosting(object):
 
 
   def getMinOverlapDutyCycles(self, minOverlapDutyCycles):
-    """Returns the minimum overlap duty cycles for all columns."""
-    return self._minOverlapDutyCycles[:]
+    """Returns the minimum overlap duty cycles for all columns.
+    '_minOverlapDutyCycles' size must match the number of columns"""
+    minOverlapDutyCycles[:] = self._minOverlapDutyCycles[:]
 
 
   def setMinOverlapDutyCycles(self, minOverlapDutyCycles):

@@ -570,9 +570,10 @@ class SpatialPooler(object):
     self.boosting.setMaxBoost(maxBoost)
 
 
-  def getBoostFactors(self):
-    """Returns the boost factors for all columns."""
-    return self.boosting.getBoostFactors()
+  def getBoostFactors(self, boostFactors):
+    """Returns the boost factors for all columns. 'boostFactors' size must
+    match the number of columns"""
+    boostFactors[:] = self.boosting.getBoostFactors()
 
 
   def setBoostFactors(self, boostFactors):
@@ -581,83 +582,86 @@ class SpatialPooler(object):
     self.boosting.setBoostFactors(boostFactors)
 
 
-  def getMinActiveDutyCycles(self):
-    """Returns the minimum activity duty cycles for all columns."""
-    return self.boosting.getMinActiveDutyCycles()
+  def getMinActiveDutyCycles(self, minActiveDutyCycles):
+    """Returns the minimum activity duty cycles for all columns.
+    '_minActiveDutyCycles' size must match the number of columns"""
+    minActiveDutyCycles[:] = self.boosting._minActiveDutyCycles[:]
 
 
   def setMinActiveDutyCycles(self, minActiveDutyCycles):
     """Sets the minimum activity duty cycles for all columns.
     '_minActiveDutyCycles' size must match the number of columns"""
-    self.boosting.setMinActiveDutyCycles(minActiveDutyCycles)
+    self.boosting._minActiveDutyCycles = minActiveDutyCycles
 
 
-  def getActiveDutyCycles(self):
-    """Returns the activity duty cycles for all columns."""
-    return self.boosting.getActiveDutyCycles()
+  def getActiveDutyCycles(self, activeDutyCycles):
+    """Returns the activity duty cycles for all columns. 'activeDutyCycles'
+    size must match the number of columns"""
+    activeDutyCycles[:] = self.boosting._activeDutyCycles[:]
 
 
   def setActiveDutyCycles(self, activeDutyCycles):
     """Sets the activity duty cycles for all columns. 'activeDutyCycles'
     size must match the number of columns"""
-    self.boosting.setActiveDutyCycles(activeDutyCycles)
+    self.boosting._activeDutyCycles[:] = activeDutyCycles
 
 
-  def getOverlapDutyCycles(self):
+  def getOverlapDutyCycles(self, overlapDutyCycles):
     """Returns the overlap duty cycles for all columns. 'overlapDutyCycles'
     size must match the number of columns"""
-    return self.boosting.getOverlapDutyCycles()
+    overlapDutyCycles[:] = self.boosting._overlapDutyCycles[:]
 
 
   def setOverlapDutyCycles(self, overlapDutyCycles):
     """Sets the overlap duty cycles for all columns. 'overlapDutyCycles'
     size must match the number of columns"""
-    self.boosting.setOverlapDutyCycles(overlapDutyCycles)
+    self.boosting._overlapDutyCycles[:] = overlapDutyCycles
 
 
-  def getMinOverlapDutyCycles(self):
-    """Returns the minimum overlap duty cycles for all columns."""
-    return self.boosting.getMinOverlapDutyCycles()
+  def getMinOverlapDutyCycles(self, minOverlapDutyCycles):
+    """Returns the minimum overlap duty cycles for all columns.
+    '_minOverlapDutyCycles' size must match the number of columns"""
+    minOverlapDutyCycles[:] = self.boosting._minOverlapDutyCycles[:]
 
 
   def setMinOverlapDutyCycles(self, minOverlapDutyCycles):
     """Sets the minimum overlap duty cycles for all columns.
     '_minOverlapDutyCycles' size must match the number of columns"""
-    self.boosting.setMinOverlapDutyCycles(minOverlapDutyCycles)
+    self.boosting._minOverlapDutyCycles[:] = minOverlapDutyCycles[:]
 
 
   def getMinPctOverlapDutyCycles(self):
     """Returns the minimum tolerated overlaps, given as percent of
     neighbors overlap score"""
-    return self.boosting.getMinPctOverlapDutyCycles()
+    return self.boosting._minPctOverlapDutyCycles
 
 
   def setMinPctOverlapDutyCycles(self, minPctOverlapDutyCycles):
     """Sets the minimum tolerated activity duty cycle, given as percent of
     neighbors' activity duty cycle"""
-    self.boosting.setMinPctOverlapDutyCycles(minPctOverlapDutyCycles)
+    self.boosting._minPctOverlapDutyCycles = minPctOverlapDutyCycles
 
 
   def getMinPctActiveDutyCycles(self):
     """Returns the minimum tolerated activity duty cycle, given as percent of
     neighbors' activity duty cycle"""
-    return self.boosting.getMinPctActiveDutyCycles()
+    return self.boosting._minPctActiveDutyCycles
 
 
   def setMinPctActiveDutyCycles(self, minPctActiveDutyCycles):
     """Sets the minimum tolerated activity duty, given as percent of
     neighbors' activity duty cycle"""
-    self.boosting.setMinPctActiveDutyCycles(minPctActiveDutyCycles)
+    self.boosting._minPctActiveDutyCycles = minPctActiveDutyCycles
 
 
   def getDutyCyclePeriod(self):
     """Returns the duty cycle period"""
-    return self.boosting.getDutyCyclePeriod()
+    return self.boosting._dutyCyclePeriod
 
 
   def setDutyCyclePeriod(self, dutyCyclePeriod):
     """Sets the duty cycle period"""
-    self.boosting.setDutyCyclePeriod(dutyCyclePeriod)
+    self.boosting._dutyCyclePeriod = dutyCyclePeriod
 
 # end of Boosting related get/set() methods
 
