@@ -1,1 +1,0 @@
-%include <typemaps/cdata.swg>
