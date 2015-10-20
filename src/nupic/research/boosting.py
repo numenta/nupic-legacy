@@ -238,12 +238,12 @@ class Boosting(object):
     weakColumns = numpy.where(self._overlapDutyCycles
                                 < self._minOverlapDutyCycles)[0]
     for columnIndex in weakColumns:
-      perm = numpy.array([sp.getInputDimensions()], dtype=realDType)
+      perm = numpy.zeros(sp.getInputDimensions(), dtype=realDType)
       sp.getPermanence(columnIndex, perm)
-      pot = numpy.array([sp.getInputDimensions()], dtype=realDType)
+      pot = numpy.zeros(sp.getInputDimensions(), dtype=realDType)
       sp.getPotential(columnIndex, pot)
       maskPotential = numpy.where(pot > 0)[0]
-      perm[maskPotential] += self._synPermBelowStimulusInc
+      perm[maskPotential] += sp.getSynPermBelowStimulusInc()
       sp._updatePermanencesForColumn(perm, columnIndex, raisePerm=False)
 
 
