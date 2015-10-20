@@ -785,7 +785,7 @@ class SpatialPooler(object):
         never been activated before and therefore are not active due to
         learning. Any of these (unlearned) columns will be disabled (set to 0).
     """
-    neverLearned = numpy.where(self._activeDutyCycles == 0)[0]
+    neverLearned = numpy.where(self.boosting._activeDutyCycles == 0)[0]
     activeArray[neverLearned] = 0
 
 
