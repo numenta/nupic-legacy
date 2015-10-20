@@ -24,11 +24,12 @@ echo
 echo Running install.sh...
 echo
 
-# Verify cmake version
-cmake --version
-
-# Verify python version
-python --version
+curl -O https://capnproto.org/capnproto-c++-0.5.3.tar.gz
+tar zxf capnproto-c++-0.5.3.tar.gz
+cd capnproto-c++-0.5.3
+./configure
+make -j6
+make install
 
 # Build NuPIC
 cd ${TRAVIS_BUILD_DIR}
