@@ -24,16 +24,6 @@ echo
 echo Running before_install-osx.sh...
 echo
 
-pip install --upgrade pip
-pip --version
-
-pip uninstall numpy --yes
-
-pip install wheel --user
-
-# Add --user location to PYTHONPATH
-export PYTHONPATH="/Users/travis/Library/Python/$PY_VERSION/lib/python/site-packages:$PYTHONPATH"
-
 # Fetch nupic.core build
 export NUPIC_CORE_COMMITISH=`python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"`
 echo "Downloading nupic.core build: https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
@@ -43,8 +33,9 @@ tar xzf "nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
 # Install nupic.bindings and dependencies from wheels
 pip install --user --no-index --find-links=Users/travis/build/numenta/nupic.core/bindings/py/dist/wheels nupic.bindings
 
-# Install and start MySQL on OSX
-echo ">>> brew install mysql"
-brew install mysql
-echo ">>> mysql.server start"
-mysql.server start
+pip show pytest
+
+# Ensure py.test is on the PATH
+export PATH=${PATH}:${HOME}/Library/Python/2.7/lib/python/site-packages
+
+which py.test
