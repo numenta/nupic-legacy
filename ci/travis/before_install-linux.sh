@@ -32,14 +32,7 @@ if [ $CC == 'gcc' ]; then
     export CXX='g++-4.8'
 fi
 
-echo ">>> Installing nupic-linux64..."
-git clone https://github.com/numenta/nupic-linux64.git
-(cd nupic-linux64 && git reset --hard 99863c7da8b923c57bb4e59530ab087c91fd3992)
-source nupic-linux64/bin/activate
-
-# Upgrade the version of pip included with nupic-linux64
-# TODO: remove after nupic-linux64 has been updated
-pip install --upgrade --install-option="--prefix=`pwd`/nupic-linux64" pip
+pip install --upgrade pip
 pip --version
 
 pip uninstall numpy --yes

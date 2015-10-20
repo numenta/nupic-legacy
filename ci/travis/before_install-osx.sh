@@ -24,16 +24,7 @@ echo
 echo Running before_install-osx.sh...
 echo
 
-# Get Darwin64 libs for OSX
-echo ">>> Cloning nupic-darwin64 at 40eee5d8b4f79fe52b282c393c8e1a1f5ba7a906..."
-git clone https://github.com/numenta/nupic-darwin64.git
-(cd nupic-darwin64 && git reset --hard 40eee5d8b4f79fe52b282c393c8e1a1f5ba7a906) || exit
-echo ">>> Activating nupic-darwin64..."
-source nupic-darwin64/bin/activate
-
-# Upgrade the version of pip included with nupic-darwin64
-# TODO: remove after nupic-darwin64 has been updated
-pip install --upgrade --install-option="--prefix=`pwd`/nupic-darwin64" pip
+pip install --upgrade pip
 pip --version
 
 pip uninstall numpy --yes
