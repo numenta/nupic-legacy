@@ -37,6 +37,7 @@ from nupic.bindings.math import GetNTAReal, Random
 from nupic.research.spatial_pooler import (BinaryCorticalColumns,
                                            CorticalColumns,
                                            SpatialPooler)
+from nupic.research.boosting import Boosting
 
 try:
   import capnp
@@ -828,7 +829,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     sp.boosting._minOverlapDutyCycles = numpy.zeros(sp._numColumns)
     sp.boosting._minActiveDutyCycles = numpy.zeros(sp._numColumns)
-    sp.boosting._updateMinDutyCyclesLocal()
+    sp.boosting._updateMinDutyCyclesLocal(sp)
     self.assertListEqual(trueMinOverlapDutyCycles,
                          list(sp.boosting._minOverlapDutyCycles))
     self.assertListEqual(trueMinActiveDutyCycles, list(sp.boosting._minActiveDutyCycles))
@@ -856,7 +857,7 @@ class SpatialPoolerTest(unittest.TestCase):
                                0.03*0.76, 0.03*0.33, 0.03*0.76, 0.03*0.76]
     sp.boosting._minOverlapDutyCycles = numpy.zeros(sp._numColumns)
     sp.boosting._minActiveDutyCycles = numpy.zeros(sp._numColumns)
-    sp.boosting._updateMinDutyCyclesLocal()
+    sp.boosting._updateMinDutyCyclesLocal(sp)
     self.assertListEqual(trueMinOverlapDutyCycles,
                          list(sp.boosting._minOverlapDutyCycles))
     self.assertListEqual(trueMinActiveDutyCycles, list(sp.boosting._minActiveDutyCycles))
@@ -1267,7 +1268,7 @@ class SpatialPoolerTest(unittest.TestCase):
     dc = numpy.array([1000, 800, 600, 400, 2000])
     newvals = numpy.zeros(5)
     period = 2
-    newDc = SpatialPooler._updateDutyCyclesHelper(dc, newvals, period)
+    newDc = Boosting._updateDutyCyclesHelper(dc, newvals, period)
     trueNewDc = [500, 400, 300, 200, 1000]
     self.assertListEqual(list(newDc), trueNewDc)
 
