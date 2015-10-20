@@ -24,6 +24,14 @@ echo
 echo Running before_install-linux.sh...
 echo
 
+alias gcc='gcc-4.8'
+alias g++='g++-4.8'
+
+if [ $CC == 'gcc' ]; then
+  export CC='gcc-4.8'
+  export CXX='g++-4.8'
+fi
+
 # Fetch nupic.core build
 export NUPIC_CORE_COMMITISH=`python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"`
 echo "Downloading nupic.core build: https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-linux64.tar.gz"
