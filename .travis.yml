@@ -66,7 +66,8 @@ deploy:
         - "$TRAVIS_OS_NAME == linux"
 
 before_install:
-  - pip install wheel --user
+  - pip install --upgrade pip
+  - pip install wheel
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/before_install-osx.sh; fi"
 
