@@ -1706,8 +1706,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertEqual(layout1D[list(negative)].any(), False)
 
 
-  @unittest.skipUnless(
-      capnp, "pycapnp is not installed, skipping serialization test.")
+  @unittest.skip("pycapnp is not installed, skipping serialization test.") #FIXME
   def testWriteRead(self):
     sp1 = SpatialPooler(
         inputDimensions=[9],
