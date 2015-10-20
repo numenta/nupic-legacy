@@ -243,11 +243,11 @@ class SpatialPooler(object):
     numColumns = columnDimensions.prod()
 
     self.boosting = Boosting(
-               numColumns=numColumns,
-               maxBoost=maxBoost,
-               minPctOverlapDutyCycle=minPctOverlapDutyCycle,
-               minPctActiveDutyCycle=minPctActiveDutyCycle,
-               dutyCyclePeriod=dutyCyclePeriod)
+      numColumns=numColumns,
+      maxBoost=maxBoost,
+      minPctOverlapDutyCycle=minPctOverlapDutyCycle,
+      minPctActiveDutyCycle=minPctActiveDutyCycle,
+      dutyCyclePeriod=dutyCyclePeriod)
 
     if (numActiveColumnsPerInhArea == 0 and
         (localAreaDensity == 0 or localAreaDensity > 0.5)):
@@ -763,7 +763,6 @@ class SpatialPooler(object):
 
     if learn:
       self._adaptSynapses(inputVector, activeColumns)
-      # Boosting #1 - boost columns with weak input overlap + do timekeeping
       self.boosting.update(overlaps, activeColumns, self)
       if self._isUpdateRound():
         self._updateInhibitionRadius()
