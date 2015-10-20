@@ -33,9 +33,5 @@ tar xzf "nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
 # Install nupic.bindings and dependencies from wheels
 pip install --user --no-index --find-links=Users/travis/build/numenta/nupic.core/bindings/py/dist/wheels nupic.bindings
 
-pip show pytest
-
 # Ensure py.test is on the PATH
 export PATH=${PATH}:${HOME}/Library/Python/2.7/lib/python/site-packages
-
-which py.test
