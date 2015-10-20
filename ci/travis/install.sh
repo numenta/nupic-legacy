@@ -30,11 +30,9 @@ cmake --version
 # Verify python version
 python --version
 
-pip --version
-
 # Build NuPIC
 cd ${TRAVIS_BUILD_DIR}
-python setup.py install --user
+python setup.py install
 
 # Show nupic installation folder by trying to import nupic, if works, it prints
 # the absolute path of nupic.__file__, which the installation folder itself.
