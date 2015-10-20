@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013-2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -206,7 +206,6 @@ class Boosting(object):
     iteration = sp._iterationNum
 
     self._updateDutyCycles(overlaps, activeColumns, iteration)
-    # Boosting #1 - boost columns with weak inputs
     self._bumpUpWeakColumns(sp)
     self._updateBoostFactors()
     if doUpdateRound:
@@ -292,10 +291,10 @@ class Boosting(object):
     """
     self._minOverlapDutyCycles.fill(
         self._minPctOverlapDutyCycles * self._overlapDutyCycles.max()
-                                   )
+    )
     self._minActiveDutyCycles.fill(
         self._minPctActiveDutyCycles * self._activeDutyCycles.max()
-                                  )
+    )
 
 
   def _updateMinDutyCyclesLocal(self, sp):

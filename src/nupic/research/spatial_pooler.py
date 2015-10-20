@@ -753,7 +753,6 @@ class SpatialPooler(object):
 
     overlaps = self._calculateOverlap(inputVector)
 
-    # Boosting #2 - overlaps on peer-suppressed columns
     if learn:
       boostedOverlaps = self.boosting.getBoostFactors() * overlaps
     else:
