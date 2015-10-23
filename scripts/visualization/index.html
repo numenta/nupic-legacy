@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:ng="http://angularjs.org" lang="en" ng-app="app" id="ng-app">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/dygraph/1.0.1/dygraph-combined.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.3/moment.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.7/angular.min.js"></script>
+    <script src="./nupic_visualization.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" type="text/css" href="./nupic_visualization.css"/>
+    <title>NuPIC Visualization</title>
+    <base href="/">
+  </head>
+  <body ng-controller="AppCtrl">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <h1>NuPIC Visualization</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <h3>Data</h3>
+          <select ng-change="renderData('data')" class="form-control" ng-model="view.data.selectedPath" ng-options="value.name for (key , value) in view.data.data">
+            <option value="">-- Choose a data file --</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <h3>Results</h3>
+          <select ng-change="renderData('results')" class="form-control" ng-model="view.results.selectedPath" ng-options="value.name for (key , value) in view.results.data">
+            <option value="">-- Choose a result file --</option>
+          </select>
+        </div>
+      </div>
+      <div class="row graphs">
+        <div class="col-md-6">
+          <div class="col-md-9">
+            <div class="graph" id="dataContainer"></div>
+          </div>
+          <div class="col-md-3">
+            <ul class="field-selection">
+              <li ng-repeat="field in view.data.fields track by field.name"><input type="checkbox" ng-model="field.visible" ng-click="toggleVisibility('data', field)"> {{field.name}}</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="col-md-9">
+            <div class="graph" id="resultsContainer"></div>
+          </div>
+          <div class="col-md-3">
+            <ul class="field-selection">
+              <li ng-repeat="field in view.results.fields track by field.name"><input type="checkbox" ng-model="field.visible" ng-click="toggleVisibility('results', field)"> {{field.name}}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
