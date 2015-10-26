@@ -294,8 +294,8 @@ class ScalarEncoder(Encoder):
   def _checkReasonableSettings(self):
     """(helper function) check if the settings are reasonable for SP to work"""
     if self.w < 21:
-      raise ValueError("Number of bits in the SDR (%d) must be greater than 21 "
-        "and recommended >= 21 (use forced=True to override)." % self.w)
+      raise ValueError("Number of bits in the SDR (%d) must be >= 21 (use "
+        "forced=True to override)." % self.w)
 
 
   def getDecoderOutputFieldTypes(self):
