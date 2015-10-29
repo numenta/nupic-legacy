@@ -789,7 +789,7 @@ class KNNClassifier(object):
       inputPatternSum = inputPattern.sum()
     
       if self.distanceMethod == "rawOverlap":
-        dist = (inputPattern.sum() - self._Memory.rightVecSumAtNZ(inputPattern))
+        dist = inputPattern.sum() - overlapsWithProtos
       elif self.distanceMethod == "pctOverlapOfInput":
         dist = inputPatternSum - overlapsWithProtos
         if inputPatternSum > 0:
@@ -799,7 +799,7 @@ class KNNClassifier(object):
         dist = 1.0 - overlapsWithProtos
       elif self.distanceMethod == "pctOverlapOfLarger":
         maxVal = numpy.maximum(self._protoSizes, inputPatternSum)
-        if maxVal > 0:
+        if maxVal.all() > 0:
           overlapsWithProtos /= maxVal
         dist = 1.0 - overlapsWithProtos
       elif self.distanceMethod == "norm":
