@@ -263,15 +263,51 @@ class TestNode(PyRegion):
     assert array.dtype == self.parameters[name].dtype
     self.parameters[name] = numpy.array(array)
 
+  def writeArray(self, regionImpl, name, dtype, castFn):
+    count = self.getParameterArrayCount(name, 0)
+    param = numpy.zeros(count, dtype=dtype)
+    self.getParameterArray(name, 0, param)
+    field = regionImpl.init(name, count)
+    for i in range(count):
+      field[i] = castFn(param[i])
+
   def write(self, proto):
     regionImpl = proto.regionImpl.as_struct(TestNodeProto)
-    regionImpl.int32Param = self.getParameter('int32Param', 0)
-    # TODO: Write remaining params
+    regionImpl.int32Param = self.getParameter("int32Param", 0)
+    regionImpl.uint32Param = self.getParameter("uint32Param", 0);
+    regionImpl.int64Param = self.getParameter("int64Param", 0);
+    regionImpl.uint64Param = self.getParameter("uint64Param", 0);
+    regionImpl.real32Param = self.getParameter("real32Param", 0);
+    regionImpl.real64Param = self.getParameter("real64Param", 0);
+    regionImpl.stringParam = self.getParameter("stringParam", 0);
+    regionImpl.delta = self._delta
+    regionImpl.iterations = self._iter
+
+    self.writeArray(regionImpl, "int64ArrayParam", "Int64", lambda x: int(x))
+    self.writeArray(regionImpl, "real32ArrayParam", "Float32", lambda x: float(x))
+
+  def readArray(self, regionImpl, name, dtype):
+    field = getattr(regionImpl, name)
+    count = len(field)
+    param = numpy.zeros(count, dtype=dtype)
+    for i in range(count):
+      param[i] = field[i]
+    self.setParameter(name, 0, param)
 
   def read(self, proto):
     regionImpl = proto.regionImpl.as_struct(TestNodeProto)
-    self.setParameter('int32Param', 0, regionImpl.int32Param)
-    # TODO: Read remaining params
+    self.setParameter("int32Param", 0, regionImpl.int32Param)
+    self.setParameter("uint32Param", 0, regionImpl.uint32Param)
+    self.setParameter("int64Param", 0, regionImpl.int64Param)
+    self.setParameter("uint64Param", 0, regionImpl.uint64Param)
+    self.setParameter("real32Param", 0, regionImpl.real32Param)
+    self.setParameter("real64Param", 0, regionImpl.real64Param)
+    self.setParameter("stringParam", 0, regionImpl.stringParam)
+    self._delta = regionImpl.delta
+    self._iter = regionImpl.iterations
+
+    self.readArray(regionImpl, "int64ArrayParam", "Int64")
+    self.readArray(regionImpl, "real32ArrayParam", "Float32")
 
 
 def test():
