@@ -629,14 +629,9 @@ class _HyperSearchRunner(object):
 
     self._workers = []
     for i in range(numWorkers):
-      platform = sys.platform.lower()
-      if platform.startswith('win'):
-        args = ["cmd", "/C", cmdLine]
-      else:
-        args = ["bash", "-c", cmdLine]
       stdout = tempfile.TemporaryFile()
       stderr = tempfile.TemporaryFile()
-      p = subprocess.Popen(args, bufsize=1, env=os.environ, shell=False,
+      p = subprocess.Popen(cmdLine, bufsize=1, env=os.environ, shell=True,
                            stdin=None, stdout=stdout, stderr=stderr)
       self._workers.append(p)
 
