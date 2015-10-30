@@ -76,10 +76,44 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
         var num;
         if (x === 0) {
           // this should always be the timestamp. See generateFieldMap
+          var args = [];
           var dateTime =  data[i][loadedFields[x]].split(" ");
-          var date = dateTime[0].split("-");
-          var time = dateTime[1].split(":");
-          num = new Date(date[0],date[1],date[2],time[0],time[1],time[2]);
+          // is the date formatted with slashes or dashes?
+          var slashDate = dateTime[0].split("/");
+          var dashDate = dateTime[0].split("-");
+          if ((slashDate.length === 1 && dashDate.length === 1) || (slashDate.length > 1 && dashDate.length > 1)) {
+            // if there were no instances of delimiters, or we have both delimiters when we should only have one
+            handleError("Could not parse the timestamp", "warning");
+            return;
+          }
+          // if it is a dash date, it is probably in this format: yyyy:mm:dd
+          if (dashDate.length > 2) {
+            args.push(dashDate[0]);
+            args.push(dashDate[1]);
+            args.push(dashDate[2]);
+          }
+          // if it is a slash date, it is probably in this format: mm/dd/yy
+          else if (slashDate.length > 2) {
+            args.push(slashDate[2]);
+            args.push(slashDate[0]);
+            args.push(slashDate[1]);
+          } else {
+            handleError("There was something wrong with the date in the timestamp field.");
+            return;
+          }
+          // is there a time element?
+          if (dateTime[1]) {
+            var time = dateTime[1].split(":");
+            args = args.concat(time);
+          }
+          for (var t = 0; t < args.length; t++) {
+            args[t] = parseInt(args[t]);
+          }
+          num = new (Function.prototype.bind.apply(Date, [null].concat(args)));
+          if (num.toString() === "Invalid Date") {
+            handleError("The timestamp appears to be invalid.", "warning");
+            return;
+          }
         } else {
           num = (data[i][loadedFields[x]] === "None") ? 0 : data[i][loadedFields[x]];
         }
@@ -215,6 +249,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     $scope.view.renderedFileName = $scope.view.loadedFileName;
     // build field toggle array
     $scope.view.fieldState.length = 0;
+    $scope.view.dataField = null;
     var counter = 0;
     for (var i = 0; i < renderedFields.length; i++) {
       if (renderedFields[i] !== "timestamp") {
