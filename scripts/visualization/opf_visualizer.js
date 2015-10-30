@@ -98,7 +98,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
             args.push(slashDate[0]);
             args.push(slashDate[1]);
           } else {
-            handleError("There was something wrong with the date in the timestamp field.");
+            handleError("There was something wrong with the date in the timestamp field.", "warning");
             return;
           }
           // is there a time element?
