@@ -99,6 +99,8 @@ class KNNClassifier(object):
         "norm": When distanceNorm is 2, this is the euclidean distance,
                 When distanceNorm is 1, this is the manhattan distance
                 In general: sum(abs(x-proto) ^ distanceNorm) ^ (1/distanceNorm)
+                The distances are normalized such that farthest prototype from
+                a given input is 1.0.
         "rawOverlap": Only appropriate when inputs are binary. This computes:
                 (width of the input) - (# bits of overlap between input
                 and prototype).
@@ -787,7 +789,7 @@ class KNNClassifier(object):
         self._protoSizes = self._Memory.rowSums()
       overlapsWithProtos = self._Memory.rightVecSumAtNZ(inputPattern)
       inputPatternSum = inputPattern.sum()
-    
+
       if self.distanceMethod == "rawOverlap":
         dist = inputPattern.sum() - overlapsWithProtos
       elif self.distanceMethod == "pctOverlapOfInput":
@@ -939,7 +941,7 @@ class KNNClassifier(object):
 
     self._vt = self._vt[:self.numSVDDims]
 
-    # Added when svd is not able to decompose vectors - uses raw spare vectors  
+    # Added when svd is not able to decompose vectors - uses raw spare vectors
     if len(self._vt) == 0:
       return
 
