@@ -30,10 +30,16 @@ passwd = Configuration.get('nupic.cluster.database.passwd')
 
 print 
 print "This script will validate that your MySQL is setup correctly for NuPIC."
-print "MySQL is required for NuPIC swarming. The settings are defined in "
-print "NuPIC's configuration files in $NUPIC/nupic/support/nupic-default.xml "
+print "MySQL is required for NuPIC swarming. The settings are defined in a "
+print "configuration file found in $NUPIC/src/nupic/support/nupic-default.xml "
 print "Out of the box those settings contain MySQL's default access "
 print "credentials."
+print
+print "The nupic-default.xml can be duplicated to define user specific changes, "
+print "calling the copied file $NUPIC/src/nupic/support/nupic-site.xml"
+print "Refer to the nupic-default.xml for additional instructions."
+print
+print "Defaults: localhost, 3306, root, no password"
 print
 print "Retrieved the following settings from NuPIC configuration:"
 print "    host   :    ", host
