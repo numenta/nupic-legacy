@@ -559,7 +559,7 @@ class TPRegion(PyRegion):
       description=TPRegion.__doc__,
       singleNodeOnly=True,
       inputs=dict(
-          bottomUpIn=dict(
+        bottomUpIn=dict(
           description="""The input signal, conceptually organized as an
                          image pyramid data structure, but internally
                          organized as a flattened vector.""",
@@ -570,7 +570,7 @@ class TPRegion(PyRegion):
           isDefaultInput=True,
           requireSplitterMap=False),
 
-          resetIn=dict(
+        resetIn=dict(
           description="""Effectively a boolean flag that indicates whether
                          or not the input vector received in this compute cycle
                          represents the first training presentation in a
@@ -581,6 +581,16 @@ class TPRegion(PyRegion):
           regionLevel=True,
           isDefaultInput=False,
           requireSplitterMap=False),
+
+        sequenceIdIn=dict(
+          description="Sequence ID",
+          dataType='UInt64',
+          count=1,
+          required=False,
+          regionLevel=True,
+          isDefaultInput=False,
+          requireSplitterMap=False),
+
       ),
 
       outputs=dict(
