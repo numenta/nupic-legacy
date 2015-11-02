@@ -369,7 +369,13 @@ class CLAModel(Model):
     results.inferences = {}
     self._input = inputRecord
 
-    # -------------------------------------------------------------------------
+    # Check if the input includes the predicted field.
+    if self._predictedFieldName not in self._input:
+      raise ValueError("Expected predicted field '%s' in input row, "
+                       "but was not found! Raw input is: %s"
+                       % (self._predictedFieldName, self._input))
+
+
     # Turn learning on or off?
     if '_learning' in inputRecord:
       if inputRecord['_learning']:
@@ -378,9 +384,7 @@ class CLAModel(Model):
         self.disableLearning()
 
 
-    ###########################################################################
     # Predictions and Learning
-    ###########################################################################
     self._sensorCompute(inputRecord)
     self._spCompute()
     self._tpCompute()
@@ -630,11 +634,6 @@ class CLAModel(Model):
         sensor = self._getSensorRegion()
         activeColumns = sensor.getOutputData('dataOut').nonzero()[0]
 
-      if not self._predictedFieldName in self._input:
-        raise ValueError(
-          "Expected predicted field '%s' in input row, but was not found!" 
-          % self._predictedFieldName
-        )
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
       score = self._anomalyInst.compute(
@@ -682,13 +681,10 @@ class CLAModel(Model):
                   None.
     rawInput:   The raw input to the sensor, as a dict.
     """
-    inferenceArgs = self.getInferenceArgs()
-    predictedFieldName = inferenceArgs.get('predictedField', None)
-    if predictedFieldName is None:
+    if self._predictedFieldName is None:
       raise ValueError(
         "No predicted field was enabled! Did you call enableInference()?"
       )
-    self._predictedFieldName = predictedFieldName
 
     classifier = self._getClassifierRegion()
     if not self._hasCL or classifier is None:
@@ -703,18 +699,13 @@ class CLAModel(Model):
 
     # Get the classifier input encoder, if we don't have it already
     if self._classifierInputEncoder is None:
-      if predictedFieldName is None:
-        raise RuntimeError("This experiment description is missing "
-              "the 'predictedField' in its config, which is required "
-              "for multi-step prediction inference.")
-
       encoderList = sensor.getSelf().encoder.getEncoderList()
       self._numFields = len(encoderList)
 
       # This is getting index of predicted field if being fed to CLA.
       fieldNames = sensor.getSelf().encoder.getScalarNames()
-      if predictedFieldName in fieldNames:
-        self._predictedFieldIdx = fieldNames.index(predictedFieldName)
+      if self._predictedFieldName in fieldNames:
+        self._predictedFieldIdx = fieldNames.index(self._predictedFieldName)
       else:
         # Predicted field was not fed into the network, only to the classifier
         self._predictedFieldIdx = None
@@ -726,15 +717,15 @@ class CLAModel(Model):
         encoderList = sensor.getSelf().disabledEncoder.getEncoderList()
       else:
         encoderList = []
-      if len(encoderList) >= 1:
+
+      if len(encoderList) > 0:
         fieldNames = sensor.getSelf().disabledEncoder.getScalarNames()
-        self._classifierInputEncoder = encoderList[fieldNames.index(
-                                                        predictedFieldName)]
       else:
         # Legacy multi-step networks don't have a separate encoder for the
         #  classifier, so use the one that goes into the bottom of the network
         encoderList = sensor.getSelf().encoder.getEncoderList()
-        self._classifierInputEncoder = encoderList[self._predictedFieldIdx]
+      
+      self._classifierInputEncoder = encoderList[self._predictedFieldIdx]
 
 
 
@@ -742,11 +733,11 @@ class CLAModel(Model):
     # predicted field may not be enabled for input to the network, so we
     # explicitly encode it outside of the sensor
     # TODO: All this logic could be simpler if in the encoder itself
-    if not predictedFieldName in rawInput:
+    if not self._predictedFieldName in rawInput:
       raise ValueError("Input row does not contain a value for the predicted "
                        "field configured for this model. Missing value for '%s'"
-                       % predictedFieldName)
-    absoluteValue = rawInput[predictedFieldName]
+                       % self._predictedFieldName)
+    absoluteValue = rawInput[self._predictedFieldName]
     bucketIdx = self._classifierInputEncoder.getBucketIndices(absoluteValue)[0]
 
     # Convert the absolute values to deltas if necessary

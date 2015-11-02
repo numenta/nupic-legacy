@@ -22,6 +22,7 @@
 
 """Unit tests for the clamodel module."""
 
+import copy
 import datetime
 import unittest2 as unittest
 
@@ -82,105 +83,32 @@ class CLAModelTest(unittest.TestCase):
     Temporal Anomaly configuration will return a model that can return
     inferences
     """
-    modelConfig = (
-      {u'aggregationInfo': {u'days': 0,
-                            u'fields': [],
-                            u'hours': 0,
-                            u'microseconds': 0,
-                            u'milliseconds': 0,
-                            u'minutes': 0,
-                            u'months': 0,
-                            u'seconds': 0,
-                            u'weeks': 0,
-                            u'years': 0},
-       u'model': u'CLA',
-       u'modelParams': {u'anomalyParams': {u'anomalyCacheRecords': None,
-                                           u'autoDetectThreshold': None,
-                                           u'autoDetectWaitRecords': 5030},
-                        u'clEnable': False,
-                        u'clParams': {u'alpha': 0.035828933612158,
-                                      u'clVerbosity': 0,
-                                      u'regionName': u'CLAClassifierRegion',
-                                      u'steps': u'1'},
-                        u'inferenceType': u'TemporalAnomaly',
-                        u'sensorParams': {u'encoders': {u'c0_dayOfWeek': None,
-                                                        u'c0_timeOfDay': {u'fieldname': u'c0',
-                                                                          u'name': u'c0',
-                                                                          u'timeOfDay': [21,
-                                                                                         9.49122334747737],
-                                                                          u'type': u'DateEncoder'},
-                                                        u'c0_weekend': None,
-                                                        u'c1': {u'fieldname': u'c1',
-                                                                u'name': u'c1',
-                                                                u'resolution': 0.8771929824561403,
-                                                                u'seed': 42,
-                                                                u'type': u'RandomDistributedScalarEncoder'}},
-                                          u'sensorAutoReset': None,
-                                          u'verbosity': 0},
-                        u'spEnable': True,
-                        u'spParams': {u'potentialPct': 0.8,
-                                      u'columnCount': 2048,
-                                      u'globalInhibition': 1,
-                                      u'inputWidth': 0,
-                                      u'maxBoost': 1.0,
-                                      u'numActiveColumnsPerInhArea': 40,
-                                      u'seed': 1956,
-                                      u'spVerbosity': 0,
-                                      u'spatialImp': u'cpp',
-                                      u'synPermActiveInc': 0.0015,
-                                      u'synPermConnected': 0.1,
-                                      u'synPermInactiveDec': 0.0005,
-                                      },
-                        u'tpEnable': True,
-                        u'tpParams': {u'activationThreshold': 13,
-                                      u'cellsPerColumn': 32,
-                                      u'columnCount': 2048,
-                                      u'globalDecay': 0.0,
-                                      u'initialPerm': 0.21,
-                                      u'inputWidth': 2048,
-                                      u'maxAge': 0,
-                                      u'maxSegmentsPerCell': 128,
-                                      u'maxSynapsesPerSegment': 32,
-                                      u'minThreshold': 10,
-                                      u'newSynapseCount': 20,
-                                      u'outputType': u'normal',
-                                      u'pamLength': 3,
-                                      u'permanenceDec': 0.1,
-                                      u'permanenceInc': 0.1,
-                                      u'seed': 1960,
-                                      u'temporalImp': u'cpp',
-                                      u'verbosity': 0},
-                        u'trainSPNetOnlyIfRequested': False},
-       u'predictAheadTime': None,
-       u'version': 1}
-    )
-
-    inferenceArgs = {u'inputPredictedField': u'auto',
-                     u'predictedField': u'c1',
-                     u'predictionSteps': [1]}
+    inferenceArgs = {"inputPredictedField": "auto",
+                     "predictedField": "c1",
+                     "predictionSteps": [1]}
 
     data = [
-      {'_category': [None],
-       '_reset': 0,
-       '_sequenceId': 0,
-       '_timestamp': datetime.datetime(2013, 12, 5, 0, 0),
-       '_timestampRecordIdx': None,
-       u'c0': datetime.datetime(2013, 12, 5, 0, 0),
-       u'c1': 5.0},
-      {'_category': [None],
-       '_reset': 0,
-       '_sequenceId': 0,
-       '_timestamp': datetime.datetime(2013, 12, 6, 0, 0),
-       '_timestampRecordIdx': None,
-       u'c0': datetime.datetime(2013, 12, 6, 0, 0),
-       u'c1': 6.0},
-      {'_category': [None],
-       '_reset': 0,
-       '_sequenceId': 0,
-       '_timestamp': datetime.datetime(2013, 12, 7, 0, 0),
-       '_timestampRecordIdx': None,
-       u'c0': datetime.datetime(2013, 12, 7, 0, 0),
-       u'c1': 7.0}
+      {"_category": [None],
+       "_reset": 0,
+       "_sequenceId": 0,
+       "_timestamp": datetime.datetime(2013, 12, 5, 0, 0),
+       "_timestampRecordIdx": None,
+       "c0": datetime.datetime(2013, 12, 5, 0, 0),
+       "c1": 5.0},
+      {"_category": [None],
+       "_reset": 0,
+       "_sequenceId": 0,
+       "_timestamp": datetime.datetime(2013, 12, 6, 0, 0),
+       "_timestampRecordIdx": None,
+       "c0": datetime.datetime(2013, 12, 6, 0, 0),
+       "c1": 6.0},
+      {"_category": [None],
+       "_reset": 0,
+       "_sequenceId": 0,
+       "_timestamp": datetime.datetime(2013, 12, 7, 0, 0),
+       "_timestampRecordIdx": None,
+       "c0": datetime.datetime(2013, 12, 7, 0, 0),
+       "c1": 7.0}
     ]
 
     model = ModelFactory.create(modelConfig=modelConfig)
@@ -191,6 +119,138 @@ class CLAModelTest(unittest.TestCase):
       result = model.run(row)
       self.assertIsInstance(result, ModelResult)
 
+
+  def testModelUnknownPredictedField(self):
+    """ Test exception when predicted field is not correctly specified for the model
+    """
+
+    inferenceArgs = {"inputPredictedField": "auto",
+                     "predictedField": "c1",
+                     "predictionSteps": [1]}
+
+    data = [
+      {"_category": [None],
+       "_reset": 0,
+       "_sequenceId": 0,
+       "_timestamp": datetime.datetime(2013, 12, 5, 0, 0),
+       "_timestampRecordIdx": None,
+       "c0": datetime.datetime(2013, 12, 5, 0, 0),
+       "c1": 5.0},
+    ]
+
+    model = ModelFactory.create(modelConfig=modelConfig)
+    model.enableLearning()
+    model.enableInference(inferenceArgs)
+
+    for row in data:
+      result = model.run(row)
+      self.assertIsInstance(result, ModelResult) #should run OK
+
+
+    # test unknown predicted field on TemporalAnomaly model
+    inferenceArgsWrong = copy.copy(inferenceArgs)
+    inferenceArgsWrong["predictedField"]="mispeltField" # user made a typo in given name
+
+    model = ModelFactory.create(modelConfig=modelConfig)
+    model.enableLearning()
+    model.enableInference(inferenceArgsWrong)
+
+    expMsg=("Expected predicted field 'mispeltField' in input row, "
+            "but was not found!"
+            "Raw input is: %r" % (data))
+
+    for row in data:
+      with self.assertRaises(ValueError) as ve:
+        result = model.run(row)
+        self.assertEqual(str(ve.exception), expMsg) #should fail
+
+
+    # test unknown predicted field check on TemporalMultiStep model
+    modelConfig["modelParams"]["inferenceType"] = "TemporalMultiStep"
+
+    model = ModelFactory.create(modelConfig=modelConfig)
+    model.enableLearning()
+    model.enableInference(inferenceArgsWrong)
+
+    for row in data:
+      with self.assertRaises(ValueError) as ve:
+        result = model.run(row)
+        self.assertEqual(str(ve.exception), expMsg) #should fail
+
+###########################
+# Example modelConfig 
+modelConfig = (
+      {"aggregationInfo": {"days": 0,
+                            "fields": [],
+                            "hours": 0,
+                            "microseconds": 0,
+                            "milliseconds": 0,
+                            "minutes": 0,
+                            "months": 0,
+                            "seconds": 0,
+                            "weeks": 0,
+                            "years": 0},
+       "model": "CLA",
+       "modelParams": {"anomalyParams": {"anomalyCacheRecords": None,
+                                           "autoDetectThreshold": None,
+                                           "autoDetectWaitRecords": 5030},
+                        "clEnable": False,
+                        "clParams": {"alpha": 0.035828933612158,
+                                      "clVerbosity": 0,
+                                      "regionName": "CLAClassifierRegion",
+                                      "steps": "1"},
+                        "inferenceType": "TemporalAnomaly",
+                        "sensorParams": {"encoders": {"c0_dayOfWeek": None,
+                                                        "c0_timeOfDay": {"fieldname": "c0",
+                                                                          "name": "c0",
+                                                                          "timeOfDay": [21,
+                                                                                         9.49122334747737],
+                                                                          "type": "DateEncoder"},
+                                                        "c0_weekend": None,
+                                                        "c1": {"fieldname": "c1",
+                                                                "name": "c1",
+                                                                "resolution": 0.8771929824561403,
+                                                                "seed": 42,
+                                                                "type": "RandomDistributedScalarEncoder"}},
+                                          "sensorAutoReset": None,
+                                          "verbosity": 0},
+                        "spEnable": True,
+                        "spParams": {"potentialPct": 0.8,
+                                      "columnCount": 2048,
+                                      "globalInhibition": 1,
+                                      "inputWidth": 0,
+                                      "maxBoost": 1.0,
+                                      "numActiveColumnsPerInhArea": 40,
+                                      "seed": 1956,
+                                      "spVerbosity": 0,
+                                      "spatialImp": "cpp",
+                                      "synPermActiveInc": 0.0015,
+                                      "synPermConnected": 0.1,
+                                      "synPermInactiveDec": 0.0005,
+                                      },
+                        "tpEnable": True,
+                        "tpParams": {"activationThreshold": 13,
+                                      "cellsPerColumn": 32,
+                                      "columnCount": 2048,
+                                      "globalDecay": 0.0,
+                                      "initialPerm": 0.21,
+                                      "inputWidth": 2048,
+                                      "maxAge": 0,
+                                      "maxSegmentsPerCell": 128,
+                                      "maxSynapsesPerSegment": 32,
+                                      "minThreshold": 10,
+                                      "newSynapseCount": 20,
+                                      "outputType": "normal",
+                                      "pamLength": 3,
+                                      "permanenceDec": 0.1,
+                                      "permanenceInc": 0.1,
+                                      "seed": 1960,
+                                      "temporalImp": "cpp",
+                                      "verbosity": 0},
+                        "trainSPNetOnlyIfRequested": False},
+       "predictAheadTime": None,
+       "version": 1}
+)
 
 if __name__ == "__main__":
   unittest.main()
