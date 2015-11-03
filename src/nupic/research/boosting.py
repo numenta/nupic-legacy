@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013-2015, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -355,4 +355,3 @@ class Boosting(object):
     """
     assert(period >= 1)
     return (dutyCycles * (period -1.0) + newInput) / period #FIXME #2673
-
