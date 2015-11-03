@@ -51,35 +51,38 @@ class KNNClassifierTest(unittest.TestCase):
     _, _, dist, _ = classifier.infer(input)
     l2Distances = [0.65465367,  1.0]
     for actual, predicted in zip(l2Distances, dist):
-      self.assertAlmostEqual(actual, predicted, places=5,
+      self.assertAlmostEqual(
+        actual, predicted, places=5,
         msg="l2 distance norm is not calculated as expected.")
   
     _, _, dist0, _ = classifier.infer(input0)
-    self.assertEqual(0.0, dist0[0],
-      msg="l2 norm did not calculate 0 distance as expected.")
+    self.assertEqual(
+      0.0, dist0[0], msg="l2 norm did not calculate 0 distance as expected.")
 
     # Test l1 norm metric
     classifier.distanceNorm = 1.0
     _, _, dist, _ = classifier.infer(input)
     l1Distances = [0.42857143,  1.0]
     for actual, predicted in zip(l1Distances, dist):
-      self.assertAlmostEqual(actual, predicted, places=5,
+      self.assertAlmostEqual(
+        actual, predicted, places=5,
         msg="l1 distance norm is not calculated as expected.")
     
     _, _, dist0, _ = classifier.infer(input0)
-    self.assertEqual(0.0, dist0[0],
-      msg="l1 norm did not calculate 0 distance as expected.")
+    self.assertEqual(
+      0.0, dist0[0], msg="l1 norm did not calculate 0 distance as expected.")
   
     # Test raw overlap metric
     classifier.distanceMethod = "rawOverlap"
     _, _, dist, _ = classifier.infer(input)
     rawOverlaps = [1, 4]
     for actual, predicted in zip(rawOverlaps, dist):
-      self.assertEqual(actual, predicted,
-        msg="Raw overlap is not calculated as expected.")
+      self.assertEqual(
+        actual, predicted, msg="Raw overlap is not calculated as expected.")
 
     _, _, dist0, _ = classifier.infer(input0)
-    self.assertEqual(0.0, dist0[0],
+    self.assertEqual(
+      0.0, dist0[0],
       msg="Raw overlap did not calculate 0 distance as expected.")
 
     # Test pctOverlapOfInput metric
@@ -87,11 +90,13 @@ class KNNClassifierTest(unittest.TestCase):
     _, _, dist, _ = classifier.infer(input)
     pctOverlaps = [0.25, 1.0]
     for actual, predicted in zip(pctOverlaps, dist):
-      self.assertAlmostEqual(actual, predicted, places=5,
+      self.assertAlmostEqual(
+        actual, predicted, places=5,
         msg="pctOverlapOfInput is not calculated as expected.")
    
     _, _, dist0, _ = classifier.infer(input0)
-    self.assertEqual(0.0, dist0[0],
+    self.assertEqual(
+      0.0, dist0[0],
       msg="pctOverlapOfInput did not calculate 0 distance as expected.")
 
     # Test pctOverlapOfProto metric
@@ -99,11 +104,13 @@ class KNNClassifierTest(unittest.TestCase):
     _, _, dist, _ = classifier.infer(input)
     pctOverlaps = [0.40, 1.0]
     for actual, predicted in zip(pctOverlaps, dist):
-      self.assertAlmostEqual(actual, predicted, places=5,
+      self.assertAlmostEqual(
+        actual, predicted, places=5,
         msg="pctOverlapOfProto is not calculated as expected.")
 
     _, _, dist0, _ = classifier.infer(input0)
-    self.assertEqual(0.0, dist0[0],
+    self.assertEqual(
+      0.0, dist0[0],
       msg="pctOverlapOfProto did not calculate 0 distance as expected.")
 
     # Test pctOverlapOfLarger metric
@@ -111,11 +118,13 @@ class KNNClassifierTest(unittest.TestCase):
     _, _, dist, _ = classifier.infer(input)
     pctOverlaps = [0.40, 1.0]
     for actual, predicted in zip(pctOverlaps, dist):
-      self.assertAlmostEqual(actual, predicted, places=5,
+      self.assertAlmostEqual(
+      actual, predicted, places=5,
         msg="pctOverlapOfLarger is not calculated as expected.")
 
     _, _, dist0, _ = classifier.infer(input0)
-    self.assertEqual(0.0, dist0[0],
+    self.assertEqual(
+      0.0, dist0[0],
       msg="pctOverlapOfLarger did not calculate 0 distance as expected.")
 
 
