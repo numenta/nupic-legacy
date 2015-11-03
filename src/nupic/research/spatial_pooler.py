@@ -1439,8 +1439,10 @@ class SpatialPooler(object):
 
       rangeND.append(numpy.unique(curRange))
 
-    neighbors = [numpy.ravel_multi_index(coord, dimensions) for coord in
-      itertools.product(*rangeND)]
+    neighbors = numpy.ravel_multi_index(
+      numpy.array(list(itertools.product(*rangeND))).T, 
+      dimensions).tolist()
+
     neighbors.remove(columnIndex)
     return neighbors
 
