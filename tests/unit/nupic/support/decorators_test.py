@@ -292,17 +292,17 @@ class LogExceptionsTestCase(unittest.TestCase):
 
 
   def testLogExceptionsWithRuntimeErrorExceptionAndDefaultLogger(self):
-    @decorators.logExceptions()
-    def doSomething(*args, **kwargs):
-      self.assertEqual(args, inputArgs)
-      self.assertEqual(kwargs, inputKwargs)
-
-      raise RuntimeError()
-
-
     loggerMock = Mock(spec_set=decorators.logging.getLogger())
     with patch.object(decorators.logging, "getLogger", autospec=True,
                       return_value=loggerMock):
+
+      @decorators.logExceptions()
+      def doSomething(*args, **kwargs):
+        self.assertEqual(args, inputArgs)
+        self.assertEqual(kwargs, inputKwargs)
+
+        raise RuntimeError()
+
       inputArgs = (1, 2, 3)
       inputKwargs = dict(a="A", b="B", c="C")
 
@@ -317,7 +317,7 @@ class LogExceptionsTestCase(unittest.TestCase):
   def testLogExceptionsWithRuntimeErrorExceptionAndCustomLogger(self):
     loggerMock = Mock(spec_set=decorators.logging.getLogger())
 
-    @decorators.logExceptions(lambda: loggerMock)
+    @decorators.logExceptions(loggerMock)
     def doSomething(*args, **kwargs):
       self.assertEqual(args, inputArgs)
       self.assertEqual(kwargs, inputKwargs)
@@ -337,22 +337,21 @@ class LogExceptionsTestCase(unittest.TestCase):
 
 
   def testLogExceptionsWithSystemExitExceptionAndDefaultLogger(self):
-    # SystemExit is based on BaseException, so we want to make sure that
-    # those are handled properly, too
-    inputArgs = (1, 2, 3)
-    inputKwargs = dict(a="A", b="B", c="C")
-
-    @decorators.logExceptions()
-    def doSomething(*args, **kwargs):
-      self.assertEqual(args, inputArgs)
-      self.assertEqual(kwargs, inputKwargs)
-
-      raise SystemExit()
-
-
     loggerMock = Mock(spec_set=decorators.logging.getLogger())
     with patch.object(decorators.logging, "getLogger", autospec=True,
                       return_value=loggerMock):
+
+      # SystemExit is based on BaseException, so we want to make sure that
+      # those are handled properly, too
+      inputArgs = (1, 2, 3)
+      inputKwargs = dict(a="A", b="B", c="C")
+
+      @decorators.logExceptions()
+      def doSomething(*args, **kwargs):
+        self.assertEqual(args, inputArgs)
+        self.assertEqual(kwargs, inputKwargs)
+
+        raise SystemExit()
 
       with self.assertRaises(SystemExit):
         doSomething(*inputArgs, **inputKwargs)

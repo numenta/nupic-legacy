@@ -49,8 +49,8 @@ class Configuration(object):
 
   If the environment variable 'NTA_CONF_PATH' is defined, then the configuration
   files are expected to be in the NTA_CONF_PATH search path, which is a ':'
-  separated list of directories. If NTA_CONF_PATH is not defined, then it is
-  loaded via pkg_resources.
+  separated list of directories (on Windows the seperator is a ';').
+  If NTA_CONF_PATH is not defined, then it is loaded via pkg_resources.
 
   """
 
@@ -401,7 +401,7 @@ class Configuration(object):
       if 'NTA_CONF_PATH' in os.environ:
         configVar = os.environ['NTA_CONF_PATH']
         # Return as a list of paths
-        configPaths = configVar.split(':')
+        configPaths = configVar.split(os.pathsep)
 
       return configPaths
 
