@@ -1,3 +1,46 @@
+// some Settings:
+
+// TIMESTAMP: 
+// represents the name of the column with timestamp/x-data;
+// currently such column must be present in the data, and be of ISO Date format.
+// TODO: allow numeric or missing timestamp column ?
+var TIMESTAMP = "timestamp"; 
+
+// POSSIBLE_OPF_DATA_FIELDS: 
+// Is used only in OPF files during CSV parsing, where fields may, or may not be present, 
+// depending on the user's Model settings in NuPIC. 
+// Iff these fields are present, we'll include them as data fields. 
+// FIXME: is this code (and guessDataFields()) needed? 'multiStepBestPredictions.5' are
+// plotted even though not in the list.
+var POSSIBLE_OPF_DATA_FIELDS = ["multiStepPredictions.actual", 
+                                "multiStepBestPredictions.actual"];
+
+// EXCLUDE_FIELDS:
+// used to ignore some fields completely, not showing them as possibilities in graph plots.
+var EXCLUDE_FIELDS = [];
+
+// HEADER_SKIPPED_ROWS:
+// number of rows (between 2nd .. Nth, included) skipped. 
+// For OPF this must be >= 2 (as 2nd row is 'float,float,float', 3rd: ',,' metadata)
+// You can increase this (to about 2000) to skip untrained HTM predictions at the beginning
+// (eg. data where anomalyScore = 0.5 at the start).
+// Warning: default 2 is used, so for non-OPF data you lose the first 2 data points
+// (we find that acceptable). 
+var HEADER_SKIPPED_ROWS = 2;
+
+// ZOOM:
+// toggle 2 methods of zooming in the graph: "RangeSelector", "HighlightSelector" (=mouse)
+var ZOOM = "HighlightSelector";
+
+// NONE_VALUE_REPLACEMENT:
+// used to fix a "bug" in OPF, where some columns are numeric 
+// (has to be determined at the last row), but their first few values are "None".
+// We replace the with this value, defaults to 0.
+var NONE_VALUE_REPLACEMENT = 0;
+
+
+// Web UI:
+
 angular.module('app', ['ui.bootstrap']);
 
 angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($scope, $timeout) {
@@ -20,6 +63,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     backupCSV,
     timers = {};
 
+  // the "Show/Hide Options" button
   $scope.toggleOptions = function() {
     $scope.view.optionsVisible = !$scope.view.optionsVisible;
     timers.resize = $timeout(function() {
@@ -27,6 +71,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     });
   };
 
+  // read and parse a CSV file
   $scope.uploadFile = function(event) {
     $scope.view.canRender = false;
     $scope.view.loadedFileName = event.target.files[0].name;
@@ -47,7 +92,19 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     });
   };
 
-  var handleError = function(error, type) {
+  // show errors as "notices" in the UI
+  var handleError = function(error, type, showOnce) {
+    showOnce = typeof showOnce !== 'undefined' ? showOnce : false;
+    exists = false;
+    if (showOnce) {
+      // loop through existing errors by 'message'
+      errs = $scope.view.errors;
+      for (var i = 0; i < errs.length; i++) {
+        if (errs[i]["message"] === error) { // not unique
+         return;
+        }
+      }
+    }
     $scope.view.errors.push({
       "message": error,
       "type": type
@@ -63,28 +120,58 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
   };
 
   var convertPapaToDyGraph = function(data) {
-    // since this is OPF data, strip out the second and third rows
-    data.splice(0, 2);
+    // strip out the rows (meta data) from header
+    data.splice(0, HEADER_SKIPPED_ROWS);
     // use the last row in the dataset to determine the data types
-    var map = generateFieldMap(data[data.length - 1]);
+    var map = generateFieldMap(data[data.length - 1], EXCLUDE_FIELDS);
     if (map === null) {
+      handleError("Failed to parse the uploaded CSV file!", "danger");
       return null;
     }
-    for (var i = 0; i < data.length; i++) {
+    for (var rowId = 0; rowId < data.length; rowId++) {
       var arr = [];
-      for (var x = 0; x < loadedFields.length; x++) {
-        var num;
-        if (x === 0) {
-          // this should always be the timestamp. See generateFieldMap
+      for (var colId = 0; colId < loadedFields.length; colId++) {
+        var fieldValue = data[rowId][loadedFields[colId]]; // numeric
+        if (colId === 0) { // this should always be the timestamp. See generateFieldMap
+          date = dateToNum(fieldValue);
+          if (date !== null) { // parsing succeeded, use it
+            fieldValue = date;
+          }
+          else if (date === null && typeof(fieldValue) === "number") {
+            handleError("Parsing timestamp failed, fallback to x-data", "warning", true);
+            // keep fieldValue as is
+          } 
+          else {
+            handleError("Parsing timestamp failed & it is non-numeric, fallback to using iteration number", "warning", true);
+            fieldValue = rowId;
+          }
+        } else { // process other data (non-date) columns
+          // FIXME: this is an OPF "bug", should be discussed upstream
+          if (fieldValue === "None") {
+            fieldValue = NONE_VALUE_REPLACEMENT;
+          }
+        }
+        arr.push(fieldValue);
+      }
+      loadedCSV.push(arr);
+    }
+  };
+
+  // dateToNum():
+  // takes a string of (2) acceptable date-time formats
+  // converts it to numeric representation of a date (UNIX epoch time)
+  // return: date as a number, or null if parsing failed
+  var dateToNum = function(strDateTime) { // FIXME: Can using the ISO format simplify this?
+          var numDate;
+          var dateTime =  String(strDateTime).split(" ");
           var args = [];
-          var dateTime =  data[i][loadedFields[x]].split(" ");
           // is the date formatted with slashes or dashes?
           var slashDate = dateTime[0].split("/");
           var dashDate = dateTime[0].split("-");
           if ((slashDate.length === 1 && dashDate.length === 1) || (slashDate.length > 1 && dashDate.length > 1)) {
             // if there were no instances of delimiters, or we have both delimiters when we should only have one
-            handleError("Could not parse the timestamp", "warning");
-            return;
+            handleError("Could not parse the timestamp", "warning", true);
+            return null;
           }
           // if it is a dash date, it is probably in this format: yyyy:mm:dd
           if (dashDate.length > 2) {
@@ -98,8 +185,8 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
             args.push(slashDate[0]);
             args.push(slashDate[1]);
           } else {
-            handleError("There was something wrong with the date in the timestamp field.", "warning");
-            return;
+            handleError("There was something wrong with the date in the timestamp field.", "warning", true);
+            return null;
           }
           // is there a time element?
           if (dateTime[1]) {
@@ -109,20 +196,15 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
           for (var t = 0; t < args.length; t++) {
             args[t] = parseInt(args[t]);
           }
-          num = new (Function.prototype.bind.apply(Date, [null].concat(args)));
-          if (num.toString() === "Invalid Date") {
-            handleError("The timestamp appears to be invalid.", "warning");
-            return;
+          numDate = new (Function.prototype.bind.apply(Date, [null].concat(args)));
+          if (numDate.toString() === "Invalid Date") {
+            handleError("The timestamp appears to be invalid.", "warning", true);
+            return null;
           }
-        } else {
-          num = (data[i][loadedFields[x]] === "None") ? 0 : data[i][loadedFields[x]];
-        }
-        arr.push(num);
-      }
-      loadedCSV.push(arr);
-    }
+    return numDate;
   };
 
+  // normalize select field with regards to the Data choice.
   $scope.normalizeField = function(normalizedFieldId) {
     // we have to add one here, because the data array is different than the label array
     var fieldId = normalizedFieldId + 1;
@@ -146,7 +228,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     var dataFieldRange = getMinOrMaxOfArray(dataFieldValues, "max") - getMinOrMaxOfArray(dataFieldValues, "min");
     var normalizeFieldRange = getMinOrMaxOfArray(toBeNormalizedValues, "max") - getMinOrMaxOfArray(toBeNormalizedValues, "min");
     var ratio = dataFieldRange / normalizeFieldRange;
-    // multiple each anomalyScore by this amount
+    // multiply each anomalyScore by this amount
     for (var x = 0; x < renderedCSV.length; x++) {
       renderedCSV[x][fieldId] = parseFloat((renderedCSV[x][fieldId] * ratio).toFixed(10));
     }
@@ -197,8 +279,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     }
   };
 
-  var guessDataField = function() {
-    var possibleDataFields = ["multiStepPredictions.actual", "multiStepBestPredictions.actual"];
+  var guessDataField = function(possibleDataFields) {
     for (var i = 0; i < $scope.view.fieldState.length; i++) {
       if (possibleDataFields.indexOf($scope.view.fieldState[i].name) > -1) {
         $scope.view.dataField = $scope.view.fieldState[i].id;
@@ -207,19 +288,23 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     }
   };
 
-  var generateFieldMap = function(row) {
-    if (!row.hasOwnProperty("timestamp")) {
+  // say which fields will be plotted (all numeric + guessedDataFields - excluded)
+  // based on parsing the last (to omit Nones at the start) row of the data.
+  // return: matrix with numeric columns
+  // TIMESTAMP is always the 1st column.
+  var generateFieldMap = function(row, excludes) {
+    if (!row.hasOwnProperty(TIMESTAMP)) {
       handleError("No timestamp field was found", "warning");
       return null;
     }
-    var excludes = ["reset", "timestamp"];
+    // add all numeric fields not in excludes
     angular.forEach(row, function(value, key) {
       if (typeof(value) === "number" && excludes.indexOf(key) === -1) {
         loadedFields.push(key);
       }
     });
-    // add timestamp, anomalyScore, and scaledAnomalyScore to the beginning of the array
-    loadedFields.unshift("timestamp");
+    // timestamp assumed to be at the beginning of the array
+    loadedFields.unshift(TIMESTAMP);
     return loadedFields;
   };
 
@@ -240,6 +325,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     }
   };
 
+  // the main "graphics" is rendered here
   $scope.renderData = function() {
     var fields = [];
     var div = document.getElementById("dataContainer");
@@ -248,11 +334,12 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     renderedFields = angular.copy(loadedFields);
     $scope.view.renderedFileName = $scope.view.loadedFileName;
     // build field toggle array
+    // FIXME: failes to render the fields with example/CSV
     $scope.view.fieldState.length = 0;
     $scope.view.dataField = null;
     var counter = 0;
     for (var i = 0; i < renderedFields.length; i++) {
-      if (renderedFields[i] !== "timestamp") {
+      if (renderedFields[i] !== TIMESTAMP) {
         $scope.view.fieldState.push({
           name: renderedFields[i],
           id: counter,
@@ -264,19 +351,23 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
         counter++;
       }
     }
-    guessDataField();
+    guessDataField(POSSIBLE_OPF_DATA_FIELDS);
     $scope.view.graph = new Dygraph(
       div,
-      renderedCSV, {
+      renderedCSV, 
+      {
         labels: renderedFields,
-        showRangeSelector: true,
         showLabelsOnHighlight: false,
+        // select and copy functionality
+        // FIXME: avoid the hardcoded timestamp format
         pointClickCallback: function(e, point) {
           timestamp = moment(point.xval);
           timestampString = timestamp.format("YYYY-MM-DD HH:mm:ss.SSS000");
           window.prompt("Copy to clipboard: Ctrl+C, Enter", timestampString);
         },
-        highlightCallback: function(e, x, points, row, seriesName) {
+        // zoom functionality - toggle the 2 options in ZOOM
+        showRangeSelector: ZOOM === "RangeSelector",   
+        highlightCallback: function(e, x, points, row, seriesName) { // ZOOM === "HighlightSelector"
           for (var p = 0; p < points.length; p++) {
             updateValue(points[p].name, points[p].yval);
           }
