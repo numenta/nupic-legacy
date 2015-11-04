@@ -371,6 +371,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
           window.prompt("Copy to clipboard: Ctrl+C, Enter", timestampString);
         },
         // zoom functionality - toggle the 2 options in ZOOM
+        animatedZooms: true,
         showRangeSelector: ZOOM === "RangeSelector",
         highlightCallback: function(e, x, points, row, seriesName) { // ZOOM === "HighlightSelector"
           for (var p = 0; p < points.length; p++) {
