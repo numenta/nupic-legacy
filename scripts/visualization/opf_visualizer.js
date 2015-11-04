@@ -362,6 +362,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
       div,
       renderedCSV, {
         labels: renderedFields,
+        labelsUTC: true, // make timestamp in UTC, to have consistent graphs
         showLabelsOnHighlight: false,
         // select and copy functionality
         // FIXME: avoid the hardcoded timestamp format
