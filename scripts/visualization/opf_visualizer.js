@@ -19,6 +19,15 @@ var POSSIBLE_OPF_DATA_FIELDS = ["multiStepPredictions.actual",
 // used to ignore some fields completely, not showing them as possibilities in graph plots.
 var EXCLUDE_FIELDS = [];
 
+// HEADER_SKIPPED_ROWS:
+// number of rows (between 2nd .. Nth, included) skipped. 
+// For OPF this must be >= 2 (as 2nd row is 'float,float,float', 3rd: ',,' metadata)
+// You can increase this (to about 2000) to skip untrained HTM predictions at the beginning
+// (eg. data where anomalyScore = 0.5 at the start).
+// Warning: default 2 is used, so for non-OPF data you lose the first 2 data points
+// (we find that acceptable). 
+var HEADER_SKIPPED_ROWS = 2;
+
 
 // Web UI:
 
@@ -87,8 +96,8 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
   };
 
   var convertPapaToDyGraph = function(data) {
-    // since this is OPF data, strip out the second and third rows
-    data.splice(0, 2);
+    // strip out the rows (meta data) from header
+    data.splice(0, HEADER_SKIPPED_ROWS);
     // use the last row in the dataset to determine the data types
     var map = generateFieldMap(data[data.length - 1], EXCLUDE_FIELDS);
     if (map === null) {
