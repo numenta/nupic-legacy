@@ -120,19 +120,41 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     for (var i = 0; i < data.length; i++) {
       var arr = [];
       for (var x = 0; x < loadedFields.length; x++) {
-        var num;
-        if (x === 0) { //FIXME: move this if branch into a separate function "processDateFormat()"? Can using the ISO format simplify this?
+        var num = data[i][loadedFields[x]];
 
+        if (x === 0) { //FIXME: move this if branch into a separate function "processDateFormat()"? Can using the ISO format simplify this?
           // this should always be the timestamp. See generateFieldMap
+          var dateTime =  num.split(" ");
+          num = i; //dateToNum(dateTime);
+          if (num === null) { // handle failure in date-time parsing, default to iterations for the timestamp column.
+            num = i;
+          }
+        } else { // process other data (non-date) columns
+          // FIXME: this is an OPF "bug", should be discussed upstream
+          if (num === "None") {
+            num = NONE_VALUE_REPLACEMENT;
+          }
+        }
+        arr.push(num);
+      }
+      loadedCSV.push(arr);
+    }
+  };
+
+  // dateToNum()
+  // converts dates from supported date-time formats to numeric
+  // representation. 
+  // return: number (representing the date as UNIX epoch), or null on failure
+  var dateToNum = fuction(dateTimeString) {
           var args = [];
-          var dateTime =  data[i][loadedFields[x]].split(" ");
+          var dateTime = dateTimeString;
           // is the date formatted with slashes or dashes?
           var slashDate = dateTime[0].split("/");
           var dashDate = dateTime[0].split("-");
           if ((slashDate.length === 1 && dashDate.length === 1) || (slashDate.length > 1 && dashDate.length > 1)) {
             // if there were no instances of delimiters, or we have both delimiters when we should only have one
             handleError("Could not parse the timestamp", "warning");
-            return;
+            return null;
           }
           // if it is a dash date, it is probably in this format: yyyy:mm:dd
           if (dashDate.length > 2) {
@@ -147,7 +169,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
             args.push(slashDate[1]);
           } else {
             handleError("There was something wrong with the date in the timestamp field.", "warning");
-            return;
+            return null;
           }
           // is there a time element?
           if (dateTime[1]) {
@@ -160,20 +182,10 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
           num = new (Function.prototype.bind.apply(Date, [null].concat(args)));
           if (num.toString() === "Invalid Date") {
             handleError("The timestamp appears to be invalid.", "warning");
-            return;
+            return null;
           }
-        } else { // process other data (non-date) columns
-          num = data[i][loadedFields[x]];
-          // FIXME: this is an OPF "bug", should be discussed upstream
-          if (num === "None") {
-            num = NONE_VALUE_REPLACEMENT;
-          }
-        }
-        arr.push(num);
-      }
-      loadedCSV.push(arr);
-    }
-  };
+          return num;
+  }
 
   $scope.normalizeField = function(normalizedFieldId) {
     // we have to add one here, because the data array is different than the label array
@@ -323,11 +335,11 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
         showLabelsOnHighlight: false,
         // select and copy functionality
         // FIXME: avoid the hardcoded timestamp format
-        pointClickCallback: function(e, point) {
-          timestamp = moment(point.xval);
-          timestampString = timestamp.format("YYYY-MM-DD HH:mm:ss.SSS000");
-          window.prompt("Copy to clipboard: Ctrl+C, Enter", timestampString);
-        },
+//!        pointClickCallback: function(e, point) {
+//          timestamp = moment(point.xval);
+//          timestampString = timestamp.format("YYYY-MM-DD HH:mm:ss.SSS000");
+//          window.prompt("Copy to clipboard: Ctrl+C, Enter", timestampString);
+//        },
         // zoom functionality
         showRangeSelector: ZOOM === "RangeSelector",   
         highlightCallback: function(e, x, points, row, seriesName) { // ZOOM === "HighlightSelector"
