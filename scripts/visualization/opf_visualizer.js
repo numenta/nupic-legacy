@@ -1,31 +1,32 @@
 // some Settings:
 
-// TIMESTAMP: 
+// TIMESTAMP:
 // represents the name of the column with timestamp/x-data;
 // currently such column must be present in the data, and be of ISO Date format.
 // TODO: allow numeric or missing timestamp column ?
-var TIMESTAMP = "timestamp"; 
+var TIMESTAMP = "timestamp";
 
-// POSSIBLE_OPF_DATA_FIELDS: 
-// Is used only in OPF files during CSV parsing, where fields may, or may not be present, 
-// depending on the user's Model settings in NuPIC. 
-// Iff these fields are present, we'll include them as data fields. 
+// POSSIBLE_OPF_DATA_FIELDS:
+// Is used only in OPF files during CSV parsing, where fields may, or may not be present,
+// depending on the user's Model settings in NuPIC.
+// If these fields are present, we'll include them as data fields.
 // FIXME: is this code (and guessDataFields()) needed? 'multiStepBestPredictions.5' are
 // plotted even though not in the list.
-var POSSIBLE_OPF_DATA_FIELDS = ["multiStepPredictions.actual", 
-                                "multiStepBestPredictions.actual"];
+var POSSIBLE_OPF_DATA_FIELDS = ["multiStepPredictions.actual",
+  "multiStepBestPredictions.actual"
+];
 
 // EXCLUDE_FIELDS:
 // used to ignore some fields completely, not showing them as possibilities in graph plots.
 var EXCLUDE_FIELDS = [];
 
 // HEADER_SKIPPED_ROWS:
-// number of rows (between 2nd .. Nth, included) skipped. 
+// number of rows (between 2nd .. Nth, included) skipped.
 // For OPF this must be >= 2 (as 2nd row is 'float,float,float', 3rd: ',,' metadata)
 // You can increase this (to about 2000) to skip untrained HTM predictions at the beginning
 // (eg. data where anomalyScore = 0.5 at the start).
 // Warning: default 2 is used, so for non-OPF data you lose the first 2 data points
-// (we find that acceptable). 
+// (we find that acceptable).
 var HEADER_SKIPPED_ROWS = 2;
 
 // ZOOM:
@@ -33,7 +34,7 @@ var HEADER_SKIPPED_ROWS = 2;
 var ZOOM = "HighlightSelector";
 
 // NONE_VALUE_REPLACEMENT:
-// used to fix a "bug" in OPF, where some columns are numeric 
+// used to fix a "bug" in OPF, where some columns are numeric
 // (has to be determined at the last row), but their first few values are "None".
 // We replace the with this value, defaults to 0.
 var NONE_VALUE_REPLACEMENT = 0;
@@ -101,7 +102,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
       errs = $scope.view.errors;
       for (var i = 0; i < errs.length; i++) {
         if (errs[i]["message"] === error) { // not unique
-         return;
+          return;
         }
       }
     }
@@ -133,15 +134,17 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
       for (var colId = 0; colId < loadedFields.length; colId++) {
         var fieldValue = data[rowId][loadedFields[colId]]; // numeric
         if (colId === 0) { // this should always be the timestamp. See generateFieldMap
-          date = dateToNum(fieldValue);
+          if (typeof(fieldValue) === "number") {
+            date = fieldValue;
+          } else if (typeof(fieldValue) === "string") {
+            date = parseDate(fieldValue);
+          }
           if (date !== null) { // parsing succeeded, use it
             fieldValue = date;
-          }
-          else if (date === null && typeof(fieldValue) === "number") {
+          } else if (date === null && typeof(fieldValue) === "number") {
             handleError("Parsing timestamp failed, fallback to x-data", "warning", true);
             // keep fieldValue as is
-          } 
-          else {
+          } else {
             handleError("Parsing timestamp failed & it is non-numeric, fallback to using iteration number", "warning", true);
             fieldValue = rowId;
           }
@@ -157,50 +160,53 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     }
   };
 
-  // dateToNum():
-  // takes a string of (2) acceptable date-time formats
-  // converts it to numeric representation of a date (UNIX epoch time)
-  // return: date as a number, or null if parsing failed
-  var dateToNum = function(strDateTime) { // FIXME: Can using the ISO format simplify this?
-          var numDate;
-          var dateTime =  String(strDateTime).split(" ");
-          var args = [];
-          // is the date formatted with slashes or dashes?
-          var slashDate = dateTime[0].split("/");
-          var dashDate = dateTime[0].split("-");
-          if ((slashDate.length === 1 && dashDate.length === 1) || (slashDate.length > 1 && dashDate.length > 1)) {
-            // if there were no instances of delimiters, or we have both delimiters when we should only have one
-            handleError("Could not parse the timestamp", "warning", true);
-            return null;
-          }
-          // if it is a dash date, it is probably in this format: yyyy:mm:dd
-          if (dashDate.length > 2) {
-            args.push(dashDate[0]);
-            args.push(dashDate[1]);
-            args.push(dashDate[2]);
-          }
-          // if it is a slash date, it is probably in this format: mm/dd/yy
-          else if (slashDate.length > 2) {
-            args.push(slashDate[2]);
-            args.push(slashDate[0]);
-            args.push(slashDate[1]);
-          } else {
-            handleError("There was something wrong with the date in the timestamp field.", "warning", true);
-            return null;
-          }
-          // is there a time element?
-          if (dateTime[1]) {
-            var time = dateTime[1].split(":");
-            args = args.concat(time);
-          }
-          for (var t = 0; t < args.length; t++) {
-            args[t] = parseInt(args[t]);
-          }
-          numDate = new (Function.prototype.bind.apply(Date, [null].concat(args)));
-          if (numDate.toString() === "Invalid Date") {
-            handleError("The timestamp appears to be invalid.", "warning", true);
-            return null;
-          }
+  // parseDate():
+  // takes a string and attempts to convert it into a Date object
+  // return: Date object, or null if parsing failed
+  var parseDate = function(strDateTime) { // FIXME: Can using the ISO format simplify this?
+    // can we get the browser to parse this successfully?
+    var numDate = new Date(strDateTime);
+    if (numDate.toString() !== "Invalid Date") {
+      return numDate;
+    }
+    var dateTime = String(strDateTime).split(" "); // we are assuming that the delimiter between date and time is a space
+    var args = [];
+    // is the date formatted with slashes or dashes?
+    var slashDate = dateTime[0].split("/");
+    var dashDate = dateTime[0].split("-");
+    if ((slashDate.length === 1 && dashDate.length === 1) || (slashDate.length > 1 && dashDate.length > 1)) {
+      // if there were no instances of delimiters, or we have both delimiters when we should only have one
+      handleError("Could not parse the timestamp", "warning", true);
+      return null;
+    }
+    // if it is a dash date, it is probably in this format: yyyy:mm:dd
+    if (dashDate.length > 2) {
+      args.push(dashDate[0]);
+      args.push(dashDate[1]);
+      args.push(dashDate[2]);
+    }
+    // if it is a slash date, it is probably in this format: mm/dd/yy
+    else if (slashDate.length > 2) {
+      args.push(slashDate[2]);
+      args.push(slashDate[0]);
+      args.push(slashDate[1]);
+    } else {
+      handleError("There was something wrong with the date in the timestamp field.", "warning", true);
+      return null;
+    }
+    // is there a time element?
+    if (dateTime[1]) {
+      var time = dateTime[1].split(":");
+      args = args.concat(time);
+    }
+    for (var t = 0; t < args.length; t++) {
+      args[t] = parseInt(args[t]);
+    }
+    numDate = new(Function.prototype.bind.apply(Date, [null].concat(args)));
+    if (numDate.toString() === "Invalid Date") {
+      handleError("The timestamp appears to be invalid.", "warning", true);
+      return null;
+    }
     return numDate;
   };
 
@@ -299,7 +305,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     }
     // add all numeric fields not in excludes
     angular.forEach(row, function(value, key) {
-      if (typeof(value) === "number" && excludes.indexOf(key) === -1) {
+      if (typeof(value) === "number" && excludes.indexOf(key) === -1 && key !== TIMESTAMP) {
         loadedFields.push(key);
       }
     });
@@ -354,8 +360,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     guessDataField(POSSIBLE_OPF_DATA_FIELDS);
     $scope.view.graph = new Dygraph(
       div,
-      renderedCSV, 
-      {
+      renderedCSV, {
         labels: renderedFields,
         showLabelsOnHighlight: false,
         // select and copy functionality
@@ -366,7 +371,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
           window.prompt("Copy to clipboard: Ctrl+C, Enter", timestampString);
         },
         // zoom functionality - toggle the 2 options in ZOOM
-        showRangeSelector: ZOOM === "RangeSelector",   
+        showRangeSelector: ZOOM === "RangeSelector",
         highlightCallback: function(e, x, points, row, seriesName) { // ZOOM === "HighlightSelector"
           for (var p = 0; p < points.length; p++) {
             updateValue(points[p].name, points[p].yval);
