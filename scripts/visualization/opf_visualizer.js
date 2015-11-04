@@ -17,7 +17,7 @@ var POSSIBLE_OPF_DATA_FIELDS = ["multiStepPredictions.actual",
 
 // EXCLUDE_FIELDS:
 // used to ignore some fields completely, not showing them as possibilities in graph plots.
-var EXCLUDE_FIELDS = ["reset", TIMESTAMP];
+var EXCLUDE_FIELDS = [];
 
 
 // Web UI:
@@ -235,12 +235,13 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
       handleError("No timestamp field was found", "warning");
       return null;
     }
+    // add all numeric fields not in excludes
     angular.forEach(row, function(value, key) {
       if (typeof(value) === "number" && excludes.indexOf(key) === -1) {
         loadedFields.push(key);
       }
     });
-    // add timestamp, anomalyScore, and scaledAnomalyScore to the beginning of the array
+    // timestamp assumed to be at the beginning of the array
     loadedFields.unshift(TIMESTAMP);
     return loadedFields;
   };
