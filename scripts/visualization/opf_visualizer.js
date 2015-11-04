@@ -93,7 +93,18 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
   };
 
   // show errors as "notices" in the UI
-  var handleError = function(error, type) {
+  var handleError = function(error, type, showOnce) {
+    showOnce = typeof showOnce !== 'undefined' ? showOnce : false;
+    exists = false;
+    if (showOnce) {
+      // loop through existing errors by 'message'
+      errs = $scope.view.errors;
+      for (var i = 0; i < errs.length; i++) {
+        if (errs[i]["message"] === error) { // not unique
+         return;
+        }
+      }
+    }
     $scope.view.errors.push({
       "message": error,
       "type": type
@@ -127,11 +138,11 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
             fieldValue = date;
           }
           else if (date === null && typeof(fieldValue) === "number") {
-            handleError("Parsing timestamp failed, fallback to x-data", "warning");
+            handleError("Parsing timestamp failed, fallback to x-data", "warning", true);
             // keep fieldValue as is
           } 
           else {
-            handleError("Parsing timestamp failed & it is non-numeric, fallback to using iteration number", "warning");
+            handleError("Parsing timestamp failed & it is non-numeric, fallback to using iteration number", "warning", true);
             fieldValue = rowId;
           }
         } else { // process other data (non-date) columns
@@ -159,7 +170,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
           var dashDate = dateTime[0].split("-");
           if ((slashDate.length === 1 && dashDate.length === 1) || (slashDate.length > 1 && dashDate.length > 1)) {
             // if there were no instances of delimiters, or we have both delimiters when we should only have one
-            handleError("Could not parse the timestamp", "warning");
+            handleError("Could not parse the timestamp", "warning", true);
             return null;
           }
           // if it is a dash date, it is probably in this format: yyyy:mm:dd
@@ -174,7 +185,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
             args.push(slashDate[0]);
             args.push(slashDate[1]);
           } else {
-            handleError("There was something wrong with the date in the timestamp field.", "warning");
+            handleError("There was something wrong with the date in the timestamp field.", "warning", true);
             return null;
           }
           // is there a time element?
@@ -187,7 +198,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
           }
           numDate = new (Function.prototype.bind.apply(Date, [null].concat(args)));
           if (numDate.toString() === "Invalid Date") {
-            handleError("The timestamp appears to be invalid.", "warning");
+            handleError("The timestamp appears to be invalid.", "warning", true);
             return null;
           }
     return numDate;
