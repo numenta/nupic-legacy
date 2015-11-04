@@ -32,6 +32,12 @@ var HEADER_SKIPPED_ROWS = 2;
 // toggle 2 methods of zooming in the graph: "RangeSelector", "HighlightSelector" (=mouse)
 var ZOOM = "HighlightSelector";
 
+// NONE_VALUE_REPLACEMENT:
+// used to fix a "bug" in OPF, where some columns are numeric 
+// (has to be determined at the last row), but their first few values are "None".
+// We replace the with this value, defaults to 0.
+var NONE_VALUE_REPLACEMENT = 0;
+
 
 // Web UI:
 
@@ -115,7 +121,8 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
       var arr = [];
       for (var x = 0; x < loadedFields.length; x++) {
         var num;
-        if (x === 0) {
+        if (x === 0) { //FIXME: move this if branch into a separate function "processDateFormat()"? Can using the ISO format simplify this?
+
           // this should always be the timestamp. See generateFieldMap
           var args = [];
           var dateTime =  data[i][loadedFields[x]].split(" ");
@@ -155,8 +162,12 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
             handleError("The timestamp appears to be invalid.", "warning");
             return;
           }
-        } else {
-          num = (data[i][loadedFields[x]] === "None") ? 0 : data[i][loadedFields[x]];
+        } else { // process other data (non-date) columns
+          num = data[i][loadedFields[x]];
+          // FIXME: this is an OPF "bug", should be discussed upstream
+          if (num === "None") {
+            num = NONE_VALUE_REPLACEMENT;
+          }
         }
         arr.push(num);
       }
