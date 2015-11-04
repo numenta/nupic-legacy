@@ -122,7 +122,18 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
       for (var colId = 0; colId < loadedFields.length; colId++) {
         var fieldValue = data[rowId][loadedFields[colId]]; // numeric
         if (colId === 0) { // this should always be the timestamp. See generateFieldMap
-          fieldValue = dateToNum(fieldValue);
+          date = dateToNum(fieldValue);
+          if (date !== null) { // parsing succeeded, use it
+            fieldValue = date;
+          }
+          else if (date === null && typeof(fieldValue) === "number") {
+            handleError("Parsing timestamp failed, fallback to x-data", "warning");
+            // keep fieldValue as is
+          } 
+          else {
+            handleError("Parsing timestamp failed & it is non-numeric, fallback to using iteration number", "warning");
+            fieldValue = rowId;
+          }
         } else { // process other data (non-date) columns
           // FIXME: this is an OPF "bug", should be discussed upstream
           if (fieldValue === "None") {
@@ -138,10 +149,10 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
   // dateToNum():
   // takes a string of (2) acceptable date-time formats
   // converts it to numeric representation of a date (UNIX epoch time)
-  // return: date as a number, or fail 
+  // return: date as a number, or null if parsing failed
   var dateToNum = function(strDateTime) { // FIXME: Can using the ISO format simplify this?
           var numDate;
-          var dateTime =  strDateTime.split(" ");
+          var dateTime =  String(strDateTime).split(" ");
           var args = [];
           // is the date formatted with slashes or dashes?
           var slashDate = dateTime[0].split("/");
@@ -149,7 +160,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
           if ((slashDate.length === 1 && dashDate.length === 1) || (slashDate.length > 1 && dashDate.length > 1)) {
             // if there were no instances of delimiters, or we have both delimiters when we should only have one
             handleError("Could not parse the timestamp", "warning");
-            return;
+            return null;
           }
           // if it is a dash date, it is probably in this format: yyyy:mm:dd
           if (dashDate.length > 2) {
@@ -164,7 +175,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
             args.push(slashDate[1]);
           } else {
             handleError("There was something wrong with the date in the timestamp field.", "warning");
-            return;
+            return null;
           }
           // is there a time element?
           if (dateTime[1]) {
@@ -177,7 +188,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
           numDate = new (Function.prototype.bind.apply(Date, [null].concat(args)));
           if (numDate.toString() === "Invalid Date") {
             handleError("The timestamp appears to be invalid.", "warning");
-            return;
+            return null;
           }
     return numDate;
   };
