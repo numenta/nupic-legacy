@@ -117,15 +117,15 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
       handleError("Failed to parse the uploaded CSV file!", "danger");
       return null;
     }
-    for (var i = 0; i < data.length; i++) {
+    for (var rowId = 0; rowId < data.length; rowId++) {
       var arr = [];
-      for (var x = 0; x < loadedFields.length; x++) {
-        var num;
-        if (x === 0) { //FIXME: move this if branch into a separate function "processDateFormat()"? Can using the ISO format simplify this?
+      for (var colId = 0; colId < loadedFields.length; colId++) {
+        var fieldValue = data[rowId][loadedFields[colId]]; // numeric
+        if (colId === 0) { //FIXME: move this if branch into a separate function "processDateFormat()"? Can using the ISO format simplify this?
 
           // this should always be the timestamp. See generateFieldMap
           var args = [];
-          var dateTime =  data[i][loadedFields[x]].split(" ");
+          var dateTime =  fieldValue.split(" ");
           // is the date formatted with slashes or dashes?
           var slashDate = dateTime[0].split("/");
           var dashDate = dateTime[0].split("-");
@@ -157,19 +157,18 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
           for (var t = 0; t < args.length; t++) {
             args[t] = parseInt(args[t]);
           }
-          num = new (Function.prototype.bind.apply(Date, [null].concat(args)));
-          if (num.toString() === "Invalid Date") {
+          fieldValue = new (Function.prototype.bind.apply(Date, [null].concat(args)));
+          if (fieldValue.toString() === "Invalid Date") {
             handleError("The timestamp appears to be invalid.", "warning");
             return;
           }
         } else { // process other data (non-date) columns
-          num = data[i][loadedFields[x]];
           // FIXME: this is an OPF "bug", should be discussed upstream
-          if (num === "None") {
-            num = NONE_VALUE_REPLACEMENT;
+          if (fieldValue === "None") {
+            fieldValue = NONE_VALUE_REPLACEMENT;
           }
         }
-        arr.push(num);
+        arr.push(fieldValue);
       }
       loadedCSV.push(arr);
     }
