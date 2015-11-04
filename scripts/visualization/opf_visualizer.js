@@ -121,11 +121,28 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
       var arr = [];
       for (var colId = 0; colId < loadedFields.length; colId++) {
         var fieldValue = data[rowId][loadedFields[colId]]; // numeric
-        if (colId === 0) { //FIXME: move this if branch into a separate function "processDateFormat()"? Can using the ISO format simplify this?
+        if (colId === 0) { // this should always be the timestamp. See generateFieldMap
+          fieldValue = dateToNum(fieldValue);
+        } else { // process other data (non-date) columns
+          // FIXME: this is an OPF "bug", should be discussed upstream
+          if (fieldValue === "None") {
+            fieldValue = NONE_VALUE_REPLACEMENT;
+          }
+        }
+        arr.push(fieldValue);
+      }
+      loadedCSV.push(arr);
+    }
+  };
 
-          // this should always be the timestamp. See generateFieldMap
+  // dateToNum():
+  // takes a string of (2) acceptable date-time formats
+  // converts it to numeric representation of a date (UNIX epoch time)
+  // return: date as a number, or fail 
+  var dateToNum = function(strDateTime) { // FIXME: Can using the ISO format simplify this?
+          var numDate;
+          var dateTime =  strDateTime.split(" ");
           var args = [];
-          var dateTime =  fieldValue.split(" ");
           // is the date formatted with slashes or dashes?
           var slashDate = dateTime[0].split("/");
           var dashDate = dateTime[0].split("-");
@@ -157,21 +174,12 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
           for (var t = 0; t < args.length; t++) {
             args[t] = parseInt(args[t]);
           }
-          fieldValue = new (Function.prototype.bind.apply(Date, [null].concat(args)));
-          if (fieldValue.toString() === "Invalid Date") {
+          numDate = new (Function.prototype.bind.apply(Date, [null].concat(args)));
+          if (numDate.toString() === "Invalid Date") {
             handleError("The timestamp appears to be invalid.", "warning");
             return;
           }
-        } else { // process other data (non-date) columns
-          // FIXME: this is an OPF "bug", should be discussed upstream
-          if (fieldValue === "None") {
-            fieldValue = NONE_VALUE_REPLACEMENT;
-          }
-        }
-        arr.push(fieldValue);
-      }
-      loadedCSV.push(arr);
-    }
+    return numDate;
   };
 
   $scope.normalizeField = function(normalizedFieldId) {
