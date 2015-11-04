@@ -57,6 +57,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     backupCSV,
     timers = {};
 
+  // the "Show/Hide Options" button
   $scope.toggleOptions = function() {
     $scope.view.optionsVisible = !$scope.view.optionsVisible;
     timers.resize = $timeout(function() {
@@ -64,6 +65,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     });
   };
 
+  // read and parse a CSV file
   $scope.uploadFile = function(event) {
     $scope.view.canRender = false;
     $scope.view.loadedFileName = event.target.files[0].name;
@@ -84,6 +86,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     });
   };
 
+  // show errors as "notices" in the UI
   var handleError = function(error, type) {
     $scope.view.errors.push({
       "message": error,
@@ -105,6 +108,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     // use the last row in the dataset to determine the data types
     var map = generateFieldMap(data[data.length - 1], EXCLUDE_FIELDS);
     if (map === null) {
+      handleError("Failed to parse the uploaded CSV file!", "danger");
       return null;
     }
     for (var i = 0; i < data.length; i++) {
