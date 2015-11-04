@@ -1,3 +1,12 @@
+// some Settings:
+
+// TIMESTAMP represents the name of the column with timestamp/x-data;
+// currently such column must be present in the data, and be of ISO Date format.
+// TODO: allow numeric or missing timestamp column ?
+var TIMESTAMP = "timestamp"; 
+
+// Web UI:
+
 angular.module('app', ['ui.bootstrap']);
 
 angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($scope, $timeout) {
@@ -208,18 +217,18 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
   };
 
   var generateFieldMap = function(row) {
-    if (!row.hasOwnProperty("timestamp")) {
+    if (!row.hasOwnProperty(TIMESTAMP)) {
       handleError("No timestamp field was found", "warning");
       return null;
     }
-    var excludes = ["reset", "timestamp"];
+    var excludes = ["reset", TIMESTAMP];
     angular.forEach(row, function(value, key) {
       if (typeof(value) === "number" && excludes.indexOf(key) === -1) {
         loadedFields.push(key);
       }
     });
     // add timestamp, anomalyScore, and scaledAnomalyScore to the beginning of the array
-    loadedFields.unshift("timestamp");
+    loadedFields.unshift(TIMESTAMP);
     return loadedFields;
   };
 
@@ -252,7 +261,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     $scope.view.dataField = null;
     var counter = 0;
     for (var i = 0; i < renderedFields.length; i++) {
-      if (renderedFields[i] !== "timestamp") {
+      if (renderedFields[i] !== TIMESTAMP) {
         $scope.view.fieldState.push({
           name: renderedFields[i],
           id: counter,
