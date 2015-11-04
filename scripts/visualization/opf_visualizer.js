@@ -28,6 +28,10 @@ var EXCLUDE_FIELDS = [];
 // (we find that acceptable). 
 var HEADER_SKIPPED_ROWS = 2;
 
+// ZOOM:
+// toggle 2 methods of zooming in the graph: "RangeSelector", "HighlightSelector" (=mouse)
+var ZOOM = "HighlightSelector";
+
 
 // Web UI:
 
@@ -301,14 +305,17 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
       div,
       renderedCSV, {
         labels: renderedFields,
-        showRangeSelector: true,
         showLabelsOnHighlight: false,
+        // select and copy functionality
+        // FIXME: avoid the hardcoded timestamp format
         pointClickCallback: function(e, point) {
           timestamp = moment(point.xval);
           timestampString = timestamp.format("YYYY-MM-DD HH:mm:ss.SSS000");
           window.prompt("Copy to clipboard: Ctrl+C, Enter", timestampString);
         },
-        highlightCallback: function(e, x, points, row, seriesName) {
+        // zoom functionality
+        showRangeSelector: ZOOM === "RangeSelector",   
+        highlightCallback: function(e, x, points, row, seriesName) { // ZOOM === "HighlightSelector"
           for (var p = 0; p < points.length; p++) {
             updateValue(points[p].name, points[p].yval);
           }
