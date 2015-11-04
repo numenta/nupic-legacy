@@ -182,6 +182,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     return numDate;
   };
 
+  // normalize select field with regards to the Data choice.
   $scope.normalizeField = function(normalizedFieldId) {
     // we have to add one here, because the data array is different than the label array
     var fieldId = normalizedFieldId + 1;
@@ -205,7 +206,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     var dataFieldRange = getMinOrMaxOfArray(dataFieldValues, "max") - getMinOrMaxOfArray(dataFieldValues, "min");
     var normalizeFieldRange = getMinOrMaxOfArray(toBeNormalizedValues, "max") - getMinOrMaxOfArray(toBeNormalizedValues, "min");
     var ratio = dataFieldRange / normalizeFieldRange;
-    // multiple each anomalyScore by this amount
+    // multiply each anomalyScore by this amount
     for (var x = 0; x < renderedCSV.length; x++) {
       renderedCSV[x][fieldId] = parseFloat((renderedCSV[x][fieldId] * ratio).toFixed(10));
     }
@@ -265,6 +266,10 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     }
   };
 
+  // say which fields will be plotted (all numeric + guessedDataFields - excluded)
+  // based on parsing the last (to omit Nones at the start) row of the data.
+  // return: matrix with numeric columns
+  // TIMESTAMP is always the 1st column.
   var generateFieldMap = function(row, excludes) {
     if (!row.hasOwnProperty(TIMESTAMP)) {
       handleError("No timestamp field was found", "warning");
@@ -298,6 +303,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     }
   };
 
+  // the main "graphics" is rendered here
   $scope.renderData = function() {
     var fields = [];
     var div = document.getElementById("dataContainer");
@@ -325,7 +331,8 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     guessDataField(POSSIBLE_OPF_DATA_FIELDS);
     $scope.view.graph = new Dygraph(
       div,
-      renderedCSV, {
+      renderedCSV, 
+      {
         labels: renderedFields,
         showLabelsOnHighlight: false,
         // select and copy functionality
@@ -335,7 +342,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
           timestampString = timestamp.format("YYYY-MM-DD HH:mm:ss.SSS000");
           window.prompt("Copy to clipboard: Ctrl+C, Enter", timestampString);
         },
-        // zoom functionality
+        // zoom functionality - toggle the 2 options in ZOOM
         showRangeSelector: ZOOM === "RangeSelector",   
         highlightCallback: function(e, x, points, row, seriesName) { // ZOOM === "HighlightSelector"
           for (var p = 0; p < points.length; p++) {
