@@ -15,6 +15,10 @@ var TIMESTAMP = "timestamp";
 var POSSIBLE_OPF_DATA_FIELDS = ["multiStepPredictions.actual", 
                                 "multiStepBestPredictions.actual"];
 
+// EXCLUDE_FIELDS:
+// used to ignore some fields completely, not showing them as possibilities in graph plots.
+var EXCLUDE_FIELDS = ["reset", TIMESTAMP];
+
 
 // Web UI:
 
@@ -86,7 +90,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     // since this is OPF data, strip out the second and third rows
     data.splice(0, 2);
     // use the last row in the dataset to determine the data types
-    var map = generateFieldMap(data[data.length - 1]);
+    var map = generateFieldMap(data[data.length - 1], EXCLUDE_FIELDS);
     if (map === null) {
       return null;
     }
@@ -226,12 +230,11 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     }
   };
 
-  var generateFieldMap = function(row) {
+  var generateFieldMap = function(row, excludes) {
     if (!row.hasOwnProperty(TIMESTAMP)) {
       handleError("No timestamp field was found", "warning");
       return null;
     }
-    var excludes = ["reset", TIMESTAMP];
     angular.forEach(row, function(value, key) {
       if (typeof(value) === "number" && excludes.indexOf(key) === -1) {
         loadedFields.push(key);
