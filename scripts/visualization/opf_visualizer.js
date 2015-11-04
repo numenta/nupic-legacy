@@ -334,6 +334,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     renderedFields = angular.copy(loadedFields);
     $scope.view.renderedFileName = $scope.view.loadedFileName;
     // build field toggle array
+    // FIXME: failes to render the fields with example/CSV
     $scope.view.fieldState.length = 0;
     $scope.view.dataField = null;
     var counter = 0;
