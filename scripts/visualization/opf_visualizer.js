@@ -1,9 +1,20 @@
 // some Settings:
 
-// TIMESTAMP represents the name of the column with timestamp/x-data;
+// TIMESTAMP: 
+// represents the name of the column with timestamp/x-data;
 // currently such column must be present in the data, and be of ISO Date format.
 // TODO: allow numeric or missing timestamp column ?
 var TIMESTAMP = "timestamp"; 
+
+// POSSIBLE_OPF_DATA_FIELDS: 
+// Is used only in OPF files during CSV parsing, where fields may, or may not be present, 
+// depending on the user's Model settings in NuPIC. 
+// Iff these fields are present, we'll include them as data fields. 
+// FIXME: is this code (and guessDataFields()) needed? 'multiStepBestPredictions.5' are
+// plotted even though not in the list.
+var POSSIBLE_OPF_DATA_FIELDS = ["multiStepPredictions.actual", 
+                                "multiStepBestPredictions.actual"];
+
 
 // Web UI:
 
@@ -206,8 +217,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     }
   };
 
-  var guessDataField = function() {
-    var possibleDataFields = ["multiStepPredictions.actual", "multiStepBestPredictions.actual"];
+  var guessDataField = function(possibleDataFields) {
     for (var i = 0; i < $scope.view.fieldState.length; i++) {
       if (possibleDataFields.indexOf($scope.view.fieldState[i].name) > -1) {
         $scope.view.dataField = $scope.view.fieldState[i].id;
@@ -273,7 +283,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
         counter++;
       }
     }
-    guessDataField();
+    guessDataField(POSSIBLE_OPF_DATA_FIELDS);
     $scope.view.graph = new Dygraph(
       div,
       renderedCSV, {
