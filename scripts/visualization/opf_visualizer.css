@@ -1,4 +1,4 @@
-.opf-header {
+.viz-header {
   background-color:#337ab7;
   color:#fff;
   padding:20px 20px 20px 85px;
@@ -6,22 +6,36 @@
   box-shadow:0 3px 8px rgba(0,0,0,0.3);
 }
 
-.opf-header button.ready {
+.viz-header button.ready {
   animation-name: glowingButton;
   animation-duration: 1s;
   animation-iteration-count: infinite;
 }
 
-.opf-header .errors {
+.viz-header .errors {
   float:right;
   height:34px;
   margin-left:15px;
 }
 
-.opf-header .errors .alert {
+.viz-header .errors .alert {
   margin-bottom:0;
   padding-top:6px;
   padding-bottom:6px;
+}
+
+.viz-header .usage {
+  color: rgba(255,255,255,0.5);
+}
+
+.viz-header .usage:hover {
+  color: rgba(255,255,255,1);
+}
+
+.viz-header .usage ul {
+  padding:0;
+  margin:0;
+  padding-left:15px;
 }
 
 .title h1 {
