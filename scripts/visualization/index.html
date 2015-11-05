@@ -19,14 +19,15 @@
   </head>
   <body ng-controller="AppCtrl">
     <div class="container-fluid">
-      <div class="opf-header">
+      <div class="viz-header">
+
         <div class="row">
-          <div class="col-md-12 title">
-            <img src="numenta_black.svg" alt="Numenta logo"><h1>NuPIC OPF Visualization</h1>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12">
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-md-12 title">
+                <img src="numenta_black.svg" alt="Numenta logo"><h1>NuPIC OPF Visualization</h1>
+              </div>
+            </div>
             <p>Browse for a local file to render, then click "Render" to turn it into a graph.</p>
             <div class="form-inline">
               <div class="form-group">
@@ -47,6 +48,15 @@
                 </div>
               </div>
             </div>
+          </div>
+          <div class="col-md-6 usage" ng-show="view.graph">
+            <h3>Graph Usage</h3>
+            <ul>
+              <li>Zoom in: use mouse to select desired range for zoom in the graph.</li>
+              <li>Zoom out: double click will restore you to 1:1 view.</li>
+              <li>To pan in a zoomed graph hold ALT+mouse drag (on Linux SHIFT instead).</li>
+              <li>To normalize/rescale some values, select a reference field in Data and then desired field(s) in Normalize.</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -101,14 +111,5 @@
         </div>
       </div>
     </div>
-  <div>
-    <h3>Usage</h3>
-    <ul>
-      <li>Zoom in: use mouse to select desired range for zoom in the graph.</li>
-      <li>Zoom out: double click will restore you to 1:1 view.</li>
-      <li>To pan in a zoomed graph hold ALT+mouse drag (on Linux SHIFT instead).</li>
-      <li>To normalize/rescale some values, select a reference field in Data and then desired field(s) in Normalize.</li>
-    </ul>
-  </div>
   </body>
 </html>
