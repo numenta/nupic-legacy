@@ -364,6 +364,15 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
         labels: renderedFields,
         labelsUTC: true, // make timestamp in UTC, to have consistent graphs
         showLabelsOnHighlight: false,
+        title: "Graph of NuPIC results",
+        xlabel: "timestamp <small>[UTC/iteration]</small>",
+        ylabel: "values <small>[multiple fields]</small>",
+        strokeWidth: 1,
+        highlightSeriesOpts: { // series hovered get thicker
+          strokeWidth: 2,
+          strokeBorderWidth: 1,
+          highlightCircleSize: 3
+        },
         // select and copy functionality
         // FIXME: avoid the hardcoded timestamp format
         pointClickCallback: function(e, point) {
