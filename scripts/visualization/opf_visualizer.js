@@ -340,7 +340,6 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
     renderedFields = angular.copy(loadedFields);
     $scope.view.renderedFileName = $scope.view.loadedFileName;
     // build field toggle array
-    // FIXME: failes to render the fields with example/CSV
     $scope.view.fieldState.length = 0;
     $scope.view.dataField = null;
     var counter = 0;
@@ -362,7 +361,7 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
       div,
       renderedCSV, {
         labels: renderedFields,
-        labelsUTC: true, // make timestamp in UTC, to have consistent graphs
+        labelsUTC: false, // make timestamp in UTC to have consistent graphs
         showLabelsOnHighlight: false,
         xlabel: "Time",
         ylabel: "Values",
