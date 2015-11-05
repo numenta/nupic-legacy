@@ -37,7 +37,10 @@ class FastTemporalMemory(TemporalMemory):
 
   def __init__(self, *args, **kwargs):
     super(FastTemporalMemory, self).__init__(*args, **kwargs)
-    self.connections = Connections(self.numberOfCells())
+    self.connections = Connections(
+      self.numberOfCells(),
+      maxSegmentsPerCell=kwargs["maxSegmentsPerCell"],
+      maxSynapsesPerSegment=kwargs["maxSynapsesPerSegment"])
 
 
   def burstColumns(self,
