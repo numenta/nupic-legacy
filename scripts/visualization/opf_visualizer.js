@@ -364,10 +364,8 @@ angular.module('app').controller('AppCtrl', ['$scope', '$timeout', function($sco
         labels: renderedFields,
         labelsUTC: true, // make timestamp in UTC, to have consistent graphs
         showLabelsOnHighlight: false,
-        //TODO: labelsDiv - show labes in external div - can we use this to simplify the current code?
-        title: "Graph of NuPIC results",
-        xlabel: "timestamp <small>[UTC/iteration]</small>",
-        ylabel: "values <small>[multiple fields]</small>",
+        xlabel: "Time",
+        ylabel: "Values",
         strokeWidth: 1,
         highlightSeriesOpts: { // series hovered get thicker
           strokeWidth: 2,
