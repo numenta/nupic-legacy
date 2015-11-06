@@ -367,7 +367,10 @@ def _setUpExports(exports):
     return ret
   exportDict = json.loads(exports)
   for key in exportDict.keys():
-    ret+= "export %s=%s;" % (str(key), str(exportDict[key]))
+    if (sys.platform.startswith('win')):
+      ret+= "set \"%s=%s\" & " % (str(key), str(exportDict[key]))
+    else:
+      ret+= "export %s=%s;" % (str(key), str(exportDict[key]))
   return ret
 
 
