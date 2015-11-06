@@ -301,7 +301,7 @@ def runWithJsonFile(expJsonFilePath, options, outputLabel, permWorkDir):
 
   _setupInterruptHandling()
 
-  with open(expJsonFilePath, "rb") as jsonFile:
+  with open(expJsonFilePath, "r") as jsonFile:
     expJsonConfig = json.loads(jsonFile.read())
 
   outDir = os.path.dirname(expJsonFilePath)
@@ -1093,7 +1093,7 @@ class _HyperSearchRunner(object):
                                                  outputLabel=outputLabel)
 
     jobID = None
-    with open(filePath, "rb") as jobIdPickleFile:
+    with open(filePath, "r") as jobIdPickleFile:
       jobInfo = pickle.load(jobIdPickleFile)
       jobID = jobInfo["hyperSearchJobID"]
 

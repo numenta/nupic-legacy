@@ -255,7 +255,7 @@ class Configuration(object):
         try:
           # Use warn since console log level is set to warning
           _getLogger().debug("Loading config file: %s", filePath)
-          with open(filePath, 'rb') as inp:
+          with open(filePath, 'r') as inp:
             contents = inp.read()
         except Exception:
           raise RuntimeError("Expected configuration file at %s" % filePath)

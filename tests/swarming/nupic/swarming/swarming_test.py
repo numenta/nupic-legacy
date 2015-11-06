@@ -138,7 +138,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     
     # If already have a path, concatenate to it
     if "NTA_DATA_PATH" in env:
-      newPath = "%s:%s" % (env["NTA_DATA_PATH"], g_myEnv.testSrcDataDir)
+      newPath = "%s%s%s" % (env["NTA_DATA_PATH"], os.pathsep, g_myEnv.testSrcDataDir)
     else:
       newPath = g_myEnv.testSrcDataDir
       
@@ -230,8 +230,8 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       descriptionPyPath = os.path.join(expDirectory, "description.py")
       permutationsPyPath = os.path.join(expDirectory, "permutations.py")
 
-      permutationsPyContents = open(permutationsPyPath, 'rb').read()
-      descriptionPyContents = open(descriptionPyPath, 'rb').read()
+      permutationsPyContents = open(permutationsPyPath, 'r').read()
+      descriptionPyContents = open(descriptionPyPath, 'r').read()
 
       jobParams = {'persistentJobGUID' : generatePersistentJobGUID(),
                    'permutationsPyContents': permutationsPyContents,
