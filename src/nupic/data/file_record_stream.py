@@ -62,7 +62,6 @@ contents using a for loop:
 """
 
 import os
-import sys
 import csv
 import copy
 import json
