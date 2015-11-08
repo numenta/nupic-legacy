@@ -1,4 +1,106 @@
-version: '{build}'
-build:
-  verbosity: minimal
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
 
+# version format
+version: {build}
+
+branches:
+  except:
+    - gh-pages
+
+skip_commits:
+  # Add [av skip] to commit messages to skip AppVeyor building
+  # Add [ci skip] to skip Travis and AppVeyor building
+  message: /\[av skip\]/
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+# http://www.appveyor.com/docs/environment-variables
+# http://www.appveyor.com/docs/installed-software
+
+init:
+  - git config --global core.autocrlf input
+
+clone_folder: c:\projects\nupic-core
+clone_depth: 50
+
+# Can't have a shallow clone because the CMake process will be calling into
+# git to write the current SHA into the binaries.
+shallow_clone: false
+
+environment:
+  PYTHON_ARCH: "64"
+  COMPILER_FAMILY: GCC
+
+  matrix:
+    - PYTHON_VERSION: "2.7.9"
+      PYTHONPATH: "C:\\Python27-x64"
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+install:
+  - set NUPIC_DEPLOYMENT_BUILD=1
+
+  - set REPO_DIR=c:\projects\nupic
+  - cd %REPO_DIR%
+
+  # Install Python 2.7.x and support packages (pip etc.)
+  - ps: .\ci\appveyor\install_python_pip.ps1
+
+  - set PYTHONPATH=%PYTHONPATH%
+  - set PATH=%PYTHONPATH%;%PYTHONPATH%\Scripts;%PATH%
+
+  - set ARTIFACTS_DIR=%REPO_DIR%\build\artifacts
+  - for /f %%i in ('python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"') do set NUPIC_CORE_COMMITISH=%%i
+  - for /f %%i in ('python ci\appveyor\get_nupic_bindings_version.py') do set BINDINGS_VERSION=%%i
+
+  - echo Core commitish  = %NUPIC_CORE_COMMITISH%
+  - echo Binding version = %BINDINGS_VERSION%
+
+  - set BINDINGS_LOC = "http://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings"
+  - pip install %BINDINGS_LOC%/nupic.bindings-%BINDINGS_VERSION%-cp27-none-win_amd64.whl
+
+  # Check all packages installed correctly
+  - cmd: pip list
+
+build_script:
+  - cd %REPO_DIR%
+
+  - python setup.py bdist_wheel
+
+  - ps: ls -l dist
+  - ps: move .\dist\nupic-0.3.6.dev0-py2-none-any.whl .
+
+after_build:
+  - cd %REPO_DIR%
+
+  # Python unit tests
+  - py.test tests\unit
+
+  # Python integration tests
+  - py.test tests\integration
+
+artifacts:
+  - path: '**\*.whl' # find all Wheel archives recursively
+
+deploy:
+  # Amazon S3 deployment provider settings
+  - provider: S3
+    access_key_id:
+      secure: D942gmPEB3lICGqL4M1HhaEqkBxr+DP7sb4pUc8UXqI=
+    secret_access_key:
+      secure: 1wvNyHZO/6LKqNmAHcGEDxBHRjOC0iXUhSkXjZq6CGL0Cx5Kjtxnxhkz63ohknOH
+    bucket: "artifacts.numenta.org"
+    region: us-west-2
+    set_public: true
+    artifact: "nupic-$(BINDINGS_VERSION)-cp27-none-win_amd64.whl"
+    folder: "numenta/nupic/$(APPVEYOR_REPO_COMMIT)"
+    on:
+      branch: master
+
+test: off
