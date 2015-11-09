@@ -86,7 +86,7 @@ class FileRecordStream(RecordStreamIface):
   _FILE_WRITE_MODE = 'w'
 
   # Private: file mode for opening file for reading
-  _FILE_READ_MODE = 'rU'
+  _FILE_READ_MODE = 'r'
 
 
   def __init__(self, streamID, write=False, fields=None, missingValues=None,
@@ -170,8 +170,6 @@ class FileRecordStream(RecordStreamIface):
       names, types, specials = zip(*fields)
       self._writer = csv.writer(self._file)
     else:
-      # Make sure readline() works on windows too
-      os.linesep = '\n'
       # Read header lines
       self._reader = csv.reader(self._file, dialect="excel")
       try:
@@ -515,7 +513,6 @@ class FileRecordStream(RecordStreamIface):
       assert self._mode == self._FILE_READ_MODE
 
       inFile = open(self._filename, self._FILE_READ_MODE)
-      os.linesep = '\n' # make sure readline() works on windows too.
 
       # Create a new reader; read names, types, specials
       reader = csv.reader(inFile, dialect="excel")

@@ -69,7 +69,7 @@ def importBaseDescription(path, config):
     callingFrame = inspect.stack()[1][0]
     callingFile = callingFrame.f_globals['__file__']
     subExpDir = os.path.dirname(callingFile)
-    path = os.path.join(subExpDir, path)
+    path = os.path.normpath(os.path.join(subExpDir, path))
 
   #print "Importing from: %s" % path
 
