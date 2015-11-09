@@ -251,7 +251,7 @@ class Model(object):
     # Load the model
     modelPickleFilePath = Model._getModelPickleFilePath(savedModelDir)
 
-    with open(modelPickleFilePath, 'rb') as modelPickleFile:
+    with open(modelPickleFilePath, 'r') as modelPickleFile:
       logger.debug("Unpickling Model instance...")
 
       model = pickle.load(modelPickleFile)

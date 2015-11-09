@@ -39,26 +39,6 @@ import datetime
 from nupic.data.file import File
 
   
-def fixEOL(f):
-  """Make sure the end of line character is '\n'
-  
-  This is needed in order to use fileinput.input() to process the files. The
-  file format of the raw gym dataset unfortunately contains \r (old Mac format)
-  EOL characters.
-  """
-  text = open(f).read()
-  
-  # If there are no carriage returns (\r) just return
-  if text.find('\r') == -1:
-    return
-  # Takes care of Windows format
-  text = text.replace('\r\n', '\n')
-  # Takes care of old Mac format
-  text = text.replace('\r', '\n')
-  
-  open(f, 'w').write(text)
-
-
 def _parseTimestamp(t):
   tokens = t.split()
   day, month, year = [int(x) for x in tokens[0].split('/')]
@@ -113,8 +93,7 @@ def makeDataset():
   """
   """
   inputFile = 'numenta_air_Con.csv'
-  fixEOL(inputFile)
-  
+
   fields = [
     ('gym', 'string', 'S'),
     ('address', 'string', ''),

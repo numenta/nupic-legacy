@@ -339,7 +339,9 @@ class CLAClassifier(object):
                 normally increase sequentially by 1 each time unless there
                 are missing records in the dataset. Knowing this information
                 insures that we don't get confused by missing records.
-    patternNZ:  list of the active indices from the output below
+    patternNZ:  List of the active indices from the output below.
+                - When the input is from TemporalMemory, this list should be the
+                  indices of the active cells.
     classification: dict of the classification information:
                     bucketIdx: index of the encoder bucket
                     actValue:  actual value going into the encoder

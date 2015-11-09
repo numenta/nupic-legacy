@@ -100,7 +100,7 @@ class WeatherJoiner(object):
 
       # Open the input and output files for processing
       outputFile = csv.writer(open(outputPath, 'w'),dialect='excel')
-      inputFile = csv.reader(open(inputPath, 'rU'),dialect='excel')
+      inputFile = csv.reader(open(inputPath, 'r'),dialect='excel')
 
       # Update the headers and find where the address and timestamp are
       addressIndex, timestampIndex = self._updateHeaders(self.weatherTypes,
