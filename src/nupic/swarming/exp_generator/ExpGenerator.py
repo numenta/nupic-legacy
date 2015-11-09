@@ -384,7 +384,7 @@ def _generateFileFromTemplates(templateFileNames, outputFilePath,
   for templateFileName in templateFileNames:
     # Separate lines from each file by two blank lines.
     if not firstFile:
-      inputLines.extend(['\n']*2)
+      inputLines.extend([os.linesep]*2)
     firstFile = False
 
     inputFilePath = os.path.join(installPath, templateFileName)

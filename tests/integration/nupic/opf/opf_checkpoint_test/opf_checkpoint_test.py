@@ -256,7 +256,7 @@ class MyTestCaseBase(HelperTestCaseBase):
     size = 2**27
     csv.field_size_limit(size)
 
-    rawFileObj = open(filepath, 'rU')
+    rawFileObj = open(filepath, 'r')
 
     csvReader = csv.reader(rawFileObj, dialect='excel')
 

@@ -431,13 +431,18 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
     replacements[makeKey('SYSLOG_HANDLER_ADDRESS')] = '"/var/run/syslog"'
   elif platform.startswith('linux'):
     replacements[makeKey('SYSLOG_HANDLER_ADDRESS')] = '"/dev/log"'
+  elif platform.startswith('win'):
+    replacements[makeKey('SYSLOG_HANDLER_ADDRESS')] = '"log"'
   else:
-    raise RuntimeError("This platform is neither darwin nor linux: %s" % (
+    raise RuntimeError("This platform is neither darwin, win32, nor linux: %s" % (
       sys.platform,))
 
   # Nupic logs go to file
   replacements[makeKey('PERSISTENT_LOG_HANDLER')] = 'fileHandler'
-  replacements[makeKey('FILE_HANDLER_LOG_FILENAME')] = '"/dev/null"'
+  if platform.startswith('win'):
+    replacements[makeKey('FILE_HANDLER_LOG_FILENAME')] = '"nupic.log"'
+  else:
+    replacements[makeKey('FILE_HANDLER_LOG_FILENAME')] = '"/dev/null"'
 
   # Set up log file path for the default file handler and configure handlers
   handlers = list()
