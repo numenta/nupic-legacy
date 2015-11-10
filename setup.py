@@ -88,6 +88,7 @@ if __name__ == "__main__":
     },
     include_package_data=True,
     zip_safe=False,
+    extras_require = {"capnp": ["pycapnp==0.5.5"]},
     description="Numenta Platform for Intelligent Computing",
     author="Numenta",
     author_email="help@numenta.org",
