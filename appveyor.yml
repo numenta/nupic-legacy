@@ -24,7 +24,7 @@ skip_commits:
 init:
   - git config --global core.autocrlf input
 
-clone_folder: c:\projects\nupic-core
+clone_folder: c:\projects\nupic
 clone_depth: 50
 
 # Can't have a shallow clone because the CMake process will be calling into
