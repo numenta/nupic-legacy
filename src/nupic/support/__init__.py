@@ -440,7 +440,7 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   # Nupic logs go to file
   replacements[makeKey('PERSISTENT_LOG_HANDLER')] = 'fileHandler'
   if platform.startswith('win'):
-    replacements[makeKey('FILE_HANDLER_LOG_FILENAME')] = '"nupic.log"'
+    replacements[makeKey('FILE_HANDLER_LOG_FILENAME')] = '"NUL"'
   else:
     replacements[makeKey('FILE_HANDLER_LOG_FILENAME')] = '"/dev/null"'
 

@@ -49,7 +49,7 @@ install:
   - set REPO_DIR=c:\projects\nupic
   - cd %REPO_DIR%
 
-  # Install Python 2.7.x and support packages (pip etc.)
+  # Install Python 2.7.x and support packages (pip, wheel, numpy etc.)
   - ps: .\ci\appveyor\install_python_pip.ps1
 
   - set PYTHONPATH=%PYTHONPATH%
@@ -74,7 +74,7 @@ build_script:
   - python setup.py bdist_wheel
 
   - ps: ls -l dist
-  - ps: move .\dist\nupic-0.3.6.dev0-py2-none-any.whl .
+  - ps: move .\dist\nupic-*-py2-none-any.whl .
 
 after_build:
   - cd %REPO_DIR%
@@ -86,7 +86,7 @@ after_build:
   - py.test tests\integration
 
 artifacts:
-  - path: '**\*.whl' # find all Wheel archives recursively
+  - path: '*.whl' # Find all wheel files in project root only (non-recusive)
 
 deploy:
   # Amazon S3 deployment provider settings
