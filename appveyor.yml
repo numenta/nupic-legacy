@@ -45,6 +45,7 @@ environment:
 
 install:
   - set NUPIC_DEPLOYMENT_BUILD=1
+  - set NUPIC=c:\projects\nupic
 
   - set REPO_DIR=c:\projects\nupic
   - cd %REPO_DIR%
@@ -62,7 +63,7 @@ install:
   - echo Core commitish  = %NUPIC_CORE_COMMITISH%
   - echo Binding version = %BINDINGS_VERSION%
 
-  - set BINDINGS_LOC = "http://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings"
+  - set BINDINGS_LOC="http://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings"
   - pip install %BINDINGS_LOC%/nupic.bindings-%BINDINGS_VERSION%-cp27-none-win_amd64.whl
 
   # Check all packages installed correctly
