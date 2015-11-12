@@ -148,6 +148,36 @@ class SpatialPoolerTest(unittest.TestCase):
       self.assertEqual(connectedCounts[i], expectedConnectedCounts[i])
 
 
+  def testUpdateDutyCycles(self):
+    sp = SpatialPooler(inputDimensions = [5],
+                       columnDimensions = [5])
+
+    initOverlapArr1 = np.array([1, 1, 1, 1, 1], dtype=realDType)
+    sp.setOverlapDutyCycles(initOverlapArr1);
+    overlaps = np.array([1, 5, 7, 0, 0], dtype=uintDType)
+    active = np.array([0, 0, 0, 0, 0], dtype=uintDType)
+
+    sp.setIterationNum(2)
+    sp._updateDutyCycles(overlaps, active);
+
+    resultOverlapArr1 = np.zeros(5, dtype=realDType)
+    sp.getOverlapDutyCycles(resultOverlapArr1)
+
+    trueOverlapArr1 = np.array([1, 1, 1, 0.5, 0.5], dtype=realDType)
+    self.assertEqual(list(resultOverlapArr1), list(trueOverlapArr1))
+
+    sp.setOverlapDutyCycles(initOverlapArr1);
+    sp.setIterationNum(2000);
+    sp.setUpdatePeriod(1000);
+    sp.updateDutyCycles_(overlaps, active);
+
+    resultOverlapArr2 = np.zeros(5, dtype=realDType)
+    sp.getOverlapDutyCycles(resultOverlapArr2);
+    trueOverlapArr2 = np.array([1, 1, 1, 0.999, 0.999], dtype=realDType)
+
+    self.assertEqual(list(resultOverlapArr2), list(trueOverlapArr2))
+
+
 
 if __name__ == "__main__":
   unittest.main()
