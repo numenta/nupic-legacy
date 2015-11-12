@@ -22,7 +22,7 @@
 
 import unittest
 
-import numpy
+import numpy as np
 
 from nupic.bindings.math import GetNTAReal
 from nupic.bindings.algorithms import SpatialPooler
@@ -30,6 +30,7 @@ from nupic.bindings.algorithms import SpatialPooler
 
 
 
+uintDType = "uint32"
 realDType = GetNTAReal()
 
 
@@ -65,10 +66,10 @@ class SpatialPoolerTest(unittest.TestCase):
     ]
 
     for column, permanence in enumerate(permanences):
-      sp.setPermanence(column, numpy.array(permanence, dtype=realDType))
+      sp.setPermanence(column, np.array(permanence, dtype=realDType))
 
     for inputVector, expectedOverlap in zip(inputVectors, expectedOverlaps):
-      inputVector = numpy.array(inputVector, dtype=realDType)
+      inputVector = np.array(inputVector, dtype=realDType)
       overlap = set(sp._calculateOverlap(inputVector))
       expected = set(expectedOverlap)
       self.assertSetEqual(overlap, expected,
@@ -85,12 +86,66 @@ class SpatialPoolerTest(unittest.TestCase):
     overlaps = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     expectedActive = set([5, 6, 7, 8, 9])
 
-    active = sp._inhibitColumns(numpy.array(overlaps, dtype=realDType))
+    active = sp._inhibitColumns(np.array(overlaps, dtype=realDType))
     active = set(active)
 
     self.assertSetEqual(active, expectedActive,
                         "Input: {0}\tExpected: {1}\tActual: {2}".format(
                           overlaps, expectedActive, active))
+
+
+  def testUpdatePermanencesForColumn(self):
+    sp = SpatialPooler(inputDimensions = [5],
+                       columnDimensions = [5])
+    sp.setSynPermTrimThreshold(0.05)
+
+    permanencesList = [
+      [ -0.10, 0.500, 0.400, 0.010, 0.020 ],
+      [ 0.300, 0.010, 0.020, 0.120, 0.090 ],
+      [ 0.070, 0.050, 1.030, 0.190, 0.060 ],
+      [ 0.180, 0.090, 0.110, 0.010, 0.030 ],
+      [ 0.200, 0.101, 0.050, -0.09, 1.100 ]]
+
+    expectedPermanencesList = [
+      [ 0.000, 0.500, 0.400, 0.000, 0.000],
+       # Clip     -     -      Trim   Trim
+      [0.300, 0.000, 0.000, 0.120, 0.090],
+       # -    Trim   Trim   -     -
+      [0.070, 0.050, 1.000, 0.190, 0.060],
+       # -     -   Clip   -     -
+      [0.180, 0.090, 0.110, 0.000, 0.000],
+       # -     -    -      Trim   Trim
+      [0.200, 0.101, 0.050, 0.000, 1.000]]
+       # -      -     -      Clip   Clip
+
+    expectedConnectedSynapsesList = [
+      [0, 1, 1, 0, 0],
+      [1, 0, 0, 1, 0],
+      [0, 0, 1, 1, 0],
+      [1, 0, 1, 0, 0],
+      [1, 1, 0, 0, 1]]
+
+    expectedConnectedCounts = [2, 2, 2, 2, 3]
+
+    for i in xrange(5):
+      permanences = np.array(permanencesList[i], dtype=realDType)
+      expectedPermanences = np.array(expectedPermanencesList[i],
+                                     dtype=realDType)
+      expectedConnectedSynapses = expectedConnectedSynapsesList[i]
+
+      sp._updatePermanencesForColumn(permanences, i, False)
+
+      updatedPermanences = np.zeros(5, dtype=realDType)
+      connectedSynapses = np.zeros(5, dtype=uintDType)
+      connectedCounts = np.zeros(5, dtype=uintDType)
+
+      sp.getPermanence(i, updatedPermanences)
+      sp.getConnectedSynapses(i, connectedSynapses)
+      sp.getConnectedCounts(connectedCounts)
+
+      np.testing.assert_almost_equal(updatedPermanences, expectedPermanences)
+      self.assertEqual(list(connectedSynapses), expectedConnectedSynapses)
+      self.assertEqual(connectedCounts[i], expectedConnectedCounts[i])
 
 
 
