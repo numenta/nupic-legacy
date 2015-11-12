@@ -26,6 +26,7 @@ import numpy as np
 
 from nupic.bindings.math import GetNTAReal
 from nupic.bindings.algorithms import SpatialPooler
+# Uncomment below line to use python SpatialPooler
 # from nupic.research.spatial_pooler import SpatialPooler
 
 
@@ -169,7 +170,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp.setOverlapDutyCycles(initOverlapArr1);
     sp.setIterationNum(2000);
     sp.setUpdatePeriod(1000);
-    sp.updateDutyCycles_(overlaps, active);
+    sp._updateDutyCycles(overlaps, active);
 
     resultOverlapArr2 = np.zeros(5, dtype=realDType)
     sp.getOverlapDutyCycles(resultOverlapArr2);
