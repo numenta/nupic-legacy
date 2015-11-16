@@ -361,7 +361,11 @@ class KNNClassifier(object):
     @param inputCategory (int) The category to be associated to the training
         pattern
 
-    @param partitionId (int) UNKNOWN
+    @param partitionId (int) partitionID allows you to partition the data set
+        by associating unique IDs with sets of vectors. One use case is to
+        ignore a specific set of vectors during inference for k-fold cross
+        validation (see description of infer() for further details).
+        This is an optional parameter.
 
     @param isSparse (int) If 0, the input pattern is a dense representation. If
         isSparse > 0, the input pattern is a list of non-zero indices and
@@ -379,9 +383,6 @@ class KNNClassifier(object):
 
     if rowID is None:
       rowID = self._iterationIdx
-
-    assert partitionId is None, \
-      "No documentation is available for partitionId, not sure how it works."
 
     # Dense vectors
     if not self.useSparseMemory:
@@ -589,7 +590,15 @@ class KNNClassifier(object):
 
     @param overCategories NO EFFECT
 
-    @param partitionId (int) UNKNOWN
+    @param partitionId (int) If provided, all training vectors with partitionId
+        equal to that of the input pattern are ignored.
+        For example, this may be used to perform k-fold cross validation
+        without repopulating the classifier. First partition all the data into
+        k equal partitions numbered 0, 1, 2, ... and then call learn() for each
+        vector passing in its partitionId. Then, during inference, by passing
+        in the partition ID in the call to infer(), all other vectors with the
+        same partitionId are ignored simulating the effect of repopulating the
+        classifier while ommitting the training vectors in the same partition.
 
     This method returns a 4-tuple: (winner, inferenceResult, dist, categoryDist)
       winner:           The category with the greatest number of nearest
@@ -832,7 +841,8 @@ class KNNClassifier(object):
     @param inputPattern The pattern from which distances to all other patterns
         are returned
 
-    @param partitionId    UNKNOWN
+    @param partitionId If provided, ignore all training vectors with this
+        partitionId.
     """
     if not self._finishedLearning:
       self.finishLearning()
