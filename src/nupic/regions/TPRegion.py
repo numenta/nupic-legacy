@@ -42,16 +42,16 @@ def _getTPClass(temporalImp):
     return TP10X2.TP10X2
   elif temporalImp == 'tm_py':
     return TP_shim.TPShim
-  elif temporalImp == 'tm_py_faster':
+  elif temporalImp == 'tm_py_fast':
     return TP_shim.FastTPShim
   elif temporalImp == 'monitored_tm_py':
     return TP_shim.MonitoredTPShim
-  elif temporalImp == 'monitored_fast_tm_py':
+  elif temporalImp == 'monitored_tm_py_fast':
     return TP_shim.MonitoredFastTPShim
   else:
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
-              "'cpp', 'tm_py', 'tm_py_faster',"
-              "'monitored_tm_py', 'monitored_fast_tm_py'" % (temporalImp))
+              "'cpp', 'tm_py', 'tm_py_fast',"
+              "'monitored_tm_py', 'monitored_tm_py_fast'" % (temporalImp))
 
 
 
@@ -424,8 +424,8 @@ class TPRegion(PyRegion):
       tpClass = _getTPClass(self.temporalImp)
 
       if self.temporalImp in ['py', 'cpp', 'r',
-                              'tm_py', 'tm_py_faster',
-                              'monitored_tm_py', 'monitored_fast_tm_py']:
+                              'tm_py', 'tm_py_fast',
+                              'monitored_tm_py', 'monitored_tm_py_fast']:
         self._tfdr = tpClass(
              numberOfCols=self.columnCount,
              cellsPerColumn=self.cellsPerColumn,
