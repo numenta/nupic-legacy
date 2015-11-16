@@ -56,6 +56,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
 
   def compare(self, pySp, cppSp):
+    self.assertAlmostEqual(pySp.getPrecision(),
+                           cppSp.getPrecision())
     self.assertAlmostEqual(pySp.getNumColumns(),
                            cppSp.getNumColumns())
     self.assertAlmostEqual(pySp.getNumInputs(),
@@ -439,6 +441,14 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     d2 = d2.nonzero()[0].tolist()
     self.assertListEqual(
         d1, d2, "SP outputs are not equal: \n%s \n%s" % (str(d1), str(d2)))
+
+
+  def testSameInitParams(self):
+    """Py and C++ SP implementations must use the same init parameters"""
+    pySp = PySpatialPooler(inputDimensions=[121, 1])
+    cppSp = CPPSpatialPooler(inputDimensions=[121, 1])
+
+    self.compare(pySp, cppSp)
 
 
 

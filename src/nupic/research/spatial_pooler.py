@@ -33,7 +33,7 @@ realDType = GetNTAReal()
 uintType = "uint32"
 
 VERSION = 2
-
+DEFAULT_RNG_SEED = 42
 
 
 class InvalidSPParamValueError(ValueError):
@@ -110,22 +110,22 @@ class SpatialPooler(object):
   """
 
   def __init__(self,
-               inputDimensions=(32, 32),
-               columnDimensions=(64, 64),
+               inputDimensions,
+               columnDimensions=(2048,),
                potentialRadius=16,
                potentialPct=0.5,
-               globalInhibition=False,
+               globalInhibition=True,
                localAreaDensity=-1.0,
                numActiveColumnsPerInhArea=10.0,
                stimulusThreshold=0,
-               synPermInactiveDec=0.008,
-               synPermActiveInc=0.05,
-               synPermConnected=0.10,
+               synPermInactiveDec=0.01,
+               synPermActiveInc=0.1,
+               synPermConnected=0.1,
                minPctOverlapDutyCycle=0.001,
                minPctActiveDutyCycle=0.001,
                dutyCyclePeriod=1000,
                maxBoost=10.0,
-               seed=-1,
+               seed=DEFAULT_RNG_SEED,
                spVerbosity=0,
                wrapAround=True
                ):
@@ -232,7 +232,8 @@ class SpatialPooler(object):
       maxBoost is used if the duty cycle is 0, and any duty cycle in between is
       linearly extrapolated from these 2 endpoints.
     @param seed:
-      Seed for our own pseudo-random number generator.
+      Seed for our own pseudo-random number generator. Default value used is in
+      DEFAULT_RNG_SEED (=42).
     @param spVerbosity:
       spVerbosity level: 0, 1, 2, or 3
     @param wrapAround:
@@ -297,6 +298,12 @@ class SpatialPooler(object):
     self._version = VERSION
     self._iterationNum = 0
     self._iterationLearnNum = 0
+    # Ensure we don't have too much unnecessary precision. A full 64 bits of
+    # precision causes numerical stability issues across platforms and across
+    # implementations. 
+    # The same value must be used in C++ (and other) implementations. 
+    # This is a constant value, but we provide getPrecision() for tests.
+    SpatialPooler.PRECISION = 5
 
     # Store the set of all inputs within each columns potential pool as a
     # single adjacency matrix such that matrix rows map to cortical columns,
@@ -370,6 +377,19 @@ class SpatialPooler(object):
 
     if self._spVerbosity > 0:
       self.printParameters()
+
+
+  def getPrecision(self):
+    return SpatialPooler.PRECISION
+
+
+  def _round5(self, p):
+    """
+    Implementation of C++ 'round5_()' method used for 
+    numerical stability rounding.
+    """
+    prec = 10**self.getPrecision()
+    return int(p * prec) / float(prec)
 
 
   def getColumnDimensions(self):
@@ -1128,7 +1148,7 @@ class SpatialPooler(object):
     # Ensure we don't have too much unnecessary precision. A full 64 bits of
     # precision causes numerical stability issues across platforms and across
     # implementations
-    p = int(p*100000) / 100000.0
+    p = self._round5(p)
     return p
 
 
@@ -1142,8 +1162,9 @@ class SpatialPooler(object):
     # Ensure we don't have too much unnecessary precision. A full 64 bits of
     # precision causes numerical stability issues across platforms and across
     # implementations
-    p = int(p*100000) / 100000.0
+    p = self._round5(p)
     return p
+
 
   def _initPermanence(self, potential, connectedPct):
     """
@@ -1414,6 +1435,8 @@ class SpatialPooler(object):
     region. At most half of the columns in a local neighborhood are allowed to
     be active.
 
+    Parameters:
+    ----------------------------
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
                     of synapses in a "connected state" (connected synapses)
@@ -1446,6 +1469,8 @@ class SpatialPooler(object):
     neighborhood. At most half of the columns in a local neighborhood are
     allowed to be active.
 
+    Parameters:
+    ----------------------------
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
                     of synapses in a "connected state" (connected synapses)
