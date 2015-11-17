@@ -63,13 +63,17 @@ class DateEncoder(Encoder):
 
   forced (default True) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
 
+  hourOfWeek (00:00 monday = 0; units = seconds)
+    (int) width of attribute: default radius = 1 day
+    (tuple) hourOfDay[0] = width; hourOfDay[1] = radius
+
 
 
   """
 
 
   def __init__(self, season=0, dayOfWeek=0, weekend=0, holiday=0, timeOfDay=0, customDays=0,
-                name = '', forced=True):
+                name = '', forced=True, hourOfWeek=0):
 
     self.width = 0
     self.description = []
@@ -208,6 +212,23 @@ class DateEncoder(Encoder):
       self.description.append(("time of day", self.timeOfDayOffset))
       self.encoders.append(("time of day", self.timeOfDayEncoder, self.timeOfDayOffset))
 
+    self.hourOfWeekEncoder = None
+    if hourOfWeek != 0:
+      # Value is hour of week in hours (with seconds resolution)
+      # Default Radius = 1 day
+      if hasattr(hourOfWeek, "__getitem__"):
+        w = hourOfWeek[0]
+        radius = hourOfWeek[1]
+      else:
+        w = hourOfWeek
+        radius = 24
+      self.hourOfWeekEncoder = ScalarEncoder(w = w, minval=0, maxval=168,
+                              periodic=True, radius=radius, name="hour of week", forced=forced)
+      self.hourOfWeekOffset = self.width
+      self.width += self.hourOfWeekEncoder.getWidth()
+      self.description.append(("hour of week", self.hourOfWeekOffset))
+      self.encoders.append(("hour of week", self.hourOfWeekEncoder, self.hourOfWeekOffset))
+
 
   def getWidth(self):
     return self.width
@@ -246,6 +267,9 @@ class DateEncoder(Encoder):
     if self.timeOfDayEncoder is not None:
       names.append(_formFieldName(self.timeOfDayEncoder))
 
+    if self.hourOfWeekEncoder is not None:
+      names.append(_formFieldName(self.hourOfWeekEncoder))
+
     return names
 
 
@@ -262,6 +286,7 @@ class DateEncoder(Encoder):
     # Get the scalar values for each sub-field
     timetuple = input.timetuple()
     timeOfDay = timetuple.tm_hour + float(timetuple.tm_min)/60.0
+    hourOfWeek = timetuple.tm_wday * 24 + timetuple.tm_hour + float(timetuple.tm_min)/60.0 + float(timetuple.tm_sec)/3600.0
 
     if self.seasonEncoder is not None:
       dayOfYear = timetuple.tm_yday
@@ -318,6 +343,9 @@ class DateEncoder(Encoder):
     if self.timeOfDayEncoder is not None:
       values.append(timeOfDay)
 
+    if self.hourOfWeekEncoder is not None:
+      values.append(hourOfWeek)
+
     return values
 
 
@@ -331,7 +359,7 @@ class DateEncoder(Encoder):
     Returns:        A numpy array of the corresponding scalar values in
                     the following order:
 
-                    [season, dayOfWeek, weekend, holiday, timeOfDay]
+                    [season, dayOfWeek, weekend, holiday, timeOfDay, hourOfWeek]
 
                     Note: some of these fields might be omitted if they were not
                     specified in the encoder
@@ -409,6 +437,7 @@ class DateEncoder(Encoder):
     addEncoder("customDaysEncoder", "customDaysOffset")
     addEncoder("holidayEncoder", "holidayOffset")
     addEncoder("timeOfDayEncoder", "timeOfDayOffset")
+    addEncoder("hourOfWeekEncoder", "hourOfWeekOffset")
 
     return encoder
 
@@ -419,7 +448,8 @@ class DateEncoder(Encoder):
                  "weekendEncoder",
                  "customDaysEncoder",
                  "holidayEncoder",
-                 "timeOfDayEncoder"):
+                 "timeOfDayEncoder",
+                 "hourOfWeekEncoder"):
       encoder = getattr(self, name)
       if encoder:
         encoder.write(getattr(proto, name))
