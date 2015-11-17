@@ -1,4 +1,4 @@
-@0x9b23d989c61ef9e5;
+@0x9b23d989c61ef9e6;
 
 using import "/nupic/encoders/scalar.capnp".ScalarEncoderProto;
 
