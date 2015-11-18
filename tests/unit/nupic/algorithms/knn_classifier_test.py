@@ -154,6 +154,37 @@ class KNNClassifierTest(unittest.TestCase):
     self.assertEquals(cat, 1)
 
 
+  def testPartitionId(self):
+    """Tests that paritionId properly excludes training data points"""
+    params = {"distanceMethod": "rawOverlap"}
+    classifier = KNNClassifier(**params)
+
+    dimensionality = 40
+    a = np.array([1, 3, 7, 11, 13, 17, 19, 23, 29], dtype=np.int32)
+    b = np.array([2, 4, 8, 12, 14, 18, 20, 28, 30], dtype=np.int32)
+
+    denseA = np.zeros(dimensionality)
+    denseA[a] = 1.0
+
+    denseB = np.zeros(dimensionality)
+    denseB[b] = 1.0
+
+    classifier.learn(a, 0, isSparse=dimensionality, partitionId=0)
+    classifier.learn(b, 1, isSparse=dimensionality, partitionId=1)
+
+    cat, _, _, _ = classifier.infer(denseA, partitionId=1)
+    self.assertEquals(cat, 0)
+
+    cat, _, _, _ = classifier.infer(denseA, partitionId=0)
+    self.assertEquals(cat, 1)
+
+    cat, _, _, _ = classifier.infer(denseB, partitionId=0)
+    self.assertEquals(cat, 1)
+
+    cat, _, _, _ = classifier.infer(denseB, partitionId=1)
+    self.assertEquals(cat, 0)
+
+
   def testOverlapDistanceMethodBadSparsity(self):
     """Sparsity (input dimensionality) less than input array"""
     params = {"distanceMethod": "rawOverlap"}
