@@ -325,9 +325,9 @@ class SpatialPooler(object):
 
     # Initialize a tiny random tie breaker. This is used to determine winning
     # columns where the overlaps are identical.
-    self._tieBreaker = 0.01*numpy.array([self._random.getReal64() for i in
-                                         xrange(self._numColumns)],
-                                        dtype=realDType)
+    self._tieBreaker = numpy.array([0.01 * self._random.getReal64() for i in
+                                      xrange(self._numColumns)],
+                                    dtype=realDType)
 
     # 'self._connectedSynapses' is a similar matrix to 'self._permanences'
     # (rows represent cortical columns, columns represent input bits) whose
