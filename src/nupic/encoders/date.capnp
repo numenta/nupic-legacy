@@ -10,5 +10,4 @@ struct DateEncoderProto {
   customDaysEncoder @4 :ScalarEncoderProto;
   holidayEncoder @5 :ScalarEncoderProto;
   timeOfDayEncoder @6 :ScalarEncoderProto;
-  hourOfWeekEncoder @7 :ScalarEncoderProto;
 }
