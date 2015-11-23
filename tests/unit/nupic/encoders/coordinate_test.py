@@ -75,6 +75,13 @@ class CoordinateEncoderTest(unittest.TestCase):
     self.assertRaises(ValueError, CoordinateEncoder, **args)
 
 
+  def testHashCoordinate(self):
+    h1 = self.encoder._hashCoordinate(np.array([0]))
+    self.assertEqual(h1, 7415141576215061722)
+    h2 = self.encoder._hashCoordinate(np.array([0, 1]))
+    self.assertEqual(h2, 6909411824118942936)
+
+
   def testOrderForCoordinate(self):
     h1 = self.encoder._orderForCoordinate(np.array([2, 5, 10]))
     h2 = self.encoder._orderForCoordinate(np.array([2, 5, 11]))

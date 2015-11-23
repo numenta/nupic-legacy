@@ -95,19 +95,24 @@ class KNNClassifier(object):
         the p value of the Lp-norm
 
     @param distanceMethod (string) The method used to compute distance between
-        patterns. The possible options are:
+        input patterns and prototype patterns. The possible options are:
         "norm": When distanceNorm is 2, this is the euclidean distance,
                 When distanceNorm is 1, this is the manhattan distance
                 In general: sum(abs(x-proto) ^ distanceNorm) ^ (1/distanceNorm)
+                The distances are normalized such that farthest prototype from
+                a given input is 1.0.
         "rawOverlap": Only appropriate when inputs are binary. This computes:
                 (width of the input) - (# bits of overlap between input
                 and prototype).
-        "pctOverlapOfLarger": Only appropriate for binary inputs. This computes
+        "pctOverlapOfInput": Only appropriate for binary inputs. This computes
                 1.0 - (# bits overlap between input and prototype) /
-                        max(# bits in input, # bits in prototype)
+                        (# ON bits in input)
         "pctOverlapOfProto": Only appropriate for binary inputs. This computes
                 1.0 - (# bits overlap between input and prototype) /
-                        (# bits in prototype)
+                        (# ON bits in prototype)
+        "pctOverlapOfLarger": Only appropriate for binary inputs. This computes
+                1.0 - (# bits overlap between input and prototype) /
+                        max(# ON bits in input, # ON bits in prototype)
 
     @param distThreshold (float) A threshold on the distance between learned
         patterns and a new pattern proposed to be learned. The distance must be
@@ -167,7 +172,7 @@ class KNNClassifier(object):
     self.exact = exact
     self.distanceNorm = distanceNorm
     assert (distanceMethod in ("norm", "rawOverlap", "pctOverlapOfLarger",
-                               "pctOverlapOfProto"))
+                               "pctOverlapOfProto", "pctOverlapOfInput"))
     self.distanceMethod = distanceMethod
     self.distThreshold = distThreshold
     self.doBinarization = doBinarization
@@ -356,7 +361,11 @@ class KNNClassifier(object):
     @param inputCategory (int) The category to be associated to the training
         pattern
 
-    @param partitionId (int) UNKNOWN
+    @param partitionId (int) partitionID allows you to partition the data set
+        by associating unique IDs with sets of vectors. One use case is to
+        ignore a specific set of vectors during inference for k-fold cross
+        validation (see description of infer() for further details).
+        This is an optional parameter.
 
     @param isSparse (int) If 0, the input pattern is a dense representation. If
         isSparse > 0, the input pattern is a list of non-zero indices and
@@ -374,9 +383,6 @@ class KNNClassifier(object):
 
     if rowID is None:
       rowID = self._iterationIdx
-
-    assert partitionId is None, \
-      "No documentation is available for partitionId, not sure how it works."
 
     # Dense vectors
     if not self.useSparseMemory:
@@ -584,7 +590,15 @@ class KNNClassifier(object):
 
     @param overCategories NO EFFECT
 
-    @param partitionId (int) UNKNOWN
+    @param partitionId (int) If provided, all training vectors with partitionId
+        equal to that of the input pattern are ignored.
+        For example, this may be used to perform k-fold cross validation
+        without repopulating the classifier. First partition all the data into
+        k equal partitions numbered 0, 1, 2, ... and then call learn() for each
+        vector passing in its partitionId. Then, during inference, by passing
+        in the partition ID in the call to infer(), all other vectors with the
+        same partitionId are ignored simulating the effect of repopulating the
+        classifier while ommitting the training vectors in the same partition.
 
     This method returns a 4-tuple: (winner, inferenceResult, dist, categoryDist)
       winner:           The category with the greatest number of nearest
@@ -780,35 +794,33 @@ class KNNClassifier(object):
 
     # Sparse memory
     if self.useSparseMemory:
-      if self.distanceMethod == "pctOvlerapOfLarger":
-        if self._protoSizes is None:
-          self._protoSizes = self._Memory.rowSums()
-        dist =  self._Memory.rightVecSumAtNZ(inputPattern)
-        maxVal = numpy.maximum(self._protoSizes, inputPattern.sum())
-        if maxVal > 0:
-          dist /= maxVal
-        dist = 1.0 - dist
-      elif self.distanceMethod == "rawOverlap":
-        if self._protoSizes is None:
-          self._protoSizes = self._Memory.rowSums()
-        inputPatternSum = inputPattern.sum()
-        dist = (inputPatternSum - self._Memory.rightVecSumAtNZ(inputPattern))
+      if self._protoSizes is None:
+        self._protoSizes = self._Memory.rowSums()
+      overlapsWithProtos = self._Memory.rightVecSumAtNZ(inputPattern)
+      inputPatternSum = inputPattern.sum()
+
+      if self.distanceMethod == "rawOverlap":
+        dist = inputPattern.sum() - overlapsWithProtos
+      elif self.distanceMethod == "pctOverlapOfInput":
+        dist = inputPatternSum - overlapsWithProtos
         if inputPatternSum > 0:
           dist /= inputPatternSum
       elif self.distanceMethod == "pctOverlapOfProto":
-        if self._protoSizes is None:
-          self._protoSizes = self._Memory.rowSums()
-        dist =  self._Memory.rightVecSumAtNZ(inputPattern)
-        dist /= self._protoSizes
-        dist = 1.0 - dist
+        overlapsWithProtos /= self._protoSizes
+        dist = 1.0 - overlapsWithProtos
+      elif self.distanceMethod == "pctOverlapOfLarger":
+        maxVal = numpy.maximum(self._protoSizes, inputPatternSum)
+        if maxVal.all() > 0:
+          overlapsWithProtos /= maxVal
+        dist = 1.0 - overlapsWithProtos
       elif self.distanceMethod == "norm":
         dist = self._Memory.vecLpDist(self.distanceNorm, inputPattern)
         distMax = dist.max()
         if distMax > 0:
           dist /= distMax
       else:
-        raise RuntimeError("Unimplemented distance method %s" % \
-                           (self.distanceMethod))
+        raise RuntimeError("Unimplemented distance method %s" %
+          self.distanceMethod)
 
     # Dense memory
     else:
@@ -829,7 +841,8 @@ class KNNClassifier(object):
     @param inputPattern The pattern from which distances to all other patterns
         are returned
 
-    @param partitionId    UNKNOWN
+    @param partitionId If provided, ignore all training vectors with this
+        partitionId.
     """
     if not self._finishedLearning:
       self.finishLearning()
@@ -938,7 +951,7 @@ class KNNClassifier(object):
 
     self._vt = self._vt[:self.numSVDDims]
 
-    # Added when svd is not able to decompose vectors - uses raw spare vectors  
+    # Added when svd is not able to decompose vectors - uses raw spare vectors
     if len(self._vt) == 0:
       return
 

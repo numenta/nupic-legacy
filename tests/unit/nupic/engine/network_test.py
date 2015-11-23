@@ -71,7 +71,7 @@ class NetworkTest(unittest.TestCase):
       'TestNode.compute() Failing on purpose as requested')
 
     # Test failure in the static getSpec
-    from nupic.regions.TestNode import TestNode
+    from nupic.bindings.regions.TestNode import TestNode
     TestNode._failIngetSpec = True
 
     with self.assertRaises(Exception) as cm:

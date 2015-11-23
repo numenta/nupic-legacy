@@ -216,7 +216,7 @@ class _CustomConfigurationFileWrapper(object):
     configFilePath = cls.getPath()
 
     try:
-      with open(configFilePath, 'rb') as fp:
+      with open(configFilePath, 'r') as fp:
         contents = fp.read()
     except IOError, e:
       if e.errno != errno.ENOENT:
