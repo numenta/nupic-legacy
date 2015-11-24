@@ -1398,9 +1398,6 @@ class SpatialPooler(object):
       density = float(self._numActiveColumnsPerInhArea) / inhibitionArea
       density = min(density, 0.5)
 
-    # Add our fixed little bit of random noise to the scores to help break ties.
-    overlaps += self._tieBreaker
-
     if self._globalInhibition or \
       self._inhibitionRadius > max(self._columnDimensions):
       return self._inhibitColumnsGlobal(overlaps, density)
