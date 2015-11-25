@@ -83,7 +83,6 @@ after_build:
 
   # Show nupic installation folder by trying to import nupic, if works, it prints
   # the absolute path of nupic.__file__, which the installation folder itself.
-  # FB - python -c 'import sys;import os;import nupic.data;sys.stdout.write(os.path.abspath(os.path.join(nupic.data.__file__, "../..")))'
   - python -c "import sys;import os;import nupic.data;sys.stdout.write(os.path.abspath(os.path.join(nupic.data.__file__, '../..')) + '\n')"
   - set USER=appveyor
 
