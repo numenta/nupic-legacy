@@ -20,6 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import sys
+import pytest
 from mock import Mock
 from mock import patch
 import unittest2 as unittest
@@ -31,6 +33,7 @@ from nupic import engine
 class NetworkTest(unittest.TestCase):
 
 
+  @pytest.mark.skipif("sys.platform == 'win32'", reason="not supported on Windows, yet!")
   def testErrorHandling(self):
     n = engine.Network()
 
@@ -276,6 +279,7 @@ class NetworkTest(unittest.TestCase):
       print "Time for 1M getParameter calls: %.2f seconds" % (t2 - t1)
 
 
+  @pytest.mark.skipif("sys.platform == 'win32'", reason="not supported on Windows, yet!")
   def testTwoRegionNetwork(self):
     n = engine.Network()
 
@@ -341,6 +345,7 @@ class NetworkTest(unittest.TestCase):
     print r.getSpec()
 
 
+  @pytest.mark.skipif("sys.platform == 'win32'", reason="not supported on Windows, yet!")
   def testPyNodeGetSetParameter(self):
     n = engine.Network()
 
@@ -361,6 +366,7 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(result, 77.7)
 
 
+  @pytest.mark.skipif("sys.platform == 'win32'", reason="not supported on Windows, yet!")
   def testPyNodeGetNodeSpec(self):
     n = engine.Network()
 
@@ -383,6 +389,7 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(i.description, 'Primary output for the node')
 
 
+  @pytest.mark.skipif("sys.platform == 'win32'", reason="not supported on Windows, yet!")
   def testTwoRegionPyNodeNetwork(self):
     n = engine.Network()
 
