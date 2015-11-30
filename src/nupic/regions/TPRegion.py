@@ -677,6 +677,10 @@ class TPRegion(PyRegion):
     return spec
 
 
+  def getAlgorithm(self):
+    return self._tfdr
+
+
   def getParameter(self, parameterName, index=-1):
     """
       Get the value of a parameter. Most parameters are handled automatically by

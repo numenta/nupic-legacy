@@ -55,6 +55,11 @@ from nupic.engine import Network
 from nupic.encoders import MultiEncoder
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 
+from nupic.bindings.algorithms import SpatialPooler
+from nupic.research.TP10X2 import TP10X2
+from nupic.regions.SPRegion import SPRegion
+from nupic.regions.TPRegion import TPRegion
+
 _VERBOSITY = 0         # how chatty the unit tests should be
 _SEED = 35             # the random seed used throughout
 
@@ -302,6 +307,20 @@ class OPFRegionTest(TestCaseBase):
     netOPF.run(1)
     print "RUN SUCCEEDED"
     """
+
+
+  def testGetAlgorithmOnRegions(self):
+    network = _createOPFNetwork(addSP = True, addTP = True)
+    network.run(1)
+
+    spRegion = network.getRegion(SPRegion)
+    tpRegion = network.getRegion(TPRegion)
+
+    sp = spRegion.getAlgorithm()
+    tp = tpRegion.getAlgorithm()
+
+    self.assertEqual(type(sp), SpatialPooler)
+    self.assertEqual(type(tp), TP10X2)
 
 
 
