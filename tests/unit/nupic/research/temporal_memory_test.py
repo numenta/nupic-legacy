@@ -368,12 +368,12 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSegment(0)
     connections.createSynapse(0, 3, 0.3)
 
-    activeSynapsesForSegment = set([])
+    activeCells = set([])
 
     for _ in range(100):
       # Never pick cell 0, always pick cell 1
       (cell, _) = tm.bestMatchingCell(tm.cellsForColumn(0),
-                                      activeSynapsesForSegment,
+                                      activeCells,
                                       connections)
       self.assertEqual(cell, 1)
 
