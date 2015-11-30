@@ -721,10 +721,19 @@ class Network(engine.Network):
       raise TypeError("Save path must be of type {}.".format(str))
     engine.Network.save(self, *args, **kwargs)
 
-  def inspect(self):
-    """Launch a GUI inpector to inspect the network"""
-    from nupic.analysis import inspect
-    inspect(self)
+  def getRegion(self, regionClass):
+    """
+    Gets a region instance given a region class
+    (for example, nupic.regions.SPRegion.SPRegion).
+
+    Returns None if no region was found.
+    """
+    for region in self.regions.values():
+      regionInstance = region.getSelf()
+      if type(regionInstance) is regionClass:
+        return regionInstance
+
+    return None
 
   @staticmethod
   def registerRegion(regionClass):

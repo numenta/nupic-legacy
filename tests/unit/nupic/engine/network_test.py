@@ -25,6 +25,8 @@ from mock import patch
 import unittest2 as unittest
 
 from nupic import engine
+from nupic.bindings.regions.TestNode import TestNode
+from nupic.regions.SPRegion import SPRegion
 
 
 
@@ -406,6 +408,15 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(len(r2dims), 2)
     self.assertEqual(r2dims[0], 3)
     self.assertEqual(r2dims[1], 2)
+
+
+  def testGetRegion(self):
+    n = engine.Network()
+
+    region1 = n.addRegion("region1", "py.TestNode", "")
+
+    self.assertEqual(n.getRegion(TestNode), region1.getSelf())
+    self.assertEqual(n.getRegion(SPRegion), None)
 
 
 
