@@ -756,6 +756,10 @@ class SPRegion(PyRegion):
     return spec
 
 
+  def getAlgorithm(self):
+    return self._sfdr
+
+
   def getParameter(self, parameterName, index=-1):
     """
       Get the value of a NodeSpec parameter. Most parameters are handled

@@ -177,6 +177,15 @@ class PyRegion(object):
     name: the name of the output
     """
 
+  def getAlgorithm(self):
+    """
+    Returns the underlying algorithm that is performing the computation.
+    This method should be overridden by the region subclass.
+
+    Returns None if there is no underlying algorithm for the region.
+    """
+    return None
+
   def getParameter(self, name, index):
     """Default implementation that return an attribute with the requested name
 
