@@ -735,18 +735,18 @@ class Network(engine.Network):
       raise TypeError("Save path must be of type {}.".format(str))
     engine.Network.save(self, *args, **kwargs)
 
-  def getRegion(self, regionClass):
+  def getRegionsByType(self, regionClass):
     """
-    Gets a region instance given a region class
+    Gets all region instances of a given class
     (for example, nupic.regions.SPRegion.SPRegion).
-
-    Returns None if no region was found.
     """
+    regions = []
+
     for region in self.regions.values():
       if type(region.getSelf()) is regionClass:
-        return region
+        regions.append(region)
 
-    return None
+    return regions
 
   @staticmethod
   def registerRegion(regionClass):
