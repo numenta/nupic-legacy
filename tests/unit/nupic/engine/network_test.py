@@ -412,11 +412,12 @@ class NetworkTest(unittest.TestCase):
 
   def testGetRegion(self):
     n = engine.Network()
+    n.addRegion("region1", "py.TestNode", "")
 
-    region1 = n.addRegion("region1", "py.TestNode", "")
+    region = n.getRegionsByType(TestNode)[0]
+    self.assertEqual(type(region.getSelf()), TestNode)
 
-    self.assertEqual(n.getRegion(TestNode), region1.getSelf())
-    self.assertEqual(n.getRegion(SPRegion), None)
+    self.assertEqual(n.getRegionsByType(SPRegion), [])
 
 
 
