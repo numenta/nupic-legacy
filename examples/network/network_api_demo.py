@@ -203,10 +203,19 @@ if __name__ == "__main__":
   network = createNetwork(dataSource)
   network.initialize()
 
-  sp = network.getRegion(SPRegion).getAlgorithm()
+  spRegion = network.getRegion(SPRegion)
+  sp = spRegion.getSelf().getAlgorithm()
+  print "spatial pooler region inputs: {0}".format(spRegion.getInputNames())
+  print "spatial pooler region outputs: {0}".format(spRegion.getOutputNames())
   print "# spatial pooler columns: {0}".format(sp.getNumColumns())
-  tm = network.getRegion(TPRegion).getAlgorithm()
+  print
+
+  tmRegion = network.getRegion(TPRegion)
+  tm = tmRegion.getSelf().getAlgorithm()
+  print "temporal memory region inputs: {0}".format(tmRegion.getInputNames())
+  print "temporal memory region outputs: {0}".format(tmRegion.getOutputNames())
   print "# temporal memory columns: {0}".format(tm.numberOfCols)
+  print
 
   outputPath = os.path.join(os.path.dirname(__file__), _OUTPUT_PATH)
   with open(outputPath, "w") as outputFile:

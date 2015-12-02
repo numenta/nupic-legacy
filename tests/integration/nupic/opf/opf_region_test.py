@@ -309,6 +309,19 @@ class OPFRegionTest(TestCaseBase):
     """
 
 
+  def testGetInputOutputNamesOnRegions(self):
+    network = _createOPFNetwork(addSP = True, addTP = True)
+    network.run(1)
+
+    spRegion = network.getRegion(SPRegion)
+    self.assertEqual(spRegion.getInputNames(),
+                     ['bottomUpIn', 'resetIn', 'topDownIn'])
+    self.assertEqual(spRegion.getOutputNames(),
+                     ['topDownOut', 'spatialTopDownOut', 'temporalTopDownOut',
+                      'bottomUpOut', 'anomalyScore'])
+
+
+
   def testGetAlgorithmOnRegions(self):
     network = _createOPFNetwork(addSP = True, addTP = True)
     network.run(1)
@@ -316,8 +329,8 @@ class OPFRegionTest(TestCaseBase):
     spRegion = network.getRegion(SPRegion)
     tpRegion = network.getRegion(TPRegion)
 
-    sp = spRegion.getAlgorithm()
-    tp = tpRegion.getAlgorithm()
+    sp = spRegion.getSelf().getAlgorithm()
+    tp = tpRegion.getSelf().getAlgorithm()
 
     self.assertEqual(type(sp), SpatialPooler)
     self.assertEqual(type(tp), TP10X2)

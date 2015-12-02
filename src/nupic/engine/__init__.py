@@ -457,6 +457,20 @@ class Region(LockAttributesMixin):
     """
     return self._region.getOutputArray(outputName)
 
+  def getInputNames(self):
+    """
+    Returns list of input names in spec.
+    """
+    inputs = self.getSpec().inputs
+    return [inputs.getByIndex(i)[0] for i in xrange(inputs.getCount())]
+
+  def getOutputNames(self):
+    """
+    Returns list of output names in spec.
+    """
+    outputs = self.getSpec().outputs
+    return [outputs.getByIndex(i)[0] for i in xrange(outputs.getCount())]
+
   def executeCommand(self, args):
     """
     @doc:place_holder(Region.executeCommand)
@@ -729,9 +743,8 @@ class Network(engine.Network):
     Returns None if no region was found.
     """
     for region in self.regions.values():
-      regionInstance = region.getSelf()
-      if type(regionInstance) is regionClass:
-        return regionInstance
+      if type(region.getSelf()) is regionClass:
+        return region
 
     return None
 
