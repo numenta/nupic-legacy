@@ -32,6 +32,9 @@ if [ $CC == 'gcc' ]; then
     export CXX='g++-4.8'
 fi
 
+pip install pip --upgrade --user --ignore-installed
+pip install wheel --user
+
 # Fetch nupic.core build
 export NUPIC_CORE_COMMITISH=`python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"`
 echo "Downloading nupic.core build: https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-linux64.tar.gz"
