@@ -20,8 +20,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import unittest2 as unittest
 
+import sys
+import unittest2 as unittest
 import nupic.engine as net
 
 
@@ -111,6 +112,8 @@ class NetworkSugarTest(unittest.TestCase):
                                  (('r2', r2), ('r1', r1)))
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testRegion(self):
     r = net.Network().addRegion('r', 'py.TestNode', '')
 
@@ -120,6 +123,8 @@ class NetworkSugarTest(unittest.TestCase):
     self.assertTrue(r.dimensions.isUnspecified())
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testSpec(self):
     ns = net.Region.getSpecFromType('py.TestNode')
     self.assertEqual(ns.description,
