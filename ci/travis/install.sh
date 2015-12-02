@@ -36,7 +36,7 @@ pip --version
 cd ${TRAVIS_BUILD_DIR}
 ls
 pwd
-pip install --user .[capnp]
+pip install --user -e .[capnp]
 
 # Show nupic installation folder by trying to import nupic, if works, it prints
 # the absolute path of nupic.__file__, which the installation folder itself.
