@@ -32,7 +32,7 @@ if [ $CC == 'gcc' ]; then
     export CXX='g++-4.8'
 fi
 
-pip install pip --upgrade --user --ignore-installed
+pip install --upgrade --user --ignore-installed pip
 pip install wheel --user
 
 # Fetch nupic.core build

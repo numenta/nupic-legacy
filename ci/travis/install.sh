@@ -34,6 +34,8 @@ pip --version
 
 # Build NuPIC
 cd ${TRAVIS_BUILD_DIR}
+ls
+pwd
 pip install --user .[capnp]
 
 # Show nupic installation folder by trying to import nupic, if works, it prints
