@@ -656,6 +656,10 @@ class KNNClassifierRegion(PyRegion):
     self._knn.clear()
 
 
+  def getAlgorithmInstance(self):
+    return self._knn
+
+
   def getParameter(self, name, index=-1):
     """
     Get the value of the parameter.

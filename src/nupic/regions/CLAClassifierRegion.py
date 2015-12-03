@@ -237,6 +237,10 @@ class CLAClassifierRegion(PyRegion):
     self._claClassifier.clear()
 
 
+  def getAlgorithmInstance(self):
+    return self._claClassifier
+
+
   def getParameter(self, name, index=-1):
     """
     Get the value of the parameter.
