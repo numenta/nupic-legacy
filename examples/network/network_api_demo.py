@@ -203,15 +203,15 @@ if __name__ == "__main__":
   network = createNetwork(dataSource)
   network.initialize()
 
-  spRegion = network.getRegion(SPRegion)
-  sp = spRegion.getSelf().getAlgorithm()
+  spRegion = network.getRegionsByType(SPRegion)[0]
+  sp = spRegion.getSelf().getAlgorithmInstance()
   print "spatial pooler region inputs: {0}".format(spRegion.getInputNames())
   print "spatial pooler region outputs: {0}".format(spRegion.getOutputNames())
   print "# spatial pooler columns: {0}".format(sp.getNumColumns())
   print
 
-  tmRegion = network.getRegion(TPRegion)
-  tm = tmRegion.getSelf().getAlgorithm()
+  tmRegion = network.getRegionsByType(TPRegion)[0]
+  tm = tmRegion.getSelf().getAlgorithmInstance()
   print "temporal memory region inputs: {0}".format(tmRegion.getInputNames())
   print "temporal memory region outputs: {0}".format(tmRegion.getOutputNames())
   print "# temporal memory columns: {0}".format(tm.numberOfCols)

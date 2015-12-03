@@ -677,7 +677,7 @@ class TPRegion(PyRegion):
     return spec
 
 
-  def getAlgorithm(self):
+  def getAlgorithmInstance(self):
     return self._tfdr
 
 

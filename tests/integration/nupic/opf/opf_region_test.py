@@ -338,8 +338,8 @@ class OPFRegionTest(TestCaseBase):
     spRegion = spRegions[0]
     tpRegion = tpRegions[0]
 
-    sp = spRegion.getSelf().getAlgorithm()
-    tp = tpRegion.getSelf().getAlgorithm()
+    sp = spRegion.getSelf().getAlgorithmInstance()
+    tp = tpRegion.getSelf().getAlgorithmInstance()
 
     self.assertEqual(type(sp), SpatialPooler)
     self.assertEqual(type(tp), TP10X2)

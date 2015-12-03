@@ -756,7 +756,7 @@ class SPRegion(PyRegion):
     return spec
 
 
-  def getAlgorithm(self):
+  def getAlgorithmInstance(self):
     return self._sfdr
 
 
