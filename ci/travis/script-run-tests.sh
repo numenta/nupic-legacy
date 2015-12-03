@@ -24,6 +24,9 @@ echo
 echo Running script-run-tests.sh...
 echo
 
+ldd /home/travis/.local/lib/python2.7/site-packages/nupic/bindings/*.so
+objdump -t /home/travis/.local/lib/python2.7/site-packages/nupic/bindings/*.so
+
 # Python unit tests and prep for coveralls reporting
 ${TRAVIS_BUILD_DIR}/scripts/run_nupic_tests.py -u --coverage --failfast || exit
 
