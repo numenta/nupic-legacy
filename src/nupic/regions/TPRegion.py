@@ -678,6 +678,7 @@ class TPRegion(PyRegion):
 
 
   def getAlgorithmInstance(self):
+    """Returns instance of the underlying TemporalMemory algorithm object."""
     return self._tfdr
 
 

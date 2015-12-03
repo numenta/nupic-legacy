@@ -177,18 +177,6 @@ class PyRegion(object):
     name: the name of the output
     """
 
-  @not_implemented
-  def getAlgorithmInstance(self):
-    """
-    Returns the instance of the underlying algorithm that is performing
-    the computation.
-
-    This method should be overridden by the region subclass.
-
-    Note that the return type depends on the Region and therefore
-    cannot be determined in advance.
-    """
-
   def getParameter(self, name, index):
     """Default implementation that return an attribute with the requested name
 
