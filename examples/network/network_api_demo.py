@@ -31,6 +31,8 @@ from nupic.algorithms.anomaly import computeRawAnomalyScore
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
 from nupic.encoders import MultiEncoder, ScalarEncoder, DateEncoder
+from nupic.regions.SPRegion import SPRegion
+from nupic.regions.TPRegion import TPRegion
 
 _VERBOSITY = 0  # how chatty the demo should be
 _SEED = 1956  # the random seed used throughout
@@ -199,6 +201,22 @@ if __name__ == "__main__":
   dataSource = FileRecordStream(streamID=_INPUT_FILE_PATH)
 
   network = createNetwork(dataSource)
+  network.initialize()
+
+  spRegion = network.getRegionsByType(SPRegion)[0]
+  sp = spRegion.getSelf().getAlgorithmInstance()
+  print "spatial pooler region inputs: {0}".format(spRegion.getInputNames())
+  print "spatial pooler region outputs: {0}".format(spRegion.getOutputNames())
+  print "# spatial pooler columns: {0}".format(sp.getNumColumns())
+  print
+
+  tmRegion = network.getRegionsByType(TPRegion)[0]
+  tm = tmRegion.getSelf().getAlgorithmInstance()
+  print "temporal memory region inputs: {0}".format(tmRegion.getInputNames())
+  print "temporal memory region outputs: {0}".format(tmRegion.getOutputNames())
+  print "# temporal memory columns: {0}".format(tm.numberOfCols)
+  print
+
   outputPath = os.path.join(os.path.dirname(__file__), _OUTPUT_PATH)
   with open(outputPath, "w") as outputFile:
     writer = csv.writer(outputFile)

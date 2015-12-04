@@ -656,6 +656,11 @@ class KNNClassifierRegion(PyRegion):
     self._knn.clear()
 
 
+  def getAlgorithmInstance(self):
+    """Returns instance of the underlying KNNClassifier algorithm object."""
+    return self._knn
+
+
   def getParameter(self, name, index=-1):
     """
     Get the value of the parameter.
