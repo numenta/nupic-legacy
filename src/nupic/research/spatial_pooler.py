@@ -1422,7 +1422,8 @@ class SpatialPooler(object):
     #calculate num active per inhibition area
     numActive = int(density * self._numColumns)
 
-    # Calculate winners and stable sort for compatibility with C++
+    # Calculate winners using stable sort algorithm (mergesort)
+    # for compatibility with C++
     indices = numpy.array(xrange(self._numColumns), dtype=uintType)
     winnerIndices = indices[numpy.argsort(overlaps, kind='mergesort')]
     sortedWinnerIndices = winnerIndices[-numActive:][::-1]
