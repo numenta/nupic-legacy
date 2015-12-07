@@ -1424,8 +1424,7 @@ class SpatialPooler(object):
 
     # Calculate winners using stable sort algorithm (mergesort)
     # for compatibility with C++
-    indices = numpy.array(xrange(self._numColumns), dtype=uintType)
-    winnerIndices = indices[numpy.argsort(overlaps, kind='mergesort')]
+    winnerIndices = numpy.argsort(overlaps, kind='mergesort')
     sortedWinnerIndices = winnerIndices[-numActive:][::-1]
 
     return sortedWinnerIndices
