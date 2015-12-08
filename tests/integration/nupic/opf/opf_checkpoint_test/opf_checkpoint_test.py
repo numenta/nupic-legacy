@@ -45,22 +45,6 @@ class MyTestCaseBase(HelperTestCaseBase):
     return None
 
 
-  @staticmethod
-  def getOpfNonTemporalPredictionFilepath(experimentDir, taskLabel):
-    path = os.path.join(experimentDir,
-                        "inference",
-                        "%s.nontemporal.predictionLog.csv" % taskLabel)
-    return os.path.abspath(path)
-
-
-  @staticmethod
-  def getOpfTemporalPredictionFilepath(experimentDir, taskLabel):
-    path = os.path.join(experimentDir,
-                        "inference",
-                        "%s.temporal.predictionLog.csv" % taskLabel)
-    return os.path.abspath(path)
-
-
   def compareOPFPredictionFiles(self, path1, path2, temporal,
                                 maxMismatches=None):
     """ Compare temporal or non-temporal predictions for the given experiment
