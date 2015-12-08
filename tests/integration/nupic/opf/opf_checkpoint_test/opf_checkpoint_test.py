@@ -25,7 +25,7 @@ import os
 import shutil
 
 from nupic.data.file_record_stream import FileRecordStream
-from nupic.frameworks.opf.experiment_runner import runExperiment
+from nupic.frameworks.opf.experiment_runner import runExperiment, _getCheckpointParentDir
 from nupic.support import initLogging
 from nupic.support.unittesthelpers.testcasebase import (
     unittest, TestCaseBase as HelperTestCaseBase)
@@ -383,6 +383,11 @@ class MyTestCaseBase(HelperTestCaseBase):
 
       except StopIteration:
         break
+
+    # clean up model checkpoint directories
+    shutil.rmtree(_getCheckpointParentDir(aExpDir))
+    shutil.rmtree(_getCheckpointParentDir(bExpDir))
+    shutil.rmtree(_getCheckpointParentDir(aPlusBExpDir))
 
     print "Predictions match!"
 
