@@ -88,6 +88,7 @@ if __name__ == "__main__":
     },
     include_package_data=True,
     zip_safe=False,
+    extras_require = {"capnp": ["pycapnp==0.5.5"]},
     description="Numenta Platform for Intelligent Computing",
     author="Numenta",
     author_email="help@numenta.org",
@@ -98,6 +99,7 @@ if __name__ == "__main__":
       "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
       "Operating System :: MacOS :: MacOS X",
       "Operating System :: POSIX :: Linux",
+      "Operating System :: Microsoft :: Windows",
       # It has to be "5 - Production/Stable" or else pypi rejects it!
       "Development Status :: 5 - Production/Stable",
       "Environment :: Console",

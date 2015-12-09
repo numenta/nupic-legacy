@@ -42,13 +42,16 @@ def _getTPClass(temporalImp):
     return TP10X2.TP10X2
   elif temporalImp == 'tm_py':
     return TP_shim.TPShim
-  elif temporalImp == 'tm_cpp':
+  elif temporalImp == 'tm_py_fast':
     return TP_shim.FastTPShim
   elif temporalImp == 'monitored_tm_py':
     return TP_shim.MonitoredTPShim
+  elif temporalImp == 'monitored_tm_py_fast':
+    return TP_shim.MonitoredFastTPShim
   else:
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
-              "'cpp', 'tm_py', 'tm_cpp', 'monitored_tm_py'" % (temporalImp))
+              "'cpp', 'tm_py', 'tm_py_fast',"
+              "'monitored_tm_py', 'monitored_tm_py_fast'" % (temporalImp))
 
 
 
@@ -421,7 +424,8 @@ class TPRegion(PyRegion):
       tpClass = _getTPClass(self.temporalImp)
 
       if self.temporalImp in ['py', 'cpp', 'r',
-                              'tm_py', 'tm_cpp', 'monitored_tm_py']:
+                              'tm_py', 'tm_py_fast',
+                              'monitored_tm_py', 'monitored_tm_py_fast']:
         self._tfdr = tpClass(
              numberOfCols=self.columnCount,
              cellsPerColumn=self.cellsPerColumn,
@@ -671,6 +675,11 @@ class TPRegion(PyRegion):
     spec['parameters'].update(o)
 
     return spec
+
+
+  def getAlgorithmInstance(self):
+    """Returns instance of the underlying TemporalMemory algorithm object."""
+    return self._tfdr
 
 
   def getParameter(self, parameterName, index=-1):
