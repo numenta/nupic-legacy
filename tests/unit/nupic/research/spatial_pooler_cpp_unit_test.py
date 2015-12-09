@@ -70,7 +70,7 @@ class SpatialPoolerTest(unittest.TestCase):
       sp.setPermanence(column, np.array(permanence, dtype=realDType))
 
     for inputVector, expectedOverlap in zip(inputVectors, expectedOverlaps):
-      inputVector = np.array(inputVector, dtype=realDType)
+      inputVector = np.array(inputVector, dtype=uintDType)
       overlap = set(sp._calculateOverlap(inputVector))
       expected = set(expectedOverlap)
       self.assertSetEqual(overlap, expected,
