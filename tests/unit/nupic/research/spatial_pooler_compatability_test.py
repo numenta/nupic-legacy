@@ -214,7 +214,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
   def runSerialize(self, imp, params, seed = None):
     randomState = getNumpyRandomGenerator(seed)
     sp1 = CreateSP(imp, params)
-    numColumns = sp1.getNumColumns() 
+    numColumns = sp1.getNumColumns()
     numInputs = sp1.getNumInputs()
     threshold = 0.8
     inputMatrix = (
@@ -222,8 +222,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
     for i in xrange(numRecords/2):
       activeArray = numpy.zeros(numColumns).astype(uintType)
-      inputVector = inputMatrix[i,:] 
-      learn = (randomState.rand() > 0.5) 
+      inputVector = inputMatrix[i,:]
+      learn = (randomState.rand() > 0.5)
       sp1.compute(inputVector, learn, activeArray)
 
     sp2 = pickle.loads(pickle.dumps(sp1))
@@ -387,6 +387,27 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     }
     self.runSerialize("py", params)
     self.runSerialize("cpp", params)
+
+
+  def testInhibitColumnsGlobal(self):
+    params = {
+      "inputDimensions": [512],
+      "columnDimensions": [512],
+      "globalInhibition": True,
+      "numActiveColumnsPerInhArea": 40,
+      "seed": 19
+    }
+
+    sp1 = CreateSP("py", params)
+    sp2 = CreateSP("cpp", params)
+
+    for _ in range(100):
+      overlaps = numpy.random.randint(10, size=512).astype(realType)
+
+      columns1 = sp1._inhibitColumns(overlaps)
+      columns2 = sp2._inhibitColumns(overlaps)
+
+      self.assertEqual(set(columns1), set(columns2))
 
 
   @unittest.skip("Currently fails due to non-fixed randomness in C++ SP.")

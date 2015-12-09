@@ -325,8 +325,9 @@ class SpatialPooler(object):
 
     # Initialize a tiny random tie breaker. This is used to determine winning
     # columns where the overlaps are identical.
-    self._tieBreaker = 0.01*numpy.array([self._random.getReal64() for i in
-                                        xrange(self._numColumns)])
+    self._tieBreaker = numpy.array([0.01 * self._random.getReal64() for i in
+                                      xrange(self._numColumns)],
+                                    dtype=realDType)
 
     # 'self._connectedSynapses' is a similar matrix to 'self._permanences'
     # (rows represent cortical columns, columns represent input bits) whose
@@ -1015,7 +1016,7 @@ class SpatialPooler(object):
                     survived inhibition.
     """
     inputIndices = numpy.where(inputVector > 0)[0]
-    permChanges = numpy.zeros(self._numInputs)
+    permChanges = numpy.zeros(self._numInputs, dtype=realDType)
     permChanges.fill(-1 * self._synPermInactiveDec)
     permChanges[inputIndices] = self._synPermActiveInc
     for columnIndex in activeColumns:
@@ -1100,7 +1101,6 @@ class SpatialPooler(object):
                     a connected state. Should be set to 'false' when a direct
                     assignment is required.
     """
-
     maskPotential = numpy.where(self._potentialPools[columnIndex] > 0)[0]
     if raisePerm:
       self._raisePermanenceToThreshold(perm, maskPotential)
@@ -1166,7 +1166,7 @@ class SpatialPooler(object):
     # to the inputs. Initially a subset of the input bits in a
     # column's potential pool will be connected. This number is
     # given by the parameter "connectedPct"
-    perm = numpy.zeros(self._numInputs)
+    perm = numpy.zeros(self._numInputs, dtype=realDType)
     for i in xrange(self._numInputs):
       if (potential[i] < 1):
         continue
@@ -1361,8 +1361,9 @@ class SpatialPooler(object):
     @param inputVector: a numpy array of 0's and 1's that comprises the input to
                     the spatial pooler.
     """
-    overlaps = numpy.zeros(self._numColumns).astype(realDType)
-    self._connectedSynapses.rightVecSumAtNZ_fast(inputVector, overlaps)
+    overlaps = numpy.zeros(self._numColumns, dtype=realDType)
+    self._connectedSynapses.rightVecSumAtNZ_fast(inputVector.astype(realDType),
+                                                 overlaps)
     overlaps[overlaps < self._stimulusThreshold] = 0
     return overlaps
 
@@ -1397,9 +1398,6 @@ class SpatialPooler(object):
       density = float(self._numActiveColumnsPerInhArea) / inhibitionArea
       density = min(density, 0.5)
 
-    # Add our fixed little bit of random noise to the scores to help break ties.
-    overlaps += self._tieBreaker
-
     if self._globalInhibition or \
       self._inhibitionRadius > max(self._columnDimensions):
       return self._inhibitColumnsGlobal(overlaps, density)
@@ -1424,16 +1422,10 @@ class SpatialPooler(object):
     #calculate num active per inhibition area
     numActive = int(density * self._numColumns)
 
-    # argpartition returns an array where all values to the left of index
-    # numActive are less than or equal to all values to its right. Negating
-    # overlaps produces a descending-order partition.
-    winnerIndices = numpy.argpartition(-overlaps, numActive)[:numActive]
-
-    # Compatibility with nupic.core requires that the winners are sorted;
-    # however, sorting only the winners is far less expensive than sorting all
-    # columns.
-    winnerValues = overlaps[winnerIndices]
-    sortedWinnerIndices = winnerIndices[numpy.argsort(-winnerValues)]
+    # Calculate winners using stable sort algorithm (mergesort)
+    # for compatibility with C++
+    winnerIndices = numpy.argsort(overlaps, kind='mergesort')
+    sortedWinnerIndices = winnerIndices[-numActive:][::-1]
 
     return sortedWinnerIndices
 
@@ -1467,7 +1459,7 @@ class SpatialPooler(object):
       if numBigger < numActive:
         winners.append(i)
         overlaps[i] += addToWinners
-    return winners
+    return numpy.array(winners, dtype=uintType)
 
 
   @staticmethod
@@ -1775,7 +1767,7 @@ class SpatialPooler(object):
         self._permanences[columnIndex], columnIndex, False
       )
 
-    self._tieBreaker = numpy.array(proto.tieBreaker)
+    self._tieBreaker = numpy.array(proto.tieBreaker, dtype=realDType)
 
     self._overlapDutyCycles = numpy.array(proto.overlapDutyCycles,
                                           dtype=realDType)
