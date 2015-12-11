@@ -27,7 +27,7 @@ definition of CLAClassifierRegion for a description.
 
 import warnings
 
-from PyRegion import PyRegion
+from nupic.bindings.regions.PyRegion import PyRegion
 from nupic.algorithms.cla_classifier_factory import CLAClassifierFactory
 
 

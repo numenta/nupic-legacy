@@ -21,7 +21,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 import numpy
-from PyRegion import PyRegion
+from nupic.bindings.regions.PyRegion import PyRegion
 from nupic.data.fieldmeta import FieldMetaType
 
 

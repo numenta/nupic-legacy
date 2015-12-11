@@ -1719,65 +1719,70 @@ class SpatialPooler(object):
       boostFactorsProto[i] = float(v)
 
 
-  def read(self, proto):
+  @classmethod
+  def read(cls, proto):
     numInputs = int(proto.numInputs)
     numColumns = int(proto.numColumns)
 
-    self._random.read(proto.random)
-    self._numInputs = numInputs
-    self._numColumns = numColumns
-    self._columnDimensions = numpy.array(proto.columnDimensions)
-    self._inputDimensions = numpy.array(proto.inputDimensions)
-    self._potentialRadius = proto.potentialRadius
-    self._potentialPct = proto.potentialPct
-    self._inhibitionRadius = proto.inhibitionRadius
-    self._globalInhibition = proto.globalInhibition
-    self._numActiveColumnsPerInhArea = proto.numActiveColumnsPerInhArea
-    self._localAreaDensity = proto.localAreaDensity
-    self._stimulusThreshold = proto.stimulusThreshold
-    self._synPermInactiveDec = proto.synPermInactiveDec
-    self._synPermActiveInc = proto.synPermActiveInc
-    self._synPermBelowStimulusInc = proto.synPermBelowStimulusInc
-    self._synPermConnected = proto.synPermConnected
-    self._minPctOverlapDutyCycles = proto.minPctOverlapDutyCycles
-    self._minPctActiveDutyCycles = proto.minPctActiveDutyCycles
-    self._dutyCyclePeriod = proto.dutyCyclePeriod
-    self._maxBoost = proto.maxBoost
-    self._wrapAround = proto.wrapAround
-    self._spVerbosity = proto.spVerbosity
+    instance = cls()
 
-    self._synPermMin = proto.synPermMin
-    self._synPermMax = proto.synPermMax
-    self._synPermTrimThreshold = proto.synPermTrimThreshold
-    self._updatePeriod = proto.updatePeriod
+    instance._random.read(proto.random)
+    instance._numInputs = numInputs
+    instance._numColumns = numColumns
+    instance._columnDimensions = numpy.array(proto.columnDimensions)
+    instance._inputDimensions = numpy.array(proto.inputDimensions)
+    instance._potentialRadius = proto.potentialRadius
+    instance._potentialPct = proto.potentialPct
+    instance._inhibitionRadius = proto.inhibitionRadius
+    instance._globalInhibition = proto.globalInhibition
+    instance._numActiveColumnsPerInhArea = proto.numActiveColumnsPerInhArea
+    instance._localAreaDensity = proto.localAreaDensity
+    instance._stimulusThreshold = proto.stimulusThreshold
+    instance._synPermInactiveDec = proto.synPermInactiveDec
+    instance._synPermActiveInc = proto.synPermActiveInc
+    instance._synPermBelowStimulusInc = proto.synPermBelowStimulusInc
+    instance._synPermConnected = proto.synPermConnected
+    instance._minPctOverlapDutyCycles = proto.minPctOverlapDutyCycles
+    instance._minPctActiveDutyCycles = proto.minPctActiveDutyCycles
+    instance._dutyCyclePeriod = proto.dutyCyclePeriod
+    instance._maxBoost = proto.maxBoost
+    instance._wrapAround = proto.wrapAround
+    instance._spVerbosity = proto.spVerbosity
 
-    self._version = VERSION
-    self._iterationNum = proto.iterationNum
-    self._iterationLearnNum = proto.iterationLearnNum
+    instance._synPermMin = proto.synPermMin
+    instance._synPermMax = proto.synPermMax
+    instance._synPermTrimThreshold = proto.synPermTrimThreshold
+    instance._updatePeriod = proto.updatePeriod
 
-    self._potentialPools.read(proto.potentialPools)
+    instance._version = VERSION
+    instance._iterationNum = proto.iterationNum
+    instance._iterationLearnNum = proto.iterationLearnNum
 
-    self._permanences.read(proto.permanences)
+    instance._potentialPools.read(proto.potentialPools)
+
+    instance._permanences.read(proto.permanences)
     # Initialize ephemerals and make sure they get updated
-    self._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
-    self._connectedSynapses = BinaryCorticalColumns(numInputs)
-    self._connectedSynapses.resize(numColumns, numInputs)
+    instance._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
+    instance._connectedSynapses = BinaryCorticalColumns(numInputs)
+    instance._connectedSynapses.resize(numColumns, numInputs)
     for columnIndex in xrange(proto.numColumns):
-      self._updatePermanencesForColumn(
-        self._permanences[columnIndex], columnIndex, False
+      instance._updatePermanencesForColumn(
+        instance._permanences[columnIndex], columnIndex, False
       )
 
-    self._tieBreaker = numpy.array(proto.tieBreaker, dtype=realDType)
+    instance._tieBreaker = numpy.array(proto.tieBreaker, dtype=realDType)
 
-    self._overlapDutyCycles = numpy.array(proto.overlapDutyCycles,
+    instance._overlapDutyCycles = numpy.array(proto.overlapDutyCycles,
                                           dtype=realDType)
-    self._activeDutyCycles = numpy.array(proto.activeDutyCycles,
+    instance._activeDutyCycles = numpy.array(proto.activeDutyCycles,
                                          dtype=realDType)
-    self._minOverlapDutyCycles = numpy.array(proto.minOverlapDutyCycles,
+    instance._minOverlapDutyCycles = numpy.array(proto.minOverlapDutyCycles,
                                              dtype=realDType)
-    self._minActiveDutyCycles = numpy.array(proto.minActiveDutyCycles,
+    instance._minActiveDutyCycles = numpy.array(proto.minActiveDutyCycles,
                                             dtype=realDType)
-    self._boostFactors = numpy.array(proto.boostFactors, dtype=realDType)
+    instance._boostFactors = numpy.array(proto.boostFactors, dtype=realDType)
+
+    return instance
 
 
   def printParameters(self):
