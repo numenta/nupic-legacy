@@ -28,7 +28,7 @@ import unittest2 as unittest
 import cPickle
 import numpy
 
-from nupic.regions.PyRegion import RealNumpyDType
+from nupic.bindings.regions.PyRegion import RealNumpyDType
 from nupic.algorithms.KNNClassifier import KNNClassifier
 
 import pca_knn_data
