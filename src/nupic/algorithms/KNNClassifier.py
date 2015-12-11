@@ -70,6 +70,7 @@ class KNNClassifier(object):
                      distanceNorm=2.0,
                      distanceMethod="norm",
                      distThreshold=0,
+                     unnormalizedOverlap=False,
                      doBinarization=False,
                      binarizationThreshold=0.5,
                      useSparseMemory=True,
@@ -118,6 +119,11 @@ class KNNClassifier(object):
         patterns and a new pattern proposed to be learned. The distance must be
         greater than this threshold in order for the new pattern to be added to
         the classifier's memory
+
+    @param unnormalizedOverlap (boolean) Only valid for binary inputs.
+        If True, return actual overlap between input and prototypes from
+        `infer` rather than derived distances as specified by the 
+        `distanceMethod` parameter. Defaults to False.
 
     @param doBinarization (boolean) If True, then scalar inputs will be
         binarized.
@@ -175,6 +181,7 @@ class KNNClassifier(object):
                                "pctOverlapOfProto", "pctOverlapOfInput"))
     self.distanceMethod = distanceMethod
     self.distThreshold = distThreshold
+    self.unnormalizedOverlap = unnormalizedOverlap
     self.doBinarization = doBinarization
     self.binarizationThreshold = binarizationThreshold
     self.useSparseMemory = useSparseMemory
@@ -609,12 +616,18 @@ class KNNClassifier(object):
       inferenceResult:  A list of length numCategories, each entry contains the
                         number of neighbors within the top k neighbors that
                         are in that category.
-      dist:             A list of length numPrototypes. Each entry is the
-                        distance from the unknown to that prototype. All
-                        distances are between 0.0 and 1.0
-      categoryDist:     A list of length numCategories. Each entry is the
-                        distance from the unknown to the nearest prototype of
-                        that category. All distances are between 0 and 1.0.
+      dist:             A list of length numPrototypes. If initialization
+                        parameter  `unnormalizedOverlap` is True, each entry is
+                        the overlap with that prototype. Otherwise, each entry
+                        is the distance from the input pattern to that
+                        prototype. All distances are between 0.0 and 1.0.
+      categoryDist:     A list of length numCategories. If initialization
+                        parameter  `unnormalizedOverlap` is True, each entry
+                        is the overlap between the input pattern and the most
+                        similar prototype of that category. Otherwise, each
+                        entry is the distance from the input pattern to the
+                        nearest prototype of that category. All distances are
+                        between 0 and 1.0.
     """
     if len(self._categoryList) == 0:
       # No categories learned yet; i.e. first inference w/ online learning.
@@ -659,6 +672,10 @@ class KNNClassifier(object):
       print "  pct neighbors of each category:", inferenceResult
       print "  dist of each prototype:", dist
       print "  dist of each category:", categoryDist
+
+    if self.unnormalizedOverlap:
+      dist = self._distanceToOverlap(inputPattern, dist)
+      categoryDist = self._distanceToOverlap(inputPattern, categoryDist)
 
     result = (winner, inferenceResult, dist, categoryDist)
     return result
@@ -833,6 +850,33 @@ class KNNClassifier(object):
         raise RuntimeError ("Not implemented yet for dense storage....")
 
     return dist
+
+
+  def _distanceToOverlap(self, inputPattern, distance):
+    """
+    Convert distances as returned by `_calcDistance` back into an overlap
+    scores.
+
+    @param inputPattern Query input pattern.
+
+    @param distance (numpy.ndarray) Array of distances as returned by 
+        `_calcDistance`.
+    """
+    inputPatternSum = inputPattern.sum()
+
+    if self.distanceMethod == "rawOverlap":
+      return inputPattern.sum() - distance
+    elif self.distanceMethod == "pctOverlapOfInput":
+      return inputPatternSum * (1 - distance)
+    elif self.distanceMethod == "pctOverlapOfProto":
+      raise RuntimeError("Distance to overlap conversation not implemented.")
+    elif self.distanceMethod == "pctOverlapOfLarger":
+      raise RuntimeError("Distance to overlap conversation not implemented.")
+    elif self.distanceMethod == "norm":
+      raise RuntimeError("Only valid for binary vectors.")
+    else:
+      raise RuntimeError("Unimplemented distance method %s" %
+        self.distanceMethod)
 
 
   def _getDistances(self, inputPattern, partitionId=None):
