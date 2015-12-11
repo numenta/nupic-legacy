@@ -22,7 +22,7 @@
 
 import unittest2 as unittest
 
-from nupic.regions.PyRegion import PyRegion
+from nupic.bindings.regions.PyRegion import PyRegion
 
 
 
