@@ -1726,24 +1726,6 @@ class SpatialPoolerTest(unittest.TestCase):
         maxBoost=10.0,
         seed=42,
         spVerbosity=0)
-    sp2 = SpatialPooler(
-        inputDimensions=[3, 3],
-        columnDimensions=[2, 2],
-        potentialRadius=5,
-        potentialPct=0.4,
-        globalInhibition=True,
-        localAreaDensity=1.0,
-        numActiveColumnsPerInhArea=4,
-        stimulusThreshold=2,
-        synPermInactiveDec=0.05,
-        synPermActiveInc=0.2,
-        synPermConnected=0.15,
-        minPctOverlapDutyCycle=0.2,
-        minPctActiveDutyCycle=0.2,
-        dutyCyclePeriod=11,
-        maxBoost=14.0,
-        seed=10,
-        spVerbosity=0)
 
     # Run a record through before serializing
     inputVector = numpy.array([1, 0, 1, 0, 1, 0, 0, 1, 1])
@@ -1760,7 +1742,7 @@ class SpatialPoolerTest(unittest.TestCase):
       proto2 = SpatialPoolerProto_capnp.SpatialPoolerProto.read(f)
 
     # Load the deserialized proto
-    sp2.read(proto2)
+    sp2 = SpatialPooler.read(proto2)
 
     # Check that the two spatial poolers have the same attributes
     self.assertSetEqual(set(sp1.__dict__.keys()), set(sp2.__dict__.keys()))
