@@ -160,10 +160,10 @@ class SpatialPoolerTest(unittest.TestCase):
     Previously output varied between platforms (OSX/Linux etc)
     """
 
-    expectedOutput = [57, 80, 135, 215, 280, 281, 350, 431, 534, 556, 565, 574,
-                      595, 663, 759, 777, 823, 932, 933, 968, 983, 1031, 1126,
-                      1184, 1232, 1262, 1420, 1468, 1479, 1516, 1531, 1585,
-                      1655, 1672, 1755, 1906, 1927, 1936, 1939, 1940]
+    expectedOutput = [57, 80, 135, 215, 281, 350, 431, 534, 556, 565, 574, 595,
+                      663, 759, 777, 823, 932, 933, 1031, 1126, 1184, 1262,
+                      1468, 1479, 1516, 1531, 1585, 1672, 1793, 1807, 1906,
+                      1927, 1936, 1939, 1940, 1944, 1957, 1978, 2040, 2047]
 
     sp = SpatialPooler(
       inputDimensions = [1,188],
@@ -412,7 +412,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._numColumns = 5
     sp._inhibitionRadius = 10
     sp._columnDimensions = [5]
-    overlaps = randomState.random_sample(sp._numColumns)
+    overlaps = randomState.random_sample(sp._numColumns).astype(realDType)
 
     sp._inhibitColumnsGlobal.reset_mock()
     sp._inhibitColumnsLocal.reset_mock()
@@ -438,7 +438,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inhibitionRadius = 7
     # 0.1 * (2*9+1)**2 = 22.5
     trueDensity = sp._localAreaDensity
-    overlaps = randomState.random_sample(sp._numColumns)
+    overlaps = randomState.random_sample(sp._numColumns).astype(realDType)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False, sp._inhibitColumnsGlobal.called)
     self.assertEqual(True, sp._inhibitColumnsLocal.called)
@@ -455,7 +455,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._globalInhibition = False
     sp._inhibitionRadius = 4
     trueDensity = 3.0/81.0
-    overlaps = randomState.random_sample(sp._numColumns)
+    overlaps = randomState.random_sample(sp._numColumns).astype(realDType)
     # 3.0 / (((2*4) + 1) ** 2)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False, sp._inhibitColumnsGlobal.called)
@@ -475,7 +475,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._globalInhibition = False
     sp._inhibitionRadius = 1
     trueDensity = 0.5
-    overlaps = randomState.random_sample(sp._numColumns)
+    overlaps = randomState.random_sample(sp._numColumns).astype(realDType)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False, sp._inhibitColumnsGlobal.called)
     self.assertEqual(True, sp._inhibitColumnsLocal.called)
@@ -1098,7 +1098,7 @@ class SpatialPoolerTest(unittest.TestCase):
     inputVector = numpy.zeros(sp._numInputs, dtype='float32')
     overlaps = sp._calculateOverlap(inputVector)
     overlapsPct = sp._calculateOverlapPct(overlaps)
-    trueOverlaps = list(numpy.array([0, 0, 0, 0, 0]))
+    trueOverlaps = list(numpy.array([0, 0, 0, 0, 0], dtype=realDType))
     trueOverlapsPct = list(numpy.array([0, 0, 0, 0, 0]))
     self.assertListEqual(list(overlaps), trueOverlaps)
     self.assertListEqual(list(overlapsPct), trueOverlapsPct)
@@ -1113,7 +1113,7 @@ class SpatialPoolerTest(unittest.TestCase):
     inputVector = numpy.ones(sp._numInputs, dtype='float32')
     overlaps = sp._calculateOverlap(inputVector)
     overlapsPct = sp._calculateOverlapPct(overlaps)
-    trueOverlaps = list(numpy.array([10, 8, 6, 4, 2]))
+    trueOverlaps = list(numpy.array([10, 8, 6, 4, 2], dtype=realDType))
     trueOverlapsPct = list(numpy.array([1, 1, 1, 1, 1]))
     self.assertListEqual(list(overlaps), trueOverlaps)
     self.assertListEqual(list(overlapsPct), trueOverlapsPct)
@@ -1129,7 +1129,7 @@ class SpatialPoolerTest(unittest.TestCase):
     inputVector[9] = 1
     overlaps = sp._calculateOverlap(inputVector)
     overlapsPct = sp._calculateOverlapPct(overlaps)
-    trueOverlaps = list(numpy.array([1, 1, 1, 1, 1]))
+    trueOverlaps = list(numpy.array([1, 1, 1, 1, 1], dtype=realDType))
     trueOverlapsPct = list(numpy.array([0.1, 0.125, 1.0/6, 0.25, 0.5]))
     self.assertListEqual(list(overlaps), trueOverlaps)
     self.assertListEqual(list(overlapsPct), trueOverlapsPct)
@@ -1146,7 +1146,7 @@ class SpatialPoolerTest(unittest.TestCase):
     inputVector[range(0, 10, 2)] = 1
     overlaps = sp._calculateOverlap(inputVector)
     overlapsPct = sp._calculateOverlapPct(overlaps)
-    trueOverlaps = list(numpy.array([1, 1, 1, 1, 1]))
+    trueOverlaps = list(numpy.array([1, 1, 1, 1, 1], dtype=realDType))
     trueOverlapsPct = list(numpy.array([0.5, 0.5, 0.5, 0.5, 0.5]))
     self.assertListEqual(list(overlaps), trueOverlaps)
     self.assertListEqual(list(overlapsPct), trueOverlapsPct)
@@ -1280,7 +1280,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = self._sp
     density = 0.3
     sp._numColumns = 10
-    overlaps = numpy.array([1, 2, 1, 4, 8, 3, 12, 5, 4, 1])
+    overlaps = numpy.array([1, 2, 1, 4, 8, 3, 12, 5, 4, 1], dtype=realDType)
     active = list(sp._inhibitColumnsGlobal(overlaps, density))
     trueActive = numpy.zeros(sp._numColumns)
     trueActive = [4, 6, 7]
@@ -1288,7 +1288,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     density = 0.5
     sp._numColumns = 10
-    overlaps = numpy.array(range(10))
+    overlaps = numpy.array(range(10), dtype=realDType)
     active = list(sp._inhibitColumnsGlobal(overlaps, density))
     trueActive = numpy.zeros(sp._numColumns)
     trueActive = range(5, 10)
@@ -1301,7 +1301,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._numColumns = 10
     sp._columnDimensions = numpy.array([sp._numColumns])
     sp._inhibitionRadius = 2
-    overlaps = numpy.array([1, 2, 7, 0, 3, 4, 16, 1, 1.5, 1.7])
+    overlaps = numpy.array([1, 2, 7, 0, 3, 4, 16, 1, 1.5, 1.7], dtype=realDType)
                         #   L  W  W  L  L  W  W   L   L    W
     trueActive = [1, 2, 5, 6, 9]
     active = list(sp._inhibitColumnsLocal(overlaps, density))
@@ -1311,7 +1311,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._numColumns = 10
     sp._columnDimensions = numpy.array([sp._numColumns])
     sp._inhibitionRadius = 3
-    overlaps = numpy.array([1, 2, 7, 0, 3, 4, 16, 1, 1.5, 1.7])
+    overlaps = numpy.array([1, 2, 7, 0, 3, 4, 16, 1, 1.5, 1.7], dtype=realDType)
                         #   L  W  W  L  L  W  W   L   L    L
     trueActive = [1, 2, 5, 6]
     active = list(sp._inhibitColumnsLocal(overlaps, density))
@@ -1322,7 +1322,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._numColumns = 10
     sp._columnDimensions = numpy.array([sp._numColumns])
     sp._inhibitionRadius = 3
-    overlaps = numpy.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    overlaps = numpy.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1], dtype=realDType)
                         #   W  W  L  L  W  W  L  L  L  W
     trueActive = [0, 1, 4, 5, 8]
     active = list(sp._inhibitColumnsLocal(overlaps, density))
