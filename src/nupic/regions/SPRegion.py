@@ -756,6 +756,11 @@ class SPRegion(PyRegion):
     return spec
 
 
+  def getAlgorithmInstance(self):
+    """Returns instance of the underlying SpatialPooler algorithm object."""
+    return self._sfdr
+
+
   def getParameter(self, parameterName, index=-1):
     """
       Get the value of a NodeSpec parameter. Most parameters are handled
