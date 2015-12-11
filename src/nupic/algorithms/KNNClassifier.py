@@ -102,7 +102,7 @@ class KNNClassifier(object):
                 The distances are normalized such that farthest prototype from
                 a given input is 1.0.
         "rawOverlap": Only appropriate when inputs are binary. This computes:
-                (width of the input) - (# bits of overlap between input
+                (# of bits ON in input) - (# bits of overlap between input
                 and prototype).
         "pctOverlapOfInput": Only appropriate for binary inputs. This computes
                 1.0 - (# bits overlap between input and prototype) /
