@@ -160,6 +160,8 @@ class Model(object):
     """
     self.__inferenceEnabled = True
     self.__inferenceArgs = inferenceArgs
+    self._predictedFieldName = self.__inferenceArgs.get("predictedField", None)
+
 
   def getInferenceArgs(self):
     """ Return the dict of arguments for the current inference mode.
