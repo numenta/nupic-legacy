@@ -100,10 +100,9 @@ artifacts:
 deploy:
   # Amazon S3 deployment provider settings
   - provider: S3
-    access_key_id:
-      secure: D942gmPEB3lICGqL4M1HhaEqkBxr+DP7sb4pUc8UXqI=
+    access_key_id: AKIAIGHYSEHV3WFKOWNQ
     secret_access_key:
-      secure: 1wvNyHZO/6LKqNmAHcGEDxBHRjOC0iXUhSkXjZq6CGL0Cx5Kjtxnxhkz63ohknOH
+      secure: /8wO17Gir0XAiecJkHeE3jxOJzvyl0+uWcl7BKCuN0FC795golsL8905VmNuRl1o
     bucket: "artifacts.numenta.org"
     region: us-west-2
     set_public: true
