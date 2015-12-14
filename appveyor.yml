@@ -94,8 +94,11 @@ after_build:
   # the absolute path of nupic.__file__, which the installation folder itself.
   - python -c "import sys;import os;import nupic.data;sys.stdout.write(os.path.abspath(os.path.join(nupic.data.__file__, '../..')) + '\n')"
 
+  # Setup local USER name
   - set USER=appveyor
-  - copy ci\appveyor\nupic-site.xml src\nupic\support\nupic-site.xml
+
+  # Copy a custom AppVeyor site XML for OPF database connections
+  - copy ci\appveyor\nupic-site.xml C:\Users\appveyor\AppData\Roaming\Python\Python27\site-packages\nupic\src\nupic\support\nupic-site.xml
 
   # Python unit tests
   - py.test tests\unit
