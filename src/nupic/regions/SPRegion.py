@@ -29,6 +29,12 @@ import nupic.research.fdrutilities as fdru
 from nupic.support import getArgumentDescriptions
 from nupic.bindings.regions.PyRegion import PyRegion
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.regions.SPRegion_capnp import SPRegionProto
 
 
 def getDefaultSPImp():
@@ -842,6 +848,39 @@ class SPRegion(PyRegion):
   # Methods to support serialization
   #
   #############################################################################
+
+
+  def write(self, proto):
+    """Write state to proto object.
+
+    proto: PyRegionProto capnproto object
+    """
+    regionImpl = proto.regionImpl.as_struct(SPRegionProto)
+
+    self._sfdr.write(regionImpl.spatialPooler)
+    regionImpl.columnCount = self.columnCount
+    regionImpl.inputWidth = self.inputWidth
+    regionImpl.learningMode = 1 if self.learningMode else 0
+    regionImpl.inferenceMode = 1 if self.inferenceMode else 0
+    regionImpl.anomalyMode = 1 if self.anomalyMode else 0
+    regionImpl.topDownMode = 1 if self.topDownMode else 0
+
+
+  @classmethod
+  def read(cls, proto):
+    """Read state from proto object.
+
+    proto: PyRegionProto capnproto object
+    """
+    regionImpl = proto.regionImpl.as_struct(SPRegionProto)
+
+    instance = cls(regionImpl.columnCount, regionImpl.inputWidth)
+    instance.learningMode = regionImpl.learningMode
+    instance.inferenceMode = regionImpl.inferenceMode
+    instance.anomalyMode = regionImpl.anomalyMode
+    instance.topDownMode = regionImpl.topDownMode
+
+    return instance
 
 
   def __getstate__(self):
