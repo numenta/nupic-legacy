@@ -97,8 +97,9 @@ after_build:
   # Setup local USER name
   - set USER=appveyor
 
-  # Copy a custom AppVeyor site XML for OPF database connections
-  - copy ci\appveyor\nupic-site.xml C:\Users\appveyor\AppData\Roaming\Python\Python27\site-packages\nupic\src\nupic\support\nupic-site.xml
+  # Copy a custom AppVeyor site XML for OPF database connections,
+  # into local USER site-packages directory
+  - copy ci\appveyor\nupic-site.xml C:\Users\appveyor\AppData\Roaming\Python\Python27\site-packages\nupic\support\nupic-site.xml
 
   # Python unit tests
   - py.test tests\unit
