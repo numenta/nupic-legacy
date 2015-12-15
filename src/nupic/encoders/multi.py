@@ -41,7 +41,7 @@ from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEnco
 # Map class to Cap'n Proto schema union attribute
 _CLASS_ATTR_MAP = {
   ScalarEncoder: "scalarEncoder",
-  AdaptiveScalarEncoder: "adaptivescalar",
+  AdaptiveScalarEncoder: "adaptiveScalarEncoder",
   DateEncoder: "dateEncoder",
   LogEncoder: "logEncoder",
   CategoryEncoder: "categoryEncoder",
