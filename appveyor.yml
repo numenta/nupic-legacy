@@ -6,6 +6,9 @@
 version: 0.1.0.{build}
 
 branches:
+  only:
+    - master
+
   except:
     - gh-pages
 
@@ -31,9 +34,13 @@ clone_depth: 50
 # git to write the current SHA into the binaries.
 shallow_clone: false
 
+services:
+  - mysql
+
 environment:
   PYTHON_ARCH: "64"
   COMPILER_FAMILY: GCC
+  MYSQL_PWD: "Password12!"
 
   matrix:
     - PYTHON_VERSION: "2.7.9"
@@ -59,12 +66,14 @@ install:
   - set ARTIFACTS_DIR=%REPO_DIR%\build\artifacts
   - for /f %%i in ('python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"') do set NUPIC_CORE_COMMITISH=%%i
   - for /f %%i in ('python ci\appveyor\get_nupic_bindings_version.py') do set BINDINGS_VERSION=%%i
+  - for /f %%i in ('type VERSION') do set NUPIC_VERSION=%%i
 
   - echo Core commitish  = %NUPIC_CORE_COMMITISH%
   - echo Binding version = %BINDINGS_VERSION%
+  - echo NuPIC version   = %NUPIC_VERSION%
 
   - set BINDINGS_LOC="http://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings"
-  - pip install %BINDINGS_LOC%/nupic.bindings-%BINDINGS_VERSION%-cp27-none-win_amd64.whl
+  - pip install %BINDINGS_LOC%/nupic.bindings-%BINDINGS_VERSION%-py2-none-win_amd64.whl
 
   # Check all packages installed correctly
   - cmd: pip list
@@ -75,7 +84,7 @@ build_script:
   - python setup.py bdist_wheel
 
   - ps: ls -l dist
-  - ps: move .\dist\nupic-*-py2-none-any.whl .
+  - ps: move .\dist\nupic-$env:NUPIC_VERSION-py2-none-any.whl .\nupic-$env:NUPIC_VERSION-py2-none-win_amd64.whl
 
 after_build:
   - cd %REPO_DIR%
@@ -84,7 +93,18 @@ after_build:
   # Show nupic installation folder by trying to import nupic, if works, it prints
   # the absolute path of nupic.__file__, which the installation folder itself.
   - python -c "import sys;import os;import nupic.data;sys.stdout.write(os.path.abspath(os.path.join(nupic.data.__file__, '../..')) + '\n')"
+
+  # Setup local USER name
   - set USER=appveyor
+
+  # Read the nupic-default.XML file and update the passwd entry
+  - ps: $nupic_site = [xml](Get-Content .\src\nupic\support\nupic-default.xml)
+  - ps: $passwd_property = $nupic_site.configuration.property | where {$_.Name -eq 'nupic.cluster.database.passwd'}
+  - ps: $passwd_property.value = "Password12!"
+  - ps: $nupic_site.Save('c:\projects\nupic\nupic-site.xml')
+
+  # Copy it into local USER site-packages directory
+  - copy .\nupic-site.xml C:\Users\appveyor\AppData\Roaming\Python\Python27\site-packages\nupic\support\nupic-site.xml
 
   # Python unit tests
   - py.test tests\unit
@@ -98,14 +118,13 @@ artifacts:
 deploy:
   # Amazon S3 deployment provider settings
   - provider: S3
-    access_key_id:
-      secure: D942gmPEB3lICGqL4M1HhaEqkBxr+DP7sb4pUc8UXqI=
+    access_key_id: AKIAIGHYSEHV3WFKOWNQ
     secret_access_key:
-      secure: 1wvNyHZO/6LKqNmAHcGEDxBHRjOC0iXUhSkXjZq6CGL0Cx5Kjtxnxhkz63ohknOH
+      secure: /8wO17Gir0XAiecJkHeE3jxOJzvyl0+uWcl7BKCuN0FC795golsL8905VmNuRl1o
     bucket: "artifacts.numenta.org"
     region: us-west-2
     set_public: true
-    artifact: "nupic-$(BINDINGS_VERSION)-cp27-none-win_amd64.whl"
+    artifact: "nupic-$(NUPIC_VERSION)-py2-none-win_amd64.whl"
     folder: "numenta/nupic/$(APPVEYOR_REPO_COMMIT)"
     on:
       branch: master

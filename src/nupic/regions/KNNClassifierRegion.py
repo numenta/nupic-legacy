@@ -26,7 +26,7 @@
 This file defines the k Nearest Neighbor classifier region.
 """
 import numpy
-from PyRegion import PyRegion
+from nupic.bindings.regions.PyRegion import PyRegion
 from nupic.algorithms import KNNClassifier
 from nupic.bindings.math import Random
 
