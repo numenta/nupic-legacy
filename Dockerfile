@@ -3,8 +3,9 @@ FROM ubuntu:14.04
 MAINTAINER Allan Costa <allaninocencio@yahoo.com.br>
 
 # Install dependencies
-RUN apt-get update
-RUN apt-get install -y \
+RUN apt-get update && \
+    apt-get install -y \
+    curl \
     wget \
     git-core \
     gcc \
@@ -24,14 +25,6 @@ RUN pip install wheel
 # Use gcc to match nupic.core binary
 ENV CC gcc
 ENV CXX g++
-
-# Install capnproto from source
-RUN wget https://capnproto.org/capnproto-c++-0.5.2.tar.gz && \
-    tar zxf capnproto-c++-0.5.2.tar.gz && \
-    cd capnproto-c++-0.5.2 && \
-    ./configure && \
-    make check && \
-    make install
 
 # Set enviroment variables needed by NuPIC
 ENV NUPIC /usr/local/src/nupic
@@ -53,13 +46,13 @@ RUN git clone `head -n 2 $NUPIC/.nupic_modules | tail -n 1 | sed -r "s/NUPIC_COR
 WORKDIR /usr/local/src/nupic.core
 
 # Build nupic.core
-RUN pip install -r bindings/py/requirements.txt && \
-    mkdir -p build/scripts && \
-    cd build/scripts && \
-    cmake ../.. -DCMAKE_INSTALL_PREFIX=/usr/local && \
-    make install && \
-    cd ../../bindings/py && \
-    python setup.py install --nupic-core-dir=/usr/local
+RUN pip install \
+        --cache-dir /usr/local/src/nupic.core/pip-cache \
+        --build /usr/local/src/nupic.core/pip-build \
+        --no-clean \
+        pycapnp==0.5.5 \
+        -r bindings/py/requirements.txt && \
+    python setup.py install
 
 WORKDIR /usr/local/src/nupic
 
