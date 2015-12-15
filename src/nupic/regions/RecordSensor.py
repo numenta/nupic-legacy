@@ -522,7 +522,10 @@ class RecordSensor(PyRegion):
 
 
   def write(self, proto):
-    """Write state to proto object."""
+    """Write state to proto object.
+
+    proto: PyRegionProto capnproto object
+    """
     regionImpl = proto.regionImpl.as_struct(RecordSensorProto)
 
     self.encoder.write(regionImpl.encoder)
@@ -536,7 +539,10 @@ class RecordSensor(PyRegion):
 
   @classmethod
   def read(cls, proto):
-    """Read state from proto object."""
+    """Read state from proto object.
+
+    proto: PyRegionProto capnproto object
+    """
     regionImpl = proto.regionImpl.as_struct(RecordSensorProto)
     instance = cls()
 
