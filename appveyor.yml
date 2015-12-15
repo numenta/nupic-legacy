@@ -97,9 +97,14 @@ after_build:
   # Setup local USER name
   - set USER=appveyor
 
-  # Copy a custom AppVeyor site XML for OPF database connections,
-  # into local USER site-packages directory
-  - copy ci\appveyor\nupic-site.xml C:\Users\appveyor\AppData\Roaming\Python\Python27\site-packages\nupic\support\nupic-site.xml
+  # Read the nupic-default.XML file and update the passwd entry
+  - ps: $nupic_site = [xml](Get-Content .\src\nupic\support\nupic-default.xml)
+  - ps: $passwd_property = $nupic_site.configuration.property | where {$_.Name -eq 'nupic.cluster.database.passwd'}
+  - ps: $passwd_property.value = "Password12!"
+  - ps: $nupic_site.Save('c:\projects\nupic\nupic-site.xml')
+
+  # Copy it into local USER site-packages directory
+  - copy .\nupic-site.xml C:\Users\appveyor\AppData\Roaming\Python\Python27\site-packages\nupic\support\nupic-site.xml
 
   # Python unit tests
   - py.test tests\unit
