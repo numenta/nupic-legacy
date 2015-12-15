@@ -10,9 +10,10 @@ For more information, see [numenta.org](http://numenta.org) or the [NuPIC wiki](
 
 NuPIC binaries are available for:
 
-- Linux x86 64b
+- Linux x86 64bit
 - OS X 10.9
 - OS X 10.10
+- Windows 64bit
 
 #### Dependencies
 
@@ -37,6 +38,15 @@ Your version of Linux probably has a C compiler installed. Be sure you have eith
     pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.2.2-cp27-none-linux_x86_64.whl
     pip install nupic
 
+### Install Windows
+
+> **NOTE**: The `nupic.bindings` binary distribution is not stored on [PyPi](https://pypi.python.org/pypi/nupic) along with the OS X distribution.
+
+<pre>
+pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.2.2-py2-none-win_amd64.whl
+pip install nupic
+</pre>
+
 ### Test
 
     # From the root of the repo:
@@ -59,6 +69,8 @@ For details about checking out this repository and building in your local enviro
 
  Please see the [Contributing to NuPIC](https://github.com/numenta/nupic/wiki/Contributing-to-NuPIC) wiki page.
 
- * Build: [![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
+ * Build: 
+[![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
+[![AppVeyor Status](https://ci.appveyor.com/api/projects/status/4toemh0qtr21mk6b/branch/master?svg=true)](https://ci.appveyor.com/project/numenta-ci/nupic/branch/master)
  * Unit Test Coverage: [![Coverage Status](https://coveralls.io/repos/numenta/nupic/badge.png?branch=master)](https://coveralls.io/r/numenta/nupic?branch=master)
  * [Regression Tests](https://github.com/numenta/nupic.regression): [![Build Status](https://travis-ci.org/numenta/nupic.regression.svg?branch=master)](https://travis-ci.org/numenta/nupic.regression)

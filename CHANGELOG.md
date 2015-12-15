@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.6
+
+* Addition of Windows support
+
 ## 0.3.5
 
 * Raise explicit exception if user passes non-str path
