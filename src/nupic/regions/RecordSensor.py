@@ -23,6 +23,14 @@
 import numpy
 from nupic.bindings.regions.PyRegion import PyRegion
 from nupic.data.fieldmeta import FieldMetaType
+from nupic.encoders.multi import MultiEncoder
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.record_sensor_capnp import RecordSensorProto
 
 
 
@@ -511,3 +519,35 @@ class RecordSensor(PyRegion):
 
     else:
       raise Exception('Unknown parameter: ' + parameterName)
+
+
+  def write(self, proto):
+    """Write state to proto object.
+
+    proto: PyRegionProto capnproto object
+    """
+    regionImpl = proto.regionImpl.as_struct(RecordSensorProto)
+
+    self.encoder.write(regionImpl.encoder)
+    self.disabledEncoder.write(regionImpl.disabledEncoder)
+    regionImpl.topDownMode = self.topDownMode
+    regionImpl.verbosity = self.verbosity
+    regionImpl.numCategories = self.numCategories
+
+
+  @classmethod
+  def read(cls, proto):
+    """Read state from proto object.
+
+    proto: PyRegionProto capnproto object
+    """
+    regionImpl = proto.regionImpl.as_struct(RecordSensorProto)
+    instance = cls()
+
+    instance.encoder = MultiEncoder.read(regionImpl.encoder)
+    instance.disabledEncoder = MultiEncoder.read(regionImpl.disabledEncoder)
+    instance.topDownMode = regionImpl.topDownMode
+    instance.verbosity = regionImpl.verbosity
+    instance.numCategories = regionImpl.numCategories
+
+    return instance
