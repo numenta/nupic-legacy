@@ -485,7 +485,7 @@ def _getModelCheckpointDir(experimentDir, checkpointLabel):
   Returns:
     absolute path to the serialization directory
   """
-  checkpointDir = os.path.join(_getCheckpointParentDir(experimentDir),
+  checkpointDir = os.path.join(getCheckpointParentDir(experimentDir),
                                checkpointLabel + g_defaultCheckpointExtension)
   checkpointDir = os.path.abspath(checkpointDir)
 
@@ -493,7 +493,7 @@ def _getModelCheckpointDir(experimentDir, checkpointLabel):
 
 
 
-def _getCheckpointParentDir(experimentDir):
+def getCheckpointParentDir(experimentDir):
   """Get checkpoint parent dir.
 
   Returns: absolute path to the base serialization directory within which
@@ -539,7 +539,7 @@ def _isCheckpointDir(checkpointDir):
 
 def _printAvailableCheckpoints(experimentDir):
   """List available checkpoints for the specified experiment."""
-  checkpointParentDir = _getCheckpointParentDir(experimentDir)
+  checkpointParentDir = getCheckpointParentDir(experimentDir)
 
   if not os.path.exists(checkpointParentDir):
     print "No available checkpoints."
