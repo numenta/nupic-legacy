@@ -534,8 +534,6 @@ class RecordSensor(PyRegion):
     regionImpl.verbosity = self.verbosity
     regionImpl.numCategories = self.numCategories
 
-    # TODO: Write preEncodingFilters and postEncodingFilters
-
 
   @classmethod
   def read(cls, proto):
