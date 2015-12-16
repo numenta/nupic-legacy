@@ -27,7 +27,7 @@ import tempfile
 import unittest2 as unittest
 
 from nupic.encoders.multi import MultiEncoder
-from nupic.encoders import ScalarEncoder, SDRCategoryEncoder
+from nupic.encoders import ScalarEncoder, AdaptiveScalarEncoder, SDRCategoryEncoder
 from nupic.data.dictutils import DictObj
 
 try:
@@ -101,8 +101,8 @@ class MultiEncoderTest(unittest.TestCase):
                                       periodic=True, name="day of week",
                                       forced=True))
     original.addEncoder("myval",
-                        ScalarEncoder(w=5, resolution=1, minval=1, maxval=10,
-                                      periodic=False, name="aux", forced=True))
+                        AdaptiveScalarEncoder(n=50, w=5, resolution=1, minval=1, maxval=10,
+                                              periodic=False, name="aux", forced=True))
     originalValue = DictObj(dow=3, myval=10)
     output = original.encode(originalValue)
 
