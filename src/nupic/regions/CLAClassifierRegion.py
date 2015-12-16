@@ -28,7 +28,16 @@ definition of CLAClassifierRegion for a description.
 import warnings
 
 from nupic.bindings.regions.PyRegion import PyRegion
+from nupic.bindings.algorithms import FastCLAClassifier
 from nupic.algorithms.cla_classifier_factory import CLAClassifierFactory
+from nupic.support.configuration import Configuration
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.regions.CLAClassifierRegion_capnp import CLAClassifierRegionProto
 
 
 
@@ -198,7 +207,12 @@ class CLAClassifierRegion(PyRegion):
                maxCategoryCount=None
                ):
 
+    # Set default implementation
+    if implementation is None:
+      implementation = Configuration.get('nupic.opf.claClassifier.implementation')
+
     # Convert the steps designation to a list
+    self.classifierImp = implementation
     self.steps = steps
     self.stepsList = eval("[%s]" % (steps))
     self.alpha = alpha
@@ -268,6 +282,44 @@ class CLAClassifierRegion(PyRegion):
       self.inferenceMode = bool(int(value))
     else:
       return PyRegion.setParameter(self, name, index, value)
+
+
+  def write(self, proto):
+    """Write state to proto object.
+
+    proto: PyRegionProto capnproto object
+    """
+    regionImpl = proto.regionImpl.as_struct(CLAClassifierRegionProto)
+
+    regionImpl.classifierImp = self.classifierImp
+    regionImpl.steps = self.steps
+    regionImpl.alpha = self.alpha
+    regionImpl.verbosity = self.verbosity
+    regionImpl.maxCategoryCount = self.maxCategoryCount
+
+    self._claClassifier.write(regionImpl.claClassifier)
+
+
+  @classmethod
+  def read(cls, proto):
+    """Read state from proto object.
+
+    proto: PyRegionProto capnproto object
+    """
+    regionImpl = proto.regionImpl.as_struct(CLAClassifierRegionProto)
+
+    instance = cls()
+
+    instance.classifierImp = regionImpl.classifierImp
+    instance.steps = regionImpl.steps
+    instance.alpha = regionImpl.alpha
+    instance.verbosity = regionImpl.verbosity
+    instance.maxCategoryCount = regionImpl.maxCategoryCount
+
+    instance._claClassifier = CLAClassifierFactory.read(
+      regionImpl.classifierImp, regionImpl.claClassifier)
+
+    return instance
 
 
   def reset(self):

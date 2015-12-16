@@ -46,3 +46,18 @@ class CLAClassifierFactory(object):
     else:
       raise ValueError('Invalid classifier implementation (%r). Value must be '
                        '"py" or "cpp".' % impl)
+
+
+  @staticmethod
+  def read(impl, proto):
+    if impl == 'py':
+      return CLAClassifier.read(proto)
+    elif impl == 'cpp':
+      instance = FastCLAClassifier()
+      instance.read(proto)
+      return instance
+    elif impl == 'diff':
+      raise NotImplementedError("CLAClassifierDiff.read not implemented")
+    else:
+      raise ValueError('Invalid classifier implementation (%r). Value must be '
+                       '"py" or "cpp".' % impl)
