@@ -1663,7 +1663,7 @@ class SpatialPooler(object):
     proto.potentialRadius = self._potentialRadius
     proto.potentialPct = self._potentialPct
     proto.inhibitionRadius = self._inhibitionRadius
-    proto.globalInhibition = self._globalInhibition == True
+    proto.globalInhibition = bool(self._globalInhibition)
     proto.numActiveColumnsPerInhArea = self._numActiveColumnsPerInhArea
     proto.localAreaDensity = self._localAreaDensity
     proto.stimulusThreshold = self._stimulusThreshold
