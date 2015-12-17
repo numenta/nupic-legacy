@@ -316,8 +316,7 @@ class CLAClassifierRegion(PyRegion):
     instance.verbosity = regionImpl.verbosity
     instance.maxCategoryCount = regionImpl.maxCategoryCount
 
-    instance._claClassifier = CLAClassifierFactory.read(
-      regionImpl.classifierImp, regionImpl.claClassifier)
+    instance._claClassifier = CLAClassifierFactory.read(regionImpl)
 
     return instance
 

@@ -49,12 +49,16 @@ class CLAClassifierFactory(object):
 
 
   @staticmethod
-  def read(impl, proto):
+  def read(proto):
+    """
+    proto: CLAClassifierRegionProto capnproto object
+    """
+    impl = proto.classifierImp
     if impl == 'py':
-      return CLAClassifier.read(proto)
+      return CLAClassifier.read(proto.claClassifier)
     elif impl == 'cpp':
       instance = FastCLAClassifier()
-      instance.read(proto)
+      instance.read(proto.claClassifier)
       return instance
     elif impl == 'diff':
       raise NotImplementedError("CLAClassifierDiff.read not implemented")
