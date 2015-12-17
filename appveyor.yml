@@ -76,9 +76,9 @@ build_script:
   - python setup.py bdist_wheel
 
   - ps: ls -l dist
-  - ps: move .\dist\nupic-$env:NUPIC_VERSION-py2-none-any.whl .\nupic-$env:NUPIC_VERSION-cp27-none-win_amd64.whl
+  - ps: move .\dist\nupic-$env:NUPIC_VERSION-py2-none-any.whl .\dist\nupic-$env:NUPIC_VERSION-cp27-none-win_amd64.whl
   - ps: ls -l dist
-  - ps: copy .\nupic-$env:NUPIC_VERSION-cp27-none-win_amd64.whl .
+  - ps: copy .\dist\nupic-$env:NUPIC_VERSION-cp27-none-win_amd64.whl .
 
 after_build:
   - cd %REPO_DIR%
