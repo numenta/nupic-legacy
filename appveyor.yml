@@ -73,7 +73,6 @@ install:
   - echo NuPIC version   = %NUPIC_VERSION%
 
   - set BINDINGS_LOC="http://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings"
-  - pip install %BINDINGS_LOC%/nupic.bindings-%BINDINGS_VERSION%-py2-none-win_amd64.whl
 
   # Check all packages installed correctly
   - cmd: pip list
