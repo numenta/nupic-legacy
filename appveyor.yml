@@ -6,9 +6,6 @@
 version: 0.1.0.{build}
 
 branches:
-  only:
-    - master
-
   except:
     - gh-pages
 
