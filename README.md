@@ -40,12 +40,9 @@ Your version of Linux probably has a C compiler installed. Be sure you have eith
 
 ### Install Windows
 
-> **NOTE**: The `nupic.bindings` binary distribution is not stored on [PyPi](https://pypi.python.org/pypi/nupic) along with the OS X distribution.
+    pip install nupic
 
-<pre>
-pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.2.2-py2-none-win_amd64.whl
-pip install nupic
-</pre>
+For problems installing NuPIC, please see our [Installation and Build Wiki](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC).
 
 ### Test
 
