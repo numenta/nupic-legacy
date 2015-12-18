@@ -2,7 +2,10 @@
 
 ## 0.3.6
 
-* Addition of Windows support
+* Windows support
+* Serialization work
+* Moved SWIG out into nupic.core
+* Major build changes
 
 ## 0.3.5
 
