@@ -25,7 +25,7 @@ import os
 import shutil
 
 from nupic.data.file_record_stream import FileRecordStream
-from nupic.frameworks.opf.experiment_runner import runExperiment
+from nupic.frameworks.opf.experiment_runner import runExperiment, getCheckpointParentDir
 from nupic.support import initLogging
 from nupic.support.unittesthelpers.testcasebase import (
     unittest, TestCaseBase as HelperTestCaseBase)
@@ -43,22 +43,6 @@ class MyTestCaseBase(HelperTestCaseBase):
     of docstrings in the report.
     """
     return None
-
-
-  @staticmethod
-  def getOpfNonTemporalPredictionFilepath(experimentDir, taskLabel):
-    path = os.path.join(experimentDir,
-                        "inference",
-                        "%s.nontemporal.predictionLog.csv" % taskLabel)
-    return os.path.abspath(path)
-
-
-  @staticmethod
-  def getOpfTemporalPredictionFilepath(experimentDir, taskLabel):
-    path = os.path.join(experimentDir,
-                        "inference",
-                        "%s.temporal.predictionLog.csv" % taskLabel)
-    return os.path.abspath(path)
 
 
   def compareOPFPredictionFiles(self, path1, path2, temporal,
@@ -383,6 +367,11 @@ class MyTestCaseBase(HelperTestCaseBase):
 
       except StopIteration:
         break
+
+    # clean up model checkpoint directories
+    shutil.rmtree(getCheckpointParentDir(aExpDir))
+    shutil.rmtree(getCheckpointParentDir(bExpDir))
+    shutil.rmtree(getCheckpointParentDir(aPlusBExpDir))
 
     print "Predictions match!"
 

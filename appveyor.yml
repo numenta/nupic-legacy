@@ -6,9 +6,6 @@
 version: 0.1.0.{build}
 
 branches:
-  only:
-    - master
-
   except:
     - gh-pages
 
@@ -73,7 +70,7 @@ install:
   - echo NuPIC version   = %NUPIC_VERSION%
 
   - set BINDINGS_LOC="http://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings"
-  - pip install %BINDINGS_LOC%/nupic.bindings-%BINDINGS_VERSION%-py2-none-win_amd64.whl
+  - pip install %BINDINGS_LOC%/nupic.bindings-%BINDINGS_VERSION%-cp27-none-win_amd64.whl
 
   # Check all packages installed correctly
   - cmd: pip list
@@ -84,7 +81,9 @@ build_script:
   - python setup.py bdist_wheel
 
   - ps: ls -l dist
-  - ps: move .\dist\nupic-$env:NUPIC_VERSION-py2-none-any.whl .\nupic-$env:NUPIC_VERSION-py2-none-win_amd64.whl
+  - ps: move .\dist\nupic-$env:NUPIC_VERSION-py2-none-any.whl .\dist\nupic-$env:NUPIC_VERSION-cp27-none-win_amd64.whl
+  - ps: ls -l dist
+  - ps: copy .\dist\nupic-$env:NUPIC_VERSION-cp27-none-win_amd64.whl .
 
 after_build:
   - cd %REPO_DIR%
@@ -115,6 +114,13 @@ after_build:
 artifacts:
   - path: '*.whl' # Find all wheel files in project root only (non-recusive)
 
+on_success:
+  - ps: >-
+      If ($env:APPVEYOR_REPO_TAG -eq "true" -or $env:APPVEYOR_REPO_TAG -eq "True") {
+        pip install httplib requests twine --upgrade
+        twine upload -u $env:PYPI_USERNAME -p $env:PYPI_PASSWORD -r pypi $env:REPO_DIR\dist\nupic-$env:NUPIC_VERSION-cp27-none-win_amd64.whl
+      }
+
 deploy:
   # Amazon S3 deployment provider settings
   - provider: S3
@@ -124,7 +130,7 @@ deploy:
     bucket: "artifacts.numenta.org"
     region: us-west-2
     set_public: true
-    artifact: "nupic-$(NUPIC_VERSION)-py2-none-win_amd64.whl"
+    artifact: "nupic-$(NUPIC_VERSION)-cp27-none-win_amd64.whl"
     folder: "numenta/nupic/$(APPVEYOR_REPO_COMMIT)"
     on:
       branch: master

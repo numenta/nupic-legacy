@@ -132,7 +132,7 @@ class UtilsTest(unittest.TestCase):
     ma = MovingAverage(windowSize=3)
 
     ma.next(3)
-    ma.next(4)
+    ma.next(4.5)
     ma.next(5)
 
     proto1 = MovingAverageProto.new_message()
@@ -159,7 +159,7 @@ class UtilsTest(unittest.TestCase):
     ma = MovingAverage(windowSize=3)
 
     ma.next(3)
-    ma.next(4)
+    ma.next(4.5)
     ma.next(5)
 
     stored = pickle.dumps(ma)
