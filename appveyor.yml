@@ -114,13 +114,6 @@ after_build:
 artifacts:
   - path: '*.whl' # Find all wheel files in project root only (non-recusive)
 
-on_success:
-  - ps: >-
-      If ($env:APPVEYOR_REPO_TAG -eq "true" -or $env:APPVEYOR_REPO_TAG -eq "True") {
-        pip install httplib requests twine --upgrade
-        twine upload -u $env:PYPI_USERNAME -p $env:PYPI_PASSWORD -r pypi $env:REPO_DIR\dist\nupic-$env:NUPIC_VERSION-cp27-none-win_amd64.whl
-      }
-
 deploy:
   # Amazon S3 deployment provider settings
   - provider: S3
