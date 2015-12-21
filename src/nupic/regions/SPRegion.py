@@ -29,6 +29,12 @@ import nupic.research.fdrutilities as fdru
 from nupic.support import getArgumentDescriptions
 from nupic.bindings.regions.PyRegion import PyRegion
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.regions.SPRegion_capnp import SPRegionProto
 
 
 def getDefaultSPImp():
@@ -332,6 +338,7 @@ class SPRegion(PyRegion):
 
     # Pull out the spatial arguments automatically
     # These calls whittle down kwargs and create instance variables of SPRegion
+    self.spatialImp = spatialImp
     self.SpatialClass = getSPClass(spatialImp)
     sArgTuples = _buildArgs(self.SpatialClass.__init__, self, kwargs)
 
@@ -842,6 +849,54 @@ class SPRegion(PyRegion):
   # Methods to support serialization
   #
   #############################################################################
+
+
+  def write(self, proto):
+    """Write state to proto object.
+
+    proto: PyRegionProto capnproto object
+    """
+    regionImpl = proto.regionImpl.as_struct(SPRegionProto)
+
+    regionImpl.spatialImp = self.spatialImp
+    regionImpl.columnCount = self.columnCount
+    regionImpl.inputWidth = self.inputWidth
+    regionImpl.learningMode = 1 if self.learningMode else 0
+    regionImpl.inferenceMode = 1 if self.inferenceMode else 0
+    regionImpl.anomalyMode = 1 if self.anomalyMode else 0
+    regionImpl.topDownMode = 1 if self.topDownMode else 0
+
+    self._sfdr.write(regionImpl.spatialPooler)
+
+
+  @classmethod
+  def read(cls, proto):
+    """Read state from proto object.
+
+    proto: PyRegionProto capnproto object
+    """
+    regionImpl = proto.regionImpl.as_struct(SPRegionProto)
+
+    instance = cls(regionImpl.columnCount, regionImpl.inputWidth)
+
+    instance.spatialImp = regionImpl.spatialImp
+    instance.learningMode = regionImpl.learningMode
+    instance.inferenceMode = regionImpl.inferenceMode
+    instance.anomalyMode = regionImpl.anomalyMode
+    instance.topDownMode = regionImpl.topDownMode
+
+    spatialImp = regionImpl.spatialImp
+
+    if spatialImp == 'py':
+      instance._sfdr = PYSpatialPooler.read(regionImpl.spatialPooler)
+    elif spatialImp == 'cpp':
+      instance._sfdr = CPPSpatialPooler()
+      instance._sfdr.read(regionImpl.spatialPooler)
+    else:
+      raise RuntimeError("Invalid spatialImp '{0}'. "
+                         "Legal values are: 'py', 'cpp'".format(spatialImp))
+
+    return instance
 
 
   def __getstate__(self):

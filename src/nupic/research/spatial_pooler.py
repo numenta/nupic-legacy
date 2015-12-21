@@ -897,7 +897,7 @@ class SpatialPooler(object):
     value is meaningless if global inhibition is enabled.
     """
     if self._globalInhibition:
-      self._inhibitionRadius = self._columnDimensions.max()
+      self._inhibitionRadius = int(self._columnDimensions.max())
       return
 
     avgConnectedSpan = numpy.average(
@@ -1663,7 +1663,7 @@ class SpatialPooler(object):
     proto.potentialRadius = self._potentialRadius
     proto.potentialPct = self._potentialPct
     proto.inhibitionRadius = self._inhibitionRadius
-    proto.globalInhibition = self._globalInhibition
+    proto.globalInhibition = bool(self._globalInhibition)
     proto.numActiveColumnsPerInhArea = self._numActiveColumnsPerInhArea
     proto.localAreaDensity = self._localAreaDensity
     proto.stimulusThreshold = self._stimulusThreshold
