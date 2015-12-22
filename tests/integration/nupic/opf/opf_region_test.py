@@ -315,11 +315,12 @@ class OPFRegionTest(TestCaseBase):
     network.run(1)
 
     spRegion = network.getRegionsByType(SPRegion)[0]
-    self.assertEqual(spRegion.getInputNames(),
-                     ['bottomUpIn', 'resetIn', 'topDownIn'])
-    self.assertEqual(spRegion.getOutputNames(),
-                     ['topDownOut', 'spatialTopDownOut', 'temporalTopDownOut',
-                      'bottomUpOut', 'anomalyScore'])
+    self.assertEqual(set(spRegion.getInputNames()),
+                     set(['sequenceIdIn', 'bottomUpIn', 'resetIn',
+                     'topDownIn']))
+    self.assertEqual(set(spRegion.getOutputNames()),
+                     set(['topDownOut', 'spatialTopDownOut',
+                     'temporalTopDownOut', 'bottomUpOut', 'anomalyScore']))
 
 
 

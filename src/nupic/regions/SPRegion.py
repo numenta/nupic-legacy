@@ -652,7 +652,7 @@ class SPRegion(PyRegion):
       description=SPRegion.__doc__,
       singleNodeOnly=True,
       inputs=dict(
-          bottomUpIn=dict(
+        bottomUpIn=dict(
           description="""The input vector.""",
           dataType='Real32',
           count=0,
@@ -661,7 +661,7 @@ class SPRegion(PyRegion):
           isDefaultInput=True,
           requireSplitterMap=False),
 
-          resetIn=dict(
+        resetIn=dict(
           description="""A boolean flag that indicates whether
                          or not the input vector received in this compute cycle
                          represents the start of a new temporal sequence.""",
@@ -672,12 +672,21 @@ class SPRegion(PyRegion):
           isDefaultInput=False,
           requireSplitterMap=False),
 
-          topDownIn=dict(
+        topDownIn=dict(
           description="""The top-down input signal, generated from
                         feedback from upper levels""",
           dataType='Real32',
           count=0,
           required = False,
+          regionLevel=True,
+          isDefaultInput=False,
+          requireSplitterMap=False),
+
+        sequenceIdIn=dict(
+          description="Sequence ID",
+          dataType='UInt64',
+          count=1,
+          required=False,
           regionLevel=True,
           isDefaultInput=False,
           requireSplitterMap=False),
