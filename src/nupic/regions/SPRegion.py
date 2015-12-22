@@ -886,15 +886,7 @@ class SPRegion(PyRegion):
     instance.topDownMode = regionImpl.topDownMode
 
     spatialImp = regionImpl.spatialImp
-
-    if spatialImp == 'py':
-      instance._sfdr = PYSpatialPooler.read(regionImpl.spatialPooler)
-    elif spatialImp == 'cpp':
-      instance._sfdr = CPPSpatialPooler()
-      instance._sfdr.read(regionImpl.spatialPooler)
-    else:
-      raise RuntimeError("Invalid spatialImp '{0}'. "
-                         "Legal values are: 'py', 'cpp'".format(spatialImp))
+    instance._sfdr = getSPClass(spatialImp).read(regionImpl.spatialPooler)
 
     return instance
 
