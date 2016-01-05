@@ -240,7 +240,7 @@ class CLAModel(Model):
 
 
   def getParameter(self, paramName):
-    if paramName == '_numRunCalls':
+    if paramName == '__numRunCalls':
       return self.__numRunCalls
     else:
       raise RuntimeError("'%s' parameter is not exposed by clamodel." % \
