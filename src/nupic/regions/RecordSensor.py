@@ -521,33 +521,36 @@ class RecordSensor(PyRegion):
       raise Exception('Unknown parameter: ' + parameterName)
 
 
-  def write(self, proto):
+  @staticmethod
+  def getProtoType():
+    """Return the pycapnp proto type that the class uses for serialization."""
+    return RecordSensorProto
+
+
+  def writeToProto(self, proto):
     """Write state to proto object.
 
-    proto: PyRegionProto capnproto object
+    proto: RecordSensorProto capnproto object
     """
-    regionImpl = proto.regionImpl.as_struct(RecordSensorProto)
-
-    self.encoder.write(regionImpl.encoder)
-    self.disabledEncoder.write(regionImpl.disabledEncoder)
-    regionImpl.topDownMode = self.topDownMode
-    regionImpl.verbosity = self.verbosity
-    regionImpl.numCategories = self.numCategories
+    self.encoder.write(proto.encoder)
+    self.disabledEncoder.write(proto.disabledEncoder)
+    proto.topDownMode = self.topDownMode
+    proto.verbosity = self.verbosity
+    proto.numCategories = self.numCategories
 
 
   @classmethod
-  def read(cls, proto):
+  def readFromProto(cls, proto):
     """Read state from proto object.
 
-    proto: PyRegionProto capnproto object
+    proto: RecordSensorProto capnproto object
     """
-    regionImpl = proto.regionImpl.as_struct(RecordSensorProto)
     instance = cls()
 
-    instance.encoder = MultiEncoder.read(regionImpl.encoder)
-    instance.disabledEncoder = MultiEncoder.read(regionImpl.disabledEncoder)
-    instance.topDownMode = regionImpl.topDownMode
-    instance.verbosity = regionImpl.verbosity
-    instance.numCategories = regionImpl.numCategories
+    instance.encoder = MultiEncoder.read(proto.encoder)
+    instance.disabledEncoder = MultiEncoder.read(proto.disabledEncoder)
+    instance.topDownMode = proto.topDownMode
+    instance.verbosity = proto.verbosity
+    instance.numCategories = proto.numCategories
 
     return instance
