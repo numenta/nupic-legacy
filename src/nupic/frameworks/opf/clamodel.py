@@ -1330,12 +1330,6 @@ class CLAModel(Model):
 
     model._numRunCalls = proto.numRunCalls
 
-    # model.enableInference(inferenceArgs=modelA.getInferenceArgs())
-    # model._numPredictions = modelA._numPredictions
-    # model._predictedFieldIdx = modelA._predictedFieldIdx
-    # model._predictedFieldName = modelA._predictedFieldName
-    # model._numFields = modelA._numFields
-
     model._getSensorRegion().getSelf().dataSource = DataBuffer()
     model._netInfo.net.initialize()
 
