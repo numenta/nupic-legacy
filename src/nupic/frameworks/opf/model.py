@@ -177,6 +177,71 @@ class Model(object):
     """
     return self.__inferenceEnabled
 
+  @staticmethod
+  def getProtoType():
+    """Return the pycapnp proto type that the class uses for serialization.
+
+    This is used to convert the proto into the proper type before passing it
+    into the read or write method of the subclass.
+    """
+    raise NotImplementedError()
+
+  def writeToCheckpoint(self, checkpointDir):
+    """Serializes model using capnproto and writes data to checkpointDir"""
+    proto = self.getProtoType().new_message()
+
+    self.write(proto)
+
+    checkpointPath = os.path.join(checkpointDir, "model.data")
+    checkpointPath = os.path.abspath(checkpointPath)
+
+    # Clean up old saved state, if any
+    if os.path.exists(checkpointDir):
+      if not os.path.isdir(checkpointDir):
+        raise Exception(("Existing filesystem entry <%s> is not a model"
+                         " checkpoint -- refusing to delete (not a directory)") \
+                          % checkpointDir)
+      if not os.path.isfile(checkpointPath):
+        raise Exception(("Existing filesystem entry <%s> is not a model"
+                         " checkpoint -- refusing to delete"\
+                         " (%s missing or not a file)") % \
+                          (checkpointDir, checkpointPath))
+
+      shutil.rmtree(checkpointDir)
+
+    # Create a new directory for saving state
+    self.__makeDirectoryFromAbsolutePath(checkpointDir)
+
+    with open(checkpointPath, 'wb') as f:
+      proto.write(f)
+
+  @classmethod
+  def readFromCheckpoint(cls, checkpointDir):
+    """Deerializes model from checkpointDir using capnproto"""
+    checkpointPath = os.path.join(checkpointDir, "model.data")
+    checkpointPath = os.path.abspath(checkpointPath)
+
+    with open(checkpointPath, 'r') as f:
+      proto = cls.getProtoType().read(f)
+
+    model = cls.read(proto)
+    return model
+
+  def write(self, proto):
+    """Write state to proto object.
+
+    The type of proto is determined by getProtoType().
+    """
+    raise NotImplementedError()
+
+  @classmethod
+  def read(cls, proto):
+    """Read state from proto object.
+
+    The type of proto is determined by getProtoType().
+    """
+    raise NotImplementedError()
+
   ###############################################################################
   # Implementation of common save/load functionality
   ###############################################################################

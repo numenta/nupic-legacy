@@ -50,6 +50,13 @@ from nupic.frameworks.opf.opfutils import (InferenceType,
                       ClassifierInput,
                       initLogger)
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.frameworks.opf.CLAModelProto_capnp import CLAModelProto
+
 
 DEFAULT_LIKELIHOOD_THRESHOLD = 0.0001
 DEFAULT_MAX_PREDICTIONS_PER_STEP = 8
@@ -109,7 +116,7 @@ class CLAModel(Model):
 
 
   def __init__(self,
-      sensorParams,
+      sensorParams={},
       inferenceType=InferenceType.TemporalNextStep,
       predictedField=None,
       spEnable=True,
@@ -123,7 +130,8 @@ class CLAModel(Model):
       clParams={},
       anomalyParams={},
       minLikelihoodThreshold=DEFAULT_LIKELIHOOD_THRESHOLD,
-      maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP):
+      maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP,
+      network=None):
     """CLAModel constructor.
 
     Args:
@@ -196,10 +204,13 @@ class CLAModel(Model):
                                 binaryAnomalyThreshold=anomalyThreshold)
 
     # -----------------------------------------------------------------------
-    # Create the network
-    self._netInfo = self.__createCLANetwork(
-        sensorParams, spEnable, spParams, tpEnable, tpParams, clEnable,
-        clParams, anomalyParams)
+    if network is not None:
+      self._netInfo = NetworkInfo(net=network, statsCollectors=[])
+    else:
+      # Create the network
+      self._netInfo = self.__createCLANetwork(
+          sensorParams, spEnable, spParams, tpEnable, tpParams, clEnable,
+          clParams, anomalyParams)
 
 
     # Initialize Spatial Anomaly detection parameters
@@ -216,7 +227,7 @@ class CLAModel(Model):
     #  the user specifically asks for the SP inference metric
     self.__trainSPNetOnlyIfRequested = trainSPNetOnlyIfRequested
 
-    self.__numRunCalls = 0
+    self._numRunCalls = 0
 
     # Tracks whether finishedLearning() has been called
     self.__finishedLearning = False
@@ -229,8 +240,8 @@ class CLAModel(Model):
 
 
   def getParameter(self, paramName):
-    if paramName == '__numRunCalls':
-      return self.__numRunCalls
+    if paramName == '_numRunCalls':
+      return self._numRunCalls
     else:
       raise RuntimeError("'%s' parameter is not exposed by clamodel." % \
         (paramName))
@@ -361,7 +372,7 @@ class CLAModel(Model):
 
     results = super(CLAModel, self).run(inputRecord)
 
-    self.__numRunCalls += 1
+    self._numRunCalls += 1
 
     if self.__logger.isEnabledFor(logging.DEBUG):
       self.__logger.debug("CLAModel.run() inputRecord=%s", (inputRecord))
@@ -779,7 +790,7 @@ class CLAModel(Model):
     if inputTSRecordIdx is not None:
       recordNum = inputTSRecordIdx
     else:
-      recordNum = self.__numRunCalls
+      recordNum = self._numRunCalls
     clResults = classifier.getSelf().customCompute(recordNum=recordNum,
                                            patternNZ=patternNZ,
                                            classification=classificationIn)
@@ -940,7 +951,7 @@ class CLAModel(Model):
         return:
             a dict where keys are statistic names and values are the stats
     """
-    ret = {"numRunCalls" : self.__numRunCalls}
+    ret = {"numRunCalls" : self._numRunCalls}
 
     #--------------------------------------------------
     # Query temporal network stats
@@ -1283,6 +1294,57 @@ class CLAModel(Model):
     self.__logger.debug("Restoring %s from state..." % self.__class__.__name__)
 
 
+  @staticmethod
+  def getProtoType():
+    return CLAModelProto
+
+
+  def write(self, proto):
+    inferenceType = self.getInferenceType()
+    # lower-case first letter to be compatible with capnproto enum naming
+    inferenceType = inferenceType[:1].lower() + inferenceType[1:]
+    proto.inferenceType = inferenceType
+
+    proto.numRunCalls = self._numRunCalls
+
+    self._netInfo.net.write(proto.network)
+
+
+  @classmethod
+  def read(cls, proto):
+    inferenceType = str(proto.inferenceType)
+    # upper-case first letter to be compatible with enum InferenceType naming
+    inferenceType = inferenceType[:1].upper() + inferenceType[1:]
+    inferenceType = InferenceType.getValue(inferenceType)
+
+    network = Network.read(proto.network)
+    spEnable = ("SP" in network.regions)
+    tpEnable = ("TP" in network.regions)
+    clEnable = ("Classifier" in network.regions)
+
+    model = cls(spEnable=spEnable,
+                tpEnable=tpEnable,
+                clEnable=clEnable,
+                inferenceType=inferenceType,
+                network=network)
+
+    model._numRunCalls = proto.numRunCalls
+
+    # model.enableInference(inferenceArgs=modelA.getInferenceArgs())
+    # model._numPredictions = modelA._numPredictions
+    # model._predictedFieldIdx = modelA._predictedFieldIdx
+    # model._predictedFieldName = modelA._predictedFieldName
+    # model._numFields = modelA._numFields
+
+    model._getSensorRegion().getSelf().dataSource = DataBuffer()
+    model._netInfo.net.initialize()
+
+    # Mark end of restoration from state
+    model.__restoringFromState = False
+
+    return model
+
+
   def _serializeExtraData(self, extraDataDir):
     """ [virtual method override] This method is called during serialization
     with an external directory path that can be used to bypass pickle for saving
@@ -1363,7 +1425,7 @@ class CLAModel(Model):
                                          spEnable, tpEnable)
 
         # Restore state
-        self._getAnomalyClassifier().getSelf()._iteration = self.__numRunCalls
+        self._getAnomalyClassifier().getSelf()._iteration = self._numRunCalls
         self._getAnomalyClassifier().getSelf()._recordsCache = (
             self._classifier_helper.saved_states)
         self._getAnomalyClassifier().getSelf().saved_categories = (

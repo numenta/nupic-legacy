@@ -67,8 +67,12 @@ def Enum(*args, **kwargs):
     return list(cls.__values)
 
   def getLabels(cls):
-    """Returns a list of all possible labels for this enum """
+    """ Returns a list of all possible labels for this enum """
     return list(cls.__labels.values())
+
+  def getValue(cls, label):
+    """ Returns value given a label """
+    return cls.__labels[label]
 
 
   for arg in list(args)+kwargs.keys():
@@ -89,6 +93,7 @@ def Enum(*args, **kwargs):
   newType.validate = functools.partial(validate, newType)
   newType.getValues = functools.partial(getValues, newType)
   newType.getLabels = functools.partial(getLabels, newType)
+  newType.getValue = functools.partial(getValue, newType)
 
   return newType
 
