@@ -51,7 +51,8 @@ class KNNClassifierRegion(PyRegion):
         singleNodeOnly=True,
         inputs=dict(
           categoryIn=dict(
-            description='Vector of categories of the input sample',
+            description='Vector of zero or more category indices for this input'
+                         'sample. -1 implies no category.',
             dataType='Real32',
             count=0,
             required=True,
@@ -830,7 +831,7 @@ class KNNClassifierRegion(PyRegion):
     self._samples = numpy.concatenate((self._samples, numpy.atleast_2d(inputVector)), axis=0)
     self._labels += [trueCatIndex]
 
-    # Add the parition ID
+    # Add the partition ID
     if self._partitions is None:
       self._partitions = []
     if partition is None:
@@ -892,7 +893,6 @@ class KNNClassifierRegion(PyRegion):
     # Read the partition ID.
     if "partitionIn" in inputs:
       assert len(inputs["partitionIn"]) == 1, "Must have exactly one link to partition input."
-      #partInput = inputs["partitionIn"][0].wvector()
       partInput = inputs['partitionIn']
       assert len(partInput) == 1, "Partition input element count must be exactly 1."
       partition = int(partInput[0])
@@ -1111,9 +1111,7 @@ class KNNClassifierRegion(PyRegion):
     # we actually received non-trivial partition info
     self._accuracy = None
     if self.doSelfValidation:
-      #partitions = self._knn._partitionIdList
-      #if len(set(partitions)) > 1:
-      if self._knn._partitionIdArray is not None:
+      if self._knn.getNumPartitionIds() > 0:
         numSamples, numCorrect = self._knn.leaveOneOutTest()
         if numSamples:
           self._accuracy = float(numCorrect) / float(numSamples)
