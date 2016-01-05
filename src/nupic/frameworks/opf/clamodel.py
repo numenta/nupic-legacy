@@ -227,7 +227,7 @@ class CLAModel(Model):
     #  the user specifically asks for the SP inference metric
     self.__trainSPNetOnlyIfRequested = trainSPNetOnlyIfRequested
 
-    self._numRunCalls = 0
+    self.__numRunCalls = 0
 
     # Tracks whether finishedLearning() has been called
     self.__finishedLearning = False
@@ -241,7 +241,7 @@ class CLAModel(Model):
 
   def getParameter(self, paramName):
     if paramName == '_numRunCalls':
-      return self._numRunCalls
+      return self.__numRunCalls
     else:
       raise RuntimeError("'%s' parameter is not exposed by clamodel." % \
         (paramName))
@@ -372,7 +372,7 @@ class CLAModel(Model):
 
     results = super(CLAModel, self).run(inputRecord)
 
-    self._numRunCalls += 1
+    self.__numRunCalls += 1
 
     if self.__logger.isEnabledFor(logging.DEBUG):
       self.__logger.debug("CLAModel.run() inputRecord=%s", (inputRecord))
@@ -790,7 +790,7 @@ class CLAModel(Model):
     if inputTSRecordIdx is not None:
       recordNum = inputTSRecordIdx
     else:
-      recordNum = self._numRunCalls
+      recordNum = self.__numRunCalls
     clResults = classifier.getSelf().customCompute(recordNum=recordNum,
                                            patternNZ=patternNZ,
                                            classification=classificationIn)
@@ -951,7 +951,7 @@ class CLAModel(Model):
         return:
             a dict where keys are statistic names and values are the stats
     """
-    ret = {"numRunCalls" : self._numRunCalls}
+    ret = {"numRunCalls" : self.__numRunCalls}
 
     #--------------------------------------------------
     # Query temporal network stats
@@ -1305,7 +1305,7 @@ class CLAModel(Model):
     inferenceType = inferenceType[:1].lower() + inferenceType[1:]
     proto.inferenceType = inferenceType
 
-    proto.numRunCalls = self._numRunCalls
+    proto.numRunCalls = self.__numRunCalls
 
     self._netInfo.net.write(proto.network)
 
@@ -1328,7 +1328,7 @@ class CLAModel(Model):
                 inferenceType=inferenceType,
                 network=network)
 
-    model._numRunCalls = proto.numRunCalls
+    model.__numRunCalls = proto.numRunCalls
 
     model._getSensorRegion().getSelf().dataSource = DataBuffer()
     model._netInfo.net.initialize()
@@ -1419,7 +1419,7 @@ class CLAModel(Model):
                                          spEnable, tpEnable)
 
         # Restore state
-        self._getAnomalyClassifier().getSelf()._iteration = self._numRunCalls
+        self._getAnomalyClassifier().getSelf()._iteration = self.__numRunCalls
         self._getAnomalyClassifier().getSelf()._recordsCache = (
             self._classifier_helper.saved_states)
         self._getAnomalyClassifier().getSelf().saved_categories = (
