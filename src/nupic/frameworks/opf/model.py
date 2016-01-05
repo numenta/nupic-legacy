@@ -186,14 +186,24 @@ class Model(object):
     """
     raise NotImplementedError()
 
+  @staticmethod
+  def _getModelCheckpointFilePath(checkpointDir):
+    """ Return the absolute path of the model's checkpoint file.
+    @param checkpointDir (string)
+           Directory of where the experiment is to be or was saved
+    @returns (string) An absolute path.
+    """
+    path = os.path.join(checkpointDir, "model.data")
+    path = os.path.abspath(path)
+    return path
+
   def writeToCheckpoint(self, checkpointDir):
     """Serializes model using capnproto and writes data to checkpointDir"""
     proto = self.getProtoType().new_message()
 
     self.write(proto)
 
-    checkpointPath = os.path.join(checkpointDir, "model.data")
-    checkpointPath = os.path.abspath(checkpointPath)
+    checkpointPath = self._getModelCheckpointFilePath(checkpointDir)
 
     # Clean up old saved state, if any
     if os.path.exists(checkpointDir):
@@ -218,8 +228,7 @@ class Model(object):
   @classmethod
   def readFromCheckpoint(cls, checkpointDir):
     """Deerializes model from checkpointDir using capnproto"""
-    checkpointPath = os.path.join(checkpointDir, "model.data")
-    checkpointPath = os.path.abspath(checkpointPath)
+    checkpointPath = cls._getModelCheckpointFilePath(checkpointDir)
 
     with open(checkpointPath, 'r') as f:
       proto = cls.getProtoType().read(f)
