@@ -247,8 +247,20 @@ class MyTestCaseBase(HelperTestCaseBase):
     return csvReader
 
 
+  def _createExperimentArgs(self, experimentDir,
+                            newSerialization=False,
+                            additionalArgs=()):
+    args = []
+    args.append(experimentDir)
+    if newSerialization:
+      args.append("--newSerialization")
+    args += additionalArgs
+    return args
+
+
   def _testSamePredictions(self, experiment, predSteps, checkpointAt,
-                           predictionsFilename, additionalFields=None):
+                           predictionsFilename, additionalFields=None,
+                           newSerialization=False):
     """ Test that we get the same predictions out from the following two
     scenarios:
 
@@ -275,6 +287,7 @@ class MyTestCaseBase(HelperTestCaseBase):
     predictionsFilename: The name of the predictions file that the OPF
                   generates for this experiment (for example
                   'DefaulTask.NontemporalMultiStep.predictionLog.csv')
+    newSerialization: Whether to use new capnproto serialization.
     """
 
     # Get the 3 sub-experiment directories
@@ -283,16 +296,23 @@ class MyTestCaseBase(HelperTestCaseBase):
     bExpDir = os.path.join(_EXPERIMENT_BASE, experiment, "b")
 
     # Run a+b
-    _aPlusBExp = runExperiment(args=[aPlusBExpDir])
+    args = self._createExperimentArgs(aPlusBExpDir,
+                                      newSerialization=newSerialization)
+    _aPlusBExp = runExperiment(args)
 
     # Run a, the copy the saved checkpoint into the b directory
-    _aExp = runExperiment(args=[aExpDir])
+    args = self._createExperimentArgs(aExpDir,
+                                      newSerialization=newSerialization)
+    _aExp = runExperiment(args)
     if os.path.exists(os.path.join(bExpDir, 'savedmodels')):
       shutil.rmtree(os.path.join(bExpDir, 'savedmodels'))
     shutil.copytree(src=os.path.join(aExpDir, 'savedmodels'),
                     dst=os.path.join(bExpDir, 'savedmodels'))
 
-    _bExp = runExperiment(args=[bExpDir, '--load=DefaultTask'])
+    args = self._createExperimentArgs(bExpDir,
+                                      newSerialization=newSerialization,
+                                      additionalArgs=['--load=DefaultTask'])
+    _bExp = runExperiment(args)
 
     # Now, compare the predictions at the end of a+b to those in b.
     aPlusBPred = FileRecordStream(os.path.join(aPlusBExpDir, 'inference',
@@ -414,6 +434,21 @@ class PositiveTests(MyTestCaseBase):
         experiment="non_temporal_multi_step", predSteps=24, checkpointAt=250,
         predictionsFilename=
         "DefaultTask.NontemporalMultiStep.predictionLog.csv")
+
+
+  def test_NonTemporalMultiStepNew(self):
+    """ Test that we get the same predictions out of a model that was
+    saved and reloaded from a checkpoint as we do from one that runs
+    continuously.
+
+    Uses new capnproto serialization.
+    """
+
+    self._testSamePredictions(
+        experiment="non_temporal_multi_step", predSteps=24, checkpointAt=250,
+        predictionsFilename=
+        "DefaultTask.NontemporalMultiStep.predictionLog.csv",
+        newSerialization=True)
 
 
   @unittest.skip("Currently Fails: NUP-1864")
