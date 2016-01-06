@@ -327,7 +327,7 @@ class KNNClassifier(object):
         numpy.array(self._categoryRecencyList), removalArray).tolist()
 
     # Remove the partition ID, if any for these rows and rebuild the id map.
-    for row in rowsToRemove[::-1]:  # Go backwards
+    for row in reversed(rowsToRemove):  # Go backwards
       # Remove these patterns from partitionList
       self._partitionIdList.pop(row)
     self._rebuildPartitionIdMap(self._partitionIdList)
@@ -795,18 +795,18 @@ class KNNClassifier(object):
     return pattern
 
 
-  def getPartitionId(self, index):
+  def getPartitionId(self, i):
     """
-    Returns the partition Id associated with pattern idx.  Returns None
-    if no Id is associated with that
+    Returns the partition Id associated with pattern i.  Returns None
+    if no Id is associated with it.
     """
-    if (index < 0) or (index >= self._numPatterns):
+    if (i < 0) or (i >= self._numPatterns):
       raise RuntimeError("index out of bounds")
-    id = self._partitionIdList[index]
-    if id == numpy.inf:
+    partitionId = self._partitionIdList[i]
+    if partitionId == numpy.inf:
       return None
     else:
-      return id
+      return partitionId
 
 
   def getNumPartitionIds(self):
@@ -842,10 +842,10 @@ class KNNClassifier(object):
     Rebuilds the partition Id map using the given partitionIdList
     """
     self._partitionIdMap = {}
-    for row, id in enumerate(partitionIdList):
-      indices = self._partitionIdMap.get(id, [])
+    for row, partitionId in enumerate(partitionIdList):
+      indices = self._partitionIdMap.get(partitionId, [])
       indices.append(row)
-      self._partitionIdMap[id] = indices
+      self._partitionIdMap[partitionId] = indices
 
 
   def _calcDistance(self, inputPattern, distanceNorm=None):
@@ -937,13 +937,6 @@ class KNNClassifier(object):
   def finishLearning(self):
     if self.numSVDDims is not None and self._vt is None:
       self.computeSVD()
-
-
-  def restartLearning(self):
-    """This is only invoked if we have already called finishLearning()
-    but now want to go back and provide more samples.
-    """
-    pass
 
 
   def computeSVD(self, numSVDSamples=None, finalize=True):

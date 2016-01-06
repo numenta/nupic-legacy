@@ -187,9 +187,8 @@ class KNNClassifierTest(unittest.TestCase):
     cat, _, _, _ = classifier.infer(denseB, partitionId=1)
     self.assertEquals(cat, 0)
 
-    # Ensure it works even if you invoke learning again (tests restartLearning
-    # logic). To make it a bit more complex this time we insert A again but now
-    # with Id=2
+    # Ensure it works even if you invoke learning again. To make it a bit more
+    # complex this time we insert A again but now with Id=2
     classifier.learn(a, 0, isSparse=dimensionality, partitionId=2)
 
     # Even though first A should be ignored, the second instance of A should

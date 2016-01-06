@@ -729,8 +729,6 @@ class KNNClassifierRegion(PyRegion):
     @param value -- the value to which the parameter is to be set.
     """
     if name == "learningMode":
-      if int(value) and not self.learningMode:
-        self._restartLearning()
       self.learningMode = bool(int(value))
       self._epoch = 0
     elif name == "inferenceMode":
@@ -1089,15 +1087,6 @@ class KNNClassifierRegion(PyRegion):
       return numpy.ones(numScores) / numScores
 
     return scores / total
-
-
-  def _restartLearning(self):
-    """
-    Currently, we allow learning mode to be "re-started" after being
-    ended, but only if PCA and sphering (if any) operations have
-    already been completed (for the sake of simplicity.)
-    """
-    self._knn.restartLearning()
 
 
   def _finishLearning(self):
