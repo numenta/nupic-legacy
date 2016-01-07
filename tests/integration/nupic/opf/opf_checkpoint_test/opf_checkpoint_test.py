@@ -30,6 +30,11 @@ from nupic.support import initLogging
 from nupic.support.unittesthelpers.testcasebase import (
     unittest, TestCaseBase as HelperTestCaseBase)
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+
 _EXPERIMENT_BASE = os.path.join(os.path.abspath(
     os.path.dirname(__file__)), "experiments")
 
@@ -436,6 +441,8 @@ class PositiveTests(MyTestCaseBase):
         "DefaultTask.NontemporalMultiStep.predictionLog.csv")
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def test_NonTemporalMultiStepNew(self):
     """ Test that we get the same predictions out of a model that was
     saved and reloaded from a checkpoint as we do from one that runs
