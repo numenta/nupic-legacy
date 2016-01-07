@@ -1306,6 +1306,8 @@ class CLAModel(Model):
     proto.inferenceType = inferenceType
 
     proto.numRunCalls = self.__numRunCalls
+    proto.minLikelihoodThreshold = self._minLikelihoodThreshold
+    proto.maxPredictionsPerStep = self._maxPredictionsPerStep
 
     self._netInfo.net.write(proto.network)
 
@@ -1329,6 +1331,8 @@ class CLAModel(Model):
                 network=network)
 
     model.__numRunCalls = proto.numRunCalls
+    model._minLikelihoodThreshold = proto.minLikelihoodThreshold
+    model._maxPredictionsPerStep = proto.maxPredictionsPerStep
 
     model._getSensorRegion().getSelf().dataSource = DataBuffer()
     model._netInfo.net.initialize()
