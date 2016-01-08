@@ -53,11 +53,15 @@ class TPShim(TemporalMemory):
                permanenceInc=0.10,
                permanenceDec=0.10,
                permanenceMax=1.0,
-               globalDecay=0.10,
                activationThreshold=12,
                predictedSegmentDecrement=0,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255,
+               globalDecay=0.10,
+               maxAge=100000,
+               pamLength=1,
+               verbosity=0,
+               outputType="normal",
                seed=42):
     """
     Translate parameters and initialize member variables specific to `TP.py`.
@@ -136,11 +140,15 @@ class FastTPShim(FastTemporalMemory):
                permanenceInc=0.10,
                permanenceDec=0.10,
                permanenceMax=1.0,
-               globalDecay=0.10,
                activationThreshold=12,
                predictedSegmentDecrement=0,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255,
+               globalDecay=0.10,
+               maxAge=100000,
+               pamLength=1,
+               verbosity=0,
+               outputType="normal",
                seed=42):
     """
     Translate parameters and initialize member variables specific to `TP.py`.
@@ -219,11 +227,15 @@ class MonitoredTPShim(MonitoredTemporalMemory):
                permanenceInc=0.10,
                permanenceDec=0.10,
                permanenceMax=1.0,
-               globalDecay=0.10,
                activationThreshold=12,
                predictedSegmentDecrement=0,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255,
+               globalDecay=0.10,
+               maxAge=100000,
+               pamLength=1,
+               verbosity=0,
+               outputType="normal",
                seed=42):
     """
     Translate parameters and initialize member variables specific to `TP.py`.
@@ -302,11 +314,15 @@ class MonitoredFastTPShim(MonitoredFastTemporalMemory):
                permanenceInc=0.10,
                permanenceDec=0.10,
                permanenceMax=1.0,
-               globalDecay=0.10,
                activationThreshold=12,
                predictedSegmentDecrement=0,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255,
+               globalDecay=0.10,
+               maxAge=100000,
+               pamLength=1,
+               verbosity=0,
+               outputType="normal",
                seed=42):
     """
     Translate parameters and initialize member variables specific to `TP.py`.
