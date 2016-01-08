@@ -211,7 +211,7 @@ class RecordSensor(PyRegion):
 
     self.preEncodingFilters = []
     self.postEncodingFilters = []
-    self.topDownMode = False
+    self.topDownMode = 0
     self.verbosity = verbosity
     self.numCategories = numCategories
     self._iterNum = 0
@@ -533,7 +533,8 @@ class RecordSensor(PyRegion):
     proto: RecordSensorProto capnproto object
     """
     self.encoder.write(proto.encoder)
-    self.disabledEncoder.write(proto.disabledEncoder)
+    if self.disabledEncoder is not None:
+      self.disabledEncoder.write(proto.disabledEncoder)
     proto.topDownMode = self.topDownMode
     proto.verbosity = self.verbosity
     proto.numCategories = self.numCategories
@@ -548,7 +549,8 @@ class RecordSensor(PyRegion):
     instance = cls()
 
     instance.encoder = MultiEncoder.read(proto.encoder)
-    instance.disabledEncoder = MultiEncoder.read(proto.disabledEncoder)
+    if proto.disabledEncoder is not None:
+      instance.disabledEncoder = MultiEncoder.read(proto.disabledEncoder)
     instance.topDownMode = proto.topDownMode
     instance.verbosity = proto.verbosity
     instance.numCategories = proto.numCategories
