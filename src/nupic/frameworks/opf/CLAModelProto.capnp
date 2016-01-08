@@ -2,11 +2,13 @@
 
 using import "/nupic/proto/NetworkProto.capnp".NetworkProto;
 
-# Next ID: 2
+# Next ID: 5
 struct CLAModelProto {
   inferenceType @0 :InferenceType;
   numRunCalls @1 :UInt32;
-  network @2 :NetworkProto;
+  minLikelihoodThreshold @2 :Float32;
+  maxPredictionsPerStep @3 :UInt32;
+  network @4 :NetworkProto;
 
   enum InferenceType {
     temporalNextStep @0;
