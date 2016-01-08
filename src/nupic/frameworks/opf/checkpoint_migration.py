@@ -26,13 +26,13 @@ import os
 import shutil
 import tempfile
 
-from nupic.frameworks.opf import modelfactory
+from nupic.frameworks.opf.modelfactory import ModelFactory
 
 
 
 def migrateModel(checkpointDir):
   """Migrates a single model."""
-  model = modelfactory.ModelFactory.loadFromCheckpoint(checkpointDir)
+  model = ModelFactory.loadFromCheckpoint(checkpointDir)
 
   tempDir = tempfile.mkdtemp()
   try:
