@@ -61,7 +61,7 @@ class TPShim(TemporalMemory):
                maxAge=100000,
                pamLength=1,
                verbosity=0,
-               outputType='normal',
+               outputType="normal",
                seed=42):
     """
     Translate parameters and initialize member variables specific to `TP.py`.
@@ -148,7 +148,7 @@ class FastTPShim(FastTemporalMemory):
                maxAge=100000,
                pamLength=1,
                verbosity=0,
-               outputType='normal',
+               outputType="normal",
                seed=42):
     """
     Translate parameters and initialize member variables specific to `TP.py`.
@@ -235,7 +235,7 @@ class MonitoredTPShim(MonitoredTemporalMemory):
                maxAge=100000,
                pamLength=1,
                verbosity=0,
-               outputType='normal',
+               outputType="normal",
                seed=42):
     """
     Translate parameters and initialize member variables specific to `TP.py`.
@@ -322,7 +322,7 @@ class MonitoredFastTPShim(MonitoredFastTemporalMemory):
                maxAge=100000,
                pamLength=1,
                verbosity=0,
-               outputType='normal',
+               outputType="normal",
                seed=42):
     """
     Translate parameters and initialize member variables specific to `TP.py`.
