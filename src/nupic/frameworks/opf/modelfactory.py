@@ -88,9 +88,9 @@ class ModelFactory(object):
         Directory of where the experiment is to be or was saved
     @returns (nupic.frameworks.opf.model.Model) The loaded model instance.
     """
-    if os.path.exists(os.path.join(savedModelDir, "model.data")):
+    if os.path.exists(Model.getModelCheckpointFilePath(savedModelDir)):
       return CLAModel.readFromCheckpoint(savedModelDir)
-    elif os.path.exists(os.path.join(savedModelDir, "model.pkl")):
+    elif os.path.exists(Model.getModelPickleFilePath(savedModelDir)):
       return Model.load(savedModelDir)
     else:
       raise FileNotFoundError(
