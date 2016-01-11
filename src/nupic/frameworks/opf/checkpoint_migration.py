@@ -31,7 +31,10 @@ from nupic.frameworks.opf.modelfactory import ModelFactory
 
 
 def migrateModel(checkpointDir):
-  """Migrates a single model."""
+  """Migrates a single model.
+
+  :param checkpointDir: String containing the path to the checkpoint directory.
+  """
   model = ModelFactory.loadFromCheckpoint(checkpointDir)
 
   tempDir = tempfile.mkdtemp()
@@ -48,6 +51,11 @@ def migrateModel(checkpointDir):
 
 
 def migrateMultipleModels(checkpointDirs):
+  """Migrate multiple model checkpoints.
+
+  :param checkpointDirs: A sequence of strings that contain the checkpoint
+      directories.
+  """
   for checkpointDir in checkpointDirs:
     migrateModel(checkpointDir)
 
