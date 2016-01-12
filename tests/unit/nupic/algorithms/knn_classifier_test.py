@@ -29,6 +29,30 @@ from nupic.algorithms.KNNClassifier import KNNClassifier
 
 class KNNClassifierTest(unittest.TestCase):
 
+  def testSparsifyVector(self):
+    classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0)
+    inputPattern = np.array([0, 1, 3, 7, 11], dtype=np.int32)
+    
+    # Untouched
+    inputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
+    self.assertTrue(np.array_equal(np.array([0, 1, 3, 7, 11], dtype=np.int32), inputPattern))
+    
+    classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0, relativeThreshold=True,
+      sparseThreshold=.2)
+    inputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
+    self.assertTrue(np.array_equal(np.array([0, 0, 3, 7, 11], dtype=np.int32), inputPattern))
+    
+    classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0, relativeThreshold=True,
+      sparseThreshold=.2, numWinners=3)
+    inputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
+    self.assertTrue(np.array_equal(np.array([0., 0., 3., 0., 0.], dtype=np.int32), inputPattern))
+    
+    classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0, relativeThreshold=True,
+      sparseThreshold=.2, doBinarization=True)
+    inputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
+    self.assertTrue(np.array_equal(np.array([0., 0., 1., 0., 0.], dtype=np.int32), inputPattern))
+    
+    
 
   def testDistanceMetrics(self):
     classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0)

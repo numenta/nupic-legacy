@@ -257,8 +257,9 @@ class KNNClassifier(object):
 
     # Do winner-take-all
     if doWinners:
-      if (self.numWinners>0) and (self.numWinners < (inputPattern > 0).sum()):
+      if (self.numWinners>0) and (self.numWinners <= (inputPattern > 0).sum()):
         sparseInput = numpy.zeros(inputPattern.shape)
+        
         # Don't consider strongly negative numbers as winners.
         sorted = inputPattern.argsort()[0:self.numWinners]
         sparseInput[sorted] += inputPattern[sorted]
@@ -401,7 +402,7 @@ class KNNClassifier(object):
 
     if rowID is None:
       rowID = self._iterationIdx
-
+      
     # Dense vectors
     if not self.useSparseMemory:
 
