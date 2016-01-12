@@ -32,6 +32,7 @@ from nupic.encoders.pass_through_encoder import PassThroughEncoder
 from nupic.encoders.sparse_pass_through_encoder import SparsePassThroughEncoder
 from nupic.encoders.coordinate import CoordinateEncoder
 from nupic.encoders.geospatial_coordinate import GeospatialCoordinateEncoder
+from nupic.encoders.SP import SpatialPoolerEncoder
 # multiencoder must be imported last because it imports * from this module!
 from nupic.encoders.utils import bitsToString
 from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
@@ -41,7 +42,7 @@ from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEnco
 # Map class to Cap'n Proto schema union attribute
 _CLASS_ATTR_MAP = {
   ScalarEncoder: "scalarEncoder",
-  AdaptiveScalarEncoder: "adaptiveScalarEncoder",
+  AdaptiveScalarEncoder: "adaptivescalarEncoder",
   DateEncoder: "dateEncoder",
   LogEncoder: "logEncoder",
   CategoryEncoder: "categoryEncoder",
@@ -50,7 +51,8 @@ _CLASS_ATTR_MAP = {
   DeltaEncoder: "deltaEncoder",
   PassThroughEncoder: "passThroughEncoder",
   SparsePassThroughEncoder: "sparsePassThroughEncoder",
-  RandomDistributedScalarEncoder: "randomDistributedScalarEncoder"
+  RandomDistributedScalarEncoder: "randomDistributedScalarEncoder",
+  SpatialPoolerEncoder: "SpatialPoolerEncoder"
 }
 
 # Invert for fast lookup in MultiEncoder.read()
