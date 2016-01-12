@@ -809,11 +809,27 @@ class KNNClassifier(object):
       return partitionId
 
 
+  def getPartitionIdPerPattern(self):
+    """
+    Returns a list of numPatterns elements where the i'th position contains
+    the integer partition Id associated with pattern i. If pattern i had no
+    partition Id, it's value will be numpy.inf
+    """
+    return self._partitionIdList
+
+
   def getNumPartitionIds(self):
     """
     Return the number of unique partition Ids stored.
     """
     return len(self._partitionIdMap)
+
+
+  def getPartitionIdList(self):
+    """
+    Return a list containing unique (non-None) partition Ids
+    """
+    return self._partitionIdMap.keys()
 
 
   def getPatternIndicesWithPartitionId(self, partitionId):
