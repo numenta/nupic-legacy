@@ -25,9 +25,9 @@ echo "Running after_success-release.sh..."
 echo
 
 echo "Installing wheel..."
-pip install wheel --user || exit
+pip install wheel || exit
 echo "Installing twine..."
-pip install twine --user || exit
+pip install twine || exit
 
 # Twine gets installed into /Users/travis/Library/Python/2.7/bin, which needs to
 # be added to the PATH

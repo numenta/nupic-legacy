@@ -24,16 +24,9 @@ echo
 echo Running install.sh...
 echo
 
-curl -O https://capnproto.org/capnproto-c++-0.5.3.tar.gz
-tar zxf capnproto-c++-0.5.3.tar.gz
-cd capnproto-c++-0.5.3
-./configure
-make -j6
-make install
-
 # Build NuPIC
 cd ${TRAVIS_BUILD_DIR}
-pip install --user .[capnp]
+pip install .[capnp]
 
 # Show nupic installation folder by trying to import nupic, if works, it prints
 # the absolute path of nupic.__file__, which the installation folder itself.
