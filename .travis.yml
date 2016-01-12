@@ -5,20 +5,15 @@ branches:
     - gh-pages
 
 language: python
+python:
+  - "2.7"
 
 os:
   - linux
   - osx
 
-addons:
-  apt:
-    sources:
-      - deadsnakes
-      - ubuntu-toolchain-r-test
-    packages:
-      - python2.7
-      - python2.7-dev
-      # install gcc-4.8 for C++11 compatibility, #TODO remove when Travis has gcc>=4.8, (it's used for clang too, in coveralls)
+compiler:
+  - clang
 
 env:
   global:
