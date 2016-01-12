@@ -20,17 +20,22 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import sys
 from mock import Mock
 from mock import patch
 import unittest2 as unittest
 
 from nupic import engine
+from nupic.bindings.regions.TestNode import TestNode
+from nupic.regions.SPRegion import SPRegion
 
 
 
 class NetworkTest(unittest.TestCase):
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testErrorHandling(self):
     n = engine.Network()
 
@@ -71,7 +76,7 @@ class NetworkTest(unittest.TestCase):
       'TestNode.compute() Failing on purpose as requested')
 
     # Test failure in the static getSpec
-    from nupic.regions.TestNode import TestNode
+    from nupic.bindings.regions.TestNode import TestNode
     TestNode._failIngetSpec = True
 
     with self.assertRaises(Exception) as cm:
@@ -276,6 +281,8 @@ class NetworkTest(unittest.TestCase):
       print "Time for 1M getParameter calls: %.2f seconds" % (t2 - t1)
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testTwoRegionNetwork(self):
     n = engine.Network()
 
@@ -341,6 +348,8 @@ class NetworkTest(unittest.TestCase):
     print r.getSpec()
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testPyNodeGetSetParameter(self):
     n = engine.Network()
 
@@ -361,6 +370,8 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(result, 77.7)
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testPyNodeGetNodeSpec(self):
     n = engine.Network()
 
@@ -383,6 +394,8 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(i.description, 'Primary output for the node')
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testTwoRegionPyNodeNetwork(self):
     n = engine.Network()
 
@@ -406,6 +419,16 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(len(r2dims), 2)
     self.assertEqual(r2dims[0], 3)
     self.assertEqual(r2dims[1], 2)
+
+
+  def testGetRegion(self):
+    n = engine.Network()
+    n.addRegion("region1", "py.TestNode", "")
+
+    region = n.getRegionsByType(TestNode)[0]
+    self.assertEqual(type(region.getSelf()), TestNode)
+
+    self.assertEqual(n.getRegionsByType(SPRegion), [])
 
 
 

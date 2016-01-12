@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.6
+
+* Windows support
+* Serialization work
+* Moved SWIG out into nupic.core
+* Major build changes
+
 ## 0.3.5
 
 * Raise explicit exception if user passes non-str path

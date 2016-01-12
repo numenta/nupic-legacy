@@ -25,7 +25,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-from PyRegion import PyRegion
+from nupic.bindings.regions.PyRegion import PyRegion
 
 from nupic.data.dictutils import DictObj
 

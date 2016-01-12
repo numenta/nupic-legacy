@@ -63,8 +63,6 @@ class DateEncoder(Encoder):
 
   forced (default True) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
 
-
-
   """
 
 
@@ -269,7 +267,7 @@ class DateEncoder(Encoder):
       values.append(dayOfYear-1)
 
     if self.dayOfWeekEncoder is not None:
-      dayOfWeek = timetuple.tm_wday #+ timeOfDay / 24.0
+      dayOfWeek = timetuple.tm_wday + timeOfDay / 24.0
       values.append(dayOfWeek)
 
     if self.weekendEncoder is not None:

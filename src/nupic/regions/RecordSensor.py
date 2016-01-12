@@ -21,8 +21,16 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 import numpy
-from PyRegion import PyRegion
+from nupic.bindings.regions.PyRegion import PyRegion
 from nupic.data.fieldmeta import FieldMetaType
+from nupic.encoders.multi import MultiEncoder
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.record_sensor_capnp import RecordSensorProto
 
 
 
@@ -511,3 +519,38 @@ class RecordSensor(PyRegion):
 
     else:
       raise Exception('Unknown parameter: ' + parameterName)
+
+
+  @staticmethod
+  def getProtoType():
+    """Return the pycapnp proto type that the class uses for serialization."""
+    return RecordSensorProto
+
+
+  def writeToProto(self, proto):
+    """Write state to proto object.
+
+    proto: RecordSensorProto capnproto object
+    """
+    self.encoder.write(proto.encoder)
+    self.disabledEncoder.write(proto.disabledEncoder)
+    proto.topDownMode = self.topDownMode
+    proto.verbosity = self.verbosity
+    proto.numCategories = self.numCategories
+
+
+  @classmethod
+  def readFromProto(cls, proto):
+    """Read state from proto object.
+
+    proto: RecordSensorProto capnproto object
+    """
+    instance = cls()
+
+    instance.encoder = MultiEncoder.read(proto.encoder)
+    instance.disabledEncoder = MultiEncoder.read(proto.disabledEncoder)
+    instance.topDownMode = proto.topDownMode
+    instance.verbosity = proto.verbosity
+    instance.numCategories = proto.numCategories
+
+    return instance

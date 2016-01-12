@@ -155,26 +155,6 @@ def processClubAttendance(f, clubs):
   except StopIteration:
     return False
   
-def fixEOL(f):
-  """Make sure the end of line character is '\n'
-  
-  This is needed in order to use fileinput.input() to process the files. The
-  file format of the raw gym dataset unfortunately contains \r (old Mac format)
-  EOL characters.
-  """
-  text = open(f).read()
-  
-  # If there are no carriage returns (\r) just return
-  if text.find('\r') == -1:
-    return
-  # Takes care of Windows format
-  text = text.replace('\r\n', '\n')
-  # Takes care of old Mac format
-  text = text.replace('\r', '\n')
-  
-  open(f, 'w').write(text)
-
-
 def processClubConsumption(f, clubs):
   """Process the consumption a club
   
@@ -249,10 +229,7 @@ def processClubConsumption(f, clubs):
   
 def processAttendanceFiles():
   files = glob.glob('Attendance*.csv')
-  # Make sure EOL is '\n'
-  for f in files:
-    fixEOL(f)
-  
+
   f = fileinput.input(files=files)
 
   # Process the input files and create a dictionary of Club objects
@@ -266,10 +243,7 @@ def processConsumptionFiles(clubs):
   """
   """
   files = glob.glob('all_group*detail.csv')
-  # Make sure EOL is '\n'
-  for f in files:
-    fixEOL(f)
-  
+
   f = fileinput.input(files=files)
 
   # Process the input files and create a dictionary of Club objects

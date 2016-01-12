@@ -144,7 +144,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
         'results': {
           ('DefaultTask.TemporalMultiStep.predictionLog.csv',
            "multiStepBestPredictions:multiStep:errorMetric='aae':steps=1:window=200:field=field2"):
-                    (0.0, 3.65),
+                    (0.0, 3.76),
         }
       },
 
@@ -211,7 +211,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
              'classification:avg_err:window=200'): (0.0, 0.045),
 
             ('OnlineLearning.TemporalClassification.predictionLog.csv',
-             'classConfidences:neg_auc:computeEvery=10:window=200'): (-1.0, -0.99),
+             'classConfidences:neg_auc:computeEvery=10:window=200'): (-1.0, -0.98),
             }
       },
 
@@ -284,7 +284,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
       { 'experimentDir': 'experiments/anomaly/temporal/simple',
         'results': {
             ('DefaultTask.TemporalAnomaly.predictionLog.csv',
-             'anomalyScore:passThruPrediction:window=1000:field=f'): (0.13,
+             'anomalyScore:passThruPrediction:window=1000:field=f'): (0.12,
                                                                       0.14),
           }
       },

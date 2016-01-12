@@ -3,8 +3,21 @@ FROM ubuntu:14.04
 MAINTAINER Allan Costa <allaninocencio@yahoo.com.br>
 
 # Install dependencies
-RUN apt-get update
-RUN apt-get install -y wget git-core gcc g++ python2.7 python 2.7-dev
+RUN apt-get update && \
+    apt-get install -y \
+    curl \
+    wget \
+    git-core \
+    gcc \
+    g++ \
+    cmake \
+    python \
+    python2.7 \
+    python2.7-dev \
+    zlib1g-dev \
+    bzip2 \
+    libyaml-dev \
+    libyaml-0-2
 RUN wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O - | python
 RUN pip install --upgrade setuptools
 RUN pip install wheel
@@ -23,10 +36,25 @@ ENV USER docker
 # Copy context into container file system
 ADD . $NUPIC
 
-WORKDIR /usr/local/src/nupic
+WORKDIR /usr/local/src
 
-# Install nupic.bindings
-RUN pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-`git grep nupic.bindings\=\= -- external/common/requirements.txt | cut -d ':' -f 2 | sed "s/nupic\.bindings\=\=//"`-cp27-none-linux_x86_64.whl
+# Clone nupic.core
+RUN git clone `head -n 2 $NUPIC/.nupic_modules | tail -n 1 | sed -r "s/NUPIC_CORE_REMOTE = '(.+)'/\\1/"` && \
+    cd nupic.core && \
+    git reset --hard `head -n 3 $NUPIC/.nupic_modules | tail -n 1 | sed -r "s/NUPIC_CORE_COMMITISH = '(.+)'/\\1/"`
+
+WORKDIR /usr/local/src/nupic.core
+
+# Build nupic.core
+RUN pip install \
+        --cache-dir /usr/local/src/nupic.core/pip-cache \
+        --build /usr/local/src/nupic.core/pip-build \
+        --no-clean \
+        pycapnp==0.5.5 \
+        -r bindings/py/requirements.txt && \
+    python setup.py install
+
+WORKDIR /usr/local/src/nupic
 
 # Install NuPIC with using SetupTools
 RUN python setup.py install

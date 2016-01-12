@@ -325,8 +325,9 @@ class SpatialPooler(object):
 
     # Initialize a tiny random tie breaker. This is used to determine winning
     # columns where the overlaps are identical.
-    self._tieBreaker = 0.01*numpy.array([self._random.getReal64() for i in
-                                        xrange(self._numColumns)])
+    self._tieBreaker = numpy.array([0.01 * self._random.getReal64() for i in
+                                      xrange(self._numColumns)],
+                                    dtype=realDType)
 
     # 'self._connectedSynapses' is a similar matrix to 'self._permanences'
     # (rows represent cortical columns, columns represent input bits) whose
@@ -896,7 +897,7 @@ class SpatialPooler(object):
     value is meaningless if global inhibition is enabled.
     """
     if self._globalInhibition:
-      self._inhibitionRadius = self._columnDimensions.max()
+      self._inhibitionRadius = int(self._columnDimensions.max())
       return
 
     avgConnectedSpan = numpy.average(
@@ -1015,7 +1016,7 @@ class SpatialPooler(object):
                     survived inhibition.
     """
     inputIndices = numpy.where(inputVector > 0)[0]
-    permChanges = numpy.zeros(self._numInputs)
+    permChanges = numpy.zeros(self._numInputs, dtype=realDType)
     permChanges.fill(-1 * self._synPermInactiveDec)
     permChanges[inputIndices] = self._synPermActiveInc
     for columnIndex in activeColumns:
@@ -1100,7 +1101,6 @@ class SpatialPooler(object):
                     a connected state. Should be set to 'false' when a direct
                     assignment is required.
     """
-
     maskPotential = numpy.where(self._potentialPools[columnIndex] > 0)[0]
     if raisePerm:
       self._raisePermanenceToThreshold(perm, maskPotential)
@@ -1166,7 +1166,7 @@ class SpatialPooler(object):
     # to the inputs. Initially a subset of the input bits in a
     # column's potential pool will be connected. This number is
     # given by the parameter "connectedPct"
-    perm = numpy.zeros(self._numInputs)
+    perm = numpy.zeros(self._numInputs, dtype=realDType)
     for i in xrange(self._numInputs):
       if (potential[i] < 1):
         continue
@@ -1361,8 +1361,9 @@ class SpatialPooler(object):
     @param inputVector: a numpy array of 0's and 1's that comprises the input to
                     the spatial pooler.
     """
-    overlaps = numpy.zeros(self._numColumns).astype(realDType)
-    self._connectedSynapses.rightVecSumAtNZ_fast(inputVector, overlaps)
+    overlaps = numpy.zeros(self._numColumns, dtype=realDType)
+    self._connectedSynapses.rightVecSumAtNZ_fast(inputVector.astype(realDType),
+                                                 overlaps)
     overlaps[overlaps < self._stimulusThreshold] = 0
     return overlaps
 
@@ -1397,9 +1398,6 @@ class SpatialPooler(object):
       density = float(self._numActiveColumnsPerInhArea) / inhibitionArea
       density = min(density, 0.5)
 
-    # Add our fixed little bit of random noise to the scores to help break ties.
-    overlaps += self._tieBreaker
-
     if self._globalInhibition or \
       self._inhibitionRadius > max(self._columnDimensions):
       return self._inhibitColumnsGlobal(overlaps, density)
@@ -1422,12 +1420,14 @@ class SpatialPooler(object):
     @return list with indices of the winning columns
     """
     #calculate num active per inhibition area
-
     numActive = int(density * self._numColumns)
-    winners = sorted(range(overlaps.size),
-                     key=lambda k: overlaps[k],
-                     reverse=True)[0:numActive]
-    return winners
+
+    # Calculate winners using stable sort algorithm (mergesort)
+    # for compatibility with C++
+    winnerIndices = numpy.argsort(overlaps, kind='mergesort')
+    sortedWinnerIndices = winnerIndices[-numActive:][::-1]
+
+    return sortedWinnerIndices
 
 
   def _inhibitColumnsLocal(self, overlaps, density):
@@ -1459,7 +1459,7 @@ class SpatialPooler(object):
       if numBigger < numActive:
         winners.append(i)
         overlaps[i] += addToWinners
-    return winners
+    return numpy.array(winners, dtype=uintType)
 
 
   @staticmethod
@@ -1610,8 +1610,10 @@ class SpatialPooler(object):
 
       rangeND.append(numpy.unique(curRange))
 
-    neighbors = [numpy.ravel_multi_index(coord, dimensions) for coord in
-      itertools.product(*rangeND)]
+    neighbors = numpy.ravel_multi_index(
+      numpy.array(list(itertools.product(*rangeND))).T, 
+      dimensions).tolist()
+
     neighbors.remove(columnIndex)
     return neighbors
 
@@ -1661,7 +1663,7 @@ class SpatialPooler(object):
     proto.potentialRadius = self._potentialRadius
     proto.potentialPct = self._potentialPct
     proto.inhibitionRadius = self._inhibitionRadius
-    proto.globalInhibition = self._globalInhibition
+    proto.globalInhibition = bool(self._globalInhibition)
     proto.numActiveColumnsPerInhArea = self._numActiveColumnsPerInhArea
     proto.localAreaDensity = self._localAreaDensity
     proto.stimulusThreshold = self._stimulusThreshold
@@ -1717,65 +1719,70 @@ class SpatialPooler(object):
       boostFactorsProto[i] = float(v)
 
 
-  def read(self, proto):
+  @classmethod
+  def read(cls, proto):
     numInputs = int(proto.numInputs)
     numColumns = int(proto.numColumns)
 
-    self._random.read(proto.random)
-    self._numInputs = numInputs
-    self._numColumns = numColumns
-    self._columnDimensions = numpy.array(proto.columnDimensions)
-    self._inputDimensions = numpy.array(proto.inputDimensions)
-    self._potentialRadius = proto.potentialRadius
-    self._potentialPct = proto.potentialPct
-    self._inhibitionRadius = proto.inhibitionRadius
-    self._globalInhibition = proto.globalInhibition
-    self._numActiveColumnsPerInhArea = proto.numActiveColumnsPerInhArea
-    self._localAreaDensity = proto.localAreaDensity
-    self._stimulusThreshold = proto.stimulusThreshold
-    self._synPermInactiveDec = proto.synPermInactiveDec
-    self._synPermActiveInc = proto.synPermActiveInc
-    self._synPermBelowStimulusInc = proto.synPermBelowStimulusInc
-    self._synPermConnected = proto.synPermConnected
-    self._minPctOverlapDutyCycles = proto.minPctOverlapDutyCycles
-    self._minPctActiveDutyCycles = proto.minPctActiveDutyCycles
-    self._dutyCyclePeriod = proto.dutyCyclePeriod
-    self._maxBoost = proto.maxBoost
-    self._wrapAround = proto.wrapAround
-    self._spVerbosity = proto.spVerbosity
+    instance = cls()
 
-    self._synPermMin = proto.synPermMin
-    self._synPermMax = proto.synPermMax
-    self._synPermTrimThreshold = proto.synPermTrimThreshold
-    self._updatePeriod = proto.updatePeriod
+    instance._random.read(proto.random)
+    instance._numInputs = numInputs
+    instance._numColumns = numColumns
+    instance._columnDimensions = numpy.array(proto.columnDimensions)
+    instance._inputDimensions = numpy.array(proto.inputDimensions)
+    instance._potentialRadius = proto.potentialRadius
+    instance._potentialPct = proto.potentialPct
+    instance._inhibitionRadius = proto.inhibitionRadius
+    instance._globalInhibition = proto.globalInhibition
+    instance._numActiveColumnsPerInhArea = proto.numActiveColumnsPerInhArea
+    instance._localAreaDensity = proto.localAreaDensity
+    instance._stimulusThreshold = proto.stimulusThreshold
+    instance._synPermInactiveDec = proto.synPermInactiveDec
+    instance._synPermActiveInc = proto.synPermActiveInc
+    instance._synPermBelowStimulusInc = proto.synPermBelowStimulusInc
+    instance._synPermConnected = proto.synPermConnected
+    instance._minPctOverlapDutyCycles = proto.minPctOverlapDutyCycles
+    instance._minPctActiveDutyCycles = proto.minPctActiveDutyCycles
+    instance._dutyCyclePeriod = proto.dutyCyclePeriod
+    instance._maxBoost = proto.maxBoost
+    instance._wrapAround = proto.wrapAround
+    instance._spVerbosity = proto.spVerbosity
 
-    self._version = VERSION
-    self._iterationNum = proto.iterationNum
-    self._iterationLearnNum = proto.iterationLearnNum
+    instance._synPermMin = proto.synPermMin
+    instance._synPermMax = proto.synPermMax
+    instance._synPermTrimThreshold = proto.synPermTrimThreshold
+    instance._updatePeriod = proto.updatePeriod
 
-    self._potentialPools.read(proto.potentialPools)
+    instance._version = VERSION
+    instance._iterationNum = proto.iterationNum
+    instance._iterationLearnNum = proto.iterationLearnNum
 
-    self._permanences.read(proto.permanences)
+    instance._potentialPools.read(proto.potentialPools)
+
+    instance._permanences.read(proto.permanences)
     # Initialize ephemerals and make sure they get updated
-    self._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
-    self._connectedSynapses = BinaryCorticalColumns(numInputs)
-    self._connectedSynapses.resize(numColumns, numInputs)
+    instance._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
+    instance._connectedSynapses = BinaryCorticalColumns(numInputs)
+    instance._connectedSynapses.resize(numColumns, numInputs)
     for columnIndex in xrange(proto.numColumns):
-      self._updatePermanencesForColumn(
-        self._permanences[columnIndex], columnIndex, False
+      instance._updatePermanencesForColumn(
+        instance._permanences[columnIndex], columnIndex, False
       )
 
-    self._tieBreaker = numpy.array(proto.tieBreaker)
+    instance._tieBreaker = numpy.array(proto.tieBreaker, dtype=realDType)
 
-    self._overlapDutyCycles = numpy.array(proto.overlapDutyCycles,
+    instance._overlapDutyCycles = numpy.array(proto.overlapDutyCycles,
                                           dtype=realDType)
-    self._activeDutyCycles = numpy.array(proto.activeDutyCycles,
+    instance._activeDutyCycles = numpy.array(proto.activeDutyCycles,
                                          dtype=realDType)
-    self._minOverlapDutyCycles = numpy.array(proto.minOverlapDutyCycles,
+    instance._minOverlapDutyCycles = numpy.array(proto.minOverlapDutyCycles,
                                              dtype=realDType)
-    self._minActiveDutyCycles = numpy.array(proto.minActiveDutyCycles,
+    instance._minActiveDutyCycles = numpy.array(proto.minActiveDutyCycles,
                                             dtype=realDType)
-    self._boostFactors = numpy.array(proto.boostFactors, dtype=realDType)
+    instance._boostFactors = numpy.array(proto.boostFactors, dtype=realDType)
+
+    return instance
 
 
   def printParameters(self):

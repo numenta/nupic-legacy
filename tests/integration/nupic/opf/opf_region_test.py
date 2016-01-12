@@ -55,6 +55,12 @@ from nupic.engine import Network
 from nupic.encoders import MultiEncoder
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 
+from nupic.bindings.algorithms import SpatialPooler
+from nupic.research.TP10X2 import TP10X2
+from nupic.regions.SPRegion import SPRegion
+from nupic.regions.TPRegion import TPRegion
+from nupic.regions.AnomalyRegion import AnomalyRegion
+
 _VERBOSITY = 0         # how chatty the unit tests should be
 _SEED = 35             # the random seed used throughout
 
@@ -302,6 +308,42 @@ class OPFRegionTest(TestCaseBase):
     netOPF.run(1)
     print "RUN SUCCEEDED"
     """
+
+
+  def testGetInputOutputNamesOnRegions(self):
+    network = _createOPFNetwork(addSP = True, addTP = True)
+    network.run(1)
+
+    spRegion = network.getRegionsByType(SPRegion)[0]
+    self.assertEqual(set(spRegion.getInputNames()),
+                     set(['sequenceIdIn', 'bottomUpIn', 'resetIn',
+                     'topDownIn']))
+    self.assertEqual(set(spRegion.getOutputNames()),
+                     set(['topDownOut', 'spatialTopDownOut',
+                     'temporalTopDownOut', 'bottomUpOut', 'anomalyScore']))
+
+
+
+  def testGetAlgorithmOnRegions(self):
+    network = _createOPFNetwork(addSP = True, addTP = True)
+    network.run(1)
+
+    spRegions = network.getRegionsByType(SPRegion)
+    tpRegions = network.getRegionsByType(TPRegion)
+    anomalyRegions = network.getRegionsByType(AnomalyRegion)
+
+    self.assertEqual(len(spRegions), 1)
+    self.assertEqual(len(tpRegions), 1)
+    self.assertEqual(len(anomalyRegions), 0)
+
+    spRegion = spRegions[0]
+    tpRegion = tpRegions[0]
+
+    sp = spRegion.getSelf().getAlgorithmInstance()
+    tp = tpRegion.getSelf().getAlgorithmInstance()
+
+    self.assertEqual(type(sp), SpatialPooler)
+    self.assertEqual(type(tp), TP10X2)
 
 
 

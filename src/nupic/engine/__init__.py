@@ -41,7 +41,7 @@ pyRegions = (
     ("nupic.regions.SPRegion", "SPRegion"),
     ("nupic.regions.SVMClassifierNode", "SVMClassifierNode"),
     ("nupic.regions.TPRegion", "TPRegion"),
-    ("nupic.regions.TestNode", "TestNode"),
+    ("nupic.bindings.regions.TestNode", "TestNode"),
     ("nupic.regions.TestRegion", "TestRegion"),
     ("nupic.regions.UnimportableNode", "UnimportableNode"),
     ("nupic.regions.extra.GaborNode2", "GaborNode2"))
@@ -457,6 +457,20 @@ class Region(LockAttributesMixin):
     """
     return self._region.getOutputArray(outputName)
 
+  def getInputNames(self):
+    """
+    Returns list of input names in spec.
+    """
+    inputs = self.getSpec().inputs
+    return [inputs.getByIndex(i)[0] for i in xrange(inputs.getCount())]
+
+  def getOutputNames(self):
+    """
+    Returns list of output names in spec.
+    """
+    outputs = self.getSpec().outputs
+    return [outputs.getByIndex(i)[0] for i in xrange(outputs.getCount())]
+
   def executeCommand(self, args):
     """
     @doc:place_holder(Region.executeCommand)
@@ -721,10 +735,18 @@ class Network(engine.Network):
       raise TypeError("Save path must be of type {}.".format(str))
     engine.Network.save(self, *args, **kwargs)
 
-  def inspect(self):
-    """Launch a GUI inpector to inspect the network"""
-    from nupic.analysis import inspect
-    inspect(self)
+  def getRegionsByType(self, regionClass):
+    """
+    Gets all region instances of a given class
+    (for example, nupic.regions.SPRegion.SPRegion).
+    """
+    regions = []
+
+    for region in self.regions.values():
+      if type(region.getSelf()) is regionClass:
+        regions.append(region)
+
+    return regions
 
   @staticmethod
   def registerRegion(regionClass):

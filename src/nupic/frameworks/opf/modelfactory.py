@@ -80,10 +80,13 @@ class ModelFactory(object):
     return modelClass(**modelConfig['modelParams'])
 
   @staticmethod
-  def loadFromCheckpoint(savedModelDir):
+  def loadFromCheckpoint(savedModelDir, newSerialization=False):
     """ Load saved model.
     @param savedModelDir (string)
            Directory of where the experiment is to be or was saved
     @returns (nupic.frameworks.opf.model.Model) The loaded model instance.
     """
-    return Model.load(savedModelDir)
+    if newSerialization:
+      return CLAModel.readFromCheckpoint(savedModelDir)
+    else:
+      return Model.load(savedModelDir)

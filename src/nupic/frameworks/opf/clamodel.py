@@ -50,6 +50,13 @@ from nupic.frameworks.opf.opfutils import (InferenceType,
                       ClassifierInput,
                       initLogger)
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.frameworks.opf.CLAModelProto_capnp import CLAModelProto
+
 
 DEFAULT_LIKELIHOOD_THRESHOLD = 0.0001
 DEFAULT_MAX_PREDICTIONS_PER_STEP = 8
@@ -109,7 +116,7 @@ class CLAModel(Model):
 
 
   def __init__(self,
-      sensorParams,
+      sensorParams={},
       inferenceType=InferenceType.TemporalNextStep,
       predictedField=None,
       spEnable=True,
@@ -123,7 +130,8 @@ class CLAModel(Model):
       clParams={},
       anomalyParams={},
       minLikelihoodThreshold=DEFAULT_LIKELIHOOD_THRESHOLD,
-      maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP):
+      maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP,
+      network=None):
     """CLAModel constructor.
 
     Args:
@@ -196,10 +204,13 @@ class CLAModel(Model):
                                 binaryAnomalyThreshold=anomalyThreshold)
 
     # -----------------------------------------------------------------------
-    # Create the network
-    self._netInfo = self.__createCLANetwork(
-        sensorParams, spEnable, spParams, tpEnable, tpParams, clEnable,
-        clParams, anomalyParams)
+    if network is not None:
+      self._netInfo = NetworkInfo(net=network, statsCollectors=[])
+    else:
+      # Create the network
+      self._netInfo = self.__createCLANetwork(
+          sensorParams, spEnable, spParams, tpEnable, tpParams, clEnable,
+          clParams, anomalyParams)
 
 
     # Initialize Spatial Anomaly detection parameters
@@ -1281,6 +1292,55 @@ class CLAModel(Model):
       self._hasCL = (self._getClassifierRegion() is not None)
 
     self.__logger.debug("Restoring %s from state..." % self.__class__.__name__)
+
+
+  @staticmethod
+  def getProtoType():
+    return CLAModelProto
+
+
+  def write(self, proto):
+    inferenceType = self.getInferenceType()
+    # lower-case first letter to be compatible with capnproto enum naming
+    inferenceType = inferenceType[:1].lower() + inferenceType[1:]
+    proto.inferenceType = inferenceType
+
+    proto.numRunCalls = self.__numRunCalls
+    proto.minLikelihoodThreshold = self._minLikelihoodThreshold
+    proto.maxPredictionsPerStep = self._maxPredictionsPerStep
+
+    self._netInfo.net.write(proto.network)
+
+
+  @classmethod
+  def read(cls, proto):
+    inferenceType = str(proto.inferenceType)
+    # upper-case first letter to be compatible with enum InferenceType naming
+    inferenceType = inferenceType[:1].upper() + inferenceType[1:]
+    inferenceType = InferenceType.getValue(inferenceType)
+
+    network = Network.read(proto.network)
+    spEnable = ("SP" in network.regions)
+    tpEnable = ("TP" in network.regions)
+    clEnable = ("Classifier" in network.regions)
+
+    model = cls(spEnable=spEnable,
+                tpEnable=tpEnable,
+                clEnable=clEnable,
+                inferenceType=inferenceType,
+                network=network)
+
+    model.__numRunCalls = proto.numRunCalls
+    model._minLikelihoodThreshold = proto.minLikelihoodThreshold
+    model._maxPredictionsPerStep = proto.maxPredictionsPerStep
+
+    model._getSensorRegion().getSelf().dataSource = DataBuffer()
+    model._netInfo.net.initialize()
+
+    # Mark end of restoration from state
+    model.__restoringFromState = False
+
+    return model
 
 
   def _serializeExtraData(self, extraDataDir):

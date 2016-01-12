@@ -26,7 +26,7 @@ from nupic.research import TP
 from nupic.research import TP10X2
 from nupic.research import TP_shim
 from nupic.support import getArgumentDescriptions
-from PyRegion import PyRegion
+from nupic.bindings.regions.PyRegion import PyRegion
 
 gDefaultTemporalImp = 'py'
 
@@ -42,11 +42,16 @@ def _getTPClass(temporalImp):
     return TP10X2.TP10X2
   elif temporalImp == 'tm_py':
     return TP_shim.TPShim
+  elif temporalImp == 'tm_py_fast':
+    return TP_shim.FastTPShim
   elif temporalImp == 'monitored_tm_py':
     return TP_shim.MonitoredTPShim
+  elif temporalImp == 'monitored_tm_py_fast':
+    return TP_shim.MonitoredFastTPShim
   else:
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
-              "'cpp', and 'tm_py'" % (temporalImp))
+              "'cpp', 'tm_py', 'tm_py_fast',"
+              "'monitored_tm_py', 'monitored_tm_py_fast'" % (temporalImp))
 
 
 
@@ -418,7 +423,9 @@ class TPRegion(PyRegion):
     if self._tfdr is None:
       tpClass = _getTPClass(self.temporalImp)
 
-      if self.temporalImp in ['py', 'cpp', 'r', 'tm_py', 'monitored_tm_py']:
+      if self.temporalImp in ['py', 'cpp', 'r',
+                              'tm_py', 'tm_py_fast',
+                              'monitored_tm_py', 'monitored_tm_py_fast']:
         self._tfdr = tpClass(
              numberOfCols=self.columnCount,
              cellsPerColumn=self.cellsPerColumn,
@@ -500,6 +507,9 @@ class TPRegion(PyRegion):
         self._tfdr.reset()
         self._sequencePos = 0  # Position within the current sequence
 
+    if self.computePredictedActiveCellIndices:
+      prevPredictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
+
     # Perform inference and/or learning
     tpOutput = self._tfdr.compute(buInputVector, self.learningMode, self.inferenceMode)
     self._sequencePos += 1
@@ -532,12 +542,9 @@ class TPRegion(PyRegion):
     if self.computePredictedActiveCellIndices:
       # Reshape so we are dealing with 1D arrays
       activeState = self._tfdr.getActiveState().reshape(-1).astype('float32')
-      predictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
       activeIndices = numpy.where(activeState != 0)[0]
-      predictedIndices= numpy.where(predictedState != 0)[0]
+      predictedIndices= numpy.where(prevPredictedState != 0)[0]
       predictedActiveIndices = numpy.intersect1d(activeIndices, predictedIndices)
-      outputs["activeCells"].fill(0)
-      outputs["activeCells"][activeIndices] = 1
       outputs["predictedActiveCells"].fill(0)
       outputs["predictedActiveCells"][predictedActiveIndices] = 1
 
@@ -559,7 +566,7 @@ class TPRegion(PyRegion):
       description=TPRegion.__doc__,
       singleNodeOnly=True,
       inputs=dict(
-          bottomUpIn=dict(
+        bottomUpIn=dict(
           description="""The input signal, conceptually organized as an
                          image pyramid data structure, but internally
                          organized as a flattened vector.""",
@@ -570,7 +577,7 @@ class TPRegion(PyRegion):
           isDefaultInput=True,
           requireSplitterMap=False),
 
-          resetIn=dict(
+        resetIn=dict(
           description="""Effectively a boolean flag that indicates whether
                          or not the input vector received in this compute cycle
                          represents the first training presentation in a
@@ -581,6 +588,16 @@ class TPRegion(PyRegion):
           regionLevel=True,
           isDefaultInput=False,
           requireSplitterMap=False),
+
+        sequenceIdIn=dict(
+          description="Sequence ID",
+          dataType='UInt64',
+          count=1,
+          required=False,
+          regionLevel=True,
+          isDefaultInput=False,
+          requireSplitterMap=False),
+
       ),
 
       outputs=dict(
@@ -668,6 +685,11 @@ class TPRegion(PyRegion):
     spec['parameters'].update(o)
 
     return spec
+
+
+  def getAlgorithmInstance(self):
+    """Returns instance of the underlying TemporalMemory algorithm object."""
+    return self._tfdr
 
 
   def getParameter(self, parameterName, index=-1):

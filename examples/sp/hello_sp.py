@@ -22,8 +22,12 @@
 """A simple program that demonstrates the working of the spatial pooler"""
 
 import numpy as np
-from random import randrange, random
+import random
 from nupic.bindings.algorithms import SpatialPooler as SP
+
+
+
+uintType = "uint32"
 
 
 
@@ -46,15 +50,19 @@ class Example(object):
     self.columnDimensions = columnDimensions
     self.inputSize = np.array(inputDimensions).prod()
     self.columnNumber = np.array(columnDimensions).prod()
-    self.inputArray = np.zeros(self.inputSize)
-    self.activeArray = np.zeros(self.columnNumber)
+    self.inputArray = np.zeros(self.inputSize, dtype=uintType)
+    self.activeArray = np.zeros(self.columnNumber, dtype=uintType)
+
+    random.seed(1)
 
     self.sp = SP(self.inputDimensions,
                  self.columnDimensions,
                  potentialRadius = self.inputSize,
                  numActiveColumnsPerInhArea = int(0.02*self.columnNumber),
                  globalInhibition = True,
-                 synPermActiveInc = 0.01)
+                 seed = 1,
+                 synPermActiveInc = 0.01,
+                 synPermInactiveDec = 0.008)
 
 
   def createInput(self):
@@ -67,7 +75,7 @@ class Example(object):
 
     for i in range(self.inputSize):
       #randrange returns 0 or 1
-      self.inputArray[i] = randrange(2)
+      self.inputArray[i] = random.randrange(2)
 
 
   def run(self):
@@ -90,7 +98,7 @@ class Example(object):
     for _ in range(int(noiseLevel * self.inputSize)):
       # 0.1*self.inputSize represents 10% of the total input bits
       # random.random() returns a float between 0 and 1
-      randomPosition = int(random() * self.inputSize)
+      randomPosition = int(random.random() * self.inputSize)
 
       # Flipping the bit at the randomly picked position
       if self.inputArray[randomPosition] == 1:

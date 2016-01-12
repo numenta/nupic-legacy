@@ -27,8 +27,14 @@ from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 from nupic.research.spatial_pooler import SpatialPooler as PYSpatialPooler
 import nupic.research.fdrutilities as fdru
 from nupic.support import getArgumentDescriptions
-from PyRegion import PyRegion
+from nupic.bindings.regions.PyRegion import PyRegion
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.regions.SPRegion_capnp import SPRegionProto
 
 
 def getDefaultSPImp():
@@ -332,6 +338,7 @@ class SPRegion(PyRegion):
 
     # Pull out the spatial arguments automatically
     # These calls whittle down kwargs and create instance variables of SPRegion
+    self.spatialImp = spatialImp
     self.SpatialClass = getSPClass(spatialImp)
     sArgTuples = _buildArgs(self.SpatialClass.__init__, self, kwargs)
 
@@ -645,7 +652,7 @@ class SPRegion(PyRegion):
       description=SPRegion.__doc__,
       singleNodeOnly=True,
       inputs=dict(
-          bottomUpIn=dict(
+        bottomUpIn=dict(
           description="""The input vector.""",
           dataType='Real32',
           count=0,
@@ -654,7 +661,7 @@ class SPRegion(PyRegion):
           isDefaultInput=True,
           requireSplitterMap=False),
 
-          resetIn=dict(
+        resetIn=dict(
           description="""A boolean flag that indicates whether
                          or not the input vector received in this compute cycle
                          represents the start of a new temporal sequence.""",
@@ -665,12 +672,21 @@ class SPRegion(PyRegion):
           isDefaultInput=False,
           requireSplitterMap=False),
 
-          topDownIn=dict(
+        topDownIn=dict(
           description="""The top-down input signal, generated from
                         feedback from upper levels""",
           dataType='Real32',
           count=0,
           required = False,
+          regionLevel=True,
+          isDefaultInput=False,
+          requireSplitterMap=False),
+
+        sequenceIdIn=dict(
+          description="Sequence ID",
+          dataType='UInt64',
+          count=1,
+          required=False,
           regionLevel=True,
           isDefaultInput=False,
           requireSplitterMap=False),
@@ -756,6 +772,11 @@ class SPRegion(PyRegion):
     return spec
 
 
+  def getAlgorithmInstance(self):
+    """Returns instance of the underlying SpatialPooler algorithm object."""
+    return self._sfdr
+
+
   def getParameter(self, parameterName, index=-1):
     """
       Get the value of a NodeSpec parameter. Most parameters are handled
@@ -837,6 +858,48 @@ class SPRegion(PyRegion):
   # Methods to support serialization
   #
   #############################################################################
+
+
+  @staticmethod
+  def getProtoType():
+    """Return the pycapnp proto type that the class uses for serialization."""
+    return SPRegionProto
+
+
+  def writeToProto(self, proto):
+    """Write state to proto object.
+
+    proto: SPRegionProto capnproto object
+    """
+    proto.spatialImp = self.spatialImp
+    proto.columnCount = self.columnCount
+    proto.inputWidth = self.inputWidth
+    proto.learningMode = 1 if self.learningMode else 0
+    proto.inferenceMode = 1 if self.inferenceMode else 0
+    proto.anomalyMode = 1 if self.anomalyMode else 0
+    proto.topDownMode = 1 if self.topDownMode else 0
+
+    self._sfdr.write(proto.spatialPooler)
+
+
+  @classmethod
+  def readFromProto(cls, proto):
+    """Read state from proto object.
+
+    proto: SPRegionProto capnproto object
+    """
+    instance = cls(proto.columnCount, proto.inputWidth)
+
+    instance.spatialImp = proto.spatialImp
+    instance.learningMode = proto.learningMode
+    instance.inferenceMode = proto.inferenceMode
+    instance.anomalyMode = proto.anomalyMode
+    instance.topDownMode = proto.topDownMode
+
+    spatialImp = proto.spatialImp
+    instance._sfdr = getSPClass(spatialImp).read(proto.spatialPooler)
+
+    return instance
 
 
   def __getstate__(self):

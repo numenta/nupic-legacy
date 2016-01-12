@@ -63,7 +63,16 @@ def _labeledInput(activeInputs, cellsPerCol=32):
 
 
 class KNNClassifier(object):
-  """k Nearest Neighbor Classifier"""
+  """
+  This class implements NuPIC's k Nearest Neighbor Classifier. KNN is very
+  useful as a basic classifier for many situations. This implementation contains
+  many enhancements that are useful for HTM experiments. These enhancements
+  include an optimized C++ class for sparse vectors, support for continuous
+  online learning, support for various distance methods (including Lp-norm and
+  raw overlap), support for performing SVD on the input vectors (very useful for
+  large vectors), support for a fixed-size KNN, and a mechanism to store custom
+  ID's for each vector.
+  """
 
   def __init__(self, k=1,
                      exact=False,
@@ -95,19 +104,24 @@ class KNNClassifier(object):
         the p value of the Lp-norm
 
     @param distanceMethod (string) The method used to compute distance between
-        patterns. The possible options are:
+        input patterns and prototype patterns. The possible options are:
         "norm": When distanceNorm is 2, this is the euclidean distance,
                 When distanceNorm is 1, this is the manhattan distance
                 In general: sum(abs(x-proto) ^ distanceNorm) ^ (1/distanceNorm)
+                The distances are normalized such that farthest prototype from
+                a given input is 1.0.
         "rawOverlap": Only appropriate when inputs are binary. This computes:
                 (width of the input) - (# bits of overlap between input
                 and prototype).
-        "pctOverlapOfLarger": Only appropriate for binary inputs. This computes
+        "pctOverlapOfInput": Only appropriate for binary inputs. This computes
                 1.0 - (# bits overlap between input and prototype) /
-                        max(# bits in input, # bits in prototype)
+                        (# ON bits in input)
         "pctOverlapOfProto": Only appropriate for binary inputs. This computes
                 1.0 - (# bits overlap between input and prototype) /
-                        (# bits in prototype)
+                        (# ON bits in prototype)
+        "pctOverlapOfLarger": Only appropriate for binary inputs. This computes
+                1.0 - (# bits overlap between input and prototype) /
+                        max(# ON bits in input, # ON bits in prototype)
 
     @param distThreshold (float) A threshold on the distance between learned
         patterns and a new pattern proposed to be learned. The distance must be
@@ -167,7 +181,7 @@ class KNNClassifier(object):
     self.exact = exact
     self.distanceNorm = distanceNorm
     assert (distanceMethod in ("norm", "rawOverlap", "pctOverlapOfLarger",
-                               "pctOverlapOfProto"))
+                               "pctOverlapOfProto", "pctOverlapOfInput"))
     self.distanceMethod = distanceMethod
     self.distThreshold = distThreshold
     self.doBinarization = doBinarization
@@ -197,7 +211,7 @@ class KNNClassifier(object):
     self._M = None
     self._categoryList = []
     self._partitionIdList = []
-    self._partitionIdArray = None
+    self._partitionIdMap = {}
     self._finishedLearning = False
     self._iterationIdx = -1
 
@@ -296,6 +310,11 @@ class KNNClassifier(object):
 
 
   def _removeRows(self, rowsToRemove):
+    """
+    A list of row indices to remove. There are two caveats. First, this is
+    a potentially slow operation. Second, pattern indices will shift if
+    patterns before them are removed.
+    """
     # Form a numpy array of row indices to be removed
     removalArray = numpy.array(rowsToRemove)
 
@@ -303,13 +322,16 @@ class KNNClassifier(object):
     self._categoryList = numpy.delete(numpy.array(self._categoryList),
                                       removalArray).tolist()
 
-    self._categoryRecencyList = numpy.delete(
-      numpy.array(self._categoryRecencyList), removalArray).tolist()
+    if self.fixedCapacity:
+      self._categoryRecencyList = numpy.delete(
+        numpy.array(self._categoryRecencyList), removalArray).tolist()
 
-    # Remove the partition ID, if any
-    if self._partitionIdArray is not None:
-      self._partitionIdArray = numpy.delete(self._partitionIdArray,
-                                            removalArray)
+    # Remove the partition ID, if any for these rows and rebuild the id map.
+    for row in reversed(rowsToRemove):  # Go backwards
+      # Remove these patterns from partitionList
+      self._partitionIdList.pop(row)
+    self._rebuildPartitionIdMap(self._partitionIdList)
+
 
     # Remove actual patterns
     if self.useSparseMemory:
@@ -329,8 +351,6 @@ class KNNClassifier(object):
     else:
       assert self._M.shape[0] == numRowsExpected
     assert len(self._categoryList) == numRowsExpected
-    assert self._partitionIdArray is None or \
-           self._partitionIdArray.shape[0] == numRowsExpected
 
     self._numPatterns -= numRemoved
     return numRemoved
@@ -356,7 +376,14 @@ class KNNClassifier(object):
     @param inputCategory (int) The category to be associated to the training
         pattern
 
-    @param partitionId (int) UNKNOWN
+    @param partitionId (int) partitionID allows you to associate an id with each
+        input vector. It can be used to associate input patterns stored in the
+        classifier with an external id. This can be useful for debugging or
+        visualizing. Another use case is to ignore vectors with a specific id
+        during inference (see description of infer() for details). There can be
+        at most one partitionId per stored pattern (i.e. if two patterns are
+        within distThreshold, only the first partitionId will be stored). This
+        is an optional parameter.
 
     @param isSparse (int) If 0, the input pattern is a dense representation. If
         isSparse > 0, the input pattern is a list of non-zero indices and
@@ -374,9 +401,6 @@ class KNNClassifier(object):
 
     if rowID is None:
       rowID = self._iterationIdx
-
-    assert partitionId is None, \
-      "No documentation is available for partitionId, not sure how it works."
 
     # Dense vectors
     if not self.useSparseMemory:
@@ -439,8 +463,7 @@ class KNNClassifier(object):
         # Set _M to the "active" part of _Memory
         self._M = self._Memory[0:self._numPatterns]
 
-        if partitionId is not None:
-          self._partitionIdList.append(partitionId)
+        self._addPartitionId(self._numPatterns-1, partitionId)
 
     # Sparse vectors
     else:
@@ -477,7 +500,6 @@ class KNNClassifier(object):
       # If given the layout of the cells, then turn on the logic that stores
       # only the start cell for bursting columns.
       if self.cellsPerCol >= 1:
-        numCols = thresholdedInput.size / self.cellsPerCol
         burstingCols = thresholdedInput.reshape(-1,
                                   self.cellsPerCol).min(axis=1).nonzero()[0]
         for col in burstingCols:
@@ -512,7 +534,7 @@ class KNNClassifier(object):
               self._categoryRecencyList[rowIdx] = rowID
 
 
-      # Add the new vector to our storage
+      # Add the new sparse vector to our storage
       if addRow:
         self._protoSizes = None     # need to re-compute
         if isSparse == 0:
@@ -521,8 +543,7 @@ class KNNClassifier(object):
           self._Memory.addRowNZ(inputPattern, [1]*len(inputPattern))
         self._numPatterns += 1
         self._categoryList.append(int(inputCategory))
-        if partitionId is not None:
-          self._partitionIdList.append(partitionId)
+        self._addPartitionId(self._numPatterns-1, partitionId)
         if self.fixedCapacity:
           self._categoryRecencyList.append(rowID)
           if self._numPatterns > self.maxStoredPatterns and \
@@ -584,7 +605,15 @@ class KNNClassifier(object):
 
     @param overCategories NO EFFECT
 
-    @param partitionId (int) UNKNOWN
+    @param partitionId (int) If provided, all training vectors with partitionId
+        equal to that of the input pattern are ignored.
+        For example, this may be used to perform k-fold cross validation
+        without repopulating the classifier. First partition all the data into
+        k equal partitions numbered 0, 1, 2, ... and then call learn() for each
+        vector passing in its partitionId. Then, during inference, by passing
+        in the partition ID in the call to infer(), all other vectors with the
+        same partitionId are ignored simulating the effect of repopulating the
+        classifier while ommitting the training vectors in the same partition.
 
     This method returns a 4-tuple: (winner, inferenceResult, dist, categoryDist)
       winner:           The category with the greatest number of nearest
@@ -763,7 +792,60 @@ class KNNClassifier(object):
       else:
         pattern = nz
 
-      return pattern
+    return pattern
+
+
+  def getPartitionId(self, i):
+    """
+    Returns the partition Id associated with pattern i.  Returns None
+    if no Id is associated with it.
+    """
+    if (i < 0) or (i >= self._numPatterns):
+      raise RuntimeError("index out of bounds")
+    partitionId = self._partitionIdList[i]
+    if partitionId == numpy.inf:
+      return None
+    else:
+      return partitionId
+
+
+  def getNumPartitionIds(self):
+    """
+    Return the number of unique partition Ids stored.
+    """
+    return len(self._partitionIdMap)
+
+
+  def getPatternIndicesWithPartitionId(self, partitionId):
+    """
+    Returns a list of pattern indices corresponding to this partitionId.
+    Return an empty list if there are none
+    """
+    return self._partitionIdMap.get(partitionId, [])
+
+
+  def _addPartitionId(self, index, partitionId=None):
+    """
+    Adds partition id for pattern index
+    """
+    if partitionId is None:
+      self._partitionIdList.append(numpy.inf)
+    else:
+      self._partitionIdList.append(partitionId)
+      indices = self._partitionIdMap.get(partitionId, [])
+      indices.append(index)
+      self._partitionIdMap[partitionId] = indices
+
+
+  def _rebuildPartitionIdMap(self, partitionIdList):
+    """
+    Rebuilds the partition Id map using the given partitionIdList
+    """
+    self._partitionIdMap = {}
+    for row, partitionId in enumerate(partitionIdList):
+      indices = self._partitionIdMap.get(partitionId, [])
+      indices.append(row)
+      self._partitionIdMap[partitionId] = indices
 
 
   def _calcDistance(self, inputPattern, distanceNorm=None):
@@ -780,35 +862,33 @@ class KNNClassifier(object):
 
     # Sparse memory
     if self.useSparseMemory:
-      if self.distanceMethod == "pctOvlerapOfLarger":
-        if self._protoSizes is None:
-          self._protoSizes = self._Memory.rowSums()
-        dist =  self._Memory.rightVecSumAtNZ(inputPattern)
-        maxVal = numpy.maximum(self._protoSizes, inputPattern.sum())
-        if maxVal > 0:
-          dist /= maxVal
-        dist = 1.0 - dist
-      elif self.distanceMethod == "rawOverlap":
-        if self._protoSizes is None:
-          self._protoSizes = self._Memory.rowSums()
-        inputPatternSum = inputPattern.sum()
-        dist = (inputPatternSum - self._Memory.rightVecSumAtNZ(inputPattern))
+      if self._protoSizes is None:
+        self._protoSizes = self._Memory.rowSums()
+      overlapsWithProtos = self._Memory.rightVecSumAtNZ(inputPattern)
+      inputPatternSum = inputPattern.sum()
+
+      if self.distanceMethod == "rawOverlap":
+        dist = inputPattern.sum() - overlapsWithProtos
+      elif self.distanceMethod == "pctOverlapOfInput":
+        dist = inputPatternSum - overlapsWithProtos
         if inputPatternSum > 0:
           dist /= inputPatternSum
       elif self.distanceMethod == "pctOverlapOfProto":
-        if self._protoSizes is None:
-          self._protoSizes = self._Memory.rowSums()
-        dist =  self._Memory.rightVecSumAtNZ(inputPattern)
-        dist /= self._protoSizes
-        dist = 1.0 - dist
+        overlapsWithProtos /= self._protoSizes
+        dist = 1.0 - overlapsWithProtos
+      elif self.distanceMethod == "pctOverlapOfLarger":
+        maxVal = numpy.maximum(self._protoSizes, inputPatternSum)
+        if maxVal.all() > 0:
+          overlapsWithProtos /= maxVal
+        dist = 1.0 - overlapsWithProtos
       elif self.distanceMethod == "norm":
         dist = self._Memory.vecLpDist(self.distanceNorm, inputPattern)
         distMax = dist.max()
         if distMax > 0:
           dist /= distMax
       else:
-        raise RuntimeError("Unimplemented distance method %s" % \
-                           (self.distanceMethod))
+        raise RuntimeError("Unimplemented distance method %s" %
+          self.distanceMethod)
 
     # Dense memory
     else:
@@ -829,7 +909,8 @@ class KNNClassifier(object):
     @param inputPattern The pattern from which distances to all other patterns
         are returned
 
-    @param partitionId    UNKNOWN
+    @param partitionId If provided, ignore all training vectors with this
+        partitionId.
     """
     if not self._finishedLearning:
       self.finishLearning()
@@ -846,9 +927,9 @@ class KNNClassifier(object):
     if self._specificIndexTraining:
       dist[numpy.array(self._categoryList) == -1] = numpy.inf
 
-    # Ignore vectors with same partition id
-    if self._partitionIdArray is not None:
-      dist[self._partitionIdArray == partitionId] = numpy.inf
+    # Ignore vectors with this partition id by setting their distances to inf
+    if partitionId is not None:
+      dist[self._partitionIdMap.get(partitionId, [])] = numpy.inf
 
     return dist
 
@@ -856,34 +937,6 @@ class KNNClassifier(object):
   def finishLearning(self):
     if self.numSVDDims is not None and self._vt is None:
       self.computeSVD()
-
-    # Check if our partition ID list is non-trivial
-    # (i.e., whether it contains at least two different
-    # partition IDs)
-    if self._partitionIdList:
-      partitions = set(self._partitionIdList)
-      if len(partitions) > 1:
-        # Compile into a numpy array
-        self._partitionIdArray = numpy.array(self._partitionIdList)
-      else:
-        # Trivial partitions; ignore
-        self._partitionIdArray = None
-      # Either way, we don't need the original list
-      self._partitionIdList = []
-
-
-  def restartLearning(self):
-    """This is only invoked if we have already called finishLearning()
-    but now want to go back and provide more samples.
-    """
-    # We need to convert the partition ID array back into a list
-    if hasattr(self, "_partitionIdArray"):
-      # In the case of trivial partitions, we need to regenerate
-      # the "null" partition ID
-      if self._partitionIdArray is None:
-        self._partitionIdList = [0] * self._numPatterns
-      else:
-        self._partitionIdList = self._partitionIdArray.tolist()
 
 
   def computeSVD(self, numSVDSamples=None, finalize=True):
@@ -938,7 +991,7 @@ class KNNClassifier(object):
 
     self._vt = self._vt[:self.numSVDDims]
 
-    # Added when svd is not able to decompose vectors - uses raw spare vectors  
+    # Added when svd is not able to decompose vectors - uses raw spare vectors
     if len(self._vt) == 0:
       return
 
@@ -966,6 +1019,7 @@ class KNNClassifier(object):
     # The basic test is simple, but we need to prepare some data structures to
     # handle _specificIndexTraining and _partitionIdList
     categoryListArray = numpy.array(self._categoryList[:self._M.shape[0]])
+    invalidIndices = []
     if self._specificIndexTraining:
       # Find valid and invalid vectors using the category list
       validIndices = (categoryListArray != -1)
@@ -973,13 +1027,6 @@ class KNNClassifier(object):
 
     # Convert list of partitions to numpy array if we haven't
     # already done so.
-    partitionIdArray = None
-    if hasattr(self, "_partitionIdArray") and \
-        self._partitionIdArray is not None:
-      partitionIdArray = self._partitionIdArray
-    elif self._partitionIdList:
-      # Use the partition id list
-      partitionIdArray = numpy.array(self._partitionIdList)
 
     # Find the winning vector for each cache vector, excluding itself,
     # excluding invalid vectors, and excluding other vectors with the
@@ -998,10 +1045,13 @@ class KNNClassifier(object):
       # Invalidate certain vectors by setting their distance to infinity
       if self._specificIndexTraining:
         distances[invalidIndices] = numpy.inf  # Ignore invalid vectors
-      if partitionIdArray is not None:  # Ignore vectors with same partition id
-        distances[partitionIdArray == partitionIdArray[i]] = numpy.inf
-      else:
-        distances[i] = numpy.inf  # Don't match vector with itself
+
+      # Ignore vectors with same partition id as i
+      distances[self._partitionIdMap.get(
+          self._partitionIdList[i], [])] = numpy.inf
+
+      # Don't match vector with itself
+      distances[i] = numpy.inf
 
       if self.k == 1:
         # Take the closest vector as the winner (k=1)
@@ -1096,7 +1146,15 @@ class KNNClassifier(object):
       raise RuntimeError("Invalid deserialization of invalid KNNClassifier"
           "Verison")
 
+    # Backward compatibility
+    if "_partitionIdArray" in state:
+      state.pop("_partitionIdArray")
+
     self.__dict__.update(state)
+
+    # Backward compatibility
+    if "_partitionIdMap" not in state:
+      self._rebuildPartitionIdMap(self._partitionIdList)
 
     # Set to new version
     self.version = KNNCLASSIFIER_VERSION

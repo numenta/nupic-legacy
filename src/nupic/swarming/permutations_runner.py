@@ -301,7 +301,7 @@ def runWithJsonFile(expJsonFilePath, options, outputLabel, permWorkDir):
 
   _setupInterruptHandling()
 
-  with open(expJsonFilePath, "rb") as jsonFile:
+  with open(expJsonFilePath, "r") as jsonFile:
     expJsonConfig = json.loads(jsonFile.read())
 
   outDir = os.path.dirname(expJsonFilePath)
@@ -367,7 +367,10 @@ def _setUpExports(exports):
     return ret
   exportDict = json.loads(exports)
   for key in exportDict.keys():
-    ret+= "export %s=%s;" % (str(key), str(exportDict[key]))
+    if (sys.platform.startswith('win')):
+      ret+= "set \"%s=%s\" & " % (str(key), str(exportDict[key]))
+    else:
+      ret+= "export %s=%s;" % (str(key), str(exportDict[key]))
   return ret
 
 
@@ -629,10 +632,9 @@ class _HyperSearchRunner(object):
 
     self._workers = []
     for i in range(numWorkers):
-      args = ["bash", "-c", cmdLine]
       stdout = tempfile.TemporaryFile()
       stderr = tempfile.TemporaryFile()
-      p = subprocess.Popen(args, bufsize=1, env=os.environ, shell=False,
+      p = subprocess.Popen(cmdLine, bufsize=1, env=os.environ, shell=True,
                            stdin=None, stdout=stdout, stderr=stderr)
       self._workers.append(p)
 
@@ -1091,7 +1093,7 @@ class _HyperSearchRunner(object):
                                                  outputLabel=outputLabel)
 
     jobID = None
-    with open(filePath, "rb") as jobIdPickleFile:
+    with open(filePath, "r") as jobIdPickleFile:
       jobInfo = pickle.load(jobIdPickleFile)
       jobID = jobInfo["hyperSearchJobID"]
 

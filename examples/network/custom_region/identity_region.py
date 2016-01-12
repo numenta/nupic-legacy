@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from nupic.regions.PyRegion import PyRegion
+from nupic.bindings.regions.PyRegion import PyRegion
 
 
 

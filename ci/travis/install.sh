@@ -33,7 +33,7 @@ make install
 
 # Build NuPIC
 cd ${TRAVIS_BUILD_DIR}
-python setup.py install
+pip install --user .[capnp]
 
 # Show nupic installation folder by trying to import nupic, if works, it prints
 # the absolute path of nupic.__file__, which the installation folder itself.

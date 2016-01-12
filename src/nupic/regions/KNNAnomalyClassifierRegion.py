@@ -26,7 +26,7 @@ This file defines the k Nearest Neighbor classifier region.
 import copy
 
 import numpy
-from PyRegion import PyRegion
+from nupic.bindings.regions.PyRegion import PyRegion
 from KNNClassifierRegion import KNNClassifierRegion
 from nupic.algorithms.anomaly import computeRawAnomalyScore
 from nupic.bindings.math import Random
@@ -91,7 +91,17 @@ class KNNAnomalyClassifierRegion(PyRegion):
             required=True,
             regionLevel=False,
             isDefaultInput=True,
-            requireSplitterMap=False)
+            requireSplitterMap=False),
+
+          sequenceIdIn=dict(
+            description="Sequence ID",
+            dataType='UInt64',
+            count=1,
+            required=False,
+            regionLevel=True,
+            isDefaultInput=False,
+            requireSplitterMap=False),
+
         ),
 
         outputs=dict(

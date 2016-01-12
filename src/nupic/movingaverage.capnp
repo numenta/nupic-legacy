@@ -4,5 +4,5 @@
 struct MovingAverageProto {
   windowSize @0 :UInt32;
   slidingWindow @1 :List(Float32);
-  total @2 :UInt32;
+  total @2 :Float32;
 }

@@ -27,8 +27,17 @@ definition of CLAClassifierRegion for a description.
 
 import warnings
 
-from PyRegion import PyRegion
+from nupic.bindings.regions.PyRegion import PyRegion
+from nupic.bindings.algorithms import FastCLAClassifier
 from nupic.algorithms.cla_classifier_factory import CLAClassifierFactory
+from nupic.support.configuration import Configuration
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.regions.CLAClassifierRegion_capnp import CLAClassifierRegionProto
 
 
 
@@ -89,6 +98,16 @@ class CLAClassifierRegion(PyRegion):
           regionLevel=True,
           isDefaultInput=False,
           requireSplitterMap=False),
+
+        sequenceIdIn=dict(
+          description="Sequence ID",
+          dataType='UInt64',
+          count=1,
+          required=False,
+          regionLevel=True,
+          isDefaultInput=False,
+          requireSplitterMap=False),
+
       ),
 
       outputs=dict(
@@ -198,7 +217,12 @@ class CLAClassifierRegion(PyRegion):
                maxCategoryCount=None
                ):
 
+    # Set default implementation
+    if implementation is None:
+      implementation = Configuration.get('nupic.opf.claClassifier.implementation')
+
     # Convert the steps designation to a list
+    self.classifierImp = implementation
     self.steps = steps
     self.stepsList = eval("[%s]" % (steps))
     self.alpha = alpha
@@ -237,6 +261,11 @@ class CLAClassifierRegion(PyRegion):
     self._claClassifier.clear()
 
 
+  def getAlgorithmInstance(self):
+    """Returns instance of the underlying CLAClassifier algorithm object."""
+    return self._claClassifier
+
+
   def getParameter(self, name, index=-1):
     """
     Get the value of the parameter.
@@ -263,6 +292,45 @@ class CLAClassifierRegion(PyRegion):
       self.inferenceMode = bool(int(value))
     else:
       return PyRegion.setParameter(self, name, index, value)
+
+
+  @staticmethod
+  def getProtoType():
+    """Return the pycapnp proto type that the class uses for serialization."""
+    return CLAClassifierRegionProto
+
+
+  def writeToProto(self, proto):
+    """Write state to proto object.
+
+    proto: CLAClassifierRegionProto capnproto object
+    """
+    proto.classifierImp = self.classifierImp
+    proto.steps = self.steps
+    proto.alpha = self.alpha
+    proto.verbosity = self.verbosity
+    proto.maxCategoryCount = self.maxCategoryCount
+
+    self._claClassifier.write(proto.claClassifier)
+
+
+  @classmethod
+  def readFromProto(cls, proto):
+    """Read state from proto object.
+
+    proto: CLAClassifierRegionProto capnproto object
+    """
+    instance = cls()
+
+    instance.classifierImp = proto.classifierImp
+    instance.steps = proto.steps
+    instance.alpha = proto.alpha
+    instance.verbosity = proto.verbosity
+    instance.maxCategoryCount = proto.maxCategoryCount
+
+    instance._claClassifier = CLAClassifierFactory.read(proto)
+
+    return instance
 
 
   def reset(self):
