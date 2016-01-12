@@ -257,7 +257,7 @@ class KNNClassifier(object):
 
     # Do winner-take-all
     if doWinners:
-      if (self.numWinners>0) and (self.numWinners <= (inputPattern > 0).sum()):
+      if (self.numWinners>0) and (self.numWinners < (inputPattern > 0).sum()):
         sparseInput = numpy.zeros(inputPattern.shape)
         
         # Don't consider strongly negative numbers as winners.
