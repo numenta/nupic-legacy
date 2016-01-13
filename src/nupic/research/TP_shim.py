@@ -109,6 +109,21 @@ class TPShim(TemporalMemory):
     return output
 
 
+  def topDownCompute(self, topDownIn=None):
+    """
+    (From `TP.py`)
+    Top-down compute - generate expected input given output of the TP
+
+    @param topDownIn top down input from the level above us
+
+    @returns best estimate of the TP input that would have generated bottomUpOut.
+    """
+    output = numpy.zeros(self.numberOfColumns())
+    columns = [self.columnForCell(idx) for idx in self.predictiveCells]
+    output[columns] = 1
+    return output
+
+
   def getActiveState(self):
     activeState = numpy.zeros(self.numberOfCells())
     activeState[self.getCellIndices(self.activeCells)] = 1
@@ -119,6 +134,11 @@ class TPShim(TemporalMemory):
     predictedState = numpy.zeros(self.numberOfCells())
     predictedState[self.getCellIndices(self.predictiveCells)] = 1
     return predictedState
+
+
+  def getLearnActiveStateT(self):
+    state = numpy.zeros([self.numberOfColumns(), self.cellsPerColumn])
+    return state
 
 
 
@@ -196,6 +216,21 @@ class FastTPShim(FastTemporalMemory):
     return output
 
 
+  def topDownCompute(self, topDownIn=None):
+    """
+    (From `TP.py`)
+    Top-down compute - generate expected input given output of the TP
+
+    @param topDownIn top down input from the level above us
+
+    @returns best estimate of the TP input that would have generated bottomUpOut.
+    """
+    output = numpy.zeros(self.numberOfColumns())
+    columns = [self.columnForCell(idx) for idx in self.predictiveCells]
+    output[columns] = 1
+    return output
+
+
   def getActiveState(self):
     activeState = numpy.zeros(self.numberOfCells())
     activeState[self.getCellIndices(self.activeCells)] = 1
@@ -206,6 +241,11 @@ class FastTPShim(FastTemporalMemory):
     predictedState = numpy.zeros(self.numberOfCells())
     predictedState[self.getCellIndices(self.predictiveCells)] = 1
     return predictedState
+
+
+  def getLearnActiveStateT(self):
+    state = numpy.zeros([self.numberOfColumns(), self.cellsPerColumn])
+    return state
 
 
 
@@ -283,6 +323,21 @@ class MonitoredTPShim(MonitoredTemporalMemory):
     return output
 
 
+  def topDownCompute(self, topDownIn=None):
+    """
+    (From `TP.py`)
+    Top-down compute - generate expected input given output of the TP
+
+    @param topDownIn top down input from the level above us
+
+    @returns best estimate of the TP input that would have generated bottomUpOut.
+    """
+    output = numpy.zeros(self.numberOfColumns())
+    columns = [self.columnForCell(idx) for idx in self.predictiveCells]
+    output[columns] = 1
+    return output
+
+
   def getActiveState(self):
     activeState = numpy.zeros(self.numberOfCells())
     activeState[self.getCellIndices(self.activeCells)] = 1
@@ -293,6 +348,11 @@ class MonitoredTPShim(MonitoredTemporalMemory):
     predictedState = numpy.zeros(self.numberOfCells())
     predictedState[self.getCellIndices(self.predictiveCells)] = 1
     return predictedState
+
+
+  def getLearnActiveStateT(self):
+    state = numpy.zeros([self.numberOfColumns(), self.cellsPerColumn])
+    return state
 
 
 
@@ -370,6 +430,21 @@ class MonitoredFastTPShim(MonitoredFastTemporalMemory):
     return output
 
 
+  def topDownCompute(self, topDownIn=None):
+    """
+    (From `TP.py`)
+    Top-down compute - generate expected input given output of the TP
+
+    @param topDownIn top down input from the level above us
+
+    @returns best estimate of the TP input that would have generated bottomUpOut.
+    """
+    output = numpy.zeros(self.numberOfColumns())
+    columns = [self.columnForCell(idx) for idx in self.predictiveCells]
+    output[columns] = 1
+    return output
+
+
   def getActiveState(self):
     activeState = numpy.zeros(self.numberOfCells())
     activeState[self.getCellIndices(self.activeCells)] = 1
@@ -380,3 +455,8 @@ class MonitoredFastTPShim(MonitoredFastTemporalMemory):
     predictedState = numpy.zeros(self.numberOfCells())
     predictedState[self.getCellIndices(self.predictiveCells)] = 1
     return predictedState
+
+
+  def getLearnActiveStateT(self):
+    state = numpy.zeros([self.numberOfColumns(), self.cellsPerColumn])
+    return state
