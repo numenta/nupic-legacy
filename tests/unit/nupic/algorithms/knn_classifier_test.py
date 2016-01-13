@@ -58,7 +58,6 @@ class KNNClassifierTest(unittest.TestCase):
     self.assertTrue(np.array_equal(np.array([0., 0., 1., 1., 1.], dtype=np.float32), outputPattern))
     
     
-
   def testDistanceMetrics(self):
     classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0)
   
