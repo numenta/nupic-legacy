@@ -30,9 +30,6 @@ from nupic.algorithms.KNNClassifier import KNNClassifier
 class KNNClassifierTest(unittest.TestCase):
 
  
-  
-  
-  
   def testSparsifyVector(self):
     classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0)
     inputPattern = np.array([0, 1, 3, 7, 11], dtype=np.int32)
@@ -54,7 +51,7 @@ class KNNClassifierTest(unittest.TestCase):
     classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0, relativeThreshold=True,
       sparseThreshold=.2, doBinarization=True)
     outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
-    self.assertTrue(np.array_equal(np.array([0., 0., 1., 1., 1.], dtype=np.int32), outputPattern))
+    self.assertTrue(np.array_equal(np.array([0., 0., 1., 1., 1.], dtype=np.float32), outputPattern))
     
     
 

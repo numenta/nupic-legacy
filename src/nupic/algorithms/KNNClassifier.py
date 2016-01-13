@@ -402,7 +402,7 @@ class KNNClassifier(object):
 
     if rowID is None:
       rowID = self._iterationIdx
-      
+
     # Dense vectors
     if not self.useSparseMemory:
 
