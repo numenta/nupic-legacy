@@ -535,7 +535,7 @@ class RecordSensor(PyRegion):
     self.encoder.write(proto.encoder)
     if self.disabledEncoder is not None:
       self.disabledEncoder.write(proto.disabledEncoder)
-    proto.topDownMode = 1 if self.topDownMode else 0
+    proto.topDownMode = int(self.topDownMode)
     proto.verbosity = self.verbosity
     proto.numCategories = self.numCategories
 
@@ -551,7 +551,7 @@ class RecordSensor(PyRegion):
     instance.encoder = MultiEncoder.read(proto.encoder)
     if proto.disabledEncoder is not None:
       instance.disabledEncoder = MultiEncoder.read(proto.disabledEncoder)
-    instance.topDownMode = True if proto.topDownMode else False
+    instance.topDownMode = bool(proto.topDownMode)
     instance.verbosity = proto.verbosity
     instance.numCategories = proto.numCategories
 
