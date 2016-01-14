@@ -136,8 +136,11 @@ class Connections(object):
 
     @param presynapticCell (int) Source cell index
 
-    @return (set) Synapse indices
+    @return (dict) presynaptic cell index => synapse data
     """
+    if not presynapticCell in self._synapsesForSegment:
+      return dict()
+
     return self._synapsesForPresynapticCell[presynapticCell]
 
 

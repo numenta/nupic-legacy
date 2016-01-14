@@ -84,7 +84,7 @@ class TemporalMemory(object):
     # TODO: Validate all parameters (and add validation tests)
 
     # Save member variables
-    self.columnDimensions = columnDimensions
+    self.columnDimensions = list(columnDimensions)
     self.cellsPerColumn = cellsPerColumn
     self.activationThreshold = activationThreshold
     self.initialPermanence = initialPermanence

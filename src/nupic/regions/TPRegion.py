@@ -30,6 +30,13 @@ from nupic.bindings.regions.PyRegion import PyRegion
 
 gDefaultTemporalImp = 'py'
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.regions.TPRegion_capnp import TPRegionProto
+
 
 
 def _getTPClass(temporalImp):
@@ -766,6 +773,55 @@ class TPRegion(PyRegion):
   # Methods to support serialization
   #
   #############################################################################
+
+
+  @staticmethod
+  def getProtoType():
+    """Return the pycapnp proto type that the class uses for serialization."""
+    return TPRegionProto
+
+
+  def writeToProto(self, proto):
+    """Write state to proto object.
+
+    proto: TPRegionProto capnproto object
+    """
+    proto.temporalImp = self.temporalImp
+    proto.columnCount = self.columnCount
+    proto.inputWidth = self.inputWidth
+    proto.cellsPerColumn = self.cellsPerColumn
+    proto.learningMode = 1 if self.learningMode else 0
+    proto.inferenceMode = 1 if self.inferenceMode else 0
+    proto.anomalyMode = 1 if self.anomalyMode else 0
+    proto.topDownMode = 1 if self.topDownMode else 0
+    proto.computePredictedActiveCellIndices = (
+      1 if self.computePredictedActiveCellIndices else 0)
+    proto.orColumnOutputs = 1 if self.orColumnOutputs else 0
+
+    self._tfdr.write(proto.temporalMemory)
+
+
+  @classmethod
+  def readFromProto(cls, proto):
+    """Read state from proto object.
+
+    proto: TPRegionProto capnproto object
+    """
+    instance = cls(proto.columnCount, proto.inputWidth, proto.cellsPerColumn)
+
+    instance.temporalImp = proto.temporalImp
+    instance.learningMode = proto.learningMode
+    instance.inferenceMode = proto.inferenceMode
+    instance.anomalyMode = proto.anomalyMode
+    instance.topDownMode = proto.topDownMode
+    instance.computePredictedActiveCellIndices = (
+      proto.computePredictedActiveCellIndices)
+    instance.orColumnOutputs = proto.orColumnOutputs
+
+    temporalImp = proto.temporalImp
+    instance._tfdr = _getTPClass(temporalImp).read(proto.temporalMemory)
+
+    return instance
 
 
   def __getstate__(self):
