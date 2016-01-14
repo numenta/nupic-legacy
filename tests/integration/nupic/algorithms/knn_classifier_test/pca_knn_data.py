@@ -74,8 +74,4 @@ def generate(numDims, numClasses, k, numPatternsPerClass,
   test_data = data0[ind[numPatterns:]]
   test_class = class0[ind[numPatterns:]]
   
-#   print "train_data =\n" + str(train_data)
-#   numpy.savetxt('train_class.txt', train_class)
-#   numpy.savetxt('test_data.txt', test_data)
-#   numpy.savetxt('test_class.txt', test_class)
   return train_data, train_class, test_data, test_class
