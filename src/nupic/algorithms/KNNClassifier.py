@@ -259,7 +259,7 @@ class KNNClassifier(object):
     if doWinners:
       if (self.numWinners>0) and (self.numWinners < (inputPattern > 0).sum()):
         sparseInput = numpy.zeros(inputPattern.shape)
-        
+
         # Don't consider strongly negative numbers as winners.
         sorted = inputPattern.argsort()[0:self.numWinners]
         sparseInput[sorted] += inputPattern[sorted]
