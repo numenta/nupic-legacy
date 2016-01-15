@@ -76,7 +76,7 @@ TP_PARAMS = {
     "cellsPerColumn": 32,
     "inputWidth": 2048,
     "seed": 1960,
-    "temporalImp": "tm_py",
+    "temporalImp": "cpp",
     "newSynapseCount": 20,
     "maxSynapsesPerSegment": 32,
     "maxSegmentsPerCell": 128,
@@ -160,6 +160,20 @@ def createNetwork(dataSource, enableTP=False):
   # used for computing anomalies in a non-temporal model.
   spatialPoolerRegion.setParameter("anomalyMode", False)
 
+  if enableTP:
+    temporalPoolerRegion = network.regions["temporalPoolerRegion"]
+
+    # Enable topDownMode to get the predicted columns output
+    temporalPoolerRegion.setParameter("topDownMode", True)
+    # Make sure learning is enabled (this is the default)
+    temporalPoolerRegion.setParameter("learningMode", True)
+    # Enable inference mode so we get predictions
+    temporalPoolerRegion.setParameter("inferenceMode", True)
+    # Enable anomalyMode to compute the anomaly score. This actually doesn't work
+    # now so doesn't matter. We instead compute the anomaly score based on
+    # topDownOut (predicted columns) and SP bottomUpOut (active columns).
+    temporalPoolerRegion.setParameter("anomalyMode", True)
+
   return network
 
 
@@ -188,11 +202,10 @@ def saveAndLoadNetwork(network):
 
 
 def createAndRunNetwork(testRegionType, testOutputName,
-                        checkpointMidway=False,
-                        enableTP=False):
+                        checkpointMidway=False):
     dataSource = FileRecordStream(streamID=_INPUT_FILE_PATH)
 
-    network = createNetwork(dataSource, enableTP=enableTP)
+    network = createNetwork(dataSource)
     network.initialize()
 
     results = []
