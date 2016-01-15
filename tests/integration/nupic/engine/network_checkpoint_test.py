@@ -214,9 +214,8 @@ def createAndRunNetwork(testRegionType, testOutputName,
 
 class NetworkCheckpointTest(unittest.TestCase):
 
-  # @unittest.skipUnless(
-  #     capnp, "pycapnp is not installed, skipping serialization test.")
-  @unittest.skip("")
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testSensorRegion(self):
     results1 = createAndRunNetwork(RecordSensor, "dataOut")
 
@@ -226,9 +225,8 @@ class NetworkCheckpointTest(unittest.TestCase):
     self.compareArrayResults(results1, results2)
 
 
-  # @unittest.skipUnless(
-  #     capnp, "pycapnp is not installed, skipping serialization test.")
-  @unittest.skip("")
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
   def testSPRegion(self):
     results1 = createAndRunNetwork(SPRegion, "bottomUpOut")
 
