@@ -76,7 +76,7 @@ TP_PARAMS = {
     "cellsPerColumn": 32,
     "inputWidth": 2048,
     "seed": 1960,
-    "temporalImp": "cpp",
+    "temporalImp": "tm_py",
     "newSynapseCount": 20,
     "maxSynapsesPerSegment": 32,
     "maxSegmentsPerCell": 128,
@@ -202,10 +202,11 @@ def saveAndLoadNetwork(network):
 
 
 def createAndRunNetwork(testRegionType, testOutputName,
-                        checkpointMidway=False):
+                        checkpointMidway=False,
+                        enableTP=False):
     dataSource = FileRecordStream(streamID=_INPUT_FILE_PATH)
 
-    network = createNetwork(dataSource)
+    network = createNetwork(dataSource, enableTP=enableTP)
     network.initialize()
 
     results = []
