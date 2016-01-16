@@ -1084,7 +1084,7 @@ class KNNClassifier(object):
       pass
     elif state["version"] == 2:
       raise RuntimeError("Invalid deserialization of invalid KNNClassifier"
-          "Verison")
+          "Version")
 
     # Backward compatibility
     if "_partitionIdArray" in state:

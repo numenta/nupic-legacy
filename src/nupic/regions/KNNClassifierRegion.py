@@ -575,6 +575,11 @@ class KNNClassifierRegion(PyRegion):
     if 'version' not in state:
       self.__dict__.update(state)
     elif state['version'] == 1:
+
+      # Backward compatibility
+      if "doSelfValidation" in state:
+        state.pop("doSelfValidation")
+
       knnState = state['_knn_state']
       del state['_knn_state']
 
