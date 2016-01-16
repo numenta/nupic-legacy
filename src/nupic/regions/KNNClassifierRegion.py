@@ -387,16 +387,6 @@ class KNNClassifierRegion(PyRegion):
             defaultValue=0 ,
             accessMode='ReadWrite'),
 
-          doSelfValidation=dict(
-            description='A boolean flag that determines whether or'
-                        'not the KNNClassifier should perform partitionID-based'
-                        'self-validation during the finishLearning() step.',
-            dataType='UInt32',
-            count=1,
-            constraints='bool',
-            defaultValue=None,
-            accessMode='ReadWrite'),
-
           keepAllDistances=dict(
             description='Whether to store all the protoScores in an array, '
                         'rather than just the ones for the last inference. '
@@ -473,7 +463,6 @@ class KNNClassifierRegion(PyRegion):
                useAuxiliary=0,
                justUseAuxiliary=0,
                clVerbosity=0,
-               doSelfValidation=False,
                replaceDuplicates=False,
                cellsPerCol=0,
                maxStoredPatterns=-1
@@ -544,12 +533,6 @@ class KNNClassifierRegion(PyRegion):
     # Debugging
     self.verbosity = clVerbosity
 
-    # Boolean controlling whether or not the
-    # region should perform partitionID-based
-    # self-validation during the finishLearning()
-    # step.
-    self.doSelfValidation = doSelfValidation
-
     # Taps
     self._tapFileIn = None
     self._tapFileOut = None
@@ -580,8 +563,8 @@ class KNNClassifierRegion(PyRegion):
 
     self._knn = KNNClassifier.KNNClassifier(**self.knnParams)
 
-    for x in ('_partitions', '_useAuxialiary', '_doSphering',
-              '_scanInfo', '_protoScores', 'doSelfValidation'):
+    for x in ('_partitions', '_useAuxiliary', '_doSphering',
+              '_scanInfo', '_protoScores'):
       if not hasattr(self, x):
         setattr(self, x, None)
 
@@ -592,6 +575,11 @@ class KNNClassifierRegion(PyRegion):
     if 'version' not in state:
       self.__dict__.update(state)
     elif state['version'] == 1:
+
+      # Backward compatibility
+      if "doSelfValidation" in state:
+        state.pop("doSelfValidation")
+
       knnState = state['_knn_state']
       del state['_knn_state']
 
@@ -753,8 +741,6 @@ class KNNClassifierRegion(PyRegion):
     elif name == "clVerbosity":
       self.verbosity = value
       self._knn.verbosity = value
-    elif name == "doSelfValidation":
-      self.doSelfValidation = value
     else:
       return PyRegion.setParameter(self, name, index, value)
 
@@ -1099,13 +1085,6 @@ class KNNClassifierRegion(PyRegion):
     # Compute leave-one-out validation accuracy if
     # we actually received non-trivial partition info
     self._accuracy = None
-    if self.doSelfValidation:
-      if self._knn.getNumPartitionIds() > 0:
-        numSamples, numCorrect = self._knn.leaveOneOutTest()
-        if numSamples:
-          self._accuracy = float(numCorrect) / float(numSamples)
-          print "Leave-one-out validation: %d of %d correct ==> %.3f%%" % \
-                 (numCorrect, numSamples, self._accuracy * 100.0)
 
 
   def _finishSphering(self):

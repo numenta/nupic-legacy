@@ -1021,82 +1021,6 @@ class KNNClassifier(object):
     self._a = None
 
 
-  def leaveOneOutTest(self):
-    """Run leave-one-out testing.
-
-    Returns the total number of samples and the number correctly classified.
-    Ignores invalid vectors (those with a category of -1).
-    Uses partitionIdList, if non-empty, to avoid matching a vector against
-    other vectors that came from the same training sequence.
-    """
-    if self.useSparseMemory:
-      raise Exception("leaveOneOutTest only works with dense memory right now")
-
-    # The basic test is simple, but we need to prepare some data structures to
-    # handle _specificIndexTraining and _partitionIdList
-    categoryListArray = numpy.array(self._categoryList[:self._M.shape[0]])
-    invalidIndices = []
-    if self._specificIndexTraining:
-      # Find valid and invalid vectors using the category list
-      validIndices = (categoryListArray != -1)
-      invalidIndices = (categoryListArray == -1)
-
-    # Convert list of partitions to numpy array if we haven't
-    # already done so.
-
-    # Find the winning vector for each cache vector, excluding itself,
-    # excluding invalid vectors, and excluding other vectors with the
-    # same partition id
-    winners = numpy.zeros(self._M.shape[0], numpy.int32)
-    for i in xrange(self._M.shape[0]):
-      if self._specificIndexTraining \
-          and categoryListArray[i] == -1:  # This is an invalid vector
-        continue
-
-      # Calculate distance between this vector and all others
-      distances = numpy.power(numpy.abs(self._M - self._M[i,:]),
-                              self.distanceNorm)
-      distances = distances.sum(1)
-
-      # Invalidate certain vectors by setting their distance to infinity
-      if self._specificIndexTraining:
-        distances[invalidIndices] = numpy.inf  # Ignore invalid vectors
-
-      # Ignore vectors with same partition id as i
-      distances[self._partitionIdMap.get(
-          self._partitionIdList[i], [])] = numpy.inf
-
-      # Don't match vector with itself
-      distances[i] = numpy.inf
-
-      if self.k == 1:
-        # Take the closest vector as the winner (k=1)
-        winners[i] = distances.argmin()
-      else:
-        # Have the top k winners vote on the category
-        categoryScores = numpy.zeros(categoryListArray.max() + 1)
-        for j in xrange(self.k):
-          winner = distances.argmin()
-          distances[winner] = numpy.inf
-          categoryScores[categoryListArray[winner]] += 1
-        winners[i] = categoryScores.argmax()
-
-    if self.k == 1:
-      # Convert the winners (vector IDs) to their category indices
-      # For k > 1, the winners are already category indices
-      winners = categoryListArray[winners]
-
-    if self._specificIndexTraining:
-      # Count the number of correct categories, ignoring invalid vectors
-      matches = (winners[validIndices] == categoryListArray[validIndices])
-    else:
-      # Count the number of correct categories
-      matches = (winners == categoryListArray)
-
-    # number of samples, number correct
-    return float(matches.shape[0]), matches.sum()
-
-
   def remapCategories(self, mapping):
     """Change the category indices.
 
@@ -1160,7 +1084,7 @@ class KNNClassifier(object):
       pass
     elif state["version"] == 2:
       raise RuntimeError("Invalid deserialization of invalid KNNClassifier"
-          "Verison")
+          "Version")
 
     # Backward compatibility
     if "_partitionIdArray" in state:
