@@ -51,9 +51,9 @@ class KNNClassifierTest(unittest.TestCase):
 
     # tests: if doWinners:
     classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0,
-      relativeThreshold=True, sparseThreshold=.2, numWinners=3)
+      relativeThreshold=True, sparseThreshold=.2, numWinners=2)
     outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
-    self.assertTrue(np.array_equal(np.array([0, 0, 3, 7, 11], dtype=np.int32),
+    self.assertTrue(np.array_equal(np.array([0, 0, 0, 0, 0], dtype=np.int32),
       outputPattern))
 
     # tests: Do binarization
