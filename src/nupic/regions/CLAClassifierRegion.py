@@ -294,39 +294,41 @@ class CLAClassifierRegion(PyRegion):
       return PyRegion.setParameter(self, name, index, value)
 
 
-  def write(self, proto):
+  @staticmethod
+  def getProtoType():
+    """Return the pycapnp proto type that the class uses for serialization."""
+    return CLAClassifierRegionProto
+
+
+  def writeToProto(self, proto):
     """Write state to proto object.
 
-    proto: PyRegionProto capnproto object
+    proto: CLAClassifierRegionProto capnproto object
     """
-    regionImpl = proto.regionImpl.as_struct(CLAClassifierRegionProto)
+    proto.classifierImp = self.classifierImp
+    proto.steps = self.steps
+    proto.alpha = self.alpha
+    proto.verbosity = self.verbosity
+    proto.maxCategoryCount = self.maxCategoryCount
 
-    regionImpl.classifierImp = self.classifierImp
-    regionImpl.steps = self.steps
-    regionImpl.alpha = self.alpha
-    regionImpl.verbosity = self.verbosity
-    regionImpl.maxCategoryCount = self.maxCategoryCount
-
-    self._claClassifier.write(regionImpl.claClassifier)
+    self._claClassifier.write(proto.claClassifier)
 
 
   @classmethod
-  def read(cls, proto):
+  def readFromProto(cls, proto):
     """Read state from proto object.
 
-    proto: PyRegionProto capnproto object
+    proto: CLAClassifierRegionProto capnproto object
     """
-    regionImpl = proto.regionImpl.as_struct(CLAClassifierRegionProto)
-
     instance = cls()
 
-    instance.classifierImp = regionImpl.classifierImp
-    instance.steps = regionImpl.steps
-    instance.alpha = regionImpl.alpha
-    instance.verbosity = regionImpl.verbosity
-    instance.maxCategoryCount = regionImpl.maxCategoryCount
+    instance.classifierImp = proto.classifierImp
+    instance.steps = proto.steps
+    instance.alpha = proto.alpha
+    instance.verbosity = proto.verbosity
+    instance.maxCategoryCount = proto.maxCategoryCount
 
-    instance._claClassifier = CLAClassifierFactory.read(regionImpl)
+    instance._claClassifier = CLAClassifierFactory.read(proto)
 
     return instance
 

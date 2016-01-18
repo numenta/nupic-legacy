@@ -177,6 +177,80 @@ class Model(object):
     """
     return self.__inferenceEnabled
 
+  @staticmethod
+  def getProtoType():
+    """Return the pycapnp proto type that the class uses for serialization.
+
+    This is used to convert the proto into the proper type before passing it
+    into the read or write method of the subclass.
+    """
+    raise NotImplementedError()
+
+  @staticmethod
+  def _getModelCheckpointFilePath(checkpointDir):
+    """ Return the absolute path of the model's checkpoint file.
+    @param checkpointDir (string)
+           Directory of where the experiment is to be or was saved
+    @returns (string) An absolute path.
+    """
+    path = os.path.join(checkpointDir, "model.data")
+    path = os.path.abspath(path)
+    return path
+
+  def writeToCheckpoint(self, checkpointDir):
+    """Serializes model using capnproto and writes data to checkpointDir"""
+    proto = self.getProtoType().new_message()
+
+    self.write(proto)
+
+    checkpointPath = self._getModelCheckpointFilePath(checkpointDir)
+
+    # Clean up old saved state, if any
+    if os.path.exists(checkpointDir):
+      if not os.path.isdir(checkpointDir):
+        raise Exception(("Existing filesystem entry <%s> is not a model"
+                         " checkpoint -- refusing to delete (not a directory)") \
+                          % checkpointDir)
+      if not os.path.isfile(checkpointPath):
+        raise Exception(("Existing filesystem entry <%s> is not a model"
+                         " checkpoint -- refusing to delete"\
+                         " (%s missing or not a file)") % \
+                          (checkpointDir, checkpointPath))
+
+      shutil.rmtree(checkpointDir)
+
+    # Create a new directory for saving state
+    self.__makeDirectoryFromAbsolutePath(checkpointDir)
+
+    with open(checkpointPath, 'wb') as f:
+      proto.write(f)
+
+  @classmethod
+  def readFromCheckpoint(cls, checkpointDir):
+    """Deerializes model from checkpointDir using capnproto"""
+    checkpointPath = cls._getModelCheckpointFilePath(checkpointDir)
+
+    with open(checkpointPath, 'r') as f:
+      proto = cls.getProtoType().read(f)
+
+    model = cls.read(proto)
+    return model
+
+  def write(self, proto):
+    """Write state to proto object.
+
+    The type of proto is determined by getProtoType().
+    """
+    raise NotImplementedError()
+
+  @classmethod
+  def read(cls, proto):
+    """Read state from proto object.
+
+    The type of proto is determined by getProtoType().
+    """
+    raise NotImplementedError()
+
   ###############################################################################
   # Implementation of common save/load functionality
   ###############################################################################

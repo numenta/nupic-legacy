@@ -57,9 +57,7 @@ class CLAClassifierFactory(object):
     if impl == 'py':
       return CLAClassifier.read(proto.claClassifier)
     elif impl == 'cpp':
-      instance = FastCLAClassifier()
-      instance.read(proto.claClassifier)
-      return instance
+      return FastCLAClassifier.read(proto.claClassifier)
     elif impl == 'diff':
       raise NotImplementedError("CLAClassifierDiff.read not implemented")
     else:

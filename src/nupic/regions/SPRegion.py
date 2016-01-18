@@ -860,50 +860,44 @@ class SPRegion(PyRegion):
   #############################################################################
 
 
-  def write(self, proto):
+  @staticmethod
+  def getProtoType():
+    """Return the pycapnp proto type that the class uses for serialization."""
+    return SPRegionProto
+
+
+  def writeToProto(self, proto):
     """Write state to proto object.
 
-    proto: PyRegionProto capnproto object
+    proto: SPRegionProto capnproto object
     """
-    regionImpl = proto.regionImpl.as_struct(SPRegionProto)
+    proto.spatialImp = self.spatialImp
+    proto.columnCount = self.columnCount
+    proto.inputWidth = self.inputWidth
+    proto.learningMode = 1 if self.learningMode else 0
+    proto.inferenceMode = 1 if self.inferenceMode else 0
+    proto.anomalyMode = 1 if self.anomalyMode else 0
+    proto.topDownMode = 1 if self.topDownMode else 0
 
-    regionImpl.spatialImp = self.spatialImp
-    regionImpl.columnCount = self.columnCount
-    regionImpl.inputWidth = self.inputWidth
-    regionImpl.learningMode = 1 if self.learningMode else 0
-    regionImpl.inferenceMode = 1 if self.inferenceMode else 0
-    regionImpl.anomalyMode = 1 if self.anomalyMode else 0
-    regionImpl.topDownMode = 1 if self.topDownMode else 0
-
-    self._sfdr.write(regionImpl.spatialPooler)
+    self._sfdr.write(proto.spatialPooler)
 
 
   @classmethod
-  def read(cls, proto):
+  def readFromProto(cls, proto):
     """Read state from proto object.
 
-    proto: PyRegionProto capnproto object
+    proto: SPRegionProto capnproto object
     """
-    regionImpl = proto.regionImpl.as_struct(SPRegionProto)
+    instance = cls(proto.columnCount, proto.inputWidth)
 
-    instance = cls(regionImpl.columnCount, regionImpl.inputWidth)
+    instance.spatialImp = proto.spatialImp
+    instance.learningMode = proto.learningMode
+    instance.inferenceMode = proto.inferenceMode
+    instance.anomalyMode = proto.anomalyMode
+    instance.topDownMode = proto.topDownMode
 
-    instance.spatialImp = regionImpl.spatialImp
-    instance.learningMode = regionImpl.learningMode
-    instance.inferenceMode = regionImpl.inferenceMode
-    instance.anomalyMode = regionImpl.anomalyMode
-    instance.topDownMode = regionImpl.topDownMode
-
-    spatialImp = regionImpl.spatialImp
-
-    if spatialImp == 'py':
-      instance._sfdr = PYSpatialPooler.read(regionImpl.spatialPooler)
-    elif spatialImp == 'cpp':
-      instance._sfdr = CPPSpatialPooler()
-      instance._sfdr.read(regionImpl.spatialPooler)
-    else:
-      raise RuntimeError("Invalid spatialImp '{0}'. "
-                         "Legal values are: 'py', 'cpp'".format(spatialImp))
+    spatialImp = proto.spatialImp
+    instance._sfdr = getSPClass(spatialImp).read(proto.spatialPooler)
 
     return instance
 

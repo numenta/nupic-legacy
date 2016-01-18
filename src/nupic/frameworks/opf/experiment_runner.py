@@ -90,6 +90,12 @@ g_parsedPrivateCommandLineOptionsSchema = {
       "blank":True
     },
 
+    "newSerialization":{
+      "description":"Use new capnproto serialization.",
+      "required":True,
+      "type":"boolean"
+    },
+
     #"reuseDatasets":{
     #  "description":"Keep existing generated/aggregated datasets",
     #  "required":True,
@@ -218,6 +224,11 @@ def _parseCommandLineOptions(args):
                     action="store", type="string", default="",
                     metavar="<CHECKPOINT>")
 
+  parser.add_option("--newSerialization",
+                    help="Use new capnproto serialization",
+                    dest="newSerialization",
+                    action="store_true", default=False)
+
   #parser.add_option("--reuseDatasets",
   #                  help="Keep existing generated/aggregated datasets",
   #                  dest="reuseDatasets", action="store_true",
@@ -287,6 +298,7 @@ def _parseCommandLineOptions(args):
   privateOptions['listAvailableCheckpoints'] = options.listAvailableCheckpoints
   privateOptions['listTasks'] = options.listTasks
   privateOptions['runCheckpointName'] = options.runCheckpointName
+  privateOptions['newSerialization'] = options.newSerialization
   privateOptions['testMode'] = options.testMode
   #privateOptions['reuseDatasets']  = options.reuseDatasets
   privateOptions['taskLabels'] = options.taskLabels
@@ -390,6 +402,9 @@ def _runExperimentImpl(options, model=None):
   # the nupic.datafiles package_data location.
   expIface.normalizeStreamSources()
 
+  # Extract option
+  newSerialization = options.privateOptions['newSerialization']
+
   # Handle listTasks
   if options.privateOptions['listTasks']:
     print "Available tasks:"
@@ -407,7 +422,8 @@ def _runExperimentImpl(options, model=None):
     checkpointName = options.privateOptions['runCheckpointName']
 
     model = ModelFactory.loadFromCheckpoint(
-          savedModelDir=_getModelCheckpointDir(experimentDir, checkpointName))
+          savedModelDir=_getModelCheckpointDir(experimentDir, checkpointName),
+          newSerialization=newSerialization)
 
   elif model is not None:
     print "Skipping creation of OPFExperiment instance: caller provided his own"
@@ -420,7 +436,8 @@ def _runExperimentImpl(options, model=None):
     checkpointName = options.privateOptions['createCheckpointName']
     _saveModel(model=model,
                experimentDir=experimentDir,
-               checkpointLabel=checkpointName)
+               checkpointLabel=checkpointName,
+               newSerialization=newSerialization)
 
     return model
 
@@ -463,16 +480,20 @@ def _runExperimentImpl(options, model=None):
     if options.privateOptions['checkpointModel']:
       _saveModel(model=model,
                  experimentDir=experimentDir,
-                 checkpointLabel=task['taskLabel'])
+                 checkpointLabel=task['taskLabel'],
+                 newSerialization=newSerialization)
 
   return model
 
 
 
-def _saveModel(model, experimentDir, checkpointLabel):
+def _saveModel(model, experimentDir, checkpointLabel, newSerialization=False):
   """Save model"""
   checkpointDir = _getModelCheckpointDir(experimentDir, checkpointLabel)
-  model.save(saveModelDir=checkpointDir)
+  if newSerialization:
+    model.writeToCheckpoint(checkpointDir)
+  else:
+    model.save(saveModelDir=checkpointDir)
 
 
 

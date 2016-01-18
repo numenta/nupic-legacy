@@ -507,6 +507,9 @@ class TPRegion(PyRegion):
         self._tfdr.reset()
         self._sequencePos = 0  # Position within the current sequence
 
+    if self.computePredictedActiveCellIndices:
+      prevPredictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
+
     # Perform inference and/or learning
     tpOutput = self._tfdr.compute(buInputVector, self.learningMode, self.inferenceMode)
     self._sequencePos += 1
@@ -539,12 +542,9 @@ class TPRegion(PyRegion):
     if self.computePredictedActiveCellIndices:
       # Reshape so we are dealing with 1D arrays
       activeState = self._tfdr.getActiveState().reshape(-1).astype('float32')
-      predictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
       activeIndices = numpy.where(activeState != 0)[0]
-      predictedIndices= numpy.where(predictedState != 0)[0]
+      predictedIndices= numpy.where(prevPredictedState != 0)[0]
       predictedActiveIndices = numpy.intersect1d(activeIndices, predictedIndices)
-      outputs["activeCells"].fill(0)
-      outputs["activeCells"][activeIndices] = 1
       outputs["predictedActiveCells"].fill(0)
       outputs["predictedActiveCells"][predictedActiveIndices] = 1
 
