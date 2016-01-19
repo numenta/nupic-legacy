@@ -40,28 +40,30 @@ class KNNClassifierTest(unittest.TestCase):
     # tests: if not self.relativeThreshold:
     outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
     self.assertTrue(np.array_equal(np.array([0, 1, 3, 7, 11], dtype=np.int32),
-      outputPattern))
+                                   outputPattern))
 
     # tests: elif self.sparseThreshold > 0:
     classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0,
-      relativeThreshold=True, sparseThreshold=.2)
+                               relativeThreshold=True, sparseThreshold=.2)
     outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
     self.assertTrue(np.array_equal(np.array([0, 0, 3, 7, 11], dtype=np.int32),
-      outputPattern))
+                                   outputPattern))
 
     # tests: if doWinners:
     classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0,
-      relativeThreshold=True, sparseThreshold=.2, numWinners=2)
+                               relativeThreshold=True, sparseThreshold=.2,
+                               numWinners=2)
     outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
     self.assertTrue(np.array_equal(np.array([0, 0, 0, 0, 0], dtype=np.int32),
-      outputPattern))
+                                   outputPattern))
 
     # tests: Do binarization
     classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0,
-      relativeThreshold=True, sparseThreshold=.2, doBinarization=True)
+                               relativeThreshold=True, sparseThreshold=.2,
+                               doBinarization=True)
     outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
-    self.assertTrue(np.array_equal(np.array(
-      [0., 0., 1., 1., 1.], dtype=np.float32), outputPattern))
+    self.assertTrue(np.array_equal(np.array([0., 0., 1., 1., 1.],
+                                            dtype=np.float32), outputPattern))
 
 
   def testDistanceMetrics(self):
