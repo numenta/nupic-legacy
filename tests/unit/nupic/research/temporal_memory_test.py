@@ -677,16 +677,18 @@ class TemporalMemoryTest(unittest.TestCase):
     # Run a couple records through after deserializing and check results match
     tm1.compute(self.patternMachine.get(0))
     tm2.compute(self.patternMachine.get(0))
-    self.assertEqual(tm1.activeCells, tm2.activeCells)
-    self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
-    self.assertEqual(tm1.winnerCells, tm2.winnerCells)
+    self.assertEqual(set(tm1.getActiveCells()), set(tm2.getActiveCells()))
+    self.assertEqual(set(tm1.getPredictiveCells()),
+                     set(tm2.getPredictiveCells()))
+    self.assertEqual(set(tm1.getWinnerCells()), set(tm2.getWinnerCells()))
     self.assertEqual(tm1.connections, tm2.connections)
 
     tm1.compute(self.patternMachine.get(3))
     tm2.compute(self.patternMachine.get(3))
-    self.assertEqual(tm1.activeCells, tm2.activeCells)
-    self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
-    self.assertEqual(tm1.winnerCells, tm2.winnerCells)
+    self.assertEqual(set(tm1.getActiveCells()), set(tm2.getActiveCells()))
+    self.assertEqual(set(tm1.getPredictiveCells()),
+                     set(tm2.getPredictiveCells()))
+    self.assertEqual(set(tm1.getWinnerCells()), set(tm2.getWinnerCells()))
     self.assertEqual(tm1.connections, tm2.connections)
 
 
