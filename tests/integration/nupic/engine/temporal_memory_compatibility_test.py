@@ -22,170 +22,11 @@
 
 import json
 import unittest
-
-from pkg_resources import resource_filename
-
 import numpy
 
-from nupic.data.file_record_stream import FileRecordStream
-from nupic.engine import Network
-from nupic.encoders import MultiEncoder, ScalarEncoder, DateEncoder
-from nupic.regions.RecordSensor import RecordSensor
-from nupic.regions.SPRegion import SPRegion
 from nupic.regions.TPRegion import TPRegion
 
-_VERBOSITY = 0  # how chatty the test should be
-_SEED = 1956  # the random seed used throughout
-_INPUT_FILE_PATH = resource_filename(
-  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
-)
-_NUM_RECORDS = 2000
-
-# Config field for SPRegion
-SP_PARAMS = {
-    "spVerbosity": _VERBOSITY,
-    "spatialImp": "cpp",
-    "globalInhibition": 1,
-    "columnCount": 2048,
-    # This must be set before creating the SPRegion
-    "inputWidth": 0,
-    "numActiveColumnsPerInhArea": 40,
-    "seed": 1956,
-    "potentialPct": 0.8,
-    "synPermConnected": 0.1,
-    "synPermActiveInc": 0.0001,
-    "synPermInactiveDec": 0.0005,
-    "maxBoost": 1.0,
-}
-
-# Config field for TPRegion
-TP_PARAMS = {
-    "verbosity": _VERBOSITY,
-    "columnCount": 2048,
-    "cellsPerColumn": 32,
-    "inputWidth": 2048,
-    "seed": 1960,
-    "temporalImp": "py",
-    "newSynapseCount": 20,
-    "maxSynapsesPerSegment": 32,
-    "maxSegmentsPerCell": 128,
-    "initialPerm": 0.21,
-    "permanenceInc": 0.1,
-    "permanenceDec": 0.1,
-    "globalDecay": 0.0,
-    "maxAge": 0,
-    "minThreshold": 9,
-    "activationThreshold": 12,
-    "outputType": "normal",
-    "pamLength": 3,
-}
-
-
-
-def createEncoder():
-  """Create the encoder instance for our test and return it."""
-  consumption_encoder = ScalarEncoder(21, 0.0, 100.0, n=50, name="consumption",
-      clipInput=True)
-  time_encoder = DateEncoder(timeOfDay=(21, 9.5), name="timestamp_timeOfDay")
-
-  encoder = MultiEncoder()
-  encoder.addEncoder("consumption", consumption_encoder)
-  encoder.addEncoder("timestamp", time_encoder)
-
-  return encoder
-
-
-
-def createNetwork(dataSource, enableTP=False, temporalImp="py"):
-  """Create the Network instance.
-
-  The network has a sensor region reading data from `dataSource` and passing
-  the encoded representation to an SPRegion. The SPRegion output is passed to
-  a TPRegion.
-
-  :param dataSource: a RecordStream instance to get data from
-  :returns: a Network instance ready to run
-  """
-  network = Network()
-
-  # Our input is sensor data from the gym file. The RecordSensor region
-  # allows us to specify a file record stream as the input source via the
-  # dataSource attribute.
-  network.addRegion("sensor", "py.RecordSensor",
-                    json.dumps({"verbosity": _VERBOSITY}))
-  sensor = network.regions["sensor"].getSelf()
-  # The RecordSensor needs to know how to encode the input values
-  sensor.encoder = createEncoder()
-  # Specify the dataSource as a file record stream instance
-  sensor.dataSource = dataSource
-
-  # Create the spatial pooler region
-  SP_PARAMS["inputWidth"] = sensor.encoder.getWidth()
-  network.addRegion("spatialPoolerRegion", "py.SPRegion", json.dumps(SP_PARAMS))
-
-  # Link the SP region to the sensor input
-  network.link("sensor", "spatialPoolerRegion", "UniformLink", "")
-  network.link("sensor", "spatialPoolerRegion", "UniformLink", "",
-               srcOutput="resetOut", destInput="resetIn")
-  network.link("spatialPoolerRegion", "sensor", "UniformLink", "",
-               srcOutput="spatialTopDownOut", destInput="spatialTopDownIn")
-  network.link("spatialPoolerRegion", "sensor", "UniformLink", "",
-               srcOutput="temporalTopDownOut", destInput="temporalTopDownIn")
-
-  if enableTP:
-    # Add the TPRegion on top of the SPRegion
-    TP_PARAMS["temporalImp"] = temporalImp
-    network.addRegion("temporalPoolerRegion", "py.TPRegion",
-                      json.dumps(TP_PARAMS))
-
-    network.link("spatialPoolerRegion", "temporalPoolerRegion", "UniformLink", "")
-    network.link("temporalPoolerRegion", "spatialPoolerRegion", "UniformLink", "",
-                 srcOutput="topDownOut", destInput="topDownIn")
-
-  spatialPoolerRegion = network.regions["spatialPoolerRegion"]
-
-  # Make sure learning is enabled
-  spatialPoolerRegion.setParameter("learningMode", True)
-  # We want temporal anomalies so disable anomalyMode in the SP. This mode is
-  # used for computing anomalies in a non-temporal model.
-  spatialPoolerRegion.setParameter("anomalyMode", False)
-
-  if enableTP:
-    temporalPoolerRegion = network.regions["temporalPoolerRegion"]
-
-    # Enable topDownMode to get the predicted columns output
-    temporalPoolerRegion.setParameter("topDownMode", True)
-    # Make sure learning is enabled (this is the default)
-    temporalPoolerRegion.setParameter("learningMode", True)
-    # Enable inference mode so we get predictions
-    temporalPoolerRegion.setParameter("inferenceMode", True)
-    # Enable anomalyMode to compute the anomaly score. This actually doesn't work
-    # now so doesn't matter. We instead compute the anomaly score based on
-    # topDownOut (predicted columns) and SP bottomUpOut (active columns).
-    temporalPoolerRegion.setParameter("anomalyMode", True)
-
-  return network
-
-
-
-def createAndRunNetwork(testRegionType, testOutputName,
-                        temporalImp):
-    dataSource = FileRecordStream(streamID=_INPUT_FILE_PATH)
-
-    network = createNetwork(dataSource, enableTP=True, temporalImp=temporalImp)
-    network.initialize()
-
-    results = []
-
-    for i in xrange(_NUM_RECORDS):
-      # Run the network for a single iteration
-      network.run(1)
-
-      testRegion = network.getRegionsByType(testRegionType)[0]
-      output = testRegion.getOutputData(testOutputName).copy()
-      results.append(output)
-
-    return results
+from network_creation_common import createAndRunNetwork
 
 
 
@@ -195,8 +36,14 @@ class TemporalMemoryCompatibilityTest(unittest.TestCase):
     """
     Test compatibility between C++ and Python TM implementation.
     """
-    results1 = createAndRunNetwork(TPRegion, "bottomUpOut", "tm_py")
-    results2 = createAndRunNetwork(TPRegion, "bottomUpOut", "py")
+    results1 = createAndRunNetwork(TPRegion,
+                                   "bottomUpOut",
+                                   checkpointMidway=False,
+                                   temporalImp="tm_py")
+    results2 = createAndRunNetwork(TPRegion,
+                                   "bottomUpOut",
+                                   checkpointMidway=False,
+                                   temporalImp="py")
     self.compareArrayResults(results1, results2)
 
 
