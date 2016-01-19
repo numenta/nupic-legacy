@@ -47,7 +47,7 @@ _SEED = 1956  # the random seed used throughout
 _INPUT_FILE_PATH = resource_filename(
   "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
 )
-_NUM_RECORDS = 2000
+_NUM_RECORDS = 1000
 
 # Config field for SPRegion
 SP_PARAMS = {
