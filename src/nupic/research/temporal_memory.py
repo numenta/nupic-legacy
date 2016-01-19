@@ -53,7 +53,8 @@ class TemporalMemory(object):
                predictedSegmentDecrement=0.0,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255,
-               seed=42):
+               seed=42,
+               **kwargs):
     """
     @param columnDimensions          (list)  Dimensions of the column space
     @param cellsPerColumn            (int)   Number of cells per column
