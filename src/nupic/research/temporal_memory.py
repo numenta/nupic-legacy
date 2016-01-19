@@ -673,6 +673,42 @@ class TemporalMemory(object):
     return self.numberOfColumns() * self.cellsPerColumn
 
 
+  def getActiveCells(self):
+    """
+    Returns the indices of the active cells.
+
+    @return (list) Indices of active cells.
+    """
+    return self.getCellIndices(self.activeCells)
+
+
+  def getPredictiveCells(self):
+    """
+    Returns the indices of the predictive cells.
+
+    @return (list) Indices of predictive cells.
+    """
+    return self.getCellIndices(self.predictiveCells)
+
+
+  def getWinnerCells(self):
+    """
+    Returns the indices of the winner cells.
+
+    @return (list) Indices of winner cells.
+    """
+    return self.getCellIndices(self.winnerCells)
+
+
+  def getMatchingCells(self):
+    """
+    Returns the indices of the matching cells.
+
+    @return (list) Indices of matching cells.
+    """
+    return self.getCellIndices(self.matchingCells)
+
+
   def mapCellsToColumns(self, cells):
     """
     Maps cells to the columns they belong to
