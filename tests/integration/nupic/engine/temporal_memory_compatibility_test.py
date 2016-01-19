@@ -40,10 +40,13 @@ class TemporalMemoryCompatibilityTest(unittest.TestCase):
                                    "bottomUpOut",
                                    checkpointMidway=False,
                                    temporalImp="tm_py")
+
+    # temporalImp="tm_py" here is a temporary placeholder value until C++ TM is
+    # finished, at which point it should be changed to "cpp"
     results2 = createAndRunNetwork(TPRegion,
                                    "bottomUpOut",
                                    checkpointMidway=False,
-                                   temporalImp="py")
+                                   temporalImp="tm_py")
     self.compareArrayResults(results1, results2)
 
 
