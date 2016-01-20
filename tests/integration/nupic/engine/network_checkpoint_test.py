@@ -76,7 +76,7 @@ TP_PARAMS = {
     "cellsPerColumn": 32,
     "inputWidth": 2048,
     "seed": 1960,
-    "temporalImp": "cpp",
+    "temporalImp": "tm_py",
     "newSynapseCount": 20,
     "maxSynapsesPerSegment": 32,
     "maxSegmentsPerCell": 128,
@@ -202,10 +202,11 @@ def saveAndLoadNetwork(network):
 
 
 def createAndRunNetwork(testRegionType, testOutputName,
-                        checkpointMidway=False):
+                        checkpointMidway=False,
+                        enableTP=False):
     dataSource = FileRecordStream(streamID=_INPUT_FILE_PATH)
 
-    network = createNetwork(dataSource)
+    network = createNetwork(dataSource, enableTP=enableTP)
     network.initialize()
 
     results = []
@@ -244,6 +245,25 @@ class NetworkCheckpointTest(unittest.TestCase):
     results1 = createAndRunNetwork(SPRegion, "bottomUpOut")
 
     results2 = createAndRunNetwork(SPRegion, "bottomUpOut",
+                                   checkpointMidway=True)
+
+    self.assertEqual(len(results1), len(results2))
+
+    for i in xrange(len(results1)):
+      result1 = list(results1[i].nonzero()[0])
+      result2 = list(results2[i].nonzero()[0])
+      self.assertEqual(result1, result2,
+        "Row {0} not equal: {1} vs. {2}".format(i, result1, result2))
+
+
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
+  def testTPRegion(self):
+    results1 = createAndRunNetwork(TPRegion, "bottomUpOut",
+                                   enableTP=True)
+
+    results2 = createAndRunNetwork(TPRegion, "bottomUpOut",
+                                   enableTP=True,
                                    checkpointMidway=True)
 
     self.assertEqual(len(results1), len(results2))

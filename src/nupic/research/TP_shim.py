@@ -54,7 +54,7 @@ class TPShim(TemporalMemory):
                permanenceDec=0.10,
                permanenceMax=1.0,
                activationThreshold=12,
-               predictedSegmentDecrement=0,
+               predictedSegmentDecrement=0.0,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255,
                globalDecay=0.10,
@@ -81,8 +81,6 @@ class TPShim(TemporalMemory):
       maxSynapsesPerSegment=maxSynapsesPerSegment,
       seed=seed)
 
-    self.infActiveState = {"t": None}
-
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """
@@ -102,7 +100,7 @@ class TPShim(TemporalMemory):
 
     activeState = numpy.zeros(numberOfCells)
     activeState[self.getCellIndices(self.activeCells)] = 1
-    self.infActiveState["t"] = activeState
+    self.infActiveState = {"t": activeState}
 
     output = numpy.zeros(numberOfCells)
     output[self.getCellIndices(self.predictiveCells | self.activeCells)] = 1
@@ -161,7 +159,7 @@ class FastTPShim(FastTemporalMemory):
                permanenceDec=0.10,
                permanenceMax=1.0,
                activationThreshold=12,
-               predictedSegmentDecrement=0,
+               predictedSegmentDecrement=0.0,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255,
                globalDecay=0.10,
@@ -188,8 +186,6 @@ class FastTPShim(FastTemporalMemory):
       maxSynapsesPerSegment=maxSynapsesPerSegment,
       seed=seed)
 
-    self.infActiveState = {"t": None}
-
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """
@@ -209,7 +205,7 @@ class FastTPShim(FastTemporalMemory):
 
     activeState = numpy.zeros(numberOfCells)
     activeState[self.getCellIndices(self.activeCells)] = 1
-    self.infActiveState["t"] = activeState
+    self.infActiveState = {"t": activeState}
 
     output = numpy.zeros(numberOfCells)
     output[self.getCellIndices(self.predictiveCells | self.activeCells)] = 1
@@ -268,7 +264,7 @@ class MonitoredTPShim(MonitoredTemporalMemory):
                permanenceDec=0.10,
                permanenceMax=1.0,
                activationThreshold=12,
-               predictedSegmentDecrement=0,
+               predictedSegmentDecrement=0.0,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255,
                globalDecay=0.10,
@@ -295,8 +291,6 @@ class MonitoredTPShim(MonitoredTemporalMemory):
       maxSynapsesPerSegment=maxSynapsesPerSegment,
       seed=seed)
 
-    self.infActiveState = {"t": None}
-
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """
@@ -316,7 +310,7 @@ class MonitoredTPShim(MonitoredTemporalMemory):
 
     activeState = numpy.zeros(numberOfCells)
     activeState[self.getCellIndices(self.activeCells)] = 1
-    self.infActiveState["t"] = activeState
+    self.infActiveState = {"t": activeState}
 
     output = numpy.zeros(numberOfCells)
     output[self.getCellIndices(self.predictiveCells | self.activeCells)] = 1
@@ -375,7 +369,7 @@ class MonitoredFastTPShim(MonitoredFastTemporalMemory):
                permanenceDec=0.10,
                permanenceMax=1.0,
                activationThreshold=12,
-               predictedSegmentDecrement=0,
+               predictedSegmentDecrement=0.0,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255,
                globalDecay=0.10,
@@ -402,8 +396,6 @@ class MonitoredFastTPShim(MonitoredFastTemporalMemory):
       maxSynapsesPerSegment=maxSynapsesPerSegment,
       seed=seed)
 
-    self.infActiveState = {"t": None}
-
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """
@@ -423,7 +415,7 @@ class MonitoredFastTPShim(MonitoredFastTemporalMemory):
 
     activeState = numpy.zeros(numberOfCells)
     activeState[self.getCellIndices(self.activeCells)] = 1
-    self.infActiveState["t"] = activeState
+    self.infActiveState = {"t": activeState}
 
     output = numpy.zeros(numberOfCells)
     output[self.getCellIndices(self.predictiveCells | self.activeCells)] = 1
