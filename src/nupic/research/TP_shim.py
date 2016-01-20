@@ -101,11 +101,12 @@ class TPShim(TemporalMemory):
     numberOfCells = self.numberOfCells()
 
     activeState = numpy.zeros(numberOfCells)
-    activeState[self.getCellIndices(self.activeCells)] = 1
+    activeState[self.getActiveCells()] = 1
     self.infActiveState["t"] = activeState
 
     output = numpy.zeros(numberOfCells)
-    output[self.getCellIndices(self.predictiveCells | self.activeCells)] = 1
+    output[list(set(self.getPredictiveCells()) | 
+                set(self.getActiveCells()))] = 1
     return output
 
 
@@ -119,20 +120,20 @@ class TPShim(TemporalMemory):
     @returns best estimate of the TP input that would have generated bottomUpOut.
     """
     output = numpy.zeros(self.numberOfColumns())
-    columns = [self.columnForCell(idx) for idx in self.predictiveCells]
+    columns = [self.columnForCell(idx) for idx in self.getPredictiveCells()]
     output[columns] = 1
     return output
 
 
   def getActiveState(self):
     activeState = numpy.zeros(self.numberOfCells())
-    activeState[self.getCellIndices(self.activeCells)] = 1
+    activeState[self.getActiveCells()] = 1
     return activeState
 
 
   def getPredictedState(self):
     predictedState = numpy.zeros(self.numberOfCells())
-    predictedState[self.getCellIndices(self.predictiveCells)] = 1
+    predictedState[self.getPredictiveCells()] = 1
     return predictedState
 
 
@@ -208,11 +209,12 @@ class FastTPShim(FastTemporalMemory):
     numberOfCells = self.numberOfCells()
 
     activeState = numpy.zeros(numberOfCells)
-    activeState[self.getCellIndices(self.activeCells)] = 1
+    activeState[self.getActiveCells()] = 1
     self.infActiveState["t"] = activeState
 
     output = numpy.zeros(numberOfCells)
-    output[self.getCellIndices(self.predictiveCells | self.activeCells)] = 1
+    output[list(set(self.getPredictiveCells()) | 
+                set(self.getActiveCells()))] = 1
     return output
 
 
@@ -226,20 +228,20 @@ class FastTPShim(FastTemporalMemory):
     @returns best estimate of the TP input that would have generated bottomUpOut.
     """
     output = numpy.zeros(self.numberOfColumns())
-    columns = [self.columnForCell(idx) for idx in self.predictiveCells]
+    columns = [self.columnForCell(idx) for idx in self.getPredictiveCells()]
     output[columns] = 1
     return output
 
 
   def getActiveState(self):
     activeState = numpy.zeros(self.numberOfCells())
-    activeState[self.getCellIndices(self.activeCells)] = 1
+    activeState[self.getActiveCells()] = 1
     return activeState
 
 
   def getPredictedState(self):
     predictedState = numpy.zeros(self.numberOfCells())
-    predictedState[self.getCellIndices(self.predictiveCells)] = 1
+    predictedState[self.getPredictiveCells()] = 1
     return predictedState
 
 
@@ -315,11 +317,12 @@ class MonitoredTPShim(MonitoredTemporalMemory):
     numberOfCells = self.numberOfCells()
 
     activeState = numpy.zeros(numberOfCells)
-    activeState[self.getCellIndices(self.activeCells)] = 1
+    activeState[self.getActiveCells()] = 1
     self.infActiveState["t"] = activeState
 
     output = numpy.zeros(numberOfCells)
-    output[self.getCellIndices(self.predictiveCells | self.activeCells)] = 1
+    output[list(set(self.getPredictiveCells()) | 
+                set(self.getActiveCells()))] = 1
     return output
 
 
@@ -333,20 +336,20 @@ class MonitoredTPShim(MonitoredTemporalMemory):
     @returns best estimate of the TP input that would have generated bottomUpOut.
     """
     output = numpy.zeros(self.numberOfColumns())
-    columns = [self.columnForCell(idx) for idx in self.predictiveCells]
+    columns = [self.columnForCell(idx) for idx in self.getPredictiveCells()]
     output[columns] = 1
     return output
 
 
   def getActiveState(self):
     activeState = numpy.zeros(self.numberOfCells())
-    activeState[self.getCellIndices(self.activeCells)] = 1
+    activeState[self.getActiveCells()] = 1
     return activeState
 
 
   def getPredictedState(self):
     predictedState = numpy.zeros(self.numberOfCells())
-    predictedState[self.getCellIndices(self.predictiveCells)] = 1
+    predictedState[self.getPredictiveCells()] = 1
     return predictedState
 
 
@@ -422,11 +425,12 @@ class MonitoredFastTPShim(MonitoredFastTemporalMemory):
     numberOfCells = self.numberOfCells()
 
     activeState = numpy.zeros(numberOfCells)
-    activeState[self.getCellIndices(self.activeCells)] = 1
+    activeState[self.getActiveCells()] = 1
     self.infActiveState["t"] = activeState
 
     output = numpy.zeros(numberOfCells)
-    output[self.getCellIndices(self.predictiveCells | self.activeCells)] = 1
+    output[list(set(self.getPredictiveCells()) | 
+                set(self.getActiveCells()))] = 1
     return output
 
 
@@ -440,20 +444,20 @@ class MonitoredFastTPShim(MonitoredFastTemporalMemory):
     @returns best estimate of the TP input that would have generated bottomUpOut.
     """
     output = numpy.zeros(self.numberOfColumns())
-    columns = [self.columnForCell(idx) for idx in self.predictiveCells]
+    columns = [self.columnForCell(idx) for idx in self.getPredictiveCells()]
     output[columns] = 1
     return output
 
 
   def getActiveState(self):
     activeState = numpy.zeros(self.numberOfCells())
-    activeState[self.getCellIndices(self.activeCells)] = 1
+    activeState[self.getActiveCells()] = 1
     return activeState
 
 
   def getPredictedState(self):
     predictedState = numpy.zeros(self.numberOfCells())
-    predictedState[self.getCellIndices(self.predictiveCells)] = 1
+    predictedState[self.getPredictiveCells()] = 1
     return predictedState
 
 

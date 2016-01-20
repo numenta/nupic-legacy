@@ -175,7 +175,7 @@ class FastTemporalMemory(TemporalMemory):
     """
     self._validateCell(cell)
 
-    return int(cell.idx / self.cellsPerColumn)
+    return int(cell / self.cellsPerColumn)
 
 
   def cellsForColumn(self, column):
@@ -199,5 +199,5 @@ class FastTemporalMemory(TemporalMemory):
 
     @param cell (int) Cell index
     """
-    if cell.idx >= self.numberOfCells() or cell.idx < 0:
+    if cell >= self.numberOfCells() or cell < 0:
       raise IndexError("Invalid cell")
