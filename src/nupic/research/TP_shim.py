@@ -105,8 +105,7 @@ class TPShim(TemporalMemory):
     self.infActiveState["t"] = activeState
 
     output = numpy.zeros(numberOfCells)
-    output[list(set(self.getPredictiveCells()) | 
-                set(self.getActiveCells()))] = 1
+    output[self.getPredictiveCells() + self.getActiveCells()] = 1
     return output
 
 
@@ -213,8 +212,7 @@ class FastTPShim(FastTemporalMemory):
     self.infActiveState["t"] = activeState
 
     output = numpy.zeros(numberOfCells)
-    output[list(set(self.getPredictiveCells()) | 
-                set(self.getActiveCells()))] = 1
+    output[self.getPredictiveCells() + self.getActiveCells()] = 1
     return output
 
 
@@ -321,8 +319,7 @@ class MonitoredTPShim(MonitoredTemporalMemory):
     self.infActiveState["t"] = activeState
 
     output = numpy.zeros(numberOfCells)
-    output[list(set(self.getPredictiveCells()) | 
-                set(self.getActiveCells()))] = 1
+    output[self.getPredictiveCells() + self.getActiveCells()] = 1
     return output
 
 
@@ -429,8 +426,7 @@ class MonitoredFastTPShim(MonitoredFastTemporalMemory):
     self.infActiveState["t"] = activeState
 
     output = numpy.zeros(numberOfCells)
-    output[list(set(self.getPredictiveCells()) | 
-                set(self.getActiveCells()))] = 1
+    output[self.getPredictiveCells() + self.getActiveCells()] = 1
     return output
 
 
