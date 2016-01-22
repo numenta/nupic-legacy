@@ -165,19 +165,6 @@ class FastTemporalMemory(TemporalMemory):
   # Helper functions
   # ==============================
 
-  def columnForCell(self, cell):
-    """
-    Returns the index of the column that a cell belongs to.
-
-    @param cell (int) Cell index
-
-    @return (int) Column index
-    """
-    self._validateCell(cell)
-
-    return int(cell / self.cellsPerColumn)
-
-
   def cellsForColumn(self, column):
     """
     Returns the indices of cells that belong to a column.
