@@ -341,7 +341,12 @@ class TemporalMemory(object):
     @param predictedInactiveCells       (set)         Indices of predicted inactive cells
     @param prevMatchingSegments         (set)         Indices of segments with
     """
-    for segment in prevActiveSegments | learningSegments:
+    # Sort segments before iterating for compatibility with C++
+    segments = prevActiveSegments | learningSegments
+    segments = sorted(list(segments),
+                      key=lambda segment: connections.cellForSegment(segment))
+
+    for segment in segments:
       isLearningSegment = segment in learningSegments
       isFromWinnerCell = connections.cellForSegment(segment) in winnerCells
 
