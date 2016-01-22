@@ -285,7 +285,8 @@ class TemporalMemory(object):
 
     unpredictedActiveColumns = activeColumns - predictedActiveColumns
 
-    for column in unpredictedActiveColumns:
+    # Sort unpredictedActiveColumns before iterating for compatibility with C++
+    for column in sorted(list(unpredictedActiveColumns)):
       cells = self.cellsForColumn(column)
       activeCells.update(cells)
 
