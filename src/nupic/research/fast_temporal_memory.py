@@ -159,17 +159,3 @@ class FastTemporalMemory(TemporalMemory):
   @staticmethod
   def getCellIndex(cell):
     return cell.idx
-
-
-  # ==============================
-  # Helper functions
-  # ==============================
-
-  def _validateCell(self, cell):
-    """
-    Raises an error if cell index is invalid.
-
-    @param cell (int) Cell index
-    """
-    if cell >= self.numberOfCells() or cell < 0:
-      raise IndexError("Invalid cell")
