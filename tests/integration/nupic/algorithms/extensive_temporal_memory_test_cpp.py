@@ -28,6 +28,4 @@ from extensive_temporal_memory_test import ExtensiveTemporalMemoryTest
 
 
 
-if __name__ == "__main__":
-  ExtensiveTemporalMemoryTest.TM_CLASS = TemporalMemory
-  unittest.main()
+ExtensiveTemporalMemoryTest.TM_CLASS = TemporalMemory
