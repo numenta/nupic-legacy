@@ -286,7 +286,7 @@ class TemporalMemory(object):
     unpredictedActiveColumns = activeColumns - predictedActiveColumns
 
     # Sort unpredictedActiveColumns before iterating for compatibility with C++
-    for column in sorted(list(unpredictedActiveColumns)):
+    for column in sorted(unpredictedActiveColumns):
       cells = self.cellsForColumn(column)
       activeCells.update(cells)
 
@@ -343,7 +343,7 @@ class TemporalMemory(object):
     """
     # Sort segments before iterating for compatibility with C++
     segments = prevActiveSegments | learningSegments
-    segments = sorted(list(segments),
+    segments = sorted(segments,
                       key=lambda segment: connections.cellForSegment(segment))
 
     for segment in segments:
