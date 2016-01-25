@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+
+* Manualy update of nupic.bindings dev version after botched release attempt
+
 ## 0.4.0
 
 * Updated hello_tm.py to use accessors
