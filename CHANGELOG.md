@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+
+* Using official release version of bindings for nupic release.
+
 ## 0.4.1
 
 * Manualy update of nupic.bindings dev version after botched release attempt
