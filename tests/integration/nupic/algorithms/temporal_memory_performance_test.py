@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -20,18 +20,26 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import csv
 import time
 import unittest
-
 import numpy
 
-from nupic.data.generators.pattern_machine import PatternMachine
-from nupic.data.generators.sequence_machine import SequenceMachine
+from pkg_resources import resource_filename
+
 from nupic.research.temporal_memory import TemporalMemory as TemporalMemoryPy
 from nupic.bindings.algorithms import TemporalMemory as TemporalMemoryCPP
 from nupic.research.TP import TP
 from nupic.research.TP10X2 import TP10X2
 
+from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
+
+
+_INPUT_FILE_PATH = resource_filename(
+  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
+)
+
+NUM_PATTERNS = 100
 
 
 # ==============================
@@ -87,13 +95,13 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
                          checkSynapseConsistency=False,
                          pamLength=1)
 
-    self.patternMachine = PatternMachine(2048, 40, num=100)
-    self.sequenceMachine = SequenceMachine(self.patternMachine)
+    self.scalarEncoder = RandomDistributedScalarEncoder(0.88)
 
 
   def testSingleSequence(self):
     print "Test: Single sequence"
-    sequence = self.sequenceMachine.generateFromNumbers(range(50))
+
+    sequence = self._generateSequence()
     times = self._feedAll(sequence)
 
     self.assertTrue(times[1] < times[0])
@@ -103,6 +111,22 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
   # ==============================
   # Helper functions
   # ==============================
+
+  def _generateSequence(self):
+    sequence = []    
+    with open (_INPUT_FILE_PATH) as fin:
+      reader = csv.reader(fin)
+      headers = reader.next()
+      types = reader.next()
+      reader.next()
+      for _ in xrange(NUM_PATTERNS):
+        record = reader.next()
+        value = float(record[1])
+        encodedValue = self.scalarEncoder.encode(value)
+        activeBits = set(encodedValue.nonzero()[0])
+        sequence.append(activeBits)
+    return sequence
+
 
   def _feedAll(self, sequence, learn=True, num=1):
     repeatedSequence = sequence * num
