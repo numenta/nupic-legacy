@@ -344,11 +344,9 @@ class TemporalMemory(object):
     segments = prevActiveSegments | learningSegments
 
     # Sort segments before iterating for compatibility with C++
-    # Sort on secondary key (segment idx)
-    segments = sorted(segments)
-    # Sort on primary key (cell idx)
+    # Sort with primary key = cell idx, secondary key = segment idx
     segments = sorted(segments,
-                      key=lambda segment: connections.cellForSegment(segment))
+      key=lambda segment: (connections.cellForSegment(segment), segment))
 
     for segment in segments:
       isLearningSegment = segment in learningSegments
