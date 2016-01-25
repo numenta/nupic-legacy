@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.0
+
+* Updated hello_tm.py to use accessors
+* Updated TP_shim.py to use accessors Updated `columnForCell` and `_validateCell` in FastTemporalMemory to conform to their docstrings, which is needed for the change to TP_shim.py
+* Updated temporal memory monitor mixin to use accessors
+* Updated temporal_memory_test.py to use accessor methods.
+* Added accessors to temporal_memory.py
+* Change temporalImp to tm_py for both networks and add comment about it being a temporary value until C++ TM is implemented
+* Refactored to remove common code between network_checkpoint_test.py and temporal_memory_compatibility_test.py
+* Use named constants from nupic.data.fieldmeta in aggregator module instead of naked constants.
+* Fix AttributeError: 'TPShim' object has no attribute 'topDownCompute'
+* Support more parameters in TPShim
+* Serialize remaining fields in CLAModel using capnproto
+* Enforce pyproj==1.9.3 in requirements.txt
+* Use FastCLAClassifier read class method instead of instance method
+* Have CLAClassifierFactory.read take just the proto object
+* Add capnp serialization to CLAClassifierRegion
+* Add capnp serialization to SPRegion
+
 ## 0.3.6
 
 * Windows support
