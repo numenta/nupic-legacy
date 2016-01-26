@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.3
+
+* Updating to proper core sha
+
 ## 0.4.2
 
 * Using official release version of bindings for nupic release.
