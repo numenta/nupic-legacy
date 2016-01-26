@@ -39,10 +39,8 @@ class TemporalMemoryCompatibilityTest(unittest.TestCase):
     results1 = createAndRunNetwork(TPRegion,
                                    "bottomUpOut",
                                    checkpointMidway=False,
-                                   temporalImp="tm_py")
+                                   temporalImp="tm_cpp")
 
-    # temporalImp="tm_py" here is a temporary placeholder value until C++ TM is
-    # finished, at which point it should be changed to "cpp"
     results2 = createAndRunNetwork(TPRegion,
                                    "bottomUpOut",
                                    checkpointMidway=False,

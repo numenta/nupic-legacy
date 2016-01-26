@@ -709,6 +709,15 @@ class TemporalMemory(object):
     return self.getCellIndices(self.matchingCells)
 
 
+  def getCellsPerColumn(self):
+    """
+    Returns the number of cells per column.
+
+    @return (int) The number of cells per column.
+    """
+    return self.cellsPerColumn
+
+
   def mapCellsToColumns(self, cells):
     """
     Maps cells to the columns they belong to
