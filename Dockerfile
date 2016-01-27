@@ -18,7 +18,7 @@ RUN apt-get update && \
     bzip2 \
     libyaml-dev \
     libyaml-0-2
-RUN wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O - | python
+RUN wget https://bootstrap.pypa.io/get-pip.py -O - | python
 RUN pip install --upgrade setuptools
 RUN pip install wheel
 
