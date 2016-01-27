@@ -104,10 +104,10 @@ for i in range(10):
 
     # The following print statements can be ignored.
     # Useful for tracing internal states
-    print("active cells " + str(tm.activeCells))
-    print("predictive cells " + str(tm.predictiveCells))
-    print("winner cells " + str(tm.winnerCells))
-    print("active segments " + str(tm.activeSegments))
+    print("active cells " + str(tm.getActiveCells()))
+    print("predictive cells " + str(tm.getPredictiveCells()))
+    print("winner cells " + str(tm.getWinnerCells()))
+    print("# of active segments " + str(tm.connections.numSegments()))
 
   # The reset command tells the TP that a sequence just ended and essentially
   # zeros out all the states. It is not strictly necessary but it's a bit
@@ -134,14 +134,13 @@ for j in range(5):
   # predicted state is 1 represent the SDR for the next expected pattern
   print "\nAll the active and predicted cells:"
   
-  print("active cells " + str(tm.activeCells))
-  print("predictive cells "+ str(tm.predictiveCells))
-  print("active segments "+ str(tm.activeSegments))
+  print("active cells " + str(tm.getActiveCells()))
+  print("predictive cells " + str(tm.getPredictiveCells()))
+  print("winner cells " + str(tm.getWinnerCells()))
+  print("# of active segments " + str(tm.connections.numSegments()))
 
-  print("winnercells" + str(tm.winnerCells))
-
-  activeColumnsIndeces = [tm.columnForCell(i) for i in tm.activeCells]
-  predictedColumnIndeces = [tm.columnForCell(i) for i in tm.predictiveCells]
+  activeColumnsIndeces = [tm.columnForCell(i) for i in tm.getActiveCells()]
+  predictedColumnIndeces = [tm.columnForCell(i) for i in tm.getPredictiveCells()]
   
   
   # Reconstructing the active and inactive columns with 1 as active and 0 as 

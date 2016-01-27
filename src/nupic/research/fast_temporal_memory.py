@@ -84,7 +84,7 @@ class FastTemporalMemory(TemporalMemory):
     unpredictedColumns = activeColumns - predictedColumns
 
     for column in unpredictedColumns:
-      cells = self.cellsForColumn(column)
+      cells = [ConnectionsCell(idx) for idx in self.cellsForColumn(column)]
       activeCells.update(cells)
 
       bestSegment = connections.mostActiveSegmentForCells(
@@ -159,45 +159,3 @@ class FastTemporalMemory(TemporalMemory):
   @staticmethod
   def getCellIndex(cell):
     return cell.idx
-
-
-  # ==============================
-  # Helper functions
-  # ==============================
-
-  def columnForCell(self, cell):
-    """
-    Returns the index of the column that a cell belongs to.
-
-    @param cell (int) Cell index
-
-    @return (int) Column index
-    """
-    self._validateCell(cell)
-
-    return int(cell.idx / self.cellsPerColumn)
-
-
-  def cellsForColumn(self, column):
-    """
-    Returns the indices of cells that belong to a column.
-
-    @param column (int) Column index
-
-    @return (set) Cell indices
-    """
-    self._validateColumn(column)
-
-    start = self.cellsPerColumn * column
-    end = start + self.cellsPerColumn
-    return set([ConnectionsCell(idx) for idx in xrange(start, end)])
-
-
-  def _validateCell(self, cell):
-    """
-    Raises an error if cell index is invalid.
-
-    @param cell (int) Cell index
-    """
-    if cell.idx >= self.numberOfCells() or cell.idx < 0:
-      raise IndexError("Invalid cell")
