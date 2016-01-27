@@ -31,6 +31,8 @@ from nupic.research.temporal_memory import TemporalMemory
 # Uncomment the lines below to run tests with FastTemporalMemory implementation
 # from nupic.research.fast_temporal_memory import (
 #   FastTemporalMemory as TemporalMemory)
+# Uncomment the line below to run tests with C++ TemporalMemory
+# from nupic.bindings.algorithms import TemporalMemory
 class MonitoredTemporalMemory(TemporalMemoryMonitorMixin, TemporalMemory): pass
 
 
