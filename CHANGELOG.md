@@ -1,7 +1,12 @@
 # Changelog
 
+## 0.4.5
+
+* This release is just to sync with nupic.bindings 0.3.1.
+
 ## 0.4.4
 
+* Botched release (sorry!)
 
 ## 0.4.3
 
