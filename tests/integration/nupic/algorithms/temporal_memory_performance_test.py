@@ -39,7 +39,7 @@ _INPUT_FILE_PATH = resource_filename(
   "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
 )
 
-NUM_PATTERNS = 100
+NUM_PATTERNS = 2000
 
 
 # ==============================
