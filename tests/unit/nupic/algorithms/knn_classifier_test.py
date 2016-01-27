@@ -30,16 +30,50 @@ from nupic.algorithms.KNNClassifier import KNNClassifier
 class KNNClassifierTest(unittest.TestCase):
 
 
+  def testSparsifyVector(self):
+    classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0)
+    inputPattern = np.array([0, 1, 3, 7, 11], dtype=np.int32)
+
+    # Each of the 4 tests correspond with the each decisional branch in the
+    # sparsifyVector method
+    #
+    # tests: if not self.relativeThreshold:
+    outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
+    self.assertTrue(np.array_equal(np.array([0, 1, 3, 7, 11], dtype=np.int32),
+      outputPattern))
+
+    # tests: elif self.sparseThreshold > 0:
+    classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0,
+      relativeThreshold=True, sparseThreshold=.2)
+    outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
+    self.assertTrue(np.array_equal(np.array([0, 0, 3, 7, 11], dtype=np.int32),
+      outputPattern))
+
+    # tests: if doWinners:
+    classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0,
+      relativeThreshold=True, sparseThreshold=.2, numWinners=2)
+    outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
+    self.assertTrue(np.array_equal(np.array([0, 0, 0, 0, 0], dtype=np.int32),
+      outputPattern))
+
+    # tests: Do binarization
+    classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0,
+      relativeThreshold=True, sparseThreshold=.2, doBinarization=True)
+    outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
+    self.assertTrue(np.array_equal(np.array(
+      [0., 0., 1., 1., 1.], dtype=np.float32), outputPattern))
+
+
   def testDistanceMetrics(self):
     classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0)
-  
+
     dimensionality = 40
     protoA = np.array([0, 1, 3, 7, 11], dtype=np.int32)
     protoB = np.array([20, 28, 30], dtype=np.int32)
-    
+
     classifier.learn(protoA, 0, isSparse=dimensionality)
     classifier.learn(protoB, 0, isSparse=dimensionality)
-    
+
     # input is an arbitrary point, close to protoA, orthogonal to protoB
     input = np.zeros(dimensionality)
     input[:4] = 1.0
@@ -54,7 +88,7 @@ class KNNClassifierTest(unittest.TestCase):
       self.assertAlmostEqual(
         actual, predicted, places=5,
         msg="l2 distance norm is not calculated as expected.")
-  
+
     _, _, dist0, _ = classifier.infer(input0)
     self.assertEqual(
       0.0, dist0[0], msg="l2 norm did not calculate 0 distance as expected.")
@@ -67,11 +101,11 @@ class KNNClassifierTest(unittest.TestCase):
       self.assertAlmostEqual(
         actual, predicted, places=5,
         msg="l1 distance norm is not calculated as expected.")
-    
+
     _, _, dist0, _ = classifier.infer(input0)
     self.assertEqual(
       0.0, dist0[0], msg="l1 norm did not calculate 0 distance as expected.")
-  
+
     # Test raw overlap metric
     classifier.distanceMethod = "rawOverlap"
     _, _, dist, _ = classifier.infer(input)
@@ -93,7 +127,7 @@ class KNNClassifierTest(unittest.TestCase):
       self.assertAlmostEqual(
         actual, predicted, places=5,
         msg="pctOverlapOfInput is not calculated as expected.")
-   
+
     _, _, dist0, _ = classifier.infer(input0)
     self.assertEqual(
       0.0, dist0[0],
