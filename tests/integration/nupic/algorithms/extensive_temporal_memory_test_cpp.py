@@ -20,8 +20,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import unittest
-
 from nupic.bindings.algorithms import TemporalMemory
 
 from extensive_temporal_memory_test import ExtensiveTemporalMemoryTest
