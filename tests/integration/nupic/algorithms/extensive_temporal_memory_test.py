@@ -654,9 +654,3 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.assertEqual(unpredictedActiveColumnsMetric.min, 21)
     self.assertEqual(unpredictedActiveColumnsMetric.max, 25)
-
-
-
-if __name__ == "__main__":
-  unittest.main()
-

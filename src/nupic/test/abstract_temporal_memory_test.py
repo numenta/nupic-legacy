@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -25,15 +25,6 @@ from nupic.data.generators.sequence_machine import SequenceMachine
 from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
   TemporalMemoryMonitorMixin)
 from nupic.research.temporal_memory import TemporalMemory
-# Uncomment the lines below to run tests with TP10X2 implementation instead
-# from nupic.research.temporal_memory_shim import (
-#   TemporalMemoryShim as TemporalMemory)
-# Uncomment the lines below to run tests with FastTemporalMemory implementation
-# from nupic.research.fast_temporal_memory import (
-#   FastTemporalMemory as TemporalMemory)
-# Uncomment the line below to run tests with C++ TemporalMemory
-# from nupic.bindings.algorithms import TemporalMemory
-class MonitoredTemporalMemory(TemporalMemoryMonitorMixin, TemporalMemory): pass
 
 
 
@@ -42,6 +33,7 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
   VERBOSITY = 1
   DEFAULT_TM_PARAMS = {}
   PATTERN_MACHINE = None
+  TM_CLASS = TemporalMemory
 
 
   def setUp(self):
@@ -57,6 +49,9 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
     :param overrides: overrides for default Temporal Memory parameters
     """
     params = self._computeTMParams(overrides)
+
+    class MonitoredTemporalMemory(TemporalMemoryMonitorMixin,
+                                  self.TM_CLASS): pass
     self.tm = MonitoredTemporalMemory(**params)
 
     self.patternMachine = self.PATTERN_MACHINE
