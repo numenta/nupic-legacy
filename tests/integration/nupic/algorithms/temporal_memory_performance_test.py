@@ -116,8 +116,8 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
     sequence = []    
     with open (_INPUT_FILE_PATH) as fin:
       reader = csv.reader(fin)
-      headers = reader.next()
-      types = reader.next()
+      reader.next()
+      reader.next()
       reader.next()
       for _ in xrange(NUM_PATTERNS):
         record = reader.next()
@@ -130,7 +130,6 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
 
   def _feedAll(self, sequence, learn=True, num=1):
     repeatedSequence = sequence * num
-    times = []
 
     def tmComputeFn(pattern, instance):
       instance.compute(pattern, learn)
@@ -139,34 +138,34 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
       array = self._patternToNumpyArray(pattern)
       instance.compute(array, enableLearn=learn, computeInfOutput=True)
 
-    elapsed = self._feedOne(repeatedSequence, self.tmPy, tmComputeFn)
-    times.append(elapsed)
-    print "TM (py):\t{0}s".format(elapsed)
+    modelParams = [
+      (self.tmPy, tmComputeFn),
+      (self.tmCPP, tmComputeFn),
+      (self.tp, tpComputeFn),
+      (self.tp10x2, tpComputeFn)
+    ]
+    times = [0] * len(modelParams)
 
-    elapsed = self._feedOne(repeatedSequence, self.tmCPP, tmComputeFn)
-    times.append(elapsed)
-    print "TM (C++):\t{0}s".format(elapsed)
+    for patNum, pattern in enumerate(repeatedSequence):
+      for ix, params in enumerate(modelParams):
+        times[ix] += self._feedOne(pattern, *params)
 
-    elapsed = self._feedOne(repeatedSequence, self.tp, tpComputeFn)
-    times.append(elapsed)
-    print "TP:\t\t{0}s".format(elapsed)
-
-    elapsed = self._feedOne(repeatedSequence, self.tp10x2, tpComputeFn)
-    times.append(elapsed)
-    print "TP10X2:\t\t{0}s".format(elapsed)
+    print "TM (py):\t{0}s".format(times[0])
+    print "TM (C++):\t{0}s".format(times[1])
+    print "TP:\t\t{0}s".format(times[2])
+    print "TP10X2:\t\t{0}s".format(times[3])
 
     return times
 
 
   @staticmethod
-  def _feedOne(sequence, instance, computeFn):
+  def _feedOne(pattern, instance, computeFn):
     start = time.clock()
 
-    for pattern in sequence:
-      if pattern == None:
-        instance.reset()
-      else:
-        computeFn(pattern, instance)
+    if pattern == None:
+      instance.reset()
+    else:
+      computeFn(pattern, instance)
 
     elapsed = time.clock() - start
 
