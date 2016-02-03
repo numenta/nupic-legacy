@@ -27,9 +27,12 @@ for use with OPF.
 import numpy
 
 from nupic.research.temporal_memory import TemporalMemory
+from nupic.bindings.algorithms import TemporalMemory as TemporalMemoryCPP
 from nupic.research.fast_temporal_memory import FastTemporalMemory
 from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
   TemporalMemoryMonitorMixin)
+
+
 
 class MonitoredTemporalMemory(TemporalMemoryMonitorMixin,
                               TemporalMemory): pass
@@ -39,7 +42,7 @@ class MonitoredFastTemporalMemory(TemporalMemoryMonitorMixin,
 
 
 
-class TPShim(TemporalMemory):
+class TPShimMixin(object):
   """
   TP => Temporal Memory shim class.
   """
@@ -66,7 +69,7 @@ class TPShim(TemporalMemory):
     """
     Translate parameters and initialize member variables specific to `TP.py`.
     """
-    super(TPShim, self).__init__(
+    super(TPShimMixin, self).__init__(
       columnDimensions=(numberOfCols,),
       cellsPerColumn=cellsPerColumn,
       activationThreshold=activationThreshold,
@@ -96,7 +99,7 @@ class TPShim(TemporalMemory):
                              If true, compute the inference output
                              If false, do not compute the inference output
     """
-    super(TPShim, self).compute(set(bottomUpInput.nonzero()[0]),
+    super(TPShimMixin, self).compute(set(bottomUpInput.nonzero()[0]),
                                             learn=enableLearn)
     numberOfCells = self.numberOfCells()
 
@@ -137,8 +140,18 @@ class TPShim(TemporalMemory):
 
 
   def getLearnActiveStateT(self):
-    state = numpy.zeros([self.numberOfColumns(), self.cellsPerColumn])
+    state = numpy.zeros([self.numberOfColumns(), self.getCellsPerColumn()])
     return state
+
+
+
+class TPShim(TPShimMixin, TemporalMemory):
+  pass
+
+
+
+class TPCPPShim(TPShimMixin, TemporalMemoryCPP):
+  pass
 
 
 
