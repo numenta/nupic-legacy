@@ -24,6 +24,7 @@ import csv
 import time
 import unittest
 import numpy
+import sys
 
 from pkg_resources import resource_filename
 
@@ -149,7 +150,9 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
     for patNum, pattern in enumerate(repeatedSequence):
       for ix, params in enumerate(modelParams):
         times[ix] += self._feedOne(pattern, *params)
+      self._printProgressBar(patNum, len(repeatedSequence), 50)
 
+    print
     print "TM (py):\t{0}s".format(times[0])
     print "TM (C++):\t{0}s".format(times[1])
     print "TP:\t\t{0}s".format(times[2])
@@ -179,6 +182,15 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
 
     return array
 
+
+  @staticmethod
+  def _printProgressBar(completed, total, nDots):
+    def numberOfDots(n):
+      return (n * nDots) // total
+    completedDots = numberOfDots(completed)
+    if completedDots != numberOfDots(completed - 1):
+      print "\r|" + ("." * completedDots) + (" " * (nDots - completedDots)) + "|",
+      sys.stdout.flush()
 
 
 # ==============================
