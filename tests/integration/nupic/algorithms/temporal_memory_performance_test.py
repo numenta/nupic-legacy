@@ -27,7 +27,8 @@ import numpy
 
 from nupic.data.generators.pattern_machine import PatternMachine
 from nupic.data.generators.sequence_machine import SequenceMachine
-from nupic.research.temporal_memory import TemporalMemory
+from nupic.research.temporal_memory import TemporalMemory as TemporalMemoryPy
+from nupic.bindings.algorithms import TemporalMemory as TemporalMemoryCPP
 from nupic.research.TP import TP
 from nupic.research.TP10X2 import TP10X2
 
@@ -40,15 +41,25 @@ from nupic.research.TP10X2 import TP10X2
 class TemporalMemoryPerformanceTest(unittest.TestCase):
 
   def setUp(self):
-    self.tm = TemporalMemory(columnDimensions=[2048],
-                             cellsPerColumn=32,
-                             initialPermanence=0.5,
-                             connectedPermanence=0.8,
-                             minThreshold=10,
-                             maxNewSynapseCount=12,
-                             permanenceIncrement=0.1,
-                             permanenceDecrement=0.05,
-                             activationThreshold=15)
+    self.tmPy = TemporalMemoryPy(columnDimensions=[2048],
+                                 cellsPerColumn=32,
+                                 initialPermanence=0.5,
+                                 connectedPermanence=0.8,
+                                 minThreshold=10,
+                                 maxNewSynapseCount=12,
+                                 permanenceIncrement=0.1,
+                                 permanenceDecrement=0.05,
+                                 activationThreshold=15)
+
+    self.tmCPP = TemporalMemoryCPP(columnDimensions=[2048],
+                                   cellsPerColumn=32,
+                                   initialPermanence=0.5,
+                                   connectedPermanence=0.8,
+                                   minThreshold=10,
+                                   maxNewSynapseCount=12,
+                                   permanenceIncrement=0.1,
+                                   permanenceDecrement=0.05,
+                                   activationThreshold=15)
 
     self.tp = TP(numberOfCols=2048,
                  cellsPerColumn=32,
@@ -85,9 +96,8 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
     sequence = self.sequenceMachine.generateFromNumbers(range(50))
     times = self._feedAll(sequence)
 
-    self.assertTrue(times[0] < times[1])
-    self.assertTrue(times[2] < times[1])
-    self.assertTrue(times[2] < times[0])
+    self.assertTrue(times[1] < times[0])
+    self.assertTrue(times[3] < times[2])
 
 
   # ==============================
@@ -105,17 +115,21 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
       array = self._patternToNumpyArray(pattern)
       instance.compute(array, enableLearn=learn, computeInfOutput=True)
 
-    elapsed = self._feedOne(repeatedSequence, self.tm, tmComputeFn)
+    elapsed = self._feedOne(repeatedSequence, self.tmPy, tmComputeFn)
     times.append(elapsed)
-    print "TM:\t{0}s".format(elapsed)
+    print "TM (py):\t{0}s".format(elapsed)
+
+    elapsed = self._feedOne(repeatedSequence, self.tmCPP, tmComputeFn)
+    times.append(elapsed)
+    print "TM (C++):\t{0}s".format(elapsed)
 
     elapsed = self._feedOne(repeatedSequence, self.tp, tpComputeFn)
     times.append(elapsed)
-    print "TP:\t{0}s".format(elapsed)
+    print "TP:\t\t{0}s".format(elapsed)
 
     elapsed = self._feedOne(repeatedSequence, self.tp10x2, tpComputeFn)
     times.append(elapsed)
-    print "TP10X2:\t{0}s".format(elapsed)
+    print "TP10X2:\t\t{0}s".format(elapsed)
 
     return times
 

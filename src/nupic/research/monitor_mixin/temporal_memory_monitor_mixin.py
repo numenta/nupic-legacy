@@ -326,14 +326,14 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
   # ==============================
   def compute(self, activeColumns, sequenceLabel=None, **kwargs):
     # Append last cycle's predictiveCells to *predicTEDCells* trace
-    self._mmTraces["predictedCells"].data.append(self.predictiveCells)
+    self._mmTraces["predictedCells"].data.append(set(self.getPredictiveCells()))
 
     super(TemporalMemoryMonitorMixin, self).compute(activeColumns, **kwargs)
 
     # Append this cycle's predictiveCells to *predicTIVECells* trace
-    self._mmTraces["predictiveCells"].data.append(self.predictiveCells)
+    self._mmTraces["predictiveCells"].data.append(set(self.getPredictiveCells()))
 
-    self._mmTraces["activeCells"].data.append(self.activeCells)
+    self._mmTraces["activeCells"].data.append(set(self.getActiveCells()))
     self._mmTraces["activeColumns"].data.append(activeColumns)
     self._mmTraces["numSegments"].data.append(self.connections.numSegments())
     self._mmTraces["numSynapses"].data.append(self.connections.numSynapses())

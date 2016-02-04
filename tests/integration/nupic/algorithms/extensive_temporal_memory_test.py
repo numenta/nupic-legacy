@@ -20,6 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import numpy
 import unittest
 
 from nupic.data.generators.pattern_machine import PatternMachine
@@ -111,6 +112,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   B11) Like B5, but with activationThreshold = 8 and with each pattern
   corrupted by a small amount of spatial noise (X = 0.05).
 
+  B12) Test accessors.
 
   ===============================================================================
                   High Order Sequences
@@ -197,7 +199,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     "maxNewSynapseCount": 11,
     "permanenceIncrement": 0.4,
     "permanenceDecrement": 0,
-    "activationThreshold": 11
+    "activationThreshold": 11,
+    "seed": 42
   }
   PATTERN_MACHINE = PatternMachine(100, range(21, 26), num=300)
 
@@ -355,6 +358,32 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     unpredictedActiveColumnsMetric = self.tm.mmGetMetricFromTrace(
       self.tm.mmGetTraceUnpredictedActiveColumns())
     self.assertTrue(unpredictedActiveColumnsMetric.mean < 1)
+
+
+  def testB12(self):
+    """Test accessors."""
+    self.init({
+      "predictedSegmentDecrement": 0.04,
+      "minThreshold": 8
+    })
+
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    for _ in xrange(4):
+      self.feedTM(sequence[:-1])
+
+    accessorAttributePairs = [(self.tm.getActiveCells,     "activeCells"),
+                              (self.tm.getPredictiveCells, "predictiveCells"),
+                              (self.tm.getWinnerCells,     "winnerCells"),
+                              (self.tm.getMatchingCells,   "matchingCells")]
+
+    for method, attributeName in accessorAttributePairs:
+      a = numpy.zeros(self.tm.numberOfCells())
+      a[method()] = 1
+
+      self.assertGreater(sum(a), 0)
+      self.assertEqual(sum(a), len(getattr(self.tm, attributeName)))
 
 
   def testH1(self):
@@ -557,6 +586,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertGreater(predictedInactiveColumnsMeanNoOrphanDecay, 0)
     self.assertGreater(predictedInactiveColumnsMeanNoOrphanDecay, predictedInactiveColumnsMeanOrphanDecay)
     self.assertAlmostEqual(predictedActiveColumnsMeanNoOrphanDecay, predictedActiveColumnsMeanOrphanDecay)
+
   # ==============================
   # Overrides
   # ==============================
@@ -624,9 +654,3 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.assertEqual(unpredictedActiveColumnsMetric.min, 21)
     self.assertEqual(unpredictedActiveColumnsMetric.max, 25)
-
-
-
-if __name__ == "__main__":
-  unittest.main()
-

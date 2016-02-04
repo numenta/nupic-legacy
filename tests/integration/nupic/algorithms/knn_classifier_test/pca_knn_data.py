@@ -73,5 +73,5 @@ def generate(numDims, numClasses, k, numPatternsPerClass,
   train_class = class0[ind[:numPatterns]]
   test_data = data0[ind[numPatterns:]]
   test_class = class0[ind[numPatterns:]]
-
+  
   return train_data, train_class, test_data, test_class

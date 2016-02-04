@@ -20,51 +20,34 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import json
 import unittest
 import numpy
 
-from nupic.regions.SPRegion import SPRegion
-from nupic.regions.RecordSensor import RecordSensor
+from nupic.regions.TPRegion import TPRegion
 
 from network_creation_common import createAndRunNetwork
 
-try:
-  import capnp
-except ImportError:
-  capnp = None
-if capnp:
-  from nupic.proto import NetworkProto_capnp
 
 
+class TemporalMemoryCompatibilityTest(unittest.TestCase):
 
-class NetworkCheckpointTest(unittest.TestCase):
+  def testTMPyCpp(self):
+    """
+    Test compatibility between C++ and Python TM implementation.
+    """
+    results1 = createAndRunNetwork(TPRegion,
+                                   "bottomUpOut",
+                                   checkpointMidway=False,
+                                   temporalImp="tm_py")
 
-  @unittest.skipUnless(
-      capnp, "pycapnp is not installed, skipping serialization test.")
-  def testSensorRegion(self):
-    results1 = createAndRunNetwork(RecordSensor, "dataOut")
-
-    results2 = createAndRunNetwork(RecordSensor, "dataOut",
-                                   checkpointMidway=True)
-
+    # temporalImp="tm_py" here is a temporary placeholder value until C++ TM is
+    # finished, at which point it should be changed to "cpp"
+    results2 = createAndRunNetwork(TPRegion,
+                                   "bottomUpOut",
+                                   checkpointMidway=False,
+                                   temporalImp="tm_py")
     self.compareArrayResults(results1, results2)
-
-
-  @unittest.skipUnless(
-      capnp, "pycapnp is not installed, skipping serialization test.")
-  def testSPRegion(self):
-    results1 = createAndRunNetwork(SPRegion, "bottomUpOut")
-
-    results2 = createAndRunNetwork(SPRegion, "bottomUpOut",
-                                   checkpointMidway=True)
-
-    self.assertEqual(len(results1), len(results2))
-
-    for i in xrange(len(results1)):
-      result1 = list(results1[i].nonzero()[0])
-      result2 = list(results2[i].nonzero()[0])
-      self.assertEqual(result1, result2,
-        "Row {0} not equal: {1} vs. {2}".format(i, result1, result2))
 
 
   def compareArrayResults(self, results1, results2):
