@@ -429,7 +429,8 @@ class TemporalMemory(object):
         segment = synapseData.segment
         permanence = synapseData.permanence
 
-        if permanence >= self.connectedPermanence:
+        # Add epsilon to permanence before comparing to avoid rounding edge cases
+        if permanence + EPSILON >= self.connectedPermanence:
           numActiveConnectedSynapsesForSegment[segment] += 1
 
           if (numActiveConnectedSynapsesForSegment[segment] >=
