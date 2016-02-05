@@ -21,6 +21,59 @@
 
 """
 MonitorMixinBase class used in monitor mixin framework.
+
+Using a monitor mixin with your algorithm
+-----------------------------------------
+
+1. Create a subclass of your algorithm class, with the first parent being the
+corresponding Monitor class. For example,
+
+    class MonitoredTemporalMemory(TemporalMemoryMonitorMixin,
+                                  TemporalMemory): pass
+
+2. Create an instance of the monitored class and use that.
+
+    instance = MonitoredTemporalMemory()
+    # Run data through instance
+
+3. Now you can call the following methods to print monitored data from of your
+instance:
+
+- instance.mmPrettyPrintMetrics(instance.mmGetDefaultMetrics())
+- instance.mmPrettyPrintTraces(instance.mmGetDefaultTraces())
+
+Each specific monitor also has specific methods you can call to extract data
+out of it.
+
+Adding data to a monitor mixin
+-----------------------------------------
+
+1. Create a variable for the data you want to capture in your specific monitor's
+`mmClearHistory` method. For example,
+
+    self._mmTraces["predictedCells"] = IndicesTrace(self, "predicted cells")
+
+Make sure you use the correct type of trace for your data.
+
+2. Add data to this trace in your algorithm's `compute` method (or anywhere
+else).
+
+    self._mmTraces["predictedCells"].data.append(set(self.getPredictiveCells()))
+
+3. You can optionally add this trace as a default trace in `mmGetDefaultTraces`,
+or define a function to return that trace:
+
+    def mmGetTracePredictiveCells(self):
+
+Any trace can be converted to a metric using the utility functions provided in
+the framework (see `metric.py`).
+
+Extending the functionality of the monitor mixin framework
+-----------------------------------------
+
+If you want to add new types of traces and metrics, add them to `trace.py`
+and `metric.py`. You can also create new monitors by simply defining new classes
+that inherit from MonitorMixinBase.
 """
 
 import abc
