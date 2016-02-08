@@ -32,6 +32,8 @@ from nupic.research.connections import Connections
 
 
 EPSILON = 0.0000001
+# The permanence threshold under which synapse is treated as 0 permanence
+EPSILON_THRESHOLD = 10 * EPSILON
 
 
 
@@ -427,7 +429,8 @@ class TemporalMemory(object):
         segment = synapseData.segment
         permanence = synapseData.permanence
 
-        if permanence >= self.connectedPermanence:
+        # Add epsilon to permanence before comparing to avoid rounding edge cases
+        if permanence + EPSILON >= self.connectedPermanence:
           numActiveConnectedSynapsesForSegment[segment] += 1
 
           if (numActiveConnectedSynapsesForSegment[segment] >=
@@ -594,7 +597,7 @@ class TemporalMemory(object):
       # Keep permanence within min/max bounds
       permanence = max(0.0, min(1.0, permanence))
 
-      if (abs(permanence) < EPSILON):
+      if (permanence < EPSILON_THRESHOLD):
         connections.destroySynapse(synapse)
       else:
         connections.updateSynapsePermanence(synapse, permanence)
