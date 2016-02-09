@@ -48,12 +48,9 @@ def _getTPClass(temporalImp):
     return TP_shim.FastTPShim
   elif temporalImp == 'monitored_tm_py':
     return TP_shim.MonitoredTPShim
-  elif temporalImp == 'monitored_tm_py_fast':
-    return TP_shim.MonitoredFastTPShim
   else:
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
-              "'cpp', 'tm_py', 'tm_py_fast',"
-              "'monitored_tm_py', 'monitored_tm_py_fast'" % (temporalImp))
+              "'cpp', 'tm_py', 'monitored_tm_py'" % (temporalImp))
 
 
 

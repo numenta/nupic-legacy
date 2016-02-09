@@ -285,7 +285,8 @@ class TemporalMemory(object):
 
     unpredictedActiveColumns = activeColumns - predictedActiveColumns
 
-    for column in unpredictedActiveColumns:
+    # Sort unpredictedActiveColumns before iterating for compatibility with C++
+    for column in sorted(unpredictedActiveColumns):
       cells = self.cellsForColumn(column)
       activeCells.update(cells)
 
@@ -340,7 +341,15 @@ class TemporalMemory(object):
     @param predictedInactiveCells       (set)         Indices of predicted inactive cells
     @param prevMatchingSegments         (set)         Indices of segments with
     """
-    for segment in prevActiveSegments | learningSegments:
+    segments = prevActiveSegments | learningSegments
+
+    # Sort segments before iterating for compatibility with C++
+    # Sort with primary key = cell idx, secondary key = segment idx
+    segments = sorted(
+      segments,
+      key=lambda segment: (connections.cellForSegment(segment), segment))
+
+    for segment in segments:
       isLearningSegment = segment in learningSegments
       isFromWinnerCell = connections.cellForSegment(segment) in winnerCells
 

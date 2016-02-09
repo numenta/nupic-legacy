@@ -6,7 +6,7 @@ The Numenta Platform for Intelligent Computing (**NuPIC**) is a machine intellig
 
 For more information, see [numenta.org](http://numenta.org) or the [NuPIC wiki](https://github.com/numenta/nupic/wiki).
 
-## Installing NuPIC 0.4.2
+## Installing NuPIC 0.4.5
 
 NuPIC binaries are available for:
 
@@ -35,7 +35,7 @@ First, you must install [Xcode command line tools](https://developer.apple.com/l
 
 Your version of Linux probably has a C compiler installed. Be sure you have either clang or GCC 4.8.
 
-    pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.3.0-cp27-none-linux_x86_64.whl
+    pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.3.1-cp27-none-linux_x86_64.whl
     pip install nupic
 
 ### Install Windows
