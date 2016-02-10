@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -20,18 +20,27 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import csv
 import time
 import unittest
-
 import numpy
+import sys
 
-from nupic.data.generators.pattern_machine import PatternMachine
-from nupic.data.generators.sequence_machine import SequenceMachine
+from pkg_resources import resource_filename
+
 from nupic.research.temporal_memory import TemporalMemory as TemporalMemoryPy
 from nupic.bindings.algorithms import TemporalMemory as TemporalMemoryCPP
 from nupic.research.TP import TP
 from nupic.research.TP10X2 import TP10X2
 
+from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
+
+
+_INPUT_FILE_PATH = resource_filename(
+  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
+)
+
+NUM_PATTERNS = 2000
 
 
 # ==============================
@@ -87,13 +96,13 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
                          checkSynapseConsistency=False,
                          pamLength=1)
 
-    self.patternMachine = PatternMachine(2048, 40, num=100)
-    self.sequenceMachine = SequenceMachine(self.patternMachine)
+    self.scalarEncoder = RandomDistributedScalarEncoder(0.88)
 
 
   def testSingleSequence(self):
     print "Test: Single sequence"
-    sequence = self.sequenceMachine.generateFromNumbers(range(50))
+
+    sequence = self._generateSequence()
     times = self._feedAll(sequence)
 
     self.assertTrue(times[1] < times[0])
@@ -104,9 +113,24 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
   # Helper functions
   # ==============================
 
+  def _generateSequence(self):
+    sequence = []    
+    with open (_INPUT_FILE_PATH) as fin:
+      reader = csv.reader(fin)
+      reader.next()
+      reader.next()
+      reader.next()
+      for _ in xrange(NUM_PATTERNS):
+        record = reader.next()
+        value = float(record[1])
+        encodedValue = self.scalarEncoder.encode(value)
+        activeBits = set(encodedValue.nonzero()[0])
+        sequence.append(activeBits)
+    return sequence
+
+
   def _feedAll(self, sequence, learn=True, num=1):
     repeatedSequence = sequence * num
-    times = []
 
     def tmComputeFn(pattern, instance):
       instance.compute(pattern, learn)
@@ -115,34 +139,36 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
       array = self._patternToNumpyArray(pattern)
       instance.compute(array, enableLearn=learn, computeInfOutput=True)
 
-    elapsed = self._feedOne(repeatedSequence, self.tmPy, tmComputeFn)
-    times.append(elapsed)
-    print "TM (py):\t{0}s".format(elapsed)
+    modelParams = [
+      (self.tmPy, tmComputeFn),
+      (self.tmCPP, tmComputeFn),
+      (self.tp, tpComputeFn),
+      (self.tp10x2, tpComputeFn)
+    ]
+    times = [0] * len(modelParams)
 
-    elapsed = self._feedOne(repeatedSequence, self.tmCPP, tmComputeFn)
-    times.append(elapsed)
-    print "TM (C++):\t{0}s".format(elapsed)
+    for patNum, pattern in enumerate(repeatedSequence):
+      for ix, params in enumerate(modelParams):
+        times[ix] += self._feedOne(pattern, *params)
+      self._printProgressBar(patNum, len(repeatedSequence), 50)
 
-    elapsed = self._feedOne(repeatedSequence, self.tp, tpComputeFn)
-    times.append(elapsed)
-    print "TP:\t\t{0}s".format(elapsed)
-
-    elapsed = self._feedOne(repeatedSequence, self.tp10x2, tpComputeFn)
-    times.append(elapsed)
-    print "TP10X2:\t\t{0}s".format(elapsed)
+    print
+    print "TM (py):\t{0}s".format(times[0])
+    print "TM (C++):\t{0}s".format(times[1])
+    print "TP:\t\t{0}s".format(times[2])
+    print "TP10X2:\t\t{0}s".format(times[3])
 
     return times
 
 
   @staticmethod
-  def _feedOne(sequence, instance, computeFn):
+  def _feedOne(pattern, instance, computeFn):
     start = time.clock()
 
-    for pattern in sequence:
-      if pattern == None:
-        instance.reset()
-      else:
-        computeFn(pattern, instance)
+    if pattern == None:
+      instance.reset()
+    else:
+      computeFn(pattern, instance)
 
     elapsed = time.clock() - start
 
@@ -156,6 +182,15 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
 
     return array
 
+
+  @staticmethod
+  def _printProgressBar(completed, total, nDots):
+    def numberOfDots(n):
+      return (n * nDots) // total
+    completedDots = numberOfDots(completed)
+    if completedDots != numberOfDots(completed - 1):
+      print "\r|" + ("." * completedDots) + (" " * (nDots - completedDots)) + "|",
+      sys.stdout.flush()
 
 
 # ==============================

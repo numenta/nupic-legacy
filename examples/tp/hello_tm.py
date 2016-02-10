@@ -47,11 +47,6 @@ from itertools import izip as zip, count
 
 from nupic.research.temporal_memory import TemporalMemory as TM
 
-# FastTemporalMemory Uses C++ Connections data structure for optimization.
-# Uncomment the below line to use FTM and create FTM instance instead of TM.
-
-# from nupic.research.fast_temporal_memory import FastTemporalMemory as FTM
-
 
 # Utility routine for printing the input vector
 def formatRow(x):
