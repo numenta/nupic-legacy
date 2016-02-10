@@ -25,9 +25,9 @@ echo Running after_success-report-coverage-linux.sh...
 echo
 
 if [ $CC = 'clang' ]; then
-  pip install python-coveralls --user;
+  pip install python-coveralls
   # Only publishing unit test coverage at this point.
-  coveralls -i --data_file=.coverage_unit;
+  coveralls -i --data_file=.coverage_unit
 fi
 
 # TODO: figure out how to publish integration test coverage as well.
