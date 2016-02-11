@@ -31,9 +31,14 @@ from network_creation_common import createAndRunNetwork
 
 
 class TemporalMemoryCompatibilityTest(unittest.TestCase):
+  """Temporal Memory compatability tests between different implementations.
+
+  TODO: Test with predictedSegmentDecrement set to non-zero.
+  """
 
 
-  @unittest.skip("Doesn't currently work. See TODO.")
+  @unittest.skip("There are slight differences between implementations that"
+                 "prevent this from passing still. See #2980.")
   def testTMPyCpp(self):
     """
     Test compatibility between C++ and Python TM implementation.
