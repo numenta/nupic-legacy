@@ -20,6 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import collections
 import csv
 import time
 import numpy
@@ -49,64 +50,80 @@ NUM_PATTERNS = 2000
 class TemporalMemoryPerformanceBenchmark(object):
 
 
-  def setUp(self):
-    self.tmPy = TemporalMemoryPy(columnDimensions=[2048],
-                                 cellsPerColumn=32,
-                                 initialPermanence=0.5,
-                                 connectedPermanence=0.8,
-                                 minThreshold=10,
-                                 maxNewSynapseCount=12,
-                                 permanenceIncrement=0.1,
-                                 permanenceDecrement=0.05,
-                                 activationThreshold=15)
+  @classmethod
+  def setUp(cls):
+    tmPy = TemporalMemoryPy(columnDimensions=[2048],
+                            cellsPerColumn=32,
+                            initialPermanence=0.5,
+                            connectedPermanence=0.8,
+                            minThreshold=10,
+                            maxNewSynapseCount=12,
+                            permanenceIncrement=0.1,
+                            permanenceDecrement=0.05,
+                            activationThreshold=15)
 
-    self.tmCPP = TemporalMemoryCPP(columnDimensions=[2048],
-                                   cellsPerColumn=32,
-                                   initialPermanence=0.5,
-                                   connectedPermanence=0.8,
-                                   minThreshold=10,
-                                   maxNewSynapseCount=12,
-                                   permanenceIncrement=0.1,
-                                   permanenceDecrement=0.05,
-                                   activationThreshold=15)
+    tmCPP = TemporalMemoryCPP(columnDimensions=[2048],
+                              cellsPerColumn=32,
+                              initialPermanence=0.5,
+                              connectedPermanence=0.8,
+                              minThreshold=10,
+                              maxNewSynapseCount=12,
+                              permanenceIncrement=0.1,
+                              permanenceDecrement=0.05,
+                              activationThreshold=15)
 
-    self.tp = TP(numberOfCols=2048,
-                 cellsPerColumn=32,
-                 initialPerm=0.5,
-                 connectedPerm=0.8,
-                 minThreshold=10,
-                 newSynapseCount=12,
-                 permanenceInc=0.1,
-                 permanenceDec=0.05,
-                 activationThreshold=15,
-                 globalDecay=0, burnIn=1,
-                 checkSynapseConsistency=False,
-                 pamLength=1)
+    tp = TP(numberOfCols=2048,
+            cellsPerColumn=32,
+            initialPerm=0.5,
+            connectedPerm=0.8,
+            minThreshold=10,
+            newSynapseCount=12,
+            permanenceInc=0.1,
+            permanenceDec=0.05,
+            activationThreshold=15,
+            globalDecay=0, burnIn=1,
+            checkSynapseConsistency=False,
+            pamLength=1)
 
-    self.tp10x2 = TP10X2(numberOfCols=2048,
-                         cellsPerColumn=32,
-                         initialPerm=0.5,
-                         connectedPerm=0.8,
-                         minThreshold=10,
-                         newSynapseCount=12,
-                         permanenceInc=0.1,
-                         permanenceDec=0.05,
-                         activationThreshold=15,
-                         globalDecay=0, burnIn=1,
-                         checkSynapseConsistency=False,
-                         pamLength=1)
+    tp10x2 = TP10X2(numberOfCols=2048,
+                    cellsPerColumn=32,
+                    initialPerm=0.5,
+                    connectedPerm=0.8,
+                    minThreshold=10,
+                    newSynapseCount=12,
+                    permanenceInc=0.1,
+                    permanenceDec=0.05,
+                    activationThreshold=15,
+                    globalDecay=0, burnIn=1,
+                    checkSynapseConsistency=False,
+                    pamLength=1)
 
-    self.scalarEncoder = RandomDistributedScalarEncoder(0.88)
+    def tmComputeFn(pattern, instance):
+      instance.compute(pattern, True)
+
+    def tpComputeFn(pattern, instance):
+      array = cls._patternToNumpyArray(pattern)
+      instance.compute(array, enableLearn=True, computeInfOutput=True)
+
+    return (
+        ("TM (py)", tmPy, tmComputeFn),
+        ("TM (C++)", tmCPP, tmComputeFn),
+        ("TP", tp, tpComputeFn),
+        ("TP10X2", tp10x2, tpComputeFn),
+    )
 
 
-  def runAll(self):
-    self.setUp()
-    sequence = self._generateSequence()
-    times = self._feedAll(sequence)
+  @classmethod
+  def runAll(cls):
+    impls = cls.setUp()
+    sequence = cls._generateSequence()
+    times = cls._feedAll(impls, sequence)
     return times
 
 
-  def _generateSequence(self):
+  @staticmethod
+  def _generateSequence():
+    scalarEncoder = RandomDistributedScalarEncoder(0.88)
     sequence = []
     with open (_INPUT_FILE_PATH) as fin:
       reader = csv.reader(fin)
@@ -116,39 +133,24 @@ class TemporalMemoryPerformanceBenchmark(object):
       for _ in xrange(NUM_PATTERNS):
         record = reader.next()
         value = float(record[1])
-        encodedValue = self.scalarEncoder.encode(value)
+        encodedValue = scalarEncoder.encode(value)
         activeBits = set(encodedValue.nonzero()[0])
         sequence.append(activeBits)
     return sequence
 
 
-  def _feedAll(self, sequence, learn=True, num=1):
-    repeatedSequence = sequence * num
+  @classmethod
+  def _feedAll(cls, impls, sequence):
+    repeatedSequence = sequence
 
-    def tmComputeFn(pattern, instance):
-      instance.compute(pattern, learn)
-
-    def tpComputeFn(pattern, instance):
-      array = self._patternToNumpyArray(pattern)
-      instance.compute(array, enableLearn=learn, computeInfOutput=True)
-
-    modelParams = [
-      (self.tmPy, tmComputeFn),
-      (self.tmCPP, tmComputeFn),
-      (self.tp, tpComputeFn),
-      (self.tp10x2, tpComputeFn)
-    ]
-    times = [0] * len(modelParams)
+    times = collections.defaultdict(float)
 
     for patNum, pattern in enumerate(repeatedSequence):
-      for ix, params in enumerate(modelParams):
-        times[ix] += self._feedOne(pattern, *params)
-      self._printProgressBar(patNum, len(repeatedSequence), 50)
+      for name, impl, fn in impls:
+        times[name] += cls._feedOne(pattern, impl, fn)
+      cls._printProgressBar(patNum, len(repeatedSequence), 50)
 
-    return {"TM (py)": times[0],
-            "TM (C++)": times[1],
-            "TP.py": times[2],
-            "TP10X2": times[3]}
+    return times
 
 
   @staticmethod
@@ -190,4 +192,4 @@ def main():
   sortedTimes = sorted(times.iteritems(), key=lambda x: x[1])
   print
   for impl, t in sortedTimes:
-    print "{}:\t{}s".format(impl, t)
+    print "{}: {}s".format(impl, t)
