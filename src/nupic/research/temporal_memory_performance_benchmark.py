@@ -22,7 +22,6 @@
 
 import csv
 import time
-import unittest
 import numpy
 import sys
 
@@ -47,7 +46,8 @@ NUM_PATTERNS = 2000
 # Tests
 # ==============================
 
-class TemporalMemoryPerformanceTest(unittest.TestCase):
+class TemporalMemoryPerformanceBenchmark(object):
+
 
   def setUp(self):
     self.tmPy = TemporalMemoryPy(columnDimensions=[2048],
@@ -99,22 +99,15 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
     self.scalarEncoder = RandomDistributedScalarEncoder(0.88)
 
 
-  def testSingleSequence(self):
-    print "Test: Single sequence"
-
+  def runAll(self):
+    self.setUp()
     sequence = self._generateSequence()
     times = self._feedAll(sequence)
+    return times
 
-    self.assertTrue(times[1] < times[0])
-    self.assertTrue(times[3] < times[2])
-
-
-  # ==============================
-  # Helper functions
-  # ==============================
 
   def _generateSequence(self):
-    sequence = []    
+    sequence = []
     with open (_INPUT_FILE_PATH) as fin:
       reader = csv.reader(fin)
       reader.next()
@@ -152,13 +145,10 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
         times[ix] += self._feedOne(pattern, *params)
       self._printProgressBar(patNum, len(repeatedSequence), 50)
 
-    print
-    print "TM (py):\t{0}s".format(times[0])
-    print "TM (C++):\t{0}s".format(times[1])
-    print "TP:\t\t{0}s".format(times[2])
-    print "TP10X2:\t\t{0}s".format(times[3])
-
-    return times
+    return {"TM (py)": times[0],
+            "TM (C++)": times[1],
+            "TP.py": times[2],
+            "TP10X2": times[3]}
 
 
   @staticmethod
@@ -193,9 +183,11 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
       sys.stdout.flush()
 
 
-# ==============================
-# Main
-# ==============================
 
-if __name__ == "__main__":
-  unittest.main()
+def main():
+  """Command-line entry point for TM performance benchmark."""
+  times = TemporalMemoryPerformanceBenchmark().runAll()
+  sortedTimes = sorted(times.iteritems(), key=lambda x: x[1])
+  print
+  for impl, t in sortedTimes:
+    print "{}:\t{}s".format(impl, t)
