@@ -31,7 +31,16 @@ from network_creation_common import createAndRunNetwork
 
 
 class TemporalMemoryCompatibilityTest(unittest.TestCase):
+  """Temporal Memory compatability tests between different implementations.
 
+  TODO: Test with predictedSegmentDecrement set to non-zero. See
+  https://github.com/numenta/nupic/issues/2999
+  """
+
+
+  @unittest.skip("There are slight differences between implementations that"
+                 "prevent this from passing still. See "
+                 "https://github.com/numenta/nupic/issues/2980")
   def testTMPyCpp(self):
     """
     Test compatibility between C++ and Python TM implementation.
@@ -39,14 +48,13 @@ class TemporalMemoryCompatibilityTest(unittest.TestCase):
     results1 = createAndRunNetwork(TPRegion,
                                    "bottomUpOut",
                                    checkpointMidway=False,
-                                   temporalImp="tm_py")
+                                   temporalImp="tm_cpp")
 
-    # temporalImp="tm_py" here is a temporary placeholder value until C++ TM is
-    # finished, at which point it should be changed to "cpp"
     results2 = createAndRunNetwork(TPRegion,
                                    "bottomUpOut",
                                    checkpointMidway=False,
                                    temporalImp="tm_py")
+
     self.compareArrayResults(results1, results2)
 
 
