@@ -70,7 +70,14 @@ install:
   - echo NuPIC version   = %NUPIC_VERSION%
 
   - set BINDINGS_LOC="http://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings"
-  - pip install %BINDINGS_LOC%/nupic.bindings-%BINDINGS_VERSION%-cp27-none-win_amd64.whl
+  # Github tagged builds
+  - ps: >-
+      If ($env:APPVEYOR_REPO_TAG -eq "true" -or $env:APPVEYOR_REPO_TAG -eq "True") {
+        pip install $env:BINDINGS_LOC/nupic.bindings-$env:BINDINGS_VERSION-cp27-none-win_amd64.whl
+      }
+      Else {
+        pip install $env:BINDINGS_LOC/nupic.bindings-$env:NUPIC_CORE_COMMITISH-cp27-none-win_amd64.whl
+      }
 
   # Check all packages installed correctly
   - cmd: pip list
@@ -82,7 +89,6 @@ build_script:
 
   - ps: ls -l dist
   - ps: move .\dist\nupic-$env:NUPIC_VERSION-py2-none-any.whl .\dist\nupic-$env:NUPIC_VERSION-cp27-none-win_amd64.whl
-  - ps: ls -l dist
   - ps: copy .\dist\nupic-$env:NUPIC_VERSION-cp27-none-win_amd64.whl .
 
 after_build:
