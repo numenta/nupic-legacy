@@ -186,8 +186,7 @@ class TemporalMemoryPerformanceBenchmark(object):
 
 
 
-def main():
-  """Command-line entry point for TM performance benchmark."""
+if __name__ == "__main__":
   times = TemporalMemoryPerformanceBenchmark().runAll()
   sortedTimes = sorted(times.iteritems(), key=lambda x: x[1])
   print

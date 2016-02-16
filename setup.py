@@ -115,12 +115,6 @@ if __name__ == "__main__":
       "nupic.swarming.jsonschema": ["*.json"],
       "nupic.datafiles": ["*.csv", "*.txt"],
     },
-    entry_points={
-        "console_scripts": [
-            "temporal_memory_performance_benchmark = nupic.research."
-            "temporal_memory_performance_benchmark:main",
-        ],
-    },
     cmdclass = {"test": TestCommand},
     include_package_data=True,
     zip_safe=False,
