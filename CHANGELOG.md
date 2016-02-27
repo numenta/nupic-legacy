@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0
+
+* Removes references to FastTemporalMemory.
+* Lower TM epsilon threshold for compatibility.
+* Add documentation for the Monitor Mixins
+* Removed FastTemporalMemory from nupic
+* Update temporal memory compatibility test to use C++ TM.
+* Sort segments before iterating for compatibility with C++
+* Sort unpredictedActiveColumns before iterating for compatibility with C++
+
 ## 0.4.5
 
 * This release is just to sync with nupic.bindings 0.3.1.

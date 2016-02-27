@@ -42,6 +42,10 @@ def _getTPClass(temporalImp):
     return TP10X2.TP10X2
   elif temporalImp == 'tm_py':
     return TP_shim.TPShim
+  elif temporalImp == 'tm_cpp':
+    return TP_shim.TPCPPShim
+  elif temporalImp == 'tm_py_fast':
+    return TP_shim.FastTPShim
   elif temporalImp == 'monitored_tm_py':
     return TP_shim.MonitoredTPShim
   else:
@@ -418,7 +422,9 @@ class TPRegion(PyRegion):
     if self._tfdr is None:
       tpClass = _getTPClass(self.temporalImp)
 
-      if self.temporalImp in ['py', 'cpp', 'r', 'tm_py', 'monitored_tm_py']:
+      if self.temporalImp in ['py', 'cpp', 'r',
+                              'tm_py', 'tm_cpp', 'tm_py_fast',
+                              'monitored_tm_py', 'monitored_tm_py_fast']:
         self._tfdr = tpClass(
              numberOfCols=self.columnCount,
              cellsPerColumn=self.cellsPerColumn,
