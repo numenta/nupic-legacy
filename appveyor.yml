@@ -76,7 +76,7 @@ install:
         pip install $env:BINDINGS_LOC/nupic.bindings-$env:BINDINGS_VERSION-cp27-none-win_amd64.whl
       }
       Else {
-        pip install $env:BINDINGS_LOC/nupic.bindings-$env:NUPIC_CORE_COMMITISH-cp27-none-win_amd64.whl
+        pip install $env:BINDINGS_LOC/nupic.bindings-$env:BINDINGS_VERSION.$env:NUPIC_CORE_COMMITISH-cp27-none-win_amd64.whl
       }
 
   # Check all packages installed correctly
