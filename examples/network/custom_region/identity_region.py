@@ -33,11 +33,10 @@ class IdentityRegion(PyRegion):
   def __init__(self, dataWidth):
     if dataWidth <= 0:
       raise ValueError("Parameter dataWidth must be > 0")
-    
     self._dataWidth = dataWidth
 
 
-  def initialize(self, inputs, outputs):
+  def initialize(self, dims, splitterMaps):
     pass
 
 
@@ -45,14 +44,12 @@ class IdentityRegion(PyRegion):
     """
     Run one iteration of IdentityRegion's compute
     """
-    outputs["out"] = inputs["in"]
+    outputs["out"][:] = inputs["in"]
 
 
   @classmethod
   def getSpec(cls):
-    """Return the base Spec for MySPRegion.
-
-    Doesn't include the spatial, temporal and other parameters
+    """Return the Spec for IdentityRegion.
     """
     spec = {
         "description":IdentityRegion.__doc__,
@@ -90,4 +87,7 @@ class IdentityRegion(PyRegion):
 
 
   def getOutputElementCount(self, name):
+    if name == "out":
       return self._dataWidth
+    else:
+      raise Exception("Unrecognized output: " + name)
