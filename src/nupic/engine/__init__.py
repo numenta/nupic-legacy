@@ -44,6 +44,7 @@ pyRegions = (
     ("nupic.bindings.regions.TestNode", "TestNode"),
     ("nupic.regions.TestRegion", "TestRegion"),
     ("nupic.regions.UnimportableNode", "UnimportableNode"),
+    ("nupic.regions.PluggableEncoderSensor", "PluggableEncoderSensor"),
     ("nupic.regions.extra.GaborNode2", "GaborNode2"))
 
 registeredRegions = False
