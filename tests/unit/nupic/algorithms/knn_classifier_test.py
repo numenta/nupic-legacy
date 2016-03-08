@@ -220,7 +220,7 @@ class KNNClassifierTest(unittest.TestCase):
     # Test that inference ignores low sparsity vectors but not others
     e = np.array([2, 4, 5, 6, 8, 12, 14, 18, 20], dtype=np.int32)
     dense= np.zeros(dimensionality)
-    dense[a] = 1.0
+    dense[e] = 1.0
     cat, inference, _, _ = classifier.infer(dense)
     self.assertIsNotNone(cat)
     self.assertGreater(inference.sum(),0.0)
