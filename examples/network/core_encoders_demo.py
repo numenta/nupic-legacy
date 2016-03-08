@@ -43,12 +43,12 @@ def createNetwork():
     #
 
     # C++
-    network.addRegion('consumptionSensor', 'ScalarSensor',
-                      json.dumps({'n': 120,
-                                  'w': 21,
-                                  'minValue': 0.0,
-                                  'maxValue': 100.0,
-                                  'clipInput': True}))
+    consumptionSensor = network.addRegion('consumptionSensor', 'ScalarSensor',
+                                          json.dumps({'n': 120,
+                                                      'w': 21,
+                                                      'minValue': 0.0,
+                                                      'maxValue': 100.0,
+                                                      'clipInput': True}))
 
     # Python
     timestampSensor = network.addRegion("timestampSensor",
@@ -59,10 +59,7 @@ def createNetwork():
     #
     # Add a SPRegion, a region containing a spatial pooler
     #
-
-    # TODO: The SPRegion should not require an inputWidth parameter. It should infer
-    # this width during initialization.
-    consumptionEncoderN = 100
+    consumptionEncoderN = consumptionSensor.getParameter('n')
     timestampEncoderN = timestampSensor.getSelf().encoder.getWidth()
     inputWidth = consumptionEncoderN + timestampEncoderN
 
