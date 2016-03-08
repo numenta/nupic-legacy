@@ -40,12 +40,6 @@ _INPUT_FILE_PATH = resource_filename(
 _OUTPUT_PATH = "network-demo-output.csv"
 _NUM_RECORDS = 2000
 
-# Config field for IdentityRegion
-I_PARAMS = {
-    "dataWidth": 1,
-}
-
-
 
 def createEncoder():
   """Create the encoder instance for our test and return it."""
@@ -97,11 +91,13 @@ def createNetwork(dataSource):
   Network.registerRegion(IdentityRegion)
 
   # Create a custom region
-  network.addRegion("identityRegion", "py.IdentityRegion", json.dumps(I_PARAMS))
+  network.addRegion("identityRegion", "py.IdentityRegion",
+                    json.dumps({
+                      "dataWidth": sensor.encoder.getWidth(),
+                    }))
 
-  # Link the Identity region to the sensor input
-  network.link("sensor", "identityRegion", "UniformLink", "",
-               srcOutput="sourceOut", destInput="in")
+  # Link the Identity region to the sensor output
+  network.link("sensor", "identityRegion", "UniformLink", "")
 
   network.initialize()
 
@@ -120,9 +116,9 @@ def runNetwork(network, writer):
     # Run the network for a single iteration
     network.run(1)
 
-    # Write out the record number and original value
-    consumption = identityRegion.getOutputData("out")[0]
-    writer.writerow((i, consumption))
+    # Write out the record number and encoding
+    encoding = identityRegion.getOutputData("out")
+    writer.writerow((i, encoding))
 
 
 
