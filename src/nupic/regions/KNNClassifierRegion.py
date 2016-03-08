@@ -286,6 +286,18 @@ class KNNClassifierRegion(PyRegion):
             defaultValue=1,
             accessMode='Create'),
 
+          minSparsity=dict(
+            description="If useSparseMemory is set, only vectors with sparsity"
+                        " >= minSparsity will be stored during learning. A value"
+                        " of 0.0 implies all vectors will be stored. A value of"
+                        " 0.1 implies only vectors with at least 10% sparsity"
+                        " will be stored",
+            dataType='Real32',
+            count=1,
+            constraints='',
+            defaultValue=0.0,
+            accessMode='ReadWrite'),
+
           sparseThreshold=dict(
             description='If sparse memory is used, input variables '
                         'whose absolute value is less than this '
@@ -465,7 +477,8 @@ class KNNClassifierRegion(PyRegion):
                clVerbosity=0,
                replaceDuplicates=False,
                cellsPerCol=0,
-               maxStoredPatterns=-1
+               maxStoredPatterns=-1,
+               minSparsity=0.0
                ):
 
     self.version = KNNClassifierRegion.__VERSION__
@@ -507,7 +520,8 @@ class KNNClassifierRegion(PyRegion):
         verbosity=clVerbosity,
         replaceDuplicates=replaceDuplicates,
         cellsPerCol=cellsPerCol,
-        maxStoredPatterns=maxStoredPatterns
+        maxStoredPatterns=maxStoredPatterns,
+        minSparsity=minSparsity
     )
 
     # Initialize internal structures
@@ -942,8 +956,6 @@ class KNNClassifierRegion(PyRegion):
         probabilities = numpy.ones(numScores) / numScores
       else:
         probabilities = scores / total
-      #print "probabilities:", probabilities
-      #import pdb; pdb.set_trace()
 
 
       # -------------------------------------------------------------------
