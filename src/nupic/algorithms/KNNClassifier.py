@@ -91,7 +91,8 @@ class KNNClassifier(object):
                      verbosity=0,
                      maxStoredPatterns=-1,
                      replaceDuplicates=False,
-                     cellsPerCol=0):
+                     cellsPerCol=0,
+                     minSparsity=0.0):
     """Constructor for the kNN classifier.
 
     @param k (int) The number of nearest neighbors used in the classification of
@@ -174,6 +175,11 @@ class KNNClassifier(object):
         columns, in the same manner as the temporal pooler AND whenever a new
         prototype is stored, only the start cell (first cell) is stored in any
         bursting column
+
+    @param minSparsity (float) If useSparseMemory is set, only vectors with
+        sparsity >= minSparsity will be stored during learning. A value of 0.0
+        implies all vectors will be stored. A value of 0.1 implies only vectors
+        with at least 10% sparsity will be stored
     """
     self.version = KNNCLASSIFIER_VERSION
 
@@ -201,6 +207,7 @@ class KNNClassifier(object):
     self.replaceDuplicates = replaceDuplicates
     self.cellsPerCol = cellsPerCol
     self.maxStoredPatterns = maxStoredPatterns
+    self.minSparsity = minSparsity
     self.clear()
 
 
@@ -534,6 +541,16 @@ class KNNClassifier(object):
               self._categoryRecencyList[rowIdx] = rowID
 
 
+      # If sparsity is too low, we do not want to add this vector
+      if addRow and self.minSparsity > 0.0:
+        if isSparse==0:
+          sparsity = ( float(len(thresholdedInput.nonzero()[0])) /
+                       len(thresholdedInput) )
+        else:
+          sparsity = float(len(inputPattern)) / isSparse
+        if sparsity < self.minSparsity:
+          addRow = False
+
       # Add the new sparse vector to our storage
       if addRow:
         self._protoSizes = None     # need to re-compute
@@ -619,8 +636,9 @@ class KNNClassifier(object):
       winner:           The category with the greatest number of nearest
                         neighbors within the kth nearest neighbors. If the
                         inferenceResult contains no neighbors, the value of
-                        winner is None; this applies to the case of exact
-                        matching.
+                        winner is None. This can happen, for example, in cases
+                        of exact matching, if there are no stored vectors, or if
+                        minSparsity is not met.
       inferenceResult:  A list of length numCategories, each entry contains the
                         number of neighbors within the top k neighbors that
                         are in that category.
@@ -631,9 +649,18 @@ class KNNClassifier(object):
                         distance from the unknown to the nearest prototype of
                         that category. All distances are between 0 and 1.0.
     """
-    if len(self._categoryList) == 0:
-      # No categories learned yet; i.e. first inference w/ online learning.
-      winner = 0
+
+    # Calculate sparsity. If sparsity is too low, we do not want to run
+    # inference with this vector
+    sparsity = 0.0
+    if self.minSparsity > 0.0:
+      sparsity = ( float(len(inputPattern.nonzero()[0])) /
+                   len(inputPattern) )
+
+    if len(self._categoryList) == 0 or sparsity < self.minSparsity:
+      # No categories learned yet; i.e. first inference w/ online learning or
+      # insufficient sparsity
+      winner = None
       inferenceResult = numpy.zeros(1)
       dist = numpy.ones(1)
       categoryDist = numpy.ones(1)

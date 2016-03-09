@@ -188,6 +188,60 @@ class KNNClassifierTest(unittest.TestCase):
     self.assertEquals(cat, 1)
 
 
+  def testMinSparsity(self):
+    """Tests overlap distance with min sparsity"""
+
+    # Require sparsity >= 20%
+    params = {"distanceMethod": "rawOverlap", "minSparsity": 0.2}
+    classifier = KNNClassifier(**params)
+
+    dimensionality = 30
+    a = np.array([1, 3, 7, 11, 13, 17, 19, 23, 29], dtype=np.int32)
+    b = np.array([2, 4, 8, 12, 14, 18, 20, 21, 28], dtype=np.int32)
+
+    # This has 20% sparsity and should be inserted
+    c = np.array([2, 3, 8, 11, 14, 18], dtype=np.int32)
+
+    # This has 17% sparsity and should NOT be inserted
+    d = np.array([2, 3, 8, 11, 18], dtype=np.int32)
+
+    numPatterns = classifier.learn(a, 0, isSparse=dimensionality)
+    self.assertEquals(numPatterns, 1)
+
+    numPatterns = classifier.learn(b, 1, isSparse=dimensionality)
+    self.assertEquals(numPatterns, 2)
+
+    numPatterns = classifier.learn(c, 1, isSparse=dimensionality)
+    self.assertEquals(numPatterns, 3)
+
+    numPatterns = classifier.learn(d, 1, isSparse=dimensionality)
+    self.assertEquals(numPatterns, 3)
+
+    # Test that inference ignores low sparsity vectors but not others
+    e = np.array([2, 4, 5, 6, 8, 12, 14, 18, 20], dtype=np.int32)
+    dense= np.zeros(dimensionality)
+    dense[e] = 1.0
+    cat, inference, _, _ = classifier.infer(dense)
+    self.assertIsNotNone(cat)
+    self.assertGreater(inference.sum(),0.0)
+
+    # This has 20% sparsity and should be used for inference
+    f = np.array([2, 5, 8, 11, 14, 18], dtype=np.int32)
+    dense= np.zeros(dimensionality)
+    dense[f] = 1.0
+    cat, inference, _, _ = classifier.infer(dense)
+    self.assertIsNotNone(cat)
+    self.assertGreater(inference.sum(),0.0)
+
+    # This has 17% sparsity and should return null inference results
+    g = np.array([2, 3, 8, 11, 19], dtype=np.int32)
+    dense= np.zeros(dimensionality)
+    dense[g] = 1.0
+    cat, inference, _, _ = classifier.infer(dense)
+    self.assertIsNone(cat)
+    self.assertEqual(inference.sum(),0.0)
+
+
   def testPartitionIdExcluded(self):
     """
     Tests that paritionId properly excludes training data points during
