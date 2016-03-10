@@ -1117,6 +1117,9 @@ class KNNClassifier(object):
     if "_partitionIdArray" in state:
       state.pop("_partitionIdArray")
 
+    if "minSparsity" not in state:
+      state["minSparsity"] = 0.0
+
     self.__dict__.update(state)
 
     # Backward compatibility
