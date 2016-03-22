@@ -27,8 +27,21 @@ import nupic.bindings.engine_internal as engine
 from nupic.support.lockattributes import LockAttributesMixin
 import functools
 
-basicTypes = ['Byte', 'Int16', 'UInt16', 'Int32', 'UInt32', 'Int64', 'UInt64',
-              'Real32', 'Real64', 'Handle']
+basicTypes = ['Byte',
+              'Int16', 'UInt16',
+              'Int32', 'UInt32',
+              'Int64', 'UInt64',
+              'Real32', 'Real64',
+              'Handle',
+              'Bool']
+
+arrayTypes = ['ByteArray',
+              'Int16Array', 'UInt16Array',
+              'Int32Array', 'UInt32Array',
+              'Int64Array', 'UInt64Array',
+              'Real32Array', 'Real64Array',
+              # No 'HandleArray'
+              'BoolArray']
 
 pyRegions = (
     ("nupic.regions.AnomalyRegion", "AnomalyRegion"),
@@ -62,8 +75,6 @@ def registerBuiltInRegions():
 
 registerBuiltInRegions()
 
-# Import all the array types from engine (there is no HandleArray)
-arrayTypes = [t + 'Array' for t in basicTypes[:-1]]
 for a in arrayTypes:
   exec('from %s import %s as %s' % (engine.__name__, a, a))
 
