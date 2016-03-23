@@ -21,9 +21,9 @@
 
 """Unit tests for SDRClassifier module."""
 
-CL_VERBOSITY = 0
 
 import cPickle as pickle
+import random
 import types
 import unittest2 as unittest
 
@@ -43,6 +43,24 @@ class SDRClassifierTest(unittest.TestCase):
   def testInitialization(self):
     c = self._classifier([1], 0.1, 0.1, 0)
     self.assertEqual(type(c), self._classifier)
+
+
+  def testInitInvalidParams(self):
+    # Invalid steps
+    kwargs = {"steps": [0.3], "alpha": 0.1, "actValueAlpha": 0.1}
+    self.assertRaises(TypeError, self._classifier, **kwargs)
+    kwargs = {"steps": [], "alpha": 0.1, "actValueAlpha": 0.1}
+    self.assertRaises(TypeError, self._classifier, **kwargs)
+    kwargs = {"steps": [-1], "alpha": 0.1, "actValueAlpha": 0.1}
+    self.assertRaises(ValueError, self._classifier, **kwargs)
+
+    # Invalid alpha
+    kwargs = {"steps": [1], "alpha": -1.0, "actValueAlpha": 0.1}
+    self.assertRaises(ValueError, self._classifier, **kwargs)
+
+    # Invalid alpha
+    kwargs = {"steps": [1], "alpha": 0.1, "actValueAlpha": -1.0}
+    self.assertRaises(ValueError, self._classifier, **kwargs)
 
 
   def testSingleValue(self):
@@ -96,6 +114,35 @@ class SDRClassifierTest(unittest.TestCase):
     self.assertSetEqual(set(result.keys()), set(('actualValues', 1)))
     self.assertEqual(len(result['actualValues']), 1)
     self.assertAlmostEqual(result['actualValues'][0], 34.7, places=5)
+
+
+  def testComputeInferOrLearnOnly(self):
+    c = self._classifier([1], 1.0, 0.1, 0)
+    # learn only
+    recordNum=0
+    retval = c.compute(recordNum=recordNum, patternNZ=[1, 5, 9],
+              classification={'bucketIdx': 4, 'actValue': 34.7},
+              learn=True, infer=False)
+    self.assertIsNone(retval)
+    recordNum += 1
+
+    # infer only
+    recordNum=0
+    retval1 = c.compute(recordNum=recordNum, patternNZ=[1, 5, 9],
+              classification={'bucketIdx': 2, 'actValue': 14.2},
+              learn=False, infer=True)
+    recordNum += 1
+    retval2 = c.compute(recordNum=recordNum, patternNZ=[1, 5, 9],
+              classification={'bucketIdx': 3, 'actValue': 20.5},
+              learn=False, infer=True)
+    recordNum += 1
+    self.assertSequenceEqual(list(retval1[1]), list(retval2[1]))
+
+    # learn and infer cannot be both False
+    kwargs = {"recordNum": recordNum, "patternNZ": [1, 2],
+              "classification": {'bucketIdx': 4, 'actValue': 34.7},
+              "learn": False, "infer": False}
+    self.assertRaises(ValueError, c.compute, **kwargs)
 
 
   def testCompute1(self):
@@ -227,6 +274,10 @@ class SDRClassifierTest(unittest.TestCase):
               learn=True, infer=True)
     serialized = pickle.dumps(c)
     c = pickle.loads(serialized)
+    self.assertEqual(c.steps, [1])
+    self.assertEqual(c.alpha, 1.0)
+    self.assertEqual(c.actValueAlpha, 0.1)
+
     result = c.compute(recordNum=4,
               patternNZ=[1, 5, 9],
               classification={'bucketIdx': 4, 'actValue': 34.7},
@@ -417,6 +468,225 @@ class SDRClassifierTest(unittest.TestCase):
     self.assertAlmostEqual(result['actualValues'][0], 34.7)
 
 
+  def testPredictionDistribution(self):
+    """ Test the distribution of predictions.
+
+    Here, we intend the classifier to learn the associations:
+      [1,3,5] => bucketIdx 0 (30%)
+              => bucketIdx 1 (30%)
+              => bucketIdx 2 (40%)
+
+      [2,4,6] => bucketIdx 1 (50%)
+              => bucketIdx 3 (50%)
+
+    The classifier should get the distribution almost right given enough
+    repetitions and a small learning rate
+    """
+
+    c = self._classifier([0], 0.0005, 0.1, 0)
+
+    SDR1 = [1, 3, 5]
+    SDR2 = [2, 4, 6]
+    recordNum = 0
+    random.seed(42)
+    for _ in xrange(10000):
+      randomNumber = random.random()
+      if randomNumber < 0.3:
+        bucketIdx = 0
+      elif randomNumber < 0.6:
+        bucketIdx = 1
+      else:
+        bucketIdx = 2
+      c.compute(recordNum=recordNum, patternNZ=SDR1,
+                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
+                learn=True, infer=True)
+      recordNum += 1
+
+      randomNumber = random.random()
+      if randomNumber < 0.5:
+        bucketIdx = 1
+      else:
+        bucketIdx = 3
+      c.compute(recordNum=recordNum, patternNZ=SDR2,
+                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
+                learn=True, infer=True)
+      recordNum += 1
+
+    result = c.compute(
+        recordNum=2, patternNZ=SDR1,
+        classification={'bucketIdx': 0, 'actValue': 0},
+        learn=False, infer=True)
+    self.assertAlmostEqual(result[0][0], 0.3, places=1)
+    self.assertAlmostEqual(result[0][1], 0.3, places=1)
+    self.assertAlmostEqual(result[0][2], 0.4, places=1)
+
+    result = c.compute(
+        recordNum=2, patternNZ=SDR2,
+        classification={'bucketIdx': 0, 'actValue': 0},
+        learn=False, infer=True)
+    self.assertAlmostEqual(result[0][1], 0.5, places=1)
+    self.assertAlmostEqual(result[0][3], 0.5, places=1)
+
+
+  def testPredictionDistributionOverlap(self):
+    """ Test the distribution of predictions with overlapping input SDRs
+
+    Here, we intend the classifier to learn the associations:
+      SDR1    => bucketIdx 0 (30%)
+              => bucketIdx 1 (30%)
+              => bucketIdx 2 (40%)
+
+      SDR2    => bucketIdx 1 (50%)
+              => bucketIdx 3 (50%)
+
+    SDR1 and SDR2 has 10% overlaps (2 bits out of 20)
+    The classifier should get the distribution almost right despite the overlap
+    """
+
+    c = self._classifier([0], 0.0001, 0.1, 0)
+    recordNum = 0
+
+    # generate 2 SDRs with 2 shared bits
+    SDR1 = numpy.arange(0, 39, step=2)
+    SDR2 = numpy.arange(1, 40, step=2)
+    SDR2[3] = SDR1[5]
+    SDR2[5] = SDR1[11]
+
+    random.seed(42)
+    for _ in xrange(10000):
+      randomNumber = random.random()
+      if randomNumber < 0.3:
+        bucketIdx = 0
+      elif randomNumber < 0.6:
+        bucketIdx = 1
+      else:
+        bucketIdx = 2
+      c.compute(recordNum=recordNum, patternNZ=SDR1,
+                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
+                learn=True, infer=True)
+      recordNum += 1
+
+      randomNumber = random.random()
+      if randomNumber < 0.5:
+        bucketIdx = 1
+      else:
+        bucketIdx = 3
+      c.compute(recordNum=recordNum, patternNZ=SDR2,
+                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
+                learn=True, infer=True)
+      recordNum += 1
+
+    result = c.compute(
+        recordNum=2, patternNZ=SDR1,
+        classification={'bucketIdx': 0, 'actValue': 0},
+        learn=False, infer=True)
+    self.assertAlmostEqual(result[0][0], 0.3, places=1)
+    self.assertAlmostEqual(result[0][1], 0.3, places=1)
+    self.assertAlmostEqual(result[0][2], 0.4, places=1)
+
+    result = c.compute(
+        recordNum=2, patternNZ=SDR2,
+        classification={'bucketIdx': 0, 'actValue': 0},
+        learn=False, infer=True)
+    self.assertAlmostEqual(result[0][1], 0.5, places=1)
+    self.assertAlmostEqual(result[0][3], 0.5, places=1)
+
+
+  def testPredictionDistributionContinuousLearning(self):
+    """ Test the distribution of predictions with overlapping input SDRs
+
+    First, we intend the classifier to learn the associations:
+      SDR1    => bucketIdx 0 (30%)
+              => bucketIdx 1 (30%)
+              => bucketIdx 2 (40%)
+
+      SDR2    => bucketIdx 1 (50%)
+              => bucketIdx 3 (50%)
+
+    After 20000 iterations, we change the association to
+      SDR1    => bucketIdx 0 (30%)
+              => bucketIdx 1 (20%)
+              => bucketIdx 2 (20%)
+              => bucketIdx 4 (30%)
+
+      SDR2    => bucketIdx 1 (50%)
+              => bucketIdx 3 (50%)
+
+    The classifier should adapt continuously and learn new associations
+    """
+
+    c = self._classifier([0], 0.0002, 0.1, 0)
+    recordNum = 0
+
+    SDR1 = [1, 3, 5]
+    SDR2 = [2, 4, 6]
+
+    random.seed(42)
+    for _ in xrange(10000):
+      randomNumber = random.random()
+      if randomNumber < 0.3:
+        bucketIdx = 0
+      elif randomNumber < 0.6:
+        bucketIdx = 1
+      else:
+        bucketIdx = 2
+      c.compute(recordNum=recordNum, patternNZ=SDR1,
+                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
+                learn=True, infer=True)
+      recordNum += 1
+
+      randomNumber = random.random()
+      if randomNumber < 0.5:
+        bucketIdx = 1
+      else:
+        bucketIdx = 3
+      c.compute(recordNum=recordNum, patternNZ=SDR2,
+                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
+                learn=True, infer=True)
+      recordNum += 1
+
+    for _ in xrange(30000):
+      randomNumber = random.random()
+      if randomNumber < 0.3:
+        bucketIdx = 0
+      elif randomNumber < 0.5:
+        bucketIdx = 1
+      elif randomNumber < 0.7:
+        bucketIdx = 2
+      else:
+        bucketIdx = 4
+      c.compute(recordNum=recordNum, patternNZ=SDR1,
+                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
+                learn=True, infer=True)
+      recordNum += 1
+
+      randomNumber = random.random()
+      if randomNumber < 0.5:
+        bucketIdx = 1
+      else:
+        bucketIdx = 3
+      c.compute(recordNum=recordNum, patternNZ=SDR2,
+                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
+                learn=True, infer=True)
+      recordNum += 1
+
+    result = c.compute(
+        recordNum=2, patternNZ=SDR1,
+        classification={'bucketIdx': 0, 'actValue': 0},
+        learn=False, infer=True)
+    self.assertAlmostEqual(result[0][0], 0.3, places=1)
+    self.assertAlmostEqual(result[0][1], 0.2, places=1)
+    self.assertAlmostEqual(result[0][2], 0.2, places=1)
+    self.assertAlmostEqual(result[0][4], 0.3, places=1)
+
+    result = c.compute(
+        recordNum=2, patternNZ=SDR2,
+        classification={'bucketIdx': 0, 'actValue': 0},
+        learn=False, infer=True)
+    self.assertAlmostEqual(result[0][1], 0.5, places=1)
+    self.assertAlmostEqual(result[0][3], 0.5, places=1)
+
+
   def test_pFormatArray(self):
     from nupic.algorithms.sdr_classifier import _pFormatArray
     pretty = _pFormatArray(range(10))
@@ -428,10 +698,6 @@ class SDRClassifierTest(unittest.TestCase):
 
   def _checkValue(self, retval, index, value):
     self.assertEqual(retval['actualValues'][index], value)
-
-
-  def _checkProbabilityGreater(self, retval, index, probability):
-    self.assertGreaterEqual(retval[1][index], probability)
 
 
   @staticmethod

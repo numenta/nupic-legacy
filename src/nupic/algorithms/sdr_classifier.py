@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 
 """
-Implementation for a SDR classifier.
+Implementation of a SDR classifier.
 
 The SDR classifier takes the form of a single layer classification network
 that takes SDRs as input and outputs a predicted distribution of classes.
@@ -47,8 +47,8 @@ class SDRClassifier(object):
   encoders (the "classification") describing the true (target) input.
 
   The SDR classifier maps input patterns to class labels. There are as many
-  output units as the number of class labels (buckets). The output is a
-  probabilistic distribution over all class labels
+  output units as the number of class labels or buckets (in the case of scalar
+  encoders). The output is a probabilistic distribution over all class labels.
 
   During inference, the output is calculated by first doing a weighted summation
   of all the inputs, and then perform a softmax nonlinear function to get
@@ -79,15 +79,26 @@ class SDRClassifier(object):
 
     Parameters:
     ---------------------------------------------------------------------
-    @param numInputs (int) Length of the input activation pattern
     @param steps (list) Sequence of the different steps of multi-step
         predictions to learn
     @param alpha (float) The alpha used to adapt the weight matrix during
-        learning. A lower alpha results in longer term memory.
+        learning. A larger alpha results in faster adaptation to the data.
     @param actValueAlpha (float) Used to track the actual value within each
         bucket. A lower actValueAlpha results in longer term memory
     @param verbosity (int) verbosity level, can be 0, 1, or 2
     """
+    if len(steps) == 0:
+      raise TypeError("steps cannot be empty")
+    if not all(isinstance(item, int) for item in steps):
+      raise TypeError("steps must be a list of ints")
+    if any(item < 0 for item in steps):
+      raise ValueError("steps must be a list of non-negative ints")
+
+    if alpha < 0:
+      raise ValueError("alpha (learning rate) must be a positive number")
+    if actValueAlpha < 0 or actValueAlpha >= 1:
+      raise ValueError("actValueAlpha be a number between 0 and 1")
+
     # Save constructor args
     self.steps = steps
     self.alpha = alpha
@@ -176,6 +187,8 @@ class SDRClassifier(object):
                    'actualValues': [1.5, 3,5, 5,5, 7.6],
                   }
     """
+    if learn is False and infer is False:
+      raise ValueError("learn and infer cannot be both False")
 
     # Save the offset between recordNum and learnIteration if this is the first
     #  compute
@@ -241,7 +254,9 @@ class SDRClassifier(object):
       if self._actualValues[bucketIdx] is None:
         self._actualValues[bucketIdx] = actValue
       else:
-        if isinstance(actValue, int) or isinstance(actValue, float):
+        if (isinstance(actValue, int) or
+              isinstance(actValue, float) or
+              isinstance(actValue, long)):
           self._actualValues[bucketIdx] = ((1.0 - self.actValueAlpha)
                                            * self._actualValues[bucketIdx]
                                            + self.actValueAlpha * actValue)
@@ -322,9 +337,15 @@ class SDRClassifier(object):
 
 
   def inferSingleStep(self, patternNZ, weightMatrix):
-    outputActivation = numpy.zeros(self._maxBucketIdx + 1)
-    for bit in patternNZ:
-      outputActivation += weightMatrix[bit, :]
+    """
+    Perform inference for a single step. Given an SDR input and a weight
+    matrix, return a predicted distribution.
+
+    @param patternNZ  list of the active indices from the output below
+    @param weightMatrix numpy array of the weight matrix
+    @return numpy array of the predicted class label distribution
+    """
+    outputActivation = weightMatrix[patternNZ].sum(axis=0)
 
     # softmax normalization
     expOutputActivation = numpy.exp(outputActivation)
