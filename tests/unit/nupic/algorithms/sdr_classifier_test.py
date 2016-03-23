@@ -606,13 +606,12 @@ class SDRClassifierTest(unittest.TestCase):
     After 20000 iterations, we change the association to
       SDR1    => bucketIdx 0 (30%)
               => bucketIdx 1 (20%)
-              => bucketIdx 2 (20%)
-              => bucketIdx 4 (30%)
+              => bucketIdx 3 (40%)
 
-      SDR2    => bucketIdx 1 (50%)
-              => bucketIdx 3 (50%)
+      No further training for SDR2
 
-    The classifier should adapt continuously and learn new associations
+    The classifier should adapt continuously and learn new associations for
+    SDR1, but at the same time remember the old association for SDR2
     """
 
     c = self._classifier([0], 0.0002, 0.1, 0)
@@ -622,7 +621,7 @@ class SDRClassifierTest(unittest.TestCase):
     SDR2 = [2, 4, 6]
 
     random.seed(42)
-    for _ in xrange(10000):
+    for _ in xrange(20000):
       randomNumber = random.random()
       if randomNumber < 0.3:
         bucketIdx = 0
@@ -645,46 +644,47 @@ class SDRClassifierTest(unittest.TestCase):
                 learn=True, infer=True)
       recordNum += 1
 
+    result1 = c.compute(
+        recordNum=2, patternNZ=SDR1,
+        classification={'bucketIdx': 0, 'actValue': 0},
+        learn=False, infer=True)
+    self.assertAlmostEqual(result1[0][0], 0.3, places=1)
+    self.assertAlmostEqual(result1[0][1], 0.3, places=1)
+    self.assertAlmostEqual(result1[0][2], 0.4, places=1)
+
+    result2 = c.compute(
+        recordNum=2, patternNZ=SDR2,
+        classification={'bucketIdx': 0, 'actValue': 0},
+        learn=False, infer=True)
+    self.assertAlmostEqual(result2[0][1], 0.5, places=1)
+    self.assertAlmostEqual(result2[0][3], 0.5, places=1)
+
     for _ in xrange(30000):
       randomNumber = random.random()
       if randomNumber < 0.3:
         bucketIdx = 0
-      elif randomNumber < 0.5:
+      elif randomNumber < 0.6:
         bucketIdx = 1
-      elif randomNumber < 0.7:
-        bucketIdx = 2
       else:
-        bucketIdx = 4
+        bucketIdx = 3
       c.compute(recordNum=recordNum, patternNZ=SDR1,
                 classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
                 learn=True, infer=True)
       recordNum += 1
 
-      randomNumber = random.random()
-      if randomNumber < 0.5:
-        bucketIdx = 1
-      else:
-        bucketIdx = 3
-      c.compute(recordNum=recordNum, patternNZ=SDR2,
-                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
-                learn=True, infer=True)
-      recordNum += 1
-
-    result = c.compute(
+    result1new = c.compute(
         recordNum=2, patternNZ=SDR1,
         classification={'bucketIdx': 0, 'actValue': 0},
         learn=False, infer=True)
-    self.assertAlmostEqual(result[0][0], 0.3, places=1)
-    self.assertAlmostEqual(result[0][1], 0.2, places=1)
-    self.assertAlmostEqual(result[0][2], 0.2, places=1)
-    self.assertAlmostEqual(result[0][4], 0.3, places=1)
+    self.assertAlmostEqual(result1new[0][0], 0.3, places=1)
+    self.assertAlmostEqual(result1new[0][1], 0.3, places=1)
+    self.assertAlmostEqual(result1new[0][3], 0.4, places=1)
 
-    result = c.compute(
+    result2new = c.compute(
         recordNum=2, patternNZ=SDR2,
         classification={'bucketIdx': 0, 'actValue': 0},
         learn=False, infer=True)
-    self.assertAlmostEqual(result[0][1], 0.5, places=1)
-    self.assertAlmostEqual(result[0][3], 0.5, places=1)
+    self.assertSequenceEqual(list(result2[0]), list(result2new[0]))
 
 
   def test_pFormatArray(self):
