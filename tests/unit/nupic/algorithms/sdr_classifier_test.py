@@ -418,7 +418,7 @@ class SDRClassifierTest(unittest.TestCase):
 
 
   def test_pFormatArray(self):
-    from htmresearch.algorithms.sdr_classifier import _pFormatArray
+    from nupic.algorithms.sdr_classifier import _pFormatArray
     pretty = _pFormatArray(range(10))
     self.assertIsInstance(pretty, basestring)
     self.assertEqual(pretty[0], "[")
