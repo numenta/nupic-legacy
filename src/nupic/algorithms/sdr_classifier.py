@@ -54,7 +54,7 @@ class SDRClassifier(object):
 
   Example Usage:
 
-  c = SDRClassifier(steps=[0], alpha=0.1, actValueAlpha=0.1, verbosity=0)
+  c = SDRClassifier(steps=[1], alpha=0.1, actValueAlpha=0.1, verbosity=0)
 
   # learning
   c.compute(recordNum=0, patternNZ=[1, 5, 9],
@@ -65,6 +65,13 @@ class SDRClassifier(object):
   result = c.compute(recordNum=1, patternNZ=[1, 5, 9],
                      classification={"bucketIdx": 4, "actValue": 34.7},
                      learn=False, infer=True)
+
+  # Print the top three predictions for 1 steps out.
+  topPredictions = sorted(zip(result[1],
+                          result["actualValues"]), reverse=True)[:3]
+  for probability, value in topPredictions:
+    print "Prediction of {} has probability of {}.".format(value,
+                                                           probability*100.0)
 
   References:
     Alex Graves. Supervised Sequence Labeling with Recurrent Neural Networks
