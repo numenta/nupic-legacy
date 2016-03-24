@@ -310,8 +310,7 @@ class SDRClassifier(object):
   def infer(self, patternNZ, classification):
     """
     Return the inference value from one input sample. The actual
-    learning happens in compute(). The method customCompute() is here to
-    maintain backward compatibility.
+    learning happens in compute().
 
     Parameters:
     --------------------------------------------------------------------
