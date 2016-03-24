@@ -28,7 +28,6 @@ import types
 import unittest2 as unittest
 
 import numpy
-import tempfile
 
 from nupic.algorithms.sdr_classifier import SDRClassifier
 
@@ -72,7 +71,7 @@ class SDRClassifierTest(unittest.TestCase):
     for recordNum in xrange(10):
       retval = self._compute(classifier, recordNum, [1, 5], 0, 10)
 
-    self.assertEqual(retval['actualValues'][0], 10)
+    self.assertEqual(retval["actualValues"][0], 10)
     self.assertGreater(retval[1][0], 0.9)
 
 
@@ -86,7 +85,7 @@ class SDRClassifierTest(unittest.TestCase):
     for recordNum in xrange(10):
       retval = self._compute(classifier, recordNum, [1, 5], 0, 10)
 
-    self.assertEqual(retval['actualValues'][0], 10)
+    self.assertEqual(retval["actualValues"][0], 10)
     self.assertGreater(retval[0][0], 0.9)
 
 
@@ -94,26 +93,26 @@ class SDRClassifierTest(unittest.TestCase):
     c = self._classifier([1], 0.1, 0.1, 0)
     result = c.compute(recordNum=0,
                        patternNZ=[1, 5, 9],
-                       classification= {'bucketIdx': 4, 'actValue': 34.7},
+                       classification= {"bucketIdx": 4, "actValue": 34.7},
                        learn=True,
                        infer=True)
-    self.assertSetEqual(set(result.keys()), set(('actualValues', 1)))
-    self.assertEqual(type(result['actualValues']), list)
-    self.assertEqual(len(result['actualValues']), 1)
-    self.assertEqual(type(result['actualValues'][0]), float)
+    self.assertSetEqual(set(result.keys()), set(("actualValues", 1)))
+    self.assertEqual(type(result["actualValues"]), list)
+    self.assertEqual(len(result["actualValues"]), 1)
+    self.assertEqual(type(result["actualValues"][0]), float)
     self.assertEqual(type(result[1]), numpy.ndarray)
     self.assertEqual(result[1].itemsize, 8)
-    self.assertAlmostEqual(result['actualValues'][0], 34.7, places=5)
+    self.assertAlmostEqual(result["actualValues"][0], 34.7, places=5)
 
 
   def testBucketIdxNumpyInt64Input(self):
     c = self._classifier([1], 0.1, 0.1, 0)
     result = c.compute(0, [1, 5, 9],
-                       {'bucketIdx': numpy.int64(4), 'actValue': 34.7}, True,
+                       {"bucketIdx": numpy.int64(4), "actValue": 34.7}, True,
                        True)
-    self.assertSetEqual(set(result.keys()), set(('actualValues', 1)))
-    self.assertEqual(len(result['actualValues']), 1)
-    self.assertAlmostEqual(result['actualValues'][0], 34.7, places=5)
+    self.assertSetEqual(set(result.keys()), set(("actualValues", 1)))
+    self.assertEqual(len(result["actualValues"]), 1)
+    self.assertAlmostEqual(result["actualValues"][0], 34.7, places=5)
 
 
   def testComputeInferOrLearnOnly(self):
@@ -121,7 +120,7 @@ class SDRClassifierTest(unittest.TestCase):
     # learn only
     recordNum=0
     retval = c.compute(recordNum=recordNum, patternNZ=[1, 5, 9],
-              classification={'bucketIdx': 4, 'actValue': 34.7},
+              classification={"bucketIdx": 4, "actValue": 34.7},
               learn=True, infer=False)
     self.assertIsNone(retval)
     recordNum += 1
@@ -129,18 +128,18 @@ class SDRClassifierTest(unittest.TestCase):
     # infer only
     recordNum=0
     retval1 = c.compute(recordNum=recordNum, patternNZ=[1, 5, 9],
-              classification={'bucketIdx': 2, 'actValue': 14.2},
+              classification={"bucketIdx": 2, "actValue": 14.2},
               learn=False, infer=True)
     recordNum += 1
     retval2 = c.compute(recordNum=recordNum, patternNZ=[1, 5, 9],
-              classification={'bucketIdx': 3, 'actValue': 20.5},
+              classification={"bucketIdx": 3, "actValue": 20.5},
               learn=False, infer=True)
     recordNum += 1
     self.assertSequenceEqual(list(retval1[1]), list(retval2[1]))
 
     # learn and infer cannot be both False
     kwargs = {"recordNum": recordNum, "patternNZ": [1, 2],
-              "classification": {'bucketIdx': 4, 'actValue': 34.7},
+              "classification": {"bucketIdx": 4, "actValue": 34.7},
               "learn": False, "infer": False}
     self.assertRaises(ValueError, c.compute, **kwargs)
 
@@ -149,58 +148,58 @@ class SDRClassifierTest(unittest.TestCase):
     c = self._classifier([1], 0.1, 0.1, 0)
     result = c.compute(recordNum=0,
                        patternNZ=[1, 5, 9],
-                       classification={'bucketIdx': 4, 'actValue': 34.7},
+                       classification={"bucketIdx": 4, "actValue": 34.7},
                        learn=True,
                        infer=True)
-    self.assertSetEqual(set(result.keys()), set(('actualValues', 1)))
-    self.assertEqual(len(result['actualValues']), 1)
-    self.assertAlmostEqual(result['actualValues'][0], 34.7, places=5)
+    self.assertSetEqual(set(result.keys()), set(("actualValues", 1)))
+    self.assertEqual(len(result["actualValues"]), 1)
+    self.assertAlmostEqual(result["actualValues"][0], 34.7, places=5)
 
 
   def testCompute2(self):
     c = self._classifier([1], 0.1, 0.1, 0)
     c.compute(recordNum=0, patternNZ=[1, 5, 9],
-              classification={'bucketIdx': 4, 'actValue': 34.7},
+              classification={"bucketIdx": 4, "actValue": 34.7},
               learn=True, infer=True)
     result = c.compute(recordNum=1, patternNZ=[1, 5, 9],
-                       classification={'bucketIdx': 4, 'actValue': 34.7},
+                       classification={"bucketIdx": 4, "actValue": 34.7},
                        learn=True, infer=True)
-    self.assertSetEqual(set(result.keys()), set(('actualValues', 1)))
-    self.assertAlmostEqual(result['actualValues'][4], 34.7, places=5)
+    self.assertSetEqual(set(result.keys()), set(("actualValues", 1)))
+    self.assertAlmostEqual(result["actualValues"][4], 34.7, places=5)
 
 
   def testComputeComplex(self):
     c = self._classifier([1], 1.0, 0.1, 0)
     recordNum=0
     c.compute(recordNum=recordNum, patternNZ=[1, 5, 9],
-              classification={'bucketIdx': 4, 'actValue': 34.7},
+              classification={"bucketIdx": 4, "actValue": 34.7},
               learn=True, infer=True)
     recordNum += 1
 
     c.compute(recordNum=recordNum, patternNZ=[0, 6, 9, 11],
-              classification={'bucketIdx': 5, 'actValue': 41.7},
+              classification={"bucketIdx": 5, "actValue": 41.7},
               learn=True, infer=True)
     recordNum += 1
 
     c.compute(recordNum=recordNum, patternNZ=[6, 9],
-              classification={'bucketIdx': 5, 'actValue': 44.9},
+              classification={"bucketIdx": 5, "actValue": 44.9},
               learn=True, infer=True)
     recordNum += 1
 
     c.compute(recordNum=recordNum, patternNZ=[1, 5, 9],
-              classification={'bucketIdx': 4, 'actValue': 42.9},
+              classification={"bucketIdx": 4, "actValue": 42.9},
               learn=True, infer=True)
     recordNum += 1
 
     result = c.compute(recordNum=recordNum, patternNZ=[1, 5, 9],
-              classification={'bucketIdx': 4, 'actValue': 34.7},
+              classification={"bucketIdx": 4, "actValue": 34.7},
               learn=True, infer=True)
     recordNum += 1
 
-    self.assertSetEqual(set(result.keys()), set(('actualValues', 1)))
-    self.assertAlmostEqual(result['actualValues'][4], 35.520000457763672,
+    self.assertSetEqual(set(result.keys()), set(("actualValues", 1)))
+    self.assertAlmostEqual(result["actualValues"][4], 35.520000457763672,
                            places=5)
-    self.assertAlmostEqual(result['actualValues'][5], 42.020000457763672,
+    self.assertAlmostEqual(result["actualValues"][5], 42.020000457763672,
                            places=5)
     self.assertEqual(len(result[1]), 6)
     self.assertAlmostEqual(result[1][0], 0.034234, places=5)
@@ -215,62 +214,62 @@ class SDRClassifierTest(unittest.TestCase):
     c = self._classifier([1], 0.1, 0.1, 0)
     result = c.compute(
         recordNum=0, patternNZ=[1, 5, 9],
-        classification={'bucketIdx': None, 'actValue': None},
+        classification={"bucketIdx": None, "actValue": None},
         learn=True, infer=True)
 
-    self.assertSetEqual(set(result.keys()), set(('actualValues', 1)))
-    self.assertEqual(len(result['actualValues']), 1)
-    self.assertEqual(result['actualValues'][0], None)
+    self.assertSetEqual(set(result.keys()), set(("actualValues", 1)))
+    self.assertEqual(len(result["actualValues"]), 1)
+    self.assertEqual(result["actualValues"][0], None)
 
 
   def testComputeCategory(self):
     c = self._classifier([1], 0.1, 0.1, 0)
     c.compute(recordNum=0, patternNZ=[1, 5, 9],
-              classification={'bucketIdx': 4, 'actValue': 'D'},
+              classification={"bucketIdx": 4, "actValue": "D"},
               learn=True, infer=True)
     result = c.compute(recordNum=1, patternNZ=[1, 5, 9],
-                       classification={'bucketIdx': 4, 'actValue': 'D'},
+                       classification={"bucketIdx": 4, "actValue": "D"},
                        learn=True, infer=True)
-    self.assertSetEqual(set(result.keys()), set(('actualValues', 1)))
-    self.assertEqual(result['actualValues'][4], 'D')
+    self.assertSetEqual(set(result.keys()), set(("actualValues", 1)))
+    self.assertEqual(result["actualValues"][4], "D")
 
     predictResult = c.compute(recordNum=2, patternNZ=[1, 5, 9],
-                              classification={'bucketIdx': 5,
-                                              'actValue': None},
+                              classification={"bucketIdx": 5,
+                                              "actValue": None},
                               learn=True, infer=True)
-    for value in predictResult['actualValues']:
+    for value in predictResult["actualValues"]:
       self.assertIsInstance(value, (types.NoneType, types.StringType))
 
 
   def testComputeCategory2(self):
     c = self._classifier([1], 0.1, 0.1, 0)
     c.compute(recordNum=0, patternNZ=[1, 5, 9],
-              classification={'bucketIdx': 4, 'actValue': 'D'},
+              classification={"bucketIdx": 4, "actValue": "D"},
               learn=True, infer=True)
     result = c.compute(recordNum=1, patternNZ=[1, 5, 9],
-                       classification={'bucketIdx': 4, 'actValue': 'E'},
+                       classification={"bucketIdx": 4, "actValue": "E"},
                        learn=True, infer=True)
-    self.assertSetEqual(set(result.keys()), set(('actualValues', 1)))
-    self.assertEqual(result['actualValues'][4], 'D')
+    self.assertSetEqual(set(result.keys()), set(("actualValues", 1)))
+    self.assertEqual(result["actualValues"][4], "D")
 
 
   def testSerialization(self):
     c = self._classifier([1], 1.0, 0.1, 0)
     c.compute(recordNum=0,
               patternNZ=[1, 5, 9],
-              classification={'bucketIdx': 4, 'actValue': 34.7},
+              classification={"bucketIdx": 4, "actValue": 34.7},
               learn=True, infer=True)
     c.compute(recordNum=1,
               patternNZ=[0, 6, 9, 11],
-              classification={'bucketIdx': 5, 'actValue': 41.7},
+              classification={"bucketIdx": 5, "actValue": 41.7},
               learn=True, infer=True)
     c.compute(recordNum=2,
               patternNZ=[6, 9],
-              classification={'bucketIdx': 5, 'actValue': 44.9},
+              classification={"bucketIdx": 5, "actValue": 44.9},
               learn=True, infer=True)
     c.compute(recordNum=3,
               patternNZ=[1, 5, 9],
-              classification={'bucketIdx': 4, 'actValue': 42.9},
+              classification={"bucketIdx": 4, "actValue": 42.9},
               learn=True, infer=True)
     serialized = pickle.dumps(c)
     c = pickle.loads(serialized)
@@ -280,12 +279,12 @@ class SDRClassifierTest(unittest.TestCase):
 
     result = c.compute(recordNum=4,
               patternNZ=[1, 5, 9],
-              classification={'bucketIdx': 4, 'actValue': 34.7},
+              classification={"bucketIdx": 4, "actValue": 34.7},
               learn=True, infer=True)
-    self.assertSetEqual(set(result.keys()), set(('actualValues', 1)))
-    self.assertAlmostEqual(result['actualValues'][4], 35.520000457763672,
+    self.assertSetEqual(set(result.keys()), set(("actualValues", 1)))
+    self.assertAlmostEqual(result["actualValues"][4], 35.520000457763672,
                            places=5)
-    self.assertAlmostEqual(result['actualValues'][5], 42.020000457763672,
+    self.assertAlmostEqual(result["actualValues"][5], 42.020000457763672,
                            places=5)
     self.assertEqual(len(result[1]), 6)
     self.assertAlmostEqual(result[1][0], 0.034234, places=5)
@@ -307,7 +306,7 @@ class SDRClassifierTest(unittest.TestCase):
                            value=2)
 
     # Since overlap - should be previous with high likelihood
-    self.assertEqual(retval['actualValues'][9], 9)
+    self.assertEqual(retval["actualValues"][9], 9)
     self.assertGreater(retval[1][9], 0.9)
 
     retval = self._compute(classifier, recordNum=3, pattern=[3, 5], bucket=2,
@@ -325,7 +324,7 @@ class SDRClassifierTest(unittest.TestCase):
                              bucket=0, value=10)
 
     # Only should return one actual value bucket.
-    self.assertEqual(retval['actualValues'], [10])
+    self.assertEqual(retval["actualValues"], [10])
     # # Should have a probability of 100% for that bucket.
     self.assertEqual(retval[1], [1.])
     self.assertEqual(retval[2], [1.])
@@ -342,7 +341,7 @@ class SDRClassifierTest(unittest.TestCase):
       recordNum += 1
 
     # Only should return one actual value bucket.
-    self.assertEqual(retval['actualValues'],
+    self.assertEqual(retval["actualValues"],
                      [0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
 
     self.assertGreater(retval[1][0], 0.99)
@@ -359,31 +358,31 @@ class SDRClassifierTest(unittest.TestCase):
     Here, we intend the classifier to learn the associations:
       [1,3,5] => bucketIdx 1
       [2,4,6] => bucketIdx 2
-      [7,8,9] => don't care
+      [7,8,9] => don"t care
 
-    If it doesn't pay attention to the recordNums in this test, it will learn the
+    If it doesn"t pay attention to the recordNums in this test, it will learn the
     wrong associations.
     """
 
     c = self._classifier([1], 1.0, 0.1, 0)
     recordNum = 0
     c.compute(recordNum=recordNum, patternNZ=[1, 3, 5],
-              classification={'bucketIdx': 0, 'actValue': 0},
+              classification={"bucketIdx": 0, "actValue": 0},
               learn=True, infer=True)
     recordNum += 1
 
     c.compute(recordNum=recordNum, patternNZ=[2, 4, 6],
-              classification={'bucketIdx': 1, 'actValue': 1},
+              classification={"bucketIdx": 1, "actValue": 1},
               learn=True, infer=True)
     recordNum += 1
 
     c.compute(recordNum=recordNum, patternNZ=[1, 3, 5],
-              classification={'bucketIdx': 2, 'actValue': 2},
+              classification={"bucketIdx": 2, "actValue": 2},
               learn=True, infer=True)
     recordNum += 1
 
     c.compute(recordNum=recordNum, patternNZ=[2, 4, 6],
-              classification={'bucketIdx': 1, 'actValue': 1},
+              classification={"bucketIdx": 1, "actValue": 1},
               learn=True, infer=True)
     recordNum += 1
 
@@ -392,7 +391,7 @@ class SDRClassifierTest(unittest.TestCase):
     # At this point, we should have learned [1,3,5] => bucket 1
     #                                       [2,4,6] => bucket 2
     result = c.compute(recordNum=recordNum, patternNZ=[1, 3, 5],
-              classification={'bucketIdx': 2, 'actValue': 2},
+              classification={"bucketIdx": 2, "actValue": 2},
               learn=True, infer=True)
     recordNum += 1
     self.assertLess(result[1][0], 0.1)
@@ -400,7 +399,7 @@ class SDRClassifierTest(unittest.TestCase):
     self.assertLess(result[1][2], 0.1)
 
     result = c.compute(recordNum=recordNum, patternNZ=[2, 4, 6],
-              classification={'bucketIdx': 1, 'actValue': 1},
+              classification={"bucketIdx": 1, "actValue": 1},
               learn=True, infer=True)
     recordNum += 1
     self.assertLess(result[1][0], 0.1)
@@ -410,13 +409,13 @@ class SDRClassifierTest(unittest.TestCase):
 
 
     # -----------------------------------------------------------------------
-    # Feed in records that skip and make sure they don't mess up what we
+    # Feed in records that skip and make sure they don"t mess up what we
     #  learned
     # If we skip a record, the CLA should NOT learn that [2,4,6] from
     #  the previous learn associates with bucket 0
     recordNum += 1
     result = c.compute(recordNum=recordNum, patternNZ=[1, 3, 5],
-              classification={'bucketIdx': 0, 'actValue': 0},
+              classification={"bucketIdx": 0, "actValue": 0},
               learn=True, infer=True)
     recordNum += 1
     self.assertLess(result[1][0], 0.1)
@@ -427,7 +426,7 @@ class SDRClassifierTest(unittest.TestCase):
     #  the previous learn associates with bucket 0
     recordNum += 1
     result = c.compute(recordNum=recordNum, patternNZ=[2, 4, 6],
-              classification={'bucketIdx': 0, 'actValue': 0},
+              classification={"bucketIdx": 0, "actValue": 0},
               learn=True, infer=True)
     recordNum += 1
     self.assertLess(result[1][0], 0.1)
@@ -438,7 +437,7 @@ class SDRClassifierTest(unittest.TestCase):
     #  the previous learn associates with bucket 0
     recordNum += 1
     result = c.compute(recordNum=recordNum, patternNZ=[1, 3, 5],
-              classification={'bucketIdx': 0, 'actValue': 0},
+              classification={"bucketIdx": 0, "actValue": 0},
               learn=True, infer=True)
     recordNum += 1
     self.assertLess(result[1][0], 0.1)
@@ -455,17 +454,17 @@ class SDRClassifierTest(unittest.TestCase):
     c = self._classifier([2], 0.1, 0.1, 0)
     result = c.compute(
         recordNum=0, patternNZ=[1, 5, 9],
-        classification={'bucketIdx': 0, 'actValue': 34.7},
+        classification={"bucketIdx": 0, "actValue": 34.7},
         learn=True, infer=True)
 
     result = c.compute(
         recordNum=2, patternNZ=[1, 5, 9],
-        classification={'bucketIdx': 0, 'actValue': 34.7},
+        classification={"bucketIdx": 0, "actValue": 34.7},
         learn=True, infer=True)
 
-    self.assertSetEqual(set(result.keys()), set(('actualValues', 2)))
-    self.assertEqual(len(result['actualValues']), 1)
-    self.assertAlmostEqual(result['actualValues'][0], 34.7)
+    self.assertSetEqual(set(result.keys()), set(("actualValues", 2)))
+    self.assertEqual(len(result["actualValues"]), 1)
+    self.assertAlmostEqual(result["actualValues"][0], 34.7)
 
 
   def testPredictionDistribution(self):
@@ -483,13 +482,13 @@ class SDRClassifierTest(unittest.TestCase):
     repetitions and a small learning rate
     """
 
-    c = self._classifier([0], 0.0005, 0.1, 0)
+    c = self._classifier([0], 0.001, 0.1, 0)
 
     SDR1 = [1, 3, 5]
     SDR2 = [2, 4, 6]
     recordNum = 0
     random.seed(42)
-    for _ in xrange(10000):
+    for _ in xrange(5000):
       randomNumber = random.random()
       if randomNumber < 0.3:
         bucketIdx = 0
@@ -498,8 +497,8 @@ class SDRClassifierTest(unittest.TestCase):
       else:
         bucketIdx = 2
       c.compute(recordNum=recordNum, patternNZ=SDR1,
-                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
-                learn=True, infer=True)
+                classification={"bucketIdx": bucketIdx, "actValue": bucketIdx},
+                learn=True, infer=False)
       recordNum += 1
 
       randomNumber = random.random()
@@ -508,24 +507,22 @@ class SDRClassifierTest(unittest.TestCase):
       else:
         bucketIdx = 3
       c.compute(recordNum=recordNum, patternNZ=SDR2,
-                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
-                learn=True, infer=True)
+                classification={"bucketIdx": bucketIdx, "actValue": bucketIdx},
+                learn=True, infer=False)
       recordNum += 1
 
-    result = c.compute(
-        recordNum=2, patternNZ=SDR1,
-        classification={'bucketIdx': 0, 'actValue': 0},
+    result1 = c.compute(
+        recordNum=2, patternNZ=SDR1, classification=None,
         learn=False, infer=True)
-    self.assertAlmostEqual(result[0][0], 0.3, places=1)
-    self.assertAlmostEqual(result[0][1], 0.3, places=1)
-    self.assertAlmostEqual(result[0][2], 0.4, places=1)
+    self.assertAlmostEqual(result1[0][0], 0.3, places=1)
+    self.assertAlmostEqual(result1[0][1], 0.3, places=1)
+    self.assertAlmostEqual(result1[0][2], 0.4, places=1)
 
-    result = c.compute(
-        recordNum=2, patternNZ=SDR2,
-        classification={'bucketIdx': 0, 'actValue': 0},
+    result2 = c.compute(
+        recordNum=2, patternNZ=SDR2, classification=None,
         learn=False, infer=True)
-    self.assertAlmostEqual(result[0][1], 0.5, places=1)
-    self.assertAlmostEqual(result[0][3], 0.5, places=1)
+    self.assertAlmostEqual(result2[0][1], 0.5, places=1)
+    self.assertAlmostEqual(result2[0][3], 0.5, places=1)
 
 
   def testPredictionDistributionOverlap(self):
@@ -543,7 +540,7 @@ class SDRClassifierTest(unittest.TestCase):
     The classifier should get the distribution almost right despite the overlap
     """
 
-    c = self._classifier([0], 0.0001, 0.1, 0)
+    c = self._classifier([0], 0.0005, 0.1, 0)
     recordNum = 0
 
     # generate 2 SDRs with 2 shared bits
@@ -553,7 +550,7 @@ class SDRClassifierTest(unittest.TestCase):
     SDR2[5] = SDR1[11]
 
     random.seed(42)
-    for _ in xrange(10000):
+    for _ in xrange(5000):
       randomNumber = random.random()
       if randomNumber < 0.3:
         bucketIdx = 0
@@ -562,8 +559,8 @@ class SDRClassifierTest(unittest.TestCase):
       else:
         bucketIdx = 2
       c.compute(recordNum=recordNum, patternNZ=SDR1,
-                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
-                learn=True, infer=True)
+                classification={"bucketIdx": bucketIdx, "actValue": bucketIdx},
+                learn=True, infer=False)
       recordNum += 1
 
       randomNumber = random.random()
@@ -572,28 +569,26 @@ class SDRClassifierTest(unittest.TestCase):
       else:
         bucketIdx = 3
       c.compute(recordNum=recordNum, patternNZ=SDR2,
-                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
-                learn=True, infer=True)
+                classification={"bucketIdx": bucketIdx, "actValue": bucketIdx},
+                learn=True, infer=False)
       recordNum += 1
 
-    result = c.compute(
-        recordNum=2, patternNZ=SDR1,
-        classification={'bucketIdx': 0, 'actValue': 0},
+    result1 = c.compute(
+        recordNum=2, patternNZ=SDR1, classification=None,
         learn=False, infer=True)
-    self.assertAlmostEqual(result[0][0], 0.3, places=1)
-    self.assertAlmostEqual(result[0][1], 0.3, places=1)
-    self.assertAlmostEqual(result[0][2], 0.4, places=1)
+    self.assertAlmostEqual(result1[0][0], 0.3, places=1)
+    self.assertAlmostEqual(result1[0][1], 0.3, places=1)
+    self.assertAlmostEqual(result1[0][2], 0.4, places=1)
 
-    result = c.compute(
-        recordNum=2, patternNZ=SDR2,
-        classification={'bucketIdx': 0, 'actValue': 0},
+    result2 = c.compute(
+        recordNum=2, patternNZ=SDR2, classification=None,
         learn=False, infer=True)
-    self.assertAlmostEqual(result[0][1], 0.5, places=1)
-    self.assertAlmostEqual(result[0][3], 0.5, places=1)
+    self.assertAlmostEqual(result2[0][1], 0.5, places=1)
+    self.assertAlmostEqual(result2[0][3], 0.5, places=1)
 
 
   def testPredictionDistributionContinuousLearning(self):
-    """ Test the distribution of predictions with overlapping input SDRs
+    """ Test continuous learning
 
     First, we intend the classifier to learn the associations:
       SDR1    => bucketIdx 0 (30%)
@@ -614,14 +609,14 @@ class SDRClassifierTest(unittest.TestCase):
     SDR1, but at the same time remember the old association for SDR2
     """
 
-    c = self._classifier([0], 0.0002, 0.1, 0)
+    c = self._classifier([0], 0.001, 0.1, 0)
     recordNum = 0
 
     SDR1 = [1, 3, 5]
     SDR2 = [2, 4, 6]
 
     random.seed(42)
-    for _ in xrange(20000):
+    for _ in xrange(10000):
       randomNumber = random.random()
       if randomNumber < 0.3:
         bucketIdx = 0
@@ -630,8 +625,8 @@ class SDRClassifierTest(unittest.TestCase):
       else:
         bucketIdx = 2
       c.compute(recordNum=recordNum, patternNZ=SDR1,
-                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
-                learn=True, infer=True)
+                classification={"bucketIdx": bucketIdx, "actValue": bucketIdx},
+                learn=True, infer=False)
       recordNum += 1
 
       randomNumber = random.random()
@@ -640,13 +635,13 @@ class SDRClassifierTest(unittest.TestCase):
       else:
         bucketIdx = 3
       c.compute(recordNum=recordNum, patternNZ=SDR2,
-                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
+                classification={"bucketIdx": bucketIdx, "actValue": bucketIdx},
                 learn=True, infer=True)
       recordNum += 1
 
     result1 = c.compute(
         recordNum=2, patternNZ=SDR1,
-        classification={'bucketIdx': 0, 'actValue': 0},
+        classification={"bucketIdx": 0, "actValue": 0},
         learn=False, infer=True)
     self.assertAlmostEqual(result1[0][0], 0.3, places=1)
     self.assertAlmostEqual(result1[0][1], 0.3, places=1)
@@ -654,12 +649,12 @@ class SDRClassifierTest(unittest.TestCase):
 
     result2 = c.compute(
         recordNum=2, patternNZ=SDR2,
-        classification={'bucketIdx': 0, 'actValue': 0},
+        classification={"bucketIdx": 0, "actValue": 0},
         learn=False, infer=True)
     self.assertAlmostEqual(result2[0][1], 0.5, places=1)
     self.assertAlmostEqual(result2[0][3], 0.5, places=1)
 
-    for _ in xrange(30000):
+    for _ in xrange(20000):
       randomNumber = random.random()
       if randomNumber < 0.3:
         bucketIdx = 0
@@ -668,23 +663,70 @@ class SDRClassifierTest(unittest.TestCase):
       else:
         bucketIdx = 3
       c.compute(recordNum=recordNum, patternNZ=SDR1,
-                classification={'bucketIdx': bucketIdx, 'actValue': bucketIdx},
-                learn=True, infer=True)
+                classification={"bucketIdx": bucketIdx, "actValue": bucketIdx},
+                learn=True, infer=False)
       recordNum += 1
 
     result1new = c.compute(
-        recordNum=2, patternNZ=SDR1,
-        classification={'bucketIdx': 0, 'actValue': 0},
+        recordNum=2, patternNZ=SDR1, classification=None,
         learn=False, infer=True)
     self.assertAlmostEqual(result1new[0][0], 0.3, places=1)
     self.assertAlmostEqual(result1new[0][1], 0.3, places=1)
     self.assertAlmostEqual(result1new[0][3], 0.4, places=1)
 
     result2new = c.compute(
-        recordNum=2, patternNZ=SDR2,
-        classification={'bucketIdx': 0, 'actValue': 0},
+        recordNum=2, patternNZ=SDR2, classification=None,
         learn=False, infer=True)
     self.assertSequenceEqual(list(result2[0]), list(result2new[0]))
+
+
+  def testMultiStepPredictions(self):
+    """ Test multi-step predictions
+    We train the 0-step and the 1-step classifiers simultaneously on
+    data stream
+    (SDR1, bucketIdx0)
+    (SDR2, bucketIdx1)
+    (SDR1, bucketIdx0)
+    (SDR2, bucketIdx1)
+    ...
+
+    We intend the 0-step classifier to learn the associations:
+      SDR1    => bucketIdx 0
+      SDR2    => bucketIdx 1
+
+    and the 1-step classifier to learn the associations
+      SDR1    => bucketIdx 1
+      SDR2    => bucketIdx 0
+    """
+
+    c = self._classifier([0, 1], 1.0, 0.1, 0)
+
+    SDR1 = [1, 3, 5]
+    SDR2 = [2, 4, 6]
+    recordNum = 0
+    for _ in xrange(100):
+      c.compute(recordNum=recordNum, patternNZ=SDR1,
+                classification={"bucketIdx": 0, "actValue": 0},
+                learn=True, infer=False)
+      recordNum += 1
+
+      c.compute(recordNum=recordNum, patternNZ=SDR2,
+                classification={"bucketIdx": 1, "actValue": 1},
+                learn=True, infer=False)
+      recordNum += 1
+
+    result1 = c.compute(
+        recordNum=recordNum, patternNZ=SDR1, classification=None,
+        learn=False, infer=True)
+
+    result2 = c.compute(
+        recordNum=recordNum, patternNZ=SDR2, classification=None,
+        learn=False, infer=True)
+
+    self.assertAlmostEqual(result1[0][0], 1.0, places=1)
+    self.assertAlmostEqual(result1[0][1], 0.0, places=1)
+    self.assertAlmostEqual(result2[0][0], 0.0, places=1)
+    self.assertAlmostEqual(result2[0][1], 1.0, places=1)
 
 
   def test_pFormatArray(self):
@@ -697,15 +739,15 @@ class SDRClassifierTest(unittest.TestCase):
 
 
   def _checkValue(self, retval, index, value):
-    self.assertEqual(retval['actualValues'][index], value)
+    self.assertEqual(retval["actualValues"][index], value)
 
 
   @staticmethod
   def _compute(classifier, recordNum, pattern, bucket, value):
-    classification = {'bucketIdx': bucket, 'actValue': value}
+    classification = {"bucketIdx": bucket, "actValue": value}
     return classifier.compute(recordNum, pattern, classification, True, True)
 
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
   unittest.main()

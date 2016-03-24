@@ -27,17 +27,9 @@ that takes SDRs as input and outputs a predicted distribution of classes.
 """
 
 from collections import deque
-import itertools
 
 import numpy
 
-g_debugPrefix = "SDRClassifier"
-
-
-def _pFormatArray(array_, fmt="%.2f"):
-  """Return a string with pretty-print of a numpy array using the given format
-  for each element"""
-  return "[ " + " ".join(fmt % x for x in array_) + " ]"
 
 
 class SDRClassifier(object):
@@ -57,6 +49,23 @@ class SDRClassifier(object):
   During learning, the connection weights between input units and output units
   are adjusted to maximize the likelihood of the model
 
+  The SDR Classifier is a variation of the previous CLAClassifier which was
+  not based on the references below.
+
+  Example Usage:
+
+  c = SDRClassifier(steps=[0], alpha=0.1, actValueAlpha=0.1, verbosity=0)
+
+  # learning
+  c.compute(recordNum=0, patternNZ=[1, 5, 9],
+            classification={"bucketIdx": 4, "actValue": 34.7},
+            learn=True, infer=False)
+
+  # inference
+  result = c.compute(recordNum=1, patternNZ=[1, 5, 9],
+                     classification={"bucketIdx": 4, "actValue": 34.7},
+                     learn=False, infer=True)
+
   References:
     Alex Graves. Supervised Sequence Labeling with Recurrent Neural Networks
     PhD Thesis, 2008
@@ -67,7 +76,7 @@ class SDRClassifier(object):
     Architectures and Applications, pp 227-236, Springer-Verlag, 1990
   """
 
-  __VERSION__ = 1
+  VERSION = 1
 
 
   def __init__(self,
@@ -148,7 +157,7 @@ class SDRClassifier(object):
 
     # Set the version to the latest version.
     # This is used for serialization/deserialization
-    self._version = SDRClassifier.__VERSION__
+    self._version = SDRClassifier.VERSION
 
 
   def compute(self, recordNum, patternNZ, classification, learn, infer):
@@ -170,6 +179,7 @@ class SDRClassifier(object):
     @param classification Dict of the classification information:
                     bucketIdx: index of the encoder bucket
                     actValue:  actual value going into the encoder
+                    classification could be None for inference mode
     @param learn (bool) if true, learn this sample
     @param infer (bool) if true, perform inference
 
@@ -264,7 +274,7 @@ class SDRClassifier(object):
           self._actualValues[bucketIdx] = actValue
 
       for (iteration, learnPatternNZ) in self._patternNZHistory:
-        error = self.calculateError(classification)
+        error = self._calculateError(classification)
 
         nSteps = self._learnIteration - iteration
         if nSteps in self.steps:
@@ -320,7 +330,7 @@ class SDRClassifier(object):
 
     # NOTE: If doing 0-step prediction, we shouldn't use any knowledge
     #  of the classification input during inference.
-    if self.steps[0] == 0:
+    if self.steps[0] == 0 or classification is None:
       defaultValue = 0
     else:
       defaultValue = classification["actValue"]
@@ -353,11 +363,13 @@ class SDRClassifier(object):
     return predictDist
 
 
-  def calculateError(self, classification):
+  def _calculateError(self, classification):
     """
     Calculate error signal
-    :param classification:
-    :return: dict containing error. The key is the number of steps
+    @param classification dict of the classification information:
+                    bucketIdx: index of the encoder bucket
+                    actValue:  actual value going into the encoder
+    @return: dict containing error. The key is the number of steps
              The value is a numpy array of error at the output layer
     """
     error = dict()
@@ -372,4 +384,10 @@ class SDRClassifier(object):
         error[nSteps] = targetDist - predictDist
 
     return error
+
+
+def _pFormatArray(array_, fmt="%.2f"):
+  """Return a string with pretty-print of a numpy array using the given format
+  for each element"""
+  return "[ " + " ".join(fmt % x for x in array_) + " ]"
 
