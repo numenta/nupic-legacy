@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.5.1
+
+* Improves SDR classifier and tests
+* Modify the continuous online learning test
+* Add 3 tests on multiple item prediction
+* Fix test_pFormatArray
+* Implement SDR classifier in NuPIC
+* Make the 'arrayTypes' list more informative
+* Add getParameter/setParameter support for Bool and BoolArray
+* Improved anomaly params (from NAB)
+* Added minSparsity option
+* Get the encoder's outputWidth via parameter
+* Use nupic.core encoders from nupic via the Network API
+* Fix bugs and inconsistencies in the custom region demo
+* Adds BINDINGS_VERSION envvar to wheel filename (for iterative builds)
+
 ## 0.5.0
 
 * Removes references to FastTemporalMemory.
