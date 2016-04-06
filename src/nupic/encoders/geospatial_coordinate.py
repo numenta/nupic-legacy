@@ -71,6 +71,11 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
     return [('speed', 0), ('longitude', 1), ('latitude', 2), ('altitude', 3)]
 
 
+  def getScalars(self, inputData):
+    """See `nupic.encoders.base.Encoder` for more information."""
+    return numpy.array([0] * len(self.getDescription()))
+
+
   def encodeIntoArray(self, inputData, output):
     """
     See `nupic.encoders.base.Encoder` for more information.
