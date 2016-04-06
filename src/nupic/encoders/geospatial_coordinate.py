@@ -71,6 +71,18 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
     return [('speed', 0), ('longitude', 1), ('latitude', 2), ('altitude', 3)]
 
 
+  def getScalars(self, inputData):
+    """See `nupic.encoders.base.Encoder` for more information."""
+    # This is a fix for the OPF in order to allow optional 'altitude' in the
+    # input vector. If the input length is less than what is defined in the
+    # getDescription function, it means the user is not providing altitude. So
+    # we just add one more to the length of the [0] we're returning.
+    inputLength = len(inputData)
+    while inputLength < len(self.getDescription()):
+      inputLength += 1
+    return numpy.array([0] * inputLength)
+
+
   def encodeIntoArray(self, inputData, output):
     """
     See `nupic.encoders.base.Encoder` for more information.
