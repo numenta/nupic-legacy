@@ -136,12 +136,6 @@ class SDRClassifier(object):
     # with the activationPattern from N steps ago
     self._patternNZHistory = deque(maxlen=maxSteps)
 
-    # These are the bit histories. Each one is a BitHistory instance, stored in
-    # this dict, where the key is (bit, nSteps). The 'bit' is the index of the
-    # bit in the activation pattern and nSteps is the number of steps of
-    # prediction desired for that bit.
-    self._activeBitHistory = dict()
-
     # This contains the value of the highest input number we've ever seen
     # It is used to pre-allocate fixed size arrays that hold the weights
     self._maxInputIdx = 0
@@ -367,6 +361,90 @@ class SDRClassifier(object):
     expOutputActivation = numpy.exp(outputActivation)
     predictDist = expOutputActivation / numpy.sum(expOutputActivation)
     return predictDist
+
+
+  @classmethod
+  def read(cls, proto):
+    classifier = object.__new__(cls)
+
+    classifier.steps = []
+    for step in proto.steps:
+      classifier.steps.append(step)
+
+    classifier.alpha = proto.alpha
+    classifier.actValueAlpha = proto.actValueAlpha
+    classifier._learnIteration = proto.learnIteration
+    classifier._recordNumMinusLearnIteration = (
+      proto.recordNumMinusLearnIteration)
+
+    classifier._patternNZHistory = deque(maxlen=max(classifier.steps) + 1)
+    patternNZHistoryProto = proto.patternNZHistory
+    learnIteration = classifier._learnIteration - len(patternNZHistoryProto) + 1
+    for i in xrange(len(patternNZHistoryProto)):
+      classifier._patternNZHistory.append((learnIteration,
+                                           list(patternNZHistoryProto[i])))
+      learnIteration += 1
+
+    classifier._maxBucketIdx = proto.maxBucketIdx
+    classifier._maxInputIdx = proto.maxInputIdx
+
+    classifier._weightMatrix = {}
+    weightMatrixProto = proto.weightMatrix
+    for i in xrange(len(weightMatrixProto)):
+      classifier._weightMatrix[weightMatrixProto[i].steps] = numpy.reshape(
+        weightMatrixProto[i].weight, newshape=(classifier._maxInputIdx+1,
+                                               classifier._maxBucketIdx+1))
+
+    classifier._actualValues = []
+    for actValue in proto.actualValues:
+      if actValue == 0:
+        classifier._actualValues.append(None)
+      else:
+        classifier._actualValues.append(actValue)
+
+    classifier._version = proto.version
+    classifier.verbosity = proto.verbosity
+
+    return classifier
+
+
+  def write(self, proto):
+    stepsProto = proto.init("steps", len(self.steps))
+    for i in xrange(len(self.steps)):
+      stepsProto[i] = self.steps[i]
+
+    proto.alpha = self.alpha
+    proto.actValueAlpha = self.actValueAlpha
+    proto.learnIteration = self._learnIteration
+    proto.recordNumMinusLearnIteration = self._recordNumMinusLearnIteration
+
+    patternNZHistory = []
+    for (iteration, learnPatternNZ) in self._patternNZHistory:
+      patternNZHistory.append(learnPatternNZ)
+    proto.patternNZHistory = patternNZHistory
+
+    weightMatrices = proto.init("weightMatrix", len(self._weightMatrix))
+
+    i = 0
+    for step in self.steps:
+      stepWeightMatrixProto = weightMatrices[i]
+      stepWeightMatrixProto.steps = step
+      stepWeightMatrixProto.weight = list(
+        self._weightMatrix[step].flatten().astype(type('float', (float,), {})))
+      i += 1
+
+    proto.maxBucketIdx = self._maxBucketIdx
+    proto.maxInputIdx = self._maxInputIdx
+
+    actualValuesProto = proto.init("actualValues", len(self._actualValues))
+    for i in xrange(len(self._actualValues)):
+      if self._actualValues[i] is not None:
+        actualValuesProto[i] = self._actualValues[i]
+      else:
+        actualValuesProto[i] = 0
+
+    proto.version = self._version
+    proto.verbosity = self.verbosity
 
 
   def _calculateError(self, classification):

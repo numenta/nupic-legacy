@@ -24,12 +24,20 @@
 
 import cPickle as pickle
 import random
+import tempfile
 import types
 import unittest2 as unittest
 
 import numpy
 
 from nupic.algorithms.sdr_classifier import SDRClassifier
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.proto import SdrClassifier_capnp
 
 class SDRClassifierTest(unittest.TestCase):
   """Unit tests for SDRClassifier class."""
@@ -727,6 +735,65 @@ class SDRClassifierTest(unittest.TestCase):
     self.assertAlmostEqual(result1[0][1], 0.0, places=1)
     self.assertAlmostEqual(result2[0][0], 0.0, places=1)
     self.assertAlmostEqual(result2[0][1], 1.0, places=1)
+
+
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
+  def testWriteRead(self):
+    c1 = SDRClassifier([0], 0.1, 0.1, 0)
+
+    # Create a vector of input bit indices
+    input1 = [1, 5, 9]
+    result = c1.compute(recordNum=0,
+                        patternNZ=input1,
+                        classification={'bucketIdx': 4, 'actValue': 34.7},
+                        learn=True, infer=True)
+
+    proto1 = SdrClassifier_capnp.SdrClassifierProto.new_message()
+    c1.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = SdrClassifier_capnp.SdrClassifierProto.read(f)
+
+    # Load the deserialized proto
+    c2 = SDRClassifier.read(proto2)
+
+    self.assertEqual(c1.steps, c2.steps)
+    self.assertAlmostEqual(c1.alpha, c2.alpha)
+    self.assertAlmostEqual(c1.actValueAlpha, c2.actValueAlpha)
+    self.assertEqual(c1._learnIteration, c2._learnIteration)
+    self.assertEqual(c1._recordNumMinusLearnIteration, c2._recordNumMinusLearnIteration)
+    self.assertEqual(c1._patternNZHistory, c2._patternNZHistory)
+    self.assertEqual(c1._weightMatrix.keys(), c2._weightMatrix.keys())
+    for step in c1._weightMatrix.keys():
+      c1Weight = c1._weightMatrix[step]
+      c2Weight = c2._weightMatrix[step]
+      self.assertSequenceEqual(list(c1Weight.flatten()),
+                               list(c2Weight.flatten()))
+    self.assertEqual(c1._maxBucketIdx, c2._maxBucketIdx)
+    self.assertEqual(c1._maxInputIdx, c2._maxInputIdx)
+    self.assertEqual(len(c1._actualValues), len(c2._actualValues))
+    for i in xrange(len(c1._actualValues)):
+      self.assertAlmostEqual(c1._actualValues[i], c2._actualValues[i], 5)
+    self.assertEqual(c1._version, c2._version)
+    self.assertEqual(c1.verbosity, c2.verbosity)
+
+    result1 = c1.compute(recordNum=1,
+                         patternNZ=input1,
+                         classification={'bucketIdx': 4, 'actValue': 34.7},
+                         learn=True, infer=True)
+    result2 = c2.compute(recordNum=1,
+                         patternNZ=input1,
+                         classification={'bucketIdx': 4, 'actValue': 34.7},
+                         learn=True, infer=True)
+
+    self.assertEqual(result1.keys(), result2.keys())
+    for key in result1.keys():
+      for i in xrange(len(c1._actualValues)):
+        self.assertAlmostEqual(result1[key][i], result2[key][i], 5)
 
 
   def test_pFormatArray(self):
