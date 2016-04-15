@@ -572,4 +572,4 @@ class RecordSensor(PyRegion):
     instance.numCategories = proto.numCategories
 
     return instance
-  
+
