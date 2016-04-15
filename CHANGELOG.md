@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2
+
+* Fixe to GCE to return the right number of scalars when altitude is missing.
+
 ## 0.5.1
 
 * Improves SDR classifier and tests
