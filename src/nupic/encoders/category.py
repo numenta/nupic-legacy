@@ -29,7 +29,7 @@ from nupic.encoders.scalar import ScalarEncoder
 
 
 UNKNOWN = "<UNKNOWN>"
-
+DUMMY_CATEGORY = "__dummyCategory{}"
 
 
 class CategoryEncoder(Encoder):
@@ -44,12 +44,16 @@ class CategoryEncoder(Encoder):
   The SDRCategoryEncoder uses a different method to encode categories"""
 
 
-  def __init__(self, w, categoryList, name="category", verbosity=0, forced=False):
+  def __init__(self, w, categoryList, nAdditionalCategorySlots=0, name="category", verbosity=0, forced=False):
     """params:
+        nAdditionalCategorySlots (default 0) : After assigning the corresponding bits to each category, make
+        this number of 'dummy' categories. If new categories are fed, they'll be mapped into them.
        forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
     """
 
     self.encoders = None
+    self.nAdditionalCategorySlots = nAdditionalCategorySlots
+    self.__nAdditionalSlotsTaken = 0
     self.verbosity = verbosity
 
     # number of categories includes "unknown"
@@ -61,7 +65,13 @@ class CategoryEncoder(Encoder):
     for i in xrange(len(categoryList)):
       self.categoryToIndex[categoryList[i]] = i+1
       self.indexToCategory[i+1] = categoryList[i]
-
+    # creates the dummy categories
+    for i in xrange(nAdditionalCategorySlots):
+      self.categoryToIndex[DUMMY_CATEGORY.format(i)] = self.ncategories + i
+      self.indexToCategory[self.ncategories + i] = DUMMY_CATEGORY.format(i)
+    # update the number of categories
+    self.ncategories += nAdditionalCategorySlots
+    
     self.encoder = ScalarEncoder(w, minval=0, maxval=self.ncategories - 1,
                       radius=1, periodic=False, forced=forced)
     self.width = w * self.ncategories
@@ -119,6 +129,13 @@ class CategoryEncoder(Encoder):
       val = "<missing>"
     else:
       val = self.categoryToIndex.get(input, 0)
+      if (val == 0) and (self.__nAdditionalSlotsTaken < self.nAdditionalCategorySlots):
+        index = self.categoryToIndex.pop(DUMMY_CATEGORY.format(self.__nAdditionalSlotsTaken))
+        self.categoryToIndex[input] = index
+        self.indexToCategory[index] = input
+        self.__nAdditionalSlotsTaken += 1
+        val = index
+        
       self.encoder.encodeIntoArray(val, output)
 
     if self.verbosity >= 2:
