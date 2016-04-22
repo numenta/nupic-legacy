@@ -49,7 +49,7 @@ python setup.py bdist_wheel
 
 # Install nupic wheel and dependencies, including nupic.bindings artifact in
 # wheelwhouse/
-pip install -f wheelhouse/ dist/nupic-*.whl
+pip install -f wheelhouse/ dist/nupic-`cat VERSION`*.whl
 
 # Invoke tests
 python setup.py test
