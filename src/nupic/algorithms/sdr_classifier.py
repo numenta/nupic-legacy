@@ -367,7 +367,7 @@ class SDRClassifier(object):
   def read(cls, proto):
     classifier = object.__new__(cls)
 
-    classifier.steps = proto.steps
+    classifier.steps = [step for step in proto.steps]
 
     classifier.alpha = proto.alpha
     classifier.actValueAlpha = proto.actValueAlpha
