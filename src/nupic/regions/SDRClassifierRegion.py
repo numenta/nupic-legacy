@@ -253,7 +253,8 @@ class SDRClassifierRegion(PyRegion):
 
   def _initEphemerals(self):
     """
-    Initialize attributes that are not saved with the checkpoint.
+    Initialize ephemeral attributes that are not saved with the checkpoint.
+    These ephemeral attributes may be used by derived classes.
     """
     pass
 
