@@ -226,7 +226,7 @@ class SDRClassifierRegion(PyRegion):
     # Convert the steps designation to a list
     self.classifierImp = implementation
     self.steps = steps
-    self.stepsList = eval("[%s]" % (steps))
+    self.stepsList = eval("[{}]".format(steps))
     self.alpha = alpha
     self.verbosity = clVerbosity
 
@@ -252,6 +252,9 @@ class SDRClassifierRegion(PyRegion):
 
 
   def _initEphemerals(self):
+    """
+    Initialize attributes that are not saved with the checkpoint.
+    """
     pass
 
 

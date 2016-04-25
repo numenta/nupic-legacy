@@ -32,6 +32,14 @@ class SDRClassifierFactory(object):
 
   @staticmethod
   def create(*args, **kwargs):
+    """
+    Create a SDR classifier factory.
+    The implementation of the SDR Classifier can be specified with
+    the "implementation" keyword argument.
+
+    The SDRClassifierFactory uses the implementation as specified in
+     src/nupic/support/nupic-default.xml
+    """
     impl = kwargs.pop('implementation', None)
     if impl is None:
       impl = Configuration.get('nupic.opf.claClassifier.implementation')
