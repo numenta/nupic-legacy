@@ -109,7 +109,6 @@ class SDRClassifierRegion(PyRegion):
           regionLevel=True,
           isDefaultInput=False,
           requireSplitterMap=False),
-
       ),
 
       outputs=dict(
@@ -178,9 +177,9 @@ class SDRClassifierRegion(PyRegion):
           accessMode='Create'),
 
         alpha=dict(
-          description='The alpha used to compute running averages of the '
-                      'bucket duty cycles for each activation pattern bit. A '
-                      'lower alpha results in longer term memory',
+          description='The alpha is the learning rate of the classifier.'
+                      'lower alpha results in longer term memory and slower '
+                      'learning',
           dataType="Real32",
           count=1,
           constraints='',
@@ -203,7 +202,6 @@ class SDRClassifierRegion(PyRegion):
           constraints='',
           defaultValue=0,
           accessMode='ReadWrite'),
-
       ),
       commands=dict()
     )
@@ -500,5 +498,5 @@ if __name__ == "__main__":
   classifier = n.addRegion(
     'classifier',
     'py.SDRClassifierRegion',
-    '{ steps: "1,2", alpha: 0.001}'
+    '{steps: "1,2", alpha: 0.001}'
   )
