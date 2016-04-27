@@ -407,14 +407,12 @@ class KNNClassifier(object):
                                               cellsPerCol=self.cellsPerCol)
 
     if isSparse > 0:
-      isSorted = all(inputPattern[i] <= inputPattern[i+1]
-                     for i in xrange(len(inputPattern)-1))
-      if not isSorted:
-        raise RuntimeError("Sparse inputPattern must be sorted.")
-
-      if not all(bit < isSparse for bit in inputPattern):
-        raise RuntimeError("Sparse inputPattern contains an index outside of"
-                           "the dense representation's bounds.")
+      assert all(inputPattern[i] <= inputPattern[i+1]
+                 for i in xrange(len(inputPattern)-1)), \
+                     "Sparse inputPattern must be sorted."
+      assert all(bit < isSparse for bit in inputPattern), \
+        ("Sparse inputPattern must not index outside the dense "
+         "representation's bounds.")
 
     if rowID is None:
       rowID = self._iterationIdx
