@@ -224,7 +224,7 @@ class SDRClassifierRegion(PyRegion):
     # Convert the steps designation to a list
     self.classifierImp = implementation
     self.steps = steps
-    self.stepsList = steps.split(",")
+    self.stepsList = [int(i) for i in steps.split(",")]
     self.alpha = alpha
     self.verbosity = clVerbosity
 
