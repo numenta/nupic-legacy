@@ -31,10 +31,12 @@ try:
   import matplotlib.pyplot as plt
   import matplotlib.cm as cm
 except ImportError:
-  # Suppress; we log it at debug level to avoid polluting the logs of apps
-  # and services that don't care about plotting
-  logging.debug("Cannot import matplotlib. Plot class will not work.",
-                exc_info=True)
+  # Suppress this optional dependency on matplotlib. NOTE we don't log this,
+  # because python logging implicitly adds the StreamHandler to root logger when
+  # calling `logging.debug`, etc., which may undermine an application's logging
+  # configuration.
+  plt = None
+  cm = None
 
 
 
