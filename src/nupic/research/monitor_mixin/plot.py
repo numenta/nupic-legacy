@@ -23,7 +23,6 @@
 Plot class used in monitor mixin framework.
 """
 
-import logging
 import os
 
 try:
