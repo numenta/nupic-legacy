@@ -45,11 +45,9 @@ class SDRClassifierFactory(object):
       impl = Configuration.get('nupic.opf.sdrClassifier.implementation')
     if impl == 'py':
       return SDRClassifier(*args, **kwargs)
-    elif impl == 'cpp':
-      raise NotImplementedError("FastSDRClassifier not implemented")
     else:
       raise ValueError('Invalid classifier implementation (%r). Value must be '
-                       '"py" or "cpp".' % impl)
+                       '"py".' % impl)
 
 
   @staticmethod
@@ -60,10 +58,6 @@ class SDRClassifierFactory(object):
     impl = proto.classifierImp
     if impl == 'py':
       return SDRClassifier.read(proto.claClassifier)
-    elif impl == 'cpp':
-      raise NotImplementedError("FastSDRClassifier.read not implemented")
-    elif impl == 'diff':
-      raise NotImplementedError("SDRClassifierDiff.read not implemented")
     else:
       raise ValueError('Invalid classifier implementation (%r). Value must be '
-                       '"py" or "cpp".' % impl)
+                       '"py".' % impl)

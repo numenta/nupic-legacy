@@ -198,8 +198,6 @@ class SDRClassifier(object):
                    'actualValues': [1.5, 3,5, 5,5, 7.6],
                   }
     """
-    if learn is False and infer is False:
-      raise ValueError("learn and infer cannot be both False")
 
     # Save the offset between recordNum and learnIteration if this is the first
     #  compute
@@ -210,7 +208,6 @@ class SDRClassifier(object):
     self._learnIteration = recordNum - self._recordNumMinusLearnIteration
 
     if self.verbosity >= 1:
-      print "\n%s: compute" % g_debugPrefix
       print "  recordNum:", recordNum
       print "  learnIteration:", self._learnIteration
       print "  patternNZ (%d):" % len(patternNZ), patternNZ

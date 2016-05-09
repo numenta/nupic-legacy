@@ -25,6 +25,7 @@ This file implements the SDR Classifier region. See the comments in the class
 definition of SDRClassifierRegion for a description.
 """
 
+import copy
 import warnings
 
 from nupic.bindings.regions.PyRegion import PyRegion
@@ -191,7 +192,7 @@ class SDRClassifierRegion(PyRegion):
           accessMode='ReadWrite',
           dataType='Byte',
           count=0,
-          constraints='enum: py, cpp'),
+          constraints='enum: py'),
 
         clVerbosity=dict(
           description='An integer that controls the verbosity level, '
@@ -219,22 +220,18 @@ class SDRClassifierRegion(PyRegion):
 
     # Set default implementation
     if implementation is None:
-      implementation = Configuration.get('nupic.opf.sdrClassifier.implementation')
+      implementation = Configuration.get(
+        'nupic.opf.sdrClassifier.implementation')
 
-    # Convert the steps designation to a list
     self.classifierImp = implementation
+    # Convert the steps designation to a list
     self.steps = steps
     self.stepsList = [int(i) for i in steps.split(",")]
     self.alpha = alpha
     self.verbosity = clVerbosity
 
     # Initialize internal structures
-    self._sdrClassifier = SDRClassifierFactory.create(
-      steps=self.stepsList,
-      alpha=self.alpha,
-      verbosity=self.verbosity,
-      implementation=implementation,
-    )
+    self._sdrClassifier = None
     self.learningMode = True
     self.inferenceMode = False
     self.maxCategoryCount = maxCategoryCount
@@ -257,16 +254,23 @@ class SDRClassifierRegion(PyRegion):
     pass
 
 
-  def initialize(self, dims, splitterMaps):
-    pass
+  def initialize(self, inputs, outputs):
+    """
+    It is called once by NuPIC before the first call to compute().
+    @param inputs -- inputs of the classifier region
+    @param outputs -- outputs of the classifier region
+    """
+    self._sdrClassifier = SDRClassifierFactory.create(
+      steps=self.stepsList,
+      alpha=self.alpha,
+      verbosity=self.verbosity,
+      implementation=self.classifierImp,
+    )
 
-
-  def clear(self):
-    self._sdrClassifier.clear()
 
 
   def getAlgorithmInstance(self):
-    """Returns instance of the underlying CLAClassifier algorithm object."""
+    """Returns instance of the underlying SDRClassifier algorithm object."""
     return self._sdrClassifier
 
 
@@ -337,9 +341,6 @@ class SDRClassifierRegion(PyRegion):
     return instance
 
 
-  def reset(self):
-    pass
-
 
   def compute(self, inputs, outputs):
     """
@@ -347,7 +348,6 @@ class SDRClassifierRegion(PyRegion):
     This method is called by the runtime engine.
     @param inputs -- inputs of the classifier region
     @param outputs -- outputs of the classifier region
-
     """
 
     # This flag helps to prevent double-computation, in case the deprecated 
@@ -361,8 +361,7 @@ class SDRClassifierRegion(PyRegion):
     categories = [category for category in inputs["categoryIn"]
                   if category >= 0]
 
-    activeCells = inputs["bottomUpIn"]
-    patternNZ = activeCells.nonzero()[0]
+    patternNZ = inputs["bottomUpIn"].nonzero()[0]
 
     # ==========================================================================
     # Allow to train on multiple input categories. 
@@ -371,8 +370,9 @@ class SDRClassifierRegion(PyRegion):
     # --------------------------------------------------------------------------
     #   1. Call classifier. Don't train. Just inference. Train after.
 
-    # Dummy classification input, because this param is required. Learning is 
-    # off, so the classifier is not learning this input. Inference only here.
+    # Use Dummy classification input, because this param is required even for
+    # inference mode. Because learning is off, the classifier is not learning
+    # this dummy input. Inference only here.
     classificationIn = {"actValue": 0, "bucketIdx": 0}
     clResults = self._sdrClassifier.compute(recordNum=self.recordNum,
                                             patternNZ=patternNZ,
@@ -380,34 +380,40 @@ class SDRClassifierRegion(PyRegion):
                                             learn=False,
                                             infer=self.inferenceMode)
 
-    for category in categories:
-      classificationIn = {"bucketIdx": int(category), "actValue": int(category)}
+    # ------------------------------------------------------------------------
+    #   2. Train classifier, no inference
+    if self.learningMode:
+      for category in categories:
+        classificationIn = {"bucketIdx": int(category),
+                            "actValue": int(category)}
 
-      # ------------------------------------------------------------------------
-      #   2. Train classifier, no inference
-      self._sdrClassifier.compute(recordNum=self.recordNum,
-                                  patternNZ=patternNZ,
-                                  classification=classificationIn,
-                                  learn=self.learningMode,
-                                  infer=False)
+        self._sdrClassifier.compute(recordNum=self.recordNum,
+                                    patternNZ=patternNZ,
+                                    classification=classificationIn,
+                                    learn=self.learningMode,
+                                    infer=False)
 
-    outputs['actualValues'] = clResults["actualValues"]
-    for step in self.stepsList:
-      stepIndex = self.stepsList.index(step)
-      categoryOut = clResults["actualValues"][clResults[step].argmax()]
-      outputs['categoriesOut'][stepIndex] = categoryOut
+    # fill outputs with clResults
+    if clResults is not None:
+      outputs['actualValues'] = copy.copy(clResults["actualValues"])
 
-      # Flatten the rest of the output. For example:
-      #   Original dict  {1 : [0.1, 0.3, 0.2, 0.7]
-      #                   4 : [0.2, 0.4, 0.3, 0.5]}
-      #   becomes: [0.1, 0.3, 0.2, 0.7, 0.2, 0.4, 0.3, 0.5] 
-      stepProbabilities = clResults[step]
-      for categoryIndex in xrange(self.maxCategoryCount):
-        flatIndex = categoryIndex + stepIndex * self.maxCategoryCount
-        if categoryIndex < len(stepProbabilities):
-          outputs['probabilities'][flatIndex] = stepProbabilities[categoryIndex]
-        else:
-          outputs['probabilities'][flatIndex] = 0.0
+      for step in self.stepsList:
+        stepIndex = self.stepsList.index(step)
+        categoryOut = clResults["actualValues"][clResults[step].argmax()]
+        outputs['categoriesOut'][stepIndex] = categoryOut
+
+        # Flatten the rest of the output. For example:
+        #   Original dict  {1 : [0.1, 0.3, 0.2, 0.7]
+        #                   4 : [0.2, 0.4, 0.3, 0.5]}
+        #   becomes: [0.1, 0.3, 0.2, 0.7, 0.2, 0.4, 0.3, 0.5]
+        stepProbabilities = clResults[step]
+        for categoryIndex in xrange(self.maxCategoryCount):
+          flatIndex = categoryIndex + stepIndex * self.maxCategoryCount
+          if categoryIndex < len(stepProbabilities):
+            outputs['probabilities'][flatIndex] = \
+              stepProbabilities[categoryIndex]
+          else:
+            outputs['probabilities'][flatIndex] = 0.0
 
     self.recordNum += 1
 
@@ -474,12 +480,6 @@ class SDRClassifierRegion(PyRegion):
 
   def getOutputElementCount(self, outputName):
     """Returns the width of dataOut."""
-
-    # Check if classifier has a 'maxCategoryCount' attribute
-    if not hasattr(self, "maxCategoryCount"):
-      # Large default value for backward compatibility 
-      self.maxCategoryCount = 1000
-
     if outputName == "categoriesOut":
       return len(self.stepsList)
     elif outputName == "probabilities":
