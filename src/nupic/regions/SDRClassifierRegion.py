@@ -164,7 +164,7 @@ class SDRClassifierRegion(PyRegion):
           required=True,
           count=1,
           constraints='',
-          # arbitrarily large value for backward compatibility 
+          # arbitrarily large value
           defaultValue=1000,
           accessMode='Create'),
 
