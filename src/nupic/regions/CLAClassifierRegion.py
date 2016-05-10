@@ -387,10 +387,11 @@ class CLAClassifierRegion(PyRegion):
                                   learn=self.learningMode,
                                   infer=False)
 
-    outputs['actualValues'] = clResults["actualValues"]
+    actualValues = clResults["actualValues"]
+    outputs['actualValues'][:len(actualValues)] = actualValues
     for step in self.stepsList:
       stepIndex = self.stepsList.index(step)
-      categoryOut = clResults["actualValues"][clResults[step].argmax()]
+      categoryOut = actualValues[clResults[step].argmax()]
       outputs['categoriesOut'][stepIndex] = categoryOut
 
       # Flatten the rest of the output. For example:

@@ -522,8 +522,9 @@ class ClientJobsDAO(object):
     # DB Name suffix
     suffix = Configuration.get('nupic.cluster.database.nameSuffix')
 
-    # Replace dash with underscore (dash will break SQL e.g. 'ec2-user')
+    # Replace dash and dot with underscore (e.g. 'ec2-user' or ec2.user will break SQL)
     suffix = suffix.replace("-", "_")
+    suffix = suffix.replace(".", "_")
 
     # Create the name of the database for the given DB version
     dbName = '%s_%s' % (prefix, suffix)

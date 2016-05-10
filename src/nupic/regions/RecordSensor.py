@@ -57,7 +57,8 @@ class RecordSensor(PyRegion):
   correspond to entries in the dictionary or attributes of the object. For
   example, a DataSource might return:
 
-    dict(date="02-01-2010 23:12:23", amount=4.95, country="US", _reset=0, _sequenceId=0)
+    dict(date="02-01-2010 23:12:23", amount=4.95, country="US", 
+         _reset=0, _sequenceId=0)
 
   or an object with attributes "date", "amount" and "country".
 
@@ -110,7 +111,7 @@ class RecordSensor(PyRegion):
       outputs=dict(
         dataOut=dict(
           description="Encoded data",
-          dataType="Real32", # very inefficient for bits, but that is what we use now
+          dataType="Real32",  # inefficient for bits, but that's what we use now
           count=0,
           regionLevel=True,
           isDefaultOutput=True),
@@ -152,7 +153,7 @@ class RecordSensor(PyRegion):
           count=0,
           regionLevel=True,
           isDefaultOutput=False),
-        ),
+      ),
       inputs=dict(
         spatialTopDownIn=dict(
           description="""The top-down input signal, generated from
@@ -172,7 +173,7 @@ class RecordSensor(PyRegion):
           regionLevel=True,
           isDefaultInput=False,
           requireSplitterMap=False),
-        ),
+      ),
       parameters=dict(
         verbosity=dict(
           description="Verbosity level",
@@ -182,19 +183,19 @@ class RecordSensor(PyRegion):
           constraints=""),
         numCategories=dict(
           description=("Total number of categories to expect from the "
-                      "FileRecordStream"),
+                       "FileRecordStream"),
           dataType="UInt32",
           accessMode="ReadWrite",
           count=1,
           constraints=""),
         topDownMode=dict(
-          description='1 if the node should do top down compute on the next call '
-                  'to compute into topDownOut (default 0).',
+          description='1 if the node should do top down compute on the next '
+                      'call to compute into topDownOut (default 0).',
           accessMode='ReadWrite',
           dataType='UInt32',
           count=1,
           constraints='bool'),
-        ),
+      ),
       commands=dict())
 
     return ns
@@ -230,9 +231,11 @@ class RecordSensor(PyRegion):
 
   def initialize(self, dims, splitterMaps):
     if self.encoder is None:
-      raise Exception("Unable to initialize RecordSensor -- encoder has not been set")
+      raise Exception("Unable to initialize RecordSensor "
+                      "-- encoder has not been set")
     if self.dataSource is None:
-      raise Exception("Unable to initialize RecordSensor -- dataSource has not been set")
+      raise Exception("Unable to initialize RecordSensor "
+                      "-- dataSource has not been set")
 
 
   def rewind(self):
@@ -251,8 +254,8 @@ class RecordSensor(PyRegion):
     This method is separate from compute() so that we can use
     a standalone RecordSensor to get filtered data"""
 
-    foundData = False
-    while not foundData:
+    allFiltersHaveEnoughData = False
+    while not allFiltersHaveEnoughData:
       # Get the data from the dataSource
       data = self.dataSource.getNextRecordDict()
 
@@ -262,41 +265,53 @@ class RecordSensor(PyRegion):
       # temporary check
       if "_reset" not in data:
         data["_reset"] = 0
-      if  "_sequenceId" not in data:
+      if "_sequenceId" not in data:
         data["_sequenceId"] = 0
       if "_category" not in data:
         data["_category"] = [None]
 
-      if self.verbosity > 0:
-        print "RecordSensor got data: %s" % data
-
-
-      # Apply pre-encoding filters.
-      # These filters may modify or add data
-      # If a filter needs another record (e.g. a delta filter)
-      # it will request another record by returning False and the current record
-      # will be skipped (but will still be given to all filters)
-      #
-      # We have to be very careful about resets. A filter may add a reset,
-      # but other filters should not see the added reset, each filter sees
-      # the original reset value, and we keep track of whether any filter
-      # adds a reset.
-      foundData = True
-      if len(self.preEncodingFilters) > 0:
-        originalReset = data['_reset']
-        actualReset = originalReset
-        for f in self.preEncodingFilters:
-          # if filter needs more data, it returns False
-          result = f.process(data)
-          foundData = foundData and result
-          actualReset = actualReset or data['_reset']
-          data['_reset'] = originalReset
-        data['_reset'] = actualReset
-
+      data, allFiltersHaveEnoughData = self.applyFilters(data)
 
     self.lastRecord = data
 
     return data
+
+
+  def applyFilters(self, data):
+    """Apply pre-encoding filters.
+    These filters may modify or add data
+    If a filter needs another record (e.g. a delta filter)
+    it will request another record by returning False and the current record
+    will be skipped (but will still be given to all filters)
+
+    We have to be very careful about resets. A filter may add a reset,
+    but other filters should not see the added reset, each filter sees
+    the original reset value, and we keep track of whether any filter
+    adds a reset.
+
+    @param data: The data that will be processed by the filter.
+    @type data: dict
+    @return: a tuple with the data processed by the filter and a boolean to 
+      know whether or not the filter needs mode data.
+    """
+
+    if self.verbosity > 0:
+      print "RecordSensor got data: %s" % data
+
+    allFiltersHaveEnoughData = True
+    if len(self.preEncodingFilters) > 0:
+      originalReset = data['_reset']
+      actualReset = originalReset
+      for f in self.preEncodingFilters:
+        # if filter needs more data, it returns False
+        filterHasEnoughData = f.process(data)
+        allFiltersHaveEnoughData = (allFiltersHaveEnoughData 
+                                    and filterHasEnoughData)
+        actualReset = actualReset or data['_reset']
+        data['_reset'] = originalReset
+      data['_reset'] = actualReset
+
+    return data, allFiltersHaveEnoughData
 
 
   def populateCategoriesOut(self, categories, output):
@@ -373,11 +388,11 @@ class RecordSensor(PyRegion):
         print "     nz: (%d)" % (len(nz)), nz
         print "  encIn:", self.encoder.scalarsToStr(scalarValues)
       if self.verbosity >= 2:
-        #if hasattr(data, 'header'):
+        # if hasattr(data, 'header'):
         #  header = data.header()
-        #else:
+        # else:
         #  header = '     '.join(self.dataSource.names)
-        #print "        ", header
+        # print "        ", header
         print "   data:", str(data)
       if self.verbosity >= 3:
         decoded = self.encoder.decode(outputs["dataOut"])
@@ -387,9 +402,9 @@ class RecordSensor(PyRegion):
 
     else:
 
-      # =========================================================================
+      # ========================================================================
       # Spatial
-      # =========================================================================
+      # ========================================================================
       # This is the top down compute in sensor
 
       # We get the spatial pooler's topDownOut as spatialTopDownIn
@@ -405,13 +420,13 @@ class RecordSensor(PyRegion):
       outputs['spatialTopDownOut'][:] = numpy.array(scalars)
       self._outputValues['spatialTopDownEncodings'] = encodings
 
-      # =========================================================================
+      # ========================================================================
       # Temporal
-      # =========================================================================
+      # ========================================================================
 
       ## TODO: Add temporal top-down loop
-      # We get the temporal pooler's topDownOut passed through the spatial pooler
-      # as temporalTopDownIn
+      # We get the temporal pooler's topDownOut passed through the spatial 
+      # pooler as temporalTopDownIn
       temporalTopDownIn = inputs['temporalTopDownIn']
       temporalTopDownOut = self.encoder.topDownCompute(temporalTopDownIn)
 
@@ -425,24 +440,22 @@ class RecordSensor(PyRegion):
       outputs['temporalTopDownOut'][:] = numpy.array(scalars)
       self._outputValues['temporalTopDownEncodings'] = encodings
 
-      assert len(spatialTopDownOut) == len(temporalTopDownOut), ("Error: "
-             "spatialTopDownOut and temporalTopDownOut should be the same size")
+      assert len(spatialTopDownOut) == len(temporalTopDownOut), (
+        "Error: spatialTopDownOut and temporalTopDownOut should be the same "
+        "size")
 
 
   def _convertNonNumericData(self, spatialOutput, temporalOutput, output):
     """
     Converts all of the non-numeric fields from spatialOutput and temporalOutput
     into their scalar equivalents and records them in the output dictionary.
-    Parameters:
-    -----------------------------------------------------------------------
-    spatialOutput:              The results of topDownCompute() for the spatial
-                                input
-    temporalOutput              The results of topDownCompute() for the temporal
-                                input
-    output:                     The main dictionary of outputs passed to compute()
-                                It is exepected to have keys 'spatialTopDownOut'
-                                and 'temporalTopDownOut' that are mapped
-                                to numpy arrays
+
+    @param spatialOutput: The results of topDownCompute() for the spatial input.
+    @param temporalOutput: The results of topDownCompute() for the temporal
+      input.
+    @param output: The main dictionary of outputs passed to compute(). It is 
+      expected to have keys 'spatialTopDownOut' and 'temporalTopDownOut' that 
+      are mapped to numpy arrays.
     """
     encoders = self.encoder.getEncoderList()
     types = self.encoder.getDecoderOutputFieldTypes()
@@ -475,34 +488,37 @@ class RecordSensor(PyRegion):
     """
 
     if name == "resetOut":
-      print "WARNING: getOutputElementCount should not have been called with " \
-            "resetOut"
+      print ("WARNING: getOutputElementCount should not have been called with "
+             "resetOut")
       return 1
 
     elif name == "sequenceIdOut":
-      print "WARNING: getOutputElementCount should not have been called with " \
-            "sequenceIdOut"
+      print ("WARNING: getOutputElementCount should not have been called with "
+             "sequenceIdOut")
       return 1
 
     elif name == "dataOut":
-      if self.encoder == None:
-        raise Exception("NuPIC requested output element count for 'dataOut' on a "
-                        "RecordSensor node, but the encoder has not been set")
+      if self.encoder is None:
+        raise Exception("NuPIC requested output element count for 'dataOut' "
+                        "on a RecordSensor node, but the encoder has not "
+                        "been set")
       return self.encoder.getWidth()
 
     elif name == "sourceOut":
-      if self.encoder == None:
+      if self.encoder is None:
         raise Exception("NuPIC requested output element count for 'sourceOut' "
-                        "on a RecordSensor node, but the encoder has not been set")
+                        "on a RecordSensor node, "
+                        "but the encoder has not been set")
       return len(self.encoder.getDescription())
 
     elif name == "categoryOut":
       return self.numCategories
 
     elif name == 'spatialTopDownOut' or name == 'temporalTopDownOut':
-      if self.encoder == None:
+      if self.encoder is None:
         raise Exception("NuPIC requested output element count for 'sourceOut' "
-                        "on a RecordSensor node, but the encoder has not been set")
+                        "on a RecordSensor node, "
+                        "but the encoder has not been set")
       return len(self.encoder.getDescription())
     else:
       raise Exception("Unknown output %s" % name)
@@ -556,3 +572,4 @@ class RecordSensor(PyRegion):
     instance.numCategories = proto.numCategories
 
     return instance
+
