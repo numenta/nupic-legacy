@@ -109,6 +109,14 @@ class SingleStepSDRClassifierTest(unittest.TestCase):
     self.assertEqual(classifier.getParameter("inferenceMode"), 1,
                      "Inference mode is not turned on.")
 
+    # make sure we can access all the parameters with getParameter
+    self.assertEqual(classifier.getParameter("maxCategoryCount"), 100)
+    self.assertAlmostEqual(float(classifier.getParameter("alpha")), 0.001)
+    self.assertEqual(int(classifier.getParameter("steps")), 0)
+    self.assertTrue(classifier.getParameter("implementation") == "py")
+    self.assertFalse(classifier.getParameter("clVerbosity"))
+
+
     expectedCats = ([0.0],
                     [1.0],
                     [0.0],

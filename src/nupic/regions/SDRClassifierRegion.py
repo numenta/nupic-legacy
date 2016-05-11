@@ -165,7 +165,7 @@ class SDRClassifierRegion(PyRegion):
           count=1,
           constraints='',
           # arbitrarily large value
-          defaultValue=1000,
+          defaultValue=100,
           accessMode='Create'),
 
         steps=dict(
@@ -223,7 +223,7 @@ class SDRClassifierRegion(PyRegion):
       implementation = Configuration.get(
         'nupic.opf.sdrClassifier.implementation')
 
-    self.classifierImp = implementation
+    self.implementation = implementation
     # Convert the steps designation to a list
     self.steps = steps
     self.stepsList = [int(i) for i in steps.split(",")]
@@ -264,7 +264,7 @@ class SDRClassifierRegion(PyRegion):
       steps=self.stepsList,
       alpha=self.alpha,
       verbosity=self.verbosity,
-      implementation=self.classifierImp,
+      implementation=self.implementation,
     )
 
 
@@ -283,7 +283,10 @@ class SDRClassifierRegion(PyRegion):
     """
     # If any spec parameter name is the same as an attribute, this call
     # will get it automatically, e.g. self.learningMode
-    return PyRegion.getParameter(self, name, index)
+    if name == "clVerbosity":
+      return self.verbosity
+    else:
+      return PyRegion.getParameter(self, name, index)
 
 
   def setParameter(self, name, index, value):
@@ -313,7 +316,7 @@ class SDRClassifierRegion(PyRegion):
 
     proto: SDRClassifierRegionProto capnproto object
     """
-    proto.classifierImp = self.classifierImp
+    proto.implementation = self.implementation
     proto.steps = self.steps
     proto.alpha = self.alpha
     proto.verbosity = self.verbosity
@@ -330,7 +333,7 @@ class SDRClassifierRegion(PyRegion):
     """
     instance = cls()
 
-    instance.classifierImp = proto.classifierImp
+    instance.implementation = proto.implementation
     instance.steps = proto.steps
     instance.alpha = proto.alpha
     instance.verbosity = proto.verbosity
@@ -395,7 +398,8 @@ class SDRClassifierRegion(PyRegion):
 
     # fill outputs with clResults
     if clResults is not None:
-      outputs['actualValues'] = copy.copy(clResults["actualValues"])
+      outputs['actualValues'][:len(clResults["actualValues"])] = \
+        clResults["actualValues"]
 
       for step in self.stepsList:
         stepIndex = self.stepsList.index(step)

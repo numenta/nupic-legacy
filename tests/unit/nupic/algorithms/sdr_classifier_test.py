@@ -145,11 +145,11 @@ class SDRClassifierTest(unittest.TestCase):
     recordNum += 1
     self.assertSequenceEqual(list(retval1[1]), list(retval2[1]))
 
-    # learn and infer cannot be both False
-    kwargs = {"recordNum": recordNum, "patternNZ": [1, 2],
-              "classification": {"bucketIdx": 4, "actValue": 34.7},
-              "learn": False, "infer": False}
-    self.assertRaises(ValueError, c.compute, **kwargs)
+    # return None when learn and infer are both False
+    retval3 = c.compute(recordNum=recordNum, patternNZ=[1, 2],
+                        classification={"bucketIdx": 2, "actValue": 14.2},
+                        learn=False, infer=False)
+    self.assertIsNone(retval3)
 
 
   def testCompute1(self):
