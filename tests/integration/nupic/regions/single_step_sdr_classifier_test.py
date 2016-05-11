@@ -117,14 +117,7 @@ class SingleStepSDRClassifierTest(unittest.TestCase):
     self.assertFalse(classifier.getParameter("clVerbosity"))
 
 
-    expectedCats = ([0.0],
-                    [1.0],
-                    [0.0],
-                    [1.0],
-                    [0.0],
-                    [1.0],
-                    [0.0],
-                    [1.0],)
+    expectedCats = ([0.0], [1.0], [0.0], [1.0], [0.0], [1.0], [0.0], [1.0],)
     dataSource.rewind()
     for i in xrange(8):
       net.run(1)

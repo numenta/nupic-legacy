@@ -25,7 +25,6 @@ This file implements the SDR Classifier region. See the comments in the class
 definition of SDRClassifierRegion for a description.
 """
 
-import copy
 import warnings
 
 from nupic.bindings.regions.PyRegion import PyRegion
@@ -266,7 +265,6 @@ class SDRClassifierRegion(PyRegion):
       verbosity=self.verbosity,
       implementation=self.implementation,
     )
-
 
 
   def getAlgorithmInstance(self):
