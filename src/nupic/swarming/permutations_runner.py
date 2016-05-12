@@ -2066,7 +2066,6 @@ class _NupicModelInfo(object):
                     ClientJobsDAO.modelsInfo()
     retval:         nothing.
     """
-    # Namedtuple returned by ClientJobsDAO.modelsInfo()
     self.__rawInfo = rawInfo
 
     # Cached model metrics (see __unwrapResults())
