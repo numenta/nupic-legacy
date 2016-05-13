@@ -198,7 +198,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   def getDefaultTMParams(self):
     return {
-      "columnDimensions": [100],
+      "columnDimensions": (100,),
       "cellsPerColumn": 1,
       "initialPermanence": 0.8,
       "connectedPermanence": 0.7,
@@ -207,7 +207,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
       "permanenceIncrement": 0.4,
       "permanenceDecrement": 0,
       "activationThreshold": 11,
-      "seed": 42
+      "seed": 42,
     }
 
   def testB1(self):

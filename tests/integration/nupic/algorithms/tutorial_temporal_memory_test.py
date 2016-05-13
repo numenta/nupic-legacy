@@ -42,7 +42,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   def getDefaultTMParams(self):
     return {
-      "columnDimensions": [6],
+      "columnDimensions": (6,),
       "cellsPerColumn": 4,
       "initialPermanence": 0.3,
       "connectedPermanence": 0.5,
@@ -50,7 +50,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
       "maxNewSynapseCount": 6,
       "permanenceIncrement": 0.1,
       "permanenceDecrement": 0.05,
-      "activationThreshold": 1
+      "activationThreshold": 1,
     }
 
   def testFirstOrder(self):
