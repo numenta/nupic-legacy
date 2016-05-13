@@ -235,7 +235,6 @@ class SDRClassifierRegion(PyRegion):
     self.inferenceMode = False
     self.maxCategoryCount = maxCategoryCount
     self.recordNum = 0
-    self._initEphemerals()
 
     # Flag to know if the compute() function is ever called. This is to 
     # prevent backward compatibilities issues with the customCompute() method
@@ -243,14 +242,6 @@ class SDRClassifierRegion(PyRegion):
     # should be called via network.run(). This flag will be removed once we 
     # get to cleaning up the clamodel.py file.
     self._computeFlag = False
-
-
-  def _initEphemerals(self):
-    """
-    Initialize ephemeral attributes that are not saved with the checkpoint.
-    These ephemeral attributes may be used by derived classes.
-    """
-    pass
 
 
   def initialize(self, inputs, outputs):
@@ -471,17 +462,9 @@ class SDRClassifierRegion(PyRegion):
                                        self.inferenceMode)
 
 
-  def getOutputValues(self, outputName):
-    """
-    Return the dictionary of output values. Note that these are normal Python
-    lists, rather than numpy arrays. This is to support lists with mixed scalars
-    and strings, as in the case of records with categorical variables
-    """
-    return self._outputValues[outputName]
-
 
   def getOutputElementCount(self, outputName):
-    """Returns the width of dataOut."""
+    """Returns the number of output elements."""
     if outputName == "categoriesOut":
       return len(self.stepsList)
     elif outputName == "probabilities":
