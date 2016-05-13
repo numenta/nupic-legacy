@@ -193,7 +193,7 @@ class SDRClassifierRegion(PyRegion):
           count=0,
           constraints='enum: py'),
 
-        clVerbosity=dict(
+        verbosity=dict(
           description='An integer that controls the verbosity level, '
                       '0 means no verbose output, increasing integers '
                       'provide more verbosity.',
@@ -272,10 +272,7 @@ class SDRClassifierRegion(PyRegion):
     """
     # If any spec parameter name is the same as an attribute, this call
     # will get it automatically, e.g. self.learningMode
-    if name == "clVerbosity":
-      return self.verbosity
-    else:
-      return PyRegion.getParameter(self, name, index)
+    return PyRegion.getParameter(self, name, index)
 
 
   def setParameter(self, name, index, value):
