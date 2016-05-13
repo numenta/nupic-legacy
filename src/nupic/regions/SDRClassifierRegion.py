@@ -470,15 +470,3 @@ class SDRClassifierRegion(PyRegion):
       return self.maxCategoryCount
     else:
       raise ValueError("Unknown output {}.".format(outputName))
-
-
-
-if __name__ == "__main__":
-  from nupic.engine import Network
-
-  n = Network()
-  classifier = n.addRegion(
-    'classifier',
-    'py.SDRClassifierRegion',
-    '{steps: "1,2", alpha: 0.001}'
-  )
