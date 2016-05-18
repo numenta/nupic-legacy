@@ -29,6 +29,7 @@ from nupic.data.fieldmeta import FieldMetaSpecial
 
 
 
+
 def _getFieldIndexBySpecial(fields, special):
   """ Return index of the field matching the field meta special value.
   :param fields: sequence of nupic.data.fieldmeta.FieldMetaInfo objects
