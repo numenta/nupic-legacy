@@ -4,7 +4,7 @@ exit_code=0;
 
 pushd $NUPIC
 
-for checkable in $(git diff --name-only upstream/master | grep py$)
+for checkable in $(git diff --name-only HEAD^ | grep py$)
 do
     echo "running pylint on $checkable"
     echo "pylint --rcfile=${NUPIC}/pylintrc --reports=n $checkable"
