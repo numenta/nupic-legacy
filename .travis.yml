@@ -24,6 +24,7 @@ addons:
       - python2.7-dev
       - python-virtualenv
       - python-numpy-1.9.2
+      - pylint
       # install gcc-4.8 for C++11 compatibility, #TODO remove when Travis has gcc>=4.8, (it's used for clang too, in coveralls)
       - g++-4.8
       - cmake
@@ -87,6 +88,8 @@ deploy:
         - "$CC == gcc-4.8"
 
 before_install:
+  # Run pylint first thing, and fail fast!
+  - ". ./scripts/run_pylint.sh"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/before_install-osx.sh; fi"
 
