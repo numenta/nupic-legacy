@@ -4,6 +4,9 @@ exit_code=0;
 
 pushd $NUPIC
 
+git remote --verbose
+git diff --name-only origin
+
 for checkable in $(git diff --name-only HEAD^ | grep py$)
 do
     echo "running pylint on $checkable"
