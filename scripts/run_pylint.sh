@@ -2,6 +2,8 @@
 
 exit_code=0;
 
+pip install pylint
+
 echo "changed files:"
 git diff --name-only ${TRAVIS_BRANCH} | grep py$
 echo "----"
