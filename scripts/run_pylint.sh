@@ -2,9 +2,7 @@
 
 exit_code=0;
 
-echo "changed files:"
-git diff --name-only ${TRAVIS_BRANCH} | grep py$
-echo "----"
+echo "============= PYLINT ============="
 
 for checkable in $(git diff --name-only ${TRAVIS_BRANCH} | grep py$)
 do
@@ -14,5 +12,10 @@ do
     echo $((exit_code+=$?)) > /dev/null
 done
 
-echo $exit_code
+if [ "$exit_code" -eq 0 ]; then
+    echo "========== PYLINT PASSED ========="
+else
+    echo "========== PYLINT FAILED ========="
+fi
+
 exit $exit_code
