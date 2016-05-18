@@ -31,6 +31,7 @@ from nupic.data.fieldmeta import FieldMetaSpecial
 from nupic.data.file_record_stream import FileRecordStream
 
 
+
 """The aggregator aggregates PF datasets
 
 It supports aggregation of multiple records based on time.
