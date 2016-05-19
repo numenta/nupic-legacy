@@ -89,7 +89,7 @@ deploy:
 
 before_install:
   # Run pylint first thing, and fail fast!
-  - ". ./scripts/run_pylint.sh"
+  - ". ./ci/run_pylint.sh"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/before_install-osx.sh; fi"
 
