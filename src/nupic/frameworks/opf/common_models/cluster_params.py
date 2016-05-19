@@ -27,6 +27,7 @@ from pkg_resources import resource_stream
 
 
 def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
+                                              detectorType,
                                               minVal=None,
                                               maxVal=None,
                                               minResolution=None):
@@ -86,17 +87,20 @@ def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
     maxVal = minVal + 1
 
   # Load model parameters and update encoder params
-  paramFileRelativePath = os.path.join(
-    "anomaly_params_random_encoder",
-    "best_single_metric_anomaly_params.json")
-
+  if (detectorType is "numenta"):
+    paramFileRelativePath = os.path.join(
+      "anomaly_params_random_encoder",
+      "best_single_metric_anomaly_params.json")
+  elif (detectorType is "numentaNew"):
+    paramFileRelativePath = os.path.join(
+      "anomaly_params_random_encoder",
+      "best_single_metric_anomaly_params_new.json")
   with resource_stream(__name__, paramFileRelativePath) as infile:
     paramSet = json.load(infile)
 
   _fixupRandomEncoderParams(paramSet, minVal, maxVal, minResolution)
 
   return paramSet
-
 
 
 def _rangeGen(data, std=1):
