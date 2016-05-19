@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 exit_code=0;
 
@@ -17,6 +17,5 @@ if [ "$exit_code" -eq 0 ]; then
     echo "========== PYLINT PASSED ========="
 else
     echo "========== PYLINT FAILED ========="
+    exit $exit_code
 fi
-
-exit $exit_code
