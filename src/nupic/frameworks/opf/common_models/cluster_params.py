@@ -38,6 +38,8 @@ def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
     :param metricData: numpy array of metric data. Used to calculate minVal
       and maxVal if either is unspecified
 
+    :param tmImplementation: string specifying type of temporal memory implementation.
+
     :param minVal: minimum value of metric. Used to set up encoders. If None
       will be derived from metricData.
 
@@ -63,6 +65,7 @@ def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
 
       params = getScalarMetricWithTimeOfDayAnomalyParams(
         metricData=[0],
+        tmImplementation="cpp",
         minVal=0.0,
         maxVal=100.0)
 
