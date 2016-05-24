@@ -127,10 +127,9 @@ config = {
             # (value generated from DS_ENCODER_SCHEMA)
             'encoders': {   'consumption': {   'clipInput': True,
                                    'fieldname': u'consumption',
-                                   'n': 100,
                                    'name': u'consumption',
-                                   'type': 'AdaptiveScalarEncoder',
-                                   'w': 21},
+                                   'type': 'RandomDistributedScalarEncoder',
+                                   'numBuckets': 130.0},
                 'timestamp_dayOfWeek': {   'dayOfWeek': (21, 1),
                                            'fieldname': u'timestamp',
                                            'name': u'timestamp_dayOfWeek',
@@ -185,7 +184,7 @@ config = {
             # What percent of the columns's receptive field is available
             # for potential synapses. At initialization time, we will
             # choose potentialPct * (2*potentialRadius+1)^2
-            'potentialPct': 0.5,
+            'potentialPct': 0.8,
 
             # The default connected threshold. Any synapse whose
             # permanence value is above the connected threshold is
@@ -196,11 +195,11 @@ config = {
             # threshold set below this default value.
             # (This concept applies to both SP and TP and so 'cells'
             # is correct here as opposed to 'columns')
-            'synPermConnected': 0.1,
+            'synPermConnected': 0.2,
 
-            'synPermActiveInc': 0.1,
+            'synPermActiveInc': 0.003,
 
-            'synPermInactiveDec': 0.01,
+            'synPermInactiveDec': 0.0005,
         },
 
         # Controls whether TP is enabled or disabled;
@@ -275,14 +274,14 @@ config = {
             # during search for the best-matching segments.
             # None=use default
             # Replaces: tpMinThreshold
-            'minThreshold': 12,
+            'minThreshold': 10,
 
             # Segment activation threshold.
             # A segment is active if it has >= tpSegmentActivationThreshold
             # connected synapses that are active due to infActiveState
             # None=use default
             # Replaces: tpActivationThreshold
-            'activationThreshold': 12,
+            'activationThreshold': 13,
 
             'outputType': 'normal',
 
@@ -290,7 +289,7 @@ config = {
             # elements to append to the end of a learned sequence at a time.
             # Smaller values are better for datasets with short sequences,
             # higher values are better for datasets with long sequences.
-            'pamLength': 1,
+            'pamLength': 3,
         },
 
         'clParams': {
@@ -305,7 +304,7 @@ config = {
 
             # This controls how fast the classifier learns/forgets. Higher values
             # make it adapt faster and forget older patterns faster.
-            'alpha': 0.0001,
+            'alpha': 0.0358,
 
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.
