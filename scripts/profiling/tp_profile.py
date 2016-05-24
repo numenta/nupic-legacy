@@ -27,7 +27,8 @@ import numpy
 # chose desired TP implementation to compare:
 from nupic.research.TP10X2 import TP10X2 as CppTP 
 from nupic.research.TP import TP as PyTP
-
+from nupic.research.TP_shim import TPShim as PyTM
+from nupic.research.TP_shim import TPCPPShim as CppTM
 
 def profileTP(tpClass, tpDim, nRuns):
   """
@@ -58,10 +59,10 @@ def profileTP(tpClass, tpDim, nRuns):
 
 if __name__ == "__main__":
   columns=2048
-  epochs=10000
+  epochs=1000
   # read command line params
   if len(sys.argv) == 3: # 2 args + name
     columns=int(sys.argv[1])
     epochs=int(sys.argv[2])
 
-  profileTP(CppTP, columns, epochs)
+  profileTP(CppTM, columns, epochs)
