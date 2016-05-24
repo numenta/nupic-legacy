@@ -51,8 +51,8 @@ class TemporalMemory(object):
                permanenceIncrement=0.10,
                permanenceDecrement=0.10,
                predictedSegmentDecrement=0.0,
-               maxSegmentsPerCell=255,
-               maxSynapsesPerSegment=255,
+               maxSegmentsPerCell=128,
+               maxSynapsesPerSegment=32,
                seed=42,
                **kwargs):
     """
