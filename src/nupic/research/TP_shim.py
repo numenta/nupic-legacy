@@ -43,25 +43,17 @@ class TPShimMixin(object):
   TP => Temporal Memory shim class.
   """
   def __init__(self,
-               numberOfCols=500,
-               cellsPerColumn=10,
-               initialPerm=0.11,
+               numberOfCols=2048,
+               cellsPerColumn=32,
+               initialPerm=0.21,
                connectedPerm=0.50,
-               minThreshold=8,
-               newSynapseCount=15,
+               minThreshold=10,
+               newSynapseCount=20,
                permanenceInc=0.10,
                permanenceDec=0.10,
-               permanenceMax=1.0,
-               activationThreshold=12,
-               predictedSegmentDecrement=0,
-               maxSegmentsPerCell=255,
-               maxSynapsesPerSegment=255,
-               globalDecay=0.10,
-               maxAge=100000,
-               pamLength=1,
-               verbosity=0,
-               outputType="normal",
-               seed=42):
+               seed=42,
+              ):
+
     """
     Translate parameters and initialize member variables specific to `TP.py`.
     """
