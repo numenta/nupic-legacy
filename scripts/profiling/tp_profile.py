@@ -21,6 +21,12 @@
 # ----------------------------------------------------------------------
 
 ## run python -m cProfile --sort cumtime $NUPIC/scripts/profiling/tp_profile.py [nColumns nEpochs]
+# Results:
+# TP/TM impl.	| input params	| compute (s per call)
+# CppTM 	| 2048 cols	| 0.158
+# PyTM		| 2048		| 0.528
+# CppTP		| 2048		| 0.040 
+# PyTP		|		| 1.885 
 
 import sys
 import numpy
@@ -65,4 +71,4 @@ if __name__ == "__main__":
     columns=int(sys.argv[1])
     epochs=int(sys.argv[2])
 
-  profileTP(CppTM, columns, epochs)
+  profileTP(CppTP, columns, epochs)
