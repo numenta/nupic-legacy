@@ -55,6 +55,11 @@ git:
   submodules: false
 
 notifications:
+  email:
+    recipients:
+      - "discourse-nupic-developers@numenta.org"
+    on_success: change
+    on_failure: change
   irc:
     channels:
       - "irc.freenode.net#nupic-hackers"
