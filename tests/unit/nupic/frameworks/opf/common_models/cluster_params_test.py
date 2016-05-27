@@ -59,7 +59,14 @@ class ClusterParamsTest(TestCaseBase):
       self.assertGreaterEqual(encodersDict['c1']['resolution'], 0.001,
                               "Resolution is too low")
 
+    # Ensure tm_cpp returns correct json file
+    params = getScalarMetricWithTimeOfDayAnomalyParams([0], tmImplementation="tm_cpp")
+    self.assertEqual(params['modelConfig']['modelParams']['tpParams']['temporalImp'], "tm_cpp",
+                     "Incorrect json for tm_cpp tmImplementation")
 
+    # Ensure incorrect tmImplementation throws exception
+    with self.assertRaises(ValueError):
+        getScalarMetricWithTimeOfDayAnomalyParams([0], tmImplementation="")
 
 if __name__ == '__main__':
   unittest.main()
