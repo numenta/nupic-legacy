@@ -59,7 +59,9 @@ class ClusterParamsTest(TestCaseBase):
       self.assertGreaterEqual(encodersDict['c1']['resolution'], 0.001,
                               "Resolution is too low")
 
-
+    # Ensure incorrect tmImplementation throws exception
+    with self.assertRaises(ValueError):
+        getScalarMetricWithTimeOfDayAnomalyParams([0], tmImplementation="")
 
 if __name__ == '__main__':
   unittest.main()
