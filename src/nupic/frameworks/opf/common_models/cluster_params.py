@@ -27,10 +27,10 @@ from pkg_resources import resource_stream
 
 
 def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
-                                              tmImplementation,
                                               minVal=None,
                                               maxVal=None,
-                                              minResolution=None):
+                                              minResolution=None,
+                                              tmImplementation = "cpp"):
   """
     Return a dict that can be used to create an anomaly model via OPF's
     ModelFactory.
