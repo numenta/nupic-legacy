@@ -57,7 +57,6 @@
         "numActiveColumnsPerInhArea": 40,
         "seed": 1956,
         "spVerbosity": 0,
-        "spatialImp": "cpp",
         "synPermActiveInc": 0.003,
         "synPermConnected": 0.2,
         "synPermInactiveDec": 0.0005

@@ -62,17 +62,17 @@ class TP(ConsolePrinterMixin):
   """
 
   def __init__(self,
-               numberOfCols=500,
-               cellsPerColumn=10,
-               initialPerm=0.11,
+               numberOfCols=2048,
+               cellsPerColumn=32,
+               initialPerm=0.21,
                connectedPerm=0.50,
-               minThreshold=8,
-               newSynapseCount=15,
+               minThreshold=10,
+               newSynapseCount=20,
                permanenceInc=0.10,
                permanenceDec=0.10,
                permanenceMax=1.0,
-               globalDecay=0.10,
-               activationThreshold=12,
+               globalDecay=0.0, #disabled
+               activationThreshold=13,
                doPooling=False,
                segUpdateValidDuration=5,
                burnIn=2,
@@ -80,13 +80,13 @@ class TP(ConsolePrinterMixin):
                seed=42,
                verbosity=VERBOSITY,
                checkSynapseConsistency=False,  # for cpp only -- ignored
-               pamLength=1,
+               pamLength=3,
                maxInfBacktrack=10,
                maxLrnBacktrack=5,
-               maxAge=100000,
+               maxAge=0,
                maxSeqLength=32,
-               maxSegmentsPerCell=-1,
-               maxSynapsesPerSegment=-1,
+               maxSegmentsPerCell=128,
+               maxSynapsesPerSegment=32,
                outputType='normal',
               ):
     """
