@@ -16,6 +16,14 @@
 </property>
 
 <property>
+  <name>nupic.opf.sdrClassifier.implementation</name>
+  <value>py</value>
+  <description>The SDR classifier implementation to use by default. The current
+  options are 'py'.
+  </description>
+</property>
+
+<property>
   <name>nupic.opf.metricWindow</name>
   <value>1000</value>
   <description> The number of records over which average metrics

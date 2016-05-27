@@ -46,6 +46,7 @@ arrayTypes = ['ByteArray',
 pyRegions = (
     ("nupic.regions.AnomalyRegion", "AnomalyRegion"),
     ("nupic.regions.CLAClassifierRegion", "CLAClassifierRegion"),
+    ("nupic.regions.SDRClassifierRegion", "SDRClassifierRegion"),
     ("nupic.regions.ImageSensor", "ImageSensor"),
     ("nupic.regions.KNNAnomalyClassifierRegion", "KNNAnomalyClassifierRegion"),
     ("nupic.regions.KNNClassifierRegion", "KNNClassifierRegion"),

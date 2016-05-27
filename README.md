@@ -6,7 +6,7 @@ The Numenta Platform for Intelligent Computing (**NuPIC**) is a machine intellig
 
 For more information, see [numenta.org](http://numenta.org) or the [NuPIC wiki](https://github.com/numenta/nupic/wiki).
 
-## Installing NuPIC 0.5.2
+## Installing NuPIC 0.5.3
 
 NuPIC binaries are available for:
 
@@ -35,7 +35,7 @@ First, you must install [Xcode command line tools](https://developer.apple.com/l
 
 > **NOTE**: The `nupic.bindings` binary distribution is not stored on [PyPi](https://pypi.python.org/pypi/nupic) along with the OS X distribution. NuPIC uses the [wheel](http://pythonwheels.com) binary format, and PyPi does not support hosting Linux wheel files. So we are forced to host our own.
 
-    pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.4.2-cp27-none-linux_x86_64.whl
+    pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.4.3-cp27-none-linux_x86_64.whl
     pip install nupic
 
 ### Install Windows
