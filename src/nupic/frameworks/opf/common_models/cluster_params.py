@@ -38,8 +38,6 @@ def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
     :param metricData: numpy array of metric data. Used to calculate minVal
       and maxVal if either is unspecified
 
-    :param tmImplementation: string specifying type of temporal memory implementation.
-
     :param minVal: minimum value of metric. Used to set up encoders. If None
       will be derived from metricData.
 
@@ -48,6 +46,9 @@ def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
 
     :param minResolution: minimum resolution of metric. Used to set up
       encoders.  If None, will use default value of 0.001.
+
+    :param tmImplementation: string specifying type of temporal memory implementation.
+      Valid strings : {"cpp", "tm_cpp"}
 
     :returns: a dict containing "modelConfig" and "inferenceArgs" top-level
       properties. The value of the "modelConfig" property is for passing to
@@ -98,6 +99,9 @@ def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
     paramFileRelativePath = os.path.join(
       "anomaly_params_random_encoder",
       "best_single_metric_anomaly_params_tm_cpp.json")
+  else:
+    raise ValueError("Invalid string for tmImplementation. Try cpp or tm_cpp")
+
   with resource_stream(__name__, paramFileRelativePath) as infile:
     paramSet = json.load(infile)
 
