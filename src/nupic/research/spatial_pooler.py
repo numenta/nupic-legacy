@@ -1659,8 +1659,8 @@ class SpatialPooler(object):
       state['_wrapAround'] = True
     if state['_version'] < 3:
       # the overlaps and boostedOverlaps properties were added in version 3,
-      state['_overlaps'] = numpy.zeros(self._numColumns)
-      state['_boostedOverlaps'] = numpy.zeros(self._numColumns)
+      state['_overlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
+      state['_boostedOverlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
     
     # update version property to current SP version
     state['_version'] = VERSION
