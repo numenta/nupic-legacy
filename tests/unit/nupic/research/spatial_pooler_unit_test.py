@@ -150,6 +150,7 @@ class SpatialPoolerTest(unittest.TestCase):
       potential = sp._potentialPools[columnIndex]
       perm = sp._permanences.getRow(columnIndex)
       self.assertEqual(list(perm), list(potential))
+      
 
   def testOverlapsOutput(self):
     """Checks that overlaps and boostedOverlaps are correctly returned"""
@@ -166,16 +167,11 @@ class SpatialPoolerTest(unittest.TestCase):
     inputVector = numpy.ones(5)
     activeArray = numpy.zeros(3)
     
-    expOutput = numpy.array([2, 0, 0], dtype="float32")
-    
-    boostFactors = 2.0 * numpy.ones(3)
-    
-    sp.setBoostFactors(boostFactors)
-    
-    sp.compute(inputVector, True, activeArray)
-    
-    overlaps = sp.getOverlaps()
-    
+    expOutput = numpy.array([2, 0, 0], dtype=realDType)    
+    boostFactors = 2.0 * numpy.ones(3)    
+    sp.setBoostFactors(boostFactors)    
+    sp.compute(inputVector, True, activeArray)    
+    overlaps = sp.getOverlaps()    
     boostedOverlaps = sp.getBoostedOverlaps()
     
     for i in range(sp._numColumns):

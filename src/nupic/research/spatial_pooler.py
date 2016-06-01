@@ -719,9 +719,11 @@ class SpatialPooler(object):
     'connectedCounts' size must match the number of columns"""
     connectedCounts[:] = self._connectedCounts[:]
 
+
   def getOverlaps(self):
     """Returns the overlap score for each column."""
     return self._overlaps
+
 
   def getBoostedOverlaps(self):
     """Returns the boosted overlap score for each column."""
@@ -1731,7 +1733,7 @@ class SpatialPooler(object):
 
     boostFactorsProto = proto.init("boostFactors", len(self._boostFactors))
     for i, v in enumerate(self._boostFactors):
-      boostFactorsProto[i] = float(v)      
+      boostFactorsProto[i] = float(v) 
 
 
   @classmethod
