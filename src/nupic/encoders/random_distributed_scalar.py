@@ -217,6 +217,8 @@ class RandomDistributedScalarEncoder(Encoder):
     Given a bucket index, return the list of non-zero bits. If the bucket
     index does not exist, it is created. If the index falls outside our range
     we clip it.
+
+    @param returns numpy array of indices of non-zero bits for specified index
     """
     if index < 0:
       index = 0
