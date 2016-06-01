@@ -24,6 +24,7 @@ addons:
       - python2.7-dev
       - python-virtualenv
       - python-numpy-1.9.2
+      - pylint
       # install gcc-4.8 for C++11 compatibility, #TODO remove when Travis has gcc>=4.8, (it's used for clang too, in coveralls)
       - g++-4.8
       - cmake
@@ -54,6 +55,11 @@ git:
   submodules: false
 
 notifications:
+  email:
+    recipients:
+      - "discourse-nupic-developers@numenta.org"
+    on_success: change
+    on_failure: change
   irc:
     channels:
       - "irc.freenode.net#nupic-hackers"
@@ -87,6 +93,8 @@ deploy:
         - "$CC == gcc-4.8"
 
 before_install:
+  # Turned pylint checking off until https://github.com/numenta/nupic/issues/3147 is fixed.
+  # - ". ./ci/travis/run_pylint.sh"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/before_install-osx.sh; fi"
 

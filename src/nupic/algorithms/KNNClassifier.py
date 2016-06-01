@@ -406,6 +406,14 @@ class KNNClassifier(object):
       print "  active inputs:", _labeledInput(inputPattern,
                                               cellsPerCol=self.cellsPerCol)
 
+    if isSparse > 0:
+      assert all(inputPattern[i] <= inputPattern[i+1]
+                 for i in xrange(len(inputPattern)-1)), \
+                     "Sparse inputPattern must be sorted."
+      assert all(bit < isSparse for bit in inputPattern), \
+        ("Sparse inputPattern must not index outside the dense "
+         "representation's bounds.")
+
     if rowID is None:
       rowID = self._iterationIdx
 

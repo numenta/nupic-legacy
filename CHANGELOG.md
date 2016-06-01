@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.3
+
+* Default DATETIME columns to NULL in ClientJobsDAO for compatibility across mysql versions. As of mysql 5.7.8, values of 0 are not allowed for DATETIME columns, and CURRENT_TIMESTAMP is semantically inappropriate for those columns.
+* Suppress this optional dependency on matplotlib without logging, because python logging implicitly adds the StreamHandler to root logger when calling `logging.debug`, etc., which may undermine an application's logging configuration
+* Bugfix: Write the 'actualValues' to the output, don't reassign the output
+* Fixed Username Regex in ClientJobsDAO
+* cleaned up region a bit to make it compliant with numenta's coding guidelines.
+
 ## 0.5.2
 
 * Fixe to GCE to return the right number of scalars when altitude is missing.

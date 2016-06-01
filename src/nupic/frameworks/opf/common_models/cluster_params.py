@@ -29,7 +29,8 @@ from pkg_resources import resource_stream
 def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
                                               minVal=None,
                                               maxVal=None,
-                                              minResolution=None):
+                                              minResolution=None,
+                                              tmImplementation = "cpp"):
   """
     Return a dict that can be used to create an anomaly model via OPF's
     ModelFactory.
@@ -45,6 +46,9 @@ def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
 
     :param minResolution: minimum resolution of metric. Used to set up
       encoders.  If None, will use default value of 0.001.
+
+    :param tmImplementation: string specifying type of temporal memory implementation.
+      Valid strings : {"cpp", "tm_cpp"}
 
     :returns: a dict containing "modelConfig" and "inferenceArgs" top-level
       properties. The value of the "modelConfig" property is for passing to
@@ -62,6 +66,7 @@ def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
 
       params = getScalarMetricWithTimeOfDayAnomalyParams(
         metricData=[0],
+        tmImplementation="cpp",
         minVal=0.0,
         maxVal=100.0)
 
@@ -86,9 +91,16 @@ def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
     maxVal = minVal + 1
 
   # Load model parameters and update encoder params
-  paramFileRelativePath = os.path.join(
-    "anomaly_params_random_encoder",
-    "best_single_metric_anomaly_params.json")
+  if (tmImplementation is "cpp"):
+    paramFileRelativePath = os.path.join(
+      "anomaly_params_random_encoder",
+      "best_single_metric_anomaly_params_cpp.json")
+  elif (tmImplementation is "tm_cpp"):
+    paramFileRelativePath = os.path.join(
+      "anomaly_params_random_encoder",
+      "best_single_metric_anomaly_params_tm_cpp.json")
+  else:
+    raise ValueError("Invalid string for tmImplementation. Try cpp or tm_cpp")
 
   with resource_stream(__name__, paramFileRelativePath) as infile:
     paramSet = json.load(infile)
@@ -96,7 +108,6 @@ def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
   _fixupRandomEncoderParams(paramSet, minVal, maxVal, minResolution)
 
   return paramSet
-
 
 
 def _rangeGen(data, std=1):

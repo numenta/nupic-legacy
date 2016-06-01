@@ -410,6 +410,7 @@ class KNNClassifierTest(unittest.TestCase):
     self.assertEquals(cat, 1)
 
 
+  @unittest.skipUnless(__debug__, "Only applicable when asserts are enabled")
   def testOverlapDistanceMethodBadSparsity(self):
     """Sparsity (input dimensionality) less than input array"""
     params = {"distanceMethod": "rawOverlap"}
@@ -418,7 +419,7 @@ class KNNClassifierTest(unittest.TestCase):
     a = np.array([1, 3, 7, 11, 13, 17, 19, 23, 29], dtype=np.int32)
 
     # Learn with incorrect dimensionality, less than some bits (23, 29)
-    with self.assertRaises(RuntimeError):
+    with self.assertRaises(AssertionError):
       classifier.learn(a, 0, isSparse=20)
 
 
@@ -442,7 +443,7 @@ class KNNClassifierTest(unittest.TestCase):
     self.assertEquals(cat, 0)
 
 
-
+  @unittest.skipUnless(__debug__, "Only applicable when asserts are enabled")
   def testOverlapDistanceMethodStandardUnsorted(self):
     """If sparse representation indices are unsorted expect error."""
     params = {"distanceMethod": "rawOverlap"}
@@ -452,10 +453,10 @@ class KNNClassifierTest(unittest.TestCase):
     a = np.array([29, 3, 7, 11, 13, 17, 19, 23, 1], dtype=np.int32)
     b = np.array([2, 4, 20, 12, 14, 18, 8, 28, 30], dtype=np.int32)
 
-    with self.assertRaises(RuntimeError):
+    with self.assertRaises(AssertionError):
       classifier.learn(a, 0, isSparse=dimensionality)
 
-    with self.assertRaises(RuntimeError):
+    with self.assertRaises(AssertionError):
       classifier.learn(b, 1, isSparse=dimensionality)
 
 
