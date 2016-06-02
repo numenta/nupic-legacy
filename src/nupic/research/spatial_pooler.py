@@ -32,7 +32,7 @@ from nupic.bindings.math import (SM32 as SparseMatrix,
 realDType = GetNTAReal()
 uintType = "uint32"
 
-VERSION = 2
+VERSION = 3
 
 
 
@@ -285,6 +285,8 @@ class SpatialPooler(object):
     self._synPermMin = 0.0
     self._synPermMax = 1.0
     self._synPermTrimThreshold = synPermActiveInc / 2.0
+    self._overlaps = numpy.zeros(self._numColumns, dtype=realDType)
+    self._boostedOverlaps = numpy.zeros(self._numColumns, dtype=realDType)
 
     if self._synPermTrimThreshold >= self._synPermConnected:
       raise InvalidSPParamValueError(
@@ -718,6 +720,16 @@ class SpatialPooler(object):
     connectedCounts[:] = self._connectedCounts[:]
 
 
+  def getOverlaps(self):
+    """Returns the overlap score for each column."""
+    return self._overlaps
+
+
+  def getBoostedOverlaps(self):
+    """Returns the boosted overlap score for each column."""
+    return self._boostedOverlaps
+
+
   def compute(self, inputVector, learn, activeArray):
     """
     This is the primary public method of the SpatialPooler class. This
@@ -754,20 +766,20 @@ class SpatialPooler(object):
     self._updateBookeepingVars(learn)
     inputVector = numpy.array(inputVector, dtype=realDType)
     inputVector.reshape(-1)
-    overlaps = self._calculateOverlap(inputVector)
+    self._overlaps = self._calculateOverlap(inputVector)
 
     # Apply boosting when learning is on
     if learn:
-      boostedOverlaps = self._boostFactors * overlaps
+      self._boostedOverlaps = self._boostFactors * self._overlaps
     else:
-      boostedOverlaps = overlaps
+      self._boostedOverlaps = self._overlaps
 
     # Apply inhibition to determine the winning columns
-    activeColumns = self._inhibitColumns(boostedOverlaps)
+    activeColumns = self._inhibitColumns(self._boostedOverlaps)
 
     if learn:
       self._adaptSynapses(inputVector, activeColumns)
-      self._updateDutyCycles(overlaps, activeColumns)
+      self._updateDutyCycles(self._overlaps, activeColumns)
       self._bumpUpWeakColumns()
       self._updateBoostFactors()
       if self._isUpdateRound():
@@ -1645,6 +1657,11 @@ class SpatialPooler(object):
       # the wrapAround property was added in version 2,
       # in version 1 the wrapAround parameter was True for SP initialization
       state['_wrapAround'] = True
+    if state['_version'] < 3:
+      # the overlaps and boostedOverlaps properties were added in version 3,
+      state['_overlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
+      state['_boostedOverlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
+    
     # update version property to current SP version
     state['_version'] = VERSION
     self.__dict__.update(state)
@@ -1716,7 +1733,7 @@ class SpatialPooler(object):
 
     boostFactorsProto = proto.init("boostFactors", len(self._boostFactors))
     for i, v in enumerate(self._boostFactors):
-      boostFactorsProto[i] = float(v)
+      boostFactorsProto[i] = float(v) 
 
 
   @classmethod
@@ -1781,7 +1798,7 @@ class SpatialPooler(object):
     instance._minActiveDutyCycles = numpy.array(proto.minActiveDutyCycles,
                                             dtype=realDType)
     instance._boostFactors = numpy.array(proto.boostFactors, dtype=realDType)
-
+    
     return instance
 
 
