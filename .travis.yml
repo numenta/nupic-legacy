@@ -58,7 +58,7 @@ notifications:
   email:
     recipients:
       - "discourse-nupic-developers@numenta.org"
-    on_success: change
+    on_success: never
     on_failure: change
   irc:
     channels:
