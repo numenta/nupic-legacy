@@ -22,3 +22,23 @@ After running this example and reading through the output you should have a basi
 
 
 Further reading: [Encoders](https://github.com/numenta/nupic/wiki/Encoders)
+
+## Second Spatial Pooler Example
+
+sp_tutorial.py replicates figures 5, 7 and 9 from the paper 
+[Porting HTM Models to the Heidelberg Neuromorphic Computing Platform](http://arxiv.org/abs/1505.02142).
+This will show some basic properties of the spatial pooler.
+
+#### To run
+	python sp_tutorial.py
+
+
+#### Details
+
+The script is divided in three parts, each of them addressing one of the following questions:
+
+1. What is the distribution of the overlap scores in a spatial pooler for a random binary input?
+2. How robust is the spatial pooler against input noise when untrained?
+3. How robust is it after training?
+
+More details can be found in the comments of the script as well as in its command-line output.
