@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.5.4
+
+* Added overlap accessors to spatial_pooler.py plus unit tests. (Code style corrected)
+* Updated VERSION in Spatial Pooler and added backward compatibility in setstate()
+* Added members overlaps and boostedOverlaps to SpatialPooler class.
+* Addition of overlaps and boostedOverlaps members to SpatialPooler class plus unit tests.
+* Added docs for return type in RDSE internal func.
+* tm_cpp with tuned parameters
+* RES-215 Changes to add params for new TM subclass for NAB
+* Remove main function from SDRClassifierRegion
+* remove unused methods from SDRClassifierRegion
+* Add simple end-to-end integration test for SDRClassifierRegion
+* use string split instead of eval to parse strings
+* correct inconsistent error msg in sdr_classifier_factory.py
+* Fix readWrite test of SDR classifier
+* Add SDRClassifier Region to pyRegions
+* Initial implementation of SDRClassifier Region
+* implement SDR classifier factory
+* Add capnp proto for SDR classifier region
+* Add default value for SDR classifier implementation in nupic-default.xml
+
 ## 0.5.3
 
 * Default DATETIME columns to NULL in ClientJobsDAO for compatibility across mysql versions. As of mysql 5.7.8, values of 0 are not allowed for DATETIME columns, and CURRENT_TIMESTAMP is semantically inappropriate for those columns.

@@ -32,7 +32,7 @@ from nupic.bindings.math import (SM32 as SparseMatrix,
 realDType = GetNTAReal()
 uintType = "uint32"
 
-VERSION = 2
+VERSION = 3
 
 
 
@@ -722,6 +722,16 @@ class SpatialPooler(object):
   def getOverlaps(self):
     """Returns the overlap score for each column."""
     return self._overlaps
+
+  def getBoostedOverlaps(self):
+    """Returns the boosted overlap score for each column."""
+    return self._boostedOverlaps
+
+
+  def getOverlaps(self):
+    """Returns the overlap score for each column."""
+    return self._overlaps
+
 
   def getBoostedOverlaps(self):
     """Returns the boosted overlap score for each column."""
@@ -1655,6 +1665,11 @@ class SpatialPooler(object):
       # the wrapAround property was added in version 2,
       # in version 1 the wrapAround parameter was True for SP initialization
       state['_wrapAround'] = True
+    if state['_version'] < 3:
+      # the overlaps and boostedOverlaps properties were added in version 3,
+      state['_overlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
+      state['_boostedOverlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
+    
     # update version property to current SP version
     state['_version'] = VERSION
     self.__dict__.update(state)
