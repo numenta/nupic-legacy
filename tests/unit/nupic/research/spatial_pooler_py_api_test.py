@@ -337,7 +337,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
     inputVector = numpy.ones(5)
     activeArray = numpy.zeros(3)
     
-    expOutput = numpy.array([2, 0, 0], dtype=realDType)    
+    expOutput = numpy.array([2, 0, 0], dtype=realType)    
     boostFactors = 2.0 * numpy.ones(3)    
     sp.setBoostFactors(boostFactors)    
     sp.compute(inputVector, True, activeArray)    
