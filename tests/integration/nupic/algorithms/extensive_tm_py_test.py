@@ -20,10 +20,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from nupic.bindings.algorithms import TemporalMemory
+import unittest
 
-from extensive_temporal_memory_test import ExtensiveTemporalMemoryTest
+import nupic.research.temporal_memory
+from extensive_tm_test_base import ExtensiveTemporalMemoryTest
 
 
 
-ExtensiveTemporalMemoryTest.TM_CLASS = TemporalMemory
+class ExtensiveTemporalMemoryTestPY(ExtensiveTemporalMemoryTest, unittest.TestCase):
+  def getTMClass(self):
+    return nupic.research.temporal_memory.TemporalMemory

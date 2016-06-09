@@ -19,27 +19,41 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import unittest
+from abc import ABCMeta, abstractmethod
 
 from nupic.data.generators.sequence_machine import SequenceMachine
 from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
   TemporalMemoryMonitorMixin)
-from nupic.research.temporal_memory import TemporalMemory
 
 
 
-class AbstractTemporalMemoryTest(unittest.TestCase):
+class AbstractTemporalMemoryTest(object):
+  __metaclass__ = ABCMeta
 
   VERBOSITY = 1
-  DEFAULT_TM_PARAMS = {}
-  PATTERN_MACHINE = None
-  TM_CLASS = TemporalMemory
 
+  @abstractmethod
+  def getTMClass(self):
+    """
+    Implement this method to specify the Temporal Memory class.
+    """
+
+  @abstractmethod
+  def getPatternMachine(self):
+    """
+    Implement this method to provide the pattern machine.
+    """
+
+  def getDefaultTMParams(self):
+    """
+    Override this method to set the default TM params for `self.tm`.
+    """
+    return {}
 
   def setUp(self):
     self.tm = None
-    self.patternMachine = None
-    self.sequenceMachine = None
+    self.patternMachine = self.getPatternMachine()
+    self.sequenceMachine = SequenceMachine(self.patternMachine)
 
 
   def init(self, overrides=None):
@@ -51,11 +65,8 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
     params = self._computeTMParams(overrides)
 
     class MonitoredTemporalMemory(TemporalMemoryMonitorMixin,
-                                  self.TM_CLASS): pass
+                                  self.getTMClass()): pass
     self.tm = MonitoredTemporalMemory(**params)
-
-    self.patternMachine = self.PATTERN_MACHINE
-    self.sequenceMachine = SequenceMachine(self.patternMachine)
 
 
   def feedTM(self, sequence, learn=True, num=1):
@@ -75,7 +86,6 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
   # ==============================
 
   def _computeTMParams(self, overrides):
-    params = dict(self.DEFAULT_TM_PARAMS)
+    params = dict(self.getDefaultTMParams())
     params.update(overrides or {})
     return params
-
