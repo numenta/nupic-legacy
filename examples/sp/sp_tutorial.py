@@ -160,6 +160,7 @@ plt.xlabel("Overlap scores")
 plt.ylabel("Frequency")
 plt.title("Figure 1")
 plt.savefig("figure_1")
+plt.close()
 
 # Part 2a: 
 # -------
@@ -204,6 +205,7 @@ plt.xlabel("Noise level")
 plt.ylabel("Input overlap")
 plt.title("Figure 2")
 plt.savefig("figure_2")
+plt.close()
 
 # Part 2b: 
 # -------
@@ -245,6 +247,7 @@ plt.xlabel("Input overlap")
 plt.ylabel("Output overlap")
 plt.title("Figure 3")
 plt.savefig("figure_3")
+plt.close()
 
 # Part 3: 
 # -------
@@ -310,3 +313,4 @@ plt.xlabel("Input overlap")
 plt.ylabel("Output overlap")
 plt.title("Figure 4")
 plt.savefig("figure_4")
+plt.close()
