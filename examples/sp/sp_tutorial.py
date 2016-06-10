@@ -20,7 +20,20 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""A simple tutorial that shows some features of the Spatial Pooler."""
+"""
+A simple tutorial that shows some features of the Spatial Pooler.
+The following program has the purpose of presenting some
+basic properties of the Spatial Pooler. It reproduces Figs.
+5, 7 and 9 from this paper: http://arxiv.org/abs/1505.02142
+To learn more about the Spatial Pooler have a look at BAMI:
+http://numenta.com/biological-and-machine-intelligence/
+or at its class reference in the NuPIC documentation:
+http://numenta.org/docs/nupic/classnupic_1_1research_1_1spatial__pooler_1_1_spatial_pooler.html
+The purpose of the Spatial Pooler is to create a sparse representation
+of its inputs in such a way that similar inputs will be mapped to similar
+sparse representations. Thus, the Spatial Pooler should exhibit some resilience
+to noise in its input.
+"""
 
 import numpy as np
 import random
@@ -77,18 +90,6 @@ def resetVector(x1, x2):
   size = len(x1)
   for i in range(size):
     x2[i] = x1[i]
-
-# The following program has the purpose of presenting some
-# basic properties of the Spatial Pooler. It reproduces Figs.
-# 5, 7 and 9 from this paper: http://arxiv.org/abs/1505.02142
-# To learn more about the Spatial Pooler have a look at BAMI:
-# http://numenta.com/biological-and-machine-intelligence/
-# or at its class reference in the NuPIC documentation:
-# http://numenta.org/docs/nupic/classnupic_1_1research_1_1spatial__pooler_1_1_spatial_pooler.html
-# The purpose of the Spatial Pooler is to create a sparse representation
-# of its inputs in such a way that similar inputs will be mapped to similar
-# sparse representations. Thus, the Spatial Pooler should exhibit some resilience
-# to noise in its input.
 
 random.seed(1)
 uintType = "uint32"
