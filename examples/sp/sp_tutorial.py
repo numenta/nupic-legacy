@@ -22,6 +22,7 @@
 
 """
 A simple tutorial that shows some features of the Spatial Pooler.
+
 The following program has the purpose of presenting some
 basic properties of the Spatial Pooler. It reproduces Figs.
 5, 7 and 9 from this paper: http://arxiv.org/abs/1505.02142
