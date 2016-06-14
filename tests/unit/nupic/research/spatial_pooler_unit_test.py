@@ -174,10 +174,10 @@ class SpatialPoolerTest(unittest.TestCase):
     overlaps = sp.getOverlaps()    
     boostedOverlaps = sp.getBoostedOverlaps()
     
-    for i in range(sp._numColumns):
+    for i in range(sp.getNumColumns()):
     	self.assertEqual(overlaps[i], expOutput[i])
 
-    for i in range(sp._numColumns):
+    for i in range(sp.getNumColumns()):
     	self.assertEqual(boostedOverlaps[i], (2 * expOutput[i]))      
 
 
