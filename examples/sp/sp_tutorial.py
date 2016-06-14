@@ -147,13 +147,13 @@ print "to make such sparse representation."
 print "---------------------------------"
 print ""
 
-bins = np.linspace(min(overlaps), max(overlaps), 50)
+bins = np.linspace(min(overlaps), max(overlaps), 28)
 plt.hist(overlaps, bins, alpha=0.5, label='All cols')
 plt.hist(activeColsScores, bins, alpha=0.5, label='Active cols')
 plt.legend(loc='upper right')
 plt.xlabel("Overlap scores")
 plt.ylabel("Frequency")
-plt.title("Figure 1")
+plt.title("Figure 1: Column overlap of a SP with random input.")
 plt.savefig("figure_1")
 plt.close()
 
@@ -198,7 +198,7 @@ print ""
 plt.plot(x, y)
 plt.xlabel("Noise level")
 plt.ylabel("Input overlap")
-plt.title("Figure 2")
+plt.title("Figure 2: Input overlap between 2 identical vectors in function of noiseLevel.")
 plt.savefig("figure_2")
 plt.close()
 
@@ -213,6 +213,9 @@ plt.close()
 # decreases.
 # In this part we will show how the output overlap behaves in function of the
 # input overlap between two vectors.
+# Even with an untrained spatial pooler, we see some noise resilience. 
+# Note that due to the non-linear properties of high dimensional SDRs, overlaps 
+# greater than 10 bits, or 25% in this example, are considered significant.
 
 x = []
 y = []   
@@ -240,7 +243,7 @@ print ""
 plt.plot(x, y)
 plt.xlabel("Input overlap")
 plt.ylabel("Output overlap")
-plt.title("Figure 3")
+plt.title("Figure 3: Output overlap in function of input overlap in a SP without training")
 plt.savefig("figure_3")
 plt.close()
 
@@ -306,7 +309,7 @@ print ""
 plt.plot(x, y)
 plt.xlabel("Input overlap")
 plt.ylabel("Output overlap")
-plt.title("Figure 4")
+plt.title("Figure 4: Output overlap in function of input overlap in a SP after training")
 plt.savefig("figure_4")
 plt.close()
 
