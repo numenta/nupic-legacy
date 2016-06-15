@@ -193,7 +193,7 @@ class SDRClassifierRegion(PyRegion):
           count=0,
           constraints='enum: py'),
 
-        verbosity=dict(
+        clVerbosity=dict(
           description='An integer that controls the verbosity level, '
                       '0 means no verbose output, increasing integers '
                       'provide more verbosity.',
