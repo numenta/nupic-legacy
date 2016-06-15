@@ -58,14 +58,14 @@ def testDbConnection(host, port, user, passwd):
   try:
     conn = pymysql.connect(host=host, port=port, user=user, passwd=passwd)
     cursor = conn.cursor()
-    cursor.execute("CREATE DATABASE IF NOT EXISTS testing")
-    conn.select_db("testing")
-    cursor.execute("CREATE TABLE test \
+    cursor.execute("CREATE DATABASE IF NOT EXISTS nupic_db_test")
+    conn.select_db("nupic_db_test")
+    cursor.execute("CREATE TABLE db_test \
                               (teststring VARCHAR(255),\
                                someint INT)")
-    cursor.execute("INSERT INTO test VALUES ('testing123', 123)")
-    cursor.execute("DROP TABLE IF EXISTS test")
-    cursor.execute("DROP DATABASE IF EXISTS testing")
+    cursor.execute("INSERT INTO db_test VALUES ('testing123', 123)")
+    cursor.execute("DROP TABLE IF EXISTS db_test")
+    cursor.execute("DROP DATABASE IF EXISTS nupic_db_test")
     return True
 
   except pymysql.err.OperationalError:
