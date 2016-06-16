@@ -15,7 +15,7 @@ MODEL_PARAMS = \
                                       u'autoDetectWaitRecords': None},
                    'clParams': { 'alpha': 0.01962508905154251,
                                  'verbosity': 0,
-                                 'regionName': 'CLAClassifierRegion',
+                                 'regionName': 'SDRClassifierRegion',
                                  'steps': '1'},
                    'inferenceType': 'TemporalAnomaly',
                    'sensorParams': { 'encoders': { '_classifierInput': { 'classifierOnly': True,
