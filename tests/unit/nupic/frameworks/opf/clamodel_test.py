@@ -99,7 +99,7 @@ class CLAModelTest(unittest.TestCase):
                                            u'autoDetectWaitRecords': 5030},
                         u'clEnable': False,
                         u'clParams': {u'alpha': 0.035828933612158,
-                                      u'clVerbosity': 0,
+                                      u'verbosity': 0,
                                       u'regionName': u'CLAClassifierRegion',
                                       u'steps': u'1'},
                         u'inferenceType': u'TemporalAnomaly',

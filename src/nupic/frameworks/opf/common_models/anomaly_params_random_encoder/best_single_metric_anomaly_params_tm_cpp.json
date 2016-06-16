@@ -89,7 +89,7 @@
         "alpha": 0.035828933612157998,
         "regionName": "CLAClassifierRegion",
         "steps": "1",
-        "clVerbosity": 0
+        "verbosity": 0
       },
       "anomalyParams": {
         "anomalyCacheRecords": null,

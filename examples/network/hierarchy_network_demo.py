@@ -226,7 +226,7 @@ def createNetwork(dataSource):
 
                         # Diagnostic output verbosity control;
                         # 0: silent; [1..6]: increasing levels of verbosity
-                        'clVerbosity': 0}
+                        'verbosity': 0}
 
   l1Classifier = network.addRegion(_L1_CLASSIFIER, "py.CLAClassifierRegion",
                                    json.dumps(classifierParams))

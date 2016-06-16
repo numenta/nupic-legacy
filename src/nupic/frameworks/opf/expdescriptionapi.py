@@ -316,7 +316,7 @@ class ExperimentDescriptionAPI(DescriptionIface):
     if 'clRegionName' in config:
       clParams = dict(
         regionName = config['clRegionName'],
-        clVerbosity = config['clVerbosity'],
+        verbosity = config['verbosity'],
       )
       if config['clRegionName'] == 'KNNClassifierRegion':
         clParams['replaceDuplicates'] = 1

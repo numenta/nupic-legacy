@@ -29,7 +29,7 @@ config = \
 { 
   'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
                                          '../datasets/scalar_SP_0.csv'),
-  'modelParams': { 'clParams': { 'clVerbosity': 0},
+  'modelParams': { 'clParams': { 'verbosity': 0},
                    'inferenceType': 'NontemporalClassification',
                    'sensorParams': { 'encoders': { 'field1': { 'clipInput': True,
                                                                'fieldname': u'field1',

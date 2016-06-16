@@ -192,7 +192,7 @@ class CLAClassifierRegion(PyRegion):
           count=0,
           constraints='enum: py, cpp'),
 
-        clVerbosity=dict(
+        verbosity=dict(
           description='An integer that controls the verbosity level, '
                       '0 means no verbose output, increasing integers '
                       'provide more verbosity.',
@@ -212,7 +212,7 @@ class CLAClassifierRegion(PyRegion):
   def __init__(self,
                steps='1',
                alpha=0.001,
-               clVerbosity=0,
+               verbosity=0,
                implementation=None,
                maxCategoryCount=None
                ):
@@ -226,7 +226,7 @@ class CLAClassifierRegion(PyRegion):
     self.steps = steps
     self.stepsList = eval("[%s]" % (steps))
     self.alpha = alpha
-    self.verbosity = clVerbosity
+    self.verbosity = verbosity
 
     # Initialize internal structures
     self._claClassifier = CLAClassifierFactory.create(

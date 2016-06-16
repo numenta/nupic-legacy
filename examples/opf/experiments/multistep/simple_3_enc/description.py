@@ -29,7 +29,7 @@ config = \
 { 
   'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
                                          '../datasets/simple_3.csv'),
-  'modelParams': { 'clParams': { 'clVerbosity': 1, 'steps': '1,3'},
+  'modelParams': { 'clParams': { 'verbosity': 1, 'steps': '1,3'},
                    'inferenceType': 'NontemporalMultiStep',
                    'sensorParams': { 'encoders': { }, 'verbosity': 1},
                    'spEnable': False,

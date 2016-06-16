@@ -29,7 +29,7 @@ config = \
 { 
   'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
                                          '../datasets/category_SP_0.csv'),
-  'modelParams': { 'clParams': { 'clVerbosity': 1},
+  'modelParams': { 'clParams': { 'verbosity': 1},
                    'inferenceType': 'NontemporalClassification',
                    'sensorParams': { 'encoders': { }, 'verbosity': 1},
                    'spParams': { 'spVerbosity': 1 },

@@ -120,7 +120,7 @@ MODEL_PARAMS = {
       "clParams": {
         "implementation": "cpp",
         "regionName" : "CLAClassifierRegion",
-        "clVerbosity" : 0,
+        "verbosity" : 0,
         "alpha": 0.0001,
         "steps": "1",
       },
