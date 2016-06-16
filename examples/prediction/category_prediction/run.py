@@ -118,8 +118,8 @@ MODEL_PARAMS = {
         "pamLength": 1,
       },
       "clParams": {
-        "implementation": "cpp",
-        "regionName" : "CLAClassifierRegion",
+        "implementation": "py",
+        "regionName" : "SDRClassifierRegion",
         "verbosity" : 0,
         "alpha": 0.0001,
         "steps": "1",
