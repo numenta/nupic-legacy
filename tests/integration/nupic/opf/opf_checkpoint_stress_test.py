@@ -105,7 +105,7 @@ MODEL_PARAMS = {
         },
         'clParams': {
             'regionName' : 'CLAClassifierRegion',
-            'clVerbosity' : 0,
+            'verbosity' : 0,
             'alpha': 0.005,
             'steps': '1,5',
         },

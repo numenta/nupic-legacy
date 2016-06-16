@@ -150,7 +150,7 @@ class NABTest(TestCaseBase):
                       "clEnable": False,
                       "clParams": {
                           "alpha": 0.035828933612158,
-                          "clVerbosity": 0,
+                          "verbosity": 0,
                           "regionName": "CLAClassifierRegion",
                           "steps": "1"
                       },

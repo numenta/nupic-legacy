@@ -212,7 +212,7 @@ class SDRClassifierRegion(PyRegion):
   def __init__(self,
                steps='1',
                alpha=0.001,
-               clVerbosity=0,
+               verbosity=0,
                implementation=None,
                maxCategoryCount=None
                ):
@@ -227,7 +227,7 @@ class SDRClassifierRegion(PyRegion):
     self.steps = steps
     self.stepsList = [int(i) for i in steps.split(",")]
     self.alpha = alpha
-    self.verbosity = clVerbosity
+    self.verbosity = verbosity
 
     # Initialize internal structures
     self._sdrClassifier = None

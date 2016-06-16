@@ -389,7 +389,7 @@ class KNNClassifierRegion(PyRegion):
             defaultValue=0,
             accessMode='Create'),
 
-          clVerbosity=dict(
+          verbosity=dict(
             description='An integer that controls the verbosity level, '
                         '0 means no verbose output, increasing integers '
                         'provide more verbosity.',
@@ -474,7 +474,7 @@ class KNNClassifierRegion(PyRegion):
                fractionOfMax=0,
                useAuxiliary=0,
                justUseAuxiliary=0,
-               clVerbosity=0,
+               verbosity=0,
                replaceDuplicates=False,
                cellsPerCol=0,
                maxStoredPatterns=-1,
@@ -517,7 +517,7 @@ class KNNClassifierRegion(PyRegion):
         numSVDSamples=SVDSampleCount,
         numSVDDims=SVDDimCount,
         fractionOfMax=fractionOfMax,
-        verbosity=clVerbosity,
+        verbosity=verbosity,
         replaceDuplicates=replaceDuplicates,
         cellsPerCol=cellsPerCol,
         maxStoredPatterns=maxStoredPatterns,
@@ -545,7 +545,7 @@ class KNNClassifierRegion(PyRegion):
     self._labels  = None
 
     # Debugging
-    self.verbosity = clVerbosity
+    self.verbosity = verbosity
 
     # Taps
     self._tapFileIn = None
@@ -752,7 +752,7 @@ class KNNClassifierRegion(PyRegion):
           self._protoScoreCount = 1
         else:
           self._protoScoreCount = 0
-    elif name == "clVerbosity":
+    elif name == "verbosity":
       self.verbosity = value
       self._knn.verbosity = value
     else:

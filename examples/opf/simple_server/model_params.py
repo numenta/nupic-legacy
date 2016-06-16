@@ -225,7 +225,7 @@ MODEL_PARAMS = {
 
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
-            'clVerbosity' : 0,
+            'verbosity' : 0,
 
             # This controls how fast the classifier learns/forgets. Higher values
             # make it adapt faster and forget older patterns faster.

@@ -26,7 +26,7 @@ from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
 
 # the sub-experiment configuration
 config = \
-{ 'modelParams': { 'clParams': { 'clVerbosity': 0},
+{ 'modelParams': { 'clParams': { 'verbosity': 0},
                    'inferenceType': 'NontemporalMultiStep',
                    'sensorParams': { 'encoders': { 'consumption': { 'clipInput': True,
                                                                     'fieldname': u'consumption',

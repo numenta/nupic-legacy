@@ -372,7 +372,7 @@ config = {
   # Classifier diagnostic output verbosity control;
   # 0: silent; [1..6]: increasing levels of verbosity
   #
-  'clVerbosity' : 0,
+  'verbosity' : 0,
 
   # Comma separated list of steps ahead to learn in the classifier.
   'clSteps': $PREDICTION_STEPS,
