@@ -317,7 +317,7 @@ config = {
         },
 
         'clParams': {
-            'regionName' : 'CLAClassifierRegion',
+            'regionName' : 'SDRClassifierRegion',
             
             'implementation': 'py',
 

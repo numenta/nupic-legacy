@@ -151,7 +151,7 @@ class NABTest(TestCaseBase):
                       "clParams": {
                           "alpha": 0.035828933612158,
                           "verbosity": 0,
-                          "regionName": "CLAClassifierRegion",
+                          "regionName": "SDRClassifierRegion",
                           "steps": "1"
                       },
                       "inferenceType": "TemporalAnomaly",
