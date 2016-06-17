@@ -221,14 +221,14 @@ def createNetwork(dataSource):
                         'steps': '1',
 
                         # The specific implementation of the classifier to use
-                        # See CLAClassifierFactory#create for options
-                        'implementation': 'cpp',
+                        # See SDRClassifierFactory#create for options
+                        'implementation': 'py',
 
                         # Diagnostic output verbosity control;
                         # 0: silent; [1..6]: increasing levels of verbosity
                         'verbosity': 0}
 
-  l1Classifier = network.addRegion(_L1_CLASSIFIER, "py.CLAClassifierRegion",
+  l1Classifier = network.addRegion(_L1_CLASSIFIER, "py.SDRClassifierRegion",
                                    json.dumps(classifierParams))
   l1Classifier.setParameter('inferenceMode', True)
   l1Classifier.setParameter('learningMode', True)
@@ -243,7 +243,7 @@ def createNetwork(dataSource):
   createTemporalMemory(network, _L2_TEMPORAL_MEMORY)
   network.link(_L2_SPATIAL_POOLER, _L2_TEMPORAL_MEMORY, linkType, linkParams)
 
-  l2Classifier = network.addRegion(_L2_CLASSIFIER, "py.CLAClassifierRegion",
+  l2Classifier = network.addRegion(_L2_CLASSIFIER, "py.SDRClassifierRegion",
                                    json.dumps(classifierParams))
   l2Classifier.setParameter('inferenceMode', True)
   l2Classifier.setParameter('learningMode', True)

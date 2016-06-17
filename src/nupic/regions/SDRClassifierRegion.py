@@ -315,7 +315,7 @@ class SDRClassifierRegion(PyRegion):
   def readFromProto(cls, proto):
     """Read state from proto object.
 
-    proto: CLAClassifierRegionProto capnproto object
+    proto: SDRClassifierRegionProto capnproto object
     """
     instance = cls()
 
