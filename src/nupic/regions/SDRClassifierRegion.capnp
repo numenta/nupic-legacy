@@ -4,8 +4,8 @@ using import "/nupic/proto/SdrClassifier.capnp".SdrClassifierProto;
 
 # Next ID: 6
 struct SDRClassifierRegionProto {
-  classifierImp @0 :Text;
-  claClassifier @1 :SdrClassifierProto;
+  implementation @0 :Text;
+  sdrClassifier @1 :SdrClassifierProto;
   steps @2 :Text;
   alpha @3 :Float32;
   verbosity @4 :UInt32;
