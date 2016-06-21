@@ -413,10 +413,11 @@ class SDRClassifier(object):
     proto.learnIteration = self._learnIteration
     proto.recordNumMinusLearnIteration = self._recordNumMinusLearnIteration
 
-    patternNZHistory = []
-    for (iteration, learnPatternNZ) in self._patternNZHistory:
-      patternNZHistory.append(list(learnPatternNZ))
-    proto.patternNZHistory = patternNZHistory
+    patternProto = proto.init("patternNZHistory", len(self._patternNZHistory))
+    for  i in xrange(len(self._patternNZHistory)):
+      subPatternProto = patternProto.init(i, len(self._patternNZHistory[i][1]))
+      for j in xrange(len(self._patternNZHistory[i][1])):
+        subPatternProto[j] = int(self._patternNZHistory[i][1][j])
 
     weightMatrices = proto.init("weightMatrix", len(self._weightMatrix))
 
