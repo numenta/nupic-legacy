@@ -229,7 +229,7 @@ class SDRClassifier(object):
           self._weightMatrix[nSteps],
           numpy.zeros(shape=(newMaxInputIdx-self._maxInputIdx,
                              self._maxBucketIdx+1))), axis=0)
-      self._maxInputIdx = newMaxInputIdx
+      self._maxInputIdx = int(newMaxInputIdx)
 
     # ------------------------------------------------------------------------
     # Inference:
@@ -252,7 +252,7 @@ class SDRClassifier(object):
             numpy.zeros(shape=(self._maxInputIdx+1,
                                bucketIdx-self._maxBucketIdx))), axis=1)
 
-        self._maxBucketIdx = bucketIdx
+        self._maxBucketIdx = int(bucketIdx)
 
       # Update rolling average of actual values if it's a scalar. If it's
       # not, it must be a category, in which case each bucket only ever
