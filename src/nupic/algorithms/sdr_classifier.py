@@ -415,7 +415,7 @@ class SDRClassifier(object):
 
     patternNZHistory = []
     for (iteration, learnPatternNZ) in self._patternNZHistory:
-      patternNZHistory.append(learnPatternNZ)
+      patternNZHistory.append(list(learnPatternNZ))
     proto.patternNZHistory = patternNZHistory
 
     weightMatrices = proto.init("weightMatrix", len(self._weightMatrix))
