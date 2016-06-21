@@ -302,7 +302,7 @@ config = {
 
             # This controls how fast the classifier learns/forgets. Higher values
             # make it adapt faster and forget older patterns faster.
-            'alpha': 0.001,
+            'alpha': 0.25,
 
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.
