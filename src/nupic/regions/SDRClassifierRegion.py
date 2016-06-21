@@ -230,13 +230,7 @@ class SDRClassifierRegion(PyRegion):
     self.verbosity = verbosity
 
     # Initialize internal structures
-    self._sdrClassifier = SDRClassifierFactory.create(
-      steps=self.stepsList,
-      alpha=self.alpha,
-      verbosity=self.verbosity,
-      implementation=self.implementation,
-    )
-
+    self._sdrClassifier = None
     self.learningMode = True
     self.inferenceMode = False
     self.maxCategoryCount = maxCategoryCount
@@ -251,7 +245,19 @@ class SDRClassifierRegion(PyRegion):
 
 
   def initialize(self, inputs, outputs):
-    pass
+    """
+    Is called once by NuPIC before the first call to compute(). Initializes self._sdrClassifier
+    is it is not already initialized.
+    @param inputs -- inputs of the classifier region
+    @param outputs -- outputs of the classifier region
+    """
+    if self._sdrClassifier is None:
+      self._sdrClassifier = SDRClassifierFactory.create(
+        steps=self.stepsList,
+        alpha=self.alpha,
+        verbosity=self.verbosity,
+        implementation=self.implementation,
+      )
 
 
   def getAlgorithmInstance(self):
