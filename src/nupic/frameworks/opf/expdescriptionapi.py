@@ -320,7 +320,14 @@ class ExperimentDescriptionAPI(DescriptionIface):
       )
       if config['clRegionName'] == 'KNNClassifierRegion':
         clParams['replaceDuplicates'] = 1
+      elif config['clRegionName'] == 'SDRClassifierRegion':
+        clAlpha = config.get('clAlpha', None)
+        if clAlpha is None:
+          clAlpha = 0.001
+        clParams['alpha'] = clAlpha
+        clParams['steps'] = config.get('clSteps', '1')
       elif config['clRegionName'] == 'CLAClassifierRegion':
+        # deprecated
         clAlpha = config.get('clAlpha', None)
         if clAlpha is None:
           clAlpha = 0.001

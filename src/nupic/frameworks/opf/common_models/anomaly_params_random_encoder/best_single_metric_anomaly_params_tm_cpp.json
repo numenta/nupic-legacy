@@ -87,7 +87,7 @@
       "clEnable": false,
       "clParams": {
         "alpha": 0.035828933612157998,
-        "regionName": "CLAClassifierRegion",
+        "regionName": "SDRClassifierRegion",
         "steps": "1",
         "verbosity": 0
       },

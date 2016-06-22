@@ -411,7 +411,7 @@ class RandomDistributedScalarEncoder(Encoder):
     """
     # The first bucket index will be _maxBuckets / 2 and bucket indices will be
     # allowed to grow lower or higher as long as they don't become negative.
-    # _maxBuckets is required because the current CLA Classifier assumes bucket
+    # _maxBuckets is required because the current SDR Classifier assumes bucket
     # indices must be non-negative. This normally does not need to be changed
     # but if altered, should be set to an even number.
     self._maxBuckets = maxBuckets

@@ -104,7 +104,7 @@ MODEL_PARAMS = {
             'pamLength': 1,
         },
         'clParams': {
-            'regionName' : 'CLAClassifierRegion',
+            'regionName' : 'SDRClassifierRegion',
             'verbosity' : 0,
             'alpha': 0.005,
             'steps': '1,5',
