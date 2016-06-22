@@ -364,9 +364,9 @@ config = {
 
 
   ##############################################################################
-  # CLAClassifier parameters
+  # SDRClassifier parameters
   ##############################################################################
-  'clRegionName' : 'CLAClassifierRegion',
+  'clRegionName' : 'SDRClassifierRegion',
 
 
   # Classifier diagnostic output verbosity control;
