@@ -212,7 +212,7 @@ class SDRClassifierRegion(PyRegion):
   def __init__(self,
                steps='1',
                alpha=0.001,
-               clVerbosity=0,
+               verbosity=0,
                implementation=None,
                maxCategoryCount=None
                ):
@@ -227,7 +227,7 @@ class SDRClassifierRegion(PyRegion):
     self.steps = steps
     self.stepsList = [int(i) for i in steps.split(",")]
     self.alpha = alpha
-    self.verbosity = clVerbosity
+    self.verbosity = verbosity
 
     # Initialize internal structures
     self._sdrClassifier = None
@@ -246,16 +246,18 @@ class SDRClassifierRegion(PyRegion):
 
   def initialize(self, inputs, outputs):
     """
-    It is called once by NuPIC before the first call to compute().
+    Is called once by NuPIC before the first call to compute(). Initializes self._sdrClassifier
+    is it is not already initialized.
     @param inputs -- inputs of the classifier region
     @param outputs -- outputs of the classifier region
     """
-    self._sdrClassifier = SDRClassifierFactory.create(
-      steps=self.stepsList,
-      alpha=self.alpha,
-      verbosity=self.verbosity,
-      implementation=self.implementation,
-    )
+    if self._sdrClassifier is None:
+      self._sdrClassifier = SDRClassifierFactory.create(
+        steps=self.stepsList,
+        alpha=self.alpha,
+        verbosity=self.verbosity,
+        implementation=self.implementation,
+      )
 
 
   def getAlgorithmInstance(self):
@@ -315,7 +317,7 @@ class SDRClassifierRegion(PyRegion):
   def readFromProto(cls, proto):
     """Read state from proto object.
 
-    proto: CLAClassifierRegionProto capnproto object
+    proto: SDRClassifierRegionProto capnproto object
     """
     instance = cls()
 

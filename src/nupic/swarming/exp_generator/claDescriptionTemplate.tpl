@@ -149,7 +149,7 @@ config = {
 
             'synPermInactiveDec': 0.0005,
             
-            'maxBoost': 2.0
+            'maxBoost': 1.0
         },
 
         # Controls whether TP is enabled or disabled;
@@ -228,11 +228,11 @@ config = {
         },
 
         'clParams': {
-            'regionName' : 'CLAClassifierRegion',
+            'regionName' : 'SDRClassifierRegion',
             
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
-            'clVerbosity' : 0,
+            'verbosity' : 0,
 
             # This controls how fast the classifier learns/forgets. Higher values
             # make it adapt faster and forget older patterns faster.

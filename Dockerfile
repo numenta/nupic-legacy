@@ -50,7 +50,7 @@ RUN pip install \
         --cache-dir /usr/local/src/nupic.core/pip-cache \
         --build /usr/local/src/nupic.core/pip-build \
         --no-clean \
-        pycapnp==0.5.5 \
+        pycapnp==0.5.8 \
         -r bindings/py/requirements.txt && \
     python setup.py install
 

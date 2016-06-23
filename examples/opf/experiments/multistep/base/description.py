@@ -292,17 +292,17 @@ config = {
 
         'clParams': {
             # Classifier implementation selection.
-            'implementation': 'cpp',
+            'implementation': 'py',
             
-            'regionName' : 'CLAClassifierRegion',
+            'regionName' : 'SDRClassifierRegion',
 
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
-            'clVerbosity' : 0,
+            'verbosity' : 0,
 
             # This controls how fast the classifier learns/forgets. Higher values
             # make it adapt faster and forget older patterns faster.
-            'alpha': 0.001,
+            'alpha': 0.25,
 
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.

@@ -22,7 +22,10 @@
 
 import pprint
 import unittest
+from abc import ABCMeta
 
+import nupic.bindings.algorithms
+import nupic.research.temporal_memory
 from nupic.data.generators.pattern_machine import ConsecutivePatternMachine
 
 from nupic.test.abstract_temporal_memory_test import AbstractTemporalMemoryTest
@@ -30,21 +33,25 @@ from nupic.test.abstract_temporal_memory_test import AbstractTemporalMemoryTest
 
 
 class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
+  __metaclass__ = ABCMeta
 
   VERBOSITY = 1
-  DEFAULT_TM_PARAMS = {
-    "columnDimensions": [6],
-    "cellsPerColumn": 4,
-    "initialPermanence": 0.3,
-    "connectedPermanence": 0.5,
-    "minThreshold": 1,
-    "maxNewSynapseCount": 6,
-    "permanenceIncrement": 0.1,
-    "permanenceDecrement": 0.05,
-    "activationThreshold": 1
-  }
-  PATTERN_MACHINE = ConsecutivePatternMachine(6, 1)
 
+  def getPatternMachine(self):
+    return ConsecutivePatternMachine(6, 1)
+
+  def getDefaultTMParams(self):
+    return {
+      "columnDimensions": (6,),
+      "cellsPerColumn": 4,
+      "initialPermanence": 0.3,
+      "connectedPermanence": 0.5,
+      "minThreshold": 1,
+      "maxNewSynapseCount": 6,
+      "permanenceIncrement": 0.1,
+      "permanenceDecrement": 0.05,
+      "activationThreshold": 1,
+    }
 
   def testFirstOrder(self):
     """Basic first order sequences"""
@@ -216,12 +223,17 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     print
 
     if learn:
-      print self.tm.mmPrettyPrintConnections()
+      self._printConnections()
 
 
   # ==============================
   # Helper functions
   # ==============================
+
+  def _printConnections(self):
+    # This is in a helper so that it can be overridden.
+    print self.tm.mmPrettyPrintConnections()
+
 
   def _showInput(self, sequence, learn=True, num=1):
     sequenceText = self.sequenceMachine.prettyPrintSequence(
@@ -232,6 +244,22 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     print "Feeding sequence {0}{1}:\n{2}".format(
       learnText, numText, sequenceText)
     print
+
+
+
+class TutorialTemporalMemoryTestsCPP(TutorialTemporalMemoryTest, unittest.TestCase):
+  def getTMClass(self):
+    return nupic.bindings.algorithms.TemporalMemory
+
+  def _printConnections(self):
+    # Can't call segmentsForCell on C++ connections class (yet).
+    pass
+
+
+
+class TutorialTemporalMemoryTestsPY(TutorialTemporalMemoryTest, unittest.TestCase):
+  def getTMClass(self):
+    return nupic.research.temporal_memory.TemporalMemory
 
 
 

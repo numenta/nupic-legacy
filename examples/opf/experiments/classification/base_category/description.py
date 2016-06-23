@@ -287,7 +287,7 @@ config = {
 
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
-            'clVerbosity' : 0,
+            'verbosity' : 0,
 
             'distanceMethod': 'pctOverlapOfProto',
             'cellsPerCol': 32,

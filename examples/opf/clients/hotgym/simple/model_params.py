@@ -221,11 +221,11 @@ MODEL_PARAMS = {
         },
 
         'clParams': {
-            'regionName' : 'CLAClassifierRegion',
+            'regionName' : 'SDRClassifierRegion',
 
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
-            'clVerbosity' : 0,
+            'verbosity' : 0,
 
             # This controls how fast the classifier learns/forgets. Higher values
             # make it adapt faster and forget older patterns faster.
@@ -235,7 +235,7 @@ MODEL_PARAMS = {
             # computed from the aggregationInfo and predictAheadTime.
             'steps': '1,5',
 
-            'implementation': 'cpp',
+            'implementation': 'py',
         },
 
         'trainSPNetOnlyIfRequested': False,

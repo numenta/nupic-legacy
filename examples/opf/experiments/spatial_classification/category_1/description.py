@@ -34,7 +34,7 @@ config = \
   'modelParams': { 
     'sensorParams': { 'verbosity': 0},
     'clParams': { 
-      'clVerbosity': 0,
+      'verbosity': 0,
     },
   }
 }

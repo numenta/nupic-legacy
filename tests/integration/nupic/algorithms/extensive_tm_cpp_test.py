@@ -1,6 +1,7 @@
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -19,26 +20,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-## This file defines parameters for a prediction experiment.
+import unittest
 
-import os
-from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
+import nupic.bindings.algorithms
+from extensive_tm_test_base import ExtensiveTemporalMemoryTest
 
-# the sub-experiment configuration
-config = \
-{ 
-  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
-                                         '../datasets/category_0.csv'),
-                                         
-  'errorMetric': 'avg_err',
-  
-  'modelParams': { 
-    'sensorParams': { 'verbosity': 0},
-    'clParams': { 
-      'verbosity': 0,
-    },
-  }
-}
 
-mod = importBaseDescription('../base/description.py', config)
-locals().update(mod.__dict__)
+
+class ExtensiveTemporalMemoryTestCPP(ExtensiveTemporalMemoryTest, unittest.TestCase):
+  def getTMClass(self):
+    return nupic.bindings.algorithms.TemporalMemory

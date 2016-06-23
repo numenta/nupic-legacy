@@ -59,7 +59,7 @@ config = \
        },
     },
     'clParams': { 
-      'clVerbosity': 0,
+      'verbosity': 0,
     },
   }
 }
