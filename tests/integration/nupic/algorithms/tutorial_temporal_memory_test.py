@@ -28,7 +28,7 @@ import nupic.bindings.algorithms
 import nupic.research.temporal_memory
 from nupic.data.generators.pattern_machine import ConsecutivePatternMachine
 
-from nupic.test.abstract_temporal_memory_test import AbstractTemporalMemoryTest
+from nupic.support.unittesthelpers.abstract_temporal_memory_test import AbstractTemporalMemoryTest
 
 
 
