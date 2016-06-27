@@ -222,6 +222,40 @@ class Connections(object):
     # Update indexes
     self._synapsesForSegment[data.segment].remove(synapse)
     del self._synapsesForPresynapticCell[data.presynapticCell][synapse]
+   
+  def computeActivity(self, activeInput, activePermanenceThreshold,
+                      activeSynapseThreshold, matchingPermananceThreshold,
+                      matchingSynapseThreshold):
+
+    numActiveSynapsesForSegment = [0] * self._nextSegmentIdx
+    numMatchingSynapsesForSegment = [0] * self._nextSegmentIdx
+    activeSegments = set()
+    matchingSegments = set()
+
+    for cell in activeInput:
+      synapses = self.synapsesForPresynapticCell(cell)
+      # print("syanpses(segment) for cell {}: {}".format(cell, synapses))
+      if (len(synapses) == 0):
+        continue
+
+      for synapse in synapses:
+        synapseData = self.dataForSynapse(synapse)
+
+        if synapseData.permanence >= matchingPermananceThreshold:
+          segment = synapseData.segment
+          # print "added a matching synapse for segment : {}".format(segment)
+          numMatchingSynapsesForSegment[segment] += 1
+
+          if synapseData.permanence >= activePermanenceThreshold:
+            numActiveSynapsesForSegment[segment] += 1
+
+    for i in xrange(self._nextSegmentIdx):
+      if numActiveSynapsesForSegment[i] >= activeSynapseThreshold:
+        activeSegments.add(i)
+      if numMatchingSynapsesForSegment[i] >= matchingSynapseThreshold:
+        matchingSegments.add(i)
+
+    return sorted(activeSegments), sorted(matchingSegments)
 
 
   def updateSynapsePermanence(self, synapse, permanence):
@@ -280,6 +314,8 @@ class Connections(object):
           protoSynapse.presynapticCell = synapseData.presynapticCell
           protoSynapse.permanence = synapseData.permanence
 
+      # print "proto: {}".format(protoCells)
+
 
   @classmethod
   def read(cls, proto):
@@ -320,6 +356,9 @@ class Connections(object):
     @param other (Connections) Connections instance to compare to
     """
     if self.numCells != other.numCells: return False
+    print "self segments: {}".format(self._segments)
+    print "other segments: {}".format(other._segments)
+    if self._segments != other._segments: return False
 
     for cell in xrange(self.numCells):
       segmentSet = set()
