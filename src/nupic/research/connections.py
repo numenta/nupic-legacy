@@ -234,7 +234,7 @@ class Connections(object):
 
     for cell in activeInput:
       synapses = self.synapsesForPresynapticCell(cell)
-      # print("syanpses(segment) for cell {}: {}".format(cell, synapses))
+      print("syanpses(segment) for cell {}: {}".format(cell, synapses))
       if (len(synapses) == 0):
         continue
 
@@ -243,7 +243,7 @@ class Connections(object):
 
         if synapseData.permanence >= matchingPermananceThreshold:
           segment = synapseData.segment
-          # print "added a matching synapse for segment : {}".format(segment)
+          print "added a matching synapse for segment : {}".format(segment)
           numMatchingSynapsesForSegment[segment] += 1
 
           if synapseData.permanence >= activePermanenceThreshold:
