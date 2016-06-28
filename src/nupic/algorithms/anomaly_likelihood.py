@@ -620,23 +620,24 @@ def nullDistribution(verbosity=0):
 
 def normalProbability(x, distributionParams):
   """
-  Given the normal distribution specified in distributionParams, return
-  the probability of getting samples > x
-  This is essentially the Q-function
+  Given the normal distribution specified by the mean and standard deviation in
+  distributionParams, return the probability of getting samples > x. This is the
+  Q-function: the tail probability of the normal distribution.
+
+  :param distributionParams: dict with values for keys "mean" and "stdev"
   """
-  # Distribution is symmetrical around mean
-  if x < distributionParams["mean"] :
+  if "mean" not in distributionParams or "stdev" not in distributionParams:
+    raise RuntimeError("Insufficient parameters to specify the distribution.")
+
+  if x < distributionParams["mean"]:
+    # Gaussian is symmetrical around mean, so flip to get the tail probability
     xp = 2*distributionParams["mean"] - x
     return 1.0 - normalProbability(xp, distributionParams)
 
-  # How many standard deviations above the mean are we, scaled by 10X for table
-  xs = 10*(x - distributionParams["mean"]) / distributionParams["stdev"]
-
-  xs = round(xs)
-  if xs > 70:
-    return 0.0
-  else:
-    return Q[xs]
+  # Calculate the Q function with the complementary error function, explained
+  # here: http://www.gaussianwaves.com/2012/07/q-function-and-error-functions
+  z = (x - distributionParams["mean"]) / distributionParams["stdev"]
+  return 0.5 * math.erfc(z/math.sqrt(2))
 
 
 
@@ -658,82 +659,3 @@ def isValidEstimatorParams(p):
     return False
 
   return True
-
-
-
-# Table lookup for Q function, from wikipedia
-# http://en.wikipedia.org/wiki/Q-function
-Q = numpy.zeros(71)
-Q[0] = 0.500000000
-Q[1] = 0.460172163
-Q[2] = 0.420740291
-Q[3] = 0.382088578
-Q[4] = 0.344578258
-Q[5] = 0.308537539
-Q[6] = 0.274253118
-Q[7] = 0.241963652
-Q[8] = 0.211855399
-Q[9] = 0.184060125
-Q[10] = 0.158655254
-Q[11] = 0.135666061
-Q[12] = 0.115069670
-Q[13] = 0.096800485
-Q[14] = 0.080756659
-Q[15] = 0.066807201
-Q[16] = 0.054799292
-Q[17] = 0.044565463
-Q[18] = 0.035930319
-Q[19] = 0.028716560
-Q[20] = 0.022750132
-Q[21] = 0.017864421
-Q[22] = 0.013903448
-Q[23] = 0.010724110
-Q[24] = 0.008197536
-Q[25] = 0.006209665
-Q[26] = 0.004661188
-Q[27] = 0.003466974
-Q[28] = 0.002555130
-Q[29] = 0.001865813
-Q[30] = 0.001349898
-Q[31] = 0.000967603
-Q[32] = 0.000687138
-Q[33] = 0.000483424
-Q[34] = 0.000336929
-Q[35] = 0.000232629
-Q[36] = 0.000159109
-Q[37] = 0.000107800
-Q[38] = 0.000072348
-Q[39] = 0.000048096
-Q[40] = 0.000031671
-
-# From here on use the approximation in http://cnx.org/content/m11537/latest/
-Q[41] = 0.000021771135897
-Q[42] = 0.000014034063752
-Q[43] = 0.000008961673661
-Q[44] = 0.000005668743475
-Q[45] = 0.000003551942468
-Q[46] = 0.000002204533058
-Q[47] = 0.000001355281953
-Q[48] = 0.000000825270644
-Q[49] = 0.000000497747091
-Q[50] = 0.000000297343903
-Q[51] = 0.000000175930101
-Q[52] = 0.000000103096834
-Q[53] = 0.000000059836778
-Q[54] = 0.000000034395590
-Q[55] = 0.000000019581382
-Q[56] = 0.000000011040394
-Q[57] = 0.000000006164833
-Q[58] = 0.000000003409172
-Q[59] = 0.000000001867079
-Q[60] = 0.000000001012647
-Q[61] = 0.000000000543915
-Q[62] = 0.000000000289320
-Q[63] = 0.000000000152404
-Q[64] = 0.000000000079502
-Q[65] = 0.000000000041070
-Q[66] = 0.000000000021010
-Q[67] = 0.000000000010644
-Q[68] = 0.000000000005340
-Q[69] = 0.000000000002653
-Q[70] = 0.000000000001305
