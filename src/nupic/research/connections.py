@@ -227,31 +227,25 @@ class Connections(object):
                       activeSynapseThreshold, matchingPermananceThreshold,
                       matchingSynapseThreshold):
 
-    numActiveSynapsesForSegment = [0] * self._nextSegmentIdx
-    numMatchingSynapsesForSegment = [0] * self._nextSegmentIdx
+    numActiveSynapsesForSegment = defaultdict(int)
+    numMatchingSynapsesForSegment = defaultdict(int)
     activeSegments = set()
     matchingSegments = set()
 
     for cell in activeInput:
-      synapses = self.synapsesForPresynapticCell(cell)
-      if (len(synapses) == 0):
-        continue
-
-      for synapse in synapses:
-        synapseData = self.dataForSynapse(synapse)
-
-        if synapseData.permanence >= matchingPermananceThreshold:
-          segment = synapseData.segment
+      for synapseData in self.synapsesForPresynapticCell(cell).values():
+        segment = synapseData.segment
+        permanence = synapseData.permanence
+        if permanence >= matchingPermananceThreshold:
           numMatchingSynapsesForSegment[segment] += 1
+          if numMatchingSynapsesForSegment[segment] >= matchingSynapseThreshold:
+            matchingSegments.add(segment)
 
           if synapseData.permanence >= activePermanenceThreshold:
             numActiveSynapsesForSegment[segment] += 1
 
-    for i in xrange(self._nextSegmentIdx):
-      if numActiveSynapsesForSegment[i] >= activeSynapseThreshold:
-        activeSegments.add(i)
-      if numMatchingSynapsesForSegment[i] >= matchingSynapseThreshold:
-        matchingSegments.add(i)
+            if numActiveSynapsesForSegment[segment] >= activeSynapseThreshold:
+              activeSegments.add(segment)
 
     return sorted(activeSegments), sorted(matchingSegments)
 
