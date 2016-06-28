@@ -48,8 +48,8 @@ def ExcitedColumnsGenerator(activeColumns,
   active segments, and matching segments, grouped by column.
   All three lists should be sorted.
   """
-  # begining indices in the lists activeColumns, activeSegments,
-  # and matchingSegments.
+  # variables keeping track of the number of elements processed in the lists: 
+  # activeColumns, activeSegments, and matchingSegments
   activeColumnsProcessed = 0
   activeSegmentsProcessed = 0
   matchingSegmentsProcessed = 0
