@@ -314,7 +314,6 @@ class Connections(object):
           protoSynapse.presynapticCell = synapseData.presynapticCell
           protoSynapse.permanence = synapseData.permanence
 
-      # print "proto: {}".format(protoCells)
 
 
   @classmethod
@@ -356,9 +355,6 @@ class Connections(object):
     @param other (Connections) Connections instance to compare to
     """
     if self.numCells != other.numCells: return False
-    print "self segments: {}".format(self._segments)
-    print "other segments: {}".format(other._segments)
-    if self._segments != other._segments: return False
 
     for cell in xrange(self.numCells):
       segmentSet = set()

@@ -94,7 +94,7 @@ def ExcitedColumnsGenerator(activeColumns,
     matchingSegmentsBegin = matchingSegment
 
 
-    print "matching Segments: {}".format([connections.cellForSegment(s) for s in matchingSegments])
+    # print "matching Segments: {}".format([connections.cellForSegment(s) for s in matchingSegments])
 
     for i in xrange(activeSegmentsBegin, activeSegmentsEnd + 1):
       if columnOfSegment(connections, 
@@ -218,13 +218,13 @@ class TemporalMemory(object):
     self.activeCells = set()
     self.winnerCells = set()
 
-    print("debug initial state:")
-    print("prevActiveCells {}".format(prevActiveCells))
-    print("prevWinnerCells {}".format(prevWinnerCells))
-    print("activeColumns {}".format(activeColumns))
-    print("activeSegments {}".format(self.activeSegments))
-    print("matchingSegments {}".format(self.matchingSegments))
-    print "matchingSegments : {}".format([self.connections.cellForSegment(s) for s in self.matchingSegments])
+    # print("debug initial state:")
+    # print("prevActiveCells {}".format(prevActiveCells))
+    # print("prevWinnerCells {}".format(prevWinnerCells))
+    # print("activeColumns {}".format(activeColumns))
+    # print("activeSegments {}".format(self.activeSegments))
+    # print("matchingSegments {}".format(self.matchingSegments))
+    # print "matchingSegments : {}".format([self.connections.cellForSegment(s) for s in self.matchingSegments])
     
     
     for excitedColumn in ExcitedColumnsGenerator(activeColumns,
@@ -232,22 +232,22 @@ class TemporalMemory(object):
                                                  self.matchingSegments,
                                                  self.cellsPerColumn,
                                                  self.connections):
-      print("excitedColumn {}".format(excitedColumn))
+      # print("excitedColumn {}".format(excitedColumn))
       
       if excitedColumn["isActiveColumn"]:
         if not excitedColumn["activeSegmentsEmpty"]:
           cellsToAdd = self.activatePredictedColumn(self.activeCells,
                                                     excitedColumn, learn,
                                                     prevActiveCells)
-          print "burst active and winner cells: {}".format(cellsToAdd)
+          # print "burst active and winner cells: {}".format(cellsToAdd)
           self.activeCells.update(cellsToAdd)
           self.winnerCells.update(cellsToAdd)
         else:
           (cellsToAdd,
             winnerCell) = self.burstColumn(excitedColumn, learn,
                                            prevActiveCells, prevWinnerCells)
-          print "adds cells to active: {}".format(cellsToAdd)
-          print "adds cell to winner: {}".format(winnerCell)
+          # print "adds cells to active: {}".format(cellsToAdd)
+          # print "adds cell to winner: {}".format(winnerCell)
           self.activeCells.update(cellsToAdd)
           self.winnerCells.add(winnerCell)
       else:
@@ -264,8 +264,8 @@ class TemporalMemory(object):
 
     self.activeSegments = activeSegments
     self.matchingSegments = matchingSegments
-    print "matchingSegments : {}".format([self.connections.cellForSegment(s) for s in self.matchingSegments])
-    print("-----------------------------------------------")
+    # print "matchingSegments : {}".format([self.connections.cellForSegment(s) for s in self.matchingSegments])
+    # print("-----------------------------------------------")
 
   def reset(self):
     """
@@ -281,8 +281,8 @@ class TemporalMemory(object):
     segIndex = excitedColumn["activeSegmentsBegin"]
     endIndex = excitedColumn["activeSegmentsEnd"]
    
-    print("segIndex, endIndex: {} {}".format(segIndex, endIndex))
-    print("activeSegments: {}".format(self.activeSegments))
+    # print("segIndex, endIndex: {} {}".format(segIndex, endIndex))
+    # print("activeSegments: {}".format(self.activeSegments))
     cellsToAdd = []
     newCell = True
     cell = None
@@ -291,7 +291,7 @@ class TemporalMemory(object):
       newCell = not (cell == self.connections.cellForSegment(active))
       if newCell:
         cell = self.connections.cellForSegment(active)
-        print ("cell to add: {}".format(cell))
+        # print ("cell to add: {}".format(cell))
         cellsToAdd.append(cell)
         newCell = False
     
@@ -333,7 +333,7 @@ class TemporalMemory(object):
     """
     
     cells = self.cellsForColumn(excitedColumn["column"])
-    print("cells {}".format(cells))
+    # print("cells {}".format(cells))
 
     (bestSegment,
        overlap) = self.bestMatchingSegment(prevActiveCells, excitedColumn)
@@ -344,19 +344,19 @@ class TemporalMemory(object):
                           self.permanenceDecrement, bestSegment)
 
         nGrowDesired = self.maxNewSynapseCount - overlap
-        print "nGrowDesired: {}".format(nGrowDesired)
+        # print "nGrowDesired: {}".format(nGrowDesired)
         if nGrowDesired > 0:
           self.growSynapses(nGrowDesired, prevWinnerCells, bestSegment)
     else:
       bestCell = self.leastUsedCell(cells)
       if learn:
         nGrowExact = min(self.maxNewSynapseCount, len(prevWinnerCells))
-        print "nGrowExact: {}".format(nGrowExact)
-        print "prevWinner Cells: {}".format(prevWinnerCells)
-        print "bestCell: {}".format(bestCell)
+        # print "nGrowExact: {}".format(nGrowExact)
+        # print "prevWinner Cells: {}".format(prevWinnerCells)
+        # print "bestCell: {}".format(bestCell)
         if nGrowExact > 0:
           bestSegment = self.connections.createSegment(bestCell)
-          print "bestSegment: {}".format(bestSegment)
+          # print "bestSegment: {}".format(bestSegment)
           self.growSynapses(nGrowExact, prevWinnerCells, bestSegment)
        
 
@@ -434,12 +434,12 @@ class TemporalMemory(object):
         leastUsedCells.add(cell)
 
     i = self._random.getUInt32(len(leastUsedCells))
-    print "chose random number: {}".format(i)
+    # print "chose random number: {}".format(i)
     return sorted(leastUsedCells)[i]
 
 
   def growSynapses(self, nDesiredNewSynapes, prevWinnerCells, segment):
-    print "growSynapsesCalled"
+    # print "growSynapsesCalled"
     candidates = set(prevWinnerCells)
     
     for synapse in self.connections.synapsesForSegment(segment):
@@ -454,7 +454,7 @@ class TemporalMemory(object):
     
     for _ in range(nActual):
       rand = self._random.getUInt32(candidatesLength)
-      print "chose random number for segment: {} {}".format(rand, segment)
+      # print "chose random number for segment: {} {}".format(rand, segment)
       self.connections.createSynapse(segment, candidates[rand],
                                      self.initialPermanence)
       del candidates[rand]
@@ -481,6 +481,7 @@ class TemporalMemory(object):
       
       # TODO use binary search here as we did all that work to make sure
       # prevActiveCells is sorted.
+      print "presynapticCell: {} in prevActiveCells: {}".format(synapseData.presynapticCell, prevActiveCells)
       if synapseData.presynapticCell in prevActiveCells:
         permanence += permanenceIncrement
       else:
@@ -561,15 +562,13 @@ class TemporalMemory(object):
 
     @return (list) Indices of predictive cells.
     """
-    predictiveCells = []
-    back = None
+    predictiveCells = set()
     for activeSegment in self.activeSegments:
       cell = self.connections.cellForSegment(activeSegment)
-      if (len(predictiveCells) == 0 or cell != back):
-        predictiveCells.append(cell)
-        back = cell
+      if not cell in predictiveCells:
+        predictiveCells.add(cell)
 
-    return predictiveCells
+    return sorted(predictiveCells)
 
 
   def getWinnerCells(self):
