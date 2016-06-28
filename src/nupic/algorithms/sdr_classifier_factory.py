@@ -55,9 +55,9 @@ class SDRClassifierFactory(object):
     """
     proto: SDRClassifierRegionProto capnproto object
     """
-    impl = proto.classifierImp
+    impl = proto.implementation
     if impl == 'py':
-      return SDRClassifier.read(proto.claClassifier)
+      return SDRClassifier.read(proto.sdrClassifier)
     else:
       raise ValueError('Invalid classifier implementation (%r). Value must be '
                        '"py".' % impl)

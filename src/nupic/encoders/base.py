@@ -54,7 +54,7 @@ class Encoder(object):
 
   This is the base class for encoders that are compatible with the OPF. The OPF
   requires that values can be represented as a scalar value for use in places
-  like the CLA Classifier. The Encoder superclass implements:
+  like the SDR Classifier. The Encoder superclass implements:
 
   - encode() - returns a numpy array encoding the input; syntactic sugar
     on top of encodeIntoArray. If pprint, prints the encoding to the terminal

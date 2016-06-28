@@ -229,7 +229,7 @@ class SDRClassifier(object):
           self._weightMatrix[nSteps],
           numpy.zeros(shape=(newMaxInputIdx-self._maxInputIdx,
                              self._maxBucketIdx+1))), axis=0)
-      self._maxInputIdx = newMaxInputIdx
+      self._maxInputIdx = int(newMaxInputIdx)
 
     # ------------------------------------------------------------------------
     # Inference:
@@ -252,7 +252,7 @@ class SDRClassifier(object):
             numpy.zeros(shape=(self._maxInputIdx+1,
                                bucketIdx-self._maxBucketIdx))), axis=1)
 
-        self._maxBucketIdx = bucketIdx
+        self._maxBucketIdx = int(bucketIdx)
 
       # Update rolling average of actual values if it's a scalar. If it's
       # not, it must be a category, in which case each bucket only ever
@@ -413,10 +413,11 @@ class SDRClassifier(object):
     proto.learnIteration = self._learnIteration
     proto.recordNumMinusLearnIteration = self._recordNumMinusLearnIteration
 
-    patternNZHistory = []
-    for (iteration, learnPatternNZ) in self._patternNZHistory:
-      patternNZHistory.append(learnPatternNZ)
-    proto.patternNZHistory = patternNZHistory
+    patternProto = proto.init("patternNZHistory", len(self._patternNZHistory))
+    for  i in xrange(len(self._patternNZHistory)):
+      subPatternProto = patternProto.init(i, len(self._patternNZHistory[i][1]))
+      for j in xrange(len(self._patternNZHistory[i][1])):
+        subPatternProto[j] = int(self._patternNZHistory[i][1][j])
 
     weightMatrices = proto.init("weightMatrix", len(self._weightMatrix))
 

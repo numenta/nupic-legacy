@@ -125,7 +125,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
         'results': {
           ('DefaultTask.TemporalMultiStep.predictionLog.csv',
            "multiStepBestPredictions:multiStep:errorMetric='aae':steps=1:window=200:field=field2"):
-                    (0.0, 0.525),
+                    (0.0, 0.56),
         }
       },
 
@@ -271,7 +271,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
         'results': {
             ('DefaultTask.NontemporalClassification.predictionLog.csv',
              "multiStepBestPredictions:multiStep:errorMetric='aae':steps=0:window=100:field=classification"): 
-                    (0.0, 0.01),
+                    (-1e-10, 0.01),
             }
       },
 
