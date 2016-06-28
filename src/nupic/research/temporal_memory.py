@@ -88,29 +88,33 @@ def ExcitedColumnsGenerator(activeColumns,
     print "matching Segments: {}".format([connections.cellForSegment(s) for s in matchingSegments])
     
     activeSegmentsBegin = activeSegmentsProcessed
+    activeSegmentsEnd = activeSegmentsProcessed
     for i in xrange(activeSegmentsProcessed, activeSegmentsNum):
       if columnOfSegment(connections, 
                            activeSegments[i], 
                            cellsPerColumn) == currentColumn:
         activeSegmentsProcessed += 1
+        activeSegmentsEnd += 1
       else:
         break
     
     matchingSegmentsBegin = matchingSegmentsProcessed
+    matchingSegmentsEnd = matchingSegmentsProcessed
     for i in xrange(matchingSegmentsProcessed, matchingSegmentsNum):
       if columnOfSegment(connections,
                            matchingSegments[i],
                            cellsPerColumn) == currentColumn:
         matchingSegmentsProcessed += 1
+        matchingSegmentsEnd += 1
       else:
         break
     
     yield {"column": currentColumn,
            "isActiveColumn": isActiveColumn,
            "activeSegmentsBegin": activeSegmentsBegin,
-           "activeSegmentsNum": activeSegmentsNum,
+           "activeSegmentsEnd": activeSegmentsEnd,
            "matchingSegmentsBegin": matchingSegmentsBegin,
-           "matchingSegmentsNum": matchingSegmentsNum
+           "matchingSegmentsEnd": matchingSegmentsEnd
           }
 
 
@@ -227,7 +231,7 @@ class TemporalMemory(object):
       print("excitedColumn {}".format(excitedColumn))
       
       if excitedColumn["isActiveColumn"]:
-        if (excitedColumn["activeSegmentsBegin"] != excitedColumn["activeSegmentsNum"]):
+        if (excitedColumn["activeSegmentsBegin"] != excitedColumn["activeSegmentsEnd"]):
 
           cellsToAdd = self.activatePredictedColumn(self.activeCells,
                                                     excitedColumn, learn,
@@ -275,7 +279,7 @@ class TemporalMemory(object):
   def activatePredictedColumn(self, activeCells, excitedColumn, learn,
                               prevActiveCells):
     segIndex = excitedColumn["activeSegmentsBegin"]
-    endIndex = excitedColumn["activeSegmentsNum"]
+    endIndex = excitedColumn["activeSegmentsEnd"]
    
     print("segIndex, endIndex: {} {}".format(segIndex, endIndex))
     print("activeSegments: {}".format(self.activeSegments))
@@ -362,7 +366,7 @@ class TemporalMemory(object):
   def punishPredictedColumn(self, excitedColumn, prevActiveCells):
     if (self.predictedSegmentDecrement > 0.0):
       for matchingIndex in xrange(excitedColumn["matchingSegmentsBegin"],
-                                  excitedColumn["matchingSegmentsNum"]):
+                                  excitedColumn["matchingSegmentsEnd"]):
         self.adaptSegment(prevActiveCells, -self.predictedSegmentDecrement,
                           0.0, self.matchingSegments[matchingIndex])
 
@@ -389,7 +393,7 @@ class TemporalMemory(object):
     bestNumActiveSynapses = None
 
     for i in xrange(excitedColumn["matchingSegmentsBegin"],
-                    excitedColumn["matchingSegmentsNum"]):
+                    excitedColumn["matchingSegmentsEnd"]):
       numActiveSynapses = 0
     
       for syn in self.connections.synapsesForSegment(self.matchingSegments[i]):
