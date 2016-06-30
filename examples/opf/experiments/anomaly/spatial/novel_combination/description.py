@@ -275,9 +275,9 @@ config = {
 
         'clParams': {
             # Classifier implementation selection.
-            'implementation': 'cpp',
+            'implementation': 'py',
             
-            'regionName' : 'CLAClassifierRegion',
+            'regionName' : 'SDRClassifierRegion',
 
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity

@@ -221,7 +221,7 @@ MODEL_PARAMS = {
         },
 
         'clParams': {
-            'regionName' : 'CLAClassifierRegion',
+            'regionName' : 'SDRClassifierRegion',
 
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
@@ -235,7 +235,7 @@ MODEL_PARAMS = {
             # computed from the aggregationInfo and predictAheadTime.
             'steps': '1,5',
 
-            'implementation': 'cpp',
+            'implementation': 'py',
         },
 
         'anomalyParams': { u'anomalyCacheRecords': None,
