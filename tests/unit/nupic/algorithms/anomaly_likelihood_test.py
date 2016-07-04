@@ -333,7 +333,7 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
   """Tests the low-level algorithm functions"""
 
 
-  def assertWithinEpsilon(self, a, b, epsilon=0.001):
+  def assertWithinEpsilon(self, a, b, epsilon=0.005):
     self.assertLessEqual(abs(a - b), epsilon,
                          "Values %g and %g are not within %g" % (a, b, epsilon))
 
