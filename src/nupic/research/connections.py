@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 
 
 class SynapseData(object):
@@ -233,7 +233,7 @@ class Connections(object):
     # Update indexes
     self._synapsesForSegment[data.segment].remove(synapse)
     del self._synapsesForPresynapticCell[data.presynapticCell][synapse]
-   
+
   def updateSynapsePermanence(self, synapse, permanence):
     """
     Updates the permanence for a synapse.
@@ -356,9 +356,9 @@ class Connections(object):
 
         for k in xrange(len(protoSynapses)):
           protoSynapse = protoSynapses[k]
-          synapse = connections.createSynapse(segment,
-                                              int(protoSynapse.presynapticCell),
-                                              protoSynapse.permanence)
+          connections.createSynapse(segment,
+                                    int(protoSynapse.presynapticCell),
+                                    protoSynapse.permanence)
 
     return connections
 
@@ -383,16 +383,16 @@ class Connections(object):
       otherSegmentSet = set()
       for segment in other.segmentsForCell(cell):
         otherSynapseSet = other._synapseSetForSynapses(
-                       other.synapsesForSegment(segment))
+          other.synapsesForSegment(segment))
         otherSegmentSet.add(frozenset(otherSynapseSet))
 
       if segmentSet != otherSegmentSet: return False
 
       synapseSet = self._synapseSetForSynapses(
-                     self.synapsesForPresynapticCell(cell))
+        self.synapsesForPresynapticCell(cell))
 
       otherSynapseSet = other._synapseSetForSynapses(
-                    other.synapsesForPresynapticCell(cell))
+        other.synapsesForPresynapticCell(cell))
 
       if synapseSet != otherSynapseSet: return False
 
@@ -425,10 +425,10 @@ class Connections(object):
     for synapse in synapses:
       synapseData = self.dataForSynapse(synapse)
       synapseSet.add((synapseData.presynapticCell,
-                     round(synapseData.permanence, 7)))
+                      round(synapseData.permanence, 7)))
 
     return synapseSet
-    
+
 
   def _validateCell(self, cell):
     """
