@@ -71,7 +71,7 @@ class Connections(object):
     self._nextSegmentIdx = 0
     # Index of the next synapse to be created
     self._nextSynapseIdx = 0
-  
+
   def segmentCmp(self, a, b):
     col1 = self.cellForSegment(a)
     col2 = self.cellForSegment(b)

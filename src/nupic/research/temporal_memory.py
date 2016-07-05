@@ -30,6 +30,7 @@ from nupic.bindings.math import Random
 from nupic.research.connections import Connections
 
 from sys import maxint as MAX_INT
+from bisect import bisect_left
 
 
 EPSILON = 0.000001
@@ -310,7 +311,7 @@ class TemporalMemory(object):
                       `learningSegments` (set)
     """
     cells = self.cellsForColumn(excitedColumn["column"])
-
+    
     if excitedColumn["matchingSegmentsBegin"] != excitedColumn["matchingSegmentsEnd"]:
       (bestSegment, overlap) = self.bestMatchingSegment(prevActiveCells, excitedColumn)
       bestCell = self.connections.cellForSegment(bestSegment)
@@ -360,7 +361,7 @@ class TemporalMemory(object):
                       `segment`                 (int),
                       `connectedActiveSynapses` (set)
     """
-    maxSynapses = self.minThreshold
+    maxSynapses = 0
     bestSegment = None
     bestNumActiveSynapses = None
 
@@ -370,10 +371,9 @@ class TemporalMemory(object):
     
       for syn in self.connections.synapsesForSegment(self.matchingSegments[i]):
         synapseData = self.connections.dataForSynapse(syn)
-        if ((synapseData.presynapticCell in activeCells) and
-            synapseData.permanence > 0):
+        if self.binSearch(activeCells, synapseData.presynapticCell) != -1:
           numActiveSynapses += 1
-
+      
       if numActiveSynapses >= maxSynapses:
         maxSynapses = numActiveSynapses
         bestSegment = self.matchingSegments[i]
@@ -449,9 +449,7 @@ class TemporalMemory(object):
       synapseData = self.connections.dataForSynapse(synapse)
       permanence = synapseData.permanence
       
-      # TODO use binary search here as we did all that work to make sure
-      # prevActiveCells is sorted.
-      if synapseData.presynapticCell in prevActiveCells:
+      if self.binSearch(prevActiveCells, synapseData.presynapticCell) != -1:
         permanence += permanenceIncrement
       else:
         permanence -= permanenceDecrement
@@ -468,28 +466,13 @@ class TemporalMemory(object):
     # and synapses like the c++ implementation.
     # if (len(self.connections.synapsesForSegment(segment)) == 0):
     #   self.connections.destroySegment(segment)
-  
+
   @staticmethod
-  def activeSynapsesForSegment(segment, activeCells, connections):
-    """
-    Returns the synapses on a segment that are active due to lateral input
-    from active cells.
-
-    @param segment     (int)         Segment index
-    @param activeCells (set)         Indices of active cells
-    @param connections (Connections) Connectivity of layer
-
-    @return (set) Indices of active synapses on segment
-    """
-    synapses = set()
-
-    for synapse in connections.synapsesForSegment(segment):
-      synapseData = connections.dataForSynapse(synapse)
-
-      if synapseData.presynapticCell in activeCells:
-        synapses.add(synapse)
-
-    return synapses
+  def binSearch(arr, val):
+    i = bisect_left(arr, val)
+    if i != len(arr) and arr[i] == val:
+      return i
+    return -1
 
   def columnForCell(self, cell):
     """
