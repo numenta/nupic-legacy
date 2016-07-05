@@ -47,14 +47,14 @@ class TemporalMemoryTest(unittest.TestCase):
     try:
       connections.synapsesForSegment(segment)
       return False
-    except (IndexError):
+    except (KeyError):
       return True
 
   def isSynapseDestroyed(self, connections, synapse):
     try:
       connections.dataForSynapse(synapse)
       return False
-    except (IndexError):
+    except (KeyError):
       return True
 
   def setUp(self):
@@ -919,7 +919,7 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSynapse(0, 37, 0.4)
     connections.createSynapse(0, 477, 0.9)
 
-    tm.adaptSegment(set([23, 37]),
+    tm.adaptSegment([23, 37],
                     tm.permanenceIncrement,
                     tm.permanenceDecrement, 0)
 
@@ -940,14 +940,14 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSegment(0)
     connections.createSynapse(0, 23, 0.9)
 
-    tm.adaptSegment(set([23]),
+    tm.adaptSegment([23],
                     tm.permanenceIncrement,
                     tm.permanenceDecrement, 0)
     synapseData = connections.dataForSynapse(0)
     self.assertAlmostEqual(synapseData.permanence, 1.0)
 
     # Now permanence should be at max
-    tm.adaptSegment(set([23]), tm.permanenceIncrement,
+    tm.adaptSegment([23], tm.permanenceIncrement,
                     tm.permanenceDecrement, 0)
  
     synapseData = connections.dataForSynapse(0)
@@ -1073,7 +1073,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
 
   @unittest.skip("Serialization does not preserve numbering of segments, which\
-                  is needed in the columnSegmentWalk implentation")
+                  is needed in the columnSegmentWalk implementation")
   def testWriteRead(self):
     tm1 = TemporalMemory(
       columnDimensions=[100],

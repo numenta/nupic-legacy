@@ -73,6 +73,15 @@ class Connections(object):
     self._nextSynapseIdx = 0
 
   def segmentCmp(self, a, b):
+    """
+    A simple comparison function for segments to sort them
+    by their corresponding presynapticCell.
+
+    @param a (int) segment 1
+    @param b (int) segment 2
+
+    @return (int) comparison integer between the two presynapticCells
+    """
     return self._segments[a] - self._segments[b]
 
   def cellForSegment(self, segment):
@@ -245,6 +254,22 @@ class Connections(object):
   def computeActivity(self, activeInput, activePermanenceThreshold,
                       activeSynapseThreshold, matchingPermananceThreshold,
                       matchingSynapseThreshold):
+    """
+    Computes active and matching segments given the current active input.
+
+    @param activeInput                 (set)   currently active cells
+    @param activePermanenceThreshold   (float) permanence threshold for a synapse to be considered active
+    @param activeSynapseThreshold      (int)   number of synapses needed for a segment to be considered active
+    @param matchingPermananceThreshold (float) permanence threshold for a synapse to be considered matching
+    @param matchingSynapseThreshold    (int)   number of synapses needed for a segment to be considered matching
+
+    @return (tuple) Contains:
+                      `activeSegments`         (list),
+                      `matchingSegments`        (list),
+
+    Notes:
+      activeSegments and matchingSegments are sorted by their corresponding presynapticCell.
+    """
 
     numActiveSynapsesForSegment = defaultdict(int)
     numMatchingSynapsesForSegment = defaultdict(int)
