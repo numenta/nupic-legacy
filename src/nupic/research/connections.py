@@ -85,6 +85,9 @@ class Connections(object):
     """
     return self._segments[segment]
 
+  def columnForSegment(self, segment, cellsPerColumn):
+    return self._segments[segment] / cellsPerColumn
+
 
   def segmentsForCell(self, cell):
     """
@@ -110,7 +113,6 @@ class Connections(object):
 
     @return (SynapseData) Synapse data
     """
-    self._validateSynapse(synapse)
 
     return self._synapses[synapse]
 
@@ -193,7 +195,6 @@ class Connections(object):
     @return (int) Synapse index
     """
     self._validateSegment(segment)
-    self._validatePermanence(permanence)
 
     # Add data
     synapse = self._nextSynapseIdx
@@ -224,33 +225,6 @@ class Connections(object):
     self._synapsesForSegment[data.segment].remove(synapse)
     del self._synapsesForPresynapticCell[data.presynapticCell][synapse]
    
-  def computeActivity(self, activeInput, activePermanenceThreshold,
-                      activeSynapseThreshold, matchingPermananceThreshold,
-                      matchingSynapseThreshold):
-
-    numActiveSynapsesForSegment = defaultdict(int)
-    numMatchingSynapsesForSegment = defaultdict(int)
-    activeSegments = set()
-    matchingSegments = set()
-
-    for cell in activeInput:
-      for synapseData in self.synapsesForPresynapticCell(cell).values():
-        segment = synapseData.segment
-        permanence = synapseData.permanence
-        if permanence >= matchingPermananceThreshold:
-          numMatchingSynapsesForSegment[segment] += 1
-          if numMatchingSynapsesForSegment[segment] >= matchingSynapseThreshold:
-            matchingSegments.add(segment)
-
-          if synapseData.permanence >= activePermanenceThreshold:
-            numActiveSynapsesForSegment[segment] += 1
-
-            if numActiveSynapsesForSegment[segment] >= activeSynapseThreshold:
-              activeSegments.add(segment)
-
-    return sorted(activeSegments, cmp=self.segmentCmp), sorted(matchingSegments, cmp=self.segmentCmp)
-
-
   def updateSynapsePermanence(self, synapse, permanence):
     """
     Updates the permanence for a synapse.
@@ -258,7 +232,6 @@ class Connections(object):
     @param synapse    (int)   Synapse index
     @param permanence (float) New permanence
     """
-    self._validatePermanence(permanence)
 
     data = self._synapses[synapse]
     newData = SynapseData(data.segment,
@@ -430,7 +403,7 @@ class Connections(object):
                      round(synapseData.permanence, 7)))
 
     return synapseSet
-
+    
 
   def _validateCell(self, cell):
     """
@@ -451,23 +424,3 @@ class Connections(object):
     if not segment in self._segments:
       raise IndexError("Invalid segment")
 
-
-  def _validateSynapse(self, synapse):
-    """
-    Raises an error if synapse index is invalid.
-
-    @param synapse (int) Synapse index
-    """
-    if not synapse in self._synapses:
-      raise IndexError("Invalid synapse")
-
-
-  @staticmethod
-  def _validatePermanence(permanence):
-    """
-    Raises an error if permanence is invalid.
-
-    @param permanence (float) Permanence
-    """
-    if permanence < 0 or permanence > 1:
-      raise ValueError("Invalid permanence")

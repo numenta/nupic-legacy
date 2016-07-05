@@ -35,10 +35,6 @@ from bisect import bisect_left
 
 EPSILON = 0.000001
 
-
-def columnOfSegment(connections, segment, cellsPerColumn):
-  return connections.cellForSegment(segment) / cellsPerColumn
-
 def ExcitedColumnsGenerator(activeColumns,
                             activeSegments,
                             matchingSegments,
@@ -67,14 +63,12 @@ def ExcitedColumnsGenerator(activeColumns,
     currentColumn = MAX_INT
     if activeSegmentsProcessed < activeSegmentsNum:
       currentColumn = min(currentColumn, 
-                          columnOfSegment(connections,
-                                   activeSegments[activeSegmentsProcessed],
+                          connections.columnForSegment(activeSegments[activeSegmentsProcessed],
                                    cellsPerColumn))
 
     if matchingSegmentsProcessed < matchingSegmentsNum:
       currentColumn = min(currentColumn, 
-                          columnOfSegment(connections,
-                                  matchingSegments[matchingSegmentsProcessed],
+                          connections.columnForSegment(matchingSegments[matchingSegmentsProcessed],
                                   cellsPerColumn))
 
     if (activeColumnsProcessed < activeColumnsNum and
@@ -88,9 +82,8 @@ def ExcitedColumnsGenerator(activeColumns,
     activeSegmentsBegin = activeSegmentsProcessed
     activeSegmentsEnd = activeSegmentsProcessed
     for i in xrange(activeSegmentsProcessed, activeSegmentsNum):
-      if columnOfSegment(connections, 
-                           activeSegments[i], 
-                           cellsPerColumn) == currentColumn:
+      if connections.columnForSegment(activeSegments[i], 
+                                     cellsPerColumn) == currentColumn:
         activeSegmentsProcessed += 1
         activeSegmentsEnd += 1
       else:
@@ -99,9 +92,8 @@ def ExcitedColumnsGenerator(activeColumns,
     matchingSegmentsBegin = matchingSegmentsProcessed
     matchingSegmentsEnd = matchingSegmentsProcessed
     for i in xrange(matchingSegmentsProcessed, matchingSegmentsNum):
-      if columnOfSegment(connections,
-                           matchingSegments[i],
-                           cellsPerColumn) == currentColumn:
+      if connections.columnForSegment(matchingSegments[i],
+                                     cellsPerColumn) == currentColumn:
         matchingSegmentsProcessed += 1
         matchingSegmentsEnd += 1
       else:
