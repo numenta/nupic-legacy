@@ -73,14 +73,7 @@ class Connections(object):
     self._nextSynapseIdx = 0
 
   def segmentCmp(self, a, b):
-    col1 = self.cellForSegment(a)
-    col2 = self.cellForSegment(b)
-    if col1 == col2:
-      return 0
-    elif col1 > col2:
-      return 1
-    else:
-      return -1
+    return self._segments[a] - self._segments[b]
 
   def cellForSegment(self, segment):
     """
@@ -275,6 +268,33 @@ class Connections(object):
 
     # Update indexes
     self._synapsesForPresynapticCell[newData.presynapticCell][synapse] = newData
+
+  def computeActivity(self, activeInput, activePermanenceThreshold,
+                      activeSynapseThreshold, matchingPermananceThreshold,
+                      matchingSynapseThreshold):
+
+    numActiveSynapsesForSegment = defaultdict(int)
+    numMatchingSynapsesForSegment = defaultdict(int)
+    activeSegments = set()
+    matchingSegments = set()
+
+    for cell in activeInput:
+      for synapseData in self.synapsesForPresynapticCell(cell).values():
+        segment = synapseData.segment
+        permanence = synapseData.permanence
+        if permanence >= matchingPermananceThreshold:
+          numMatchingSynapsesForSegment[segment] += 1
+          if numMatchingSynapsesForSegment[segment] >= matchingSynapseThreshold:
+            matchingSegments.add(segment)
+
+          if synapseData.permanence >= activePermanenceThreshold:
+            numActiveSynapsesForSegment[segment] += 1
+
+            if numActiveSynapsesForSegment[segment] >= activeSynapseThreshold:
+              activeSegments.add(segment)
+
+    return (sorted(activeSegments, cmp=self.segmentCmp),
+            sorted(matchingSegments, cmp=self.segmentCmp))
 
   def numSegments(self):
     """
