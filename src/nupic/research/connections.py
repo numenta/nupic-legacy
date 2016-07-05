@@ -22,7 +22,6 @@
 from collections import defaultdict, namedtuple
 
 
-
 class SynapseData(object):
 
 
@@ -72,7 +71,16 @@ class Connections(object):
     self._nextSegmentIdx = 0
     # Index of the next synapse to be created
     self._nextSynapseIdx = 0
-
+  
+  def segmentCmp(self, a, b):
+    col1 = self.cellForSegment(a)
+    col2 = self.cellForSegment(b)
+    if col1 == col2:
+      return 0
+    elif col1 > col2:
+      return 1
+    else:
+      return -1
 
   def cellForSegment(self, segment):
     """
@@ -247,7 +255,7 @@ class Connections(object):
             if numActiveSynapsesForSegment[segment] >= activeSynapseThreshold:
               activeSegments.add(segment)
 
-    return sorted(activeSegments), sorted(matchingSegments)
+    return sorted(activeSegments, cmp=self.segmentCmp), sorted(matchingSegments, cmp=self.segmentCmp)
 
 
   def updateSynapsePermanence(self, synapse, permanence):
@@ -267,7 +275,6 @@ class Connections(object):
 
     # Update indexes
     self._synapsesForPresynapticCell[newData.presynapticCell][synapse] = newData
-
 
   def numSegments(self):
     """

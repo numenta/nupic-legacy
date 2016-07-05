@@ -212,13 +212,13 @@ class TemporalMemory(object):
     self.winnerCells = set()
 
     
-    
+    # print "activeCols: {}".format(activeColumns)
+    # print "matchingSegments: {}".format(self.matchingSegments)
     for excitedColumn in ExcitedColumnsGenerator(activeColumns,
                                                  self.activeSegments,
                                                  self.matchingSegments,
                                                  self.cellsPerColumn,
                                                  self.connections):
-      
       if excitedColumn["isActiveColumn"]:
         if (excitedColumn["activeSegmentsBegin"] != excitedColumn["activeSegmentsEnd"]):
 
@@ -311,15 +311,15 @@ class TemporalMemory(object):
     """
     cells = self.cellsForColumn(excitedColumn["column"])
 
-    (bestSegment,
-       overlap) = self.bestMatchingSegment(prevActiveCells, excitedColumn)
-    if bestSegment != None:
+    if excitedColumn["matchingSegmentsBegin"] != excitedColumn["matchingSegmentsEnd"]:
+      (bestSegment, overlap) = self.bestMatchingSegment(prevActiveCells, excitedColumn)
       bestCell = self.connections.cellForSegment(bestSegment)
       if learn:
         self.adaptSegment(prevActiveCells, self.permanenceIncrement, 
                           self.permanenceDecrement, bestSegment)
-
+        
         nGrowDesired = self.maxNewSynapseCount - overlap
+
         if nGrowDesired > 0:
           self.growSynapses(nGrowDesired, prevWinnerCells, bestSegment)
     else:
@@ -328,6 +328,7 @@ class TemporalMemory(object):
         nGrowExact = min(self.maxNewSynapseCount, len(prevWinnerCells))
         if nGrowExact > 0:
           bestSegment = self.connections.createSegment(bestCell)
+          # print "created segment {} on cell {} for column {}".format(bestSegment, bestCell, excitedColumn["column"])
           self.growSynapses(nGrowExact, prevWinnerCells, bestSegment)
        
 
@@ -425,7 +426,8 @@ class TemporalMemory(object):
       rand = self._random.getUInt32(candidatesLength)
       self.connections.createSynapse(segment, candidates[rand],
                                      self.initialPermanence)
-      del candidates[rand]
+      # print "created synapse on segment {} for cell {} from rand {}".format(segment, candidates[rand], rand)
+      candidates[rand] = candidates[candidatesLength - 1]
       candidatesLength -= 1
       
 
@@ -466,7 +468,28 @@ class TemporalMemory(object):
     # and synapses like the c++ implementation.
     # if (len(self.connections.synapsesForSegment(segment)) == 0):
     #   self.connections.destroySegment(segment)
+  
+  @staticmethod
+  def activeSynapsesForSegment(segment, activeCells, connections):
+    """
+    Returns the synapses on a segment that are active due to lateral input
+    from active cells.
 
+    @param segment     (int)         Segment index
+    @param activeCells (set)         Indices of active cells
+    @param connections (Connections) Connectivity of layer
+
+    @return (set) Indices of active synapses on segment
+    """
+    synapses = set()
+
+    for synapse in connections.synapsesForSegment(segment):
+      synapseData = connections.dataForSynapse(synapse)
+
+      if synapseData.presynapticCell in activeCells:
+        synapses.add(synapse)
+
+    return synapses
 
   def columnForCell(self, cell):
     """
