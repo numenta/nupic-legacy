@@ -95,6 +95,14 @@ class Connections(object):
     return self._segments[segment]
 
   def columnForSegment(self, segment, cellsPerColumn):
+    """
+    Returns the column that a segment's presynapticCell belongs to
+
+    @param segment        (int) Segment index
+    @param cellsPerColumn (int) Number of cells in a column in the tm
+
+    @return (int)
+    """
     return self._segments[segment] / cellsPerColumn
 
 
@@ -268,7 +276,7 @@ class Connections(object):
                       `matchingSegments`        (list),
 
     Notes:
-      activeSegments and matchingSegments are sorted by their corresponding presynapticCell.
+      activeSegments and matchingSegments are sorted by their corresponding presynaptic cell.
     """
 
     numActiveSynapsesForSegment = defaultdict(int)
