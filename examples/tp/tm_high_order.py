@@ -35,7 +35,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from nupic.bindings.algorithms import TemporalMemory as TM
 
-def accuracy(curr, pred):
+def accuracy(current, predicted):
   """
   Computes the accuracy of the TM at time-step t based on the prediction
   at time-step t-1 and the current active columns at time-step t.
@@ -45,10 +45,11 @@ def accuracy(curr, pred):
   
   @return acc (float) prediction accuracy of the TM at time-step t
   """  
-  acc = 0
-  if np.count_nonzero(pred) > 0:
-    acc = float(np.dot(curr, pred))/float(np.count_nonzero(pred))
-  return acc
+  accuracy = 0
+  if np.count_nonzero(predicted) > 0:
+    accuracy = float(np.dot(current, predicted))/float(np.count_nonzero(predicted))
+  return accuracy
+
 
 def corruptVector(v1, noiseLevel, numActiveCols):
   """
@@ -74,11 +75,13 @@ def corruptVector(v1, noiseLevel, numActiveCols):
       v2[i] = 1
   return v2
 
+
 def showPredictions():
   """
   Shows predictions of the TM when presented with the characters A, B, C, D, X, and
-  Y without any contextual information, that is, not in a sequence.
-  """  
+  Y without any contextual information, that is, not embedded within a sequence.
+  """ 
+  tm.reset()
   for k in range(6):
     print "--- " + "ABCDXY"[k] + " ---"
     tm.compute(set(seqT[k][:].nonzero()[0].tolist()), learn=False)
@@ -89,6 +92,7 @@ def showPredictions():
     print("Active cols: " + str(np.nonzero(currentColumns)[0]))
     print("Predicted cols: " + str(np.nonzero(predictedColumns)[0]))
     print ""
+
     
 def trainTM(sequence, timeSteps, noiseLevel):
   """
@@ -115,6 +119,7 @@ def trainTM(sequence, timeSteps, noiseLevel):
       y.append(acc)
       ts += 1
       predictedColumns = [1 if i in predictedColumnIndices else 0 for i in range(tm.numberOfColumns())]
+
 
 uintType = "uint32"
 random.seed(1)
@@ -263,7 +268,7 @@ plt.close()
 print ""
 print "-"*50
 print "Let's have a look again at the output of the TM when presented with noisy"
-print "input (30%). Here, the noise is low so the TM does not try to learn the noise,"
+print "input (30%). Here, the noise is low that the TM is not affected by it,"
 print "which would be the case if we saw 'noisy' columns being predicted when"
 print "presented with individual characters. Thus, we could say that the TM exhibits"
 print "resilience to noise in its input."
@@ -277,9 +282,9 @@ showPredictions()
 # presented with the individual characters.
 print ""
 print "-"*50
-print "Now, we will 50% of the bits in the characters X, B, C, and Y. This time we will"
-print "corrupt 90% of its contents. As expected, the accuracy will decrease (Fig 5) and"
-print "'noisy' columns will be predicted by the TM."
+print "Now, we will set noise to be 50% of the bits in the characters X, B, C, and Y."
+print "As expected, the accuracy will decrease (Fig 5) and 'noisy' columns will be"
+print "predicted by the TM."
 print "-"*50
 print ""
 
@@ -307,7 +312,8 @@ plt.savefig("figure_4")
 plt.close()
 
 # Will the TM be able to forget the 'noisy' columns learned in the previous step?
-# We will present the TM with the original sequence XBCY in order to re-learn it.
+# We will present the TM with the original sequence XBCY so it forgets the 'noisy'.
+# columns.
 
 x = []
 y = []
@@ -324,12 +330,12 @@ print ""
 showPredictions()
 
 # We can see how the prediction accuracy goes back to 1.0 (as before, not in-between sequences)
-# when the TM re-learns the sequence XCBY and 'forgets' the noisy columns.
+# when the TM 'forgets' the noisy columns.
 plt.ylim([-0.1,1.1])
 plt.plot(x, y)
 plt.xlabel("Timestep")
 plt.ylabel("Prediction Accuracy")
-plt.title("Fig. 5: TM re-learns sequence XBCY when noise is over")
+plt.title("Fig. 5: TM forgets noise in sequence XBCY when noise is over")
 plt.savefig("figure_5")
 plt.close()
 
@@ -370,16 +376,15 @@ plt.title("Fig. 6: Accuracy with 90% noise in input")
 plt.savefig("figure_6")
 plt.close()
 
-# Let's present the original sequence to the TM in order to re-learn it. After this, the
-# TM will predict accurately the sequence again, and its predictions will not include 'noisy'
-# columns anymore.
-
+# Let's present the original sequence to the TM in order to make it forget the noisy columns.
+# After this, the TM will predict accurately the sequence again, and its predictions will
+# not include 'noisy' columns anymore.
 x = []
 y = []
 trainTM(seq2, timeSteps=25, noiseLevel=0.0)
 
 # We will observe how the prediction accuracy gets back to 1.0 (not in-between sequences)
-# as the TM re-learns the original sequence.
+# as the TM is presented with the original sequence.
 plt.ylim([-0.1,1.1])
 plt.plot(x, y)
 plt.xlabel("Timestep")
