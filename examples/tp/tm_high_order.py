@@ -40,8 +40,8 @@ def accuracy(current, predicted):
   Computes the accuracy of the TM at time-step t based on the prediction
   at time-step t-1 and the current active columns at time-step t.
   
-  @param curr (array) binary vector containing current active columns
-  @param pred (array) binary vector containing predicted active columns
+  @param current (array) binary vector containing current active columns
+  @param predicted (array) binary vector containing predicted active columns
   
   @return acc (float) prediction accuracy of the TM at time-step t
   """  
@@ -80,9 +80,9 @@ def showPredictions():
   """
   Shows predictions of the TM when presented with the characters A, B, C, D, X, and
   Y without any contextual information, that is, not embedded within a sequence.
-  """ 
-  tm.reset()
+  """   
   for k in range(6):
+    tm.reset()
     print "--- " + "ABCDXY"[k] + " ---"
     tm.compute(set(seqT[k][:].nonzero()[0].tolist()), learn=False)
     activeColumnsIndices = [tm.columnForCell(i) for i in tm.getActiveCells()]
