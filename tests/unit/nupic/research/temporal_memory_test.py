@@ -1017,7 +1017,7 @@ class TemporalMemoryTest(unittest.TestCase):
       columnDimensions=[2048],
       cellsPerColumn=5
     )
-    expectedCells = set([5, 6, 7, 8, 9])
+    expectedCells = [5, 6, 7, 8, 9]
     self.assertEqual(tm.cellsForColumn(1), expectedCells)
 
 
@@ -1026,7 +1026,7 @@ class TemporalMemoryTest(unittest.TestCase):
       columnDimensions=[64, 64],
       cellsPerColumn=4
     )
-    expectedCells = set([256, 257, 258, 259])
+    expectedCells = [256, 257, 258, 259]
     self.assertEqual(tm.cellsForColumn(64), expectedCells)
 
 

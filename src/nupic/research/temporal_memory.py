@@ -121,10 +121,8 @@ def excitedColumnsGenerator(activeColumns,
 
     yield {"column": currentColumn,
            "isActiveColumn": isActiveColumn,
-           "activeSegmentsBegin": activeSegmentsBegin,
-           "activeSegmentsEnd": activeSegmentsEnd,
-           "matchingSegmentsBegin": matchingSegmentsBegin,
-           "matchingSegmentsEnd": matchingSegmentsEnd
+           "activeSegments": xrange(activeSegmentsBegin, activeSegmentsEnd),
+           "matchingSegments": xrange(matchingSegmentsBegin, matchingSegmentsEnd)
           }
 
 
@@ -194,8 +192,8 @@ class TemporalMemory(object):
                                    maxSynapsesPerSegment=maxSynapsesPerSegment)
     self._random = Random(seed)
 
-    self.activeCells = set()
-    self.winnerCells = set()
+    self.activeCells = []
+    self.winnerCells = []
     self.activeSegments = []
     self.matchingSegments = []
 
@@ -211,18 +209,18 @@ class TemporalMemory(object):
     @param learn         (bool) Whether or not learning is enabled
 
     Updates member variables:
-      - `activeCells`     (set)
-      - `winnerCells`     (set)
-      - `activeSegments`  (set)
-      - `matchingSegments`(set)
+      - `activeCells`     (list)
+      - `winnerCells`     (list)
+      - `activeSegments`  (list)
+      - `matchingSegments`(list)
     """
-    prevActiveCells = sorted(self.activeCells)
-    prevWinnerCells = sorted(self.winnerCells)
+    prevActiveCells = self.activeCells
+    prevWinnerCells = self.winnerCells
 
     activeColumns = sorted(activeColumns)
 
-    self.activeCells = set()
-    self.winnerCells = set()
+    self.activeCells = []
+    self.winnerCells = []
 
     for excitedColumn in excitedColumnsGenerator(activeColumns,
                                                  self.activeSegments,
@@ -230,19 +228,17 @@ class TemporalMemory(object):
                                                  self.cellsPerColumn,
                                                  self.connections):
       if excitedColumn["isActiveColumn"]:
-        if (excitedColumn["activeSegmentsBegin"] !=
-            excitedColumn["activeSegmentsEnd"]):
-
+        if len(excitedColumn["activeSegments"]) != 0:
           cellsToAdd = self.activatePredictedColumn(excitedColumn, learn,
                                                     prevActiveCells)
-          self.activeCells.update(cellsToAdd)
-          self.winnerCells.update(cellsToAdd)
+          self.activeCells += cellsToAdd
+          self.winnerCells += cellsToAdd
         else:
           (cellsToAdd,
            winnerCell) = self.burstColumn(excitedColumn, learn,
                                           prevActiveCells, prevWinnerCells)
-          self.activeCells.update(cellsToAdd)
-          self.winnerCells.add(winnerCell)
+          self.activeCells += cellsToAdd
+          self.winnerCells.append(winnerCell)
       else:
         if learn:
           self.punishPredictedColumn(excitedColumn, prevActiveCells)
@@ -261,9 +257,9 @@ class TemporalMemory(object):
     """
     Indicates the start of a new sequence. Resets sequence state of the TM.
     """
-    self.activeCells = set()
-    self.activeSegments = set()
-    self.winnerCells = set()
+    self.activeCells = []
+    self.activeSegments = []
+    self.winnerCells = []
 
 
   def activatePredictedColumn(self, excitedColumn, learn, prevActiveCells):
@@ -280,13 +276,10 @@ class TemporalMemory(object):
                               active cells and winner cells.
     """
 
-    segIndex = excitedColumn["activeSegmentsBegin"]
-    endIndex = excitedColumn["activeSegmentsEnd"]
-
     cellsToAdd = []
     newCell = True
     cell = None
-    while segIndex < endIndex:
+    for segIndex in excitedColumn["activeSegments"]:
       active = self.activeSegments[segIndex]
       newCell = not cell == self.connections.cellForSegment(active)
       if newCell:
@@ -297,7 +290,6 @@ class TemporalMemory(object):
       if learn:
         self.adaptSegment(prevActiveCells, self.permanenceIncrement,
                           self.permanenceDecrement, active)
-      segIndex += 1
 
     return cellsToAdd
 
@@ -311,12 +303,12 @@ class TemporalMemory(object):
     @param prevWinnerCells (list)  Winner cells in `t-1`
 
     @return (tuple) Contains:
-                      `cells`         (set),
-                      `bestCell`      (set),
+                      `cells`         (list),
+                      `bestCell`      (int),
     """
     cells = self.cellsForColumn(excitedColumn["column"])
 
-    if excitedColumn["matchingSegmentsBegin"] != excitedColumn["matchingSegmentsEnd"]:
+    if len(excitedColumn["matchingSegments"]) != 0:
       (bestSegment, overlap) = self.bestMatchingSegment(excitedColumn, prevActiveCells)
       bestCell = self.connections.cellForSegment(bestSegment)
       if learn:
@@ -348,8 +340,7 @@ class TemporalMemory(object):
 
     """
     if self.predictedSegmentDecrement > 0.0:
-      for matchingIndex in xrange(excitedColumn["matchingSegmentsBegin"],
-                                  excitedColumn["matchingSegmentsEnd"]):
+      for matchingIndex in excitedColumn["matchingSegments"]:
         self.adaptSegment(prevActiveCells, -self.predictedSegmentDecrement,
                           0.0, self.matchingSegments[matchingIndex])
 
@@ -364,7 +355,7 @@ class TemporalMemory(object):
     corresponding to it.
 
     @param excitedColumn   (dict) Excited Column instance from excitedColumnsGenerator
-    @param prevActiveCells (set)  Active cells in `t-1`
+    @param prevActiveCells (list)  Active cells in `t-1`
 
     @return (tuple) Contains:
                       `bestSegment`                 (int),
@@ -374,8 +365,7 @@ class TemporalMemory(object):
     bestSegment = None
     bestNumActiveSynapses = None
 
-    for i in xrange(excitedColumn["matchingSegmentsBegin"],
-                    excitedColumn["matchingSegmentsEnd"]):
+    for i in excitedColumn["matchingSegments"]:
       numActiveSynapses = 0
 
       for syn in self.connections.synapsesForSegment(self.matchingSegments[i]):
@@ -396,7 +386,7 @@ class TemporalMemory(object):
     Gets the cell with the smallest number of segments.
     Break ties randomly.
 
-    @param cells       (set)         Indices of cells
+    @param cells       (list)         Indices of cells
 
     @return (int) Cell index
     """
@@ -508,13 +498,13 @@ class TemporalMemory(object):
 
     @param column (int) Column index
 
-    @return (set) Cell indices
+    @return (list) Cell indices
     """
     self._validateColumn(column)
 
     start = self.cellsPerColumn * self.getCellIndex(column)
     end = start + self.cellsPerColumn
-    return set(xrange(start, end))
+    return range(start, end)
 
 
   def numberOfColumns(self):
@@ -646,9 +636,9 @@ class TemporalMemory(object):
     tm._random = Random()
     tm._random.read(proto.random)
 
-    tm.activeCells = set([int(x) for x in proto.activeCells])
+    tm.activeCells = [int(x) for x in proto.activeCells]
     tm.activeSegments = [int(x) for x in proto.activeSegments]
-    tm.winnerCells = set([int(x) for x in proto.winnerCells])
+    tm.winnerCells = [int(x) for x in proto.winnerCells]
     tm.matchingSegments = [int(x) for x in proto.matchingSegments]
 
     return tm
