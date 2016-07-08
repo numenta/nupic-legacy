@@ -199,8 +199,7 @@ class TemporalMemory(object):
     self.permanenceDecrement = permanenceDecrement
     self.predictedSegmentDecrement = predictedSegmentDecrement
     # Initialize member variables
-    self.connections = Connections(TemporalMemory.numberOfCells(cellsPerColumn,
-                                                                columnDimensions),
+    self.connections = Connections(self.numberOfCells(),
                                    maxSegmentsPerCell=maxSegmentsPerCell,
                                    maxSynapsesPerSegment=maxSynapsesPerSegment)
     self._random = Random(seed)
@@ -341,9 +340,9 @@ class TemporalMemory(object):
                       `cells`         (list),
                       `bestCell`      (int),
     """
-    cells = TemporalMemory.cellsForColumn(cellsPerColumn,
-                                            excitedColumn["column"],
-                                            columnDimensions)
+    start = cellsPerColumn * excitedColumn["column"]
+    cells = range(start, start + cellsPerColumn)
+
     if excitedColumn["matchingSegmentsCount"] != 0:
       (bestSegment, overlap) = TemporalMemory.bestMatchingSegment(connections,
                                                                   excitedColumn,
@@ -518,8 +517,7 @@ class TemporalMemory(object):
     #   self.connections.destroySegment(segment)
 
   
-  @staticmethod
-  def columnForCell(cell, cellsPerColumn, columnDimensions):
+  def columnForCell(self, cell):
     """
     Returns the index of the column that a cell belongs to.
 
@@ -527,12 +525,11 @@ class TemporalMemory(object):
 
     @return (int) Column index
     """
-    TemporalMemory._validateCell(cell, cellsPerColumn, columnDimensions)
+    self._validateCell(cell)
 
-    return int(cell / cellsPerColumn)
+    return int(cell / self.cellsPerColumn)
 
-  @staticmethod
-  def cellsForColumn(cellsPerColumn, column, columnDimensions):
+  def cellsForColumn(self, column):
     """
     Returns the indices of cells that belong to a column.
 
@@ -540,29 +537,27 @@ class TemporalMemory(object):
 
     @return (list) Cell indices
     """
-    TemporalMemory._validateColumn(column, columnDimensions)
+    self._validateColumn(column)
 
-    start = cellsPerColumn * TemporalMemory.getCellIndex(column)
-    end = start + cellsPerColumn
+    start = self.cellsPerColumn * column
+    end = start + self.cellsPerColumn
     return range(start, end)
 
-  @staticmethod
-  def numberOfColumns(columnDimensions):
+  def numberOfColumns(self):
     """
     Returns the number of columns in this layer.
 
     @return (int) Number of columns
     """
-    return reduce(mul, columnDimensions, 1)
+    return reduce(mul, self.columnDimensions, 1)
 
-  @staticmethod
-  def numberOfCells(cellsPerColumn, columnDimensions):
+  def numberOfCells(self):
     """
     Returns the number of cells in this layer.
 
     @return (int) Number of cells
     """
-    return TemporalMemory.numberOfColumns(columnDimensions) * cellsPerColumn
+    return self.numberOfColumns() * self.cellsPerColumn
   
   def mapCellsToColumns(self, cells):
     """
@@ -573,8 +568,7 @@ class TemporalMemory(object):
     cellsForColumns = defaultdict(set)
 
     for cell in cells:
-      column = self.columnForCell(cell, self.cellsPerColumn,
-                                  self.columnDimensions)
+      column = self.columnForCell(cell)
       cellsForColumns[column].add(cell)
 
     return cellsForColumns
@@ -725,25 +719,23 @@ class TemporalMemory(object):
     """
     return not self.__eq__(other)
 
-  @staticmethod
-  def _validateColumn(column, columnDimensions):
+
+  def _validateColumn(self, column):
     """
     Raises an error if column index is invalid.
 
     @param column (int) Column index
     """
-    if column >= TemporalMemory.numberOfColumns(columnDimensions) or column < 0:
+    if column >= self.numberOfColumns() or column < 0:
       raise IndexError("Invalid column")
 
-  @staticmethod
-  def _validateCell(cell, cellsPerColumn, columnDimensions):
+  def _validateCell(self, cell):
     """
     Raises an error if cell index is invalid.
 
     @param cell (int) Cell index
     """
-    if cell >= TemporalMemory.numberOfCells(cellsPerColumn,
-                                            columnDimensions) or cell < 0:
+    if cell >= self.numberOfCells() or cell < 0:
       raise IndexError("Invalid cell")
 
 

@@ -75,12 +75,12 @@ class Connections(object):
   def segmentCmp(self, a, b):
     """
     A simple comparison function for segments to sort them
-    by their corresponding presynapticCell.
+    by the cell they are on.
 
     @param a (int) segment 1
     @param b (int) segment 2
 
-    @return (int) comparison integer between the two presynapticCells
+    @return (int) comparison integer between the two cells
     """
     return self._segments[a] - self._segments[b]
 
@@ -276,29 +276,27 @@ class Connections(object):
                       `matchingSegments`        (list),
 
     Notes:
-      activeSegments and matchingSegments are sorted by their corresponding presynaptic cell.
+      activeSegments and matchingSegments are sorted by the cell they are on.
     """
 
     numActiveSynapsesForSegment = defaultdict(int)
     numMatchingSynapsesForSegment = defaultdict(int)
-    activeSegments = set()
-    matchingSegments = set()
-
+    
     for cell in activeInput:
       for synapseData in self.synapsesForPresynapticCell(cell).values():
         segment = synapseData.segment
         permanence = synapseData.permanence
         if permanence >= matchingPermananceThreshold:
           numMatchingSynapsesForSegment[segment] += 1
-          if numMatchingSynapsesForSegment[segment] >= matchingSynapseThreshold:
-            matchingSegments.add(segment)
-
           if synapseData.permanence >= activePermanenceThreshold:
             numActiveSynapsesForSegment[segment] += 1
 
-            if numActiveSynapsesForSegment[segment] >= activeSynapseThreshold:
-              activeSegments.add(segment)
 
+    activeSegments = [seg for seg in numActiveSynapsesForSegment.keys()
+      if numActiveSynapsesForSegment[seg] >= activeSynapseThreshold]
+    matchingSegments = [seg for seg in numMatchingSynapsesForSegment.keys()
+      if numMatchingSynapsesForSegment[seg] >= matchingSynapseThreshold]
+    
     return (sorted(activeSegments, cmp=self.segmentCmp),
             sorted(matchingSegments, cmp=self.segmentCmp))
 
