@@ -287,7 +287,7 @@ class Connections(object):
 
     numActiveSynapsesForSegment = [0] * self._nextSegmentIdx
     numMatchingSynapsesForSegment = [0] * self._nextSegmentIdx
-    
+
     for cell in activeInput:
       for synapseData in self.synapsesForPresynapticCell(cell).values():
         segment = synapseData.segment
