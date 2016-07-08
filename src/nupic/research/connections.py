@@ -285,8 +285,8 @@ class Connections(object):
       activeSegments and matchingSegments are sorted by the cell they are on.
     """
 
-    numActiveSynapsesForSegment = defaultdict(int)
-    numMatchingSynapsesForSegment = defaultdict(int)
+    numActiveSynapsesForSegment = [0] * self._nextSegmentIdx
+    numMatchingSynapsesForSegment = [0] * self._nextSegmentIdx
     
     for cell in activeInput:
       for synapseData in self.synapsesForPresynapticCell(cell).values():
@@ -297,12 +297,16 @@ class Connections(object):
           if synapseData.permanence >= activePermanenceThreshold:
             numActiveSynapsesForSegment[segment] += 1
 
+    activeSegments = []
+    matchingSegments = []
+    for i in xrange(self._nextSegmentIdx):
+      if numActiveSynapsesForSegment[i] >= activeSynapseThreshold:
+        activeSegments.append(i)
 
-    activeSegments = [seg for seg in numActiveSynapsesForSegment.keys()
-      if numActiveSynapsesForSegment[seg] >= activeSynapseThreshold]
-    matchingSegments = [seg for seg in numMatchingSynapsesForSegment.keys()
-      if numMatchingSynapsesForSegment[seg] >= matchingSynapseThreshold]
-    
+    for i in xrange(self._nextSegmentIdx):
+      if numMatchingSynapsesForSegment[i] >= matchingSynapseThreshold:
+        matchingSegments.append(i)
+
     return (sorted(activeSegments, cmp=self.segmentCmp),
             sorted(matchingSegments, cmp=self.segmentCmp))
 
