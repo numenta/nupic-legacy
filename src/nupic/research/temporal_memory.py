@@ -341,7 +341,9 @@ class TemporalMemory(object):
                       `cells`         (list),
                       `bestCell`      (int),
     """
-    cells = []
+    cells = TemporalMemory.cellsForColumn(cellsPerColumn,
+                                            excitedColumn["column"],
+                                            columnDimensions)
     if excitedColumn["matchingSegmentsCount"] != 0:
       (bestSegment, overlap) = TemporalMemory.bestMatchingSegment(connections,
                                                                   excitedColumn,
@@ -359,9 +361,6 @@ class TemporalMemory(object):
           TemporalMemory.growSynapses(connections, initialPermanence, nGrowDesired,
                                       prevWinnerCells, random, bestSegment)
     else:
-      cells = TemporalMemory.cellsForColumn(cellsPerColumn,
-                                            excitedColumn["column"],
-                                            columnDimensions)
       bestCell = TemporalMemory.leastUsedCell(cells, connections, random)
       if learn:
         nGrowExact = min(maxNewSynapseCount, len(prevWinnerCells))
