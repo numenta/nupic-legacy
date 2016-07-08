@@ -138,6 +138,7 @@ def excitedColumnsGenerator(activeColumns,
           }
 
 
+
 class TemporalMemory(object):
   """
   Class implementing the Temporal Memory algorithm.
@@ -283,6 +284,7 @@ class TemporalMemory(object):
     self.activeSegments = activeSegments
     self.matchingSegments = matchingSegments
 
+
   def reset(self):
     """
     Indicates the start of a new sequence. Resets sequence state of the TM.
@@ -324,6 +326,7 @@ class TemporalMemory(object):
                                     active)
 
     return cellsToAdd
+
 
   @staticmethod
   def burstColumn(cellsPerColumn, columnDimensions, connections, excitedColumn,
@@ -370,6 +373,7 @@ class TemporalMemory(object):
 
     return cells, bestCell
   
+
   @staticmethod
   def punishPredictedColumn(connections, excitedColumn, matchingSegments, 
                             predictedSegmentDecrement, prevActiveCells):
@@ -423,6 +427,7 @@ class TemporalMemory(object):
 
     return bestSegment, bestNumActiveSynapses
 
+
   @staticmethod
   def leastUsedCell(cells, connections, random):
     """
@@ -447,6 +452,7 @@ class TemporalMemory(object):
 
     i = random.getUInt32(len(leastUsedCells))
     return leastUsedCells[i]
+
 
   @staticmethod
   def growSynapses(connections, initialPermanence, nDesiredNewSynapes,
@@ -479,6 +485,7 @@ class TemporalMemory(object):
                                 initialPermanence)
       candidates[rand] = candidates[candidatesLength - 1]
       candidatesLength -= 1
+
 
   @staticmethod
   def adaptSegment(connections, prevActiveCells, permanenceIncrement,
@@ -529,6 +536,7 @@ class TemporalMemory(object):
 
     return int(cell / self.cellsPerColumn)
 
+
   def cellsForColumn(self, column):
     """
     Returns the indices of cells that belong to a column.
@@ -543,6 +551,7 @@ class TemporalMemory(object):
     end = start + self.cellsPerColumn
     return range(start, end)
 
+
   def numberOfColumns(self):
     """
     Returns the number of columns in this layer.
@@ -550,6 +559,7 @@ class TemporalMemory(object):
     @return (int) Number of columns
     """
     return reduce(mul, self.columnDimensions, 1)
+
 
   def numberOfCells(self):
     """
@@ -559,6 +569,7 @@ class TemporalMemory(object):
     """
     return self.numberOfColumns() * self.cellsPerColumn
   
+
   def mapCellsToColumns(self, cells):
     """
     Maps cells to the columns they belong to
@@ -572,6 +583,7 @@ class TemporalMemory(object):
       cellsForColumns[column].add(cell)
 
     return cellsForColumns
+
 
   def getActiveCells(self):
     """
@@ -728,6 +740,7 @@ class TemporalMemory(object):
     """
     if column >= self.numberOfColumns() or column < 0:
       raise IndexError("Invalid column")
+
 
   def _validateCell(self, cell):
     """

@@ -22,6 +22,7 @@
 from collections import defaultdict
 
 
+
 class SynapseData(object):
 
 
@@ -72,6 +73,7 @@ class Connections(object):
     # Index of the next synapse to be created
     self._nextSynapseIdx = 0
 
+
   def segmentCmp(self, a, b):
     """
     A simple comparison function for segments to sort them
@@ -84,6 +86,7 @@ class Connections(object):
     """
     return self._segments[a] - self._segments[b]
 
+
   def cellForSegment(self, segment):
     """
     Returns the cell that a segment belongs to.
@@ -93,6 +96,7 @@ class Connections(object):
     @return (int) Cell index
     """
     return self._segments[segment]
+
 
   def columnForSegment(self, segment, cellsPerColumn):
     """
@@ -242,6 +246,7 @@ class Connections(object):
     self._synapsesForSegment[data.segment].remove(synapse)
     del self._synapsesForPresynapticCell[data.presynapticCell][synapse]
 
+
   def updateSynapsePermanence(self, synapse, permanence):
     """
     Updates the permanence for a synapse.
@@ -258,6 +263,7 @@ class Connections(object):
 
     # Update indexes
     self._synapsesForPresynapticCell[newData.presynapticCell][synapse] = newData
+
 
   def computeActivity(self, activeInput, activePermanenceThreshold,
                       activeSynapseThreshold, matchingPermananceThreshold,
@@ -299,6 +305,7 @@ class Connections(object):
     
     return (sorted(activeSegments, cmp=self.segmentCmp),
             sorted(matchingSegments, cmp=self.segmentCmp))
+
 
   def numSegments(self):
     """
@@ -454,4 +461,3 @@ class Connections(object):
     """
     if not segment in self._segments:
       raise IndexError("Invalid segment")
-
