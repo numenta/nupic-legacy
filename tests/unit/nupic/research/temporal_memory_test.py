@@ -19,10 +19,6 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-"""
-TODO: Mock out all function calls.
-TODO: Make default test TM instance simpler, with 4 cells per column.
-# """
 
 import tempfile
 import unittest

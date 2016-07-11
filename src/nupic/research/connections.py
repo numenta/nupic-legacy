@@ -41,18 +41,14 @@ class SynapseData(object):
 
 
 class Connections(object):
-  """
-  Class to hold data representing the connectivity of a collection of cells.
-  """
-
+  """ Class to hold data representing the connectivity of a
+      collection of cells. """
 
   def __init__(self,
                numCells,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255):
-    """
-    @param numCells (int) Number of cells in collection
-    """
+    """ @param numCells (int) Number of cells in collection """
 
     # Save member variables
     self.numCells = numCells
@@ -75,8 +71,7 @@ class Connections(object):
 
 
   def segmentCmp(self, a, b):
-    """
-    A simple comparison function for segments to sort them
+    """ A simple comparison function for segments to sort them
     by the cell they are on.
 
     @param a (int) segment 1
@@ -88,8 +83,7 @@ class Connections(object):
 
 
   def cellForSegment(self, segment):
-    """
-    Returns the cell that a segment belongs to.
+    """ Returns the cell that a segment belongs to.
 
     @param segment (int) Segment index
 
@@ -99,8 +93,7 @@ class Connections(object):
 
 
   def columnForSegment(self, segment, cellsPerColumn):
-    """
-    Returns the column that a segment's presynapticCell belongs to
+    """ Returns the column that a segment's presynapticCell belongs to
 
     @param segment        (int) Segment index
     @param cellsPerColumn (int) Number of cells in a column in the tm
@@ -111,8 +104,7 @@ class Connections(object):
 
 
   def segmentsForCell(self, cell):
-    """
-    Returns the segments that belong to a cell.
+    """ Returns the segments that belong to a cell.
 
     @param cell (int) Cell index
 
@@ -127,8 +119,7 @@ class Connections(object):
 
 
   def dataForSynapse(self, synapse):
-    """
-    Returns the data for a synapse.
+    """ Returns the data for a synapse.
 
     @param synapse (int) Synapse index
 
@@ -139,8 +130,7 @@ class Connections(object):
 
 
   def synapsesForSegment(self, segment):
-    """
-    Returns the synapses on a segment.
+    """ Returns the synapses on a segment.
 
     @param segment (int) Segment index
 
@@ -155,8 +145,7 @@ class Connections(object):
 
 
   def synapsesForPresynapticCell(self, presynapticCell):
-    """
-    Returns the synapses for the source cell that they synapse on.
+    """ Returns the synapses for the source cell that they synapse on.
 
     @param presynapticCell (int) Source cell index
 
@@ -166,8 +155,7 @@ class Connections(object):
 
 
   def createSegment(self, cell):
-    """
-    Adds a new segment on a cell.
+    """ Adds a new segment on a cell.
 
     @param cell (int) Cell index
 
@@ -189,8 +177,7 @@ class Connections(object):
 
 
   def destroySegment(self, segment):
-    """
-    Destroys a segment.
+    """ Destroys a segment.
 
     @param segment (int) Segment index
     """
@@ -206,8 +193,7 @@ class Connections(object):
 
 
   def createSynapse(self, segment, presynapticCell, permanence):
-    """
-    Creates a new synapse on a segment.
+    """ Creates a new synapse on a segment.
 
     @param segment         (int)   Segment index
     @param presynapticCell (int)   Source cell index
@@ -234,8 +220,7 @@ class Connections(object):
 
 
   def destroySynapse(self, synapse):
-    """
-    Destroys a synapse.
+    """ Destroys a synapse.
 
     @param synapse (int) Synapse index
     """
@@ -248,8 +233,7 @@ class Connections(object):
 
 
   def updateSynapsePermanence(self, synapse, permanence):
-    """
-    Updates the permanence for a synapse.
+    """ Updates the permanence for a synapse.
 
     @param synapse    (int)   Synapse index
     @param permanence (float) New permanence
@@ -268,14 +252,17 @@ class Connections(object):
   def computeActivity(self, activeInput, activePermanenceThreshold,
                       activeSynapseThreshold, matchingPermananceThreshold,
                       matchingSynapseThreshold):
-    """
-    Computes active and matching segments given the current active input.
+    """ Computes active and matching segments given the current active input.
 
     @param activeInput                 (set)   currently active cells
-    @param activePermanenceThreshold   (float) permanence threshold for a synapse to be considered active
-    @param activeSynapseThreshold      (int)   number of synapses needed for a segment to be considered active
-    @param matchingPermananceThreshold (float) permanence threshold for a synapse to be considered matching
-    @param matchingSynapseThreshold    (int)   number of synapses needed for a segment to be considered matching
+    @param activePermanenceThreshold   (float) permanence threshold for a
+                                               synapse to be considered active
+    @param activeSynapseThreshold      (int)   number of synapses needed for a
+                                               segment to be considered active
+    @param matchingPermananceThreshold (float) permanence threshold for a
+                                               synapse to be considered matching
+    @param matchingSynapseThreshold    (int)   number of synapses needed for a
+                                               segment to be considered matching
 
     @return (tuple) Contains:
                       `activeSegments`         (list),
@@ -312,22 +299,17 @@ class Connections(object):
 
 
   def numSegments(self):
-    """
-    Returns the number of segments.
-    """
+    """ Returns the number of segments. """
     return len(self._segments)
 
 
   def numSynapses(self):
-    """
-    Returns the number of synapses.
-    """
+    """ Returns the number of synapses. """
     return len(self._synapses)
 
 
   def write(self, proto):
-    """
-    Writes serialized data to proto object
+    """ Writes serialized data to proto object
 
     @param proto (DynamicStructBuilder) Proto object
     """
@@ -352,8 +334,7 @@ class Connections(object):
 
   @classmethod
   def read(cls, proto):
-    """
-    Reads deserialized data from proto object
+    """ Reads deserialized data from proto object
 
     @param proto (DynamicStructBuilder) Proto object
 
@@ -381,14 +362,14 @@ class Connections(object):
 
 
   def __eq__(self, other):
-    """
-    Equality operator for Connections instances.
+    """ Equality operator for Connections instances.
     Checks if two instances are functionally identical
     (might have different internal state).
 
     @param other (Connections) Connections instance to compare to
     """
-    if self.numCells != other.numCells: return False
+    if self.numCells != other.numCells:
+      return False
 
     for cell in xrange(self.numCells):
       segmentSet = set()
@@ -399,26 +380,27 @@ class Connections(object):
 
       otherSegmentSet = set()
       for segment in other.segmentsForCell(cell):
-        otherSynapseSet = other._synapseSetForSynapses(
+        otherSynapseSet = other._synapseSetForSynapses( #pylint: disable=W0212
           other.synapsesForSegment(segment))
         otherSegmentSet.add(frozenset(otherSynapseSet))
 
-      if segmentSet != otherSegmentSet: return False
+      if segmentSet != otherSegmentSet:
+        return False
 
-      synapseSet = self._synapseSetForSynapses(
+      synapseSet = self._synapseSetForSynapses( #pylint: disable=W0212
         self.synapsesForPresynapticCell(cell))
 
-      otherSynapseSet = other._synapseSetForSynapses(
+      otherSynapseSet = other._synapseSetForSynapses( #pylint: disable=W0212
         other.synapsesForPresynapticCell(cell))
 
-      if synapseSet != otherSynapseSet: return False
+      if synapseSet != otherSynapseSet:
+        return False
 
     return True
 
 
   def __ne__(self, other):
-    """
-    Non-equality operator for Connections instances.
+    """ Non-equality operator for Connections instances.
     Checks if two instances are not functionally identical
     (might have different internal state).
 
@@ -428,8 +410,7 @@ class Connections(object):
 
 
   def _synapseSetForSynapses(self, synapses):
-    """
-    Returns a set containing synapse data for synapses.
+    """ Returns a set containing synapse data for synapses.
     Rounds synapse permanence values for comparison.
     (Helper method used in __eq__.)
 
@@ -448,8 +429,7 @@ class Connections(object):
 
 
   def _validateCell(self, cell):
-    """
-    Raises an error if cell index is invalid.
+    """ Raises an error if cell index is invalid.
 
     @param cell (int) Cell index
     """
@@ -458,8 +438,7 @@ class Connections(object):
 
 
   def _validateSegment(self, segment):
-    """
-    Raises an error if segment index is invalid.
+    """ Raises an error if segment index is invalid.
 
     @param segment (int) Segment index
     """
