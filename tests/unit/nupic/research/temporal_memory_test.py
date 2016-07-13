@@ -53,7 +53,7 @@ class TemporalMemoryTest(unittest.TestCase):
       connections.dataForSynapse(synapse)
       return False
     except KeyError:
-      return True    
+      return True
 
 
   def testInitInvalidParams(self):
@@ -925,7 +925,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
     for _ in range(100):
       # Never pick cell 0, always pick cell 1
-      self.assertEqual(tm.leastUsedCell(tm.cellsForColumn(0), 
+      self.assertEqual(tm.leastUsedCell(tm.cellsForColumn(0),
                                         connections,
                                         tm._random),
                        1)

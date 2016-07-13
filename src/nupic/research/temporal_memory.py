@@ -42,7 +42,7 @@ def binSearch(arr, val):
   @param arr (list) a sorted list of integers to search
   @param val (int)  a integer to search for in the sorted array
 
-  @return (int) the index of the element if it is found and -1 otherwise. 
+  @return (int) the index of the element if it is found and -1 otherwise.
 
   """
   i = bisect_left(arr, val)
@@ -546,7 +546,7 @@ class TemporalMemory(object):
                    permanenceDecrement, segment):
     """ Updates synapses on segment.
     Strengthens active synapses; weakens inactive synapses.
-    
+
     @param  connections        (Object) Connections instance for the tm
     @param prevActiveCells      (list)   Active cells in `t-1`
     @param permanenceIncrement  (float)  Amount to increment active synapses
@@ -722,8 +722,10 @@ class TemporalMemory(object):
     tm.predictedSegmentDecrement = proto.predictedSegmentDecrement
 
     tm.connections = Connections.read(proto.connections)
-    tm._random = Random() #pylint: disable=W0212
-    tm._random.read(proto.random) #pylint: disable=W0212
+    #pylint: disable=W0212
+    tm._random = Random()
+    tm._random.read(proto.random)
+    #pylint: enable=W0212
 
     tm.activeCells = [int(x) for x in proto.activeCells]
     tm.activeSegments = [int(x) for x in proto.activeSegments]

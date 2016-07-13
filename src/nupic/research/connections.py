@@ -281,7 +281,7 @@ class Connections(object):
     for i in xrange(self._nextSegmentIdx):
       if numMatchingSynapsesForSegment[i] >= matchingSynapseThreshold:
         matchingSegments.append(i)
-    
+
     segCmp = lambda a, b: self._segments[a] - self._segments[b]
     return (sorted(activeSegments, cmp = segCmp),
             sorted(matchingSegments, cmp = segCmp))
@@ -368,20 +368,21 @@ class Connections(object):
         segmentSet.add(frozenset(synapseSet))
 
       otherSegmentSet = set()
+      #pylint: disable=W0212
       for segment in other.segmentsForCell(cell):
-        otherSynapseSet = other._synapseSetForSynapses( #pylint: disable=W0212
+        otherSynapseSet = other._synapseSetForSynapses(
           other.synapsesForSegment(segment))
         otherSegmentSet.add(frozenset(otherSynapseSet))
 
       if segmentSet != otherSegmentSet:
         return False
 
-      synapseSet = self._synapseSetForSynapses( #pylint: disable=W0212
+      synapseSet = self._synapseSetForSynapses(
         self.synapsesForPresynapticCell(cell))
 
-      otherSynapseSet = other._synapseSetForSynapses( #pylint: disable=W0212
+      otherSynapseSet = other._synapseSetForSynapses(
         other.synapsesForPresynapticCell(cell))
-
+      #pylint: enable=W0212
       if synapseSet != otherSynapseSet:
         return False
 
