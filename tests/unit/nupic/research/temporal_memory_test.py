@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -1094,9 +1094,9 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(columnsForCells[99], set([399]))
 
 
-  @unittest.skip("Serialization does not preserve numbering of cells\
-                  and segments, which is needed in the\
-                  columnSegmentWalk implementation")
+  @unittest.skip("Serialization does not correctly capture the state\
+                  of the connections object, until it does this test\
+                  will fail.")
   def testWriteRead(self):
     tm1 = TemporalMemory(
       columnDimensions=[100],

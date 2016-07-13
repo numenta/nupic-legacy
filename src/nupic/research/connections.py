@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -68,18 +68,6 @@ class Connections(object):
     self._nextSegmentIdx = 0
     # Index of the next synapse to be created
     self._nextSynapseIdx = 0
-
-
-  def segmentCmp(self, a, b):
-    """ A simple comparison function for segments to sort them
-    by the cell they are on.
-
-    @param a (int) segment 1
-    @param b (int) segment 2
-
-    @return (int) comparison integer between the two cells
-    """
-    return self._segments[a] - self._segments[b]
 
 
   def cellForSegment(self, segment):
@@ -293,9 +281,10 @@ class Connections(object):
     for i in xrange(self._nextSegmentIdx):
       if numMatchingSynapsesForSegment[i] >= matchingSynapseThreshold:
         matchingSegments.append(i)
-
-    return (sorted(activeSegments, cmp=self.segmentCmp),
-            sorted(matchingSegments, cmp=self.segmentCmp))
+    
+    segCmp = lambda a, b: self._segments[a] - self._segments[b]
+    return (sorted(activeSegments, cmp = segCmp),
+            sorted(matchingSegments, cmp = segCmp))
 
 
   def numSegments(self):
