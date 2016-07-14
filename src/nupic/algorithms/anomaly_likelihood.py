@@ -624,7 +624,7 @@ def normalProbability(x, distributionParams):
   distributionParams, return the probability of getting samples > x.
   This is the Q-function: the tail probability of the normal distribution.
 
-  :param distributionParams: dict with values for keys "mean" and "stdev"
+  :param distributionParams: dict with mean and stdev
   """
   if "mean" not in distributionParams or "stdev" not in distributionParams:
     raise RuntimeError("Insufficient parameters to specify the distribution.")
