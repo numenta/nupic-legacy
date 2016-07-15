@@ -16,6 +16,5 @@ python setup.py bdist_wheel
 # wheelwhouse/
 pip install --user --ignore-installed -f wheelhouse/ dist/nupic-`cat VERSION`*.whl
 
-# Invoke tests
-python setup.py test --pytest-args="--junit-xml `pwd` --cov nupic"
-ls -laFh
+# Invoke unit tests
+python setup.py test --pytest-args="--junit-xml `pwd` --cov nupic unit"
