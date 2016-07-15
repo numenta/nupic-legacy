@@ -13,8 +13,8 @@ python ci/bamboo/get-pip.py --user --ignore-installed
 python setup.py bdist_wheel
 
 # Install nupic wheel and dependencies, including nupic.bindings artifact in
-# wheelwhouse/
+# wheelhouse/
 pip install --user --ignore-installed -f wheelhouse/ dist/nupic-`cat VERSION`*.whl
 
 # Invoke unit tests
-python setup.py test --pytest-args="--junit-xml `pwd` --cov nupic unit"
+python setup.py test --pytest-args="--junit-xml=`pwd` --cov nupic unit"
