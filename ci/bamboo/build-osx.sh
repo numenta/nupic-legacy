@@ -4,7 +4,7 @@ set -o xtrace
 
 # Fixup $PATH for --user installation
 export PATH=${HOME}/Library/Python/2.7/bin:${PATH}
-export PYTHONPATH=${HOME}/Library/Python/2.7/lib/python/site-packages:${PATH}
+export PYTHONPATH=${HOME}/Library/Python/2.7/lib/python/site-packages:${PYTHONPATH}
 
 # Install pip
 python ci/bamboo/get-pip.py --user --ignore-installed
