@@ -249,6 +249,19 @@ class TemporalMemory(object):
       - `winnerCells`     (list)
       - `activeSegments`  (list)
       - `matchingSegments`(list)
+
+    Pseudocode:
+    for each column
+      if column is active and has active distal dendrite segments
+        call activatePredictedColumn
+      if column is active and doesn't have active distal dendrite segments
+        call burstColumn
+      if column is inactive and has matching distal dendrite segments
+        call punishPredictedColumn
+    for each distal dendrite segment with activity >= activationThreshold
+      mark the segment as active
+    for each distal dendrite segment with unconnected activity >= minThreshold
+      mark the segment as matching
     """
     prevActiveCells = self.activeCells
     prevWinnerCells = self.winnerCells
@@ -337,6 +350,14 @@ class TemporalMemory(object):
 
     @return cellsToAdd (list) A list of predicted cells that will be added to
                               active cells and winner cells.
+                              
+    Pseudocode:
+    for each cell in the column that has an active distal dendrite segment
+      mark the cell as active
+      mark the cell as a winner cell
+      (learning) for each active distal dendrite segment
+        strengthen active synapses
+        weaken inactive synapses
     """
 
     cellsToAdd = []
@@ -383,6 +404,20 @@ class TemporalMemory(object):
     @return (tuple) Contains:
                       `cells`         (list),
                       `bestCell`      (int),
+
+    Pseudocode:
+    mark all cells as active
+    if there are any matching distal dendrite segments
+      find the most active matching segment
+      mark its cell as a winner cell
+      (learning)
+        grow and reinforce synapses to previous winner cells
+    else
+      find the cell with the least segments, mark it as a winner cell
+      (learning)
+        (optimization) if there are prev winner cells
+          add a segment to this winner cell
+          grow synapses to previous winner cells
     """
     start = cellsPerColumn * excitedColumn["column"]
     cells = range(start, start + cellsPerColumn)
@@ -428,6 +463,10 @@ class TemporalMemory(object):
     @param permanenceDecrement (float)  Amount by which permanences of synapses
                                         are decremented during learning.
     @param prevActiveCells     (list)   Active cells in `t-1`
+
+    Pseudocode:
+    for each matching segment in the column
+      weaken active synapses
     """
     if predictedSegmentDecrement > 0.0:
       for segment in excitedColumn["matchingSegments"]:
