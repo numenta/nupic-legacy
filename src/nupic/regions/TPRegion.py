@@ -510,6 +510,7 @@ class TPRegion(PyRegion):
       prevPredictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
 
     # Perform inference and/or learning
+    prevPredictedColumns = self._tfdr.getPredictedState().reshape(-1).astype('float32')
     tpOutput = self._tfdr.compute(buInputVector, self.learningMode, self.inferenceMode)
     self._sequencePos += 1
 
@@ -537,6 +538,22 @@ class TPRegion(PyRegion):
       activeLearnCells = self._tfdr.getLearnActiveStateT()
       size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
+      
+      activeColumns = buInputVector
+      nActiveColumns = len(activeColumns)
+      if nActiveColumns > 0:
+        # Test whether each element of a 1-D array is also present in a second
+        # array. Sum to get the total # of columns that are active and were
+        # predicted.
+        score = numpy.in1d(activeColumns, prevPredictedColumns).sum()
+        # Get the percent of active columns that were NOT predicted, that is
+        # our anomaly score.
+        score = (nActiveColumns - score) / float(nActiveColumns)
+      else:
+        # There are no active columns.
+        score = 0.0
+
+      outputs['anomalyScore'] = score
 
     if self.computePredictedActiveCellIndices:
       # Reshape so we are dealing with 1D arrays
@@ -544,8 +561,8 @@ class TPRegion(PyRegion):
       activeIndices = numpy.where(activeState != 0)[0]
       predictedIndices= numpy.where(prevPredictedState != 0)[0]
       predictedActiveIndices = numpy.intersect1d(activeIndices, predictedIndices)
-      outputs["predictedActiveCells"].fill(0)
-      outputs["predictedActiveCells"][predictedActiveIndices] = 1
+      outputs['predictedActiveCells'].fill(0)
+      outputs['predictedActiveCells'][predictedActiveIndices] = 1
 
 
   #############################################################################
@@ -881,6 +898,15 @@ class TPRegion(PyRegion):
       import dbgp.client; dbgp.client.brk()
     if self.breakPdb:
       import pdb; pdb.set_trace()
+
+
+  def _getPredictedColumns(self):
+    predictedState = self._tfdr.getPredictedState()
+    numCells = self._tfdr.cellsPerColumn
+    return numpy.array([col for col in range(self._tfdr.numberOfCols) if 
+      numpy.any(predictedState[xrange(col * numCells,
+                                      col * numCells + numCells - 1)]) == 1])
+
 
   #############################################################################
   #

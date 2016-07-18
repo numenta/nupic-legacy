@@ -106,7 +106,6 @@ class AnomalyLikelihoodRegion(PyRegion):
 
   def write(self, proto):
     proto.prevPredictedColumns = self.prevPredictedColumns.tolist()
-    proto.state = "hello"
 
   def initialize(self, inputs, outputs):
     pass
