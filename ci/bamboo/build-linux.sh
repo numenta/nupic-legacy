@@ -38,7 +38,7 @@ apt-get install -y \
     python2.7 \
     python2.7-dev \
     python-pip
-pip install --upgrade --ignore-installed setuptools
+pip install --upgrade --ignore-installed setuptools pip
 pip install wheel
 
 # Move into root of nupic repository
