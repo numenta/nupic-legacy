@@ -553,7 +553,7 @@ class TPRegion(PyRegion):
         # There are no active columns.
         score = 0.0
 
-      outputs['anomalyScore'] = score
+      outputs['anomalyScore'][:] = score
 
     if self.computePredictedActiveCellIndices:
       # Reshape so we are dealing with 1D arrays
@@ -900,12 +900,12 @@ class TPRegion(PyRegion):
       import pdb; pdb.set_trace()
 
 
-  def _getPredictedColumns(self):
-    predictedState = self._tfdr.getPredictedState()
-    numCells = self._tfdr.cellsPerColumn
-    return numpy.array([col for col in range(self._tfdr.numberOfCols) if 
-      numpy.any(predictedState[xrange(col * numCells,
-                                      col * numCells + numCells - 1)]) == 1])
+  # def _getPredictedColumns(self):
+  #   predictedState = self._tfdr.getPredictedState()
+  #   numCells = self._tfdr.cellsPerColumn
+  #   return numpy.array([col for col in range(self._tfdr.numberOfCols) if 
+  #     numpy.any(predictedState[xrange(col * numCells,
+  #                                     col * numCells + numCells - 1)]) == 1])
 
 
   #############################################################################

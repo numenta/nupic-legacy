@@ -172,6 +172,28 @@ class AnomalyLikelihood(object):
     numShiftedOut = max(0, numIngested - windowSize)
     return min(numIngested, max(0, learningPeriod - numShiftedOut))
 
+  @classmethod
+  def read(cls, proto):
+    anomalyLikelihood = object.__new__(cls)
+    anomalyLikelihood._iteration = proto.iteration
+    anomalyLikelihood._historicalScores = proto.historicalScores
+    anomalyLikelihood._distribution = proto.distribution
+    anomalyLikelihood._probationaryPeriod = proto.probationaryPeriod
+    anomalyLikelihood._claLearningPeriod = proto.claLearningPeriod
+    anomalyLikelihood._reestimationPeriod = proto.reestimationPeriod
+
+    return anomalyLikelihood
+
+
+  def write(self, proto):
+    proto.iteration = self._iteration
+    proto.historicalScores = self._historicalScores
+    proto.distribution = self._distribution
+    proto.probationaryPeriod = self._probationaryPeriod
+    proto.claLearningPeriod = self._claLearningPeriod
+    proto.reestimationPeriod = self.reestimationPeriod
+
+
 
   def anomalyProbability(self, value, anomalyScore, timestamp=None):
     """
@@ -184,7 +206,7 @@ class AnomalyLikelihood(object):
     @param anomalyScore - the current anomaly score
     @param timestamp - (optional) timestamp of the ocurrence,
                        default (None) results in using iteration step.
-    @return theanomalyLikelihood for this record.
+    @return the anomalyLikelihood for this record.
     """
     if timestamp is None:
       timestamp = self._iteration
@@ -210,7 +232,7 @@ class AnomalyLikelihood(object):
       likelihoods, _, self._distribution = updateAnomalyLikelihoods(
         [dataPoint],
         self._distribution)
-
+      
       likelihood = 1.0 - likelihoods[0]
 
     # Before we exit update historical scores and iteration

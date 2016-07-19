@@ -33,7 +33,8 @@ try:
 except ImportError:
   capnp = None
 if capnp:
-  from nupic.regions.AnomalyRegion_capnp import AnomalyRegionProto
+  pass
+  # from nupic.regions.AnomalyLikelihoodRegion_capnp import AnomalyLikelihoodRegionProto
 
 
 
@@ -72,7 +73,7 @@ class AnomalyLikelihoodRegionTest(unittest.TestCase):
     outputs = AnomalyLikelihoodRegion.getSpec()['outputs']
     for i in xrange(0, 6):
       inputs['rawAnomalyScore'] = random.random()
-      inputs['value'] = random.random()
+      inputs['value'] = None
       anomalyLikelihoodRegion1.compute(inputs, outputs)
       score1 = outputs['anomalyLikelihood'][0]
       print score1
@@ -92,7 +93,7 @@ class AnomalyLikelihoodRegionTest(unittest.TestCase):
 
     for i in xrange(6, 500):
       inputs['rawAnomalyScore'] = random.random()
-      inputs['value'] = random.random()
+      inputs['value'] = None
       anomalyLikelihoodRegion1.compute(inputs, outputs)
       score1 = outputs['anomalyLikelihood'][0]
       # self.assertAlmostEqual(

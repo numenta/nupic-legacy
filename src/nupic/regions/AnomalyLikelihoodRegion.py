@@ -99,23 +99,23 @@ class AnomalyLikelihoodRegion(PyRegion):
   @classmethod
   def read(cls, proto):
     anomalyLikelihoodRegion = object.__new__(cls)
-    anomalyLikelihoodRegion.prevPredictedColumns = numpy.array(
-      proto.prevPredictedColumns)
+    anomalyLikelihoodRegion.anomalyLikelihood = AnomalyLikelihoodRegion.read(proto)
+    
     return anomalyLikelihoodRegion
 
 
   def write(self, proto):
-    proto.prevPredictedColumns = self.prevPredictedColumns.tolist()
+    proto.anomalyLikelihood = self.anomalyLikelihood.write(proto)
 
   def initialize(self, inputs, outputs):
     pass
 
 
   def compute(self, inputs, outputs):
-    anomalyScore = inputs["rawAnomalyScore"]
-    value = inputs["value"]
+    anomalyScore = inputs["rawAnomalyScore"][0]
+    value = inputs["value"][0]
     anomalyProbability = self.anomalyLikelihood.anomalyProbability(
       value, anomalyScore)
-
+    print self.anomalyLikelihood
     outputs["anomalyLikelihood"][0] = anomalyProbability
 

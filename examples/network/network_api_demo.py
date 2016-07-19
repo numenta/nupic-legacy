@@ -141,13 +141,15 @@ def createNetwork(dataSource):
   network.link("temporalPoolerRegion", "spatialPoolerRegion", "UniformLink", "",
                srcOutput="topDownOut", destInput="topDownIn")
 
-  # Add the AnomalyRegion on top of the TPRegion
-  network.addRegion("anomalyRegion", "py.AnomalyRegion", json.dumps({}))
-
-  network.link("spatialPoolerRegion", "anomalyRegion", "UniformLink", "",
-               srcOutput="bottomUpOut", destInput="activeColumns")
-  network.link("temporalPoolerRegion", "anomalyRegion", "UniformLink", "",
-               srcOutput="topDownOut", destInput="predictedColumns")
+  # Add the AnomalyLikelihoodRegion on top of the TPRegion
+  network.addRegion("anomalyLikelihoodRegion", "py.AnomalyLikelihoodRegion",
+    json.dumps({}))
+  
+  network.link("temporalPoolerRegion", "anomalyLikelihoodRegion", "UniformLink", "",
+               srcOutput="anomalyScore", destInput="rawAnomalyScore")
+  network.link("sensor", "anomalyLikelihoodRegion", "UniformLink", "",
+               srcOutput="sourceOut", destInput="value")
+  
 
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
 
@@ -182,7 +184,7 @@ def runNetwork(network, writer):
   sensorRegion = network.regions["sensor"]
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
   temporalPoolerRegion = network.regions["temporalPoolerRegion"]
-  anomalyRegion = network.regions["anomalyRegion"]
+  anomalyLikelihoodRegion = network.regions["anomalyLikelihoodRegion"]
 
   prevPredictedColumns = []
 
@@ -192,9 +194,9 @@ def runNetwork(network, writer):
 
     # Write out the anomaly score along with the record number and consumption
     # value.
-    anomalyScore = anomalyRegion.getOutputData("rawAnomalyScore")[0]
+    anomalyLikelihood = anomalyLikelihoodRegion.getOutputData("anomalyLikelihood")[0]
     consumption = sensorRegion.getOutputData("sourceOut")[0]
-    writer.writerow((i, consumption, anomalyScore))
+    writer.writerow((i, consumption, anomalyLikelihood))
 
 
 if __name__ == "__main__":
