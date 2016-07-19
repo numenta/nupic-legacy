@@ -73,9 +73,9 @@ class ConnectionsTest(unittest.TestCase):
     connections.destroySegment(0)
 
     args = [0]
-    self.assertRaises(IndexError, connections.dataForSynapse, *args)
+    self.assertRaises(KeyError, connections.dataForSynapse, *args)
     args = [1]
-    self.assertRaises(IndexError, connections.dataForSynapse, *args)
+    self.assertRaises(KeyError, connections.dataForSynapse, *args)
 
     args = [0]
     self.assertRaises(IndexError, connections.synapsesForSegment, *args)
@@ -147,12 +147,6 @@ class ConnectionsTest(unittest.TestCase):
     args = [1, 48, 0.124]
     self.assertRaises(IndexError, connections.createSynapse, *args)
 
-    # Invalid permanence
-    args = [0, 48, 1.124]
-    self.assertRaises(ValueError, connections.createSynapse, *args)
-    args = [0, 48, -0.124]
-    self.assertRaises(ValueError, connections.createSynapse, *args)
-
 
   def testDestroySynapse(self):
     connections = self.connections
@@ -166,7 +160,7 @@ class ConnectionsTest(unittest.TestCase):
     connections.destroySynapse(0)
 
     args = [0]
-    self.assertRaises(IndexError, connections.dataForSynapse, *args)
+    self.assertRaises(KeyError, connections.dataForSynapse, *args)
 
     self.assertEqual(connections.synapsesForSegment(0), set([1]))
 
@@ -181,7 +175,7 @@ class ConnectionsTest(unittest.TestCase):
     connections.createSynapse(0, 834, 0.1284)
 
     args = [1]
-    self.assertRaises(IndexError, connections.dataForSynapse, *args)
+    self.assertRaises(KeyError, connections.dataForSynapse, *args)
 
 
   def testSynapsesForSegmentInvalidSegment(self):
@@ -212,12 +206,6 @@ class ConnectionsTest(unittest.TestCase):
     # Invalid synapse
     args = [1, 0.4374]
     self.assertRaises(KeyError, connections.updateSynapsePermanence, *args)
-
-    # Invalid permanence
-    args = [0, 1.4374]
-    self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
-    args = [0, -0.4374]
-    self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
 
 
   @unittest.skipUnless(
