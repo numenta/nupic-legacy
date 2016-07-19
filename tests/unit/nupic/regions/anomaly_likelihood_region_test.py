@@ -36,7 +36,6 @@ if capnp:
   from nupic.regions.AnomalyLikelihoodRegion_capnp import AnomalyLikelihoodRegionProto
 
 
-
 class AnomalyLikelihoodRegionTest(unittest.TestCase):
   """Tests for anomaly likelihood region"""
 
@@ -65,8 +64,6 @@ class AnomalyLikelihoodRegionTest(unittest.TestCase):
     # # Load the deserialized proto
 
     anomalyLikelihoodRegion2 = AnomalyLikelihoodRegion.read(proto2)
-    print anomalyLikelihoodRegion1
-    print anomalyLikelihoodRegion2
     self.assertEqual(anomalyLikelihoodRegion1, anomalyLikelihoodRegion2)
 
     for i in xrange(6, 500):

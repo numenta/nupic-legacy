@@ -56,7 +56,7 @@ class AnomalyLikelihoodRegion(PyRegion):
         },
         "outputs": {
             "anomalyLikelihood": {
-                "description": "The anomaly likelihood",
+                "description": "The resultant anomaly likelihood",
                 "dataType": "Real32",
                 "count": 1,
                 "isDefaultOutput": True,
@@ -70,7 +70,6 @@ class AnomalyLikelihoodRegion(PyRegion):
 
 
   def __init__(self, *args, **kwargs):
-    self.prevPredictedColumns = numpy.zeros([], dtype="float32")
     self.anomalyLikelihood = AnomalyLikelihood()
 
 
@@ -80,9 +79,6 @@ class AnomalyLikelihoodRegion(PyRegion):
 
   def __ne__(self, other):
     return not self == other
-
-  def __str__(self):
-    return str(self.anomalyLikelihood)
 
 
   @classmethod
@@ -96,6 +92,7 @@ class AnomalyLikelihoodRegion(PyRegion):
   def write(self, proto):
     self.anomalyLikelihood.write(proto)
 
+
   def initialize(self, inputs, outputs):
     pass
 
@@ -106,4 +103,3 @@ class AnomalyLikelihoodRegion(PyRegion):
     anomalyProbability = self.anomalyLikelihood.anomalyProbability(
       value, anomalyScore)
     outputs["anomalyLikelihood"][0] = anomalyProbability
-

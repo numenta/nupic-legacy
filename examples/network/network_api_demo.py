@@ -145,8 +145,8 @@ def createNetwork(dataSource):
   network.addRegion("anomalyLikelihoodRegion", "py.AnomalyLikelihoodRegion",
     json.dumps({}))
   
-  network.link("temporalPoolerRegion", "anomalyLikelihoodRegion", "UniformLink", "",
-               srcOutput="anomalyScore", destInput="rawAnomalyScore")
+  network.link("temporalPoolerRegion", "anomalyLikelihoodRegion", "UniformLink",
+               "", srcOutput="anomalyScore", destInput="rawAnomalyScore")
   network.link("sensor", "anomalyLikelihoodRegion", "UniformLink", "",
                srcOutput="sourceOut", destInput="value")
   
