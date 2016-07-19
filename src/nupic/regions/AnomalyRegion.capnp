@@ -1,6 +1,6 @@
 @0xc065162b7aa5ede9;
 
 # Next ID: 1
-struct AnomalyLikelihoodRegionProto {
+struct AnomalyRegionProto {
   prevPredictedColumns @0 :List(UInt32);
 }

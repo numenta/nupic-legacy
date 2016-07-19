@@ -75,37 +75,26 @@ class AnomalyLikelihoodRegion(PyRegion):
 
 
   def __eq__(self, other):
-    for k, v1 in self.__dict__.iteritems():
-      if not k in other.__dict__:
-        return False
-      v2 = getattr(other, k)
-      if isinstance(v1, numpy.ndarray):
-        if v1.dtype != v2.dtype:
-          return False
-        if not numpy.isclose(v1, v2).all():
-          return False
-      else:
-        if type(v1) != type(v2):
-          return False
-        if v1 != v2:
-          return False
-    return True
+    return self.anomalyLikelihood == other.anomalyLikelihood
 
 
   def __ne__(self, other):
     return not self == other
 
+  def __str__(self):
+    return str(self.anomalyLikelihood)
+
 
   @classmethod
   def read(cls, proto):
     anomalyLikelihoodRegion = object.__new__(cls)
-    anomalyLikelihoodRegion.anomalyLikelihood = AnomalyLikelihoodRegion.read(proto)
+    anomalyLikelihoodRegion.anomalyLikelihood = AnomalyLikelihood.read(proto)
     
     return anomalyLikelihoodRegion
 
 
   def write(self, proto):
-    proto.anomalyLikelihood = self.anomalyLikelihood.write(proto)
+    self.anomalyLikelihood.write(proto)
 
   def initialize(self, inputs, outputs):
     pass
@@ -116,6 +105,5 @@ class AnomalyLikelihoodRegion(PyRegion):
     value = inputs["value"][0]
     anomalyProbability = self.anomalyLikelihood.anomalyProbability(
       value, anomalyScore)
-    print self.anomalyLikelihood
     outputs["anomalyLikelihood"][0] = anomalyProbability
 

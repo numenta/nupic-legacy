@@ -176,22 +176,85 @@ class AnomalyLikelihood(object):
   def read(cls, proto):
     anomalyLikelihood = object.__new__(cls)
     anomalyLikelihood._iteration = proto.iteration
-    anomalyLikelihood._historicalScores = proto.historicalScores
-    anomalyLikelihood._distribution = proto.distribution
+
+    anomalyLikelihood._historicalScores = collections.deque(
+      maxlen=proto.historicWindowSize)
+    for i, score in enumerate(proto.historicalScores):
+      anomalyLikelihood._historicalScores.append((i, score.value,
+                                                  score.anomalyScore))
+    if proto.distribution.name:
+      anomalyLikelihood._distribution = {}
+      anomalyLikelihood._distribution["name"] = proto.distribution.name
+      anomalyLikelihood._distribution["mean"] = proto.distribution.mean
+      anomalyLikelihood._distribution["variance"] = proto.distribution.variance
+      anomalyLikelihood._distribution["stdev"] = proto.distribution.stdev
+
+      anomalyLikelihood._distribution["movingAverage"] = {}
+      anomalyLikelihood._distribution["movingAverage"]["windowSize"] =\
+        proto.distribution.movingAverage.windowSize
+      anomalyLikelihood._distribution["movingAverage"]["historicalValues"] = []
+      for value in proto.distribution.movingAverage.historicalValues:
+        anomalyLikelihood._distribution["movingAverage"]["historicalValues"]\
+          .append(value)
+      anomalyLikelihood._distribution["movingAverage"]["total"] =\
+        proto.distribution.movingAverage.total
+
+      anomalyLikelihood._distribution["historicalLikelihoods"] = []
+      for likelihood in proto.distribution.historicalLikelihoods:
+        anomalyLikelihood._distribution["historicalLikelihoods"].append(
+          likelihood)
+    else:
+      anomalyLikelihood._distribution = None
+    
     anomalyLikelihood._probationaryPeriod = proto.probationaryPeriod
     anomalyLikelihood._claLearningPeriod = proto.claLearningPeriod
     anomalyLikelihood._reestimationPeriod = proto.reestimationPeriod
-
+    
     return anomalyLikelihood
 
 
   def write(self, proto):
     proto.iteration = self._iteration
-    proto.historicalScores = self._historicalScores
-    proto.distribution = self._distribution
+    
+    pHistScores = proto.init('historicalScores', len(self._historicalScores))
+    for i, score in enumerate(list(self._historicalScores)):
+      _, value, anomalyScore = score
+      record = pHistScores[i]
+      record.value = float(value)
+      record.anomalyScore = float(anomalyScore)
+    
+    if self._distribution:
+      proto.distribution.name = self._distribution["distributionParams"]["name"]
+      proto.distribution.mean = self._distribution["distributionParams"]["mean"]
+      proto.distribution.variance = self._distribution["distributionParams"]\
+        ["variance"]
+      proto.distribution.stdev = self._distribution["distributionParams"]\
+        ["stdev"]
+      
+      proto.distribution.movingAverage.windowSize = self._distribution\
+        ["movingAverage"]["windowSize"]
+      
+      historicalValues = self._distribution["movingAverage"]["historicalValues"]
+      pHistValues = proto.distribution.movingAverage.init(
+        "historicalValues", len(historicalValues))
+      for i, value in enumerate(historicalValues):
+        pHistValues[i] = float(value)
+
+      proto.distribution.movingAverage.historicalValues = self._distribution\
+        ["movingAverage"]["historicalValues"]
+      proto.distribution.movingAverage.total = self._distribution\
+        ["movingAverage"]["total"]
+      
+      historicalLikelihoods = self._distribution["historicalLikelihoods"]
+      pHistLikelihoods = proto.distribution.init("historicalLikelihoods",
+                                                 len(historicalLikelihoods))
+      for i, likelihood in enumerate(historicalLikelihoods):
+        pHistLikelihoods[i] = float(likelihood)
+  
     proto.probationaryPeriod = self._probationaryPeriod
     proto.claLearningPeriod = self._claLearningPeriod
-    proto.reestimationPeriod = self.reestimationPeriod
+    proto.reestimationPeriod = self._reestimationPeriod
+    proto.historicWindowSize = self._historicalScores.maxlen
 
 
 
@@ -461,7 +524,8 @@ def updateAnomalyLikelihoods(anomalyScores,
 
   if len(anomalyScores) == 0:
     raise ValueError("Must have at least one anomalyScore")
-
+  
+  print params
   if not isValidEstimatorParams(params):
     raise ValueError("'params' is not a valid params structure")
 
