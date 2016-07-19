@@ -637,7 +637,7 @@ def normalProbability(x, distributionParams):
   # Calculate the Q function with the complementary error function, explained
   # here: http://www.gaussianwaves.com/2012/07/q-function-and-error-functions
   z = (x - distributionParams["mean"]) / distributionParams["stdev"]
-  return 0.5 * math.erfc(z/math.sqrt(2))
+  return 0.5 * math.erfc(z/1.4142)
 
 
 
