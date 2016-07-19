@@ -36,8 +36,8 @@ apt-get install -y \
     build-essential \
     python \
     python2.7 \
-    python2.7-dev
-wget https://bootstrap.pypa.io/get-pip.py -O - | python
+    python2.7-dev \
+    python-pip
 pip install --upgrade --ignore-installed setuptools
 pip install wheel
 
