@@ -541,14 +541,12 @@ class TPRegion(PyRegion):
       size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
       
-      activeColumns = buInputVector
-      nActiveColumns = activeColumns.sum()
-      print activeColumns == prevPredictedColumns
+      activeColumns = buInputVector.nonzero()[0]
+      nActiveColumns = len(activeColumns)
       if nActiveColumns > 0:
-        # Test whether each element of a 1-D array is also present in a second
-        # array. Sum to get the total # of columns that are active and were
+        # Sum to get the total # of columns that are active and were
         # predicted.
-        score = numpy.logical_and(activeColumns, prevPredictedColumns).sum()
+        score = numpy.in1d(activeColumns, prevPredictedColumns).sum()
         # Get the percent of active columns that were NOT predicted, that is
         # our anomaly score.
         score = (nActiveColumns - score) / float(nActiveColumns)
@@ -877,12 +875,13 @@ class TPRegion(PyRegion):
 
 
   def _getPredictedColumns(self):
+    """
+    Returns a numpy array of the predicted columns, each entry of the array
+    representing the column index that is predicted.
+    """
     predState = self._tfdr.getPredictedState().reshape(-1)
     activeColumns = numpy.where(predState == 1)[0] / self._tfdr.cellsPerColumn
-    unique = numpy.unique(activeColumns)
-    onehot = numpy.zeros(self._tfdr.numberOfCols)
-    onehot[unique] = 1
-    return onehot
+    return numpy.unique(activeColumns)
 
 
   def _checkEphemeralMembers(self):

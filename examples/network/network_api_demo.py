@@ -167,9 +167,8 @@ def createNetwork(dataSource):
   temporalPoolerRegion.setParameter("learningMode", True)
   # Enable inference mode so we get predictions
   temporalPoolerRegion.setParameter("inferenceMode", True)
-  # Enable anomalyMode to compute the anomaly score. This actually doesn't work
-  # now so doesn't matter. We instead compute the anomaly score based on
-  # topDownOut (predicted columns) and SP bottomUpOut (active columns).
+  # Enable anomalyMode to compute the anomaly score to be passed to the anomaly
+  # likelihood region. 
   temporalPoolerRegion.setParameter("anomalyMode", True)
 
   return network
@@ -192,7 +191,7 @@ def runNetwork(network, writer):
     # Run the network for a single iteration
     network.run(1)
 
-    # Write out the anomaly score along with the record number and consumption
+    # Write out the anomaly likelihood along with the record number and consumption
     # value.
     anomalyLikelihood = anomalyLikelihoodRegion.getOutputData("anomalyLikelihood")[0]
     consumption = sensorRegion.getOutputData("sourceOut")[0]
