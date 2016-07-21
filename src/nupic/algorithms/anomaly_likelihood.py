@@ -525,7 +525,6 @@ def updateAnomalyLikelihoods(anomalyScores,
   if len(anomalyScores) == 0:
     raise ValueError("Must have at least one anomalyScore")
   
-  print params
   if not isValidEstimatorParams(params):
     raise ValueError("'params' is not a valid params structure")
 
