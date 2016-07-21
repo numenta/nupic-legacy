@@ -63,15 +63,60 @@ class AnomalyLikelihoodRegion(PyRegion):
             },
         },
         "parameters": {
+            "claLearningPeriod": {
+                "description": "The number of iterations required for the\
+                                CLA to learn the basic patterns in the dataset\
+                                and for the anomaly score to 'settle down'.",
+                "dataType": "UInt32",
+                "count": 1,
+                "constraints": "",
+                "defaultValue": 288,
+                "accessMode": "ReadWrite"
+            },
+            "estimationSamples": {
+                "description": "The number of reasonable anomaly scores\
+                                 required for the initial estimate of the\
+                                 Gaussian.",
+                "dataType": "UInt32",
+                "count": 1,
+                "constraints": "",
+                "defaultValue": 100,
+                "accessMode": "ReadWrite"
+            },
+            "historicWindowSize": {
+                "description": "Size of sliding window of historical data\
+                                points to maintain for periodic reestimation\
+                                of the Gaussian.",
+                "dataType": "UInt32",
+                "count": 1,
+                "constraints": "",
+                "defaultValue": 8640,
+                "accessMode": "ReadWrite"
+            },
+            "reestimationPeriod": {
+                "description": "How often we re-estimate the Gaussian\
+                                distribution.",
+                "dataType": "UInt32",
+                "count": 1,
+                "constraints": "",
+                "defaultValue": 100,
+                "accessMode": "ReadWrite"
+            },
         },
         "commands": {
         },
     }
 
 
-  def __init__(self, *args, **kwargs):
-    self.anomalyLikelihood = AnomalyLikelihood()
-
+  def __init__(self,
+               claLearningPeriod = 288,
+               estimationSamples = 100,
+               historicWindowSize = 8640,
+               reestimationPeriod = 100):
+    self.anomalyLikelihood = AnomalyLikelihood(claLearningPeriod,
+                                               estimationSamples,
+                                               historicWindowSize,
+                                               reestimationPeriod)
 
   def __eq__(self, other):
     return self.anomalyLikelihood == other.anomalyLikelihood

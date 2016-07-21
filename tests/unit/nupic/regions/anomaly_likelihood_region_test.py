@@ -27,6 +27,10 @@ import random
 import numpy
 
 from nupic.regions.AnomalyLikelihoodRegion import AnomalyLikelihoodRegion
+from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
+
+from pkg_resources import resource_filename
+import csv
 
 try:
   import capnp
@@ -35,14 +39,46 @@ except ImportError:
 if capnp:
   from nupic.regions.AnomalyLikelihoodRegion_capnp import AnomalyLikelihoodRegionProto
 
+_INPUT_DATA_FILE = resource_filename(
+  "nupic.datafiles", "extra/hotgym/hotgym-anomaly.csv"
+)
 
 class AnomalyLikelihoodRegionTest(unittest.TestCase):
   """Tests for anomaly likelihood region"""
+  
+  def testParamterError(self):
+    try:
+      anomalyLikelihoodRegion = AnomalyLikelihoodRegion(estimationSamples=100,
+                                                        historicWindowSize=99)
+      self.assertEqual(False, True, "Should have failed with ValueError")
+    except ValueError:
+      pass
 
+  def testLikelihoodValues(self):
+    anomalyLikelihoodRegion = AnomalyLikelihoodRegion()
+    anomalyLikelihood = AnomalyLikelihood()
+    
+    inputs = AnomalyLikelihoodRegion.getSpec()['inputs']
+    outputs = AnomalyLikelihoodRegion.getSpec()['outputs']
+    with open (_INPUT_DATA_FILE) as f:
+      reader = csv.reader(f)
+      headers = reader.next()
+      for record in reader:
+        consumption = float(record[1])
+        anomalyScore = float(record[2])
+        likelihood1 = anomalyLikelihood.anomalyProbability(
+          consumption, anomalyScore)
+
+        inputs['rawAnomalyScore'] = numpy.array([anomalyScore])
+        inputs['value'] = numpy.array([consumption])
+        anomalyLikelihoodRegion.compute(inputs, outputs)
+        likelihood2 = outputs['anomalyLikelihood'][0]
+
+        self.assertEqual(likelihood1, likelihood2)
 
   @unittest.skipUnless(
       capnp, "pycapnp is not installed, skipping serialization test.")
-  def testWriteRead(self):
+  def testSerialization(self):
     anomalyLikelihoodRegion1 = AnomalyLikelihoodRegion()
     inputs = AnomalyLikelihoodRegion.getSpec()['inputs']
     outputs = AnomalyLikelihoodRegion.getSpec()['outputs']

@@ -4,10 +4,10 @@ struct AnomalyLikelihoodRegionProto {
   iteration @0 :UInt64;
   historicalScores @1 :List(Score);
   distribution @2 :Distribution;
-  probationaryPeriod @3 :UInt64;
-  claLearningPeriod @4 :UInt64;
-  reestimationPeriod @5 :UInt64;
-  historicWindowSize @6 :UInt64;
+  probationaryPeriod @3 :UInt32;
+  claLearningPeriod @4 :UInt32;
+  reestimationPeriod @5 :UInt32;
+  historicWindowSize @6 :UInt32;
 
   struct Score {
     value @0 :Float64;
