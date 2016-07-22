@@ -36,13 +36,12 @@ apt-get install -y \
     build-essential \
     python \
     python2.7 \
-    python2.7-dev \
-    python-pip
-pip install --upgrade --ignore-installed setuptools
-pip install wheel
+    python2.7-dev
 
-# Move into root of nupic repository
-pushd `git rev-parse --show-toplevel`
+# Install pip
+python ci/bamboo/get-pip.py --ignore-installed
+
+pip install --upgrade --ignore-installed setuptools wheel
 
 # Build installable python packages
 python setup.py bdist_wheel
@@ -53,6 +52,3 @@ pip install -f wheelhouse/ dist/nupic-`cat VERSION`*.whl
 
 # Invoke tests
 python setup.py test
-
-# Return to original path
-popd
