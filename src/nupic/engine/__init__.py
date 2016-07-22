@@ -44,7 +44,6 @@ arrayTypes = ['ByteArray',
               'BoolArray']
 
 pyRegions = (
-    ("nupic.regions.AnomalyRegion", "AnomalyRegion"),
     ("nupic.regions.AnomalyLikelihoodRegion", "AnomalyLikelihoodRegion"),
     ("nupic.regions.CLAClassifierRegion", "CLAClassifierRegion"),
     ("nupic.regions.SDRClassifierRegion", "SDRClassifierRegion"),
