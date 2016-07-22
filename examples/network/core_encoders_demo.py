@@ -111,17 +111,9 @@ def createNetwork():
     network.link("sp", "tm", "UniformLink", "")
     network.link("tm", "sp", "UniformLink", "", srcOutput="topDownOut", destInput="topDownIn")
 
-    # Add the AnomalyRegion on top of the TPRegion
-    network.addRegion("anomalyRegion", "py.AnomalyRegion", json.dumps({}))
-
-    network.link("sp", "anomalyRegion", "UniformLink", "",
-                 srcOutput="bottomUpOut", destInput="activeColumns")
-    network.link("tm", "anomalyRegion", "UniformLink", "",
-                 srcOutput="topDownOut", destInput="predictedColumns")
-
-    # Enable topDownMode to get the predicted columns output
-    network.regions['tm'].setParameter("topDownMode", True)
-    # Enable inference mode so we get predictions
+    # Enable anomalyMode so the tm calculates anomaly scores
+    network.regions['tm'].setParameter("anomalyMode", True)
+    # Enable inference mode to be able to get predictions
     network.regions['tm'].setParameter("inferenceMode", True)
 
     return network
@@ -129,7 +121,7 @@ def createNetwork():
 def runNetwork(network):
     consumptionSensor = network.regions['consumptionSensor']
     timestampSensor = network.regions['timestampSensor']
-    anomalyRegion = network.regions['anomalyRegion']
+    tmRegion = network.regions['tm']
 
     filename = resource_filename("nupic.datafiles", "extra/hotgym/rec-center-hourly.csv")
     csvReader = csv.reader(open(filename, 'r'))
@@ -149,7 +141,7 @@ def runNetwork(network):
 
         network.run(1)
 
-        anomalyScore = anomalyRegion.getOutputData('rawAnomalyScore')[0]
+        anomalyScore = tmRegion.getOutputData('anomalyScore')[0]
         print "Consumption: %s, Anomaly score: %f" % (consumptionStr, anomalyScore)
 
 if __name__ == "__main__":

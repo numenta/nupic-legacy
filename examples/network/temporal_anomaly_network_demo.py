@@ -50,7 +50,6 @@ def runNetwork(network, writer):
   sensorRegion = network.regions["sensor"]
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
   temporalPoolerRegion = network.regions["temporalPoolerRegion"]
-  anomalyRegion = network.regions["anomalyRegion"]
 
   prevPredictedColumns = []
 
@@ -60,7 +59,7 @@ def runNetwork(network, writer):
 
     # Write out the anomaly score along with the record number and consumption
     # value.
-    anomalyScore = anomalyRegion.getOutputData("rawAnomalyScore")[0]
+    anomalyScore = temporalPoolerRegion.getOutputData("rawAnomalyScore")[0]
     consumption = sensorRegion.getOutputData("sourceOut")[0]
     writer.writerow((i, consumption, anomalyScore))
 
