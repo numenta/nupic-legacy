@@ -23,21 +23,21 @@
 import tempfile
 import unittest
 import random
-
-import numpy
-
-from nupic.regions.AnomalyLikelihoodRegion import AnomalyLikelihoodRegion
-from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
-
-from pkg_resources import resource_filename
 import csv
+import numpy
 
 try:
   import capnp
 except ImportError:
   capnp = None
 if capnp:
-  from nupic.regions.AnomalyLikelihoodRegion_capnp import AnomalyLikelihoodRegionProto
+  from nupic.regions.AnomalyLikelihoodRegion_capnp import\
+    AnomalyLikelihoodRegionProto
+
+from nupic.regions.AnomalyLikelihoodRegion import AnomalyLikelihoodRegion
+from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
+from pkg_resources import resource_filename
+
 
 _INPUT_DATA_FILE = resource_filename(
   "nupic.datafiles", "extra/hotgym/hotgym-anomaly.csv"
@@ -48,7 +48,7 @@ _INPUT_DATA_FILE = resource_filename(
 
 class AnomalyLikelihoodRegionTest(unittest.TestCase):
   """Tests for anomaly likelihood region"""
-  
+
   def testParamterError(self):
     """ ensure historicWindowSize is greater than estimationSamples """
     try:
@@ -63,12 +63,12 @@ class AnomalyLikelihoodRegionTest(unittest.TestCase):
         the same likelihoods as the AnomalyLikelihood module """
     anomalyLikelihoodRegion = AnomalyLikelihoodRegion()
     anomalyLikelihood = AnomalyLikelihood()
-    
+
     inputs = AnomalyLikelihoodRegion.getSpec()['inputs']
     outputs = AnomalyLikelihoodRegion.getSpec()['outputs']
     with open (_INPUT_DATA_FILE) as f:
       reader = csv.reader(f)
-      headers = reader.next()
+      reader.next()
       for record in reader:
         consumption = float(record[1])
         anomalyScore = float(record[2])
@@ -90,12 +90,13 @@ class AnomalyLikelihoodRegionTest(unittest.TestCase):
     anomalyLikelihoodRegion1 = AnomalyLikelihoodRegion()
     inputs = AnomalyLikelihoodRegion.getSpec()['inputs']
     outputs = AnomalyLikelihoodRegion.getSpec()['outputs']
-    for i in xrange(0, 6):
+
+    for _ in xrange(0, 6):
       inputs['rawAnomalyScore'] = numpy.array([random.random()])
       inputs['value'] = numpy.array([random.random()])
       anomalyLikelihoodRegion1.compute(inputs, outputs)
       score1 = outputs['anomalyLikelihood'][0]
-      # print score1
+
     proto1 = AnomalyLikelihoodRegionProto.new_message()
     anomalyLikelihoodRegion1.write(proto1)
 
@@ -110,7 +111,7 @@ class AnomalyLikelihoodRegionTest(unittest.TestCase):
     anomalyLikelihoodRegion2 = AnomalyLikelihoodRegion.read(proto2)
     self.assertEqual(anomalyLikelihoodRegion1, anomalyLikelihoodRegion2)
 
-    for i in xrange(6, 500):
+    for _ in xrange(6, 500):
       inputs['rawAnomalyScore'] = numpy.array([random.random()])
       inputs['value'] = numpy.array([random.random()])
       anomalyLikelihoodRegion1.compute(inputs, outputs)

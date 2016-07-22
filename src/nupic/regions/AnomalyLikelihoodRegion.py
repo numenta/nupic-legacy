@@ -21,8 +21,6 @@
 
 """Implementation of region for computing anomaly likelihoods."""
 
-import numpy
-
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
 from nupic.bindings.regions.PyRegion import PyRegion
 
@@ -34,77 +32,77 @@ class AnomalyLikelihoodRegion(PyRegion):
   @classmethod
   def getSpec(cls):
     return {
-        "description": ("Region that computes anomaly likelihoods for \
-                         temporal memory."),
-        "singleNodeOnly": True,
-        "inputs": {
-            "rawAnomalyScore": {
-                "description": "The anomaly score whose \
-                                likelihood is to be computed",
-                "dataType": "Real32",
-                "count": 1,
-                "required": True,
-                "isDefaultInput": False
-            },
-            "value": {
-                "description": "The input metric value",
-                "dataType": "Real32",
-                "count": 1,
-                "required": True,
-                "isDefaultInput": False
-            },
+      "description": ("Region that computes anomaly likelihoods for \
+                       temporal memory."),
+      "singleNodeOnly": True,
+      "inputs": {
+        "rawAnomalyScore": {
+          "description": "The anomaly score whose \
+                          likelihood is to be computed",
+          "dataType": "Real32",
+          "count": 1,
+          "required": True,
+          "isDefaultInput": False
         },
-        "outputs": {
-            "anomalyLikelihood": {
-                "description": "The resultant anomaly likelihood",
-                "dataType": "Real32",
-                "count": 1,
-                "isDefaultOutput": True,
-            },
+        "value": {
+          "description": "The input metric value",
+          "dataType": "Real32",
+          "count": 1,
+          "required": True,
+          "isDefaultInput": False
         },
-        "parameters": {
-            "claLearningPeriod": {
-                "description": "The number of iterations required for the\
-                                CLA to learn the basic patterns in the dataset\
-                                and for the anomaly score to 'settle down'.",
-                "dataType": "UInt32",
-                "count": 1,
-                "constraints": "",
-                "defaultValue": 288,
-                "accessMode": "ReadWrite"
-            },
-            "estimationSamples": {
-                "description": "The number of reasonable anomaly scores\
-                                 required for the initial estimate of the\
-                                 Gaussian.",
-                "dataType": "UInt32",
-                "count": 1,
-                "constraints": "",
-                "defaultValue": 100,
-                "accessMode": "ReadWrite"
-            },
-            "historicWindowSize": {
-                "description": "Size of sliding window of historical data\
-                                points to maintain for periodic reestimation\
-                                of the Gaussian.",
-                "dataType": "UInt32",
-                "count": 1,
-                "constraints": "",
-                "defaultValue": 8640,
-                "accessMode": "ReadWrite"
-            },
-            "reestimationPeriod": {
-                "description": "How often we re-estimate the Gaussian\
-                                distribution.",
-                "dataType": "UInt32",
-                "count": 1,
-                "constraints": "",
-                "defaultValue": 100,
-                "accessMode": "ReadWrite"
-            },
+      },
+      "outputs": {
+        "anomalyLikelihood": {
+          "description": "The resultant anomaly likelihood",
+          "dataType": "Real32",
+          "count": 1,
+          "isDefaultOutput": True,
         },
-        "commands": {
+      },
+      "parameters": {
+        "claLearningPeriod": {
+          "description": "The number of iterations required for the\
+                          CLA to learn the basic patterns in the dataset\
+                          and for the anomaly score to 'settle down'.",
+          "dataType": "UInt32",
+          "count": 1,
+          "constraints": "",
+          "defaultValue": 288,
+          "accessMode": "ReadWrite"
         },
+        "estimationSamples": {
+          "description": "The number of reasonable anomaly scores\
+                           required for the initial estimate of the\
+                           Gaussian.",
+          "dataType": "UInt32",
+          "count": 1,
+          "constraints": "",
+          "defaultValue": 100,
+          "accessMode": "ReadWrite"
+        },
+        "historicWindowSize": {
+          "description": "Size of sliding window of historical data\
+                          points to maintain for periodic reestimation\
+                          of the Gaussian.",
+          "dataType": "UInt32",
+          "count": 1,
+          "constraints": "",
+          "defaultValue": 8640,
+          "accessMode": "ReadWrite"
+        },
+        "reestimationPeriod": {
+          "description": "How often we re-estimate the Gaussian\
+                          distribution.",
+          "dataType": "UInt32",
+          "count": 1,
+          "constraints": "",
+          "defaultValue": 100,
+          "accessMode": "ReadWrite"
+        },
+      },
+      "commands": {
+      },
     }
 
 
@@ -130,7 +128,7 @@ class AnomalyLikelihoodRegion(PyRegion):
   def read(cls, proto):
     anomalyLikelihoodRegion = object.__new__(cls)
     anomalyLikelihoodRegion.anomalyLikelihood = AnomalyLikelihood.read(proto)
-    
+
     return anomalyLikelihoodRegion
 
 
