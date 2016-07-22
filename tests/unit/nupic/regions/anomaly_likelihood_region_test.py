@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+# Copyright (C) 2016, Numenta, Inc.  Unless you have purchased from
 # Numenta, Inc. a separate commercial license for this software code, the
 # following terms and conditions apply:
 #
@@ -43,10 +43,14 @@ _INPUT_DATA_FILE = resource_filename(
   "nupic.datafiles", "extra/hotgym/hotgym-anomaly.csv"
 )
 
+""" Unit tests for the anomaly likelihood region """
+
+
 class AnomalyLikelihoodRegionTest(unittest.TestCase):
   """Tests for anomaly likelihood region"""
   
   def testParamterError(self):
+    """ ensure historicWindowSize is greater than estimationSamples """
     try:
       anomalyLikelihoodRegion = AnomalyLikelihoodRegion(estimationSamples=100,
                                                         historicWindowSize=99)
@@ -55,6 +59,8 @@ class AnomalyLikelihoodRegionTest(unittest.TestCase):
       pass
 
   def testLikelihoodValues(self):
+    """ test to see if the region keeps track of state correctly and produces
+        the same likelihoods as the AnomalyLikelihood module """
     anomalyLikelihoodRegion = AnomalyLikelihoodRegion()
     anomalyLikelihood = AnomalyLikelihood()
     
@@ -77,8 +83,10 @@ class AnomalyLikelihoodRegionTest(unittest.TestCase):
         self.assertEqual(likelihood1, likelihood2)
 
   @unittest.skipUnless(
-      capnp, "pycapnp is not installed, skipping serialization test.")
+    capnp, "pycapnp is not installed, skipping serialization test.")
   def testSerialization(self):
+    """ test to ensure serialization preserves the state of the region
+        correctly. """
     anomalyLikelihoodRegion1 = AnomalyLikelihoodRegion()
     inputs = AnomalyLikelihoodRegion.getSpec()['inputs']
     outputs = AnomalyLikelihoodRegion.getSpec()['outputs']
