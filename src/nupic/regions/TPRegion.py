@@ -510,7 +510,7 @@ class TPRegion(PyRegion):
       prevPredictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
     
     if self.anomalyMode:
-      prevPredictedColumns = self._getPredictedColumns()
+      prevPredictedColumns = self._tfdr.topDownCompute().copy().nonzero()[0]
 
     # Perform inference and/or learning
     tpOutput = self._tfdr.compute(buInputVector, self.learningMode, self.inferenceMode)
@@ -542,6 +542,7 @@ class TPRegion(PyRegion):
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
       
       activeColumns = buInputVector.nonzero()[0]
+
       nActiveColumns = len(activeColumns)
       if nActiveColumns > 0:
         # Sum to get the total # of columns that are active and were
@@ -872,16 +873,6 @@ class TPRegion(PyRegion):
     (e.g., file handles, etc.).
     """
     return self._getEphemeralMembersBase() + self._getEphemeralMembers()
-
-
-  def _getPredictedColumns(self):
-    """
-    Returns a numpy array of the predicted columns, each entry of the array
-    representing the column index that is predicted.
-    """
-    predState = self._tfdr.getPredictedState().reshape(-1)
-    activeColumns = numpy.where(predState == 1)[0] / self._tfdr.cellsPerColumn
-    return numpy.unique(activeColumns)
 
 
   def _checkEphemeralMembers(self):

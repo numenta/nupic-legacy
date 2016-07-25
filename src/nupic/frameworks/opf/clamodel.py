@@ -38,7 +38,6 @@ from operator import itemgetter
 import numpy
 
 from nupic.frameworks.opf.model import Model
-from nupic.algorithms.anomaly import Anomaly
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
 from nupic.encoders import MultiEncoder, DeltaEncoder
@@ -197,11 +196,6 @@ class CLAModel(Model):
     self._predictedFieldName = None
     self._numFields = None
     # init anomaly
-    windowSize = anomalyParams.get("slidingWindowSize", None)
-    mode = anomalyParams.get("mode", "pure")
-    anomalyThreshold = anomalyParams.get("autoDetectThreshold", None)
-    self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode,
-                                binaryAnomalyThreshold=anomalyThreshold)
 
     # -----------------------------------------------------------------------
     if network is not None:
@@ -220,7 +214,6 @@ class CLAModel(Model):
     # Initialize Temporal Anomaly detection parameters
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
       self._getTPRegion().setParameter("anomalyMode", True)
-      self._prevPredictedColumns = numpy.array([])
 
     # -----------------------------------------------------------------------
     # This flag, if present tells us not to train the SP network unless
@@ -648,14 +641,7 @@ class CLAModel(Model):
         )
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
-      score = self._anomalyInst.compute(
-                                   activeColumns,
-                                   self._prevPredictedColumns,
-                                   inputValue=self._input[self._predictedFieldName])
-
-      # Store the predicted columns for the next timestep.
-      predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
-      self._prevPredictedColumns = copy.deepcopy(predictedColumns)
+      score = tp.getOutputData("anomalyScore")[0]
 
       # Calculate the classifier's output and use the result as the anomaly
       # label. Stores as string of results.
@@ -1270,12 +1256,6 @@ class CLAModel(Model):
       self.__dict__.pop("_CLAModel__encoderNetInfo", None)
       self.__dict__.pop("_CLAModel__nonTemporalNetInfo", None)
       self.__dict__.pop("_CLAModel__temporalNetInfo", None)
-
-
-    # -----------------------------------------------------------------------
-    # Migrate from when Anomaly was not separate class
-    if not hasattr(self, "_anomalyInst"):
-      self._anomalyInst = Anomaly()
 
 
     # This gets filled in during the first infer because it can only be
