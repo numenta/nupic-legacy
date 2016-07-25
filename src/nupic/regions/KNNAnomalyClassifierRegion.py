@@ -28,7 +28,6 @@ import copy
 import numpy
 from nupic.bindings.regions.PyRegion import PyRegion
 from KNNClassifierRegion import KNNClassifierRegion
-from nupic.algorithms.anomaly import computeRawAnomalyScore
 from nupic.bindings.math import Random
 from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError,
                                              CLAModelInvalidArgument)
@@ -406,7 +405,17 @@ class KNNAnomalyClassifierRegion(PyRegion):
     allSPColumns = inputs["spBottomUpOut"]
     activeSPColumns = allSPColumns.nonzero()[0]
 
-    score = computeRawAnomalyScore(activeSPColumns, self._prevPredictedColumns)
+    nActiveColumns = len(activeSPColumns)
+    if nActiveColumns > 0:
+      # Sum to get the total # of columns that are active and were
+      # predicted.
+      score = numpy.in1d(activeSPColumns, self._prevPredictedColumns).sum()
+      # Get the percent of active columns that were NOT predicted, that is
+      # our anomaly score.
+      score = (nActiveColumns - score) / float(nActiveColumns)
+    else:
+      # There are no active columns.
+      score = 0.0
 
     spSize = len(allSPColumns)
 
