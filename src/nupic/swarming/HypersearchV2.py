@@ -38,7 +38,7 @@ from nupic.swarming.hypersearch.utils import sortedJSONDumpS, rApply, rCopy
 from nupic.support.configuration import Configuration
 from nupic.swarming.hypersearch.utils import clippedObj
 from nupic.swarming.hypersearch.errorcodes import ErrorCodes
-from nupic.swarming.hypersearch.experimentutils import InferenceType
+from nupic.swarming.experimentutils import InferenceType
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
 from nupic.swarming.hypersearch.utils import (runModelGivenBaseAndParams,

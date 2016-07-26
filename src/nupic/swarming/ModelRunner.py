@@ -40,7 +40,7 @@ from nupic.frameworks.opf.periodic import (PeriodicActivityMgr,
 from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
 from nupic.support.configuration import Configuration
 from nupic.swarming.hypersearch.errorcodes import ErrorCodes
-from nupic.swarming.hypersearch.experimentutils import InferenceElement
+from nupic.swarming.experimentutils import InferenceElement
 from nupic.swarming import regression
 from nupic.swarming.hypersearch import utils
 
