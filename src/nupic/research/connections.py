@@ -21,10 +21,21 @@
 
 from collections import defaultdict
 
+class Segment(object):
+
+  def __init__(self, cell, idx):
+    self.cell = cell
+    self.SegmentIdx = idx
+
+
+class Synapse(object):
+
+  def __init__(self, segment, idx):
+    self.segment = segment
+    self.SynapseIdx = idx
 
 
 class SynapseData(object):
-
 
   __slots__ = ("segment", "presynapticCell", "permanence")
 
@@ -37,6 +48,30 @@ class SynapseData(object):
 
   def __eq__(self, other):
     return (self.segment, self.presynapticCell, self.permanence) == other
+
+
+class SegmentData(object):
+  
+  def __init__(self, flatIdx):
+    self.synapses = defaultdict(dict)
+    self.numDestroyedSynapses = 0
+    self.destroyed = False
+    self.lastUsedIteration = -1
+    self.flatIdx = flatIdx
+
+
+class CellData(object):
+
+  def __init__(self):
+    self.segments = defaultdict(dict)
+    self.numDestroyedSegments = 0
+
+
+class SegmentOverlap(object):
+
+  def __init__(self, segment, overlap):
+    self.segment = segment
+    self.overlap = overlap
 
 
 
@@ -55,40 +90,34 @@ class Connections(object):
     self.maxSegmentsPerCell = maxSegmentsPerCell
     self.maxSynapsesPerSegment = maxSynapsesPerSegment
 
-    # Mappings
-    self._segments = dict()
-    self._synapses = dict()
-
-    # Indexes into the mappings (for performance)
-    self._segmentsForCell = dict()
-    self._synapsesForSegment = dict()
-    self._synapsesForPresynapticCell = defaultdict(dict)
+    self._cells = dict()
 
     # Index of the next segment to be created
     self._nextSegmentIdx = 0
     # Index of the next synapse to be created
     self._nextSynapseIdx = 0
+    self._iteration = 0
 
 
   def cellForSegment(self, segment):
     """ Returns the cell that a segment belongs to.
 
-    @param segment (int) Segment index
+    @param segment (Segment) Segment index
 
     @return (int) Cell index
     """
-    return self._segments[segment]
+    return segment.cell.idx
 
 
   def columnForSegment(self, segment, cellsPerColumn):
     """ Returns the column that a segment's presynapticCell belongs to
 
-    @param segment        (int) Segment index
+    @param segment        (Segment) Segment
     @param cellsPerColumn (int) Number of cells in a column in the tm
 
     @return (int)
     """
-    return self._segments[segment] / cellsPerColumn
+    return segment.cell.idx / cellsPerColumn
 
 
   def segmentsForCell(self, cell):
@@ -100,10 +129,10 @@ class Connections(object):
     """
     self._validateCell(cell)
 
-    if not cell in self._segmentsForCell:
+    if not cell in self._cells:
       return set()
 
-    return self._segmentsForCell[cell]
+    return self._cells[cell].segments
 
 
   def dataForSynapse(self, synapse):
@@ -114,7 +143,11 @@ class Connections(object):
     @return (SynapseData) Synapse data
     """
 
-    return self._synapses[synapse]
+    return self._cells[synapse.segment.cell.idx].segments\
+                      [synapse.segment.idx].synapses[synapse.idx]
+
+  def dataForSegment(self, segment):
+    return self._cells[segment.cell.idx].segments[segment.idx]
 
 
   def synapsesForSegment(self, segment):
@@ -124,12 +157,11 @@ class Connections(object):
 
     @return (set) Synapse indices
     """
-    self._validateSegment(segment)
-
-    if not segment in self._synapsesForSegment:
-      return set()
-
-    return self._synapsesForSegment[segment]
+    segmentData = self.dataForSegment(segment)
+    if segmentData.destroyed:
+      raise ValueError("Attempting to access destroyed segment's synapses")
+    
+    return [syn for syn in segmentData.synapses if not syn.destroyed]
 
 
   def synapsesForPresynapticCell(self, presynapticCell):
