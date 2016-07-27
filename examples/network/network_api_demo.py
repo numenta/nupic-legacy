@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2015, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2015-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -38,7 +38,7 @@ _SEED = 1956  # the random seed used throughout
 _INPUT_FILE_PATH = resource_filename(
   "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
 )
-_OUTPUT_PATH = "network-demo-output.csv"
+_OUTPUT_PATH = "network-demo-anomaly-output.csv"
 _NUM_RECORDS = 2000
 
 # Config field for SPRegion
@@ -192,9 +192,10 @@ def runNetwork(network, writer):
 
     # Write out the anomaly likelihood along with the record number and consumption
     # value.
-    anomalyLikelihood = anomalyLikelihoodRegion.getOutputData("anomalyLikelihood")[0]
     consumption = sensorRegion.getOutputData("sourceOut")[0]
-    writer.writerow((i, consumption, anomalyLikelihood))
+    anomalyScore = temporalPoolerRegion.getOutputData("anomalyScore")[0]
+    anomalyLikelihood = anomalyLikelihoodRegion.getOutputData("anomalyLikelihood")[0]
+    writer.writerow((i, consumption, anomalyScore, anomalyLikelihood))
 
 
 if __name__ == "__main__":

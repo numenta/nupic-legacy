@@ -671,7 +671,7 @@ class CLAModel(Model):
 
     Parameters:
     -------------------------------------------------------------------
-    patternNZ:  The input the CLA Classifier as a list of active input indices
+    patternNZ: The input to the CLA Classifier as a list of active input indices
     inputTSRecordIdx: The index of the record as computed from the timestamp
                   and aggregation interval. This normally increments by 1
                   each time unless there are missing records. If there is no
