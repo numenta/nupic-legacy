@@ -22,6 +22,7 @@
 import os
 import numpy
 
+from nupic.algorithms import anomaly
 from nupic.research import TP
 from nupic.research import TP10X2
 from nupic.research import TP_shim
@@ -541,21 +542,9 @@ class TPRegion(PyRegion):
       size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
       
-      activeColumns = buInputVector.nonzero()[0]
-
-      nActiveColumns = len(activeColumns)
-      if nActiveColumns > 0:
-        # Sum to get the total # of columns that are active and were
-        # predicted.
-        score = numpy.in1d(activeColumns, prevPredictedColumns).sum()
-        # Get the percent of active columns that were NOT predicted, that is
-        # our anomaly score.
-        score = (nActiveColumns - score) / float(nActiveColumns)
-      else:
-        # There are no active columns.
-        score = 0.0
-      
-      outputs['anomalyScore'][:] = score
+      activeColumns = buInputVector.nonzero()[0]  
+      outputs['anomalyScore'][:] = anomaly.computeRawAnomalyScore(
+        activeColumns, prevPredictedColumns)
 
     if self.computePredictedActiveCellIndices:
       # Reshape so we are dealing with 1D arrays
