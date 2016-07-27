@@ -26,7 +26,6 @@ Most of it is temporarily copied from nupic.support.
 
 from __future__ import with_statement
 
-
 from copy import copy
 import errno
 import logging

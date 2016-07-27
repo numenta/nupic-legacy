@@ -27,8 +27,8 @@ scripts.
 import random
 
 import numpy
-from nupic.support.configuration import Configuration
 
+from nupic.swarming.hypersearch.support import Configuration
 
 class PermuteVariable(object):
   """The base class of all PermuteXXX classes that can be used from within

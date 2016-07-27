@@ -20,8 +20,12 @@
 # ----------------------------------------------------------------------
 
 import functools
+import logging
+from  collections import namedtuple
 
-from nupic.swarming.hypersearch.utils import PeriodicActivityRequest
+
+PeriodicActivityRequest = namedtuple("PeriodicActivityRequest",
+                                     ("repeating", "period", "cb"))
 
 
 
