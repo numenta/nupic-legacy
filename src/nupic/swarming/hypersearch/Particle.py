@@ -25,6 +25,7 @@ import copy
 import pprint
 import random
 
+from nupic.swarming.hypersearch.permutation_helpers import PermuteChoices
 
 class Particle(object):
   """Construct a particle. Each particle evaluates one or more models
