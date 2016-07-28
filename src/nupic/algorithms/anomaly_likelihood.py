@@ -21,7 +21,7 @@
 
 """
 This module analyzes and estimates the distribution of averaged anomaly scores
-from a CLA model. Given a new anomaly score `s`, estimates `P(score >= s)`.
+from a given model. Given a new anomaly score `s`, estimates `P(score >= s)`.
 
 The number `P(score >= s)` represents the likelihood of the current state of
 predictability. For example, a likelihood of 0.01 or 1% means we see this much
@@ -73,20 +73,24 @@ class AnomalyLikelihood(object):
 
 
   def __init__(self,
-               claLearningPeriod=288,
+               claLearningPeriod=None,
+               learningPeriod=288,
                estimationSamples=100,
                historicWindowSize=8640,
                reestimationPeriod=100):
     """
     NOTE: Anomaly likelihood scores are reported at a flat 0.5 for
-    claLearningPeriod + estimationSamples iterations.
+    learningPeriod + estimationSamples iterations.
 
-    @param claLearningPeriod - (int) the number of iterations required for the
-      CLA to learn the basic patterns in the dataset and for the anomaly score
-      to 'settle down'. The default is based on empirical observations but in
-      reality this could be larger for more complex domains. The downside if
-      this is too large is that real anomalies might get ignored and not
-      flagged.
+    claLearningPeriod and learningPeriod are specifying the same variable,
+    although claLearningPeriod is a deprecated name for it.
+
+    @param learningPeriod (claLeraningPeriod: deprecated) - (int) the number of
+      iterations required for the algorithm to learn the basic patterns in the
+      dataset and for the anomaly score to 'settle down'. The default is based
+      on empirical observations but in reality this could be larger for more
+      complex domains. The downside if this is too large is that real anomalies
+      might get ignored and not flagged.
 
     @param estimationSamples - (int) the number of reasonable anomaly scores
       required for the initial estimate of the Gaussian. The default of 100
@@ -111,9 +115,15 @@ class AnomalyLikelihood(object):
     self._iteration = 0
     self._historicalScores = collections.deque(maxlen=historicWindowSize)
     self._distribution = None
-    self._probationaryPeriod = claLearningPeriod + estimationSamples
-    self._claLearningPeriod = claLearningPeriod
 
+
+    if claLearningPeriod != None:
+      print "claLearningPeriod is deprecated, use learningPeriod instead."
+      self._learningPeriod = claLearningPeriod
+    else:
+      self._learningPeriod = learningPeriod
+
+    self._probationaryPeriod = self._learningPeriod + estimationSamples
     self._reestimationPeriod = reestimationPeriod
 
 
@@ -124,7 +134,7 @@ class AnomalyLikelihood(object):
             self._historicalScores == o._historicalScores and
             self._distribution == o._distribution and
             self._probationaryPeriod == o._probationaryPeriod and
-            self._claLearningPeriod == o._claLearningPeriod and
+            self._learningPeriod == o._learningPeriod and
             self._reestimationPeriod == o._reestimationPeriod)
     # pylint: enable=W0212
 
@@ -135,7 +145,7 @@ class AnomalyLikelihood(object):
       self._historicalScores,
       self._distribution,
       self._probationaryPeriod,
-      self._claLearningPeriod,
+      self._learningPeriod,
       self._reestimationPeriod) )
 
 
@@ -165,9 +175,9 @@ class AnomalyLikelihood(object):
     @param numIngested - (int) number of data points that have been added to the
       sliding window of historical data points.
     @param windowSize - (int) size of sliding window of historical data points.
-    @param learningPeriod - (int) the number of iterations required for the CLA
-      to learn the basic patterns in the dataset and for the anomaly score to
-      'settle down'.
+    @param learningPeriod - (int) the number of iterations required for the
+      algorithm to learn the basic patterns in the dataset and for the anomaly
+      score to 'settle down'.
     """
     numShiftedOut = max(0, numIngested - windowSize)
     return min(numIngested, max(0, learningPeriod - numShiftedOut))
@@ -216,7 +226,7 @@ class AnomalyLikelihood(object):
       anomalyLikelihood._distribution = None
 
     anomalyLikelihood._probationaryPeriod = proto.probationaryPeriod
-    anomalyLikelihood._claLearningPeriod = proto.claLearningPeriod
+    anomalyLikelihood._learningPeriod = proto.learningPeriod
     anomalyLikelihood._reestimationPeriod = proto.reestimationPeriod
     # pylint: enable=W0212
 
@@ -267,7 +277,7 @@ class AnomalyLikelihood(object):
         pHistLikelihoods[i] = float(likelihood)
 
     proto.probationaryPeriod = self._probationaryPeriod
-    proto.claLearningPeriod = self._claLearningPeriod
+    proto.learningPeriod = self._learningPeriod
     proto.reestimationPeriod = self._reestimationPeriod
     proto.historicWindowSize = self._historicalScores.maxlen
 
@@ -300,7 +310,7 @@ class AnomalyLikelihood(object):
         numSkipRecords = self._calcSkipRecords(
           numIngested=self._iteration,
           windowSize=self._historicalScores.maxlen,
-          learningPeriod=self._claLearningPeriod)
+          learningPeriod=self._learningPeriod)
 
         _, _, self._distribution = estimateAnomalyLikelihoods(
           self._historicalScores,

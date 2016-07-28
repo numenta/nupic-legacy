@@ -61,9 +61,9 @@ class AnomalyLikelihoodRegion(PyRegion):
         },
       },
       "parameters": {
-        "claLearningPeriod": {
+        "learningPeriod": {
           "description": "The number of iterations required for the\
-                          CLA to learn the basic patterns in the dataset\
+                          algorithm to learn the basic patterns in the dataset\
                           and for the anomaly score to 'settle down'.",
           "dataType": "UInt32",
           "count": 1,
@@ -107,14 +107,15 @@ class AnomalyLikelihoodRegion(PyRegion):
 
 
   def __init__(self,
-               claLearningPeriod = 288,
+               learningPeriod = 288,
                estimationSamples = 100,
                historicWindowSize = 8640,
                reestimationPeriod = 100):
-    self.anomalyLikelihood = AnomalyLikelihood(claLearningPeriod,
-                                               estimationSamples,
-                                               historicWindowSize,
-                                               reestimationPeriod)
+    self.anomalyLikelihood = AnomalyLikelihood(
+      learningPeriod = learningPeriod,
+      estimationSamples = estimationSamples,
+      historicWindowSize = historicWindowSize,
+      reestimationPeriod = reestimationPeriod)
 
   def __eq__(self, other):
     return self.anomalyLikelihood == other.anomalyLikelihood

@@ -5,7 +5,7 @@ struct AnomalyLikelihoodRegionProto {
   historicalScores @1 :List(Score);
   distribution @2 :Distribution;
   probationaryPeriod @3 :UInt32;
-  claLearningPeriod @4 :UInt32;
+  learningPeriod @4 :UInt32;
   reestimationPeriod @5 :UInt32;
   historicWindowSize @6 :UInt32;
 
