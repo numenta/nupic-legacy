@@ -54,7 +54,7 @@ class SynapseData(object):
 class SegmentData(object):
   
   def __init__(self, flatIdx):
-    self.synapses = defaultdict(dict)
+    self.synapses = []
     self.numDestroyedSynapses = 0
     self.destroyed = False
     self.lastUsedIteration = -1
@@ -64,7 +64,7 @@ class SegmentData(object):
 class CellData(object):
 
   def __init__(self):
-    self.segments = defaultdict(dict)
+    self.segments = []
     self.numDestroyedSegments = 0
 
 
@@ -92,11 +92,12 @@ class Connections(object):
     self.maxSynapsesPerSegment = maxSynapsesPerSegment
 
     self._cells = dict()
+    self._synapsesForPresynapticCell = dict()
+    self._segmentForFlatIdx = []
 
-    # Index of the next segment to be created
-    self._nextSegmentIdx = 0
-    # Index of the next synapse to be created
-    self._nextSynapseIdx = 0
+    self._numSegments = 0
+    self._numSynapses = 0
+    self._nextFlatIdx = 0
     self._iteration = 0
 
 
@@ -107,7 +108,7 @@ class Connections(object):
 
     @return (int) Cell index
     """
-    return segment.cell.idx
+    return segment.cell
 
 
   def columnForSegment(self, segment, cellsPerColumn):
@@ -118,7 +119,7 @@ class Connections(object):
 
     @return (int)
     """
-    return segment.cell.idx / cellsPerColumn
+    return segment.cell / cellsPerColumn
 
 
   def segmentsForCell(self, cell):
@@ -131,12 +132,12 @@ class Connections(object):
     self._validateCell(cell)
 
     if not cell in self._cells:
-      return set()
+      return list()
 
     return self._cells[cell].segments
 
 
-  def dataForSynapse(self, synapse):
+  def _dataForSynapse(self, synapse):
     """ Returns the data for a synapse.
 
     @param synapse (int) Synapse index
@@ -144,11 +145,11 @@ class Connections(object):
     @return (SynapseData) Synapse data
     """
 
-    return self._cells[synapse.segment.cell.idx].segments\
+    return self._cells[synapse.segment.cell].segments\
                       [synapse.segment.idx].synapses[synapse.idx]
 
-  def dataForSegment(self, segment):
-    return self._cells[segment.cell.idx].segments[segment.idx]
+  def _dataForSegment(self, segment):
+    return self._cells[segment.cell].segments[segment.idx]
 
 
   def synapsesForSegment(self, segment):
@@ -158,7 +159,7 @@ class Connections(object):
 
     @return (set) Synapse indices
     """
-    segmentData = self.dataForSegment(segment)
+    segmentData = self._dataForSegment(segment)
     if segmentData.destroyed:
       raise ValueError("Attempting to access destroyed segment's synapses")
     
@@ -182,10 +183,13 @@ class Connections(object):
 
     @return (int) New segment index
     """
-    while self.numSegments(cell) >= self.maxSegmentsPerCell:
-      self.destroySegment(self.leastRecentlyUsedSegment(cell))
+    if not cell in self._cells:
+      self._cells[cell] = CellData()
 
-    cellData = self._cells[cell.idx]
+    while self.numSegments(cell) >= self.maxSegmentsPerCell:
+      self.destroySegment(self._leastRecentlyUsedSegment(cell))
+
+    cellData = self._cells[cell]
     segment = Segment(-1, cell)
 
     if cellData.numDestroyedSegments > 0:
@@ -194,18 +198,17 @@ class Connections(object):
         if cellData.segments[i].destroyed:
           segment.idx = i
           found = True
+
+      if not found:
+        raise AssertionError("Failed to find a destroyed segment.")
        
-
-
-    # Add data
-    segment = self._nextSegmentIdx
-    self._segments[segment] = cell
-    self._nextSegmentIdx += 1
-
-    # Update indexes
-    if not cell in self._segmentsForCell:
-      self._segmentsForCell[cell] = set()
-    self._segmentsForCell[cell].add(segment)
+      cellData.segments[segment.idx].destroyed = False
+      self.numDestroyedSegments -= 1
+    else:
+      segment.idx = len(cellData.segments)
+      cellData.segments.append(SegmentData(self._nextFlatIdx))
+      self._segmentForFlatIdx.append(segment)
+      self._nextFlatIdx += 1
 
     return segment
 
@@ -215,15 +218,31 @@ class Connections(object):
 
     @param segment (int) Segment index
     """
-    synapses = set(self.synapsesForSegment(segment))
-    for synapse in synapses:
-      self.destroySynapse(synapse)
+    segmentData = self._dataForSegment(segment)
 
-    cell = self._segments[segment]
-    del self._segments[segment]
+    if not segment.destroyed:
+      for i in xrange(len(segmentData.synapses)):
+        synapse = Synapse(i, segment)
+        synapseData = self._dataForSynapse(synapse) #dont think this is neeeded
 
-    # Update indexes
-    self._segmentsForCell[cell].remove(segment)
+        if not synData.destroyed:
+          cell = synapseData.presynapticCell
+          presynapticSynapses = self._synapsesForPresynapticCell[cell]
+          
+          for i in xrange(len(presynapticSynapses)):
+            if presynapticSynapsaes[i] == synapse:
+              del presynapticSynpses[i]
+
+              if len(presynapticSynapses) == 0:
+                del self._synapsesForPresynapticCell[cell]
+              self._numSynapses -= 1
+              break
+
+      segmentData.synapses = []
+      segmentData.numDestroyedSynapses = 0
+      segmentData.destroyed = True
+      self._cells[segment.cell].numDestroyedSegments += 1
+      self._numSegments -= 1
 
 
   def createSynapse(self, segment, presynapticCell, permanence):
@@ -235,20 +254,38 @@ class Connections(object):
 
     @return (int) Synapse index
     """
-    self._validateSegment(segment)
+    
+    while numSynapses(segment) >= self.maxSynapsesPerSegment:
+      self.destroySynapse(self._minPermanenceSynapse(segment))
 
-    # Add data
-    synapse = self._nextSynapseIdx
-    synapseData = SynapseData(segment, presynapticCell, permanence)
-    self._synapses[synapse] = synapseData
-    self._nextSynapseIdx += 1
+    segmentData = self._dataForSegment(segment)
+    synapseIdx = -1
 
-    # Update indexes
-    if not len(self.synapsesForSegment(segment)):
-      self._synapsesForSegment[segment] = set()
-    self._synapsesForSegment[segment].add(synapse)
+    if segmentData.numDestroyedSynapses > 0:
+      found = False
+      for i in xrange(len(segmentData.synapses)):
+        if segmentData.synapses[i].destroyed:
+          synapseIdx = i
+          found = True
+          break
 
-    self._synapsesForPresynapticCell[presynapticCell][synapse] = synapseData
+      if not found:
+        raise AssertionError("Failed to find a destroyed synapse.")
+
+      segmentData.synapses[synapseIdx].destroyed = False
+      segmentData.numDestroyedSynapses -= 1
+
+      segmentDAta.synapses[synapseIdx].presynapticCell = presynapticCell
+      segmentDAta.synapses[synapseIdx].permanence = permanence
+
+    else:
+      synapseIdx = len(segmentData.synapses)
+      segmentData.synapses.append(
+        SynapseData(segment, presynapticCell, permanence))
+    
+    synapse = Synapse(synapseIdx, segment)
+    self._synapsesForPresynapticCell[presynapticCell].append(synapse)
+    self._numSynapses += 1
 
     return synapse
 
@@ -258,13 +295,23 @@ class Connections(object):
 
     @param synapse (int) Synapse index
     """
-    data = self._synapses[synapse]
-    del self._synapses[synapse]
+    synapseData = self._dataForSynapse(synapse)
 
-    # Update indexes
-    self._synapsesForSegment[data.segment].remove(synapse)
-    del self._synapsesForPresynapticCell[data.presynapticCell][synapse]
+    if not synapseData.destroyed:
+      presynapticSynapses = self._synapsesForPresynapticCell(
+        synapseData.presynapticCell)
+      
+      for i in xrange(len(presynapticSynapses)):
+        if presynapticSynapsaes[i] == synapse:
+          del presynapticSynpses[i]
 
+          if len(presynapticSynapses) == 0:
+            del self._synapsesForPresynapticCell[cell]
+
+          synapseData.destroyed = True
+          self._dataForSegment(synapse.segment).numDestroyedSynapses += 1
+          self._numSynapses -= 1
+          break
 
   def updateSynapsePermanence(self, synapse, permanence):
     """ Updates the permanence for a synapse.
@@ -273,14 +320,7 @@ class Connections(object):
     @param permanence (float) New permanence
     """
 
-    data = self._synapses[synapse]
-    newData = SynapseData(data.segment,
-                          data.presynapticCell,
-                          permanence)
-    self._synapses[synapse] = newData
-
-    # Update indexes
-    self._synapsesForPresynapticCell[newData.presynapticCell][synapse] = newData
+    self._dataForSynapse(synapse).permanence = permanence
 
 
   def computeActivity(self, activeInput, activePermanenceThreshold,
@@ -335,13 +375,12 @@ class Connections(object):
 
   def numSegments(self):
     """ Returns the number of segments. """
-    return len(self._segments)
+    return self._numSegments
 
 
   def numSynapses(self):
     """ Returns the number of synapses. """
-    return len(self._synapses)
-
+    return self._numSynapses
 
   def write(self, proto):
     """ Writes serialized data to proto object
@@ -443,25 +482,6 @@ class Connections(object):
     @param other (Connections) Connections instance to compare to
     """
     return not self.__eq__(other)
-
-
-  def _synapseSetForSynapses(self, synapses):
-    """ Returns a set containing synapse data for synapses.
-    Rounds synapse permanence values for comparison.
-    (Helper method used in __eq__.)
-
-    @param synapses (set) Synapse indicies
-
-    @return (set) Synapse data set
-    """
-    synapseSet = set()
-
-    for synapse in synapses:
-      synapseData = self.dataForSynapse(synapse)
-      synapseSet.add((synapseData.presynapticCell,
-                      round(synapseData.permanence, 7)))
-
-    return synapseSet
 
 
   def _validateCell(self, cell):
