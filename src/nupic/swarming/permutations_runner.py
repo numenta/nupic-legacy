@@ -26,23 +26,17 @@ import collections
 import imp
 import csv
 from datetime import datetime, timedelta
-import os
 import cPickle as pickle
-import pprint
-import shutil
-import signal
-import sys
 import time
 import subprocess
-import tempfile
-import uuid
 
-from nupic.swarming import object_json as json
+from nupic.swarming.hypersearch import object_json as json
+
 import nupic.database.ClientJobsDAO as cjdao
 from nupic.swarming import HypersearchWorker
-from nupic.swarming.hypersearch import utils
 from nupic.swarming.HypersearchV2 import HypersearchV2
 from nupic.swarming.exp_generator.ExpGenerator import expGenerator
+from nupic.swarming.utils import *
 
 
 g_currentVerbosityLevel = 0
@@ -1025,7 +1019,7 @@ class _HyperSearchRunner(object):
                                                           "description.py"))
         model_description = mod.descriptionInterface.getModelDescription()
         fd = open(os.path.join(outDir, "model_params.py"), "wb")
-        fd.write("%s\nMODEL_PARAMS = %s" % (utils.getCopyrightHead(),
+        fd.write("%s\nMODEL_PARAMS = %s" % (getCopyrightHead(),
                                             pprint.pformat(model_description)))
         fd.close()
 
