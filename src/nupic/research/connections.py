@@ -23,16 +23,17 @@ from collections import defaultdict
 
 class Segment(object):
 
-  def __init__(self, cell, idx):
-    self.cell = cell
+  def __init__(self, idx, cell):
     self.SegmentIdx = idx
+    self.cell = cell
 
 
 class Synapse(object):
 
-  def __init__(self, segment, idx):
-    self.segment = segment
+  def __init__(self, idx, segment):
     self.SynapseIdx = idx
+    self.segment = segment
+    
 
 
 class SynapseData(object):
@@ -181,7 +182,20 @@ class Connections(object):
 
     @return (int) New segment index
     """
-    self._validateCell(cell)
+    while self.numSegments(cell) >= self.maxSegmentsPerCell:
+      self.destroySegment(self.leastRecentlyUsedSegment(cell))
+
+    cellData = self._cells[cell.idx]
+    segment = Segment(-1, cell)
+
+    if cellData.numDestroyedSegments > 0:
+      found = False
+      for i in xrange(len(cellData.segments)):
+        if cellData.segments[i].destroyed:
+          segment.idx = i
+          found = True
+       
+
 
     # Add data
     segment = self._nextSegmentIdx
