@@ -24,7 +24,7 @@ from collections import defaultdict
 class Segment(object):
 
   def __init__(self, idx, cell):
-    self.SegmentIdx = idx
+    self.segmentIdx = idx
     self.cell = cell
 
 
@@ -33,7 +33,6 @@ class Synapse(object):
   def __init__(self, idx, segment):
     self.SynapseIdx = idx
     self.segment = segment
-    
 
 
 class SynapseData(object):
@@ -361,7 +360,7 @@ class Connections(object):
 
   def computeActivity(self, activeInput, activePermanenceThreshold,
                       activeSynapseThreshold, matchingPermananceThreshold,
-                      matchingSynapseThreshold):
+                      matchingSynapseThreshold, recordIteration):
     """ Computes active and matching segments given the current active input.
 
     @param activeInput                 (set)   currently active cells
@@ -382,11 +381,12 @@ class Connections(object):
       activeSegments and matchingSegments are sorted by the cell they are on.
     """
 
-    numActiveSynapsesForSegment = [0] * self._nextSegmentIdx
-    numMatchingSynapsesForSegment = [0] * self._nextSegmentIdx
+    numActiveSynapsesForSegment = [0] * self._nextFlatIdx
+    numMatchingSynapsesForSegment = [0] * self._nextFlatIdx
 
     for cell in activeInput:
-      for synapseData in self.synapsesForPresynapticCell(cell).values():
+      for synapse in self.synapsesForPresynapticCell(cell):
+        synapseData = self.dataForSynapse(synapse)
         segment = synapseData.segment
         permanence = synapseData.permanence
         if permanence >= matchingPermananceThreshold:
@@ -394,17 +394,29 @@ class Connections(object):
           if synapseData.permanence >= activePermanenceThreshold:
             numActiveSynapsesForSegment[segment] += 1
 
+    if recordIteration:
+      self._iteration += 1
+
     activeSegments = []
     matchingSegments = []
-    for i in xrange(self._nextSegmentIdx):
+    for i in xrange(self._nextFlatIdx):
       if numActiveSynapsesForSegment[i] >= activeSynapseThreshold:
-        activeSegments.append(i)
+        segmentOverlap = SegmentOverlap(self._segmentForFlatIdx[i],
+                                        numActiveSynapsesForSegment[i])
+        activeSegments.append(segmentOverlap)
 
-    for i in xrange(self._nextSegmentIdx):
+    for i in xrange(self._nextFlatIdx):
       if numMatchingSynapsesForSegment[i] >= matchingSynapseThreshold:
-        matchingSegments.append(i)
+        segmentOverlap = SegmentOverlap(self._segmentForFlatIdx[i],
+                                        numMatchingSynapsesForSegment[i])
+        matchingSegments.append(segmentOverlap)
+    
 
-    segCmp = lambda a, b: self._segments[a] - self._segments[b]
+    tmp = self.cell - other.cell
+    return tmp if not tmp == 0 else self.segmentIdx - other.segmentIdx
+
+    segCmp = lambda a, b: (a.cell - b.cell if not a.cell - b.cell == 0
+                           else a.segmentIdx - b.segmentIdx)
     return (sorted(activeSegments, cmp = segCmp),
             sorted(matchingSegments, cmp = segCmp))
 
