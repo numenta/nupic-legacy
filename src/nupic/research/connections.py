@@ -458,20 +458,27 @@ class Connections(object):
     """
     protoCells = proto.init('cells', self.numCells)
 
-    for cell in xrange(self.numCells):
-      segments = self.segmentsForCell(cell)
-      protoSegments = protoCells[cell].init('segments', len(segments))
+    for i in xrange(self.numCells):
+      if not i in self._cells:
+        segments = []
+      else:
+        segments = self._cells[i].segments
+      protoSegments = protoCells[i].init('segments', len(segments))
 
-      for j, segment in enumerate(segments):
-        synapses = self.synapsesForSegment(segment)
+      for j in xrange(len(segments)):
+        synapses = segments[j].synapses
         protoSynapses = protoSegments[j].init('synapses', len(synapses))
+        protoSegments[j].destroyed = segments[j].destroyed
+        protoSegments[j].lastUsedIteration = segments[j].lastUsedIteration
 
-        for k, synapse in enumerate(synapses):
-          synapseData = self.dataForSynapse(synapse)
-          protoSynapse = protoSynapses[k]
+        for k in xrange(len(synapses)):
+          protoSynapses[k].presynapticCell = synapses[k].presynapticCell
+          protoSynapses[k].permanence = synapses[k].permanence
+          protoSynapses[k].destroyed = synapses[k].destroyed
 
-          protoSynapse.presynapticCell = synapseData.presynapticCell
-          protoSynapse.permanence = synapseData.permanence
+    proto.maxSegmentsPerCell = self.maxSegmentsPerCell
+    proto.maxSynapsesPerSegment = self.maxSynapsesPerSegment
+    proto.iteration = self._iteration
 
 
 
@@ -484,22 +491,47 @@ class Connections(object):
     @return (Connections) Connections instance
     """
     protoCells = proto.cells
-    connections = cls(len(protoCells))
+    connections = cls(len(protoCells),
+                      proto.maxSegmentsPerCell,
+                      proto.maxSynapsesPerSegment)
 
     for i in xrange(len(protoCells)):
       protoCell = protoCells[i]
       protoSegments = protoCell.segments
+      connections._cells[i] = CellData()
+      segments = connections._cells[i].segments
 
       for j in xrange(len(protoSegments)):
-        protoSegment = protoSegments[j]
-        protoSynapses = protoSegment.synapses
-        segment = connections.createSegment(i)
+        segmentData = SegmentData(connections._nextFlatIdx)
+        segmentData.destroyed = protoSegments[j].destroyed
+        segmentData.lastUsedIteration = protoSegments[j].lastUsedIteration
+        connections._nextFlatIdx += 1
+        segments.append(segmentData)
+
+        connections._segmentForFlatIdx.append(Segment(j, i))
+
+        protoSynapses = protoSegments[j].synapses
+        synapses = segments[j].synapses
 
         for k in xrange(len(protoSynapses)):
-          protoSynapse = protoSynapses[k]
-          connections.createSynapse(segment,
-                                    int(protoSynapse.presynapticCell),
-                                    protoSynapse.permanence)
+          presynapticCell = protoSynapses[k].presynapticCell
+          synapseData = SynapseData(presynapticCell,
+                                    protoSynapses[k].permanence)
+          synapseData.destroyed = protoSynapses[k].destroyed
+
+          synapses.append(synapseData)
+
+          if synapseData.destroyed:
+            segments[j].numDestroyedSynapses += 1
+          else:
+            connections._numSynapses += 1
+
+        if segmentData.destroyed:
+          connections._cells[i].numDestroyedSegments += 1
+        else:
+          connections._numSegments += 1
+
+    connections._iteration = proto.iteration
 
     return connections
 

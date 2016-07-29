@@ -592,13 +592,9 @@ class TemporalMemory(object):
       permanence = synapseData.permanence
 
       if binSearch(prevActiveCells, synapseData.presynapticCell) != -1:
-        print "adapted segment {} on cell {} +".format(segment.idx, segment.cell)
         permanence += permanenceIncrement
       else:
-        print "adapted segment {} on cell {} -".format(segment.idx, segment.cell)
         permanence -= permanenceDecrement
-
-      print permanence
 
       # Keep permanence within min/max bounds
       permanence = max(0.0, min(1.0, permanence))
@@ -728,9 +724,23 @@ class TemporalMemory(object):
     self._random.write(proto.random)
 
     proto.activeCells = list(self.activeCells)
-    proto.activeSegments = list(self.activeSegments)
     proto.winnerCells = list(self.winnerCells)
-    proto.matchingSegments = list(self.matchingSegments)
+    for i, active in enumerate(self.activeSegments):
+      activeSegmentOverlaps = \
+        proto.init('activeSegmentOverlaps', len(self.activeSegments))
+
+      activeSegmentOverlaps[i].cell = active.segment.cell
+      activeSegmentOverlaps[i].segment = active.segment.idx
+      activeSegmentOverlaps[i].overlap = active.overlap
+
+    for i, matching in enumerate(self.matchingSegments):
+      matchingSegmentOverlaps = \
+        proto.init('matchingSegmentOverlaps', len(self.matchingSegments))
+
+      matchingSegmentOverlaps[i].cell = matching.segment.cell
+      matchingSegmentOverlaps[i].segment = matching.segment.idx
+      matchingSegmentOverlaps[i].overlap = matching.overlap
+
 
 
   @classmethod
