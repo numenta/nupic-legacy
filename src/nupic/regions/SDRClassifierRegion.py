@@ -191,7 +191,7 @@ class SDRClassifierRegion(PyRegion):
           accessMode='ReadWrite',
           dataType='Byte',
           count=0,
-          constraints='enum: py'),
+          constraints='enum: py, cpp'),
 
         verbosity=dict(
           description='An integer that controls the verbosity level, '
@@ -246,8 +246,8 @@ class SDRClassifierRegion(PyRegion):
 
   def initialize(self, inputs, outputs):
     """
-    Is called once by NuPIC before the first call to compute(). Initializes self._sdrClassifier
-    is it is not already initialized.
+    Is called once by NuPIC before the first call to compute().
+    Initializes self._sdrClassifier is it is not already initialized.
     @param inputs -- inputs of the classifier region
     @param outputs -- outputs of the classifier region
     """

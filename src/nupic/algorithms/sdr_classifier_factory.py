@@ -22,6 +22,7 @@
 """Module providing a factory for instantiating a SDR classifier."""
 
 from nupic.algorithms.sdr_classifier import SDRClassifier
+from nupic.bindings.algorithms import SDRClassifier as FastSDRClassifier
 from nupic.support.configuration import Configuration
 
 
@@ -45,9 +46,11 @@ class SDRClassifierFactory(object):
       impl = Configuration.get('nupic.opf.sdrClassifier.implementation')
     if impl == 'py':
       return SDRClassifier(*args, **kwargs)
+    elif impl == 'cpp':
+      return FastSDRClassifier(*args, **kwargs)
     else:
       raise ValueError('Invalid classifier implementation (%r). Value must be '
-                       '"py".' % impl)
+                       '"py" or "cpp.' % impl)
 
 
   @staticmethod
@@ -58,6 +61,8 @@ class SDRClassifierFactory(object):
     impl = proto.implementation
     if impl == 'py':
       return SDRClassifier.read(proto.sdrClassifier)
+    elif impl == 'cpp':
+      return FastSDRClassifier.read(proto.sdrClassifier)
     else:
       raise ValueError('Invalid classifier implementation (%r). Value must be '
-                       '"py".' % impl)
+                       '"py" or "cpp".' % impl)
