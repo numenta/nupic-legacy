@@ -156,7 +156,7 @@ class SingleStepSDRClassifierTest(unittest.TestCase):
     net = Network()
     net.addRegion("sensor", "py.RecordSensor", "{'numCategories': 3}")
     net.addRegion("classifier", "py.SDRClassifierRegion",
-                  "{steps: '0', alpha: 0.001, implementaiton: cpp}")
+                  "{steps: '0', alpha: 0.001, implementation: cpp}")
     net.link("sensor", "classifier", "UniformLink", "",
              srcOutput="dataOut", destInput="bottomUpIn")
     net.link("sensor", "classifier", "UniformLink", "",
