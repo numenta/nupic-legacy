@@ -99,13 +99,13 @@ def excitedColumnsGenerator(activeColumns,
     if activeSegmentsProcessed < activeSegmentsNum:
       currentColumn = min(currentColumn,
                           connections.columnForSegment(
-                            activeSegments[activeSegmentsProcessed],
+                            activeSegments[activeSegmentsProcessed].segment,
                             cellsPerColumn))
 
     if matchingSegmentsProcessed < matchingSegmentsNum:
       currentColumn = min(currentColumn,
                           connections.columnForSegment(
-                            matchingSegments[matchingSegmentsProcessed],
+                            matchingSegments[matchingSegmentsProcessed].segment,
                             cellsPerColumn))
 
     if (activeColumnsProcessed < activeColumnsNum and
@@ -119,7 +119,7 @@ def excitedColumnsGenerator(activeColumns,
     activeSegmentsBegin = activeSegmentsProcessed
     activeSegmentsEnd = activeSegmentsProcessed
     for i in xrange(activeSegmentsProcessed, activeSegmentsNum):
-      if connections.columnForSegment(activeSegments[i],
+      if connections.columnForSegment(activeSegments[i].segment,
                                       cellsPerColumn) == currentColumn:
         activeSegmentsProcessed += 1
         activeSegmentsEnd += 1
@@ -129,7 +129,7 @@ def excitedColumnsGenerator(activeColumns,
     matchingSegmentsBegin = matchingSegmentsProcessed
     matchingSegmentsEnd = matchingSegmentsProcessed
     for i in xrange(matchingSegmentsProcessed, matchingSegmentsNum):
-      if connections.columnForSegment(matchingSegments[i],
+      if connections.columnForSegment(matchingSegments[i].segment,
                                       cellsPerColumn) == currentColumn:
         matchingSegmentsProcessed += 1
         matchingSegmentsEnd += 1
@@ -316,7 +316,8 @@ class TemporalMemory(object):
        self.connectedPermanence,
        self.activationThreshold,
        0.0,
-       self.minThreshold)
+       self.minThreshold,
+       learn)
 
     self.activeSegments = activeSegments
     self.matchingSegments = matchingSegments
@@ -363,15 +364,15 @@ class TemporalMemory(object):
     cellsToAdd = []
     cell = None
     for active in excitedColumn["activeSegments"]:
-      newCell = not cell == connections.cellForSegment(active)
+      newCell = cell != active.segment.cell
       if newCell:
-        cell = connections.cellForSegment(active)
+        cell = active.segment.cell
         cellsToAdd.append(cell)
 
       if learn:
         TemporalMemory.adaptSegment(connections, prevActiveCells,
                                     permanenceIncrement, permanenceDecrement,
-                                    active)
+                                    active.segment)
 
     return cellsToAdd
 
@@ -423,22 +424,21 @@ class TemporalMemory(object):
     cells = range(start, start + cellsPerColumn)
 
     if excitedColumn["matchingSegmentsCount"] != 0:
-      (bestSegment, overlap) = TemporalMemory.bestMatchingSegment(
-        connections,
-        excitedColumn,
-        prevActiveCells)
-      bestCell = connections.cellForSegment(bestSegment)
+      bestSegment = TemporalMemory.bestMatchingSegment(connections,
+                                                       excitedColumn,
+                                                       prevActiveCells)
+      bestCell = bestSegment.segment.cell
       if learn:
         TemporalMemory.adaptSegment(connections, prevActiveCells,
                                     permanenceIncrement, permanenceDecrement,
-                                    bestSegment)
+                                    bestSegment.segment)
 
-        nGrowDesired = maxNewSynapseCount - overlap
+        nGrowDesired = maxNewSynapseCount - bestSegment.overlap
 
         if nGrowDesired > 0:
           TemporalMemory.growSynapses(connections, initialPermanence,
                                       nGrowDesired, prevWinnerCells,
-                                      random, bestSegment)
+                                      random, bestSegment.segment)
     else:
       bestCell = TemporalMemory.leastUsedCell(cells, connections, random)
       if learn:
@@ -472,7 +472,7 @@ class TemporalMemory(object):
       for segment in excitedColumn["matchingSegments"]:
         TemporalMemory.adaptSegment(connections, prevActiveCells,
                                     -predictedSegmentDecrement,
-                                    0.0, segment)
+                                    0.0, segment.segment)
 
   # ==============================
   # Helper functions
@@ -493,24 +493,15 @@ class TemporalMemory(object):
                       `bestSegment`                 (int),
                       `bestNumActiveSynapses`       (int)
     """
-    maxSynapses = 0
+    maxOverlap = 0
     bestSegment = None
-    bestNumActiveSynapses = None
 
     for segment in excitedColumn["matchingSegments"]:
-      numActiveSynapses = 0
-
-      for syn in connections.synapsesForSegment(segment):
-        synapseData = connections.dataForSynapse(syn)
-        if binSearch(prevActiveCells, synapseData.presynapticCell) != -1:
-          numActiveSynapses += 1
-
-      if numActiveSynapses >= maxSynapses:
-        maxSynapses = numActiveSynapses
+      if segment.overlap > maxOverlap:
+        maxOverlap = segment.overlap
         bestSegment = segment
-        bestNumActiveSynapses = numActiveSynapses
 
-    return bestSegment, bestNumActiveSynapses
+    return bestSegment
 
 
   @staticmethod
@@ -595,14 +586,19 @@ class TemporalMemory(object):
 
     # Need to copy synapses for segment set below because it will be modified
     # during iteration by `destroySynapse`
+    
     for synapse in set(connections.synapsesForSegment(segment)):
       synapseData = connections.dataForSynapse(synapse)
       permanence = synapseData.permanence
 
       if binSearch(prevActiveCells, synapseData.presynapticCell) != -1:
+        print "adapted segment {} on cell {} +".format(segment.idx, segment.cell)
         permanence += permanenceIncrement
       else:
+        print "adapted segment {} on cell {} -".format(segment.idx, segment.cell)
         permanence -= permanenceDecrement
+
+      print permanence
 
       # Keep permanence within min/max bounds
       permanence = max(0.0, min(1.0, permanence))
@@ -612,10 +608,8 @@ class TemporalMemory(object):
       else:
         connections.updateSynapsePermanence(synapse, permanence)
 
-    # awaiting change to connections.py to facilitate deleting segments
-    # and synapses like the c++ implementation.
-    # if (len(self.connections.synapsesForSegment(segment)) == 0):
-    #   self.connections.destroySegment(segment)
+    if (len(connections.synapsesForSegment(segment)) == 0):
+      connections.destroySegment(segment)
 
 
   def columnForCell(self, cell):
@@ -691,7 +685,7 @@ class TemporalMemory(object):
     """
     predictiveCells = set()
     for activeSegment in self.activeSegments:
-      cell = self.connections.cellForSegment(activeSegment)
+      cell = activeSegment.segment.cell
       if not cell in predictiveCells:
         predictiveCells.add(cell)
 
