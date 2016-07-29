@@ -147,7 +147,7 @@ def createNetwork(dataSource):
   network.link("temporalPoolerRegion", "anomalyLikelihoodRegion", "UniformLink",
                "", srcOutput="anomalyScore", destInput="rawAnomalyScore")
   network.link("sensor", "anomalyLikelihoodRegion", "UniformLink", "",
-               srcOutput="sourceOut", destInput="value")
+               srcOutput="sourceOut", destInput="metricValue")
   
 
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]

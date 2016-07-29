@@ -44,7 +44,7 @@ class AnomalyLikelihoodRegion(PyRegion):
           "required": True,
           "isDefaultInput": False
         },
-        "value": {
+        "metricValue": {
           "description": "The input metric value",
           "dataType": "Real32",
           "count": 1,
@@ -143,7 +143,7 @@ class AnomalyLikelihoodRegion(PyRegion):
 
   def compute(self, inputs, outputs):
     anomalyScore = inputs["rawAnomalyScore"][0]
-    value = inputs["value"][0]
+    value = inputs["metricValue"][0]
     anomalyProbability = self.anomalyLikelihood.anomalyProbability(
       value, anomalyScore)
     outputs["anomalyLikelihood"][0] = anomalyProbability

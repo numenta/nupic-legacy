@@ -76,7 +76,7 @@ class AnomalyLikelihoodRegionTest(unittest.TestCase):
           consumption, anomalyScore)
 
         inputs['rawAnomalyScore'] = numpy.array([anomalyScore])
-        inputs['value'] = numpy.array([consumption])
+        inputs['metricValue'] = numpy.array([consumption])
         anomalyLikelihoodRegion.compute(inputs, outputs)
         likelihood2 = outputs['anomalyLikelihood'][0]
 
@@ -93,7 +93,7 @@ class AnomalyLikelihoodRegionTest(unittest.TestCase):
 
     for _ in xrange(0, 6):
       inputs['rawAnomalyScore'] = numpy.array([random.random()])
-      inputs['value'] = numpy.array([random.random()])
+      inputs['metricValue'] = numpy.array([random.random()])
       anomalyLikelihoodRegion1.compute(inputs, outputs)
       score1 = outputs['anomalyLikelihood'][0]
 
@@ -113,7 +113,7 @@ class AnomalyLikelihoodRegionTest(unittest.TestCase):
 
     for _ in xrange(6, 500):
       inputs['rawAnomalyScore'] = numpy.array([random.random()])
-      inputs['value'] = numpy.array([random.random()])
+      inputs['metricValue'] = numpy.array([random.random()])
       anomalyLikelihoodRegion1.compute(inputs, outputs)
       score1 = outputs['anomalyLikelihood'][0]
       anomalyLikelihoodRegion2.compute(inputs, outputs)
