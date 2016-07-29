@@ -34,9 +34,9 @@ import traceback
 
 from nupic.support import initLogging
 from nupic.support.configuration import Configuration
-from nupic.swarming.ExtendedLogger import ExtendedLogger
+from nupic.swarming.hypersearch.ExtendedLogger import ExtendedLogger
 from nupic.swarming.hypersearch.errorcodes import ErrorCodes
-from nupic.swarming.hypersearch.utils import clippedObj, validate
+from nupic.swarming.utils import clippedObj, validate
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from HypersearchV2 import HypersearchV2
 
