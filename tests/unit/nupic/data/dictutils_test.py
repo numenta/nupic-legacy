@@ -25,7 +25,7 @@
 import unittest2 as unittest
 
 from nupic.data import dictutils
-from nupic.swarming.hypersearch.utils import rCopy
+from nupic.swarming.utils import rCopy
 
 
 
