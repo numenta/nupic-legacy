@@ -270,7 +270,8 @@ class TemporalMemory(object):
 
     self.activeCells = []
     self.winnerCells = []
-
+    
+    print "Compute called"
     for excitedColumn in excitedColumnsGenerator(activeColumns,
                                                  self.activeSegments,
                                                  self.matchingSegments,
@@ -318,6 +319,7 @@ class TemporalMemory(object):
        0.0,
        self.minThreshold,
        learn)
+    print "num active cells: {}".format(len(self.activeCells))
 
     self.activeSegments = activeSegments
     self.matchingSegments = matchingSegments
@@ -424,6 +426,7 @@ class TemporalMemory(object):
     cells = range(start, start + cellsPerColumn)
 
     if excitedColumn["matchingSegmentsCount"] != 0:
+      print "matchingSegmentsCount != 0"
       bestSegment = TemporalMemory.bestMatchingSegment(connections,
                                                        excitedColumn,
                                                        prevActiveCells)
@@ -434,17 +437,20 @@ class TemporalMemory(object):
                                     bestSegment.segment)
 
         nGrowDesired = maxNewSynapseCount - bestSegment.overlap
+        print "{} - {} = {}".format(maxNewSynapseCount, bestSegment.overlap, nGrowDesired)
 
         if nGrowDesired > 0:
           TemporalMemory.growSynapses(connections, initialPermanence,
                                       nGrowDesired, prevWinnerCells,
                                       random, bestSegment.segment)
     else:
+      print "matchingSegmentsCount == 0"
       bestCell = TemporalMemory.leastUsedCell(cells, connections, random)
       if learn:
         nGrowExact = min(maxNewSynapseCount, len(prevWinnerCells))
         if nGrowExact > 0:
           bestSegment = connections.createSegment(bestCell)
+          print "Created Segment {} on cell {}".format(bestSegment.idx, bestSegment.cell)
           TemporalMemory.growSynapses(connections, initialPermanence,
                                       nGrowExact, prevWinnerCells,
                                       random, bestSegment)
@@ -528,6 +534,7 @@ class TemporalMemory(object):
         leastUsedCells.append(cell)
 
     i = random.getUInt32(len(leastUsedCells))
+    print "least used cell {} with random {} len {}".format(leastUsedCells[i], i, len(leastUsedCells))
     return leastUsedCells[i]
 
 
@@ -553,10 +560,16 @@ class TemporalMemory(object):
     candidates = list(prevWinnerCells)
     eligibleEnd = len(candidates) - 1
 
+    print "candiates: {}".format(candidates)
+    print "synapses: {}".format([connections.dataForSynapse(s).presynapticCell for s in connections.synapsesForSegment(segment)])
     for synapse in connections.synapsesForSegment(segment):
       presynapticCell = connections.dataForSynapse(synapse).presynapticCell
-      index = binSearch(candidates, presynapticCell)
+      try:
+        index = candidates[:eligibleEnd + 1].index(presynapticCell)
+      except ValueError:
+        index = -1
       if index != -1:
+        print "swapped!"
         candidates[index] = candidates[eligibleEnd]
         eligibleEnd -= 1
 
@@ -567,6 +580,7 @@ class TemporalMemory(object):
       rand = random.getUInt32(candidatesLength)
       connections.createSynapse(segment, candidates[rand],
                                 initialPermanence)
+      print "Created Synapse on Segment {} on cell {} with random {} len {}".format(segment.idx, candidates[rand], rand, candidatesLength)
       candidates[rand] = candidates[candidatesLength - 1]
       candidatesLength -= 1
 
@@ -587,9 +601,10 @@ class TemporalMemory(object):
     # Need to copy synapses for segment set below because it will be modified
     # during iteration by `destroySynapse`
     
-    for synapse in set(connections.synapsesForSegment(segment)):
+    for synapse in list(connections.synapsesForSegment(segment)):
       synapseData = connections.dataForSynapse(synapse)
       permanence = synapseData.permanence
+      temp = synapseData.permanence
 
       if binSearch(prevActiveCells, synapseData.presynapticCell) != -1:
         permanence += permanenceIncrement
@@ -600,11 +615,14 @@ class TemporalMemory(object):
       permanence = max(0.0, min(1.0, permanence))
 
       if permanence < EPSILON:
+        print "Destroyed Synapse {} on segment {} on cell {}".format(synapse.idx, segment.idx, synapseData.presynapticCell)
         connections.destroySynapse(synapse)
       else:
+        print "Updated Synapse Permanence {} on segment {} on cell {} from {} to {}".format(synapse.idx, segment.idx, synapseData.presynapticCell, temp, permanence)
         connections.updateSynapsePermanence(synapse, permanence)
 
     if (len(connections.synapsesForSegment(segment)) == 0):
+      print "Destroyed Segment {} on cell {}".format(segment.idx, segment.cell)
       connections.destroySegment(segment)
 
 
