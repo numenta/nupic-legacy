@@ -48,7 +48,7 @@ class SingleStepSDRClassifierTest(unittest.TestCase):
   """
 
 
-  def testSimpleMulticlassNetwork(self):
+  def testSimpleMulticlassNetworkPY(self):
     # Setup data record stream of fake data (with three categories)
     filename = _getTempFileName()
     fields = [("timestamp", "datetime", "T"),
@@ -73,7 +73,7 @@ class SingleStepSDRClassifierTest(unittest.TestCase):
     net = Network()
     net.addRegion("sensor", "py.RecordSensor", "{'numCategories': 3}")
     net.addRegion("classifier", "py.SDRClassifierRegion",
-                  "{steps: '0', alpha: 0.001}")
+                  "{steps: '0', alpha: 0.001, implementation: 'py'}")
     net.link("sensor", "classifier", "UniformLink", "",
              srcOutput="dataOut", destInput="bottomUpIn")
     net.link("sensor", "classifier", "UniformLink", "",
@@ -156,7 +156,7 @@ class SingleStepSDRClassifierTest(unittest.TestCase):
     net = Network()
     net.addRegion("sensor", "py.RecordSensor", "{'numCategories': 3}")
     net.addRegion("classifier", "py.SDRClassifierRegion",
-                  "{steps: '0', alpha: 0.001, implementation: cpp}")
+                  "{steps: '0', alpha: 0.001, implementation: 'cpp'}")
     net.link("sensor", "classifier", "UniformLink", "",
              srcOutput="dataOut", destInput="bottomUpIn")
     net.link("sensor", "classifier", "UniformLink", "",
@@ -207,6 +207,7 @@ class SingleStepSDRClassifierTest(unittest.TestCase):
       self.assertSequenceEqual(expectedCats[i], inferredCats.tolist(),
                                "Classififer did not infer expected category "
                                "for record number {}.".format(i))
+
     # Close data stream, delete file.
     dataSource.close()
     os.remove(filename)
