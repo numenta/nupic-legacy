@@ -385,7 +385,7 @@ class SDRClassifierRegion(PyRegion):
                                     infer=False)
 
     # fill outputs with clResults
-    if clResults is not None:
+    if clResults is not None and clResults:
       outputs['actualValues'][:len(clResults["actualValues"])] = \
         clResults["actualValues"]
 

@@ -196,7 +196,7 @@ class SingleStepSDRClassifierTest(unittest.TestCase):
     self.assertEqual(classifier.getParameter("maxCategoryCount"), 100)
     self.assertAlmostEqual(float(classifier.getParameter("alpha")), 0.001)
     self.assertEqual(int(classifier.getParameter("steps")), 0)
-    self.assertTrue(classifier.getParameter("implementation") == "py")
+    self.assertTrue(classifier.getParameter("implementation") == "cpp")
     self.assertEqual(classifier.getParameter("verbosity"), 0)
 
     expectedCats = ([0.0], [1.0], [0.0], [1.0], [0.0], [1.0], [0.0], [1.0],)
