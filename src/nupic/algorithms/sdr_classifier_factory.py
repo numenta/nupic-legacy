@@ -50,7 +50,7 @@ class SDRClassifierFactory(object):
       return FastSDRClassifier(*args, **kwargs)
     else:
       raise ValueError('Invalid classifier implementation (%r). Value must be '
-                       '"py" or "cpp.' % impl)
+                       '"py" or "cpp".' % impl)
 
 
   @staticmethod
