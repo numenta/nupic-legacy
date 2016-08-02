@@ -23,25 +23,14 @@ from collections import defaultdict
 
 EPSILON = 0.00001
 
-
-def permanenceGreatorOrEqual(permanence, threshold):
-  ''' Function for dealing with floating point imprecision,
-      
-      @param permanence (float) permanence to check
-      @param threshold  (float) threshold to test against
-
-      @return (boolean) returns true if permanence >= threshold within a
-                        tolerance of PERMANENCE_EPSILON
-  '''
-  return ((permanence - threshold > EPSILON) or
-          (abs(permanence - threshold) < EPSILON))
-
-
 class Segment(object):
 
   def __init__(self, idx, cell):
     self.idx = idx
     self.cell = cell
+
+  def __eq__(self, other):
+    return self.idx == other.idx and self.cell == other.cell
 
 
 class Synapse(object):
@@ -411,9 +400,9 @@ class Connections(object):
         segment = synapse.segment
         permanence = synapseData.permanence
         segmentData = self.dataForSegment(segment)
-        if permanenceGreatorOrEqual(permanence, matchingPermananceThreshold):
+        if permanence - matchingPermananceThreshold > -EPSILON:
           numMatchingSynapsesForSegment[segmentData.flatIdx] += 1
-          if permanenceGreatorOrEqual(permanence, activePermanenceThreshold):
+          if permanence - activePermanenceThreshold > -EPSILON:
             numActiveSynapsesForSegment[segmentData.flatIdx] += 1
 
     if recordIteration:
