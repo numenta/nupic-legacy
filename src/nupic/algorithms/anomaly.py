@@ -118,17 +118,17 @@ class Anomaly(object):
 
 
   def compute(self, activeColumns, predictedColumns, 
-      inputValue=None, timestamp=None):
+              inputValue=None, timestamp=None):
     """Compute the anomaly score as the percent of active columns not predicted.
 
     @param activeColumns: array of active column indices
     @param predictedColumns: array of columns indices predicted in this step
                              (used for anomaly in step T+1)
     @param inputValue: (optional) value of current input to encoders 
-        (eg "cat" for category encoder)
-                                (used in anomaly-likelihood)
+                                  (eg "cat" for category encoder)
+                                  (used in anomaly-likelihood)
     @param timestamp: (optional) date timestamp when the sample occured
-                                (used in anomaly-likelihood)
+                                 (used in anomaly-likelihood)
     @return the computed anomaly score; float 0..1
     """
     # Start by computing the raw anomaly score.
