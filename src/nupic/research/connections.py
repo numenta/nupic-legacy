@@ -21,6 +21,22 @@
 
 from collections import defaultdict
 
+EPSILON = 0.00001
+
+
+def permanenceGreatorOrEqual(permanence, threshold):
+  ''' Function for dealing with floating point imprecision,
+      
+      @param permanence (float) permanence to check
+      @param threshold  (float) threshold to test against
+
+      @return (boolean) returns true if permanence >= threshold within a
+                        tolerance of PERMANENCE_EPSILON
+  '''
+  return ((permanence - threshold > EPSILON) or
+          (abs(permanence - threshold) < EPSILON))
+
+
 class Segment(object):
 
   def __init__(self, idx, cell):
@@ -93,7 +109,7 @@ class Connections(object):
     self.maxSegmentsPerCell = maxSegmentsPerCell
     self.maxSynapsesPerSegment = maxSynapsesPerSegment
 
-    self._cells = dict()
+    self._cells = [CellData() for i in xrange(numCells)]
     self._synapsesForPresynapticCell = defaultdict(list)
     self._segmentForFlatIdx = []
 
@@ -123,9 +139,6 @@ class Connections(object):
     """
     self._validateCell(cell)
 
-    if not cell in self._cells:
-      return list()
-    
     segmentsData = self._cells[cell].segments
     segments = []
     for i in xrange(len(segmentsData)):
@@ -192,7 +205,7 @@ class Connections(object):
   
   def _minPermanenceSynapse(self, segment):
     synapses = self._cells[segment.cell].segments[segment.idx].synapses
-    print synapses
+    # print synapses
     minIdx = float("inf")
     minPermanence = float("inf")
 
@@ -201,7 +214,7 @@ class Connections(object):
         minIdx = i
         minPermanence = synapses[i].permanence
     
-    print minIdx
+    # print minIdx
     return Synapse(minIdx, segment)
 
 
@@ -224,8 +237,6 @@ class Connections(object):
 
     @return (int) New segment index
     """
-    if not cell in self._cells:
-      self._cells[cell] = CellData()
 
     while self.numSegmentsForCell(cell) >= self.maxSegmentsPerCell:
       self.destroySegment(self._leastRecentlyUsedSegment(cell))
@@ -365,6 +376,8 @@ class Connections(object):
 
     self.dataForSynapse(synapse).permanence = permanence
 
+  
+
 
   def computeActivity(self, activeInput, activePermanenceThreshold,
                       activeSynapseThreshold, matchingPermananceThreshold,
@@ -398,9 +411,9 @@ class Connections(object):
         segment = synapse.segment
         permanence = synapseData.permanence
         segmentData = self.dataForSegment(segment)
-        if permanence >= matchingPermananceThreshold:
+        if permanenceGreatorOrEqual(permanence, matchingPermananceThreshold):
           numMatchingSynapsesForSegment[segmentData.flatIdx] += 1
-          if synapseData.permanence >= activePermanenceThreshold:
+          if permanenceGreatorOrEqual(permanence, activePermanenceThreshold):
             numActiveSynapsesForSegment[segmentData.flatIdx] += 1
 
     if recordIteration:
@@ -414,6 +427,7 @@ class Connections(object):
       if numActive >= activeSynapseThreshold:
         segmentOverlap = SegmentOverlap(segment, numActive)
         activeSegments.append(segmentOverlap)
+        # print "Added active segment {} with {}".format(i, numActiveSynapsesForSegment[i])
         if recordIteration:
           self.dataForSegment(segment).lastUsedIteration = self._iteration
 
@@ -430,7 +444,9 @@ class Connections(object):
     
     return (sorted(activeSegments, cmp = segCmp),
             sorted(matchingSegments, cmp = segCmp))
+  
 
+  
 
   def numSegments(self):
     """ Returns the number of segments. """
@@ -548,10 +564,10 @@ class Connections(object):
     if self.maxSynapsesPerSegment != other.maxSynapsesPerSegment:
       return False
 
-    if self._cells.keys() != other._cells.keys():
+    if self._cells != other._cells:
       return False
 
-    for i in self._cells.keys():
+    for i in self.numCells:
       segments = self._cells[i].segments
       otherSegments = other._cells[i].segments
 
