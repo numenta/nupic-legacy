@@ -164,7 +164,7 @@ class ConnectionsTest(unittest.TestCase):
     active, matching = connections.computeActivity([80, 81, 82], .5, 2, .1, 1)
     self.assertEqual(len(active), 0)
     self.assertEqual(len(matching), 0)
-    
+
 
   def testDestroySynapse(self):
     ''' Creates a segment, creates a number of synapses on it, destroys a synapse,
@@ -196,22 +196,22 @@ class ConnectionsTest(unittest.TestCase):
     c1 = Connections(1024)
 
     # Add data before serializing
-    c1.createSegment(0)
-    c1.createSynapse(0, 254, 0.1173)
+    s1 = c1.createSegment(0)
+    c1.createSynapse(s1, 254, 0.1173)
 
-    c1.createSegment(100)
-    c1.createSynapse(1, 20, 0.3)
+    s2 = c1.createSegment(100)
+    c1.createSynapse(s2, 20, 0.3)
 
-    c1.createSynapse(0, 40, 0.3)
+    c1.createSynapse(s1, 40, 0.3)
 
-    c1.createSegment(0)
-    c1.createSynapse(2, 0, 0.5)
-    c1.createSynapse(2, 1, 0.5)
+    s3 = c1.createSegment(0)
+    c1.createSynapse(s3, 0, 0.5)
+    c1.createSynapse(s3, 1, 0.5)
 
-    c1.createSegment(10)
-    c1.createSynapse(3, 0, 0.5)
-    c1.createSynapse(3, 1, 0.5)
-    c1.destroySegment(3)
+    s4 = c1.createSegment(10)
+    c1.createSynapse(s4, 0, 0.5)
+    c1.createSynapse(s4, 1, 0.5)
+    c1.destroySegment(s4)
 
     proto1 = ConnectionsProto_capnp.ConnectionsProto.new_message()
     c1.write(proto1)
