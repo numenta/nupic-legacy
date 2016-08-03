@@ -46,9 +46,6 @@ class Synapse(object):
 
 class SynapseData(object):
 
-  __slots__ = ("presynapticCell", "permanence", "destroyed")
-
-
   def __init__(self, presynapticCell, permanence):
     self.presynapticCell = presynapticCell
     self.permanence = permanence
@@ -56,7 +53,9 @@ class SynapseData(object):
 
 
   def __eq__(self, other):
-    return (self.segment, self.presynapticCell, self.permanence) == other
+    return (self.segment == other.segment and 
+            self.presynapticCell == other.presynapticCell and
+            abs(self.permanence - other.permanence) < EPSILON)
 
 
 class SegmentData(object):
@@ -84,8 +83,6 @@ class SegmentOverlap(object):
 
   def __eq__(self, other):
     return self.segment == other.segment and self.overlap == other.overlap
-  def __str__(self):
-    return "segment idx {} cell {} overlap {}".format(self.segment.idx, self.segment.cell, self.overlap)
 
 
 
@@ -132,7 +129,6 @@ class Connections(object):
 
     @return (set) Segment indices
     """
-    self._validateCell(cell)
 
     segmentsData = self._cells[cell].segments
     segments = []
@@ -174,6 +170,7 @@ class Connections(object):
                       [synapse.segment.idx].synapses[synapse.idx]
 
   def dataForSegment(self, segment):
+
     return self._cells[segment.cell].segments[segment.idx]
 
 
@@ -376,7 +373,7 @@ class Connections(object):
 
   def computeActivity(self, activeInput, activePermanenceThreshold,
                       activeSynapseThreshold, matchingPermananceThreshold,
-                      matchingSynapseThreshold, recordIteration):
+                      matchingSynapseThreshold, recordIteration=True):
     """ Computes active and matching segments given the current active input.
 
     @param activeInput                 (set)   currently active cells
@@ -557,10 +554,8 @@ class Connections(object):
     @param other (Connections) Connections instance to compare to
     """
     if self.maxSegmentsPerCell != other.maxSegmentsPerCell:
-      print "-1"
       return False
     if self.maxSynapsesPerSegment != other.maxSynapsesPerSegment:
-      print "0"
       return False
 
     for i in xrange(self.numCells):
@@ -568,7 +563,6 @@ class Connections(object):
       otherSegments = other._cells[i].segments
       
       if len(segments) != len(otherSegments):
-        print "1"
         return False
 
         for j in xrange(len(segments)):
@@ -578,13 +572,10 @@ class Connections(object):
           otherSynapses = otherSegment.synapses
 
           if segment.destroyed != otherSegment.destroyed:
-            print "2"
             return False
           if segment.lastUsedIteration != otherSegment.lastUsedIteration:
-            print "3"
             return False
           if len(synapses) != len(otherSynapses):
-            print "4"
             return False
 
           for k in xrange(len(synapses)):
@@ -592,18 +583,14 @@ class Connections(object):
             otherSynapse = otherSynapses[k]
 
             if synapse.presynapticCell != otherSynapse.presynapticCell:
-              print "5"
               return False
             if synapse.permanence != otherSynapse.permanence:
-              print "6"
               return False
             if synapse.destroyed != otherSynapse.destroyed:
-              print "7"
               return False
 
     if (len(self._synapsesForPresynapticCell) !=
         len(self._synapsesForPresynapticCell)):
-      print "8"
       return False
 
     for i in self._synapsesForPresynapticCell.keys():
@@ -611,7 +598,6 @@ class Connections(object):
       otherSynapses = other._synapsesForPresynapticCell[i]
       if len(synapses) != len(otherSynapses):
         print i, len(synapses), len(otherSynapses)
-        print "9"
         return False
 
       for j in xrange(len(synapses)):
@@ -623,23 +609,17 @@ class Connections(object):
         otherCell = otherSegment.cell
 
         if synapse.idx != otherSynapse.idx:
-          print "10"
           return False
         if segment.idx != otherSegment.idx:
-          print "11"
           return False
         if cell != otherCell:
-          print "12"
           return False
 
     if self._numSegments != other._numSegments:
-      print "13"
       return False
     if self._numSynapses != other._numSynapses:
-      print "14"
       return False
     if self._iteration != other._iteration:
-      print "15"
       return False
 
     return True
@@ -654,21 +634,3 @@ class Connections(object):
     @param other (Connections) Connections instance to compare to
     """
     return not self.__eq__(other)
-
-
-  def _validateCell(self, cell):
-    """ Raises an error if cell index is invalid.
-
-    @param cell (int) Cell index
-    """
-    if cell >= self.numCells or cell < 0:
-      raise IndexError("Invalid cell")
-
-
-  def _validateSegment(self, segment):
-    """ Raises an error if segment index is invalid.
-
-    @param segment (int) Segment index
-    """
-    if not segment in self._segments:
-      raise IndexError("Invalid segment")
