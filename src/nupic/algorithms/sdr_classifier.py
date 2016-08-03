@@ -121,20 +121,13 @@ class SDRClassifier(object):
     self.actValueAlpha = actValueAlpha
     self.verbosity = verbosity
 
-    # Init learn iteration index
-    self._learnIteration = 0
-
-    # This contains the offset between the recordNum (provided by caller) and
-    #  learnIteration (internal only, always starts at 0).
-    self._recordNumMinusLearnIteration = None
-
     # Max # of steps of prediction we need to support
-    maxSteps = max(self.steps) + 1
+    self._maxSteps = max(self.steps) + 1
 
     # History of the last _maxSteps activation patterns. We need to keep
     # these so that we can associate the current iteration's classification
     # with the activationPattern from N steps ago
-    self._patternNZHistory = deque(maxlen=maxSteps)
+    self._patternNZHistory = deque(maxlen=self._maxSteps)
 
     # This contains the value of the highest input number we've ever seen
     # It is used to pre-allocate fixed size arrays that hold the weights
@@ -198,23 +191,13 @@ class SDRClassifier(object):
                    'actualValues': [1.5, 3,5, 5,5, 7.6],
                   }
     """
-
-    # Save the offset between recordNum and learnIteration if this is the first
-    #  compute
-    if self._recordNumMinusLearnIteration is None:
-      self._recordNumMinusLearnIteration = recordNum - self._learnIteration
-
-    # Update the learn iteration
-    self._learnIteration = recordNum - self._recordNumMinusLearnIteration
-
     if self.verbosity >= 1:
       print "  recordNum:", recordNum
-      print "  learnIteration:", self._learnIteration
       print "  patternNZ (%d):" % len(patternNZ), patternNZ
       print "  classificationIn:", classification
 
     # Store pattern in our history
-    self._patternNZHistory.append((self._learnIteration, patternNZ))
+    self._patternNZHistory.append((recordNum, patternNZ))
 
     # To allow multi-class classification, we need to be able to run learning
     # without inference being on. So initialize retval outside
@@ -271,10 +254,10 @@ class SDRClassifier(object):
         else:
           self._actualValues[bucketIdx] = actValue
 
-      for (iteration, learnPatternNZ) in self._patternNZHistory:
-        error = self._calculateError(classification)
+      for (learnRecordNum, learnPatternNZ) in self._patternNZHistory:
+        error = self._calculateError(recordNum, classification)
 
-        nSteps = self._learnIteration - iteration
+        nSteps = recordNum - learnRecordNum
         if nSteps in self.steps:
           for bit in learnPatternNZ:
             self._weightMatrix[nSteps][bit, :] += self.alpha * error[nSteps]
@@ -368,17 +351,16 @@ class SDRClassifier(object):
 
     classifier.alpha = proto.alpha
     classifier.actValueAlpha = proto.actValueAlpha
-    classifier._learnIteration = proto.learnIteration
-    classifier._recordNumMinusLearnIteration = (
-      proto.recordNumMinusLearnIteration)
 
     classifier._patternNZHistory = deque(maxlen=max(classifier.steps) + 1)
+
     patternNZHistoryProto = proto.patternNZHistory
-    learnIteration = classifier._learnIteration - len(patternNZHistoryProto) + 1
+    recordNumHistoryProto = proto.recordNumHistory
     for i in xrange(len(patternNZHistoryProto)):
-      classifier._patternNZHistory.append((learnIteration,
+      classifier._patternNZHistory.append((recordNumHistoryProto[i],
                                            list(patternNZHistoryProto[i])))
-      learnIteration += 1
+
+    classifier._maxSteps = proto.maxSteps
 
     classifier._maxBucketIdx = proto.maxBucketIdx
     classifier._maxInputIdx = proto.maxInputIdx
@@ -410,14 +392,16 @@ class SDRClassifier(object):
 
     proto.alpha = self.alpha
     proto.actValueAlpha = self.actValueAlpha
-    proto.learnIteration = self._learnIteration
-    proto.recordNumMinusLearnIteration = self._recordNumMinusLearnIteration
 
-    patternProto = proto.init("patternNZHistory", len(self._patternNZHistory))
-    for  i in xrange(len(self._patternNZHistory)):
+    proto.maxSteps = self._maxSteps
+
+    patternProto = proto.init("patternNZHistory", self._maxSteps)
+    recordNumHistoryProto = proto.init("recordNumHistory", self._maxSteps)
+    for  i in xrange(self._maxSteps):
       subPatternProto = patternProto.init(i, len(self._patternNZHistory[i][1]))
       for j in xrange(len(self._patternNZHistory[i][1])):
         subPatternProto[j] = int(self._patternNZHistory[i][1][j])
+      recordNumHistoryProto[i] = int(self._patternNZHistory[i][0])
 
     weightMatrices = proto.init("weightMatrix", len(self._weightMatrix))
 
@@ -443,7 +427,7 @@ class SDRClassifier(object):
     proto.verbosity = self.verbosity
 
 
-  def _calculateError(self, classification):
+  def _calculateError(self, recordNum, classification):
     """
     Calculate error signal
     @param classification dict of the classification information:
@@ -456,8 +440,8 @@ class SDRClassifier(object):
     targetDist = numpy.zeros(self._maxBucketIdx + 1)
     targetDist[classification["bucketIdx"]] = 1.0
 
-    for (iteration, learnPatternNZ) in self._patternNZHistory:
-      nSteps = self._learnIteration - iteration
+    for (learnRecordNum, learnPatternNZ) in self._patternNZHistory:
+      nSteps = recordNum - learnRecordNum
       if nSteps in self.steps:
         predictDist = self.inferSingleStep(learnPatternNZ,
                                            self._weightMatrix[nSteps])
