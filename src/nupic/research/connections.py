@@ -20,6 +20,7 @@
 # ----------------------------------------------------------------------
 
 from collections import defaultdict
+import numpy as np
 
 EPSILON = 0.00001
 
@@ -81,6 +82,11 @@ class SegmentOverlap(object):
     self.segment = segment
     self.overlap = overlap
 
+  def __eq__(self, other):
+    return self.segment == other.segment and self.overlap == other.overlap
+  def __str__(self):
+    return "segment idx {} cell {} overlap {}".format(self.segment.idx, self.segment.cell, self.overlap)
+
 
 
 class Connections(object):
@@ -109,7 +115,7 @@ class Connections(object):
 
 
   def columnForSegment(self, segment, cellsPerColumn):
-    """ Returns the column that a segment's presynapticCell belongs to
+    """ Returns the column of the cell which owns the segment
 
     @param segment        (Segment) Segment
     @param cellsPerColumn (int) Number of cells in a column in the tm
@@ -393,7 +399,7 @@ class Connections(object):
 
     numActiveSynapsesForSegment = [0] * self._nextFlatIdx
     numMatchingSynapsesForSegment = [0] * self._nextFlatIdx
-
+    
     for cell in activeInput:
       for synapse in self.synapsesForPresynapticCell(cell):
         synapseData = self.dataForSynapse(synapse)
@@ -420,9 +426,10 @@ class Connections(object):
         if recordIteration:
           self.dataForSegment(segment).lastUsedIteration = self._iteration
 
+
     for i in xrange(self._nextFlatIdx):
       segment = self._segmentForFlatIdx[i]
-      numMatching = numMatchingSynapsesForSegment[i]
+      numMatching = int(numMatchingSynapsesForSegment[i])
       if numMatching >= matchingSynapseThreshold:
         segmentOverlap = SegmentOverlap(segment, numMatching)
         matchingSegments.append(segmentOverlap)
@@ -464,12 +471,10 @@ class Connections(object):
     protoCells = proto.init('cells', self.numCells)
 
     for i in xrange(self.numCells):
-      if not i in self._cells:
-        segments = []
-      else:
-        segments = self._cells[i].segments
+      segments = self._cells[i].segments
       protoSegments = protoCells[i].init('segments', len(segments))
-
+      
+      # print "length of segments is {} on cell {}".format(len(segments), i)
       for j in xrange(len(segments)):
         synapses = segments[j].synapses
         protoSynapses = protoSegments[j].init('synapses', len(synapses))
@@ -477,6 +482,7 @@ class Connections(object):
         protoSegments[j].lastUsedIteration = segments[j].lastUsedIteration
 
         for k in xrange(len(synapses)):
+          # print "wrote synapses {} on segment {} on cell {}".format(k,j,i)
           protoSynapses[k].presynapticCell = synapses[k].presynapticCell
           protoSynapses[k].permanence = synapses[k].permanence
           protoSynapses[k].destroyed = synapses[k].destroyed
@@ -512,8 +518,9 @@ class Connections(object):
         segmentData.lastUsedIteration = protoSegments[j].lastUsedIteration
         connections._nextFlatIdx += 1
         segments.append(segmentData)
-
-        connections._segmentForFlatIdx.append(Segment(j, i))
+        
+        segment = Segment(j, i)
+        connections._segmentForFlatIdx.append(segment)
 
         protoSynapses = protoSegments[j].synapses
         synapses = segments[j].synapses
@@ -523,8 +530,9 @@ class Connections(object):
           synapseData = SynapseData(presynapticCell,
                                     protoSynapses[k].permanence)
           synapseData.destroyed = protoSynapses[k].destroyed
-
           synapses.append(synapseData)
+
+          connections._synapsesForPresynapticCell[presynapticCell].append(Synapse(k, segment))
 
           if synapseData.destroyed:
             segments[j].numDestroyedSynapses += 1
@@ -549,18 +557,18 @@ class Connections(object):
     @param other (Connections) Connections instance to compare to
     """
     if self.maxSegmentsPerCell != other.maxSegmentsPerCell:
+      print "-1"
       return False
     if self.maxSynapsesPerSegment != other.maxSynapsesPerSegment:
+      print "0"
       return False
 
-    if self._cells != other._cells:
-      return False
-
-    for i in self.numCells:
+    for i in xrange(self.numCells):
       segments = self._cells[i].segments
       otherSegments = other._cells[i].segments
-
+      
       if len(segments) != len(otherSegments):
+        print "1"
         return False
 
         for j in xrange(len(segments)):
@@ -570,10 +578,13 @@ class Connections(object):
           otherSynapses = otherSegment.synapses
 
           if segment.destroyed != otherSegment.destroyed:
+            print "2"
             return False
           if segment.lastUsedIteration != otherSegment.lastUsedIteration:
+            print "3"
             return False
           if len(synapses) != len(otherSynapses):
+            print "4"
             return False
 
           for k in xrange(len(synapses)):
@@ -581,20 +592,26 @@ class Connections(object):
             otherSynapse = otherSynapses[k]
 
             if synapse.presynapticCell != otherSynapse.presynapticCell:
+              print "5"
               return False
             if synapse.permanence != otherSynapse.permanence:
+              print "6"
               return False
             if synapse.destroyed != otherSynapse.destroyed:
+              print "7"
               return False
 
     if (len(self._synapsesForPresynapticCell) !=
         len(self._synapsesForPresynapticCell)):
+      print "8"
       return False
 
     for i in self._synapsesForPresynapticCell.keys():
       synapses = self._synapsesForPresynapticCell[i]
       otherSynapses = other._synapsesForPresynapticCell[i]
       if len(synapses) != len(otherSynapses):
+        print i, len(synapses), len(otherSynapses)
+        print "9"
         return False
 
       for j in xrange(len(synapses)):
@@ -606,17 +623,23 @@ class Connections(object):
         otherCell = otherSegment.cell
 
         if synapse.idx != otherSynapse.idx:
+          print "10"
           return False
         if segment.idx != otherSegment.idx:
+          print "11"
           return False
         if cell != otherCell:
+          print "12"
           return False
 
     if self._numSegments != other._numSegments:
+      print "13"
       return False
     if self._numSynapses != other._numSynapses:
+      print "14"
       return False
     if self._iteration != other._iteration:
+      print "15"
       return False
 
     return True

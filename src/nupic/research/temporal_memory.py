@@ -27,7 +27,7 @@ from collections import defaultdict
 from operator import mul
 
 from nupic.bindings.math import Random
-from nupic.research.connections import Connections
+from nupic.research.connections import Connections, SegmentOverlap, Segment
 
 from sys import maxint as MAX_INT
 from bisect import bisect_left
@@ -752,18 +752,16 @@ class TemporalMemory(object):
 
     proto.activeCells = list(self.activeCells)
     proto.winnerCells = list(self.winnerCells)
-    for i, active in enumerate(self.activeSegments):
-      activeSegmentOverlaps = \
+    activeSegmentOverlaps = \
         proto.init('activeSegmentOverlaps', len(self.activeSegments))
-
+    for i, active in enumerate(self.activeSegments):
       activeSegmentOverlaps[i].cell = active.segment.cell
       activeSegmentOverlaps[i].segment = active.segment.idx
       activeSegmentOverlaps[i].overlap = active.overlap
-
-    for i, matching in enumerate(self.matchingSegments):
-      matchingSegmentOverlaps = \
+    
+    matchingSegmentOverlaps = \
         proto.init('matchingSegmentOverlaps', len(self.matchingSegments))
-
+    for i, matching in enumerate(self.matchingSegments):
       matchingSegmentOverlaps[i].cell = matching.segment.cell
       matchingSegmentOverlaps[i].segment = matching.segment.idx
       matchingSegmentOverlaps[i].overlap = matching.overlap
@@ -798,9 +796,22 @@ class TemporalMemory(object):
     #pylint: enable=W0212
 
     tm.activeCells = [int(x) for x in proto.activeCells]
-    tm.activeSegments = [int(x) for x in proto.activeSegments]
     tm.winnerCells = [int(x) for x in proto.winnerCells]
-    tm.matchingSegments = [int(x) for x in proto.matchingSegments]
+    
+    tm.activeSegments = []
+    tm.matchingSegments = []
+
+    for i in xrange(len(proto.activeSegmentOverlaps)):
+      protoSegmentOverlap = proto.activeSegmentOverlaps[i]
+      segment = Segment(protoSegmentOverlap.segment, protoSegmentOverlap.cell)
+      segmentOverlap = SegmentOverlap(segment, protoSegmentOverlap.overlap)
+      tm.activeSegments.append(segmentOverlap)
+
+    for i in xrange(len(proto.matchingSegmentOverlaps)):
+      protoSegmentOverlap = proto.matchingSegmentOverlaps[i]
+      segment = Segment(protoSegmentOverlap.segment, protoSegmentOverlap.cell)
+      segmentOverlap = SegmentOverlap(segment, protoSegmentOverlap.overlap)
+      tm.matchingSegments.append(segmentOverlap)
 
     return tm
 
@@ -840,8 +851,9 @@ class TemporalMemory(object):
       return False
     if self.winnerCells != other.winnerCells:
       return False
+
     if self.matchingSegments != other.matchingSegments:
-      return False
+        return False
     if self.activeSegments != other.activeSegments:
       return False
 
