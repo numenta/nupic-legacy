@@ -21,7 +21,6 @@
 
 from collections import defaultdict
 from bisect import bisect_left
-import numpy as np
 
 EPSILON = 0.00001
 
@@ -470,7 +469,9 @@ class Connections(object):
         segmentOverlap = SegmentOverlap(segment, numMatching)
         matchingSegments.append(segmentOverlap)
     
-    segCmp = lambda a, b: 
+    segCmp = lambda a, b: (a.segment.cell - b.segment.cell 
+                           if a.segment.cell - b.segment.cell != 0
+                           else a.segment.idx - b.segment.idx)
     
     return (sorted(activeSegments, cmp = segCmp),
             sorted(matchingSegments, cmp = segCmp))

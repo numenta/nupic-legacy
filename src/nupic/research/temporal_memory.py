@@ -26,109 +26,15 @@ Temporal Memory implementation in Python.
 from collections import defaultdict
 from operator import mul
 
+
 from nupic.bindings.math import Random
 from nupic.research.connections import Connections, SegmentOverlap, Segment,\
                                        binSearch
+from nupic.support.group_by import groupByN
 
 from sys import maxint as MAX_INT
 
 EPSILON = 0.000001
-
-
-
-def excitedColumnsGenerator(activeColumns,
-                            activeSegments,
-                            matchingSegments,
-                            cellsPerColumn,
-                            connections):
-  """ Generator used for iterating over the lists of active columns,
-  active segments, and matching segments, each sorted by the column they
-  correspond to.
-
-  @param activeColumns    (list)   Sorted List of currently active columns
-  @param activeSegments   (list)   Sorted list of segments active from lateral
-                                   input
-  @param matchingSegments (list)   Sorted list of segments matching from lateral
-                                   input
-  @param cellsPerColumn   (int)    Number of cells per column in the tm
-  @param connections      (Object) Connections instance of the tm
-
-  @return (dict){
-                  `column`                 (int),
-                  `isActiveColumn`         (bool),
-                  `activeSegments`         (Generator),
-                  `activeSegmentsCount`    (int),
-                  `matchingSegments`       (Generator),
-                  `matchingSegmentsCount`  (int)
-                }
-
-  Notes:
-   The generators returned yield the segments associated with the column
-   and the counts represent how many segments exist in the generator.
-  """
-  activeColumnsProcessed = 0
-  activeSegmentsProcessed = 0
-  matchingSegmentsProcessed = 0
-
-  activeColumnsNum = len(activeColumns)
-  activeSegmentsNum = len(activeSegments)
-  matchingSegmentsNum = len(matchingSegments)
-
-  isActiveColumn = None
-  while (activeColumnsProcessed < activeColumnsNum or
-         activeSegmentsProcessed < activeSegmentsNum or
-         matchingSegmentsProcessed < matchingSegmentsNum):
-
-    currentColumn = MAX_INT
-    if activeSegmentsProcessed < activeSegmentsNum:
-      currentColumn = min(currentColumn,
-                          connections.columnForSegment(
-                            activeSegments[activeSegmentsProcessed].segment,
-                            cellsPerColumn))
-
-    if matchingSegmentsProcessed < matchingSegmentsNum:
-      currentColumn = min(currentColumn,
-                          connections.columnForSegment(
-                            matchingSegments[matchingSegmentsProcessed].segment,
-                            cellsPerColumn))
-
-    if (activeColumnsProcessed < activeColumnsNum and
-        activeColumns[activeColumnsProcessed] <= currentColumn):
-      currentColumn = activeColumns[activeColumnsProcessed]
-      isActiveColumn = True
-      activeColumnsProcessed += 1
-    else:
-      isActiveColumn = False
-
-    activeSegmentsBegin = activeSegmentsProcessed
-    activeSegmentsEnd = activeSegmentsProcessed
-    for i in xrange(activeSegmentsProcessed, activeSegmentsNum):
-      if connections.columnForSegment(activeSegments[i].segment,
-                                      cellsPerColumn) == currentColumn:
-        activeSegmentsProcessed += 1
-        activeSegmentsEnd += 1
-      else:
-        break
-
-    matchingSegmentsBegin = matchingSegmentsProcessed
-    matchingSegmentsEnd = matchingSegmentsProcessed
-    for i in xrange(matchingSegmentsProcessed, matchingSegmentsNum):
-      if connections.columnForSegment(matchingSegments[i].segment,
-                                      cellsPerColumn) == currentColumn:
-        matchingSegmentsProcessed += 1
-        matchingSegmentsEnd += 1
-      else:
-        break
-
-    asIndexGenerator = xrange(activeSegmentsBegin, activeSegmentsEnd)
-    msIndexGenerator = xrange(matchingSegmentsBegin, matchingSegmentsEnd)
-    yield {"column": currentColumn,
-           "isActiveColumn": isActiveColumn,
-           "activeSegments": (activeSegments[i] for i in asIndexGenerator),
-           "activeSegmentsCount": activeSegmentsEnd - activeSegmentsBegin,
-           "matchingSegments": (matchingSegments[i] for i in msIndexGenerator),
-           "matchingSegmentsCount": matchingSegmentsEnd - matchingSegmentsBegin
-          }
 
 
 
@@ -257,19 +163,26 @@ class TemporalMemory(object):
     
     # print "Active Segments Length: {}".format(len(self.activeSegments))
     # print "Matching Segments Length: {}".format(len(self.matchingSegments))
-    for excitedColumn in excitedColumnsGenerator(activeColumns,
-                                                 self.activeSegments,
-                                                 self.matchingSegments,
-                                                 self.cellsPerColumn,
-                                                 self.connections):
+
+    segToCol = lambda segment: int(segment.segment.cell / self.cellsPerColumn)
+    identity = lambda column: int(column)
+
+    for columnData in groupByN((activeColumns, identity),
+                               (self.activeSegments, segToCol),
+                               (self.matchingSegments, segToCol)):
+      (column,
+       activeColumns,
+       activeSegmentsOnCol,
+       matchingSegmentsOnCol) = columnData
+      # print columnData
       # print "Active Segments Count: {}".format(excitedColumn["activeSegmentsCount"])
       # print "Matching Segments Count: {}".format(excitedColumn["matchingSegmentsCount"])
-      if excitedColumn["isActiveColumn"]:
+      if len(activeColumns):
         # print "is active column"
-        if excitedColumn["activeSegmentsCount"] != 0:
+        if len(activeSegmentsOnCol) != 0:
           cellsToAdd = TemporalMemory.activatePredictedColumn(
             self.connections,
-            excitedColumn,
+            activeSegmentsOnCol,
             learn,
             self.permanenceDecrement,
             self.permanenceIncrement,
@@ -280,10 +193,11 @@ class TemporalMemory(object):
         else:
           (cellsToAdd,
            winnerCell) = TemporalMemory.burstColumn(self.cellsPerColumn,
+                                                    column,
                                                     self.connections,
-                                                    excitedColumn,
-                                                    learn,
                                                     self.initialPermanence,
+                                                    learn,
+                                                    matchingSegmentsOnCol,
                                                     self.maxNewSynapseCount,
                                                     self.permanenceDecrement,
                                                     self.permanenceIncrement,
@@ -295,7 +209,8 @@ class TemporalMemory(object):
           self.winnerCells.append(winnerCell)
       else:
         if learn:
-          TemporalMemory.punishPredictedColumn(self.connections, excitedColumn,
+          TemporalMemory.punishPredictedColumn(self.connections,
+                                               matchingSegmentsOnCol,
                                                self.predictedSegmentDecrement,
                                                prevActiveCells)
 
@@ -323,7 +238,7 @@ class TemporalMemory(object):
 
 
   @staticmethod
-  def activatePredictedColumn(connections, excitedColumn, learn,
+  def activatePredictedColumn(connections, activeSegments, learn,
                               permanenceDecrement, permanenceIncrement,
                               prevActiveCells):
     """ Determines which cells in a predicted column should be added to
@@ -354,7 +269,7 @@ class TemporalMemory(object):
     cellsToAdd = []
     cell = None
     # print "Activating predicted column {}".format(excitedColumn["column"])
-    for active in excitedColumn["activeSegments"]:
+    for active in activeSegments:
       newCell = cell != active.segment.cell
       if newCell:
         cell = active.segment.cell
@@ -369,9 +284,9 @@ class TemporalMemory(object):
 
 
   @staticmethod
-  def burstColumn(cellsPerColumn, connections, excitedColumn,
-                  learn, initialPermanence, maxNewSynapseCount,
-                  permanenceDecrement, permanenceIncrement,
+  def burstColumn(cellsPerColumn, column, connections,
+                  initialPermanence, learn, matchingSegments,
+                  maxNewSynapseCount, permanenceDecrement, permanenceIncrement,
                   prevActiveCells, prevWinnerCells, random):
     """ Activates all of the cells in an unpredicted active column,
     chooses a winner cell, and, if learning is turned on, either adapts or
@@ -381,8 +296,8 @@ class TemporalMemory(object):
     @param connections         (Object) Connections instance for the tm
     @param excitedColumn       (dict)   Excited Column instance from
                                         excitedColumnsGenerator
-    @param learn               (bool)   Whether or not learning is enabled
     @param initialPermanence   (float)  Initial permanence of a new synapse.
+    @param learn               (bool)   Whether or not learning is enabled
     @param maxNewSynapseCount  (int)    The maximum number of synapses added to
                                         a segment during learning
     @param permanenceDecrement (float)  Amount by which permanences of synapses
@@ -411,14 +326,12 @@ class TemporalMemory(object):
           add a segment to this winner cell
           grow synapses to previous winner cells
     """
-    start = cellsPerColumn * excitedColumn["column"]
+    start = cellsPerColumn * column
     cells = range(start, start + cellsPerColumn)
 
-    if excitedColumn["matchingSegmentsCount"] != 0:
+    if len(matchingSegments) != 0:
       # print "matchingSegmentsCount != 0"
-      bestSegment = TemporalMemory.bestMatchingSegment(connections,
-                                                       excitedColumn,
-                                                       prevActiveCells)
+      bestSegment = max(matchingSegments, key=lambda seg: seg.overlap)
       bestCell = bestSegment.segment.cell
       if learn:
         TemporalMemory.adaptSegment(connections, prevActiveCells,
@@ -448,7 +361,7 @@ class TemporalMemory(object):
 
 
   @staticmethod
-  def punishPredictedColumn(connections, excitedColumn,
+  def punishPredictedColumn(connections, matchingSegments,
                             predictedSegmentDecrement, prevActiveCells):
     """Punishes the Segments that incorrectly predicted a column to be active.
 
@@ -464,7 +377,7 @@ class TemporalMemory(object):
       weaken active synapses
     """
     if predictedSegmentDecrement > 0.0:
-      for segment in excitedColumn["matchingSegments"]:
+      for segment in matchingSegments:
         TemporalMemory.adaptSegment(connections, prevActiveCells,
                                     -predictedSegmentDecrement,
                                     0.0, segment.segment)
@@ -472,31 +385,6 @@ class TemporalMemory(object):
   # ==============================
   # Helper functions
   # ==============================
-
-  @staticmethod
-  def bestMatchingSegment(connections, excitedColumn, prevActiveCells):
-    """Gets the segment on a cell with the largest number of active synapses.
-    Returns an int representing the segment and the number of synapses
-    corresponding to it.
-
-    @param connections      (Object) Connections instance for the tm
-    @param excitedColumn    (dict)   Excited Column instance from
-                                     excitedColumnsGenerator
-    @param prevActiveCells  (list)   Active cells in `t-1`
-
-    @return (tuple) Contains:
-                      `bestSegment`                 (int),
-                      `bestNumActiveSynapses`       (int)
-    """
-    maxOverlap = 0
-    bestSegment = None
-
-    for segment in excitedColumn["matchingSegments"]:
-      if segment.overlap > maxOverlap:
-        maxOverlap = segment.overlap
-        bestSegment = segment
-
-    return bestSegment
 
 
   @staticmethod
