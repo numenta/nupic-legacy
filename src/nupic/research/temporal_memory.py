@@ -27,28 +27,12 @@ from collections import defaultdict
 from operator import mul
 
 from nupic.bindings.math import Random
-from nupic.research.connections import Connections, SegmentOverlap, Segment
+from nupic.research.connections import Connections, SegmentOverlap, Segment,\
+                                       binSearch
 
 from sys import maxint as MAX_INT
-from bisect import bisect_left
 
 EPSILON = 0.000001
-
-
-
-def binSearch(arr, val):
-  """ function for running binary search on a sorted list.
-
-  @param arr (list) a sorted list of integers to search
-  @param val (int)  a integer to search for in the sorted array
-
-  @return (int) the index of the element if it is found and -1 otherwise.
-
-  """
-  i = bisect_left(arr, val)
-  if i != len(arr) and arr[i] == val:
-    return i
-  return -1
 
 
 

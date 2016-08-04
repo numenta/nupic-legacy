@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -19,11 +19,6 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-"""
-TODO: Mock out all function calls.
-TODO: Move all duplicate connections logic into shared function.
-"""
-
 import tempfile
 import unittest
 
@@ -36,44 +31,6 @@ except ImportError:
 if capnp:
   from nupic.proto import ConnectionsProto_capnp
 
-def setupSampleConnections(connections):
-
-  # Cell with 1 segment.
-  # Segment with:
-  # - 1 connected synapse: active
-  # - 2 matching synapses
-  segment1_1 = connections.createSegment(10)
-  connections.createSynapse(segment1_1, 150, .85)
-  connections.createSynapse(segment1_1, 151, .15)
-
-  # Cell with 2 segment.
-  # Segment with:
-  # - 2 connected synapse: 2 active
-  # - 3 matching synapses: 3 active
-  segment2_1 = connections.createSegment(20)
-  connections.createSynapse(segment2_1, 80, .85)
-  connections.createSynapse(segment2_1, 81, .85)
-  synapse = connections.createSynapse(segment2_1, 82, .85)
-  connections.updateSynapsePermanence(synapse, .15)
-
-
-  # Segment with:
-  # - 2 connected synapses: 1 active, 1 inactive
-  # - 3 matching synapses: 2 active, 1 inactive
-  # - 1 non-matching synapse: 1 active
-  segment2_2 = connections.createSegment(20)
-  connections.createSynapse(segment2_2, 50, .85)
-  connections.createSynapse(segment2_2, 51, .85)
-  connections.createSynapse(segment2_2, 52, .85)
-  connections.createSynapse(segment2_2, 53, .85)
-
-  segment3_1 = connections.createSegment(30)
-  connections.createSynapse(segment3_1, 53, .05)
-
-
-def computeSampleActivity(connections):
-    inputVec = [50, 52, 53, 80, 81, 82, 150, 151]
-    connections.computeActivity(input, .5, 2, .1, 1)
 
 class ConnectionsTest(unittest.TestCase):
 
@@ -188,6 +145,266 @@ class ConnectionsTest(unittest.TestCase):
     self.assertEqual(0, len(active))
     self.assertEqual(1, len(matching))
     self.assertEqual(2, matching[0].overlap)
+
+
+  def testPathsNotInvalidatedByOtherDestroys(self):
+    ''' Creates segments and synapses, then destroys segments and synapses on
+        either side of them and verifies that existing Segment and Synapse
+        instances still point to the same segment / synapse as before.
+    '''
+    connections = Connections(1024)
+    segment1 = connections.createSegment(11)
+    segment2 = connections.createSegment(12)
+    segment3 = connections.createSegment(13)
+    segment4 = connections.createSegment(14)
+    segment5 = connections.createSegment(15)
+
+    synapse1 = connections.createSynapse(segment3, 201, .85)
+    synapse2 = connections.createSynapse(segment3, 202, .85)
+    synapse3 = connections.createSynapse(segment3, 203, .85)
+    synapse4 = connections.createSynapse(segment3, 204, .85)
+    synapse5 = connections.createSynapse(segment3, 205, .85)
+
+    self.assertEqual(203, connections.dataForSynapse(synapse3).presynapticCell)
+    connections.destroySynapse(synapse1)
+    self.assertEqual(203, connections.dataForSynapse(synapse3).presynapticCell)
+    connections.destroySynapse(synapse5)
+    self.assertEqual(203, connections.dataForSynapse(synapse3).presynapticCell)
+
+    connections.destroySegment(segment1)
+    self.assertEqual(connections.synapsesForSegment(segment3),
+                    [synapse2, synapse3, synapse4])
+    connections.destroySegment(segment5)
+    self.assertEqual(connections.synapsesForSegment(segment3),
+                    [synapse2, synapse3, synapse4])
+    self.assertEqual(203, connections.dataForSynapse(synapse3).presynapticCell)    
+
+
+  def testDestroySegmentWithDestroyedSynapses(self):
+    ''' Destroy a segment that has a destroyed synapse and a non-destroyed synapse.
+        Make sure nothing gets double-destroyed.
+    '''
+    connections = Connections(1024)
+
+    segment1 = connections.createSegment(11)
+    segment2 = connections.createSegment(12)
+
+    synapse1_1 = connections.createSynapse(segment1, 101, .85)
+    synapse2_1 = connections.createSynapse(segment2, 201, .85)
+    synapse2_2 = connections.createSynapse(segment2, 202, .85)
+
+    self.assertEqual(3, connections.numSynapses())
+
+    connections.destroySynapse(synapse2_1)
+
+    self.assertEqual(2, connections.numSegments())
+    self.assertEqual(2, connections.numSynapses())
+
+    connections.destroySegment(segment2)
+
+    self.assertEqual(1, connections.numSegments())
+    self.assertEqual(1, connections.numSynapses())
+
+  
+  def testReuseSegmentWithDestroyedSynapses(self):
+    ''' Destroy a segment that has a destroyed synapse and a non-destroyed synapse.
+        Create a new segment in the same place. Make sure its synapse count is
+        correct.
+    '''
+    connections = Connections(1024)
+
+    segment = connections.createSegment(11)
+
+    synapse1 = connections.createSynapse(segment, 201, .85)
+    synapse2 = connections.createSynapse(segment, 202, .85)
+
+    connections.destroySynapse(synapse1)
+
+    self.assertEqual(1, connections.numSynapses(segment))
+
+    connections.destroySegment(segment)
+
+    reincarnated = connections.createSegment(11)
+
+    self.assertEqual(0, connections.numSynapses(reincarnated))
+    self.assertEqual(0, len(connections.synapsesForSegment(reincarnated)))
+
+
+  def testDestroySegmentsThenReachLimit(self):
+    ''' Destroy some segments then verify that the maxSegmentsPerCell is still
+        correctly applied.
+    '''
+    connections = Connections(1024, 2, 2)
+
+    segment1 = connections.createSegment(11)
+    segment2 = connections.createSegment(11)
+
+    self.assertEqual(2, connections.numSegments())
+    connections.destroySegment(segment1)
+    connections.destroySegment(segment2)
+    self.assertEqual(0, connections.numSegments())
+
+    connections.createSegment(11)
+    self.assertEqual(1, connections.numSegments())
+    connections.createSegment(11)
+    self.assertEqual(2, connections.numSegments())
+    segment3 = connections.createSegment(11)
+    self.assertLess(segment3.idx, 2)
+    self.assertEqual(2, connections.numSegments())
+
+
+  def testDestroySynapsesThenReachLimit(self):
+    ''' Destroy some synapses then verify that the maxSynapsesPerSegment is still
+        correctly applied.
+    '''
+    connections = Connections(1024, 2, 2)
+
+    segment = connections.createSegment(10)
+
+    synapse1 = connections.createSynapse(segment, 201, .85)
+    synapse2 = connections.createSynapse(segment, 202, .85)
+    
+    self.assertEqual(2, connections.numSynapses())
+    connections.destroySynapse(synapse1)
+    connections.destroySynapse(synapse2)
+    self.assertEqual(0, connections.numSynapses())
+
+    connections.createSynapse(segment, 201, .85)
+    self.assertEqual(1, connections.numSynapses())
+    connections.createSynapse(segment, 202, .90)
+    self.assertEqual(2, connections.numSynapses())
+    synapse3 = connections.createSynapse(segment, 203, .8)
+    self.assertLess(synapse3.idx, 2)
+    self.assertEqual(2, connections.numSynapses())
+
+
+  def testReachSegmentLimitMultipleTimes(self):
+    ''' Hit the maxSynapsesPerSegment threshold multiple times. Make sure it works
+        more than once.
+    '''
+    connections = Connections(1024, 2, 2)
+
+    segment = connections.createSegment(10)
+    connections.createSynapse(segment, 201, .85)
+    self.assertEqual(1, connections.numSynapses())
+    connections.createSynapse(segment, 202, .9)
+    self.assertEqual(2, connections.numSynapses())
+    connections.createSynapse(segment, 203, .8)
+    self.assertEqual(2, connections.numSynapses())
+    synapse = connections.createSynapse(segment, 204, .8)
+    self.assertLess(synapse.idx, 2)
+    self.assertEqual(2, connections.numSynapses())
+
+
+  def testUpdateSynapsePermanence(self):
+    ''' Creates a synapse and updates its permanence, and makes sure that its
+        data was correctly updated. 
+    '''
+    connections = Connections(1024)
+    segment = connections.createSegment(10)
+    synapse = connections.createSynapse(segment, 50, .34)
+
+    connections.updateSynapsePermanence(synapse, .21)
+
+    synapseData = connections.dataForSynapse(synapse)
+    self.assertAlmostEqual(synapseData.permanence, .21)
+
+  
+  def testMostActiveSegmentForCells(self):
+    ''' Creates a sample set of connections, and makes sure that getting the most
+        active segment for a collection of cells returns the right segment.
+    '''
+    connections = Connections(1024)
+    segment1 = connections.createSegment(10)
+    synapse1 = connections.createSynapse(segment1, 150, .34)
+
+    segment2 = connections.createSegment(20)
+    synapse2 = connections.createSynapse(segment2, 50, .85)
+
+    cells = [10, 20]
+    inputVec = [50]
+
+    result = connections.mostActiveSegmentForCells(cells, inputVec, 0)
+
+    self.assertEqual(result, Segment(0, 20))
+
+
+  def testMostActiveSegmentForCellsNone(self):
+    ''' Creates a sample set of connections, and makes sure that getting the most
+        active segment for a collection of cells with no activity returns
+        no segment.
+    '''
+    connections = Connections(1024)
+    segment1 = connections.createSegment(10)
+    synapse1 = connections.createSynapse(segment1, 150, .34)
+
+    segment2 = connections.createSegment(20)
+    synapse2 = connections.createSynapse(segment2, 50, .85)
+
+    cells = [10, 20]
+    inputVec = [150]
+
+    result = connections.mostActiveSegmentForCells(cells, inputVec, 2)
+
+    self.assertEqual(result, None)
+
+
+  def testComputeActivity(self):
+    ''' Creates a sample set of connections, and makes sure that computing the
+        activity for a collection of cells with no activity returns the right
+        activity data.
+    '''
+    connections = Connections(1024)
+
+    # Cell with 1 segment.
+    # Segment with:
+    # - 1 connected synapse: active
+    # - 2 matching synapses
+    segment1_1 = connections.createSegment(10)
+    connections.createSynapse(segment1_1, 150, .85)
+    connections.createSynapse(segment1_1, 151, .15)
+
+    # Cell with 2 segment.
+    # Segment with:
+    # - 2 connected synapse: 2 active
+    # - 3 matching synapses: 3 active
+    segment2_1 = connections.createSegment(20)
+    connections.createSynapse(segment2_1, 80, .85)
+    connections.createSynapse(segment2_1, 81, .85)
+    synapse = connections.createSynapse(segment2_1, 82, .85)
+    connections.updateSynapsePermanence(synapse, .15)
+
+
+    # Segment with:
+    # - 2 connected synapses: 1 active, 1 inactive
+    # - 3 matching synapses: 2 active, 1 inactive
+    # - 1 non-matching synapse: 1 active
+    segment2_2 = connections.createSegment(20)
+    connections.createSynapse(segment2_2, 50, .85)
+    connections.createSynapse(segment2_2, 51, .85)
+    connections.createSynapse(segment2_2, 52, .15)
+    connections.createSynapse(segment2_2, 53, .05)
+
+    # Cell with one segment.
+    # Segment with:
+    # - 1 non-matching synapse: 1 active
+    segment3_1 = connections.createSegment(30)
+    connections.createSynapse(segment3_1, 53, .05)
+
+    inputVec = [50, 52, 53, 80, 81, 82, 150, 151]
+    active, matching = connections.computeActivity(inputVec, .5, 2, .1, 1)
+
+    self.assertEqual(1, len(active))
+    self.assertEqual(segment2_1, active[0].segment)
+    self.assertEqual(2, active[0].overlap)
+    
+    self.assertEqual(3, len(matching))
+    self.assertEqual(segment1_1, matching[0].segment)
+    self.assertEqual(2, matching[0].overlap)
+    self.assertEqual(segment2_1, matching[1].segment)
+    self.assertEqual(3, matching[1].overlap)
+    self.assertEqual(segment2_2, matching[2].segment)
+    self.assertEqual(2, matching[2].overlap)
 
 
   @unittest.skipUnless(

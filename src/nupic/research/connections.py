@@ -20,6 +20,7 @@
 # ----------------------------------------------------------------------
 
 from collections import defaultdict
+from bisect import bisect_left
 import numpy as np
 
 EPSILON = 0.00001
@@ -83,6 +84,22 @@ class SegmentOverlap(object):
 
   def __eq__(self, other):
     return self.segment == other.segment and self.overlap == other.overlap
+
+
+
+def binSearch(arr, val):
+  """ function for running binary search on a sorted list.
+
+  @param arr (list) a sorted list of integers to search
+  @param val (int)  a integer to search for in the sorted array
+
+  @return (int) the index of the element if it is found and -1 otherwise.
+
+  """
+  i = bisect_left(arr, val)
+  if i != len(arr) and arr[i] == val:
+    return i
+  return -1
 
 
 
@@ -210,6 +227,39 @@ class Connections(object):
     return Synapse(minIdx, segment)
 
 
+  def mostActiveSegmentForCells(self, cells, inputCells, synapseThreshold):
+    ''' Gets the segment with the most active synapses due to given input,
+        from among all the segments on all the given cells.
+      
+    @param cells            (list)    Cells to look among
+    @param inputCells       (list)    Active cells in the input
+    @param synapseThreshold (float)   Only consider segments with number of
+                                      active synapses greater than this
+                                      threshold
+  
+    @retval Segment the most active segment on the cells specified, None if
+            no segment's active synapse count exceeds synapseThreshold
+    '''
+    
+    maxActiveSynapses = synapseThreshold
+    mostActiveSegment = None
+
+    sortedInput = sorted(inputCells)
+    
+    for cell in cells:
+      segments = self._cells[cell].segments
+      for i in xrange(len(segments)):
+        numActiveSynapses = 0
+        for synapseData in segments[i].synapses:
+          if (not synapseData.destroyed and synapseData.permanence > 0 and
+              binSearch(sortedInput, synapseData.presynapticCell) != -1):
+            numActiveSynapses += 1
+
+        if numActiveSynapses >= maxActiveSynapses:
+          maxActiveSynapses = numActiveSynapses
+          mostActiveSegment = Segment(i, cell)
+
+    return mostActiveSegment
 
 
   def synapsesForPresynapticCell(self, presynapticCell):
@@ -441,8 +491,11 @@ class Connections(object):
 
   
 
-  def numSegments(self):
+  def numSegments(self, cell=None):
     """ Returns the number of segments. """
+    if cell:
+      cellData = self._cells[cell]
+      return len(cellData.segments) - CellData.numDestroyedSegments
     return self._numSegments
 
 
@@ -451,8 +504,11 @@ class Connections(object):
       self._cells[cell].numDestroyedSegments)
 
 
-  def numSynapses(self):
+  def numSynapses(self, segment=None):
     """ Returns the number of synapses. """
+    if segment:
+      segmentData = self._cells[segment.cell].segments[segment.idx]
+      return len(segmentData.synapses) - segmentData.numDestroyedSynapses
     return self._numSynapses
 
 
