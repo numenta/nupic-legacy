@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2015, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2015-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -27,7 +27,6 @@ import os
 
 from pkg_resources import resource_filename
 
-from nupic.algorithms.anomaly import computeRawAnomalyScore
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
 from nupic.encoders import MultiEncoder, ScalarEncoder, DateEncoder
@@ -39,7 +38,7 @@ _SEED = 1956  # the random seed used throughout
 _INPUT_FILE_PATH = resource_filename(
   "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
 )
-_OUTPUT_PATH = "network-demo-output.csv"
+_OUTPUT_PATH = "network-demo-anomaly-output.csv"
 _NUM_RECORDS = 2000
 
 # Config field for SPRegion
@@ -141,13 +140,15 @@ def createNetwork(dataSource):
   network.link("temporalPoolerRegion", "spatialPoolerRegion", "UniformLink", "",
                srcOutput="topDownOut", destInput="topDownIn")
 
-  # Add the AnomalyRegion on top of the TPRegion
-  network.addRegion("anomalyRegion", "py.AnomalyRegion", json.dumps({}))
-
-  network.link("spatialPoolerRegion", "anomalyRegion", "UniformLink", "",
-               srcOutput="bottomUpOut", destInput="activeColumns")
-  network.link("temporalPoolerRegion", "anomalyRegion", "UniformLink", "",
-               srcOutput="topDownOut", destInput="predictedColumns")
+  # Add the AnomalyLikelihoodRegion on top of the TPRegion
+  network.addRegion("anomalyLikelihoodRegion", "py.AnomalyLikelihoodRegion",
+    json.dumps({}))
+  
+  network.link("temporalPoolerRegion", "anomalyLikelihoodRegion", "UniformLink",
+               "", srcOutput="anomalyScore", destInput="rawAnomalyScore")
+  network.link("sensor", "anomalyLikelihoodRegion", "UniformLink", "",
+               srcOutput="sourceOut", destInput="metricValue")
+  
 
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
 
@@ -165,9 +166,8 @@ def createNetwork(dataSource):
   temporalPoolerRegion.setParameter("learningMode", True)
   # Enable inference mode so we get predictions
   temporalPoolerRegion.setParameter("inferenceMode", True)
-  # Enable anomalyMode to compute the anomaly score. This actually doesn't work
-  # now so doesn't matter. We instead compute the anomaly score based on
-  # topDownOut (predicted columns) and SP bottomUpOut (active columns).
+  # Enable anomalyMode to compute the anomaly score to be passed to the anomaly
+  # likelihood region. 
   temporalPoolerRegion.setParameter("anomalyMode", True)
 
   return network
@@ -182,7 +182,7 @@ def runNetwork(network, writer):
   sensorRegion = network.regions["sensor"]
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
   temporalPoolerRegion = network.regions["temporalPoolerRegion"]
-  anomalyRegion = network.regions["anomalyRegion"]
+  anomalyLikelihoodRegion = network.regions["anomalyLikelihoodRegion"]
 
   prevPredictedColumns = []
 
@@ -190,11 +190,12 @@ def runNetwork(network, writer):
     # Run the network for a single iteration
     network.run(1)
 
-    # Write out the anomaly score along with the record number and consumption
+    # Write out the anomaly likelihood along with the record number and consumption
     # value.
-    anomalyScore = anomalyRegion.getOutputData("rawAnomalyScore")[0]
     consumption = sensorRegion.getOutputData("sourceOut")[0]
-    writer.writerow((i, consumption, anomalyScore))
+    anomalyScore = temporalPoolerRegion.getOutputData("anomalyScore")[0]
+    anomalyLikelihood = anomalyLikelihoodRegion.getOutputData("anomalyLikelihood")[0]
+    writer.writerow((i, consumption, anomalyScore, anomalyLikelihood))
 
 
 if __name__ == "__main__":

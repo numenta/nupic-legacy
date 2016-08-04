@@ -35,7 +35,6 @@ import math
 
 from pkg_resources import resource_filename
 
-from nupic.algorithms.anomaly import computeRawAnomalyScore
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
 from nupic.encoders import MultiEncoder
