@@ -29,6 +29,7 @@ from nupic.bindings.math import (SM32 as SparseMatrix,
 
 
 
+
 realDType = GetNTAReal()
 uintType = "uint32"
 
@@ -1623,7 +1624,7 @@ class SpatialPooler(object):
       rangeND.append(numpy.unique(curRange))
 
     neighbors = numpy.ravel_multi_index(
-      numpy.array(list(itertools.product(*rangeND))).T, 
+      numpy.array(list(itertools.product(*rangeND))).T,
       dimensions).tolist()
 
     neighbors.remove(columnIndex)
