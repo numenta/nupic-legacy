@@ -46,7 +46,7 @@ class ConnectionsTest(unittest.TestCase):
     self.assertEqual(segment2.cell, 10)
 
     self.assertEqual(connections.segmentsForCell(10), [segment1, segment2])
-  
+
 
   def testCreateSegmentReuse(self):
     connections = Connections(1024, 2)
@@ -60,14 +60,14 @@ class ConnectionsTest(unittest.TestCase):
     connections.computeActivity([], .5, 2, .1, 1)
 
     segment2 = connections.createSegment(42)
-    activeSegs, matchingSegs = connections.computeActivity([1, 2], .5, 2, .1, 1)
+    activeSegs, _ = connections.computeActivity([1, 2], .5, 2, .1, 1)
     self.assertEqual(1, len(activeSegs))
     self.assertEqual(segment1, activeSegs[0].segment)
 
     segment3 = connections.createSegment(42)
     self.assertEqual(segment2.idx, segment3.idx)
 
-  
+
   def testSynapseReusue(self):
     ''' Creates a synapse over the synapses per segment limit, and verifies
         that the lowest permanence synapse is removed to make room for the new
@@ -81,32 +81,32 @@ class ConnectionsTest(unittest.TestCase):
 
     synapses = connections.synapsesForSegment(segment)
     self.assertEqual(synapses, [synapse1, synapse2])
-    
+
     #Add an additional synapse to force it over the limit of num synapses
     #per segment.
     synapse3 = connections.createSynapse(segment, 52, .52)
     self.assertEqual(0, synapse3.idx)
-    
+
     #ensure lower permanence synapse was removed
     synapses = connections.synapsesForSegment(segment)
     self.assertEqual(synapses, [synapse3, synapse2])
 
-  
+
   def testDestroySegment(self):
-    ''' Creates a segment, destroys it, and makes sure it got destroyed along with
-        all of its synapses.
+    ''' Creates a segment, destroys it, and makes sure it got destroyed along
+        with all of its synapses.
     '''
     connections = Connections(1024)
 
-    segment1 = connections.createSegment(10)
+    connections.createSegment(10)
     segment2 = connections.createSegment(20)
-    segment3 = connections.createSegment(30)
-    segment4 = connections.createSegment(40)
+    connections.createSegment(30)
+    connections.createSegment(40)
 
-    syn1 = connections.createSynapse(segment2, 80, 0.85)
-    syn2 = connections.createSynapse(segment2, 81, 0.85)
-    syn3 = connections.createSynapse(segment2, 82, 0.15)
-    
+    connections.createSynapse(segment2, 80, 0.85)
+    connections.createSynapse(segment2, 81, 0.85)
+    connections.createSynapse(segment2, 82, 0.15)
+
     self.assertEqual(4, connections.numSegments())
     self.assertEqual(3, connections.numSynapses())
 
@@ -114,7 +114,7 @@ class ConnectionsTest(unittest.TestCase):
 
     self.assertEqual(3, connections.numSegments())
     self.assertEqual(0, connections.numSynapses())
-    
+
     args = [segment2]
     self.assertRaises(ValueError, connections.synapsesForSegment, *args)
 
@@ -124,8 +124,8 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testDestroySynapse(self):
-    ''' Creates a segment, creates a number of synapses on it, destroys a synapse,
-        and makes sure it got destroyed.
+    ''' Creates a segment, creates a number of synapses on it, destroys a
+        synapse, and makes sure it got destroyed.
     '''
     connections = Connections(1024)
 
@@ -154,9 +154,9 @@ class ConnectionsTest(unittest.TestCase):
     '''
     connections = Connections(1024)
     segment1 = connections.createSegment(11)
-    segment2 = connections.createSegment(12)
+    connections.createSegment(12)
     segment3 = connections.createSegment(13)
-    segment4 = connections.createSegment(14)
+    connections.createSegment(14)
     segment5 = connections.createSegment(15)
 
     synapse1 = connections.createSynapse(segment3, 201, .85)
@@ -173,25 +173,25 @@ class ConnectionsTest(unittest.TestCase):
 
     connections.destroySegment(segment1)
     self.assertEqual(connections.synapsesForSegment(segment3),
-                    [synapse2, synapse3, synapse4])
+                     [synapse2, synapse3, synapse4])
     connections.destroySegment(segment5)
     self.assertEqual(connections.synapsesForSegment(segment3),
-                    [synapse2, synapse3, synapse4])
-    self.assertEqual(203, connections.dataForSynapse(synapse3).presynapticCell)    
+                     [synapse2, synapse3, synapse4])
+    self.assertEqual(203, connections.dataForSynapse(synapse3).presynapticCell)
 
 
   def testDestroySegmentWithDestroyedSynapses(self):
-    ''' Destroy a segment that has a destroyed synapse and a non-destroyed synapse.
-        Make sure nothing gets double-destroyed.
+    ''' Destroy a segment that has a destroyed synapse and a non-destroyed
+        synapse. Make sure nothing gets double-destroyed.
     '''
     connections = Connections(1024)
 
     segment1 = connections.createSegment(11)
     segment2 = connections.createSegment(12)
 
-    synapse1_1 = connections.createSynapse(segment1, 101, .85)
+    connections.createSynapse(segment1, 101, .85)
     synapse2_1 = connections.createSynapse(segment2, 201, .85)
-    synapse2_2 = connections.createSynapse(segment2, 202, .85)
+    connections.createSynapse(segment2, 202, .85)
 
     self.assertEqual(3, connections.numSynapses())
 
@@ -205,18 +205,18 @@ class ConnectionsTest(unittest.TestCase):
     self.assertEqual(1, connections.numSegments())
     self.assertEqual(1, connections.numSynapses())
 
-  
+
   def testReuseSegmentWithDestroyedSynapses(self):
-    ''' Destroy a segment that has a destroyed synapse and a non-destroyed synapse.
-        Create a new segment in the same place. Make sure its synapse count is
-        correct.
+    ''' Destroy a segment that has a destroyed synapse and a non-destroyed
+        synapse. Create a new segment in the same place. Make sure its synapse
+        count is correct.
     '''
     connections = Connections(1024)
 
     segment = connections.createSegment(11)
 
     synapse1 = connections.createSynapse(segment, 201, .85)
-    synapse2 = connections.createSynapse(segment, 202, .85)
+    connections.createSynapse(segment, 202, .85)
 
     connections.destroySynapse(synapse1)
 
@@ -254,8 +254,8 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testDestroySynapsesThenReachLimit(self):
-    ''' Destroy some synapses then verify that the maxSynapsesPerSegment is still
-        correctly applied.
+    ''' Destroy some synapses then verify that the maxSynapsesPerSegment is
+        still correctly applied.
     '''
     connections = Connections(1024, 2, 2)
 
@@ -263,7 +263,7 @@ class ConnectionsTest(unittest.TestCase):
 
     synapse1 = connections.createSynapse(segment, 201, .85)
     synapse2 = connections.createSynapse(segment, 202, .85)
-    
+
     self.assertEqual(2, connections.numSynapses())
     connections.destroySynapse(synapse1)
     connections.destroySynapse(synapse2)
@@ -279,8 +279,8 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testReachSegmentLimitMultipleTimes(self):
-    ''' Hit the maxSynapsesPerSegment threshold multiple times. Make sure it works
-        more than once.
+    ''' Hit the maxSynapsesPerSegment threshold multiple times. Make sure it
+        works more than once.
     '''
     connections = Connections(1024, 2, 2)
 
@@ -298,7 +298,7 @@ class ConnectionsTest(unittest.TestCase):
 
   def testUpdateSynapsePermanence(self):
     ''' Creates a synapse and updates its permanence, and makes sure that its
-        data was correctly updated. 
+        data was correctly updated.
     '''
     connections = Connections(1024)
     segment = connections.createSegment(10)
@@ -309,17 +309,17 @@ class ConnectionsTest(unittest.TestCase):
     synapseData = connections.dataForSynapse(synapse)
     self.assertAlmostEqual(synapseData.permanence, .21)
 
-  
+
   def testMostActiveSegmentForCells(self):
-    ''' Creates a sample set of connections, and makes sure that getting the most
-        active segment for a collection of cells returns the right segment.
+    ''' Creates a sample set of connections, and makes sure that getting the
+        most active segment for a collection of cells returns the right segment.
     '''
     connections = Connections(1024)
     segment1 = connections.createSegment(10)
-    synapse1 = connections.createSynapse(segment1, 150, .34)
+    connections.createSynapse(segment1, 150, .34)
 
     segment2 = connections.createSegment(20)
-    synapse2 = connections.createSynapse(segment2, 50, .85)
+    connections.createSynapse(segment2, 50, .85)
 
     cells = [10, 20]
     inputVec = [50]
@@ -330,16 +330,16 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testMostActiveSegmentForCellsNone(self):
-    ''' Creates a sample set of connections, and makes sure that getting the most
-        active segment for a collection of cells with no activity returns
+    ''' Creates a sample set of connections, and makes sure that getting the
+        most active segment for a collection of cells with no activity returns
         no segment.
     '''
     connections = Connections(1024)
     segment1 = connections.createSegment(10)
-    synapse1 = connections.createSynapse(segment1, 150, .34)
+    connections.createSynapse(segment1, 150, .34)
 
     segment2 = connections.createSegment(20)
-    synapse2 = connections.createSynapse(segment2, 50, .85)
+    connections.createSynapse(segment2, 50, .85)
 
     cells = [10, 20]
     inputVec = [150]
@@ -397,7 +397,7 @@ class ConnectionsTest(unittest.TestCase):
     self.assertEqual(1, len(active))
     self.assertEqual(segment2_1, active[0].segment)
     self.assertEqual(2, active[0].overlap)
-    
+
     self.assertEqual(3, len(matching))
     self.assertEqual(segment1_1, matching[0].segment)
     self.assertEqual(2, matching[0].overlap)
@@ -408,7 +408,7 @@ class ConnectionsTest(unittest.TestCase):
 
 
   @unittest.skipUnless(
-      capnp, "pycapnp is not installed, skipping serialization test.")
+    capnp, "pycapnp is not installed, skipping serialization test.")
   def testWriteRead(self):
     c1 = Connections(1024)
 

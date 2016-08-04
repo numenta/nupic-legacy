@@ -128,17 +128,6 @@ class Connections(object):
     self._iteration = 0
 
 
-  def columnForSegment(self, segment, cellsPerColumn):
-    """ Returns the column of the cell which owns the segment
-
-    @param segment        (Segment) Segment
-    @param cellsPerColumn (int) Number of cells in a column in the tm
-
-    @return (int)
-    """
-    return segment.cell / cellsPerColumn
-
-
   def segmentsForCell(self, cell):
     """ Returns the segments that belong to a cell.
 
@@ -481,9 +470,7 @@ class Connections(object):
         segmentOverlap = SegmentOverlap(segment, numMatching)
         matchingSegments.append(segmentOverlap)
     
-    segCmp = lambda a, b: (a.segment.cell - b.segment.cell 
-                           if a.segment.cell - b.segment.cell != 0
-                           else a.segment.idx - b.segment.idx)
+    segCmp = lambda a, b: 
     
     return (sorted(activeSegments, cmp = segCmp),
             sorted(matchingSegments, cmp = segCmp))
