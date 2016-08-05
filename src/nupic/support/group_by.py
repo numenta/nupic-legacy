@@ -21,37 +21,45 @@
 
 from itertools import groupby
 
-''' A utility function wrapper around groupby in itertools. Allows to 
+''' A utility function wrapper around groupby in itertools. Allows to
     walk across n sorted lists with respect to their key functions
     and yields a tuple of n lists of the members of the next *smallest*
     group.
 
-    @param args (list) a list of (sortedlist, keyfunction) tuples to perform
-                       the groupby on.
+    @param args (list) a list of arguments alternating between sorted lists and
+                       their respective key functions. The lists should be
+                       sorted with respect to their key function.
 
-    @return (tuple) a n dimensional tuple, where n is the number of tuples
-                    in args, of lists of objects that are a member of the 
-                    next group
+    @return (tuple) a n + 1 dimensional tuple, where the first element is the
+                    key of the group and the other n are lists of objects
+                    that are a member of the current group that is being
+                    iterated over.
 
     Notes: Read up on groupby here:
            https://docs.python.org/dev/library/itertools.html#itertools.groupby
 '''
 
 def groupByN(*args):
-  groupsList = [] #list  (k, group) tuples
-  indexList = []
+  groupsList = [] # list of each list's (k, group) tuples
+  indexList = [] # list of [currentIndex, endIndex] pairs
+  
+  if len(args) % 2 == 1:
+    raise ValueError("Must have a key function for every list.")
 
-  for listn, fn in args:
-    if sorted(listn, cmp=lambda a,b: fn(a) - fn(b)) != listn:
-      raise ValueError("iterables must be sorted with respect to their key function")
+  # zip up tuples of lists and their functions
+  tups = [(args[i], args[i+1]) for i in xrange(0, len(args), 2)]
+
+  # populate above lists
+  for listn, fn in tups:
     groupsListEntry = [(k, list(g)) for k, g in groupby(listn, fn)]
     groupsList.append(groupsListEntry)
     indexList.append([0, len(groupsListEntry)])
 
-  while (any([pair[0] != pair[1] for pair in indexList])):
+  # while all lists aren't exhausted walk through each group in order
+  while any([pair[0] != pair[1] for pair in indexList]):
+    # find the smallest next group and all lists that have an element in it
     argIndices = []
     minKeyVal = float("inf")
-
     for i, groupTupleList in enumerate(groupsList):
       if indexList[i][0] < indexList[i][1]: #still groups left to process
         groupVal = groupTupleList[indexList[i][0]][0]
@@ -61,17 +69,17 @@ def groupByN(*args):
         elif groupVal == minKeyVal:
           argIndices.append(i)
 
+    # populate the tuple to return
     retGroups = [minKeyVal]
     argIndicesIndex = 0
     argIndicesLen = len(argIndices)
-
     for i in xrange(len(indexList)):
       index = indexList[i][0]
-      if argIndicesIndex != argIndicesLen and argIndices[argIndicesIndex] == i: 
+      if argIndicesIndex != argIndicesLen and argIndices[argIndicesIndex] == i:
         retGroups.append(groupsList[i][index][1])
-        indexList[i][0] += 1 
+        indexList[i][0] += 1
         argIndicesIndex += 1
       else:
-        retGroups.append([]) 
+        retGroups.append([])
 
     yield tuple(retGroups)

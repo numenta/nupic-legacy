@@ -35,7 +35,7 @@ class ConnectionsTest(unittest.TestCase):
                       (16, [16])]
     
     i = 0
-    for data in groupByN((sequence0, identity)):
+    for data in groupByN(sequence0, identity):
       self.assertEqual(data, expectedValues[i])
       i += 1
 
@@ -54,8 +54,8 @@ class ConnectionsTest(unittest.TestCase):
                       (16, [16], [])]
 
     i = 0
-    for data in groupByN((sequence0, identity),
-                         (sequence1, times3)):
+    for data in groupByN(sequence0, identity,
+                         sequence1, times3):
       self.assertEqual(data, expectedValues[i])
       i += 1
 
@@ -76,9 +76,9 @@ class ConnectionsTest(unittest.TestCase):
                       (16, [16], [], [4]),
                       (20, [], [], [5])]
     i = 0
-    for data in groupByN((sequence0, identity),
-                         (sequence1, times3),
-                         (sequence2, times4)):
+    for data in groupByN(sequence0, identity,
+                         sequence1, times3,
+                         sequence2, times4):
       self.assertEqual(data, expectedValues[i])
       i += 1  
 
@@ -102,10 +102,10 @@ class ConnectionsTest(unittest.TestCase):
                       (20, [], [], [5], [4]),
                       (25, [], [], [], [5])]
     i = 0
-    for data in groupByN((sequence0, identity),
-                         (sequence1, times3),
-                         (sequence2, times4),
-                         (sequence3, times5)):
+    for data in groupByN(sequence0, identity,
+                         sequence1, times3,
+                         sequence2, times4,
+                         sequence3, times5):
       self.assertEqual(data, expectedValues[i])
       i += 1  
 
@@ -132,11 +132,11 @@ class ConnectionsTest(unittest.TestCase):
                       (20, [], [], [5], [4], []),
                       (25, [], [], [], [5], [])]
     i = 0
-    for data in groupByN((sequence0, identity),
-                         (sequence1, times3),
-                         (sequence2, times4),
-                         (sequence3, times5),
-                         (sequence4, times6)):
+    for data in groupByN(sequence0, identity,
+                         sequence1, times3,
+                         sequence2, times4,
+                         sequence3, times5,
+                         sequence4, times6):
       self.assertEqual(data, expectedValues[i])
       i += 1  
     
