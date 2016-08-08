@@ -146,6 +146,8 @@ class Connections(object):
 
     # Save member variables
     self.numCells = numCells
+    assert maxSegmentsPerCell > 0
+    assert maxSynapsesPerSegment > 0
     self.maxSegmentsPerCell = maxSegmentsPerCell
     self.maxSynapsesPerSegment = maxSynapsesPerSegment
 
@@ -236,7 +238,7 @@ class Connections(object):
         minIdx = i
         minIteration = segments[i].lastUsedIteration
 
-    return Segment(minIdx, cell)
+    return Segment(int(minIdx), cell)
 
 
   def _minPermanenceSynapse(self, segment):
