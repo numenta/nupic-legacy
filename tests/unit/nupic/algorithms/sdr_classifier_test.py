@@ -762,10 +762,9 @@ class SDRClassifierTest(unittest.TestCase):
     c2 = SDRClassifier.read(proto2)
 
     self.assertEqual(c1.steps, c2.steps)
+    self.assertEqual(c1._maxSteps, c2._maxSteps)
     self.assertAlmostEqual(c1.alpha, c2.alpha)
     self.assertAlmostEqual(c1.actValueAlpha, c2.actValueAlpha)
-    self.assertEqual(c1._learnIteration, c2._learnIteration)
-    self.assertEqual(c1._recordNumMinusLearnIteration, c2._recordNumMinusLearnIteration)
     self.assertEqual(c1._patternNZHistory, c2._patternNZHistory)
     self.assertEqual(c1._weightMatrix.keys(), c2._weightMatrix.keys())
     for step in c1._weightMatrix.keys():

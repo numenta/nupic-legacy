@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -22,6 +22,7 @@
 import os
 import numpy
 
+from nupic.algorithms import anomaly
 from nupic.research import TP
 from nupic.research import TP10X2
 from nupic.research import TP_shim
@@ -508,6 +509,9 @@ class TPRegion(PyRegion):
 
     if self.computePredictedActiveCellIndices:
       prevPredictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
+    
+    if self.anomalyMode:
+      prevPredictedColumns = self._tfdr.topDownCompute().copy().nonzero()[0]
 
     # Perform inference and/or learning
     tpOutput = self._tfdr.compute(buInputVector, self.learningMode, self.inferenceMode)
@@ -537,6 +541,10 @@ class TPRegion(PyRegion):
       activeLearnCells = self._tfdr.getLearnActiveStateT()
       size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
+      
+      activeColumns = buInputVector.nonzero()[0]  
+      outputs['anomalyScore'][:] = anomaly.computeRawAnomalyScore(
+        activeColumns, prevPredictedColumns)
 
     if self.computePredictedActiveCellIndices:
       # Reshape so we are dealing with 1D arrays
@@ -544,8 +552,8 @@ class TPRegion(PyRegion):
       activeIndices = numpy.where(activeState != 0)[0]
       predictedIndices= numpy.where(prevPredictedState != 0)[0]
       predictedActiveIndices = numpy.intersect1d(activeIndices, predictedIndices)
-      outputs["predictedActiveCells"].fill(0)
-      outputs["predictedActiveCells"][predictedActiveIndices] = 1
+      outputs['predictedActiveCells'].fill(0)
+      outputs['predictedActiveCells'][predictedActiveIndices] = 1
 
 
   #############################################################################
@@ -881,6 +889,7 @@ class TPRegion(PyRegion):
       import dbgp.client; dbgp.client.brk()
     if self.breakPdb:
       import pdb; pdb.set_trace()
+
 
   #############################################################################
   #

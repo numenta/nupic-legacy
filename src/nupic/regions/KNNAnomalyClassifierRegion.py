@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -26,9 +26,10 @@ This file defines the k Nearest Neighbor classifier region.
 import copy
 
 import numpy
+
+from nupic.algorithms import anomaly
 from nupic.bindings.regions.PyRegion import PyRegion
 from KNNClassifierRegion import KNNClassifierRegion
-from nupic.algorithms.anomaly import computeRawAnomalyScore
 from nupic.bindings.math import Random
 from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError,
                                              CLAModelInvalidArgument)
@@ -406,7 +407,8 @@ class KNNAnomalyClassifierRegion(PyRegion):
     allSPColumns = inputs["spBottomUpOut"]
     activeSPColumns = allSPColumns.nonzero()[0]
 
-    score = computeRawAnomalyScore(activeSPColumns, self._prevPredictedColumns)
+    score = anomaly.computeRawAnomalyScore(activeSPColumns,
+                                           self._prevPredictedColumns)
 
     spSize = len(allSPColumns)
 

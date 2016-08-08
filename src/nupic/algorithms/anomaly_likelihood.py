@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2014-2015, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -21,7 +21,7 @@
 
 """
 This module analyzes and estimates the distribution of averaged anomaly scores
-from a CLA model. Given a new anomaly score `s`, estimates `P(score >= s)`.
+from a given model. Given a new anomaly score `s`, estimates `P(score >= s)`.
 
 The number `P(score >= s)` represents the likelihood of the current state of
 predictability. For example, a likelihood of 0.01 or 1% means we see this much
@@ -73,20 +73,24 @@ class AnomalyLikelihood(object):
 
 
   def __init__(self,
-               claLearningPeriod=288,
+               claLearningPeriod=None,
+               learningPeriod=288,
                estimationSamples=100,
                historicWindowSize=8640,
                reestimationPeriod=100):
     """
     NOTE: Anomaly likelihood scores are reported at a flat 0.5 for
-    claLearningPeriod + estimationSamples iterations.
+    learningPeriod + estimationSamples iterations.
 
-    @param claLearningPeriod - (int) the number of iterations required for the
-      CLA to learn the basic patterns in the dataset and for the anomaly score
-      to 'settle down'. The default is based on empirical observations but in
-      reality this could be larger for more complex domains. The downside if
-      this is too large is that real anomalies might get ignored and not
-      flagged.
+    claLearningPeriod and learningPeriod are specifying the same variable,
+    although claLearningPeriod is a deprecated name for it.
+
+    @param learningPeriod (claLeraningPeriod: deprecated) - (int) the number of
+      iterations required for the algorithm to learn the basic patterns in the
+      dataset and for the anomaly score to 'settle down'. The default is based
+      on empirical observations but in reality this could be larger for more
+      complex domains. The downside if this is too large is that real anomalies
+      might get ignored and not flagged.
 
     @param estimationSamples - (int) the number of reasonable anomaly scores
       required for the initial estimate of the Gaussian. The default of 100
@@ -111,9 +115,15 @@ class AnomalyLikelihood(object):
     self._iteration = 0
     self._historicalScores = collections.deque(maxlen=historicWindowSize)
     self._distribution = None
-    self._probationaryPeriod = claLearningPeriod + estimationSamples
-    self._claLearningPeriod = claLearningPeriod
 
+
+    if claLearningPeriod != None:
+      print "claLearningPeriod is deprecated, use learningPeriod instead."
+      self._learningPeriod = claLearningPeriod
+    else:
+      self._learningPeriod = learningPeriod
+
+    self._probationaryPeriod = self._learningPeriod + estimationSamples
     self._reestimationPeriod = reestimationPeriod
 
 
@@ -124,7 +134,7 @@ class AnomalyLikelihood(object):
             self._historicalScores == o._historicalScores and
             self._distribution == o._distribution and
             self._probationaryPeriod == o._probationaryPeriod and
-            self._claLearningPeriod == o._claLearningPeriod and
+            self._learningPeriod == o._learningPeriod and
             self._reestimationPeriod == o._reestimationPeriod)
     # pylint: enable=W0212
 
@@ -135,7 +145,7 @@ class AnomalyLikelihood(object):
       self._historicalScores,
       self._distribution,
       self._probationaryPeriod,
-      self._claLearningPeriod,
+      self._learningPeriod,
       self._reestimationPeriod) )
 
 
@@ -165,12 +175,111 @@ class AnomalyLikelihood(object):
     @param numIngested - (int) number of data points that have been added to the
       sliding window of historical data points.
     @param windowSize - (int) size of sliding window of historical data points.
-    @param learningPeriod - (int) the number of iterations required for the CLA
-      to learn the basic patterns in the dataset and for the anomaly score to
-      'settle down'.
+    @param learningPeriod - (int) the number of iterations required for the
+      algorithm to learn the basic patterns in the dataset and for the anomaly
+      score to 'settle down'.
     """
     numShiftedOut = max(0, numIngested - windowSize)
     return min(numIngested, max(0, learningPeriod - numShiftedOut))
+
+
+  @classmethod
+  def read(cls, proto):
+    """ capnp deserialization method for the anomaly likelihood object
+
+    @param proto (Object) capnp proto object specified in
+                          nupic.regions.AnomalyLikelihoodRegion.capnp
+
+    @return (Object) the deserialized AnomalyLikelihood object
+    """
+    # pylint: disable=W0212
+    anomalyLikelihood = object.__new__(cls)
+    anomalyLikelihood._iteration = proto.iteration
+
+    anomalyLikelihood._historicalScores = collections.deque(
+      maxlen=proto.historicWindowSize)
+    for i, score in enumerate(proto.historicalScores):
+      anomalyLikelihood._historicalScores.append((i, score.value,
+                                                  score.anomalyScore))
+    if proto.distribution.name: # is "" when there is no distribution.
+      anomalyLikelihood._distribution = {}
+      anomalyLikelihood._distribution["name"] = proto.distribution.name
+      anomalyLikelihood._distribution["mean"] = proto.distribution.mean
+      anomalyLikelihood._distribution["variance"] = proto.distribution.variance
+      anomalyLikelihood._distribution["stdev"] = proto.distribution.stdev
+
+      anomalyLikelihood._distribution["movingAverage"] = {}
+      anomalyLikelihood._distribution["movingAverage"]["windowSize"] =\
+        proto.distribution.movingAverage.windowSize
+      anomalyLikelihood._distribution["movingAverage"]["historicalValues"] = []
+      for value in proto.distribution.movingAverage.historicalValues:
+        anomalyLikelihood._distribution["movingAverage"]["historicalValues"]\
+          .append(value)
+      anomalyLikelihood._distribution["movingAverage"]["total"] =\
+        proto.distribution.movingAverage.total
+
+      anomalyLikelihood._distribution["historicalLikelihoods"] = []
+      for likelihood in proto.distribution.historicalLikelihoods:
+        anomalyLikelihood._distribution["historicalLikelihoods"].append(
+          likelihood)
+    else:
+      anomalyLikelihood._distribution = None
+
+    anomalyLikelihood._probationaryPeriod = proto.probationaryPeriod
+    anomalyLikelihood._learningPeriod = proto.learningPeriod
+    anomalyLikelihood._reestimationPeriod = proto.reestimationPeriod
+    # pylint: enable=W0212
+
+    return anomalyLikelihood
+
+
+  def write(self, proto):
+    """ capnp serialization method for the anomaly likelihood object
+
+    @param proto (Object) capnp proto object specified in
+                          nupic.regions.AnomalyLikelihoodRegion.capnp
+    """
+    proto.iteration = self._iteration
+
+    pHistScores = proto.init('historicalScores', len(self._historicalScores))
+    for i, score in enumerate(list(self._historicalScores)):
+      _, value, anomalyScore = score
+      record = pHistScores[i]
+      record.value = float(value)
+      record.anomalyScore = float(anomalyScore)
+
+    if self._distribution:
+      proto.distribution.name = self._distribution["distributionParams"]["name"]
+      proto.distribution.mean = self._distribution["distributionParams"]["mean"]
+      proto.distribution.variance = self._distribution["distributionParams"]\
+        ["variance"]
+      proto.distribution.stdev = self._distribution["distributionParams"]\
+        ["stdev"]
+
+      proto.distribution.movingAverage.windowSize = self._distribution\
+        ["movingAverage"]["windowSize"]
+
+      historicalValues = self._distribution["movingAverage"]["historicalValues"]
+      pHistValues = proto.distribution.movingAverage.init(
+        "historicalValues", len(historicalValues))
+      for i, value in enumerate(historicalValues):
+        pHistValues[i] = float(value)
+
+      proto.distribution.movingAverage.historicalValues = self._distribution\
+        ["movingAverage"]["historicalValues"]
+      proto.distribution.movingAverage.total = self._distribution\
+        ["movingAverage"]["total"]
+
+      historicalLikelihoods = self._distribution["historicalLikelihoods"]
+      pHistLikelihoods = proto.distribution.init("historicalLikelihoods",
+                                                 len(historicalLikelihoods))
+      for i, likelihood in enumerate(historicalLikelihoods):
+        pHistLikelihoods[i] = float(likelihood)
+
+    proto.probationaryPeriod = self._probationaryPeriod
+    proto.learningPeriod = self._learningPeriod
+    proto.reestimationPeriod = self._reestimationPeriod
+    proto.historicWindowSize = self._historicalScores.maxlen
 
 
   def anomalyProbability(self, value, anomalyScore, timestamp=None):
@@ -184,7 +293,7 @@ class AnomalyLikelihood(object):
     @param anomalyScore - the current anomaly score
     @param timestamp - (optional) timestamp of the ocurrence,
                        default (None) results in using iteration step.
-    @return theanomalyLikelihood for this record.
+    @return the anomalyLikelihood for this record.
     """
     if timestamp is None:
       timestamp = self._iteration
@@ -201,7 +310,7 @@ class AnomalyLikelihood(object):
         numSkipRecords = self._calcSkipRecords(
           numIngested=self._iteration,
           windowSize=self._historicalScores.maxlen,
-          learningPeriod=self._claLearningPeriod)
+          learningPeriod=self._learningPeriod)
 
         _, _, self._distribution = estimateAnomalyLikelihoods(
           self._historicalScores,
@@ -491,6 +600,7 @@ def updateAnomalyLikelihoods(anomalyScores,
   return (likelihoods, aggRecordList, newParams)
 
 
+
 def _filterLikelihoods(likelihoods,
                        redThreshold=0.99999, yellowThreshold=0.999):
   """
@@ -522,6 +632,7 @@ def _filterLikelihoods(likelihoods,
       filteredLikelihoods.append(v)
 
   return filteredLikelihoods
+
 
 
 def _anomalyScoreMovingAverage(anomalyScores,

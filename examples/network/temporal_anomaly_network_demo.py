@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2015, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2015-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -29,8 +29,6 @@ import csv
 import os
 
 from pkg_resources import resource_filename
-
-from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import common_networks
 
 _INPUT_FILE_PATH = resource_filename(
@@ -48,11 +46,7 @@ def runNetwork(network, writer):
   :param writer: a csv.writer instance to write output to
   """
   sensorRegion = network.regions["sensor"]
-  spatialPoolerRegion = network.regions["spatialPoolerRegion"]
   temporalPoolerRegion = network.regions["temporalPoolerRegion"]
-  anomalyRegion = network.regions["anomalyRegion"]
-
-  prevPredictedColumns = []
 
   for i in xrange(_NUM_RECORDS):
     # Run the network for a single iteration
@@ -60,45 +54,45 @@ def runNetwork(network, writer):
 
     # Write out the anomaly score along with the record number and consumption
     # value.
-    anomalyScore = anomalyRegion.getOutputData("rawAnomalyScore")[0]
+    anomalyScore = temporalPoolerRegion.getOutputData("rawAnomalyScore")[0]
     consumption = sensorRegion.getOutputData("sourceOut")[0]
     writer.writerow((i, consumption, anomalyScore))
 
 
 if __name__ == "__main__":
   inputFilePath = resource_filename(
-      "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
+    "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
   )
 
   scalarEncoderArgs = {
-      "w": 21,
-      "minval": 0.0,
-      "maxval": 100.0,
-      "periodic": False,
-      "n": 50,
-      "radius": 0,
-      "resolution": 0,
-      "name": "consumption",
-      "verbosity": 0,
-      "clipInput": True,
-      "forced": False,
+    "w": 21,
+    "minval": 0.0,
+    "maxval": 100.0,
+    "periodic": False,
+    "n": 50,
+    "radius": 0,
+    "resolution": 0,
+    "name": "consumption",
+    "verbosity": 0,
+    "clipInput": True,
+    "forced": False,
   }
 
   dateEncoderArgs = {
-      "season": 0,
-      "dayOfWeek": 0,
-      "weekend": 0,
-      "holiday": 0,
-      "timeOfDay": (21, 9.5),
-      "customDays": 0,
-      "name": "timestamp",
-      "forced": True
+    "season": 0,
+    "dayOfWeek": 0,
+    "weekend": 0,
+    "holiday": 0,
+    "timeOfDay": (21, 9.5),
+    "customDays": 0,
+    "name": "timestamp",
+    "forced": True
   }
 
   recordParams = {
-      "inputFilePath": _INPUT_FILE_PATH,
-      "scalarEncoderArgs": scalarEncoderArgs,
-      "dateEncoderArgs": dateEncoderArgs,
+    "inputFilePath": _INPUT_FILE_PATH,
+    "scalarEncoderArgs": scalarEncoderArgs,
+    "dateEncoderArgs": dateEncoderArgs,
   }
 
   network = common_networks.createTemporalAnomaly(recordParams)

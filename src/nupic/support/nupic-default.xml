@@ -17,9 +17,9 @@
 
 <property>
   <name>nupic.opf.sdrClassifier.implementation</name>
-  <value>py</value>
+  <value>cpp</value>
   <description>The SDR classifier implementation to use by default. The current
-  options are 'py'.
+  options are 'py' and 'cpp'.
   </description>
 </property>
 
