@@ -609,7 +609,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
     tm.compute(previousActiveColumns, True)
     tm.compute(activeColumns, True)
-   
+
     self.assertTrue(tm.connections.dataForSynapse(weakInactSynapse).destroyed)
 
 
@@ -989,7 +989,8 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(columnsForCells[99], set([399]))
 
 
-
+  @unittest.skipUnless(
+    capnp, "pycapnp is not installed, skipping serialization test.")
   def testWriteRead(self):
     tm1 = TemporalMemory(
       columnDimensions=[100],
