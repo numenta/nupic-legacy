@@ -238,7 +238,7 @@ class Connections(object):
         minIdx = i
         minIteration = segments[i].lastUsedIteration
 
-    return Segment(int(minIdx), cell)
+    return Segment(minIdx, cell)
 
 
   def _minPermanenceSynapse(self, segment):
@@ -252,7 +252,6 @@ class Connections(object):
     Note: On ties it will chose the first occurance of the minimum permanence
     """
     synapses = self._cells[segment.cell].segments[segment.idx].synapses
-    # print synapses
     minIdx = float("inf")
     minPermanence = float("inf")
 
@@ -261,7 +260,6 @@ class Connections(object):
         minIdx = i
         minPermanence = synapses[i].permanence
 
-    # print minIdx
     return Synapse(minIdx, segment)
 
 
@@ -317,7 +315,6 @@ class Connections(object):
 
     @return (int) New segment index
     """
-
     while self.numSegments(cell) >= self.maxSegmentsPerCell:
       self.destroySegment(self._leastRecentlyUsedSegment(cell))
 
@@ -512,8 +509,7 @@ class Connections(object):
       if numActive >= activeSynapseThreshold:
         segmentOverlap = SegmentOverlap(segment, numActive)
         activeSegments.append(segmentOverlap)
-        # print "Added active segment {} with {}".format(i,
-        #   numActiveSynapsesForSegment[i])
+        
         if recordIteration:
           self.dataForSegment(segment).lastUsedIteration = self._iteration
 
@@ -541,9 +537,10 @@ class Connections(object):
     @retval (int) number of segments on all cells if cell is not specified,
                   or on a specific specified cell
     """
-    if cell:
+    if cell != None:
       cellData = self._cells[cell]
       return len(cellData.segments) - cellData.numDestroyedSegments
+
     return self._numSegments
 
 
@@ -573,7 +570,6 @@ class Connections(object):
       segments = self._cells[i].segments
       protoSegments = protoCells[i].init('segments', len(segments))
 
-      # print "length of segments is {} on cell {}".format(len(segments), i)
       for j in xrange(len(segments)):
         synapses = segments[j].synapses
         protoSynapses = protoSegments[j].init('synapses', len(synapses))
@@ -581,7 +577,6 @@ class Connections(object):
         protoSegments[j].lastUsedIteration = segments[j].lastUsedIteration
 
         for k in xrange(len(synapses)):
-          # print "wrote synapses {} on segment {} on cell {}".format(k,j,i)
           protoSynapses[k].presynapticCell = synapses[k].presynapticCell
           protoSynapses[k].permanence = synapses[k].permanence
           protoSynapses[k].destroyed = synapses[k].destroyed
@@ -701,7 +696,6 @@ class Connections(object):
       synapses = self._synapsesForPresynapticCell[i]
       otherSynapses = other._synapsesForPresynapticCell[i]
       if len(synapses) != len(otherSynapses):
-        print i, len(synapses), len(otherSynapses)
         return False
 
       for j in xrange(len(synapses)):
