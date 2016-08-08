@@ -31,9 +31,9 @@ from itertools import groupby
                        sorted with respect to their key function.
 
     @return (tuple) a n + 1 dimensional tuple, where the first element is the
-                    key of the group and the other n are lists of objects
-                    that are a member of the current group that is being
-                    iterated over.
+                    key of the group and the other n entries are lists of
+                    objects that are a member of the current group that is being
+                    iterated over in the nth list passed in.
 
     Notes: Read up on groupby here:
            https://docs.python.org/dev/library/itertools.html#itertools.groupby
@@ -42,7 +42,7 @@ from itertools import groupby
 def groupByN(*args):
   groupsList = [] # list of each list's (k, group) tuples
   indexList = [] # list of [currentIndex, endIndex] pairs
-  
+
   if len(args) % 2 == 1:
     raise ValueError("Must have a key function for every list.")
 
@@ -58,10 +58,11 @@ def groupByN(*args):
   # while all lists aren't exhausted walk through each group in order
   while any([pair[0] != pair[1] for pair in indexList]):
     # find the smallest next group and all lists that have an element in it
-    argIndices = []
+    argIndices = [] # array of indices corresponding to the lists that have at
+                    # least one element that is a member of the minKeyVal group
     minKeyVal = float("inf")
     for i, groupTupleList in enumerate(groupsList):
-      if indexList[i][0] < indexList[i][1]: #still groups left to process
+      if indexList[i][0] < indexList[i][1]: # still groups left in the list
         groupVal = groupTupleList[indexList[i][0]][0]
         if groupVal < minKeyVal:
           argIndices = [i]

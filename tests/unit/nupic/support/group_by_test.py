@@ -18,10 +18,11 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-
-from nupic.support.group_by import groupByN
 import unittest
 
+from nupic.support.group_by import groupByN
+
+""" File to test src/nupic/support/group_by.py  """
 
 class ConnectionsTest(unittest.TestCase):
 
@@ -33,7 +34,7 @@ class ConnectionsTest(unittest.TestCase):
     expectedValues = [(7, [7]),
                       (12, [12, 12]),
                       (16, [16])]
-    
+
     i = 0
     for data in groupByN(sequence0, identity):
       self.assertEqual(data, expectedValues[i])
@@ -80,7 +81,7 @@ class ConnectionsTest(unittest.TestCase):
                          sequence1, times3,
                          sequence2, times4):
       self.assertEqual(data, expectedValues[i])
-      i += 1  
+      i += 1
 
 
   def testFourSequences(self):
@@ -107,7 +108,7 @@ class ConnectionsTest(unittest.TestCase):
                          sequence2, times4,
                          sequence3, times5):
       self.assertEqual(data, expectedValues[i])
-      i += 1  
+      i += 1
 
 
   def testFiveSequences(self):
@@ -138,6 +139,4 @@ class ConnectionsTest(unittest.TestCase):
                          sequence3, times5,
                          sequence4, times6):
       self.assertEqual(data, expectedValues[i])
-      i += 1  
-    
-
+      i += 1
