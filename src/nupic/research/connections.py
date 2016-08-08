@@ -24,32 +24,51 @@ from bisect import bisect_left
 
 EPSILON = 0.00001
 
+
 class Segment(object):
+  ''' Class containing mininal information to identify a unique segment '''
 
   def __init__(self, idx, cell):
+    '''
+       @param idx  (int) Index of the segment on the cell
+       @param cell (int) Index of the cell that this segment is on
+    '''
     self.idx = idx
     self.cell = cell
+
 
   def __eq__(self, other):
     return self.idx == other.idx and self.cell == other.cell
 
 
 class Synapse(object):
+  ''' Class containing mininal information to identify a unique synapse '''
 
   def __init__(self, idx, segment):
-    self.idx = idx
+    '''
+       @param idx     (int)    Index of the synapse on the segment
+       @param segment (Object) Segment Object that the synapse is synapsed to
+    '''
+    self.idx = idx 
     self.segment = segment
+
 
   def __eq__(self, other):
     return self.idx == other.idx and self.segment == other.segment
 
 
 class SynapseData(object):
+  ''' Class containing other important synapse information '''
 
   def __init__(self, presynapticCell, permanence):
+    '''
+       @param presynapticCell (int)   The index of the presynaptic cell of the
+                                      synapse 
+       @param permanence      (float) permanence of the synapse from 0.0 to 1.0
+    '''
     self.presynapticCell = presynapticCell
     self.permanence = permanence
-    self.destroyed = False
+    self.destroyed = False  #boolean destroyed flag so object can be reused
 
 
   def __eq__(self, other):
@@ -59,8 +78,12 @@ class SynapseData(object):
 
 
 class SegmentData(object):
+  ''' Class containing other important segment information '''
   
   def __init__(self, flatIdx):
+    '''
+       @param flatIdx (int) global index of the segment
+    '''
     self.synapses = []
     self.numDestroyedSynapses = 0
     self.destroyed = False
@@ -69,15 +92,23 @@ class SegmentData(object):
 
 
 class CellData(object):
+  ''' Class containing cell information '''
 
   def __init__(self):
-    self.segments = []
+    self.segments = []   # list of segments on the cell
     self.numDestroyedSegments = 0
 
 
 class SegmentOverlap(object):
+  ''' Class that allows tracking of overlap scores on segments '''
 
   def __init__(self, segment, overlap):
+    '''
+       @param segment (Object) Segment object to keep track of
+       @param overlap (int)    The number of synapses on the segment that 
+                               are above either the matching threshold or 
+                               the active threshold
+    '''
     self.segment = segment
     self.overlap = overlap
 
@@ -166,7 +197,7 @@ class Connections(object):
   def dataForSynapse(self, synapse):
     """ Returns the data for a synapse.
 
-    @param synapse (int) Synapse index
+    @param synapse (Object) Synapse object
 
     @return (SynapseData) Synapse data
     """
@@ -175,11 +206,23 @@ class Connections(object):
                       [synapse.segment.idx].synapses[synapse.idx]
 
   def dataForSegment(self, segment):
+    """ Returns the data for a segment.
+
+    @param segment (Object) Segment object
+
+    @return (SegmentData) Segment data
+    """
 
     return self._cells[segment.cell].segments[segment.idx]
 
 
   def synapsesForPresynapticCell(self, presynapticCell):
+    """ Returns the data for a segment.
+
+    @param presynapticCell (int) cell index
+
+    @return (list) list of Synapse objects
+    """
     if not presynapticCell in self._synapsesForPresynapticCell:
       return []
 
@@ -187,6 +230,14 @@ class Connections(object):
 
 
   def _leastRecentlyUsedSegment(self, cell):
+    """ Internal method for finding the least recently activated segment on a 
+        cell
+
+    @param cell (int) cell index to search for segments on
+
+    @return (Object) Segment object of the segment that was least recently
+                     created/activated.
+    """
     segments = self._cells[cell].segments
     minIdx = float("inf")
     minIteration = float("inf")
@@ -201,6 +252,15 @@ class Connections(object):
 
   
   def _minPermanenceSynapse(self, segment):
+    """ Internal method for finding the synapse with the smallest permanence
+    on the given segment.
+
+    @param segment (Object) Segment object to search for synapses on
+
+    @return (Object) Synapse object on the segment of the minimal permanence
+
+    Note: On ties it will chose the first occurance of the minimum permanence
+    """
     synapses = self._cells[segment.cell].segments[segment.idx].synapses
     # print synapses
     minIdx = float("inf")
@@ -255,7 +315,7 @@ class Connections(object):
 
     @param presynapticCell (int) Source cell index
 
-    @return (set) Synapse indices
+    @return (list) Synapse objects
     """
     return self._synapsesForPresynapticCell[presynapticCell]
 
@@ -301,7 +361,8 @@ class Connections(object):
   def destroySegment(self, segment):
     """ Destroys a segment.
 
-    @param segment (int) Segment index
+    @param segment (Object) Segment object representing the segment to be 
+                            destroyed
     """
     segmentData = self.dataForSegment(segment)
 
@@ -333,11 +394,11 @@ class Connections(object):
   def createSynapse(self, segment, presynapticCell, permanence):
     """ Creates a new synapse on a segment.
 
-    @param segment         (int)   Segment index
-    @param presynapticCell (int)   Source cell index
-    @param permanence      (float) Initial permanence
+    @param segment         (Object) Segment object for synapse to be synapsed to
+    @param presynapticCell (int)    Source cell index
+    @param permanence      (float)  Initial permanence
 
-    @return (int) Synapse index
+    @return (Object) created Synapse object
     """
     
     while self.numSynapsesForSegment(segment) >= self.maxSynapsesPerSegment:
@@ -378,7 +439,7 @@ class Connections(object):
   def destroySynapse(self, synapse):
     """ Destroys a synapse.
 
-    @param synapse (int) Synapse index
+    @param synapse (Object) Synapse object to destroy
     """
     synapseData = self.dataForSynapse(synapse)
     if not synapseData.destroyed:
@@ -400,13 +461,11 @@ class Connections(object):
   def updateSynapsePermanence(self, synapse, permanence):
     """ Updates the permanence for a synapse.
 
-    @param synapse    (int)   Synapse index
-    @param permanence (float) New permanence
+    @param synapse    (Object) Synapse object to be updated
+    @param permanence (float)  New permanence
     """
 
     self.dataForSynapse(synapse).permanence = permanence
-
-  
 
 
   def computeActivity(self, activeInput, activePermanenceThreshold,
@@ -423,13 +482,18 @@ class Connections(object):
                                                synapse to be considered matching
     @param matchingSynapseThreshold    (int)   number of synapses needed for a
                                                segment to be considered matching
+    @param recordIteration             (bool)  bool to determine if we should
+                                               update the lastUsedIteration on
+                                               active segments and the internal
+                                               iteration variable
 
     @return (tuple) Contains:
                       `activeSegments`         (list),
-                      `matchingSegments`        (list),
+                      `matchingSegments`       (list),
 
     Notes:
-      activeSegments and matchingSegments are sorted by the cell they are on.
+      activeSegments and matchingSegments are sorted by the cell they are on
+      and they are lists of SegmentOverlap objects.
     """
 
     numActiveSynapsesForSegment = [0] * self._nextFlatIdx
@@ -477,32 +541,34 @@ class Connections(object):
             sorted(matchingSegments, cmp = segCmp))
   
 
-  
-
   def numSegments(self, cell=None):
-    """ Returns the number of segments. """
+    """ Returns the number of segments. 
+
+    @param cell (int) optional parameter to get the number of segments on a cell
+
+    @retval (int) number of segments on all cells if cell is not specified,
+                  or on a specific specified cell
+    """
     if cell:
       cellData = self._cells[cell]
       return len(cellData.segments) - CellData.numDestroyedSegments
     return self._numSegments
 
 
-  def numSegmentsForCell(self, cell):
-    return (len(self._cells[cell].segments) - 
-      self._cells[cell].numDestroyedSegments)
-
-
   def numSynapses(self, segment=None):
-    """ Returns the number of synapses. """
+    """ Returns the number of Synapses. 
+
+    @param segment (Object) optional parameter to get the number of synapses on
+                            a segment
+
+    @retval (int) number of synapses on all segments if segment is not
+                  specified, or on a specified segment
+    """
     if segment:
       segmentData = self._cells[segment.cell].segments[segment.idx]
       return len(segmentData.synapses) - segmentData.numDestroyedSynapses
     return self._numSynapses
-
-
-  def numSynapsesForSegment(self, segment):
-    return len(self.synapsesForSegment(segment))
-
+    
 
   def write(self, proto):
     """ Writes serialized data to proto object
@@ -593,7 +659,6 @@ class Connections(object):
   def __eq__(self, other):
     """ Equality operator for Connections instances.
     Checks if two instances are functionally identical
-    (might have different internal state).
 
     @param other (Connections) Connections instance to compare to
     """
@@ -673,7 +738,6 @@ class Connections(object):
   def __ne__(self, other):
     """ Non-equality operator for Connections instances.
     Checks if two instances are not functionally identical
-    (might have different internal state).
 
     @param other (Connections) Connections instance to compare to
     """
