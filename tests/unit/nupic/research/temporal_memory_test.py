@@ -427,7 +427,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
     winnerCells = tm.getWinnerCells() #[18]
     self.assertEqual(1, len(winnerCells))
-    segments = sorted(tm.connections.segmentsForCell(winnerCells[0]))
+    segments = tm.connections.segmentsForCell(winnerCells[0])
     self.assertEqual(1, len(segments))
     synapses = tm.connections.synapsesForSegment(segments[0])
     self.assertEqual(2, len(synapses))
@@ -506,7 +506,7 @@ class TemporalMemoryTest(unittest.TestCase):
     synapses = tm.connections.synapsesForSegment(matchingSegment)
     self.assertEqual(3, len(synapses))
 
-    synapses = sorted(synapses)[1:] # only test the synapses added by compute
+    synapses = synapses[1:] # only test the synapses added by compute
     for synapse in synapses:
       synapseData = tm.connections.dataForSynapse(synapse)
       self.assertAlmostEqual(.21, synapseData.permanence)
@@ -539,7 +539,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
     tm.compute(activeColumns)
 
-    synapses = sorted(tm.connections.synapsesForSegment(matchingSegment))
+    synapses = tm.connections.synapsesForSegment(matchingSegment)
     self.assertEqual(2, len(synapses))
 
     synapseData = tm.connections.dataForSynapse(synapses[1])
@@ -673,7 +673,7 @@ class TemporalMemoryTest(unittest.TestCase):
     tm.compute(activeColumns)
 
     self.assertEqual(1, len(tm.connections.segmentsForCell(9)))
-    oldestSegment = sorted(tm.connections.segmentsForCell(9))[0]
+    oldestSegment = tm.connections.segmentsForCell(9)[0]
 
     tm.reset()
     tm.compute(prevActiveColumns2)

@@ -22,14 +22,14 @@
 import tempfile
 import unittest
 
-from nupic.research.connections import Connections, Segment
-
 try:
   import capnp
 except ImportError:
   capnp = None
 if capnp:
   from nupic.proto import ConnectionsProto_capnp
+
+from nupic.research.connections import Connections, Segment
 
 
 class ConnectionsTest(unittest.TestCase):
@@ -190,12 +190,12 @@ class ConnectionsTest(unittest.TestCase):
     segment2 = connections.createSegment(12)
 
     connections.createSynapse(segment1, 101, .85)
-    synapse2_1 = connections.createSynapse(segment2, 201, .85)
+    synapse2a = connections.createSynapse(segment2, 201, .85)
     connections.createSynapse(segment2, 202, .85)
 
     self.assertEqual(3, connections.numSynapses())
 
-    connections.destroySynapse(synapse2_1)
+    connections.destroySynapse(synapse2a)
 
     self.assertEqual(2, connections.numSegments())
     self.assertEqual(2, connections.numSynapses())
@@ -360,18 +360,18 @@ class ConnectionsTest(unittest.TestCase):
     # Segment with:
     # - 1 connected synapse: active
     # - 2 matching synapses
-    segment1_1 = connections.createSegment(10)
-    connections.createSynapse(segment1_1, 150, .85)
-    connections.createSynapse(segment1_1, 151, .15)
+    segment1a = connections.createSegment(10)
+    connections.createSynapse(segment1a, 150, .85)
+    connections.createSynapse(segment1a, 151, .15)
 
     # Cell with 2 segment.
     # Segment with:
     # - 2 connected synapse: 2 active
     # - 3 matching synapses: 3 active
-    segment2_1 = connections.createSegment(20)
-    connections.createSynapse(segment2_1, 80, .85)
-    connections.createSynapse(segment2_1, 81, .85)
-    synapse = connections.createSynapse(segment2_1, 82, .85)
+    segment2a = connections.createSegment(20)
+    connections.createSynapse(segment2a, 80, .85)
+    connections.createSynapse(segment2a, 81, .85)
+    synapse = connections.createSynapse(segment2a, 82, .85)
     connections.updateSynapsePermanence(synapse, .15)
 
 
@@ -379,31 +379,31 @@ class ConnectionsTest(unittest.TestCase):
     # - 2 connected synapses: 1 active, 1 inactive
     # - 3 matching synapses: 2 active, 1 inactive
     # - 1 non-matching synapse: 1 active
-    segment2_2 = connections.createSegment(20)
-    connections.createSynapse(segment2_2, 50, .85)
-    connections.createSynapse(segment2_2, 51, .85)
-    connections.createSynapse(segment2_2, 52, .15)
-    connections.createSynapse(segment2_2, 53, .05)
+    segment2b = connections.createSegment(20)
+    connections.createSynapse(segment2b, 50, .85)
+    connections.createSynapse(segment2b, 51, .85)
+    connections.createSynapse(segment2b, 52, .15)
+    connections.createSynapse(segment2b, 53, .05)
 
     # Cell with one segment.
     # Segment with:
     # - 1 non-matching synapse: 1 active
-    segment3_1 = connections.createSegment(30)
-    connections.createSynapse(segment3_1, 53, .05)
+    segment3a = connections.createSegment(30)
+    connections.createSynapse(segment3a, 53, .05)
 
     inputVec = [50, 52, 53, 80, 81, 82, 150, 151]
     active, matching = connections.computeActivity(inputVec, .5, 2, .1, 1)
 
     self.assertEqual(1, len(active))
-    self.assertEqual(segment2_1, active[0].segment)
+    self.assertEqual(segment2a, active[0].segment)
     self.assertEqual(2, active[0].overlap)
 
     self.assertEqual(3, len(matching))
-    self.assertEqual(segment1_1, matching[0].segment)
+    self.assertEqual(segment1a, matching[0].segment)
     self.assertEqual(2, matching[0].overlap)
-    self.assertEqual(segment2_1, matching[1].segment)
+    self.assertEqual(segment2a, matching[1].segment)
     self.assertEqual(3, matching[1].overlap)
-    self.assertEqual(segment2_2, matching[2].segment)
+    self.assertEqual(segment2b, matching[2].segment)
     self.assertEqual(2, matching[2].overlap)
 
 

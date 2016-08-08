@@ -32,9 +32,8 @@ from nupic.research.connections import Connections, SegmentOverlap, Segment,\
                                        binSearch
 from nupic.support.group_by import groupByN
 
-from sys import maxint as MAX_INT
-
-EPSILON = 0.000001
+EPSILON = 0.00001 # constant error threshold to check equality of permanences to
+                  # other floats
 
 
 
@@ -160,9 +159,7 @@ class TemporalMemory(object):
 
     self.activeCells = []
     self.winnerCells = []
-    
-    # print "Active Segments Length: {}".format(len(self.activeSegments))
-    # print "Matching Segments Length: {}".format(len(self.matchingSegments))
+
 
     segToCol = lambda segment: int(segment.segment.cell / self.cellsPerColumn)
     identity = lambda column: int(column)
@@ -174,11 +171,7 @@ class TemporalMemory(object):
        activeColumns,
        activeSegmentsOnCol,
        matchingSegmentsOnCol) = columnData
-      # print columnData
-      # print "Active Segments Count: {}".format(len(activeSegmentsOnCol))
-      # print "Matching Segments Count: {}".format(len(matchingSegmentsOnCol))
       if len(activeColumns):
-        # print "is active column"
         if len(activeSegmentsOnCol) != 0:
           cellsToAdd = TemporalMemory.activatePredictedColumn(
             activeSegmentsOnCol,
@@ -222,7 +215,6 @@ class TemporalMemory(object):
        0.0,
        self.minThreshold,
        learn)
-    # print "num active cells: {}".format(len(self.activeCells))
 
     self.activeSegments = activeSegments
     self.matchingSegments = matchingSegments
@@ -244,7 +236,7 @@ class TemporalMemory(object):
     """ Determines which cells in a predicted column should be added to
     winner cells list and calls adaptSegment on the segments that correctly
     predicted this column.
-    
+
     @param activeSegments  (list)   A list of SegmentOverlap objects for the
                                     column compute is operating on that are
                                     active
@@ -258,7 +250,7 @@ class TemporalMemory(object):
 
     @return cellsToAdd (list) A list of predicted cells that will be added to
                               active cells and winner cells.
-                              
+
     Pseudocode:
     for each cell in the column that has an active distal dendrite segment
       mark the cell as active
@@ -270,7 +262,6 @@ class TemporalMemory(object):
 
     cellsToAdd = []
     cell = None
-    # print "Activating predicted column"
     for active in activeSegments:
       newCell = cell != active.segment.cell
       if newCell:
@@ -334,7 +325,6 @@ class TemporalMemory(object):
     cells = range(start, start + cellsPerColumn)
 
     if len(matchingSegments) != 0:
-      # print "matchingSegmentsCount != 0"
       bestSegment = max(matchingSegments, key=lambda seg: seg.overlap)
       bestCell = bestSegment.segment.cell
       if learn:
@@ -343,20 +333,17 @@ class TemporalMemory(object):
                                     bestSegment.segment)
 
         nGrowDesired = maxNewSynapseCount - bestSegment.overlap
-        # print "{} - {} = {}".format(maxNewSynapseCount, bestSegment.overlap, nGrowDesired)
 
         if nGrowDesired > 0:
           TemporalMemory.growSynapses(connections, initialPermanence,
                                       nGrowDesired, prevWinnerCells,
                                       random, bestSegment.segment)
     else:
-      # print "matchingSegmentsCount == 0"
       bestCell = TemporalMemory.leastUsedCell(cells, connections, random)
       if learn:
         nGrowExact = min(maxNewSynapseCount, len(prevWinnerCells))
         if nGrowExact > 0:
           bestSegment = connections.createSegment(bestCell)
-          # print "Created Segment {} on cell {}".format(bestSegment.idx, bestSegment.cell)
           TemporalMemory.growSynapses(connections, initialPermanence,
                                       nGrowExact, prevWinnerCells,
                                       random, bestSegment)
@@ -416,7 +403,6 @@ class TemporalMemory(object):
         leastUsedCells.append(cell)
 
     i = random.getUInt32(len(leastUsedCells))
-    # print "least used cell {} with random {}".format(leastUsedCells[i], i)
     return leastUsedCells[i]
 
 
@@ -442,8 +428,6 @@ class TemporalMemory(object):
     candidates = list(prevWinnerCells)
     eligibleEnd = len(candidates) - 1
 
-    # print "candiates: {}".format(candidates)
-    # print "synapses: {}".format([connections.dataForSynapse(s).presynapticCell for s in connections.synapsesForSegment(segment)])
     for synapse in connections.synapsesForSegment(segment):
       presynapticCell = connections.dataForSynapse(synapse).presynapticCell
       try:
@@ -451,7 +435,6 @@ class TemporalMemory(object):
       except ValueError:
         index = -1
       if index != -1:
-        # print "swapped!"
         candidates[index] = candidates[eligibleEnd]
         eligibleEnd -= 1
 
@@ -462,7 +445,6 @@ class TemporalMemory(object):
       rand = random.getUInt32(candidatesLength)
       connections.createSynapse(segment, candidates[rand],
                                 initialPermanence)
-      # print "Created Synapse on Segment {} on cell {} with random {} len {}".format(segment.idx, candidates[rand], rand, candidatesLength)
       candidates[rand] = candidates[candidatesLength - 1]
       candidatesLength -= 1
 
@@ -482,7 +464,7 @@ class TemporalMemory(object):
 
     # Need to copy synapses for segment set below because it will be modified
     # during iteration by `destroySynapse`
-    
+
     for synapse in list(connections.synapsesForSegment(segment)):
       synapseData = connections.dataForSynapse(synapse)
       permanence = synapseData.permanence
@@ -497,18 +479,11 @@ class TemporalMemory(object):
       permanence = max(0.0, min(1.0, permanence))
 
       if permanence < EPSILON:
-        # print "Destroyed Synapse {} on segment {} on cell {}".format(synapse.idx, segment.idx, synapseData.presynapticCell)
         connections.destroySynapse(synapse)
       else:
         connections.updateSynapsePermanence(synapse, permanence)
-        # if abs(temp - 1.0) < EPSILON or temp < EPSILON:
-        #   temp = int(temp + EPSILON)
-        # if abs(permanence - 1.0) < EPSILON or permanence < EPSILON:
-        #   permanence = int(permanence + EPSILON)
-        # print "Updated Synapse Permanence {} on segment {} on cell {}".format(synapse.idx, segment.idx, synapseData.presynapticCell)
 
-    if (len(connections.synapsesForSegment(segment)) == 0):
-      # print "Destroyed Segment {} on cell {}".format(segment.idx, segment.cell)
+    if len(connections.synapsesForSegment(segment)) == 0:
       connections.destroySegment(segment)
 
 
@@ -635,7 +610,7 @@ class TemporalMemory(object):
       activeSegmentOverlaps[i].cell = active.segment.cell
       activeSegmentOverlaps[i].segment = active.segment.idx
       activeSegmentOverlaps[i].overlap = active.overlap
-    
+
     matchingSegmentOverlaps = \
         proto.init('matchingSegmentOverlaps', len(self.matchingSegments))
     for i, matching in enumerate(self.matchingSegments):
@@ -674,7 +649,7 @@ class TemporalMemory(object):
 
     tm.activeCells = [int(x) for x in proto.activeCells]
     tm.winnerCells = [int(x) for x in proto.winnerCells]
-    
+
     tm.activeSegments = []
     tm.matchingSegments = []
 
@@ -730,7 +705,7 @@ class TemporalMemory(object):
       return False
 
     if self.matchingSegments != other.matchingSegments:
-        return False
+      return False
     if self.activeSegments != other.activeSegments:
       return False
 
