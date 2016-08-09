@@ -27,7 +27,7 @@ EPSILON = 0.00001 # constant error threshold to check equality of permanences to
 
 
 class Segment(object):
-  ''' Class containing mininal information to identify a unique segment '''
+  ''' Class containing minimal information to identify a unique segment '''
   
   __slots__ = ['idx', 'cell']
 
@@ -45,7 +45,7 @@ class Segment(object):
 
 
 class Synapse(object):
-  ''' Class containing mininal information to identify a unique synapse '''
+  ''' Class containing minimal information to identify a unique synapse '''
 
   __slots__ = ['idx', 'segment']
 
@@ -530,7 +530,7 @@ class Connections(object):
 
     for i in xrange(self._nextFlatIdx):
       segment = self._segmentForFlatIdx[i]
-      numMatching = int(numMatchingSynapsesForSegment[i])
+      numMatching = numMatchingSynapsesForSegment[i]
       if numMatching >= matchingSynapseThreshold:
         segmentOverlap = SegmentOverlap(segment, numMatching)
         matchingSegments.append(segmentOverlap)

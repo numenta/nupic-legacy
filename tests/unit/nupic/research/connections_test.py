@@ -68,7 +68,7 @@ class ConnectionsTest(unittest.TestCase):
     self.assertEqual(segment2.idx, segment3.idx)
 
 
-  def testSynapseReusue(self):
+  def testSynapseReuse(self):
     ''' Creates a synapse over the synapses per segment limit, and verifies
         that the lowest permanence synapse is removed to make room for the new
         synapse.
