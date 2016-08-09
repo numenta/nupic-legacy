@@ -38,9 +38,9 @@ class TemporalMemoryCompatibilityTest(unittest.TestCase):
   """
 
 
-  @unittest.skip("There are slight differences between implementations that"
-                 "prevent this from passing still. See "
-                 "https://github.com/numenta/nupic/issues/2980")
+  # @unittest.skip("There are slight differences between implementations that"
+  #                "prevent this from passing still. See "
+  #                "https://github.com/numenta/nupic/issues/2980")
   def testTMPyCpp(self):
     """
     Test compatibility between C++ and Python TM implementation.

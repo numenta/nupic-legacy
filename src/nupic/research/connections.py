@@ -256,7 +256,8 @@ class Connections(object):
     minPermanence = float("inf")
 
     for i in xrange(len(synapses)):
-      if not synapses[i].destroyed and synapses[i].permanence < minPermanence:
+      if (not synapses[i].destroyed) and (synapses[i].permanence
+                                        < minPermanence - EPSILON):
         minIdx = i
         minPermanence = synapses[i].permanence
 
