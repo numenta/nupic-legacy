@@ -28,6 +28,8 @@ EPSILON = 0.00001 # constant error threshold to check equality of permanences to
 
 class Segment(object):
   ''' Class containing mininal information to identify a unique segment '''
+  
+  __slots__ = ['idx', 'cell']
 
   def __init__(self, idx, cell):
     '''
@@ -45,6 +47,8 @@ class Segment(object):
 class Synapse(object):
   ''' Class containing mininal information to identify a unique synapse '''
 
+  __slots__ = ['idx', 'segment']
+
   def __init__(self, idx, segment):
     '''
        @param idx     (int)    Index of the synapse on the segment
@@ -60,6 +64,8 @@ class Synapse(object):
 
 class SynapseData(object):
   ''' Class containing other important synapse information '''
+
+  __slots__ = ['presynapticCell', 'permanence', 'destroyed']
 
   def __init__(self, presynapticCell, permanence):
     '''
@@ -81,6 +87,9 @@ class SynapseData(object):
 class SegmentData(object):
   ''' Class containing other important segment information '''
 
+  __slots__ = ['synapses', 'numDestroyedSynapses', 'destroyed',
+               'lastUsedIteration', 'flatIdx']
+
   def __init__(self, flatIdx):
     '''
        @param flatIdx (int) global index of the segment
@@ -95,6 +104,8 @@ class SegmentData(object):
 class CellData(object):
   ''' Class containing cell information '''
 
+  __slots__ = ['segments', 'numDestroyedSegments']
+
   def __init__(self):
     self.segments = []   # list of segments on the cell
     self.numDestroyedSegments = 0
@@ -102,6 +113,8 @@ class CellData(object):
 
 class SegmentOverlap(object):
   ''' Class that allows tracking of overlap scores on segments '''
+
+  __slots__ = ['segment', 'overlap']
 
   def __init__(self, segment, overlap):
     '''
@@ -205,8 +218,8 @@ class Connections(object):
     @return (SynapseData) Synapse data
     """
 
-    return self._cells[synapse.segment.cell].segments\
-                      [synapse.segment.idx].synapses[synapse.idx]
+    segment = synapse.segment
+    return self._cells[segment.cell].segments[segment.idx].synapses[synapse.idx]
 
   def dataForSegment(self, segment):
     """ Returns the data for a segment.
