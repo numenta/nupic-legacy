@@ -674,7 +674,6 @@ class TemporalMemoryTest(unittest.TestCase):
 
     self.assertEqual(1, len(tm.connections.segmentsForCell(9)))
     oldestSegment = tm.connections.segmentsForCell(9)[0]
-
     tm.reset()
     tm.compute(prevActiveColumns2)
     tm.compute(activeColumns)
@@ -684,15 +683,14 @@ class TemporalMemoryTest(unittest.TestCase):
     tm.reset()
     tm.compute(prevActiveColumns3)
     tm.compute(activeColumns)
-
     self.assertEqual(2, len(tm.connections.segmentsForCell(9)))
+
 
     synapses = tm.connections.synapsesForSegment(oldestSegment)
     self.assertEqual(3, len(synapses))
     presynapticCells = set()
 
-    for synapse in synapses:
-      synapseData = tm.connections.dataForSynapse(synapse)
+    for synapseData in tm.connections.dataForSegment(oldestSegment).synapses:
       presynapticCells.add(synapseData.presynapticCell)
 
     expected = set([6,7,8])

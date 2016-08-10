@@ -462,10 +462,7 @@ class TemporalMemory(object):
     @param segment              (int)    Segment to adapt
     """
 
-    # Need to copy synapses for segment set below because it will be modified
-    # during iteration by `destroySynapse`
-
-    for synapse in list(connections.synapsesForSegment(segment)):
+    for synapse in connections.synapsesForSegment(segment):
       synapseData = connections.dataForSynapse(synapse)
       permanence = synapseData.permanence
       # temp = synapseData.permanence
@@ -655,13 +652,23 @@ class TemporalMemory(object):
 
     for i in xrange(len(proto.activeSegmentOverlaps)):
       protoSegmentOverlap = proto.activeSegmentOverlaps[i]
-      segment = Segment(protoSegmentOverlap.segment, protoSegmentOverlap.cell)
+      segmentData = tm.connections.retrieveSegmentData(
+        protoSegmentOverlap.segment,
+        protoSegmentOverlap.cell)
+      segment = Segment(protoSegmentOverlap.segment,
+                        protoSegmentOverlap.cell,
+                        segmentData)
       segmentOverlap = SegmentOverlap(segment, protoSegmentOverlap.overlap)
       tm.activeSegments.append(segmentOverlap)
 
     for i in xrange(len(proto.matchingSegmentOverlaps)):
       protoSegmentOverlap = proto.matchingSegmentOverlaps[i]
-      segment = Segment(protoSegmentOverlap.segment, protoSegmentOverlap.cell)
+      segmentData = tm.connections.retrieveSegmentData(
+        protoSegmentOverlap.segment,
+        protoSegmentOverlap.cell)
+      segment = Segment(protoSegmentOverlap.segment,
+                        protoSegmentOverlap.cell,
+                        segmentData)
       segmentOverlap = SegmentOverlap(segment, protoSegmentOverlap.overlap)
       tm.matchingSegments.append(segmentOverlap)
 
@@ -705,6 +712,8 @@ class TemporalMemory(object):
       return False
 
     if self.matchingSegments != other.matchingSegments:
+      print [(m.segment.data.presynapticCell, m.segment.data.permanence, m.segment.data.destroyed) for m in self.matchingSegments]
+      print [(m.segment.data.presynapticCell, m.segment.data.permanence, m.segment.data.destroyed) for m in other.matchingSegments]
       return False
     if self.activeSegments != other.activeSegments:
       return False
