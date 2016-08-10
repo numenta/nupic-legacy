@@ -44,6 +44,12 @@ class Segment(object):
     return self.idx == other.idx and self.cell == other.cell
 
 
+  def __lt__(self, other):
+    return (self.cell, self.idx) < (other.cell, other.idx)
+
+
+
+
 class Synapse(object):
   ''' Class containing minimal information to identify a unique synapse '''
 
@@ -179,16 +185,15 @@ class Connections(object):
 
     @param cell (int) Cell index
 
-    @return (set) Segment indices
+    @return (list) Segment objects representing segments on the given cell
     """
 
-    segmentsData = self._cells[cell].segments
-    segments = []
-    for i in xrange(len(segmentsData)):
-      if not segmentsData[i].destroyed:
-        segments.append(Segment(i, cell))
+    segmentsList = self._cells[cell].segments
+    
 
-    return segments
+    return [Segment(i, cell)
+            for i in xrange(len(segmentsList))
+            if not segmentsList[i].destroyed]
 
 
   def synapsesForSegment(self, segment):
@@ -196,18 +201,15 @@ class Connections(object):
 
     @param segment (int) Segment index
 
-    @return (set) Synapse indices
+    @return (list) Synapse objects representing synapses on the given segment
     """
     segmentData = self.dataForSegment(segment)
-    synapses = []
     if segmentData.destroyed:
       raise ValueError("Attempting to access destroyed segment's synapses")
 
-    for i in xrange(len(segmentData.synapses)):
-      if not segmentData.synapses[i].destroyed:
-        synapses.append(Synapse(i, segment))
-
-    return synapses
+    return [Synapse(i, segment)
+            for i in xrange(len(segmentData.synapses))
+            if not segmentData.synapses[i].destroyed]
 
 
   def dataForSynapse(self, synapse):
@@ -220,6 +222,7 @@ class Connections(object):
 
     segment = synapse.segment
     return self._cells[segment.cell].segments[segment.idx].synapses[synapse.idx]
+
 
   def dataForSegment(self, segment):
     """ Returns the data for a segment.
@@ -535,12 +538,9 @@ class Connections(object):
         segmentOverlap = SegmentOverlap(segment, numMatching)
         matchingSegments.append(segmentOverlap)
 
-    segCmp = lambda a, b: (a.segment.cell - b.segment.cell
-                           if a.segment.cell - b.segment.cell != 0
-                           else a.segment.idx - b.segment.idx)
-
-    return (sorted(activeSegments, cmp = segCmp),
-            sorted(matchingSegments, cmp = segCmp))
+    segCmp = lambda s: s.segment
+    return (sorted(activeSegments, key = segCmp),
+            sorted(matchingSegments, key = segCmp))
 
 
   def numSegments(self, cell=None):
