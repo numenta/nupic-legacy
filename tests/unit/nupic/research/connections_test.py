@@ -326,7 +326,7 @@ class ConnectionsTest(unittest.TestCase):
 
     result = connections.mostActiveSegmentForCells(cells, inputVec, 0)
 
-    self.assertEqual(result, Segment(0, 20))
+    self.assertEqual(result, Segment(0, 20, None))
 
 
   def testMostActiveSegmentForCellsNone(self):
