@@ -579,6 +579,142 @@ class TemporalMemory(object):
     return self.cellsPerColumn
 
 
+  def getColumnDimensions(self):
+    """
+    Returns the dimensions of the columns in the region.
+    @return (tuple) Column dimensions
+    """
+    return self.columnDimensions
+
+
+  def getActivationThreshold(self):
+    """
+    Returns the activation threshold.
+    @return (int) The activation threshold.
+    """
+    return self.activationThreshold
+
+
+  def setActivationThreshold(self, activationThreshold):
+    """
+    Sets the activation threshold.
+    @param activationThreshold (int) activation threshold.
+    """
+    self.activationThreshold = activationThreshold
+
+
+  def getInitialPermanence(self):
+    """
+    Get the initial permanence.
+    @return (float) The initial permanence.
+    """
+    return self.initialPermanence
+
+
+  def setInitialPermanence(self, initialPermanence):
+    """
+    Sets the initial permanence.
+    @param initialPermanence (float) The initial permanence.
+    """
+    self.initialPermanence = initialPermanence
+
+
+  def getMinThreshold(self):
+    """
+    Returns the min threshold.
+    @return (int) The min threshold.
+    """
+    return self.minThreshold
+
+
+  def setMinThreshold(self, minThreshold):
+    """
+    Sets the min threshold.
+    @param minThreshold (int) min threshold.
+    """
+    self.minThreshold = minThreshold
+
+
+  def getMaxNewSynapseCount(self):
+    """
+    Returns the max new synapse count.
+    @return (int) The max new synapse count.
+    """
+    return self.maxNewSynapseCount
+
+
+  def setMaxNewSynapseCount(self, maxNewSynapseCount):
+    """
+    Sets the max new synapse count.
+    @param maxNewSynapseCount (int) Max new synapse count.
+    """
+    self.maxNewSynapseCount = maxNewSynapseCount
+
+
+  def getPermanenceIncrement(self):
+    """
+    Get the permanence increment.
+    @return (float) The permanence increment.
+    """
+    return self.permanenceIncrement
+
+
+  def setPermanenceIncrement(self, permanenceIncrement):
+    """
+    Sets the permanence increment.
+    @param permanenceIncrement (float) The permanence increment.
+    """
+    self.permanenceIncrement = permanenceIncrement
+
+
+  def getPermanenceDecrement(self):
+    """
+    Get the permanence decrement.
+    @return (float) The permanence decrement.
+    """
+    return self.permanenceDecrement
+
+
+  def setPermanenceDecrement(self, permanenceDecrement):
+    """
+    Sets the permanence decrement.
+    @param permanenceDecrement (float) The permanence decrement.
+    """
+    self.permanenceDecrement = permanenceDecrement
+
+
+  def getPredictedSegmentDecrement(self):
+    """
+    Get the predicted segment decrement.
+    @return (float) The predicted segment decrement.
+    """
+    return self.predictedSegmentDecrement
+
+
+  def setPredictedSegmentDecrement(self, predictedSegmentDecrement):
+    """
+    Sets the predicted segment decrement.
+    @param predictedSegmentDecrement (float) The predicted segment decrement.
+    """
+    self.predictedSegmentDecrement = predictedSegmentDecrement
+
+
+  def getConnectedPermanence(self):
+    """
+    Get the connected permanence.
+    @return (float) The connected permanence.
+    """
+    return self.connectedPermanence
+
+
+  def setConnectedPermanence(self, connectedPermanence):
+    """
+    Sets the connected permanence.
+    @param connectedPermanence (float) The connected permanence.
+    """
+    self.connectedPermanence = connectedPermanence
+
+
   def write(self, proto):
     """ Writes serialized data to proto object
 
