@@ -44,9 +44,6 @@ class Segment(object):
   def __eq__(self, other):
     return ((self.idx, self.cell) == (other.idx, other.cell))
 
-  def __lt__(self, other):
-    return ((self.cell, self.idx) < (other.cell, other.idx))
-
 
 class Synapse(object):
   ''' Class containing minimal information to identify a unique synapse '''
@@ -556,9 +553,11 @@ class Connections(object):
       if numMatching >= matchingSynapseThreshold:
         segmentOverlap = SegmentOverlap(segment, numMatching)
         matchingSegments.append(segmentOverlap)
-
-    return (sorted(activeSegments, key = lambda s: s.segment),
-            sorted(matchingSegments, key = lambda s: s.segment))
+    
+    segmentKey = lambda s: (s.segment.cell * self.maxSegmentsPerCell
+                            + s.segment.idx)
+    return (sorted(activeSegments, key = segmentKey),
+            sorted(matchingSegments, key = segmentKey))
 
 
   def numSegments(self, cell=None):
