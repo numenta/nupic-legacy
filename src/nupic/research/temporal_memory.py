@@ -465,7 +465,6 @@ class TemporalMemory(object):
     for synapse in connections.synapsesForSegment(segment):
       synapseData = connections.dataForSynapse(synapse)
       permanence = synapseData.permanence
-      # temp = synapseData.permanence
 
       if binSearch(prevActiveCells, synapseData.presynapticCell) != -1:
         permanence += permanenceIncrement

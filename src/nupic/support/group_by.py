@@ -19,9 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from itertools import groupby
-
-''' A utility function wrapper around groupby in itertools. Allows to
+''' A utility function wrapper based on groupby in itertools. Allows to
     walk across n sorted lists with respect to their key functions
     and yields a tuple of n lists of the members of the next *smallest*
     group.
@@ -39,6 +37,45 @@ from itertools import groupby
            https://docs.python.org/dev/library/itertools.html#itertools.groupby
 '''
 
+class GroupByGenerator(object):
+
+  def __init__(self, iterable, length):
+    self.iterable = iterable
+    self.length = length
+    self.index = 0
+
+
+  def __iter__(self):
+    for i in xrange(self.length):
+      self.index = i
+      yield self.iterable[i]
+
+
+  def __len__(self):
+    return self.length - self.index
+
+
+def groupby(lis, fn):
+  length = 1
+  begining = 0
+
+  for i in xrange(len(lis)):
+    val = fn(lis[i])
+    if i == 0:
+      key = val
+      continue
+    if val != key:
+      yield (key, GroupByGenerator(lis[begining : i], length))
+      length = 1
+      begining = i
+      key = val
+    else:
+      length += 1
+  if len(lis):
+    yield (key, GroupByGenerator(lis[begining:], length))
+
+
+
 def groupByN(*args):
   groupsList = [] # list of each list's (k, group) tuples
   indexList = [] # list of [currentIndex, endIndex] pairs
@@ -46,12 +83,11 @@ def groupByN(*args):
   if len(args) % 2 == 1:
     raise ValueError("Must have a key function for every list.")
 
-  # zip up tuples of lists and their functions
-  tups = [(args[i], args[i+1]) for i in xrange(0, len(args), 2)]
-
   # populate above lists
-  for listn, fn in tups:
-    groupsListEntry = [(k, list(g)) for k, g in groupby(listn, fn)]
+  for i in xrange(0, len(args), 2):
+    listn = args[i]
+    fn = args[i + 1]
+    groupsListEntry = [(k, g) for k, g in groupby(listn, fn)]
     groupsList.append(groupsListEntry)
     indexList.append([0, len(groupsListEntry)])
 
@@ -81,6 +117,6 @@ def groupByN(*args):
         indexList[i][0] += 1
         argIndicesIndex += 1
       else:
-        retGroups.append([])
+        retGroups.append(GroupByGenerator([], 0))
 
     yield tuple(retGroups)

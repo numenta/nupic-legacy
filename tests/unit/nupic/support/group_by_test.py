@@ -34,10 +34,12 @@ class ConnectionsTest(unittest.TestCase):
     expectedValues = [(7, [7]),
                       (12, [12, 12]),
                       (16, [16])]
-
     i = 0
     for data in groupByN(sequence0, identity):
-      self.assertEqual(data, expectedValues[i])
+      self.assertEqual(data[0], expectedValues[i][0])
+      for j in xrange(1, len(data)):
+        temp = list(data[j])
+        self.assertEqual(temp, expectedValues[i][j])
       i += 1
 
 
@@ -57,7 +59,10 @@ class ConnectionsTest(unittest.TestCase):
     i = 0
     for data in groupByN(sequence0, identity,
                          sequence1, times3):
-      self.assertEqual(data, expectedValues[i])
+      self.assertEqual(data[0], expectedValues[i][0])
+      for j in xrange(1, len(data)):
+        temp = list(data[j])
+        self.assertEqual(temp, expectedValues[i][j])
       i += 1
 
 
@@ -76,11 +81,15 @@ class ConnectionsTest(unittest.TestCase):
                       (15, [], [5], []),
                       (16, [16], [], [4]),
                       (20, [], [], [5])]
+
     i = 0
     for data in groupByN(sequence0, identity,
                          sequence1, times3,
                          sequence2, times4):
-      self.assertEqual(data, expectedValues[i])
+      self.assertEqual(data[0], expectedValues[i][0])
+      for j in xrange(1, len(data)):
+        temp = list(data[j])
+        self.assertEqual(temp, expectedValues[i][j])
       i += 1
 
 
@@ -102,13 +111,18 @@ class ConnectionsTest(unittest.TestCase):
                       (16, [16], [], [4], []),
                       (20, [], [], [5], [4]),
                       (25, [], [], [], [5])]
+
     i = 0
     for data in groupByN(sequence0, identity,
                          sequence1, times3,
                          sequence2, times4,
                          sequence3, times5):
-      self.assertEqual(data, expectedValues[i])
+      self.assertEqual(data[0], expectedValues[i][0])
+      for j in xrange(1, len(data)):
+        temp = list(data[j])
+        self.assertEqual(temp, expectedValues[i][j])
       i += 1
+
 
 
   def testFiveSequences(self):
@@ -132,11 +146,15 @@ class ConnectionsTest(unittest.TestCase):
                       (18, [], [], [], [], [3]),
                       (20, [], [], [5], [4], []),
                       (25, [], [], [], [5], [])]
+
     i = 0
     for data in groupByN(sequence0, identity,
                          sequence1, times3,
                          sequence2, times4,
                          sequence3, times5,
                          sequence4, times6):
-      self.assertEqual(data, expectedValues[i])
+      self.assertEqual(data[0], expectedValues[i][0])
+      for j in xrange(1, len(data)):
+        temp = list(data[j])
+        self.assertEqual(temp, expectedValues[i][j])
       i += 1
