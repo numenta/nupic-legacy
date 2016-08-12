@@ -479,7 +479,7 @@ class TemporalMemory(object):
       else:
         connections.updateSynapsePermanence(synapse, permanence)
 
-    if len(connections.synapsesForSegment(segment)) == 0:
+    if connections.numSynapses(segment) == 0:
       connections.destroySegment(segment)
 
 
@@ -847,8 +847,6 @@ class TemporalMemory(object):
       return False
 
     if self.matchingSegments != other.matchingSegments:
-      print [(m.segment.data.presynapticCell, m.segment.data.permanence, m.segment.data.destroyed) for m in self.matchingSegments]
-      print [(m.segment.data.presynapticCell, m.segment.data.permanence, m.segment.data.destroyed) for m in other.matchingSegments]
       return False
     if self.activeSegments != other.activeSegments:
       return False

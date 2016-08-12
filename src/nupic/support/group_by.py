@@ -41,6 +41,8 @@
 '''
 
 class GroupByGenerator(object):
+  
+  __slots__ = ['iterable', 'length', 'index']
 
   def __init__(self, iterable, length):
     self.iterable = iterable
