@@ -171,6 +171,8 @@ class Connections(object):
     self._synapsesForPresynapticCell = defaultdict(list)
     self._segmentForFlatIdx = []
 
+    self._synapsesForSegment = defaultdict(list)
+
     self._numSegments = 0
     self._numSynapses = 0
     self._nextFlatIdx = 0
@@ -206,9 +208,10 @@ class Connections(object):
       raise ValueError("Attempting to access destroyed segment's synapses")
     
     synapses = segmentData.synapses
-    return [Synapse(i, segment, synapses[i])
-            for i in xrange(len(synapses))
-            if not synapses[i].destroyed]
+
+    return [synapse 
+            for synapse in self._synapsesForSegment[segmentData.flatIdx]
+            if not synapse.data.destroyed]
 
 
   def dataForSynapse(self, synapse):
@@ -262,10 +265,11 @@ class Connections(object):
     minIteration = float("inf")
 
     for i in xrange(len(segments)):
-      if (not segments[i].destroyed and
-          segments[i].lastUsedIteration < minIteration):
+      segment = segments[i]
+      if (not segment.destroyed and
+          segment.lastUsedIteration < minIteration):
         minIdx = i
-        minIteration = segments[i].lastUsedIteration
+        minIteration = segment.lastUsedIteration
 
     return Segment(minIdx, cell, segments[minIdx])
 
@@ -280,17 +284,18 @@ class Connections(object):
 
     Note: On ties it will chose the first occurance of the minimum permanence
     """
-    synapses = self._cells[segment.cell].segments[segment.idx].synapses
+    synapses = self._synapsesForSegment[segment.data.flatIdx]
     minIdx = float("inf")
     minPermanence = float("inf")
 
     for i in xrange(len(synapses)):
-      if (not synapses[i].destroyed) and (synapses[i].permanence
+      synapseData = synapses[i].data
+      if (not synapseData.destroyed) and (synapseData.permanence
                                         < minPermanence - EPSILON):
         minIdx = i
-        minPermanence = synapses[i].permanence
+        minPermanence = synapseData.permanence
 
-    return Synapse(minIdx, segment, synapses[minIdx])
+    return synapses[minIdx]
 
 
   def mostActiveSegmentForCells(self, cells, inputCells, synapseThreshold):
@@ -403,6 +408,7 @@ class Connections(object):
               break
 
       segmentData.synapses = []
+      self._synapsesForSegment[segmentData.flatIdx] = []
       segmentData.numDestroyedSynapses = 0
       segmentData.destroyed = True
       self._cells[segment.cell].numDestroyedSegments += 1
@@ -425,9 +431,8 @@ class Connections(object):
 
     segmentData = segment.data
     synapseIdx = -1
-
+    found = False
     if segmentData.numDestroyedSynapses > 0:
-      found = False
       for i in xrange(len(segmentData.synapses)):
         if segmentData.synapses[i].destroyed:
           synapseIdx = i
@@ -443,6 +448,7 @@ class Connections(object):
 
       synapseData.presynapticCell = presynapticCell
       synapseData.permanence = permanence
+      self._synapsesForSegment[segmentData.flatIdx][synapseIdx].data = synapseData
 
     else:
       synapseIdx = len(segmentData.synapses)
@@ -451,6 +457,8 @@ class Connections(object):
 
     synapse = Synapse(synapseIdx, segment, synapseData)
     self._synapsesForPresynapticCell[presynapticCell].append(synapse)
+    if found == False:
+      self._synapsesForSegment[segmentData.flatIdx].append(synapse)
     self._numSynapses += 1
 
     return synapse
@@ -521,7 +529,7 @@ class Connections(object):
     numMatchingSynapsesForSegment = [0] * self._nextFlatIdx
 
     for cell in activeInput:
-      for synapse in self.synapsesForPresynapticCell(cell):
+      for synapse in self._synapsesForPresynapticCell[cell]:
         synapseData = synapse.data
         segment = synapse.segment
         permanence = synapseData.permanence
@@ -537,22 +545,20 @@ class Connections(object):
     activeSegments = []
     matchingSegments = []
     for i in xrange(self._nextFlatIdx):
-      segment = self._segmentForFlatIdx[i]
       numActive = numActiveSynapsesForSegment[i]
       if numActive >= activeSynapseThreshold:
-        segmentOverlap = SegmentOverlap(segment, numActive)
-        activeSegments.append(segmentOverlap)
+        activeSegments.append(SegmentOverlap(self._segmentForFlatIdx[i],
+                                             numActive))
         
         if recordIteration:
           segment.data.lastUsedIteration = self._iteration
 
 
     for i in xrange(self._nextFlatIdx):
-      segment = self._segmentForFlatIdx[i]
       numMatching = numMatchingSynapsesForSegment[i]
       if numMatching >= matchingSynapseThreshold:
-        segmentOverlap = SegmentOverlap(segment, numMatching)
-        matchingSegments.append(segmentOverlap)
+        matchingSegments.append(SegmentOverlap(self._segmentForFlatIdx[i],
+                                               numMatching))
     
     segmentKey = lambda s: (s.segment.cell * self.maxSegmentsPerCell
                             + s.segment.idx)

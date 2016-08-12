@@ -31,10 +31,13 @@
     @return (tuple) a n + 1 dimensional tuple, where the first element is the
                     key of the group and the other n entries are lists of
                     objects that are a member of the current group that is being
-                    iterated over in the nth list passed in.
-
+                    iterated over in the nth list passed in. Note that this
+                    is a generator and a n+1 dimensional tuple is yielded for
+                    every group.
+                    
     Notes: Read up on groupby here:
            https://docs.python.org/dev/library/itertools.html#itertools.groupby
+
 '''
 
 class GroupByGenerator(object):
@@ -61,9 +64,11 @@ def groupby(lis, fn):
 
   for i in xrange(len(lis)):
     val = fn(lis[i])
+
     if i == 0:
       key = val
       continue
+
     if val != key:
       yield (key, GroupByGenerator(lis[begining : i], length))
       length = 1
@@ -71,6 +76,7 @@ def groupby(lis, fn):
       key = val
     else:
       length += 1
+
   if len(lis):
     yield (key, GroupByGenerator(lis[begining:], length))
 
