@@ -69,10 +69,10 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testSynapseReuse(self):
-    ''' Creates a synapse over the synapses per segment limit, and verifies
+    """ Creates a synapse over the synapses per segment limit, and verifies
         that the lowest permanence synapse is removed to make room for the new
         synapse.
-    '''
+    """
     connections = Connections(1024, 1024, 2)
     segment = connections.createSegment(10)
 
@@ -93,9 +93,9 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testDestroySegment(self):
-    ''' Creates a segment, destroys it, and makes sure it got destroyed along
+    """ Creates a segment, destroys it, and makes sure it got destroyed along
         with all of its synapses.
-    '''
+    """
     connections = Connections(1024)
 
     connections.createSegment(10)
@@ -124,9 +124,9 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testDestroySynapse(self):
-    ''' Creates a segment, creates a number of synapses on it, destroys a
+    """ Creates a segment, creates a number of synapses on it, destroys a
         synapse, and makes sure it got destroyed.
-    '''
+    """
     connections = Connections(1024)
 
     segment = connections.createSegment(20)
@@ -148,10 +148,10 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testPathsNotInvalidatedByOtherDestroys(self):
-    ''' Creates segments and synapses, then destroys segments and synapses on
+    """ Creates segments and synapses, then destroys segments and synapses on
         either side of them and verifies that existing Segment and Synapse
         instances still point to the same segment / synapse as before.
-    '''
+    """
     connections = Connections(1024)
     segment1 = connections.createSegment(11)
     connections.createSegment(12)
@@ -181,9 +181,9 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testDestroySegmentWithDestroyedSynapses(self):
-    ''' Destroy a segment that has a destroyed synapse and a non-destroyed
+    """ Destroy a segment that has a destroyed synapse and a non-destroyed
         synapse. Make sure nothing gets double-destroyed.
-    '''
+    """
     connections = Connections(1024)
 
     segment1 = connections.createSegment(11)
@@ -207,10 +207,10 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testReuseSegmentWithDestroyedSynapses(self):
-    ''' Destroy a segment that has a destroyed synapse and a non-destroyed
+    """ Destroy a segment that has a destroyed synapse and a non-destroyed
         synapse. Create a new segment in the same place. Make sure its synapse
         count is correct.
-    '''
+    """
     connections = Connections(1024)
 
     segment = connections.createSegment(11)
@@ -231,9 +231,9 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testDestroySegmentsThenReachLimit(self):
-    ''' Destroy some segments then verify that the maxSegmentsPerCell is still
+    """ Destroy some segments then verify that the maxSegmentsPerCell is still
         correctly applied.
-    '''
+    """
     connections = Connections(1024, 2, 2)
 
     segment1 = connections.createSegment(11)
@@ -254,9 +254,9 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testDestroySynapsesThenReachLimit(self):
-    ''' Destroy some synapses then verify that the maxSynapsesPerSegment is
+    """ Destroy some synapses then verify that the maxSynapsesPerSegment is
         still correctly applied.
-    '''
+    """
     connections = Connections(1024, 2, 2)
 
     segment = connections.createSegment(10)
@@ -279,9 +279,9 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testReachSegmentLimitMultipleTimes(self):
-    ''' Hit the maxSynapsesPerSegment threshold multiple times. Make sure it
+    """ Hit the maxSynapsesPerSegment threshold multiple times. Make sure it
         works more than once.
-    '''
+    """
     connections = Connections(1024, 2, 2)
 
     segment = connections.createSegment(10)
@@ -297,9 +297,9 @@ class ConnectionsTest(unittest.TestCase):
 
 
   def testUpdateSynapsePermanence(self):
-    ''' Creates a synapse and updates its permanence, and makes sure that its
+    """ Creates a synapse and updates its permanence, and makes sure that its
         data was correctly updated.
-    '''
+    """
     connections = Connections(1024)
     segment = connections.createSegment(10)
     synapse = connections.createSynapse(segment, 50, .34)
@@ -310,50 +310,11 @@ class ConnectionsTest(unittest.TestCase):
     self.assertAlmostEqual(synapseData.permanence, .21)
 
 
-  def testMostActiveSegmentForCells(self):
-    ''' Creates a sample set of connections, and makes sure that getting the
-        most active segment for a collection of cells returns the right segment.
-    '''
-    connections = Connections(1024)
-    segment1 = connections.createSegment(10)
-    connections.createSynapse(segment1, 150, .34)
-
-    segment2 = connections.createSegment(20)
-    connections.createSynapse(segment2, 50, .85)
-
-    cells = [10, 20]
-    inputVec = [50]
-
-    result = connections.mostActiveSegmentForCells(cells, inputVec, 0)
-
-    self.assertEqual(result, Segment(0, 20, None))
-
-
-  def testMostActiveSegmentForCellsNone(self):
-    ''' Creates a sample set of connections, and makes sure that getting the
-        most active segment for a collection of cells with no activity returns
-        no segment.
-    '''
-    connections = Connections(1024)
-    segment1 = connections.createSegment(10)
-    connections.createSynapse(segment1, 150, .34)
-
-    segment2 = connections.createSegment(20)
-    connections.createSynapse(segment2, 50, .85)
-
-    cells = [10, 20]
-    inputVec = [150]
-
-    result = connections.mostActiveSegmentForCells(cells, inputVec, 2)
-
-    self.assertEqual(result, None)
-
-
   def testComputeActivity(self):
-    ''' Creates a sample set of connections, and makes sure that computing the
+    """ Creates a sample set of connections, and makes sure that computing the
         activity for a collection of cells with no activity returns the right
         activity data.
-    '''
+    """
     connections = Connections(1024)
 
     # Cell with 1 segment.

@@ -787,23 +787,15 @@ class TemporalMemory(object):
 
     for i in xrange(len(proto.activeSegmentOverlaps)):
       protoSegmentOverlap = proto.activeSegmentOverlaps[i]
-      segmentData = tm.connections.retrieveSegmentData(
-        protoSegmentOverlap.segment,
-        protoSegmentOverlap.cell)
-      segment = Segment(protoSegmentOverlap.segment,
-                        protoSegmentOverlap.cell,
-                        segmentData)
+      segment = tm.connections.getSegment(protoSegmentOverlap.segment,
+                                          protoSegmentOverlap.cell)
       segmentOverlap = SegmentOverlap(segment, protoSegmentOverlap.overlap)
       tm.activeSegments.append(segmentOverlap)
 
     for i in xrange(len(proto.matchingSegmentOverlaps)):
       protoSegmentOverlap = proto.matchingSegmentOverlaps[i]
-      segmentData = tm.connections.retrieveSegmentData(
-        protoSegmentOverlap.segment,
-        protoSegmentOverlap.cell)
-      segment = Segment(protoSegmentOverlap.segment,
-                        protoSegmentOverlap.cell,
-                        segmentData)
+      segment = tm.connections.getSegment(protoSegmentOverlap.segment,
+                                          protoSegmentOverlap.cell)
       segmentOverlap = SegmentOverlap(segment, protoSegmentOverlap.overlap)
       tm.matchingSegments.append(segmentOverlap)
 

@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-''' A utility function wrapper based on groupby in itertools. Allows to
+""" A utility function wrapper based on groupby in itertools. Allows to
     walk across n sorted lists with respect to their key functions
     and yields a tuple of n lists of the members of the next *smallest*
     group.
@@ -38,7 +38,7 @@
     Notes: Read up on groupby here:
            https://docs.python.org/dev/library/itertools.html#itertools.groupby
 
-'''
+"""
 
 class GroupByGenerator(object):
   

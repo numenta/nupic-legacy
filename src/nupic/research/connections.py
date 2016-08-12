@@ -27,15 +27,15 @@ EPSILON = 0.00001 # constant error threshold to check equality of permanences to
 
 
 class Segment(object):
-  ''' Class containing minimal information to identify a unique segment '''
+  """ Class containing minimal information to identify a unique segment """
 
   __slots__ = ['idx', 'cell', 'data']
 
   def __init__(self, idx, cell, data):
-    '''
+    """
        @param idx  (int) Index of the segment on the cell
        @param cell (int) Index of the cell that this segment is on
-    '''
+    """
     self.idx = idx
     self.cell = cell
     self.data = data
@@ -46,15 +46,15 @@ class Segment(object):
 
 
 class Synapse(object):
-  ''' Class containing minimal information to identify a unique synapse '''
+  """ Class containing minimal information to identify a unique synapse """
 
   __slots__ = ['idx', 'segment', 'data']
 
   def __init__(self, idx, segment, synapseData):
-    '''
+    """
        @param idx     (int)    Index of the synapse on the segment
        @param segment (Object) Segment Object that the synapse is synapsed to
-    '''
+    """
     self.idx = idx
     self.segment = segment
     self.data = synapseData
@@ -66,19 +66,19 @@ class Synapse(object):
 
 
 class SynapseData(object):
-  ''' Class containing other important synapse information '''
+  """ Class containing other important synapse information """
 
   __slots__ = ['presynapticCell', 'permanence', 'destroyed']
 
   def __init__(self, presynapticCell, permanence):
-    '''
+    """
        @param presynapticCell (int)   The index of the presynaptic cell of the
                                       synapse
        @param permanence      (float) permanence of the synapse from 0.0 to 1.0
-    '''
+    """
     self.presynapticCell = presynapticCell
     self.permanence = permanence
-    self.destroyed = False  #boolean destroyed flag so object can be reused
+    self.destroyed = False  # boolean destroyed flag so object can be reused
 
 
   def __eq__(self, other):
@@ -88,15 +88,15 @@ class SynapseData(object):
 
 
 class SegmentData(object):
-  ''' Class containing other important segment information '''
+  """ Class containing other important segment information """
 
   __slots__ = ['synapses', 'numDestroyedSynapses', 'destroyed',
                'lastUsedIteration', 'flatIdx']
 
   def __init__(self, flatIdx):
-    '''
+    """
        @param flatIdx (int) global index of the segment
-    '''
+    """
     self.synapses = []
     self.numDestroyedSynapses = 0
     self.destroyed = False
@@ -105,7 +105,7 @@ class SegmentData(object):
 
 
 class CellData(object):
-  ''' Class containing cell information '''
+  """ Class containing cell information """
 
   __slots__ = ['segments', 'numDestroyedSegments']
 
@@ -115,17 +115,17 @@ class CellData(object):
 
 
 class SegmentOverlap(object):
-  ''' Class that allows tracking of overlap scores on segments '''
+  """ Class that allows tracking of overlap scores on segments """
 
   __slots__ = ['segment', 'overlap']
 
   def __init__(self, segment, overlap):
-    '''
+    """
        @param segment (Object) Segment object to keep track of
        @param overlap (int)    The number of synapses on the segment that
                                are above either the matching threshold or
                                the active threshold
-    '''
+    """
     self.segment = segment
     self.overlap = overlap
 
@@ -234,19 +234,18 @@ class Connections(object):
     return segment.data
 
 
-  def retrieveSegmentData(self, idx, cell):
-    """ Returns the data for a segment stored in the self._cells array
+  def getSegment(self, idx, cell):
+    """ Returns a Segment object of the specified segment using data from the
+        self._cells array.
 
     @param idx  (int) segment index on a cell
     @param cell (int) cell index
 
-    @return (SegmentData) Segment data
+    @return (Segment) Segment object with index idx on the specified cell
 
-    NOTE: Only used in the read method in temporal memory for re-creating the
-          active and matching segments
     """
 
-    return self._cells[cell].segments[idx]
+    return Segment(idx, cell, self._cells[cell].segments[idx])
 
 
   def _leastRecentlyUsedSegment(self, cell):
@@ -280,7 +279,7 @@ class Connections(object):
 
     @return (Object) Synapse object on the segment of the minimal permanence
 
-    Note: On ties it will chose the first occurance of the minimum permanence
+    Note: On ties it will chose the first occurrence of the minimum permanence
     """
     synapses = self._synapsesForSegment[segment.data.flatIdx]
     minIdx = float("inf")
@@ -294,41 +293,6 @@ class Connections(object):
         minPermanence = synapseData.permanence
 
     return synapses[minIdx]
-
-
-  def mostActiveSegmentForCells(self, cells, inputCells, synapseThreshold):
-    ''' Gets the segment with the most active synapses due to given input,
-        from among all the segments on all the given cells.
-
-    @param cells            (list)    Cells to look among
-    @param inputCells       (list)    Active cells in the input
-    @param synapseThreshold (float)   Only consider segments with number of
-                                      active synapses greater than this
-                                      threshold
-
-    @retval Segment the most active segment on the cells specified, None if
-            no segment's active synapse count exceeds synapseThreshold
-    '''
-
-    maxActiveSynapses = synapseThreshold
-    mostActiveSegment = None
-
-    sortedInput = sorted(inputCells)
-
-    for cell in cells:
-      segments = self._cells[cell].segments
-      for i in xrange(len(segments)):
-        numActiveSynapses = 0
-        for synapseData in segments[i].synapses:
-          if (not synapseData.destroyed and synapseData.permanence > 0 and
-              binSearch(sortedInput, synapseData.presynapticCell) != -1):
-            numActiveSynapses += 1
-
-        if numActiveSynapses >= maxActiveSynapses:
-          maxActiveSynapses = numActiveSynapses
-          mostActiveSegment = Segment(i, cell, segments[i])
-
-    return mostActiveSegment
 
 
   def synapsesForPresynapticCell(self, presynapticCell):
