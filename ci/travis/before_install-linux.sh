@@ -32,21 +32,18 @@ if [ $CC == 'gcc' ]; then
     export CXX='g++-4.8'
 fi
 
-echo ">>> Installing nupic-linux64..."
-git clone https://github.com/numenta/nupic-linux64.git
-(cd nupic-linux64 && git reset --hard 99863c7da8b923c57bb4e59530ab087c91fd3992)
-source nupic-linux64/bin/activate
+# Upgrade setuptools (for PEP-508 support used in extras_require)
+pip install --upgrade --ignore-installed setuptools
 
-# Upgrade the version of pip included with nupic-linux64
-# TODO: remove after nupic-linux64 has been updated
-pip install --upgrade --install-option="--prefix=`pwd`/nupic-linux64" pip
-pip --version
+pip install --upgrade --ignore-installed pip
+
+pip install wheel
+
+python -c 'import pip; print "pip version=", pip.__version__'
+python -c 'import setuptools; print "setuptools version=", setuptools.__version__'
+python -c 'import wheel; print "wheel version=", wheel.__version__'
 
 pip uninstall numpy --yes
-
-# Assuming pip 1.5.X is installed.
-echo "pip install wheel --user"
-pip install wheel --user -q
 
 # Fetch nupic.core build
 export NUPIC_CORE_COMMITISH=`python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"`
@@ -57,7 +54,7 @@ tar xzf "nupic_core-${NUPIC_CORE_COMMITISH}-linux64.tar.gz"
 ls home/travis/build/numenta/nupic.core/bindings/py/dist/wheels
 
 # Install nupic.bindings and dependencies from wheels
-pip install --user --no-index --find-links=home/travis/build/numenta/nupic.core/bindings/py/dist/wheels nupic.bindings
+pip install --no-index --find-links=home/travis/build/numenta/nupic.core/bindings/py/dist/wheels nupic.bindings
 
 # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
 # See: https://github.com/travis-ci/travis-cookbooks/issues/155

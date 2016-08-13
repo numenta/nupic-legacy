@@ -25,11 +25,11 @@ echo "Running after_success-release.sh..."
 echo
 
 echo "Installing boto..."
-pip install boto --user || exit
+pip install boto || exit
 echo "Installing wheel..."
-pip install wheel --user || exit
+pip install wheel || exit
 echo "Installing twine..."
-pip install twine --user || exit
+pip install twine || exit
 
 echo "Creating distribution files..."
 # This release build creates the source distribution. All other release builds

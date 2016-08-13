@@ -29,12 +29,13 @@ cmake --version
 
 # Verify python version
 python --version
-
-pip --version
+python -c 'import setuptools; print "setuptools version=", setuptools.__version__'
+python -c 'import wheel; print "wheel version=", wheel.__version__'
+python -c 'import pip; print "pip version=", pip.__version__'
 
 # Build NuPIC
 cd ${TRAVIS_BUILD_DIR}
-pip install --user .[capnp]
+pip install .
 
 # Show nupic installation folder by trying to import nupic, if works, it prints
 # the absolute path of nupic.__file__, which the installation folder itself.

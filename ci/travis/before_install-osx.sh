@@ -24,24 +24,18 @@ echo
 echo Running before_install-osx.sh...
 echo
 
-# Get Darwin64 libs for OSX
-echo ">>> Cloning nupic-darwin64 at 40eee5d8b4f79fe52b282c393c8e1a1f5ba7a906..."
-git clone https://github.com/numenta/nupic-darwin64.git
-(cd nupic-darwin64 && git reset --hard 40eee5d8b4f79fe52b282c393c8e1a1f5ba7a906) || exit
-echo ">>> Activating nupic-darwin64..."
-source nupic-darwin64/bin/activate
+# Upgrade setuptools (for PEP-508 support used in extras_require)
+pip install --upgrade --ignore-installed setuptools
 
-# Upgrade the version of pip included with nupic-darwin64
-# TODO: remove after nupic-darwin64 has been updated
-pip install --upgrade --install-option="--prefix=`pwd`/nupic-darwin64" pip
-pip --version
+pip install --upgrade --ignore-installed pip
+
+pip install wheel
+
+python -c 'import pip; print "pip version=", pip.__version__'
+python -c 'import setuptools; print "setuptools version=", setuptools.__version__'
+python -c 'import wheel; print "wheel version=", wheel.__version__'
 
 pip uninstall numpy --yes
-
-pip install wheel --user
-
-# Add --user location to PYTHONPATH
-export PYTHONPATH="/Users/travis/Library/Python/$PY_VERSION/lib/python/site-packages:$PYTHONPATH"
 
 # Fetch nupic.core build
 export NUPIC_CORE_COMMITISH=`python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"`
@@ -50,7 +44,7 @@ curl -O "https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.
 tar xzf "nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
 
 # Install nupic.bindings and dependencies from wheels
-pip install --user --no-index --find-links=Users/travis/build/numenta/nupic.core/bindings/py/dist/wheels nupic.bindings
+pip install --no-index --find-links=Users/travis/build/numenta/nupic.core/bindings/py/dist/wheels nupic.bindings
 
 # Install and start MySQL on OSX
 echo ">>> brew install mysql"

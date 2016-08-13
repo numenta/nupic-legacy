@@ -41,6 +41,7 @@ apt-get install -y \
 # Install pip
 python ci/bamboo/get-pip.py --ignore-installed
 
+# Upgrade setuptools (for PEP-508 support used in extras_require); also wheel
 pip install --upgrade --ignore-installed setuptools wheel
 
 # Build installable python packages
