@@ -20,8 +20,9 @@ NuPIC binaries are available for:
 The following dependencies are required to install NuPIC on all operating systems.
 
 - [Python 2.7 & development headers](https://docs.python.org/devguide/setup.html#build-dependencies)
-- [pip](https://pip.pypa.io/en/stable/installing/)
-- [wheel](http://pythonwheels.com)
+- [pip](https://pip.pypa.io/en/stable/installing/)>=8.1.2
+- [setuptools](https://setuptools.readthedocs.io)>=25.2.0
+- [wheel](http://pythonwheels.com)>=0.29.0
 - [numpy](http://www.numpy.org/)
 - C++ 11 compiler like [gcc](https://gcc.gnu.org/) (4.8+) or [clang](http://clang.llvm.org/)
 
@@ -66,7 +67,7 @@ For details about checking out this repository and building in your local enviro
 
  Please see the [Contributing to NuPIC](https://github.com/numenta/nupic/wiki/Contributing-to-NuPIC) wiki page.
 
- * Build: 
+ * Build:
 [![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
 [![AppVeyor Status](https://ci.appveyor.com/api/projects/status/4toemh0qtr21mk6b/branch/master?svg=true)](https://ci.appveyor.com/project/numenta-ci/nupic/branch/master)
  * Unit Test Coverage: [![Coverage Status](https://coveralls.io/repos/numenta/nupic/badge.png?branch=master)](https://coveralls.io/r/numenta/nupic?branch=master)

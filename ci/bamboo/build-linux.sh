@@ -38,11 +38,8 @@ apt-get install -y \
     python2.7 \
     python2.7-dev
 
-# Install pip
-python ci/bamboo/get-pip.py --ignore-installed
-
-# Upgrade setuptools (for PEP-508 support used in extras_require); also wheel
-pip install --upgrade --ignore-installed setuptools wheel
+# Install specific versions of pip, setuptools, and wheel
+./ci/bamboo/install-pip-setuptools-wheel.sh
 
 # Build installable python packages
 python setup.py bdist_wheel
