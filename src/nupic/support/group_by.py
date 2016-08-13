@@ -60,23 +60,21 @@ def groupby(lis, fn):
   """
   length = 1
   beginning = 0
-
-  for i in xrange(len(lis)):
-    val = fn(lis[i])
-
-    if i == 0:
-      key = val
-      continue
-
-    if val != key:
-      yield (key, GroupByGenerator(lis, beginning, length))
-      length = 1
-      beginning = i
-      key = val
-    else:
-      length += 1
-
   l = len(lis)
+
+  if l > 0:
+    key = fn(lis[0])
+    for i in xrange(1, len(lis)):
+      val = fn(lis[i])
+
+      if val != key:
+        yield (key, GroupByGenerator(lis, beginning, length))
+        length = 1
+        beginning = i
+        key = val
+      else:
+        length += 1
+
   if l > 0: # yield last group
     yield (key, GroupByGenerator(lis, beginning, l - beginning))
 
