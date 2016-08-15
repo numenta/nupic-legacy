@@ -170,8 +170,8 @@ class TemporalMemory(object):
        activeColumns,
        activeSegmentsOnCol,
        matchingSegmentsOnCol) = columnData
-      if not activeColumns is None:
-        if not activeSegmentsOnCol is None:
+      if activeColumns is not None:
+        if activeSegmentsOnCol is not None:
           cellsToAdd = TemporalMemory.activatePredictedColumn(
             activeSegmentsOnCol,
             self.connections,
@@ -323,7 +323,7 @@ class TemporalMemory(object):
     start = cellsPerColumn * column
     cells = range(start, start + cellsPerColumn)
 
-    if not matchingSegments is None:
+    if matchingSegments is not None:
       bestSegment = max(matchingSegments, key=lambda seg: seg.overlap)
       bestCell = bestSegment.segment.cell
       if learn:
@@ -367,7 +367,7 @@ class TemporalMemory(object):
     for each matching segment in the column
       weaken active synapses
     """
-    if predictedSegmentDecrement > 0.0:
+    if predictedSegmentDecrement > 0.0 and matchingSegments is not None:
       for segment in matchingSegments:
         TemporalMemory.adaptSegment(connections, prevActiveCells,
                                     -predictedSegmentDecrement,

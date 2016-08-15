@@ -43,13 +43,6 @@ def groupby2(*args):
   Notes: Read up on groupby here:
          https://docs.python.org/dev/library/itertools.html#itertools.groupby
 
-         itertools.groupby was not used because with our implementation we can
-         support len calls on the generators returned and it was constrained
-         by having to support all iterables. One of the impacts of this is
-         that you had to capture the group generator returned by
-         itertools.groupby in a list every iteration because it was being
-         reused.
-
 """
   generatorList = [] # list of each list's (k, group) tuples
 

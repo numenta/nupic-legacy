@@ -537,7 +537,7 @@ class Connections(object):
     @retval (int) number of segments on all cells if cell is not specified,
                   or on a specific specified cell
     """
-    if cell != None:
+    if cell is not None:
       cellData = self._cells[cell]
       return len(cellData.segments) - cellData.numDestroyedSegments
 
@@ -553,7 +553,7 @@ class Connections(object):
     @retval (int) number of synapses on all segments if segment is not
                   specified, or on a specified segment
     """
-    if segment:
+    if segment is not None:
       segmentData = self._cells[segment.cell].segments[segment.idx]
       return len(segmentData.synapses) - segmentData.numDestroyedSynapses
     return self._numSynapses
