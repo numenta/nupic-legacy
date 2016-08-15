@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 import unittest
 
-from nupic.support.group_by import groupByN
+from nupic.support.group_by import groupby2
 
 """ File to test src/nupic/support/group_by.py  """
 
@@ -35,10 +35,10 @@ class ConnectionsTest(unittest.TestCase):
                       (12, [12, 12]),
                       (16, [16])]
     i = 0
-    for data in groupByN(sequence0, identity):
+    for data in groupby2(sequence0, identity):
       self.assertEqual(data[0], expectedValues[i][0])
       for j in xrange(1, len(data)):
-        temp = list(data[j])
+        temp = list(data[j]) if data[j] else data[j]
         self.assertEqual(temp, expectedValues[i][j])
       i += 1
 
@@ -50,18 +50,18 @@ class ConnectionsTest(unittest.TestCase):
     identity = lambda x: int(x)
     times3 = lambda x: int(3 * x)
 
-    expectedValues = [(7, [7], []),
-                      (9, [], [3]),
+    expectedValues = [(7, [7], None),
+                      (9, None, [3]),
                       (12, [12], [4]),
-                      (15, [], [5]),
-                      (16, [16], [])]
+                      (15, None, [5]),
+                      (16, [16], None)]
 
     i = 0
-    for data in groupByN(sequence0, identity,
+    for data in groupby2(sequence0, identity,
                          sequence1, times3):
       self.assertEqual(data[0], expectedValues[i][0])
       for j in xrange(1, len(data)):
-        temp = list(data[j])
+        temp = list(data[j]) if data[j] else data[j]
         self.assertEqual(temp, expectedValues[i][j])
       i += 1
 
@@ -75,20 +75,20 @@ class ConnectionsTest(unittest.TestCase):
     times3 = lambda x: int(3 * x)
     times4 = lambda x: int(4 * x)
 
-    expectedValues = [(7, [7], [], []),
-                      (9, [], [3], []),
+    expectedValues = [(7, [7], None, None),
+                      (9, None, [3], None),
                       (12, [12], [4], [3, 3]),
-                      (15, [], [5], []),
-                      (16, [16], [], [4]),
-                      (20, [], [], [5])]
+                      (15, None, [5], None),
+                      (16, [16], None, [4]),
+                      (20, None, None, [5])]
 
     i = 0
-    for data in groupByN(sequence0, identity,
+    for data in groupby2(sequence0, identity,
                          sequence1, times3,
                          sequence2, times4):
       self.assertEqual(data[0], expectedValues[i][0])
       for j in xrange(1, len(data)):
-        temp = list(data[j])
+        temp = list(data[j]) if data[j] else data[j]
         self.assertEqual(temp, expectedValues[i][j])
       i += 1
 
@@ -104,22 +104,22 @@ class ConnectionsTest(unittest.TestCase):
     times4 = lambda x: int(4 * x)
     times5 = lambda x: int(5 * x)
 
-    expectedValues = [(7, [7], [], [], []),
-                      (9, [], [3], [], []),
-                      (12, [12], [4], [3, 3], []),
-                      (15, [], [5], [], [3, 3]),
-                      (16, [16], [], [4], []),
-                      (20, [], [], [5], [4]),
-                      (25, [], [], [], [5])]
+    expectedValues = [(7, [7], None, None, None),
+                      (9, None, [3], None, None),
+                      (12, [12], [4], [3, 3], None),
+                      (15, None, [5], None, [3, 3]),
+                      (16, [16], None, [4], None),
+                      (20, None, None, [5], [4]),
+                      (25, None, None, None, [5])]
 
     i = 0
-    for data in groupByN(sequence0, identity,
+    for data in groupby2(sequence0, identity,
                          sequence1, times3,
                          sequence2, times4,
                          sequence3, times5):
       self.assertEqual(data[0], expectedValues[i][0])
       for j in xrange(1, len(data)):
-        temp = list(data[j])
+        temp = list(data[j]) if data[j] else data[j]
         self.assertEqual(temp, expectedValues[i][j])
       i += 1
 
@@ -138,23 +138,23 @@ class ConnectionsTest(unittest.TestCase):
     times5 = lambda x: int(5 * x)
     times6 = lambda x: int(6 * x)
 
-    expectedValues = [(7, [7], [], [], [], []),
-                      (9, [], [3], [], [], []),
-                      (12, [12], [4], [3, 3], [], [2, 2]),
-                      (15, [], [5], [], [3, 3], []),
-                      (16, [16], [], [4], [], []),
-                      (18, [], [], [], [], [3]),
-                      (20, [], [], [5], [4], []),
-                      (25, [], [], [], [5], [])]
+    expectedValues = [(7, [7], None, None, None, None),
+                      (9, None, [3], None, None, None),
+                      (12, [12], [4], [3, 3], None, [2, 2]),
+                      (15, None, [5], None, [3, 3], None),
+                      (16, [16], None, [4], None, None),
+                      (18, None, None, None, None, [3]),
+                      (20, None, None, [5], [4], None),
+                      (25, None, None, None, [5], None)]
 
     i = 0
-    for data in groupByN(sequence0, identity,
+    for data in groupby2(sequence0, identity,
                          sequence1, times3,
                          sequence2, times4,
                          sequence3, times5,
                          sequence4, times6):
       self.assertEqual(data[0], expectedValues[i][0])
       for j in xrange(1, len(data)):
-        temp = list(data[j])
+        temp = list(data[j]) if data[j] else data[j]
         self.assertEqual(temp, expectedValues[i][j])
       i += 1

@@ -28,9 +28,8 @@ from operator import mul
 
 
 from nupic.bindings.math import Random
-from nupic.research.connections import Connections, SegmentOverlap, Segment,\
-                                       binSearch
-from nupic.support.group_by import groupByN
+from nupic.research.connections import Connections, SegmentOverlap, binSearch
+from nupic.support.group_by import groupby2
 
 EPSILON = 0.00001 # constant error threshold to check equality of permanences to
                   # other floats
@@ -164,15 +163,15 @@ class TemporalMemory(object):
     segToCol = lambda segment: int(segment.segment.cell / self.cellsPerColumn)
     identity = lambda column: int(column)
 
-    for columnData in groupByN(activeColumns, identity,
+    for columnData in groupby2(activeColumns, identity,
                                self.activeSegments, segToCol,
                                self.matchingSegments, segToCol):
       (column,
        activeColumns,
        activeSegmentsOnCol,
        matchingSegmentsOnCol) = columnData
-      if len(activeColumns):
-        if len(activeSegmentsOnCol) != 0:
+      if not activeColumns is None:
+        if not activeSegmentsOnCol is None:
           cellsToAdd = TemporalMemory.activatePredictedColumn(
             activeSegmentsOnCol,
             self.connections,
@@ -324,7 +323,7 @@ class TemporalMemory(object):
     start = cellsPerColumn * column
     cells = range(start, start + cellsPerColumn)
 
-    if len(matchingSegments) != 0:
+    if not matchingSegments is None:
       bestSegment = max(matchingSegments, key=lambda seg: seg.overlap)
       bestCell = bestSegment.segment.cell
       if learn:

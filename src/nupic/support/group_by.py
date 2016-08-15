@@ -19,68 +19,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from itertools import groupby
 
 
-class GroupByGenerator(object):
-  """ A custom generator used by groupby to allow for len() calls on the
-      generator returned.
-  """
-
-  __slots__ = ['iterable', 'beginning', 'length', 'end', 'index']
-
-  def __init__(self, iterable, beginning, length):
-    self.iterable = iterable
-    self.beginning = beginning
-    self.length = length
-    self.end = self.beginning + self.length
-    self.index = 0
-
-
-  def __iter__(self):
-    for i in xrange(self.beginning, self.end):
-      self.index = i
-      yield self.iterable[i]
-
-
-  def __len__(self):
-    return self.length - self.index
-
-
-def groupby(lis, fn):
-  """ A custom implementation of itertools.groupby that doesn't reuse the
-      generator objects, allowing for groupByN to not have to capture the
-      group in a list.
-
-  @param lis (list) the list to perform the groupby on
-  @param fn  (function) the key function to perform the groupings
-
-  @return (tuple) A (key, GroupByGenerator) tuple where the first value is the
-                  key of the group, and second value is the generator that
-                  generates the values in the group.
-  """
-  length = 1
-  beginning = 0
-  l = len(lis)
-
-  if l > 0:
-    key = fn(lis[0])
-    for i in xrange(1, len(lis)):
-      val = fn(lis[i])
-
-      if val != key:
-        yield (key, GroupByGenerator(lis, beginning, length))
-        length = 1
-        beginning = i
-        key = val
-      else:
-        length += 1
-
-  if l > 0: # yield last group
-    yield (key, GroupByGenerator(lis, beginning, l - beginning))
-
-
-def groupByN(*args):
-  """ A utility function wrapper based on groupby in itertools. Allows to
+def groupby2(*args):
+  """ An extension to groupby in itertools. Allows to
       walk across n sorted lists with respect to their key functions
       and yields a tuple of n lists of the members of the next *smallest*
       group.
@@ -94,13 +37,18 @@ def groupByN(*args):
                     objects that are a member of the current group that is being
                     iterated over in the nth list passed in. Note that this
                     is a generator and a n+1 dimensional tuple is yielded for
-                    every group.
+                    every group. If a list has no members in the current
+                    group, None is returned in place of a generator.
 
   Notes: Read up on groupby here:
          https://docs.python.org/dev/library/itertools.html#itertools.groupby
 
-         itertools.groupby was not used and the justification can be seen
-         here https://github.com/numenta/nupic/pull/3254#discussion_r74164564
+         itertools.groupby was not used because with our implementation we can
+         support len calls on the generators returned and it was constrained
+         by having to support all iterables. One of the impacts of this is
+         that you had to capture the group generator returned by
+         itertools.groupby in a list every iteration because it was being
+         reused.
 
 """
   generatorList = [] # list of each list's (k, group) tuples
@@ -128,34 +76,21 @@ def groupByN(*args):
           nextList[i] = None
 
     # no more values to process in any of the generators
-    if all([entry is None for entry in nextList]):
+    if all(entry is None for entry in nextList):
       break
 
-    # find the smallest next group and all lists that have an element in it
-    argIndices = [] # array of indices corresponding to the lists that have at
-                    # least one element that is a member of the minKeyVal group
-    minKeyVal = float("inf")
-    for i, nextVal in enumerate(nextList):
-      if nextVal != None: # still groups left in the list
-        key = nextVal[0]
-        if key < minKeyVal:
-          argIndices = [i]
-          minKeyVal = key
-        elif key == minKeyVal:
-          argIndices.append(i)
+    #the miniumum key value in the nextList
+    minKeyVal = min(nextVal[0] for nextVal in nextList
+                    if nextVal is not None)
 
-    # populate the tuple to return
+    # populate the tuple to return based on minKeyVal
     retGroups = [minKeyVal]
-    argIndicesIndex = 0
-    argIndicesLen = len(argIndices)
     for i in xrange(n):
-      if argIndicesIndex != argIndicesLen and argIndices[argIndicesIndex] == i:
+      if nextList[i] is not None and nextList[i][0] == minKeyVal:
         retGroups.append(nextList[i][1])
         advanceList[i] = True
-        argIndicesIndex += 1
       else:
         advanceList[i] = False
-        retGroups.append(GroupByGenerator([], 0, 0))
+        retGroups.append(None)
 
     yield tuple(retGroups)
-
