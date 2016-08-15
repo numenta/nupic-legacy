@@ -236,7 +236,7 @@ class TemporalMemory(object):
     winner cells list and calls adaptSegment on the segments that correctly
     predicted this column.
 
-    @param activeSegments  (list)   A list of SegmentOverlap objects for the
+    @param activeSegments  (iter)   A iterable of SegmentOverlap objects for the
                                     column compute is operating on that are
                                     active
     @param connections     (Object) Connections instance for the tm
@@ -289,9 +289,9 @@ class TemporalMemory(object):
     @param connections         (Object) Connections instance for the tm
     @param initialPermanence   (float)  Initial permanence of a new synapse.
     @param learn               (bool)   Whether or not learning is enabled
-    @param matchingSegments    (list)   A list of SegmentOverlap objects for the
-                                        column compute is operating on that are
-                                        matching
+    @param matchingSegments    (iter)   A iterable of SegmentOverlap objects for
+                                        the column compute is operating on that
+                                        are matching; None if empty.
     @param maxNewSynapseCount  (int)    The maximum number of synapses added to
                                         a segment during learning
     @param permanenceDecrement (float)  Amount by which permanences of synapses
@@ -356,9 +356,9 @@ class TemporalMemory(object):
     """Punishes the Segments that incorrectly predicted a column to be active.
 
     @param connections         (Object) Connections instance for the tm
-    @param matchingSegments    (list)   A list of SegmentOverlap objects for the
-                                        column compute is operating on that are
-                                        matching
+    @param matchingSegments    (iter)   An iterable of SegmentOverlap objects
+                                        for the column compute is operating on
+                                        that are matching; None if empty
     @param permanenceDecrement (float)  Amount by which permanences of synapses
                                         are decremented during learning.
     @param prevActiveCells     (list)   Active cells in `t-1`

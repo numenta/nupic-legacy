@@ -23,10 +23,9 @@ from itertools import groupby
 
 
 def groupby2(*args):
-  """ An extension to groupby in itertools. Allows to
-      walk across n sorted lists with respect to their key functions
-      and yields a tuple of n lists of the members of the next *smallest*
-      group.
+  """ An extension to groupby in itertools. Allows to walk across n sorted lists
+      with respect to their key functions and yields a tuple of n lists of the
+      members of the next *smallest* group.
 
   @param args (list) a list of arguments alternating between sorted lists and
                        their respective key functions. The lists should be
@@ -72,7 +71,7 @@ def groupby2(*args):
     if all(entry is None for entry in nextList):
       break
 
-    #the miniumum key value in the nextList
+    # the minimum key value in the nextList
     minKeyVal = min(nextVal[0] for nextVal in nextList
                     if nextVal is not None)
 
