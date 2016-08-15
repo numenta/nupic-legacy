@@ -38,23 +38,6 @@ if capnp:
 
 
 class TemporalMemoryTest(unittest.TestCase):
-  @staticmethod
-  def isSegmentDestroyed(connections, segment):
-    try:
-      connections.synapsesForSegment(segment)
-      return False
-    except KeyError:
-      return True
-
-
-  @staticmethod
-  def isSynapseDestroyed(connections, synapse):
-    try:
-      connections.dataForSynapse(synapse)
-      return False
-    except KeyError:
-      return True
-
 
   def testInitInvalidParams(self):
     # Invalid columnDimensions
@@ -68,7 +51,7 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertRaises(ValueError, TemporalMemory, **kwargs)
 
 
-  def testActivateCorrectlyPredictedCells(self):
+  def testActivateCorrectlyPredictiveCells(self):
     tm = TemporalMemory(
       columnDimensions=[32],
       cellsPerColumn=4,
@@ -444,7 +427,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
     winnerCells = tm.getWinnerCells() #[18]
     self.assertEqual(1, len(winnerCells))
-    segments = sorted(tm.connections.segmentsForCell(winnerCells[0]))
+    segments = tm.connections.segmentsForCell(winnerCells[0])
     self.assertEqual(1, len(segments))
     synapses = tm.connections.synapsesForSegment(segments[0])
     self.assertEqual(2, len(synapses))
@@ -523,7 +506,7 @@ class TemporalMemoryTest(unittest.TestCase):
     synapses = tm.connections.synapsesForSegment(matchingSegment)
     self.assertEqual(3, len(synapses))
 
-    synapses = sorted(synapses)[1:] # only test the synapses added by compute
+    synapses = synapses[1:] # only test the synapses added by compute
     for synapse in synapses:
       synapseData = tm.connections.dataForSynapse(synapse)
       self.assertAlmostEqual(.21, synapseData.permanence)
@@ -556,7 +539,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
     tm.compute(activeColumns)
 
-    synapses = sorted(tm.connections.synapsesForSegment(matchingSegment))
+    synapses = tm.connections.synapsesForSegment(matchingSegment)
     self.assertEqual(2, len(synapses))
 
     synapseData = tm.connections.dataForSynapse(synapses[1])
@@ -594,7 +577,7 @@ class TemporalMemoryTest(unittest.TestCase):
     tm.compute(previousActiveColumns, True)
     tm.compute(activeColumns, True)
 
-    self.assertTrue(self.isSynapseDestroyed(tm.connections, weakActiveSynapse))
+    self.assertTrue(tm.connections.dataForSynapse(weakActiveSynapse).destroyed)
 
 
   def testDestroyWeakSynapseOnActiveReinforce(self):
@@ -627,14 +610,9 @@ class TemporalMemoryTest(unittest.TestCase):
     tm.compute(previousActiveColumns, True)
     tm.compute(activeColumns, True)
 
-    self.assertTrue(self.isSynapseDestroyed(tm.connections, weakInactSynapse))
+    self.assertTrue(tm.connections.dataForSynapse(weakInactSynapse).destroyed)
 
 
-  # createSynapse in connections.py does not destroy the weakest synapses
-  # when you reach the cap. This change would require changing the underlying
-  # synapseData class (probably just add a destroyed flag) and change how
-  # segments and synapses are deleted. See C++ version for reference.
-  @unittest.skip("Python Connections does not support this yet.")
   def testRecycleWeakestSynapseToMakeRoomForNewSynapse(self):
     tm = TemporalMemory(
       columnDimensions=[32],
@@ -666,14 +644,11 @@ class TemporalMemoryTest(unittest.TestCase):
     synapseData = tm.connections.dataForSynapse(weakestSynapse)
     self.assertNotEqual(0, synapseData.presynapticCell)
 
-    self.assertFalse(self.isSynapseDestroyed(tm.connections, weakestSynapse))
+    self.assertFalse(synapseData.destroyed)
 
     self.assertAlmostEqual(.21, synapseData.permanence)
 
 
-  # create Segment does not recycle segments to make room for similar reasoning
-  # to the above test.
-  @unittest.skip("Python Connections does not support this yet.")
   def testRecycleLeastRecentlyActiveSegmentToMakeRoomForNewSegment(self):
     tm = TemporalMemory(
       columnDimensions=[32],
@@ -698,8 +673,7 @@ class TemporalMemoryTest(unittest.TestCase):
     tm.compute(activeColumns)
 
     self.assertEqual(1, len(tm.connections.segmentsForCell(9)))
-    oldestSegment = sorted(tm.connections.segmentsForCell(9))[0]
-
+    oldestSegment = tm.connections.segmentsForCell(9)[0]
     tm.reset()
     tm.compute(prevActiveColumns2)
     tm.compute(activeColumns)
@@ -709,22 +683,20 @@ class TemporalMemoryTest(unittest.TestCase):
     tm.reset()
     tm.compute(prevActiveColumns3)
     tm.compute(activeColumns)
-
     self.assertEqual(2, len(tm.connections.segmentsForCell(9)))
+
 
     synapses = tm.connections.synapsesForSegment(oldestSegment)
     self.assertEqual(3, len(synapses))
     presynapticCells = set()
 
-    for synapse in synapses:
-      synapseData = tm.connections.dataForSynapse(synapse)
+    for synapseData in tm.connections.dataForSegment(oldestSegment).synapses:
       presynapticCells.add(synapseData.presynapticCell)
 
     expected = set([6,7,8])
     self.assertEqual(expected, presynapticCells)
 
 
-  @unittest.skip("Python Connections does not support this yet.")
   def testDestroySegmentsWithTooFewSynapsesToBeMatching(self):
     tm = TemporalMemory(
       columnDimensions=[32],
@@ -754,7 +726,7 @@ class TemporalMemoryTest(unittest.TestCase):
     tm.compute(activeColumns, True)
 
 
-    self.assertTrue(self.isSegmentDestroyed(tm.connections, matchingSegment))
+    self.assertTrue(tm.connections.dataForSegment(matchingSegment))
     self.assertEqual(0, len(tm.connections.segmentsForCell(expectedActiveCell)))
 
 
@@ -851,12 +823,12 @@ class TemporalMemoryTest(unittest.TestCase):
         segments2 = tm.connections.segmentsForCell(2)
         self.assertFalse(len(segments2) == 0)
         grewOnCell2 = True
-        segments.update(segments2)
+        segments.append(segments2[0])
       else:
         grewOnCell1 = True
 
       self.assertEqual(1, len(segments))
-      synapses = tm.connections.synapsesForSegment(list(segments)[0])
+      synapses = tm.connections.synapsesForSegment(segments[0])
       self.assertEqual(4, len(synapses))
 
       columnChecklist = set(prevActiveColumns)
@@ -910,85 +882,6 @@ class TemporalMemoryTest(unittest.TestCase):
     tm.compute(activeColumns, False)
 
     self.assertEqual(before, tm.connections)
-
-
-  def testLeastUsedCell(self):
-    tm = TemporalMemory(
-      columnDimensions=[2],
-      cellsPerColumn=2,
-      seed=42
-    )
-
-    connections = tm.connections
-    connections.createSegment(0)
-    connections.createSynapse(0, 3, 0.3)
-
-    for _ in range(100):
-      # Never pick cell 0, always pick cell 1
-      self.assertEqual(tm.leastUsedCell(tm.cellsForColumn(0),
-                                        connections,
-                                        tm._random),
-                       1)
-
-
-  def testAdaptSegment(self):
-    tm = TemporalMemory()
-
-    connections = tm.connections
-    connections.createSegment(0)
-    connections.createSynapse(0, 23, 0.6)
-    connections.createSynapse(0, 37, 0.4)
-    connections.createSynapse(0, 477, 0.9)
-
-    tm.adaptSegment(connections, [23, 37],
-                    tm.permanenceIncrement,
-                    tm.permanenceDecrement, 0)
-
-    synapseData = connections.dataForSynapse(0)
-    self.assertAlmostEqual(synapseData.permanence, 0.7)
-
-    synapseData = connections.dataForSynapse(1)
-    self.assertAlmostEqual(synapseData.permanence, 0.5)
-
-    synapseData = connections.dataForSynapse(2)
-    self.assertAlmostEqual(synapseData.permanence, 0.8)
-
-
-  def testAdaptSegmentToMax(self):
-    tm = TemporalMemory()
-
-    connections = tm.connections
-    connections.createSegment(0)
-    connections.createSynapse(0, 23, 0.9)
-
-    tm.adaptSegment(connections, [23],
-                    tm.permanenceIncrement,
-                    tm.permanenceDecrement, 0)
-    synapseData = connections.dataForSynapse(0)
-    self.assertAlmostEqual(synapseData.permanence, 1.0)
-
-    # Now permanence should be at max
-    tm.adaptSegment(connections, [23], tm.permanenceIncrement,
-                    tm.permanenceDecrement, 0)
-
-    synapseData = connections.dataForSynapse(0)
-    self.assertAlmostEqual(synapseData.permanence, 1.0)
-
-
-  def testAdaptSegmentToMin(self):
-    tm = TemporalMemory()
-
-    connections = tm.connections
-    connections.createSegment(0)
-    connections.createSynapse(0, 23, 0.1)
-    connections.createSynapse(0, 1, 0.3)
-
-    tm.adaptSegment(connections, [],
-                    tm.permanenceIncrement,
-                    tm.permanenceDecrement, 0)
-
-    synapses = connections.synapsesForSegment(0)
-    self.assertFalse(0 in synapses)
 
 
   def testColumnForCell1D(self):
@@ -1094,9 +987,8 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(columnsForCells[99], set([399]))
 
 
-  @unittest.skip("Serialization does not correctly capture the state\
-                  of the connections object, until it does this test\
-                  will fail.")
+  @unittest.skipUnless(
+    capnp, "pycapnp is not installed, skipping serialization test.")
   def testWriteRead(self):
     tm1 = TemporalMemory(
       columnDimensions=[100],

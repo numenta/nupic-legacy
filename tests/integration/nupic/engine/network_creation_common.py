@@ -80,6 +80,7 @@ TP_PARAMS = {
     "initialPerm": 0.21,
     "permanenceInc": 0.1,
     "permanenceDec": 0.1,
+    "predictedSegmentDecrement": .01,
     "globalDecay": 0.0,
     "maxAge": 0,
     "minThreshold": 9,
