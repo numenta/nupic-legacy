@@ -6,8 +6,8 @@ set -o xtrace
 export PATH=${HOME}/Library/Python/2.7/bin:${PATH}
 export PYTHONPATH=${HOME}/Library/Python/2.7/lib/python/site-packages:${PYTHONPATH}
 
-# Install pip
-python ci/bamboo/get-pip.py --user --ignore-installed
+# Install specific versions of pip, setuptools, and wheel
+./ci/bamboo/install-pip-setuptools-wheel.sh --user
 
 # Build installable python packages
 python setup.py bdist_wheel

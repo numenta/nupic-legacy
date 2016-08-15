@@ -118,7 +118,15 @@ if __name__ == "__main__":
     cmdclass = {"test": TestCommand},
     include_package_data=True,
     zip_safe=False,
-    extras_require = {"capnp": ["pycapnp==0.5.8"]},
+    extras_require = {
+      # Default requirement based on system type
+      ":platform_system=='Linux' or platform_system=='Darwin'":
+        ["pycapnp==0.5.8"],
+
+      # Superseded by platform_system-conditional requirement, but keeping
+      # empty extra for compatibility as recommended by setuptools doc.
+      "capnp": [],
+    },
     description="Numenta Platform for Intelligent Computing",
     author="Numenta",
     author_email="help@numenta.org",
