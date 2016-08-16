@@ -29,8 +29,6 @@ score.
 import csv
 import datetime
 import logging
-import numpy as np
-import pandas
 
 from pkg_resources import resource_filename
 
@@ -47,16 +45,14 @@ _OUTPUT_PATH = "anomaly_scores.csv"
 
 _ANOMALY_THRESHOLD = 0.9
 
+# minimum metric value of nyc_taxi.csv
+_INPUT_MIN = 8
 
-def getCSVData(dataPath):
-  try:
-    data = pandas.read_csv(dataPath)
-  except IOError("Invalid path to data file."):
-    return
-  return data
+# maximum metric value of nyc_taxi.csv
+_INPUT_MAX = 39197
 
 
-def _setRandomEncoderResolution(minVal, maxVal, minResolution=0.001):
+def _setRandomEncoderResolution(minResolution=0.001):
   """
   Given model params, figure out the correct resolution for the
   RandomDistributed encoder. Modifies params in place.
@@ -66,18 +62,17 @@ def _setRandomEncoderResolution(minVal, maxVal, minResolution=0.001):
   )
 
   if encoder["type"] == "RandomDistributedScalarEncoder":
+    rangePadding = abs(_INPUT_MAX - _INPUT_MIN) * 0.2
+    minValue = _INPUT_MAX + rangePadding
+    maxValue = _INPUT_MIN - rangePadding
     resolution = max(minResolution,
-                     (maxVal - minVal) / encoder.pop("numBuckets")
+                     (minValue - maxValue) / encoder.pop("numBuckets")
                     )
     encoder["resolution"] = resolution
 
 
 def createModel():
-  metric = getCSVData(_INPUT_DATA_FILE)["value"]
-  inputMin = np.min(metric)
-  inputMax = np.max(metric)
-  rangePadding = abs(inputMin - inputMax) * 0.2
-  _setRandomEncoderResolution(inputMin-rangePadding, inputMax+rangePadding)
+  _setRandomEncoderResolution()
   return ModelFactory.create(model_params.MODEL_PARAMS)
 
 

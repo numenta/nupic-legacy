@@ -22,7 +22,7 @@
 MODEL_PARAMS = {
   "inferenceArgs": {
     "predictionSteps": [1],
-    "predictedField": "c1",
+    "predictedField": "value",
     "inputPredictedField": "auto"
   },
   "aggregationInfo": {
