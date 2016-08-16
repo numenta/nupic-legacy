@@ -63,10 +63,10 @@ def _setRandomEncoderResolution(minResolution=0.001):
 
   if encoder["type"] == "RandomDistributedScalarEncoder":
     rangePadding = abs(_INPUT_MAX - _INPUT_MIN) * 0.2
-    minValue = _INPUT_MAX + rangePadding
-    maxValue = _INPUT_MIN - rangePadding
+    minValue = _INPUT_MIN - rangePadding
+    maxValue = _INPUT_MAX + rangePadding
     resolution = max(minResolution,
-                     (minValue - maxValue) / encoder.pop("numBuckets")
+                     (maxValue - minValue) / encoder.pop("numBuckets")
                     )
     encoder["resolution"] = resolution
 
