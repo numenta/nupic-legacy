@@ -34,8 +34,8 @@ import numpy
 from nupic.support.unittesthelpers.algorithm_test_helpers import (
   getNumpyRandomGenerator, getSeed)
 from nupic.bindings.math import GetNTAReal, Random
-from nupic.research.spatial_pooler import (BinaryCorticalColumns,
-                                           CorticalColumns,
+from nupic.research.spatial_pooler import (BinaryMiniColumns,
+                                           MiniColumns,
                                            SpatialPooler)
 
 try:
@@ -102,7 +102,7 @@ class SpatialPoolerTest(unittest.TestCase):
         seed=getSeed(),
         spVerbosity=0)
 
-    sp._potentialPools = BinaryCorticalColumns(numpy.ones([sp._numColumns,
+    sp._potentialPools = BinaryMiniColumns(numpy.ones([sp._numColumns,
                                                            sp._numInputs]))
     sp._inhibitColumns = Mock(return_value = numpy.array(range(5)))
 
@@ -630,7 +630,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._columnDimensions = numpy.array([9])
     sp._inputDimensions = numpy.array([12])
     sp._connectedSynapses = (
-      BinaryCorticalColumns([[0, 1, 0, 1, 0, 1, 0, 1],
+      BinaryMiniColumns([[0, 1, 0, 1, 0, 1, 0, 1],
                              [0, 0, 0, 1, 0, 0, 0, 1],
                              [0, 0, 0, 0, 0, 0, 1, 0],
                              [0, 0, 1, 0, 0, 0, 1, 0],
@@ -653,7 +653,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._numInpts = 8
     sp._inputDimensions = numpy.array([8])
     sp._connectedSynapses = (
-      BinaryCorticalColumns([[0, 1, 0, 1, 0, 1, 0, 1],
+      BinaryMiniColumns([[0, 1, 0, 1, 0, 1, 0, 1],
                              [0, 0, 0, 1, 0, 0, 0, 1],
                              [0, 0, 0, 0, 0, 0, 1, 0],
                              [0, 0, 1, 0, 0, 0, 1, 0],
@@ -672,7 +672,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._columnDimensions = numpy.array([7])
     sp._numInputs = 20
     sp._inputDimensions = numpy.array([5, 4])
-    sp._connectedSynapses = BinaryCorticalColumns(sp._numInputs)
+    sp._connectedSynapses = BinaryMiniColumns(sp._numInputs)
     sp._connectedSynapses.resize(sp._numColumns, sp._numInputs)
 
     connected = numpy.array([
@@ -744,7 +744,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._numInputs = numpy.prod(sp._inputDimensions)
     sp._numColumns = 5
     sp._columnDimensions = numpy.array([5])
-    sp._connectedSynapses = BinaryCorticalColumns(sp._numInputs)
+    sp._connectedSynapses = BinaryMiniColumns(sp._numInputs)
     sp._connectedSynapses.resize(sp._numColumns, sp._numInputs)
 
     connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
@@ -801,14 +801,14 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._overlapDutyCycles = numpy.array([0, 0.009, 0.1, 0.001, 0.002])
     sp._minOverlapDutyCycles = numpy.array(5*[0.01])
 
-    sp._potentialPools = BinaryCorticalColumns(
+    sp._potentialPools = BinaryMiniColumns(
        [[1, 1, 1, 1, 0, 0, 0, 0],
         [1, 0, 0, 0, 1, 1, 0, 1],
         [0, 0, 1, 0, 1, 1, 1, 0],
         [1, 1, 1, 0, 0, 0, 1, 0],
         [1, 1, 1, 1, 1, 1, 1, 1]])
 
-    sp._permanences = CorticalColumns(
+    sp._permanences = MiniColumns(
       [[0.200, 0.120, 0.090, 0.040, 0.000, 0.000, 0.000, 0.000],
        [0.150, 0.000, 0.000, 0.000, 0.180, 0.120, 0.000, 0.450],
        [0.000, 0.000, 0.014, 0.000, 0.032, 0.044, 0.110, 0.000],
@@ -969,7 +969,7 @@ class SpatialPoolerTest(unittest.TestCase):
                        synPermActiveInc=0.1)
     sp._synPermTrimThreshold = 0.05
 
-    sp._potentialPools = BinaryCorticalColumns(
+    sp._potentialPools = BinaryMiniColumns(
         [[1, 1, 1, 1, 0, 0, 0, 0],
          [1, 0, 0, 0, 1, 1, 0, 1],
          [0, 0, 1, 0, 0, 0, 1, 0],
@@ -978,7 +978,7 @@ class SpatialPoolerTest(unittest.TestCase):
     inputVector = numpy.array([1, 0, 0, 1, 1, 0, 1, 0])
     activeColumns = numpy.array([0, 1, 2])
 
-    sp._permanences = CorticalColumns(
+    sp._permanences = MiniColumns(
         [[0.200, 0.120, 0.090, 0.040, 0.000, 0.000, 0.000, 0.000],
          [0.150, 0.000, 0.000, 0.000, 0.180, 0.120, 0.000, 0.450],
          [0.000, 0.000, 0.014, 0.000, 0.000, 0.000, 0.110, 0.000],
@@ -1000,7 +1000,7 @@ class SpatialPoolerTest(unittest.TestCase):
       for j in xrange(sp._numInputs):
         self.assertAlmostEqual(truePermanences[i][j], perm[j])
 
-    sp._potentialPools = BinaryCorticalColumns(
+    sp._potentialPools = BinaryMiniColumns(
         [[1, 1, 1, 0, 0, 0, 0, 0],
          [0, 1, 1, 1, 0, 0, 0, 0],
          [0, 0, 1, 1, 1, 0, 0, 0],
@@ -1009,7 +1009,7 @@ class SpatialPoolerTest(unittest.TestCase):
     inputVector = numpy.array([1, 0, 0, 1, 1, 0, 1, 0])
     activeColumns = numpy.array([0, 1, 2])
 
-    sp._permanences = CorticalColumns(
+    sp._permanences = MiniColumns(
         [[0.200, 0.120, 0.090, 0.000, 0.000, 0.000, 0.000, 0.000],
          [0.000, 0.017, 0.232, 0.400, 0.000, 0.000, 0.000, 0.000],
          [0.000, 0.000, 0.014, 0.051, 0.730, 0.000, 0.000, 0.000],
@@ -1039,14 +1039,14 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._synPermConnected=0.1
     sp._stimulusThreshold=3
     sp._synPermBelowStimulusInc = 0.01
-    sp._permanences = CorticalColumns(
+    sp._permanences = MiniColumns(
         [[0.0, 0.11, 0.095, 0.092, 0.01],
          [0.12, 0.15, 0.02, 0.12, 0.09],
          [0.51, 0.081, 0.025, 0.089, 0.31],
          [0.18, 0.0601, 0.11, 0.011, 0.03],
          [0.011, 0.011, 0.011, 0.011, 0.011]])
 
-    sp._connectedSynapses = BinaryCorticalColumns([[0, 1, 0, 0, 0],
+    sp._connectedSynapses = BinaryMiniColumns([[0, 1, 0, 0, 0],
                                                    [1, 1, 0, 1, 0],
                                                    [1, 0, 0, 0, 1],
                                                    [1, 0, 1, 0, 0],
@@ -1118,7 +1118,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = SpatialPooler(inputDimensions = [10],
                        columnDimensions = [5])
     sp._connectedSynapses = (
-      BinaryCorticalColumns([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      BinaryMiniColumns([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                              [0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                              [0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
                              [0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
@@ -1133,7 +1133,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(list(overlapsPct), trueOverlapsPct)
 
     sp._connectedSynapses = (
-      BinaryCorticalColumns([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      BinaryMiniColumns([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                              [0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                              [0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
                              [0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
@@ -1148,7 +1148,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(list(overlapsPct), trueOverlapsPct)
 
     sp._connectedSynapses = (
-      BinaryCorticalColumns([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      BinaryMiniColumns([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                              [0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                              [0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
                              [0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
@@ -1165,7 +1165,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     # Zig-zag
     sp._connectedSynapses = (
-      BinaryCorticalColumns([[1, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+      BinaryMiniColumns([[1, 0, 0, 0, 0, 1, 0, 0, 0, 0],
                              [0, 1, 0, 0, 0, 0, 1, 0, 0, 0],
                              [0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
                              [0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
@@ -1786,7 +1786,7 @@ class SpatialPoolerTest(unittest.TestCase):
                          "Key %s has differing dtypes: %s vs %s" % (
                              k, v1.dtype, v2.dtype))
         self.assertTrue(numpy.isclose(v1, v2).all(), k)
-      elif isinstance(v1, Random) or isinstance(v1, BinaryCorticalColumns):
+      elif isinstance(v1, Random) or isinstance(v1, BinaryMiniColumns):
         pass
       elif isinstance(v1, float):
         self.assertAlmostEqual(v1, v2)
