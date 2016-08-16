@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 """
-A simple client to create a HTM anomaly detection model for hotgym.
+A simple client to create a HTM anomaly detection model for nyctaxi dataset.
 The script prints out all records that have an abnormally high anomaly
 score.
 """
