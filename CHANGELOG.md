@@ -1,5 +1,80 @@
 # Changelog
 
+## 0.5.5
+
+* Renamed a misclassed class name from ConnectionsTest to GroupByTest
+* not _ is => is not and fixes groupby comment and passes integration tests
+* overhaul to groupby, now 10% faster than current implementation
+* NUP-2299 Install specific versions of pip, setuptools, and wheel.
+* NUP-2299 Added platform-conditional dependency on pycapnp==0.5.8 using PEP-508.
+* lazy group_by and changes to GroupByGenerator
+* perf improvement to segment comparison in compute activity
+* 100 % increase in spped
+* small perf changes
+* demonstrate that compatability test works with predictedSegmentDec not 0.0
+* fixes subtle bug in numSegments that caused integration tests to fail
+* fixes bug where minIdx could be passed as a float rather than an int
+* skip serialization test if capnp is not installed
+* lints and updates comments in group_by.py and group_by_tests.py
+* gets same results as c++ temporal memory after group_by changes
+* ports group_by tests and they pass
+* adds groupByN utility function for use in TM
+* all connections tests written and passing, moved some stuff around and added missing function to connections
+* started porting new connections tests and minor changes to connections.py
+* improves permanence >= testing in computeActivity
+* confirmed python implementation is same as cpp version. Needs better perf now
+* adds back AnomalyRegion and Anomaly class in anomaly.py and related tests
+* fixes bug in growSynapses, almost exactly the same
+* Updated core SHA and default SDR classifier implementation
+* Updated SDRClassifier factory and region to handle cpp
+* changed input name from value to metricValue
+* updates variables names in anomaly_likelihood.py and AnomalyLikelihoodRegion
+* adds new connections methods
+* create new methods for creating/destroying synapses/segments
+* continues change of connections datastructures
+* move raw anomaly calculation back to nupic.algorithms.anomaly
+* Finished swarming/hypersearch separation
+* Moved base hypersearch classes to hypersearch
+* Moved experimentutils to nupic.swarming
+* Updated SDR classifier internals
+* calculate raw anomly score in KNNAnomalyClassifier
+* removes anomaly.py dependency in network_api_demo.py
+* changes how TPRegion computes prevPredictdColumns and updates clamodel
+* Install pip from local copy, other simplifications
+* Fixup PYTHONPATH to properly include previously-defined PYTHONPATH
+* adds pseudocode to core functions
+* continues implementation of AnomalyLikelihoodRegion
+* Limit tests to unit after ovverriding pytest args on cli
+* DEVOPS-85 OS X build infrastructure for Bamboo CI environment
+* replaces segmentCMP with lambda and updates docstrings
+* uses arrays instead of dicts in computeActivity
+* Corrections to examples in tm_high_order.py
+* incorporates binary search into the algorithm where applicable
+* remove outdated nab unit tests
+* use Q function
+* Corrections to examples in tm_high_order.py
+* change to column generator
+* Added tm_high_order.py to show examples of the temporal memory.
+* Fixed conversion bug in SDRClassifier serialization
+* Fixed patternNZ proto writing.
+* Slight fix for pattern history handling in sdr classifier
+* Small fix on SDR classifier
+* Better fix for #3172, using the initialize() function and checking if _sdrClassifier is set
+* Updated learning rate for SDR classifier + slight changes to the error ranges in OPF test
+* Updated hotgym test with actual value and implemented first fix for OPF test
+* Updated tests and examples with SDR classifier
+* Finished updating examples with SDR classifier.
+* Updated hotgym and general anomaly examples with SDR classifier.
+* Updates pycapnp to 0.5.8
+* test_db-fixes avoids printing user password in plaintext
+* test_db-fixes updates database and table name
+* Corrections made to the spatial pooler tutorial.
+* changes maxBoost default value to 1.0
+* fixes connection tests and prints config file used in test_db.py
+* Moved back overlap accesors test for spatial_pooler from API tests to unit tests.
+* Added tutorial script for the spatial pooler. Modified README file accordingly.
+* Moved the unit test for SP overlap accesors to API tests.
+
 ## 0.5.4
 
 * Added overlap accessors to spatial_pooler.py plus unit tests. (Code style corrected)
