@@ -48,6 +48,7 @@ pip install --no-index --find-links=Users/travis/build/numenta/nupic.core/bindin
 
 # Install and start MySQL on OSX
 echo ">>> brew install mysql"
+brew update
 brew install mysql
 echo ">>> mysql.server start"
 mysql.server start
