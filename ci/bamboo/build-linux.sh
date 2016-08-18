@@ -30,6 +30,7 @@ export CXX
 # Install OS dependencies, assuming stock ubuntu:latest
 apt-get update
 apt-get install -y \
+    curl \
     wget \
     git \
     ${COMPILER_PACKAGES} \
