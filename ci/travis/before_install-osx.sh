@@ -26,10 +26,10 @@ echo
 echo Running before_install-osx.sh...
 echo
 
+pip install --upgrade --ignore-installed pip
+
 # Upgrade setuptools (for PEP-508 support used in extras_require)
 pip install --upgrade --ignore-installed setuptools
-
-pip install --upgrade --ignore-installed pip
 
 pip install wheel
 
