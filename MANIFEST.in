@@ -1,5 +1,4 @@
-include external/common/requirements.txt
-include .nupic_modules
+include requirements.txt
 include *.md
 include *.txt
 include VERSION
