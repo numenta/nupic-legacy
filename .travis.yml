@@ -8,7 +8,7 @@ language: cpp
 
 os:
   - osx
-  - linux
+  #- linux
 
 compiler:
   - clang
