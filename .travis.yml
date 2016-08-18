@@ -7,8 +7,8 @@ branches:
 language: cpp
 
 os:
-  - linux
   - osx
+  #- linux
 
 compiler:
   - clang
@@ -95,6 +95,13 @@ deploy:
 before_install:
   # Create a new virtualenv to enable upgrade of setuptools and pip;
   # see https://github.com/travis-ci/travis-ci/issues/4194
+  - echo "ZZZ upgrding virtualenv"
+  - which virtualenv
+  - virtualenv --version
+  - "echo ZZZ PYTHONPATH ${PYTHONPATH}"
+  - pip install --upgrade --ignore-installed virtualenv
+  - which virtualenv
+  - virtualenv --version
   - virtualenv --no-site-packages venv
   - source venv/bin/activate
 

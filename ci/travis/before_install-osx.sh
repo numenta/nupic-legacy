@@ -20,20 +20,34 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+set -o xtrace
+
 echo
 echo Running before_install-osx.sh...
 echo
 
+pip install --upgrade --ignore-installed pip
+
 # Upgrade setuptools (for PEP-508 support used in extras_require)
 pip install --upgrade --ignore-installed setuptools
-
-pip install --upgrade --ignore-installed pip
 
 pip install wheel
 
 python -c 'import pip; print "pip version=", pip.__version__'
 python -c 'import setuptools; print "setuptools version=", setuptools.__version__'
 python -c 'import wheel; print "wheel version=", wheel.__version__'
+
+pip --version
+which pip
+
+python --version
+which python
+
+echo "PYTHONPATH=${PYTHONPATH}"
+
+find ~ -name archive_util.py 2>/dev/null
+
+python -c 'import sys, pprint; pprint.pprint(sys.path)'
 
 pip uninstall numpy --yes
 
