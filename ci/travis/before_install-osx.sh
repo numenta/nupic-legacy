@@ -45,7 +45,7 @@ which python
 
 echo "PYTHONPATH=${PYTHONPATH}"
 
-find ./ -name archive_util.py 2>/dev/null
+find ~ -name archive_util.py 2>/dev/null
 
 python -c 'import sys, pprint; pprint.pprint(sys.path)'
 
