@@ -24,7 +24,7 @@ from nupic.support.group_by import groupby2
 
 """ File to test src/nupic/support/group_by.py  """
 
-class ConnectionsTest(unittest.TestCase):
+class GroupByTest(unittest.TestCase):
 
   def testOneSequence(self):
     sequence0 = [7, 12, 12, 16]
