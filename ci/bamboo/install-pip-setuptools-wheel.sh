@@ -35,9 +35,10 @@ _PIP_VER="8.1.2"
 _SETUPTOOLS_VER="25.2.0"
 _WHEEL_VER="0.29.0"
 
-_GET_PIP="$(cd ${BASH_SOURCE%/*} && pwd)/get-pip.py"
+# Download get-pip.py
+curl --silent --show-error --retry 5 -O http://releases.numenta.org/pip/1ebd3cb7a5a3073058d0c9552ab074bd/get-pip.py
 
-python ${_GET_PIP} "$@" --ignore-installed \
+python get-pip.py "$@" --ignore-installed \
   pip==${_PIP_VER} \
   setuptools==${_SETUPTOOLS_VER} \
   wheel==${_WHEEL_VER}
