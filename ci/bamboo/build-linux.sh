@@ -50,3 +50,4 @@ pip install -f wheelhouse/ dist/nupic-`cat VERSION`*.whl
 
 # Invoke tests
 python setup.py test --pytest-args="--junit-xml=`pwd`/nupic-test-results.xml --cov nupic unit"
+
