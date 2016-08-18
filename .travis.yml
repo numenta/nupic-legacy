@@ -99,7 +99,7 @@ before_install:
   - which virtualenv
   - virtualenv --version
   - "echo ZZZ PYTHONPATH ${PYTHONPATH}"
-  - pip install --upgrade --ignore-installed --no-cache-dir virtualenv
+  - pip install --upgrade --ignore-installed virtualenv
   - which virtualenv
   - virtualenv --version
   - virtualenv --no-site-packages venv
