@@ -395,7 +395,7 @@ class AnomalyLikelihood(object):
 
 
 def estimateAnomalyLikelihoods(anomalyScores,
-                               averagingWindow=8,
+                               averagingWindow=10,
                                skipRecords=0,
                                verbosity=0):
   """
