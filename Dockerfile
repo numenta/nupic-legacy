@@ -18,7 +18,7 @@ RUN apt-get update && \
     bzip2 \
     libyaml-dev \
     libyaml-0-2
-RUN wget https://bootstrap.pypa.io/get-pip.py -O - | python
+RUN wget http://releases.numenta.org/pip/1ebd3cb7a5a3073058d0c9552ab074bd/get-pip.py -O - | python
 RUN pip install --upgrade setuptools
 RUN pip install wheel
 
