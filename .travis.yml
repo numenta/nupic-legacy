@@ -95,10 +95,10 @@ deploy:
 before_install:
   # Create a new virtualenv to enable upgrade of setuptools and pip;
   # see https://github.com/travis-ci/travis-ci/issues/4194
-  - echo "before_install: PYTHONPATH=${PYTHONPATH}"
+  - echo "ZZZ upgrding virtualenv"
   - which virtualenv
   - virtualenv --version
-  - echo "ZZZ upgrding virtualenv"
+  - "echo ZZZ PYTHONPATH ${PYTHONPATH}"
   - pip install --upgrade --ignore-installed --no-cache-dir virtualenv
   - which virtualenv
   - virtualenv --version
