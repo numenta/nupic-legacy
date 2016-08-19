@@ -20,5 +20,3 @@ pip install --user --ignore-installed -f wheelhouse/ dist/nupic-`cat VERSION`*.w
 testsOutPath="`pwd`/nupic-test-results.xml"
 echo "Writing JUnit XML to ${testsOutPath}..."
 python setup.py test --pytest-args="--junit-xml=${testsOutPath} --cov nupic unit"
-echo "Contents of JUnit XML at ${testsOutPath}:"
-cat $testsOutPath
