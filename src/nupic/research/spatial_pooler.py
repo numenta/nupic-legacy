@@ -319,7 +319,7 @@ class SpatialPooler(object):
     # cortical column 'i' to input bit 'j'  has a permanence of 0.2. Here,
     # CorticalColumns is used to provide cortical column-centric semantics for
     # what is otherwise a sparse matrix implementation.  Sparse matrix is used
-    # as an optimization to improve computation time of alforithms that
+    # as an optimization to improve computation time of algorithms that
     # require iterating over the data  structure. This permanence matrix is
     # only allowed to have non-zero elements where the potential pool is
     # non-zero.
@@ -682,7 +682,7 @@ class SpatialPooler(object):
   def setPotential(self, columnIndex, potential):
     """Sets the potential mapping for a given column. 'potential' size
     must match the number of inputs, and must be greater than _stimulusThreshold """
-    assert(column < self._numColumns)
+    assert(columnIndex < self._numColumns)
 
     potentialSparse = numpy.where(potential > 0)[0]
     if len(potentialSparse) < self._stimulusThreshold:
@@ -1287,7 +1287,7 @@ class SpatialPooler(object):
     """
     Updates a duty cycle estimate with a new value. This is a helper
     function that is used to update several duty cycle variables in
-    the Column class, such as: overlapDutyCucle, activeDutyCycle,
+    the Column class, such as: overlapDutyCycle, activeDutyCycle,
     minPctDutyCycleBeforeInh, minPctDutyCycleAfterInh, etc. returns
     the updated duty cycle. Duty cycles are updated according to the following
     formula:
@@ -1308,7 +1308,7 @@ class SpatialPooler(object):
 
 
   def _updateBoostFactors(self):
-    r"""
+    """
     Update the boost factors for all columns. The boost factors are used to
     increase the overlap of inactive columns to improve their chances of
     becoming active. and hence encourage participation of more columns in the
@@ -1623,7 +1623,7 @@ class SpatialPooler(object):
       rangeND.append(numpy.unique(curRange))
 
     neighbors = numpy.ravel_multi_index(
-      numpy.array(list(itertools.product(*rangeND))).T, 
+      numpy.array(list(itertools.product(*rangeND))).T,
       dimensions).tolist()
 
     neighbors.remove(columnIndex)
@@ -1661,7 +1661,7 @@ class SpatialPooler(object):
       # the overlaps and boostedOverlaps properties were added in version 3,
       state['_overlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
       state['_boostedOverlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
-    
+
     # update version property to current SP version
     state['_version'] = VERSION
     self.__dict__.update(state)
@@ -1733,7 +1733,7 @@ class SpatialPooler(object):
 
     boostFactorsProto = proto.init("boostFactors", len(self._boostFactors))
     for i, v in enumerate(self._boostFactors):
-      boostFactorsProto[i] = float(v) 
+      boostFactorsProto[i] = float(v)
 
 
   @classmethod
@@ -1798,7 +1798,7 @@ class SpatialPooler(object):
     instance._minActiveDutyCycles = numpy.array(proto.minActiveDutyCycles,
                                             dtype=realDType)
     instance._boostFactors = numpy.array(proto.boostFactors, dtype=realDType)
-    
+
     return instance
 
 
