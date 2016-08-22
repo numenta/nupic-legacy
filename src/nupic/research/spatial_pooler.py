@@ -1468,7 +1468,7 @@ class SpatialPooler(object):
       overlapSlice = overlaps[maskNeighbors]
       numActive = int(0.5 + density * (len(maskNeighbors) + 1))
       numBigger = numpy.count_nonzero(overlapSlice > overlaps[i])
-      if numBigger < numActive:
+      if overlaps[i] > 0 and numBigger < numActive:
         winners.append(i)
         overlaps[i] += addToWinners
     return numpy.array(winners, dtype=uintType)
@@ -1623,7 +1623,7 @@ class SpatialPooler(object):
       rangeND.append(numpy.unique(curRange))
 
     neighbors = numpy.ravel_multi_index(
-      numpy.array(list(itertools.product(*rangeND))).T, 
+      numpy.array(list(itertools.product(*rangeND))).T,
       dimensions).tolist()
 
     neighbors.remove(columnIndex)
@@ -1661,7 +1661,7 @@ class SpatialPooler(object):
       # the overlaps and boostedOverlaps properties were added in version 3,
       state['_overlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
       state['_boostedOverlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
-    
+
     # update version property to current SP version
     state['_version'] = VERSION
     self.__dict__.update(state)
@@ -1733,7 +1733,7 @@ class SpatialPooler(object):
 
     boostFactorsProto = proto.init("boostFactors", len(self._boostFactors))
     for i, v in enumerate(self._boostFactors):
-      boostFactorsProto[i] = float(v) 
+      boostFactorsProto[i] = float(v)
 
 
   @classmethod
@@ -1798,7 +1798,7 @@ class SpatialPooler(object):
     instance._minActiveDutyCycles = numpy.array(proto.minActiveDutyCycles,
                                             dtype=realDType)
     instance._boostFactors = numpy.array(proto.boostFactors, dtype=realDType)
-    
+
     return instance
 
 

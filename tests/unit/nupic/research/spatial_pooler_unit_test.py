@@ -150,11 +150,11 @@ class SpatialPoolerTest(unittest.TestCase):
       potential = sp._potentialPools[columnIndex]
       perm = sp._permanences.getRow(columnIndex)
       self.assertEqual(list(perm), list(potential))
-      
+
 
   def testOverlapsOutput(self):
     """Checks that overlaps and boostedOverlaps are correctly returned"""
-    
+
     sp = SpatialPooler(inputDimensions=[5],
     	columnDimensions=[3],
     	potentialRadius=5,
@@ -163,22 +163,22 @@ class SpatialPoolerTest(unittest.TestCase):
     	seed=1,
     	synPermActiveInc=0.1,
     	synPermInactiveDec=0.1)
-    
+
     inputVector = numpy.ones(5)
     activeArray = numpy.zeros(3)
-    
-    expOutput = numpy.array([2, 0, 0], dtype=realDType)    
-    boostFactors = 2.0 * numpy.ones(3)    
-    sp.setBoostFactors(boostFactors)    
-    sp.compute(inputVector, True, activeArray)    
-    overlaps = sp.getOverlaps()    
+
+    expOutput = numpy.array([2, 0, 0], dtype=realDType)
+    boostFactors = 2.0 * numpy.ones(3)
+    sp.setBoostFactors(boostFactors)
+    sp.compute(inputVector, True, activeArray)
+    overlaps = sp.getOverlaps()
     boostedOverlaps = sp.getBoostedOverlaps()
-    
+
     for i in range(sp.getNumColumns()):
     	self.assertEqual(overlaps[i], expOutput[i])
 
     for i in range(sp.getNumColumns()):
-    	self.assertEqual(boostedOverlaps[i], (2 * expOutput[i]))      
+    	self.assertEqual(boostedOverlaps[i], (2 * expOutput[i]))
 
 
   def testExactOutput(self):
@@ -1337,6 +1337,16 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(trueActive, sorted(active))
 
     density = 0.5
+    sp._numColumns = 16
+    sp._columnDimensions = numpy.array([sp._numColumns])
+    sp._inhibitionRadius = 2
+    overlaps = numpy.array([1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0], dtype=realDType)
+    active = list(sp._inhibitColumnsLocal(overlaps, density))
+    # Assert that only columns with overlap are activated
+    for index in active:
+      self.assertTrue(overlaps[index] > 0)
+
+    density = 0.5
     sp._numColumns = 10
     sp._columnDimensions = numpy.array([sp._numColumns])
     sp._inhibitionRadius = 3
@@ -1772,7 +1782,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     # Load the deserialized proto
     sp2 = SpatialPooler.read(proto2)
-    
+
     ephemeral = set(["_boostedOverlaps", "_overlaps"])
 
     # Check that the two spatial poolers have the same attributes
