@@ -1464,13 +1464,14 @@ class SpatialPooler(object):
     addToWinners = max(overlaps)/1000.0
     overlaps = numpy.array(overlaps, dtype=realDType)
     for i in xrange(self._numColumns):
-      maskNeighbors = self._getNeighborsND(i, self._columnDimensions, self._inhibitionRadius)
-      overlapSlice = overlaps[maskNeighbors]
-      numActive = int(0.5 + density * (len(maskNeighbors) + 1))
-      numBigger = numpy.count_nonzero(overlapSlice > overlaps[i])
-      if overlaps[i] > 0 and numBigger < numActive:
-        winners.append(i)
-        overlaps[i] += addToWinners
+      if overlaps[i] > 0:
+        maskNeighbors = self._getNeighborsND(i, self._columnDimensions, self._inhibitionRadius)
+        overlapSlice = overlaps[maskNeighbors]
+        numActive = int(0.5 + density * (len(maskNeighbors) + 1))
+        numBigger = numpy.count_nonzero(overlapSlice > overlaps[i])
+        if numBigger < numActive:
+          winners.append(i)
+          overlaps[i] += addToWinners
     return numpy.array(winners, dtype=uintType)
 
 
