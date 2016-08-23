@@ -135,12 +135,17 @@ class TemporalMemory(object):
 
     @param activeColumns (set)  Indices of active columns
     @param learn         (bool) Whether or not learning is enabled
+    """
+    self.activateCells(sorted(activeColumns), learn)
+    self.activateDendrites(learn)
 
-    Updates member variables:
-      - `activeCells`     (list)
-      - `winnerCells`     (list)
-      - `activeSegments`  (list)
-      - `matchingSegments`(list)
+
+  def activateCells(self, activeColumns, learn=True):
+    """ Calculate the active cells, using the current active columns and
+    dendrite segments. Grow and reinforce synapses.
+
+    @param activeColumns (list) A sorted list of active column indices.
+    @param learn (bool) If true, reinforce / punish / grow synapses.
 
     Pseudocode:
     for each column
@@ -150,19 +155,11 @@ class TemporalMemory(object):
         call burstColumn
       if column is inactive and has matching distal dendrite segments
         call punishPredictedColumn
-    for each distal dendrite segment with activity >= activationThreshold
-      mark the segment as active
-    for each distal dendrite segment with unconnected activity >= minThreshold
-      mark the segment as matching
     """
     prevActiveCells = self.activeCells
     prevWinnerCells = self.winnerCells
-
-    activeColumns = sorted(activeColumns)
-
     self.activeCells = []
     self.winnerCells = []
-
 
     segToCol = lambda segment: int(segment.segment.cell / self.cellsPerColumn)
     identity = lambda x: x
@@ -215,6 +212,20 @@ class TemporalMemory(object):
                                                self.predictedSegmentDecrement,
                                                prevActiveCells)
 
+
+  def activateDendrites(self, learn=True):
+    """ Calculate dendrite segment activity, using the current active cells.
+
+    @param learn (bool)
+    If true, segment activations will be recorded. This information is used
+    during segment cleanup.
+
+    Pseudocode:
+    for each distal dendrite segment with activity >= activationThreshold
+      mark the segment as active
+    for each distal dendrite segment with unconnected activity >= minThreshold
+      mark the segment as matching
+    """
     (activeSegments,
      matchingSegments) = self.connections.computeActivity(
        self.activeCells,
