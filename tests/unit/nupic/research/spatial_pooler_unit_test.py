@@ -219,7 +219,6 @@ class SpatialPoolerTest(unittest.TestCase):
     """When stimulusThreshold is > 0, don't allow columns without any overlap to
     become active. This test focuses on the local inhibition code path."""
     inputSize = 10
-    inputSize = 10
     nColumns = 20
     sp = SpatialPooler(inputDimensions=[inputSize],
                        columnDimensions=[nColumns],
