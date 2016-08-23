@@ -150,35 +150,35 @@ class SpatialPoolerTest(unittest.TestCase):
       potential = sp._potentialPools[columnIndex]
       perm = sp._permanences.getRow(columnIndex)
       self.assertEqual(list(perm), list(potential))
-      
+
 
   def testOverlapsOutput(self):
     """Checks that overlaps and boostedOverlaps are correctly returned"""
-    
+
     sp = SpatialPooler(inputDimensions=[5],
-    	columnDimensions=[3],
-    	potentialRadius=5,
-    	numActiveColumnsPerInhArea=5,
-    	globalInhibition=True,
-    	seed=1,
-    	synPermActiveInc=0.1,
-    	synPermInactiveDec=0.1)
-    
+                       columnDimensions=[3],
+                       potentialRadius=5,
+                       numActiveColumnsPerInhArea=5,
+                       globalInhibition=True,
+                       seed=1,
+                       synPermActiveInc=0.1,
+                       synPermInactiveDec=0.1)
+
     inputVector = numpy.ones(5)
     activeArray = numpy.zeros(3)
-    
-    expOutput = numpy.array([2, 0, 0], dtype=realDType)    
-    boostFactors = 2.0 * numpy.ones(3)    
-    sp.setBoostFactors(boostFactors)    
-    sp.compute(inputVector, True, activeArray)    
-    overlaps = sp.getOverlaps()    
+
+    expOutput = numpy.array([2, 0, 0], dtype=realDType)
+    boostFactors = 2.0 * numpy.ones(3)
+    sp.setBoostFactors(boostFactors)
+    sp.compute(inputVector, True, activeArray)
+    overlaps = sp.getOverlaps()
     boostedOverlaps = sp.getBoostedOverlaps()
-    
-    for i in range(sp.getNumColumns()):
-    	self.assertEqual(overlaps[i], expOutput[i])
 
     for i in range(sp.getNumColumns()):
-    	self.assertEqual(boostedOverlaps[i], (2 * expOutput[i]))      
+      self.assertEqual(overlaps[i], expOutput[i])
+
+    for i in range(sp.getNumColumns()):
+      self.assertEqual(boostedOverlaps[i], (2 * expOutput[i]))
 
 
   def testExactOutput(self):
@@ -1772,7 +1772,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     # Load the deserialized proto
     sp2 = SpatialPooler.read(proto2)
-    
+
     ephemeral = set(["_boostedOverlaps", "_overlaps"])
 
     # Check that the two spatial poolers have the same attributes
@@ -1780,7 +1780,7 @@ class SpatialPoolerTest(unittest.TestCase):
     for k, v1 in sp1.__dict__.iteritems():
       v2 = getattr(sp2, k)
       if k in ephemeral:
-      	continue
+        continue
       if isinstance(v1, numpy.ndarray):
         self.assertEqual(v1.dtype, v2.dtype,
                          "Key %s has differing dtypes: %s vs %s" % (
