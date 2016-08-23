@@ -510,7 +510,9 @@ class TemporalMemoryTest(unittest.TestCase):
     for synapse in synapses:
       synapseData = tm.connections.dataForSynapse(synapse)
       self.assertAlmostEqual(.21, synapseData.permanence)
-      self.assertTrue(synapseData.presynapticCell in prevWinnerCells)
+      self.assertTrue(synapseData.presynapticCell == prevWinnerCells[1] or
+                      synapseData.presynapticCell == prevWinnerCells[2] or
+                      synapseData.presynapticCell == prevWinnerCells[3])
 
 
   def testMatchingSegmentAddSynapsesToAllWinnerCells(self):
@@ -545,6 +547,50 @@ class TemporalMemoryTest(unittest.TestCase):
     synapseData = tm.connections.dataForSynapse(synapses[1])
     self.assertAlmostEqual(.21, synapseData.permanence)
     self.assertEqual(prevWinnerCells[1], synapseData.presynapticCell)
+
+
+  def testActiveSegmentGrowSynapsesAccordingToPotentialOverlap(self):
+    """
+    When a segment becomes active, grow synapses to previous winner cells.
+
+    The number of grown synapses is calculated from the "matching segment"
+    overlap, not the "active segment" overlap.
+    """
+    tm = TemporalMemory(
+      columnDimensions=[32],
+      cellsPerColumn=1,
+      activationThreshold=2,
+      initialPermanence=.21,
+      connectedPermanence=.50,
+      minThreshold=1,
+      maxNewSynapseCount=4,
+      permanenceIncrement=.10,
+      permanenceDecrement=.10,
+      predictedSegmentDecrement=0.0,
+      seed=42)
+
+    # Use 1 cell per column so that we have easy control over the winner cells.
+    previousActiveColumns = [0, 1, 2, 3, 4]
+    prevWinnerCells = [0, 1, 2, 3, 4]
+    activeColumns = [5]
+
+    activeSegment = tm.connections.createSegment(5)
+    tm.connections.createSynapse(activeSegment, 0, .5)
+    tm.connections.createSynapse(activeSegment, 1, .5)
+    tm.connections.createSynapse(activeSegment, 2, .2)
+
+    tm.compute(previousActiveColumns, True)
+    self.assertEqual(prevWinnerCells, tm.getWinnerCells())
+    tm.compute(activeColumns, True)
+
+    synapses = tm.connections.synapsesForSegment(activeSegment)
+    self.assertEqual(4, len(synapses))
+
+    synapse = synapses[3];
+    synapseData = tm.connections.dataForSynapse(synapse)
+    self.assertAlmostEqual(.21, synapseData.permanence)
+    self.assertTrue(synapseData.presynapticCell == prevWinnerCells[3] or
+                    synapseData.presynapticCell == prevWinnerCells[4])
 
 
   def testDestroyWeakSynapseOnWrongPrediction(self):
