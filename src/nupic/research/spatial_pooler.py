@@ -1399,7 +1399,6 @@ class SpatialPooler(object):
     # determine how many columns should be selected in the inhibition phase.
     # This can be specified by either setting the 'numActiveColumnsPerInhArea'
     # parameter or the 'localAreaDensity' parameter when initializing the class
-    overlaps = overlaps.copy()
     if (self._localAreaDensity > 0):
       density = self._localAreaDensity
     else:
@@ -1468,18 +1467,20 @@ class SpatialPooler(object):
     @return list with indices of the winning columns
     """
     winners = []
-    addToWinners = max(overlaps)/1000.0
-    overlaps = numpy.array(overlaps, dtype=realDType)
+
+    addToWinners = 0.01
+    tieBrokenOverlaps = numpy.array(overlaps, dtype=realDType)
+
     for i in xrange(self._numColumns):
       if overlaps[i] >= self._stimulusThreshold:
         maskNeighbors = self._getNeighborsND(i, self._columnDimensions,
                                              self._inhibitionRadius)
-        overlapSlice = overlaps[maskNeighbors]
+        overlapSlice = tieBrokenOverlaps[maskNeighbors]
         numActive = int(0.5 + density * (len(maskNeighbors) + 1))
         numBigger = numpy.count_nonzero(overlapSlice > overlaps[i])
         if numBigger < numActive:
           winners.append(i)
-          overlaps[i] += addToWinners
+          tieBrokenOverlaps[i] += addToWinners
     return numpy.array(winners, dtype=uintType)
 
 

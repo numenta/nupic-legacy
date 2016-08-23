@@ -152,6 +152,90 @@ class SpatialPoolerTest(unittest.TestCase):
       self.assertEqual(list(perm), list(potential))
 
 
+  def testZeroOverlap_NoStimulusThreshold_GlobalInhibition(self):
+    """When stimulusThreshold is 0, allow columns without any overlap to become
+    active. This test focuses on the global inhibition code path."""
+    inputSize = 10
+    nColumns = 20
+    sp = SpatialPooler(inputDimensions=[inputSize],
+                       columnDimensions=[nColumns],
+                       potentialRadius=10,
+                       globalInhibition=True,
+                       numActiveColumnsPerInhArea=3,
+                       stimulusThreshold=0,
+                       seed=getSeed())
+
+    inputVector = numpy.zeros(inputSize)
+    activeArray = numpy.zeros(nColumns)
+    sp.compute(inputVector, True, activeArray)
+
+    self.assertEqual(3, len(activeArray.nonzero()[0]))
+
+
+  def testZeroOverlap_StimulusThreshold_GlobalInhibition(self):
+    """When stimulusThreshold is > 0, don't allow columns without any overlap to
+    become active. This test focuses on the global inhibition code path."""
+    inputSize = 10
+    nColumns = 20
+    sp = SpatialPooler(inputDimensions=[inputSize],
+                       columnDimensions=[nColumns],
+                       potentialRadius=10,
+                       globalInhibition=True,
+                       numActiveColumnsPerInhArea=3,
+                       stimulusThreshold=1,
+                       seed=getSeed())
+
+    inputVector = numpy.zeros(inputSize)
+    activeArray = numpy.zeros(nColumns)
+    sp.compute(inputVector, True, activeArray)
+
+    self.assertEqual(0, len(activeArray.nonzero()[0]))
+
+
+  def testZeroOverlap_NoStimulusThreshold_LocalInhibition(self):
+    """When stimulusThreshold is 0, allow columns without any overlap to become
+    active. This test focuses on the local inhibition code path."""
+    inputSize = 10
+    nColumns = 20
+    sp = SpatialPooler(inputDimensions=[inputSize],
+                       columnDimensions=[nColumns],
+                       potentialRadius=5,
+                       globalInhibition=False,
+                       numActiveColumnsPerInhArea=1,
+                       stimulusThreshold=0,
+                       seed=getSeed())
+
+    inputVector = numpy.zeros(inputSize)
+    activeArray = numpy.zeros(nColumns)
+    sp.compute(inputVector, True, activeArray)
+
+    # This exact number of active columns is determined by the inhibition
+    # radius, which changes based on the random synapses (i.e. weird math).
+    self.assertGreater(len(activeArray.nonzero()[0]), 2)
+    self.assertLess(len(activeArray.nonzero()[0]), 10)
+
+
+  def testZeroOverlap_StimulusThreshold_LocalInhibition(self):
+    """When stimulusThreshold is > 0, don't allow columns without any overlap to
+    become active. This test focuses on the local inhibition code path."""
+    inputSize = 10
+    inputSize = 10
+    nColumns = 20
+    sp = SpatialPooler(inputDimensions=[inputSize],
+                       columnDimensions=[nColumns],
+                       potentialRadius=10,
+                       globalInhibition=False,
+                       numActiveColumnsPerInhArea=3,
+                       stimulusThreshold=1,
+                       seed=getSeed())
+
+    inputVector = numpy.zeros(inputSize)
+    activeArray = numpy.zeros(nColumns)
+    sp.compute(inputVector, True, activeArray)
+
+    self.assertEqual(0, len(activeArray.nonzero()[0]))
+
+
   def testOverlapsOutput(self):
     """Checks that overlaps and boostedOverlaps are correctly returned"""
 
