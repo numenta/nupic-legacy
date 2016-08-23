@@ -1376,7 +1376,6 @@ class SpatialPooler(object):
     overlaps = numpy.zeros(self._numColumns, dtype=realDType)
     self._connectedSynapses.rightVecSumAtNZ_fast(inputVector.astype(realDType),
                                                  overlaps)
-    overlaps[overlaps < self._stimulusThreshold] = 0
     return overlaps
 
 
@@ -1436,10 +1435,18 @@ class SpatialPooler(object):
 
     # Calculate winners using stable sort algorithm (mergesort)
     # for compatibility with C++
-    winnerIndices = numpy.argsort(overlaps, kind='mergesort')
-    sortedWinnerIndices = winnerIndices[-numActive:][::-1]
+    sortedWinnerIndices = numpy.argsort(overlaps, kind='mergesort')
 
-    return sortedWinnerIndices
+    # Enforce the stimulus threshold
+    start = len(sortedWinnerIndices) - numActive
+    while start < len(sortedWinnerIndices):
+      i = sortedWinnerIndices[start]
+      if overlaps[i] >= self._stimulusThreshold:
+        break
+      else:
+        start += 1
+
+    return sortedWinnerIndices[start:][::-1]
 
 
   def _inhibitColumnsLocal(self, overlaps, density):
@@ -1464,13 +1471,15 @@ class SpatialPooler(object):
     addToWinners = max(overlaps)/1000.0
     overlaps = numpy.array(overlaps, dtype=realDType)
     for i in xrange(self._numColumns):
-      maskNeighbors = self._getNeighborsND(i, self._columnDimensions, self._inhibitionRadius)
-      overlapSlice = overlaps[maskNeighbors]
-      numActive = int(0.5 + density * (len(maskNeighbors) + 1))
-      numBigger = numpy.count_nonzero(overlapSlice > overlaps[i])
-      if numBigger < numActive:
-        winners.append(i)
-        overlaps[i] += addToWinners
+      if overlaps[i] >= self._stimulusThreshold:
+        maskNeighbors = self._getNeighborsND(i, self._columnDimensions,
+                                             self._inhibitionRadius)
+        overlapSlice = overlaps[maskNeighbors]
+        numActive = int(0.5 + density * (len(maskNeighbors) + 1))
+        numBigger = numpy.count_nonzero(overlapSlice > overlaps[i])
+        if numBigger < numActive:
+          winners.append(i)
+          overlaps[i] += addToWinners
     return numpy.array(winners, dtype=uintType)
 
 
