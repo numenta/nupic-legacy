@@ -1468,7 +1468,10 @@ class SpatialPooler(object):
     """
     winners = []
 
-    addToWinners = 0.01
+    addToWinners = max(overlaps) / 1000.0
+    if addToWinners == 0:
+      addToWinners = 0.001
+
     tieBrokenOverlaps = numpy.array(overlaps, dtype=realDType)
 
     for i in xrange(self._numColumns):
