@@ -100,7 +100,7 @@ class TemporalMemory(object):
 
     if minThreshold > activationThreshold:
       raise ValueError(
-        "Activation threshold must be greater than the min threshold")
+        "The min threshold can't be greater than the activation threshold")
 
     # TODO: Validate all parameters (and add validation tests)
 
