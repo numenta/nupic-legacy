@@ -20,12 +20,16 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import csv
-import time
-import numpy
-import sys
+"""
+Run various perf scenarios on the Temporal Memory.
+"""
+
 import argparse
+import csv
+import numpy
 import random
+import sys
+import time
 
 from pkg_resources import resource_filename
 
@@ -253,23 +257,12 @@ def tpComputeFn(instance, encoding, activeBits):
   instance.compute(encoding, enableLearn=True, computeInfOutput=True)
 
 
-def before(args, printMe):
-  print printMe
-  if args.pause:
-    raw_input("Press enter to continue. ")
-
-
-def after(results):
-  for impl, t in sorted(results, key=lambda x: x[1]):
-    print "%s: %fs" % (impl, t)
-  print
-  print
-
-
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser()
+  parser = argparse.ArgumentParser(
+    description="Run various perf scenarios on the Temporal Memory."
+  )
 
-  impNames = ["tm_cpp", "tm_py", "tp_py", "tp_cpp"]
+  implNames = ["tm_cpp", "tm_py", "tp_py", "tp_cpp"]
   testNames = ["simple_sequence", "simple_sequence_no_resets",
                "hotgym", "hotgym_1_cell", "random", "5_random",
                "20_simple_sequence", "20_simple_sequence_no_resets",
@@ -279,7 +272,7 @@ if __name__ == "__main__":
                       nargs="*",
                       type=str,
                       help=("Which temporal memory implementations to use. " +
-                            "Options: %s" % ", ".join(impNames)),
+                            "Options: %s" % ", ".join(implNames)),
                       default=["tm_cpp"])
 
   parser.add_argument("-t", "--tests",
@@ -293,6 +286,11 @@ if __name__ == "__main__":
                       help="Pause before each test.",
                       default=False,
                       action="store_true")
+
+  parser.add_argument("-o", "--output",
+                      help="Output CSV file",
+                      type=str,
+                      default=None)
 
   args = parser.parse_args()
 
@@ -310,7 +308,7 @@ if __name__ == "__main__":
       nupic.bindings.algorithms.TemporalMemory,
       paramsFn=tmParamsFn,
       computeFn=tmComputeFn,
-      name="TM (C++)")
+      name="tm_cpp")
 
   if "tm_py" in args.implementations:
     import nupic.research.temporal_memory
@@ -318,7 +316,7 @@ if __name__ == "__main__":
       nupic.research.temporal_memory.TemporalMemory,
       paramsFn=tmParamsFn,
       computeFn=tmComputeFn,
-      name="TM (py)")
+      name="tm_py")
 
   if "tp_py" in args.implementations:
     import nupic.research.TP
@@ -326,7 +324,7 @@ if __name__ == "__main__":
       nupic.research.TP.TP,
       paramsFn=tpParamsFn,
       computeFn=tpComputeFn,
-      name="TP")
+      name="tp_py")
 
   if "tp_cpp" in args.implementations:
     import nupic.research.TP10X2
@@ -334,66 +332,73 @@ if __name__ == "__main__":
       nupic.research.TP10X2.TP10X2,
       paramsFn=tpParamsFn,
       computeFn=tpComputeFn,
-      name="TP10X2")
+      name="tp_cpp")
 
 
-  if "simple_sequence" in args.tests:
-    before(args, "Test: simple repeating sequence")
-    results = benchmark.runSimpleSequence(resets=True)
-    after(results)
+  tests = (
+    ("simple_sequence",
+     "simple repeating sequence",
+     lambda: benchmark.runSimpleSequence(resets=True)),
+    ("simple_sequence_no_resets",
+     "simple repeating sequence (no resets)",
+     lambda: benchmark.runSimpleSequence(resets=False)),
+    ("20_simple_sequence",
+     "simple repeating sequence, times 20",
+     lambda: benchmark.runSimpleSequence(repetitions=20, resets=True)),
+    ("20_simple_sequence_no_resets",
+     "simple repeating sequence, times 20 (no resets)",
+     lambda: benchmark.runSimpleSequence(repetitions=20, resets=False)),
+    ("hotgym",
+     "hotgym",
+     lambda: benchmark.runHotgym(cellsPerColumn=32)),
+    ("hotgym_1_cell",
+     "hotgym (1 cell per column)",
+     lambda: benchmark.runHotgym(cellsPerColumn=1)),
+    ("20_hotgym",
+     "hotgym, 20 times",
+     lambda: benchmark.runHotgym(cellsPerColumn=32, repetitions=20)),
+    ("20_hotgym_1_cell",
+     "hotgym, 20 times (1 cell per column)",
+     lambda: benchmark.runHotgym(cellsPerColumn=1, repetitions=20)),
+    ("random",
+     "random column SDRs",
+     lambda: benchmark.runRandom(repetitions=1)),
+    ("5_random",
+     "random column SDRs, times 5",
+     lambda: benchmark.runRandom(repetitions=5)),
+  )
 
+  allResults = {}
+  for name, description, testFn in tests:
+    assert name not in allResults
 
-  if "simple_sequence_no_resets" in args.tests:
-    before(args, "Test: simple repeating sequence (no resets)")
-    results = benchmark.runSimpleSequence(resets=False)
-    after(results)
+    if name in args.tests:
+      print "Test: %s" % description
+      if args.pause:
+        raw_input("Press enter to continue. ")
 
+      results = testFn()
+      allResults[name] = results
 
-  if "20_simple_sequence" in args.tests:
-    before(args, "Test: simple repeating sequence, times 20")
-    results = benchmark.runSimpleSequence(repetitions=20, resets=True)
-    after(results)
+      for implDescription, t in sorted(results, key=lambda x: x[1]):
+        print "%s: %fs" % (implDescription, t)
+      print
+      print
 
+  if args.output is not None and len(allResults) > 0:
+    print "Writing results to",args.output
+    print
+    with open(args.output, "wb") as csvFile:
+      writer = csv.writer(csvFile)
+      firstTestName, firstResults = allResults.iteritems().next()
+      orderedImplNames = (implName for implName, t in firstResults)
 
-  if "20_simple_sequence_no_resets" in args.tests:
-    before(args, "Test: simple repeating sequence, times 20 (no resets)")
-    results = benchmark.runSimpleSequence(repetitions=20, resets=False)
-    after(results)
+      firstRow = ["test"]
+      firstRow.extend(orderedImplNames)
+      writer.writerow(firstRow)
 
-
-  if "hotgym" in args.tests:
-    before(args, "Test: hotgym")
-    results = benchmark.runHotgym(cellsPerColumn=32)
-    after(results)
-
-
-  if "hotgym_1_cell" in args.tests:
-    before(args, "Test: hotgym (1 cell per column)")
-    results = benchmark.runHotgym(cellsPerColumn=1)
-    after(results)
-
-
-  if "20_hotgym" in args.tests:
-    before(args, "Test: hotgym, 20 times")
-    results = benchmark.runHotgym(cellsPerColumn=32,
-                                  repetitions=20)
-    after(results)
-
-
-  if "20_hotgym_1_cell" in args.tests:
-    before(args, "Test: hotgym, 20 times (1 cell per column)")
-    results = benchmark.runHotgym(cellsPerColumn=1,
-                                  repetitions=20)
-    after(results)
-
-
-  if "random" in args.tests:
-    before(args, "Test: random column SDRs")
-    results = benchmark.runRandom(repetitions=1)
-    after(results)
-
-
-  if "5_random" in args.tests:
-    before(args, "Test: random column SDRs, times 5")
-    results = benchmark.runRandom(repetitions=5)
-    after(results)
+      for testName, results in allResults.iteritems():
+        row = [testName]
+        for implDescription, t in results:
+          row.append(t)
+        writer.writerow(row)
