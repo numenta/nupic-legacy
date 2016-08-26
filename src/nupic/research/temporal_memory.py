@@ -303,6 +303,10 @@ class TemporalMemory(object):
 
         if learn:
           # Learn on every active segment.
+          #
+          # For each active segment, get its corresponding matching
+          # segment so that we can use its overlap to compute the
+          # number of synapses to grow.
           bySegment = lambda x: x.segment
           for segmentData in groupby2(activeSegmentsOnCell, bySegment,
                                       matchingSegmentsOnCell, bySegment):
@@ -311,7 +315,8 @@ class TemporalMemory(object):
              matchingOverlaps) = segmentData
 
             if activeOverlaps is not None:
-              # Active segments are a superset of matching segments.
+              # Active segments are a superset of matching segments,
+              # so this iterator must contain a segment (and overlap).
               matching = matchingOverlaps.next()
 
               TemporalMemory.adaptSegment(connections, segment, prevActiveCells,
