@@ -29,15 +29,15 @@ EPSILON = 0.00001 # constant error threshold to check equality of permanences to
 class Segment(object):
   """ Class containing minimal information to identify a unique segment """
 
-  __slots__ = ['idx', 'cell', 'data']
+  __slots__ = ['cell', 'idx', 'data']
 
-  def __init__(self, idx, cell, data):
+  def __init__(self, cell, idx, data):
     """
-       @param idx  (int) Index of the segment on the cell
        @param cell (int) Index of the cell that this segment is on
+       @param idx  (int) Index of the segment on the cell
     """
-    self.idx = idx
     self.cell = cell
+    self.idx = idx
     self.data = data
 
 
@@ -114,25 +114,6 @@ class CellData(object):
     self.numDestroyedSegments = 0
 
 
-class SegmentOverlap(object):
-  """ Class that allows tracking of overlap scores on segments """
-
-  __slots__ = ['segment', 'overlap']
-
-  def __init__(self, segment, overlap):
-    """
-       @param segment (Object) Segment object to keep track of
-       @param overlap (int)    The number of synapses on the segment that
-                               are above either the matching threshold or
-                               the active threshold
-    """
-    self.segment = segment
-    self.overlap = overlap
-
-  def __eq__(self, other):
-    return (self.segment, self.overlap) == (other.segment, other.overlap)
-
-
 
 def binSearch(arr, val):
   """ function for running binary search on a sorted list.
@@ -190,7 +171,7 @@ class Connections(object):
     segmentsList = self._cells[cell].segments
 
 
-    return [Segment(i, cell, segmentsList[i])
+    return [Segment(cell, i, segmentsList[i])
             for i in xrange(len(segmentsList))
             if not segmentsList[i].destroyed]
 
@@ -234,7 +215,7 @@ class Connections(object):
     return segment.data
 
 
-  def getSegment(self, idx, cell):
+  def getSegment(self, cell, idx):
     """ Returns a Segment object of the specified segment using data from the
         self._cells array.
 
@@ -245,7 +226,7 @@ class Connections(object):
 
     """
 
-    return Segment(idx, cell, self._cells[cell].segments[idx])
+    return Segment(cell, idx, self._cells[cell].segments[idx])
 
 
   def _leastRecentlyUsedSegment(self, cell):
@@ -268,7 +249,7 @@ class Connections(object):
         minIdx = i
         minIteration = segment.lastUsedIteration
 
-    return Segment(minIdx, cell, segments[minIdx])
+    return Segment(cell, minIdx, segments[minIdx])
 
 
   def _minPermanenceSynapse(self, segment):
@@ -295,6 +276,25 @@ class Connections(object):
     return synapses[minIdx]
 
 
+  def segmentForFlatIdx(self, flatIdx):
+    """ Get the segment with the specified flatIdx.
+
+    @param flatIdx (int) The segment's flattened list index.
+
+    @return (Segment) segment object
+    """
+    return self._segmentForFlatIdx[flatIdx]
+
+
+  def segmentFlatListLength(self):
+    """ Get the needed length for a list to hold a value for every segment's
+    flatIdx.
+
+    @return (int) Required list length
+    """
+    return self._nextFlatIdx
+
+
   def synapsesForPresynapticCell(self, presynapticCell):
     """ Returns the synapses for the source cell that they synapse on.
 
@@ -316,7 +316,7 @@ class Connections(object):
       self.destroySegment(self._leastRecentlyUsedSegment(cell))
 
     cellData = self._cells[cell]
-    segment = Segment(-1, cell, None) # New segment with some default values
+    segment = Segment(cell, -1, None) # New segment with some default values
 
     if cellData.numDestroyedSegments > 0:
       found = False
@@ -460,73 +460,52 @@ class Connections(object):
     synapse.data.permanence = permanence
 
 
-  def computeActivity(self, activeInput, activePermanenceThreshold,
-                      activeSynapseThreshold, matchingPermananceThreshold,
-                      matchingSynapseThreshold, recordIteration=True):
-    """ Computes active and matching segments given the current active input.
+  def computeActivity(self, activePresynapticCells, connectedPermanence):
+    """ Compute each segment's number of active synapses for a given input.
+    In the returned lists, a segment's active synapse count is stored at index
+    `segment.data.flatIdx`.
 
-    @param activeInput                 (set)   currently active cells
-    @param activePermanenceThreshold   (float) permanence threshold for a
-                                               synapse to be considered active
-    @param activeSynapseThreshold      (int)   number of synapses needed for a
-                                               segment to be considered active
-    @param matchingPermananceThreshold (float) permanence threshold for a
-                                               synapse to be considered matching
-    @param matchingSynapseThreshold    (int)   number of synapses needed for a
-                                               segment to be considered matching
-    @param recordIteration             (bool)  bool to determine if we should
-                                               update the lastUsedIteration on
-                                               active segments and the internal
-                                               iteration variable
+    @param activePresynapticCells (iter)  active cells
+    @param connectedPermanence    (float) permanence threshold for a synapse
+                                          to be considered connected
 
     @return (tuple) Contains:
-                      `activeSegments`         (list),
-                      `matchingSegments`       (list),
-
-    Notes:
-      activeSegments and matchingSegments are sorted by the cell they are on
-      and they are lists of SegmentOverlap objects.
+                      `numActiveConnectedSynapsesForSegment`  (list),
+                      `numActivePotentialSynapsesForSegment`  (list)
     """
 
-    numActiveSynapsesForSegment = [0] * self._nextFlatIdx
-    numMatchingSynapsesForSegment = [0] * self._nextFlatIdx
+    numActiveConnectedSynapsesForSegment = [0] * self._nextFlatIdx
+    numActivePotentialSynapsesForSegment = [0] * self._nextFlatIdx
 
-    for cell in activeInput:
+    threshold = connectedPermanence - EPSILON
+
+    for cell in activePresynapticCells:
       for synapse in self._synapsesForPresynapticCell[cell]:
         synapseData = synapse.data
         segment = synapse.segment
-        permanence = synapseData.permanence
-        segmentData = segment.data
-        if permanence - matchingPermananceThreshold > -EPSILON:
-          numMatchingSynapsesForSegment[segmentData.flatIdx] += 1
-          if permanence - activePermanenceThreshold > -EPSILON:
-            numActiveSynapsesForSegment[segmentData.flatIdx] += 1
+        flatIdx = segment.data.flatIdx
+        numActivePotentialSynapsesForSegment[flatIdx] += 1
+        if synapseData.permanence > threshold:
+          numActiveConnectedSynapsesForSegment[flatIdx] += 1
 
-    if recordIteration:
-      self._iteration += 1
-
-    activeSegments = []
-    matchingSegments = []
-    for i in xrange(self._nextFlatIdx):
-      numActive = numActiveSynapsesForSegment[i]
-      if numActive >= activeSynapseThreshold:
-        activeSegments.append(SegmentOverlap(self._segmentForFlatIdx[i],
-                                             numActive))
-
-        if recordIteration:
-          segment.data.lastUsedIteration = self._iteration
+    return (numActiveConnectedSynapsesForSegment,
+            numActivePotentialSynapsesForSegment)
 
 
-    for i in xrange(self._nextFlatIdx):
-      numMatching = numMatchingSynapsesForSegment[i]
-      if numMatching >= matchingSynapseThreshold:
-        matchingSegments.append(SegmentOverlap(self._segmentForFlatIdx[i],
-                                               numMatching))
+  def recordSegmentActivity(self, segment):
+    """ Record the fact that a segment had some activity. This information is
+        used during segment cleanup.
 
-    segmentKey = lambda s: (s.segment.cell * self.maxSegmentsPerCell
-                            + s.segment.idx)
-    return (sorted(activeSegments, key = segmentKey),
-            sorted(matchingSegments, key = segmentKey))
+        @param segment The segment that had some activity.
+    """
+    segment.data.lastUsedIteration = self._iteration
+
+
+  def startNewIteration(self):
+    """ Mark the passage of time. This information is used during segment
+    cleanup.
+    """
+    self._iteration += 1
 
 
   def numSegments(self, cell=None):
@@ -614,7 +593,7 @@ class Connections(object):
         connections._nextFlatIdx += 1
         segments.append(segmentData)
 
-        segment = Segment(j, i, segmentData)
+        segment = Segment(i, j, segmentData)
         connections._segmentForFlatIdx.append(segment)
 
         protoSynapses = protoSegments[j].synapses

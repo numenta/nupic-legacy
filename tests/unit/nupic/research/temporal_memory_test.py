@@ -210,36 +210,6 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertAlmostEqual(.42, tm.connections.dataForSynapse(is1).permanence)
 
 
-  def testNoGrowthOnCorrectlyActiveSegments(self):
-    tm = TemporalMemory(
-      columnDimensions=[32],
-      cellsPerColumn=4,
-      activationThreshold=3,
-      initialPermanence=.2,
-      connectedPermanence=.50,
-      minThreshold=2,
-      maxNewSynapseCount=3,
-      permanenceIncrement=.10,
-      permanenceDecrement=.10,
-      predictedSegmentDecrement=0.02,
-      seed=42)
-
-    previousActiveColumns = [0]
-    previousActiveCells = [0,1,2,3]
-    activeColumns = [1]
-    activeCell = 5
-
-    activeSegment = tm.connections.createSegment(activeCell)
-    tm.connections.createSynapse(activeSegment, previousActiveCells[0], .5)
-    tm.connections.createSynapse(activeSegment, previousActiveCells[1], .5)
-    tm.connections.createSynapse(activeSegment, previousActiveCells[2], .5)
-
-    tm.compute(previousActiveColumns, True)
-    tm.compute(activeColumns, True)
-
-    self.assertEqual(3, len(tm.connections.synapsesForSegment(activeSegment)))
-
-
   def testReinforceSelectedMatchingSegmentInBurstingColumn(self):
     tm = TemporalMemory(
       columnDimensions=[32],
