@@ -777,7 +777,8 @@ class TemporalMemory(object):
 
     @param proto (DynamicStructBuilder) Proto object
     """
-    proto.columnDimensions = self.columnDimensions
+    # capnp fails to save a tuple.  Let's force columnDimensions to list.
+    proto.columnDimensions = list(self.columnDimensions)
     proto.cellsPerColumn = self.cellsPerColumn
     proto.activationThreshold = self.activationThreshold
     proto.initialPermanence = self.initialPermanence
@@ -819,7 +820,10 @@ class TemporalMemory(object):
     """
     tm = object.__new__(cls)
 
-    tm.columnDimensions = list(proto.columnDimensions)
+    # capnp fails to save a tuple, so proto.columnDimensions was forced to
+    # serialize as a list.  We prefer a tuple, however, because columnDimensions
+    # should be regarded as immutable.
+    tm.columnDimensions = tuple(proto.columnDimensions)
     tm.cellsPerColumn = int(proto.cellsPerColumn)
     tm.activationThreshold = int(proto.activationThreshold)
     tm.initialPermanence = proto.initialPermanence
