@@ -30,3 +30,7 @@ from extensive_tm_test_base import ExtensiveTemporalMemoryTest
 class ExtensiveTemporalMemoryTestCPP(ExtensiveTemporalMemoryTest, unittest.TestCase):
   def getTMClass(self):
     return nupic.bindings.algorithms.TemporalMemory
+
+
+if __name__ == "__main__":
+  unittest.main()

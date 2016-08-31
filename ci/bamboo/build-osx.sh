@@ -17,4 +17,6 @@ python setup.py bdist_wheel
 pip install --user --ignore-installed -f wheelhouse/ dist/nupic-`cat VERSION`*.whl
 
 # Invoke unit tests
-python setup.py test --pytest-args="--junit-xml=`pwd`/nupic-test-results.xml --cov nupic unit"
+testsOutPath="`pwd`/nupic-test-results.xml"
+echo "Writing JUnit XML to ${testsOutPath}..."
+python setup.py test --pytest-args="--junit-xml=${testsOutPath} --cov nupic unit"

@@ -158,3 +158,39 @@ class GroupByTest(unittest.TestCase):
         temp = list(data[j]) if data[j] else data[j]
         self.assertEqual(temp, expectedValues[i][j])
       i += 1
+
+
+  def testNone(self):
+    sequence0 = None
+    sequence1 = [3, 4, 5]
+    sequence2 = None
+    sequence3 = [3, 3, 4, 5]
+    sequence4 = None
+
+    identity = lambda x: int(x)
+    times3 = lambda x: int(3 * x)
+    times4 = lambda x: int(4 * x)
+    times5 = lambda x: int(5 * x)
+    times6 = lambda x: int(6 * x)
+
+    expectedValues = [(9, None, [3], None, None, None),
+                      (12, None, [4], None, None, None),
+                      (15, None, [5], None, [3, 3], None),
+                      (20, None, None, None, [4], None),
+                      (25, None, None, None, [5], None)]
+
+    i = 0
+    for data in groupby2(sequence0, identity,
+                         sequence1, times3,
+                         sequence2, times4,
+                         sequence3, times5,
+                         sequence4, times6):
+      self.assertEqual(data[0], expectedValues[i][0])
+      for j in xrange(1, len(data)):
+        temp = list(data[j]) if data[j] else data[j]
+        self.assertEqual(temp, expectedValues[i][j])
+      i += 1
+
+
+if __name__ == "__main__":
+  unittest.main()

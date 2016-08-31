@@ -30,6 +30,7 @@ export CXX
 # Install OS dependencies, assuming stock ubuntu:latest
 apt-get update
 apt-get install -y \
+    curl \
     wget \
     git \
     ${COMPILER_PACKAGES} \
@@ -49,4 +50,5 @@ python setup.py bdist_wheel
 pip install -f wheelhouse/ dist/nupic-`cat VERSION`*.whl
 
 # Invoke tests
-python setup.py test
+python setup.py test --pytest-args="--junit-xml=`pwd`/nupic-test-results.xml --cov nupic unit"
+
