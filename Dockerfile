@@ -52,6 +52,17 @@ ENV NTA_DATA_PATH /usr/local/src/nupic/prediction/data
 # OPF needs this
 ENV USER docker
 
+# Set up nupic.core
+RUN pip install numpy pycapnp
+RUN git clone https://github.com/numenta/nupic.core /usr/local/src/nupic.core
+WORKDIR /usr/local/src/nupic.core
+RUN mkdir -p build/scripts
+WORKDIR /usr/local/src/nupic.core/build/scripts
+RUN cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../release -DPY_EXTENSIONS_DIR=../../bindings/py/nupic/bindings ../..
+RUN make install
+WORKDIR /usr/local/src/nupic.core
+RUN python setup.py install
+
 # Copy context into container file system
 ADD . $NUPIC
 
