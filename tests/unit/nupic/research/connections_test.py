@@ -45,7 +45,8 @@ class ConnectionsTest(unittest.TestCase):
     self.assertEqual(segment2.idx, 1)
     self.assertEqual(segment2.cell, 10)
 
-    self.assertEqual(connections.segmentsForCell(10), [segment1, segment2])
+    self.assertEqual([segment1, segment2],
+                     list(connections.segmentsForCell(10)))
 
 
   def testCreateSegmentReuse(self):
@@ -81,7 +82,7 @@ class ConnectionsTest(unittest.TestCase):
     synapse1 = connections.createSynapse(segment, 50, .34)
     synapse2 = connections.createSynapse(segment, 51, .34)
 
-    synapses = connections.synapsesForSegment(segment)
+    synapses = list(connections.synapsesForSegment(segment))
     self.assertEqual(synapses, [synapse1, synapse2])
 
     #Add an additional synapse to force it over the limit of num synapses
@@ -90,7 +91,7 @@ class ConnectionsTest(unittest.TestCase):
     self.assertEqual(0, synapse3.idx)
 
     #ensure lower permanence synapse was removed
-    synapses = connections.synapsesForSegment(segment)
+    synapses = list(connections.synapsesForSegment(segment))
     self.assertEqual(synapses, [synapse3, synapse2])
 
 
@@ -123,8 +124,8 @@ class ConnectionsTest(unittest.TestCase):
     (numActiveConnected,
      numActivePotential) = connections.computeActivity([80, 81, 82], 0.5)
 
-    self.assertEqual(0, numActiveConnected[segment2.data.flatIdx])
-    self.assertEqual(0, numActivePotential[segment2.data.flatIdx])
+    self.assertEqual(0, numActiveConnected[segment2.flatIdx])
+    self.assertEqual(0, numActivePotential[segment2.flatIdx])
 
 
   def testDestroySynapse(self):
@@ -143,13 +144,13 @@ class ConnectionsTest(unittest.TestCase):
     connections.destroySynapse(synapse2)
 
     self.assertEqual(2, connections.numSynapses())
-    self.assertEqual(connections.synapsesForSegment(segment), [synapse1,
-                                                               synapse3])
+    self.assertEqual([synapse1, synapse3],
+                     list(connections.synapsesForSegment(segment)))
     (numActiveConnected,
      numActivePotential) = connections.computeActivity([80, 81, 82], .5)
 
-    self.assertEqual(1, numActiveConnected[segment.data.flatIdx])
-    self.assertEqual(2, numActivePotential[segment.data.flatIdx])
+    self.assertEqual(1, numActiveConnected[segment.flatIdx])
+    self.assertEqual(2, numActivePotential[segment.flatIdx])
 
 
   def testPathsNotInvalidatedByOtherDestroys(self):
@@ -170,19 +171,19 @@ class ConnectionsTest(unittest.TestCase):
     synapse4 = connections.createSynapse(segment3, 204, .85)
     synapse5 = connections.createSynapse(segment3, 205, .85)
 
-    self.assertEqual(203, connections.dataForSynapse(synapse3).presynapticCell)
+    self.assertEqual(203, synapse3.presynapticCell)
     connections.destroySynapse(synapse1)
-    self.assertEqual(203, connections.dataForSynapse(synapse3).presynapticCell)
+    self.assertEqual(203, synapse3.presynapticCell)
     connections.destroySynapse(synapse5)
-    self.assertEqual(203, connections.dataForSynapse(synapse3).presynapticCell)
+    self.assertEqual(203, synapse3.presynapticCell)
 
     connections.destroySegment(segment1)
-    self.assertEqual(connections.synapsesForSegment(segment3),
-                     [synapse2, synapse3, synapse4])
+    self.assertEqual([synapse2, synapse3, synapse4],
+                     list(connections.synapsesForSegment(segment3)))
     connections.destroySegment(segment5)
-    self.assertEqual(connections.synapsesForSegment(segment3),
-                     [synapse2, synapse3, synapse4])
-    self.assertEqual(203, connections.dataForSynapse(synapse3).presynapticCell)
+    self.assertEqual([synapse2, synapse3, synapse4],
+                     list(connections.synapsesForSegment(segment3)))
+    self.assertEqual(203, synapse3.presynapticCell)
 
 
   def testDestroySegmentWithDestroyedSynapses(self):
@@ -232,7 +233,7 @@ class ConnectionsTest(unittest.TestCase):
     reincarnated = connections.createSegment(11)
 
     self.assertEqual(0, connections.numSynapses(reincarnated))
-    self.assertEqual(0, len(connections.synapsesForSegment(reincarnated)))
+    self.assertEqual(0, len(list(connections.synapsesForSegment(reincarnated))))
 
 
   def testDestroySegmentsThenReachLimit(self):
@@ -344,11 +345,11 @@ class ConnectionsTest(unittest.TestCase):
     (numActiveConnected,
      numActivePotential) = connections.computeActivity(inputVec, .5)
 
-    self.assertEqual(1, numActiveConnected[segment1a.data.flatIdx])
-    self.assertEqual(2, numActivePotential[segment1a.data.flatIdx])
+    self.assertEqual(1, numActiveConnected[segment1a.flatIdx])
+    self.assertEqual(2, numActivePotential[segment1a.flatIdx])
 
-    self.assertEqual(2, numActiveConnected[segment2a.data.flatIdx])
-    self.assertEqual(3, numActivePotential[segment2a.data.flatIdx])
+    self.assertEqual(2, numActiveConnected[segment2a.flatIdx])
+    self.assertEqual(3, numActivePotential[segment2a.flatIdx])
 
 
   @unittest.skipUnless(
