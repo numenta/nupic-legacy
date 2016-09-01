@@ -35,16 +35,16 @@ python -c 'import pip; print "pip version=", pip.__version__'
 python -c 'import setuptools; print "setuptools version=", setuptools.__version__'
 python -c 'import wheel; print "wheel version=", wheel.__version__'
 
-pip uninstall numpy --yes
-
 # Fetch nupic.core build
-export NUPIC_CORE_COMMITISH=`python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"`
-echo "Downloading nupic.core build: https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
-curl -O "https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
-tar xzf "nupic_core-${NUPIC_CORE_COMMITISH}-darwin64.tar.gz"
+while read line; do
+    if [[ $line == nupic.bindings* ]];
+    then
+        IFS='=' read -ra ADDR <<< "$line"
+        NUPIC_BINDINGS_VERSION="${ADDR[2]}"
+    fi
+done <requirements.txt
 
-# Install nupic.bindings and dependencies from wheels
-pip install --no-index --find-links=Users/travis/build/numenta/nupic.core/bindings/py/dist/wheels nupic.bindings
+pip install nupic.bindings==${NUPIC_BINDINGS_VERSION}
 
 # Install and start MySQL on OSX
 echo ">>> brew install mysql"

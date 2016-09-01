@@ -205,7 +205,7 @@ class TemporalMemory(object):
        matchingSegmentsOnCol) = columnData
       if activeColumns is not None:
         if activeSegmentsOnCol is not None:
-          cellsToAdd = TemporalMemory.activatePredictedColumn(
+          cellsToAdd = self.activatePredictedColumn(
             self.connections,
             self._random,
             activeSegmentsOnCol,
@@ -222,7 +222,7 @@ class TemporalMemory(object):
           self.winnerCells += cellsToAdd
         else:
           (cellsToAdd,
-           winnerCell) = TemporalMemory.burstColumn(
+           winnerCell) = self.burstColumn(
              self.connections,
              self._random,
              column,
@@ -241,10 +241,10 @@ class TemporalMemory(object):
           self.winnerCells.append(winnerCell)
       else:
         if learn:
-          TemporalMemory.punishPredictedColumn(self.connections,
-                                               matchingSegmentsOnCol,
-                                               prevActiveCells,
-                                               self.predictedSegmentDecrement)
+          self.punishPredictedColumn(self.connections,
+                                     matchingSegmentsOnCol,
+                                     prevActiveCells,
+                                     self.predictedSegmentDecrement)
 
 
   def activateDendrites(self, learn=True):
@@ -300,8 +300,8 @@ class TemporalMemory(object):
     self.matchingSegments = []
 
 
-  @staticmethod
-  def activatePredictedColumn(connections, random, columnActiveSegments,
+  @classmethod
+  def activatePredictedColumn(cls, connections, random, columnActiveSegments,
                               prevActiveCells, prevWinnerCells,
                               numActivePotentialSynapsesForSegment,
                               maxNewSynapseCount,
@@ -366,22 +366,21 @@ class TemporalMemory(object):
         previousCell = segment.cell
 
       if learn:
-        TemporalMemory.adaptSegment(connections, segment, prevActiveCells,
-                                    permanenceIncrement, permanenceDecrement)
+        cls.adaptSegment(connections, segment, prevActiveCells,
+                         permanenceIncrement, permanenceDecrement)
 
         active = numActivePotentialSynapsesForSegment[segment.flatIdx]
         nGrowDesired = maxNewSynapseCount - active
 
         if nGrowDesired > 0:
-          TemporalMemory.growSynapses(connections, random, segment,
-                                      nGrowDesired, prevWinnerCells,
-                                      initialPermanence)
+          cls.growSynapses(connections, random, segment, nGrowDesired,
+                           prevWinnerCells, initialPermanence)
 
     return cellsToAdd
 
 
-  @staticmethod
-  def burstColumn(connections, random, column, columnMatchingSegments,
+  @classmethod
+  def burstColumn(cls, connections, random, column, columnMatchingSegments,
                   prevActiveCells, prevWinnerCells,
                   numActivePotentialSynapsesForSegment, cellsPerColumn,
                   maxNewSynapseCount, initialPermanence, permanenceIncrement,
@@ -457,31 +456,28 @@ class TemporalMemory(object):
       winnerCell = bestMatchingSegment.cell
 
       if learn:
-        TemporalMemory.adaptSegment(connections, bestMatchingSegment,
-                                    prevActiveCells, permanenceIncrement,
-                                    permanenceDecrement)
+        cls.adaptSegment(connections, bestMatchingSegment, prevActiveCells,
+                         permanenceIncrement, permanenceDecrement)
 
         nGrowDesired = maxNewSynapseCount - numActive(bestMatchingSegment)
 
         if nGrowDesired > 0:
-          TemporalMemory.growSynapses(connections, random, bestMatchingSegment,
-                                      nGrowDesired, prevWinnerCells,
-                                      initialPermanence)
+          cls.growSynapses(connections, random, bestMatchingSegment,
+                           nGrowDesired, prevWinnerCells, initialPermanence)
     else:
-      winnerCell = TemporalMemory.leastUsedCell(random, cells, connections)
+      winnerCell = cls.leastUsedCell(random, cells, connections)
       if learn:
         nGrowExact = min(maxNewSynapseCount, len(prevWinnerCells))
         if nGrowExact > 0:
           segment = connections.createSegment(winnerCell)
-          TemporalMemory.growSynapses(connections, random, segment,
-                                      nGrowExact, prevWinnerCells,
-                                      initialPermanence)
+          cls.growSynapses(connections, random, segment, nGrowExact,
+                           prevWinnerCells, initialPermanence)
 
     return cells, winnerCell
 
 
-  @staticmethod
-  def punishPredictedColumn(connections, columnMatchingSegments,
+  @classmethod
+  def punishPredictedColumn(cls, connections, columnMatchingSegments,
                             prevActiveCells, predictedSegmentDecrement):
     """Punishes the Segments that incorrectly predicted a column to be active.
 
@@ -503,17 +499,16 @@ class TemporalMemory(object):
     """
     if predictedSegmentDecrement > 0.0 and columnMatchingSegments is not None:
       for segment in columnMatchingSegments:
-        TemporalMemory.adaptSegment(connections, segment,
-                                    prevActiveCells,
-                                    -predictedSegmentDecrement, 0.0)
+        cls.adaptSegment(connections, segment, prevActiveCells,
+                         -predictedSegmentDecrement, 0.0)
 
   # ==============================
   # Helper functions
   # ==============================
 
 
-  @staticmethod
-  def leastUsedCell(random, cells, connections):
+  @classmethod
+  def leastUsedCell(cls, random, cells, connections):
     """ Gets the cell with the smallest number of segments.
     Break ties randomly.
 
@@ -544,8 +539,8 @@ class TemporalMemory(object):
     return leastUsedCells[i]
 
 
-  @staticmethod
-  def growSynapses(connections, random, segment, nDesiredNewSynapes,
+  @classmethod
+  def growSynapses(cls, connections, random, segment, nDesiredNewSynapes,
                    prevWinnerCells, initialPermanence):
     """ Creates nDesiredNewSynapes synapses on the segment passed in if
     possible, choosing random cells from the previous winner cells that are
@@ -586,9 +581,9 @@ class TemporalMemory(object):
       candidatesLength -= 1
 
 
-  @staticmethod
-  def adaptSegment(connections, segment, prevActiveCells, permanenceIncrement,
-                   permanenceDecrement):
+  @classmethod
+  def adaptSegment(cls, connections, segment, prevActiveCells,
+                   permanenceIncrement, permanenceDecrement):
     """ Updates synapses on segment.
     Strengthens active synapses; weakens inactive synapses.
 
@@ -857,7 +852,8 @@ class TemporalMemory(object):
 
     @param proto (DynamicStructBuilder) Proto object
     """
-    proto.columnDimensions = self.columnDimensions
+    # capnp fails to save a tuple.  Let's force columnDimensions to list.
+    proto.columnDimensions = list(self.columnDimensions)
     proto.cellsPerColumn = self.cellsPerColumn
     proto.activationThreshold = self.activationThreshold
     proto.initialPermanence = self.initialPermanence
@@ -903,7 +899,10 @@ class TemporalMemory(object):
     """
     tm = object.__new__(cls)
 
-    tm.columnDimensions = list(proto.columnDimensions)
+    # capnp fails to save a tuple, so proto.columnDimensions was forced to
+    # serialize as a list.  We prefer a tuple, however, because columnDimensions
+    # should be regarded as immutable.
+    tm.columnDimensions = tuple(proto.columnDimensions)
     tm.cellsPerColumn = int(proto.cellsPerColumn)
     tm.activationThreshold = int(proto.activationThreshold)
     tm.initialPermanence = proto.initialPermanence

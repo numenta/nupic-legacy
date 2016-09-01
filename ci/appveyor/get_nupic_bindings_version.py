@@ -11,6 +11,6 @@ def extractNupicBindingsVersion(requirementsFile):
 
 
 if __name__ == "__main__":
-  requirementsFile = os.path.join(NUPIC, "external/common/requirements.txt")
+  requirementsFile = os.path.join(NUPIC, "requirements.txt")
   nupicBindingsVersion = extractNupicBindingsVersion(requirementsFile)
   print nupicBindingsVersion

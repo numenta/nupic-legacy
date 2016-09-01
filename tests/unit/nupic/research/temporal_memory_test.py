@@ -1006,7 +1006,7 @@ class TemporalMemoryTest(unittest.TestCase):
     capnp, "pycapnp is not installed, skipping serialization test.")
   def testWriteRead(self):
     tm1 = TemporalMemory(
-      columnDimensions=[100],
+      columnDimensions=(100,),
       cellsPerColumn=4,
       activationThreshold=7,
       initialPermanence=0.37,

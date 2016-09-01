@@ -1,6 +1,25 @@
-FROM ubuntu:14.04
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2016, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Affero Public License for more details.
+#
+# You should have received a copy of the GNU Affero Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
 
-MAINTAINER Allan Costa <allaninocencio@yahoo.com.br>
+FROM ubuntu:14.04
 
 # Install dependencies
 RUN apt-get update && \
@@ -33,26 +52,19 @@ ENV NTA_DATA_PATH /usr/local/src/nupic/prediction/data
 # OPF needs this
 ENV USER docker
 
+# Set up nupic.core
+RUN pip install numpy pycapnp
+RUN git clone https://github.com/numenta/nupic.core /usr/local/src/nupic.core
+WORKDIR /usr/local/src/nupic.core
+RUN mkdir -p build/scripts
+WORKDIR /usr/local/src/nupic.core/build/scripts
+RUN cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../release -DPY_EXTENSIONS_DIR=../../bindings/py/nupic/bindings ../..
+RUN make install
+WORKDIR /usr/local/src/nupic.core
+RUN python setup.py install
+
 # Copy context into container file system
 ADD . $NUPIC
-
-WORKDIR /usr/local/src
-
-# Clone nupic.core
-RUN git clone `head -n 2 $NUPIC/.nupic_modules | tail -n 1 | sed -r "s/NUPIC_CORE_REMOTE = '(.+)'/\\1/"` && \
-    cd nupic.core && \
-    git reset --hard `head -n 3 $NUPIC/.nupic_modules | tail -n 1 | sed -r "s/NUPIC_CORE_COMMITISH = '(.+)'/\\1/"`
-
-WORKDIR /usr/local/src/nupic.core
-
-# Build nupic.core
-RUN pip install \
-        --cache-dir /usr/local/src/nupic.core/pip-cache \
-        --build /usr/local/src/nupic.core/pip-build \
-        --no-clean \
-        pycapnp==0.5.8 \
-        -r bindings/py/requirements.txt && \
-    python setup.py install
 
 WORKDIR /usr/local/src/nupic
 
