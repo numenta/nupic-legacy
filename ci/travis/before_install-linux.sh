@@ -52,11 +52,4 @@ while read line; do
     fi
 done <requirements.txt
 
-echo "Downloading nupic.core build: https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-${NUPIC_BINDINGS_VERSION}-cp27-none-linux_x86_64.whl"
-curl -O "https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-${NUPIC_BINDINGS_VERSION}-cp27-none-linux_x86_64.whl"
-tar xzf "nupic_core-${NUPIC_BINDINGS_VERSION}-linux64.tar.gz"
-
-ls home/travis/build/numenta/nupic.core/bindings/py/dist/wheels
-
-# Install nupic.bindings and dependencies from wheels
-pip install --no-index --find-links=home/travis/build/numenta/nupic.core/bindings/py/dist/wheels nupic.bindings
+pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-${NUPIC_BINDINGS_VERSION}-cp27-none-linux_x86_64.whl
