@@ -69,7 +69,7 @@ install:
 
   - set BINDINGS_LOC="http://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings"
   # Install the latest public release stored on S3.
-  - pip install $env:BINDINGS_LOC/nupic.bindings-$env:BINDINGS_VERSION-cp27-none-win_amd64.whl
+  - ps: pip install $env:BINDINGS_LOC/nupic.bindings-$env:BINDINGS_VERSION-cp27-none-win_amd64.whl
 
   # Check all packages installed correctly
   - cmd: pip list
