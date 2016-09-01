@@ -86,8 +86,7 @@ def findRequirements():
   Read the requirements.txt file and parse into requirements for setup's
   install_requirements option.
   """
-  requirementsPath = os.path.join(REPO_DIR, "external", "common",
-                                  "requirements.txt")
+  requirementsPath = os.path.join(REPO_DIR, "requirements.txt")
   requirements = parse_file(requirementsPath)
 
   return requirements
