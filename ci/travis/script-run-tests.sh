@@ -28,7 +28,11 @@ echo
 ${TRAVIS_BUILD_DIR}/scripts/run_nupic_tests.py -u --coverage --failfast || exit
 
 mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit
-# Python integration tests and prep for coveralls reporting
-${TRAVIS_BUILD_DIR}/scripts/run_nupic_tests.py -i --coverage --failfast || exit
 
-mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration
+# Removed because integration tests take so long and we run them in
+# nupic.regression.
+
+# # Python integration tests and prep for coveralls reporting
+# ${TRAVIS_BUILD_DIR}/scripts/run_nupic_tests.py -i --coverage --failfast || exit
+#
+# mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration
