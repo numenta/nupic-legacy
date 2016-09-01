@@ -106,7 +106,7 @@ after_build:
   - py.test tests\unit
 
   # Python integration tests
-  # - py.test tests\integration
+  - py.test tests\integration
 
 artifacts:
   - path: '*.whl' # Find all wheel files in project root only (non-recusive)
