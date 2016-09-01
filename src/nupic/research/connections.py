@@ -53,10 +53,11 @@ class Segment(object):
     to be consistent after serialize / deserialize.
 
     """
-    return ((self.idx, self.cell, self._synapses, self._numDestroyedSynapses,
-             self._destroyed, self._lastUsedIteration) ==
-            (other.idx, other.cell, other._synapses, self._numDestroyedSynapses,
-             other._destroyed, other._lastUsedIteration))
+    return (self.idx == other.idx and
+            self.cell == other.cell and
+            self._numDestroyedSynapses == other._numDestroyedSynapses and
+            self._destroyed == other._destroyed and
+            self._lastUsedIteration == other._lastUsedIteration)
 
 
 
@@ -91,10 +92,10 @@ class Synapse(object):
     differences for synapse permanence.
 
     """
-    return ((self.segment.cell, self.segment.idx, self.idx,
-             self.presynapticCell) ==
-            (other.segment.cell, other.segment.idx, other.idx,
-             other.presynapticCell) and
+    return (self.segment.cell == other.segment.cell and
+            self.segment.idx == other.segment.idx and
+            self.idx == other.idx and
+            self.presynapticCell == other.presynapticCell and
             abs(self.permanence - other.permanence) < EPSILON)
 
 
