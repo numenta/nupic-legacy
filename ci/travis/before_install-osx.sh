@@ -39,7 +39,7 @@ python -c 'import wheel; print "wheel version=", wheel.__version__'
 while read line; do
     if [[ $line == nupic.bindings* ]];
     then
-        IFS='=' read -ra ADDR <<< "$line"
+        IFS='>=' read -ra ADDR <<< "$line"
         NUPIC_BINDINGS_VERSION="${ADDR[2]}"
     fi
 done <requirements.txt

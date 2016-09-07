@@ -64,11 +64,11 @@ install:
   - for /f %%i in ('python ci\appveyor\get_nupic_bindings_version.py') do set BINDINGS_VERSION=%%i
   - for /f %%i in ('type VERSION') do set NUPIC_VERSION=%%i
 
-  - echo Binding version = %BINDINGS_VERSION%
+  - echo Binding version %BINDINGS_VERSION%
   - echo NuPIC version   = %NUPIC_VERSION%
 
   # Install the latest public release from PyPi.
-  - ps: pip install nupic.bindings==$env:BINDINGS_VERSION
+  - ps: pip install nupic.bindings$env:BINDINGS_VERSION
 
   # Check all packages installed correctly
   - cmd: pip list
