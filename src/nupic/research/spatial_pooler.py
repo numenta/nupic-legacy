@@ -325,12 +325,6 @@ class SpatialPooler(object):
     # non-zero.
     self._permanences = CorticalColumns(numColumns, numInputs)
 
-    # Initialize a tiny random tie breaker. This is used to determine winning
-    # columns where the overlaps are identical.
-    self._tieBreaker = numpy.array([0.01 * self._random.getReal64() for i in
-                                      xrange(self._numColumns)],
-                                    dtype=realDType)
-
     # 'self._connectedSynapses' is a similar matrix to 'self._permanences'
     # (rows represent cortical columns, columns represent input bits) whose
     # entries represent whether the cortical column is connected to the input
@@ -1623,7 +1617,7 @@ class SpatialPooler(object):
       rangeND.append(numpy.unique(curRange))
 
     neighbors = numpy.ravel_multi_index(
-      numpy.array(list(itertools.product(*rangeND))).T, 
+      numpy.array(list(itertools.product(*rangeND))).T,
       dimensions).tolist()
 
     neighbors.remove(columnIndex)
@@ -1661,7 +1655,7 @@ class SpatialPooler(object):
       # the overlaps and boostedOverlaps properties were added in version 3,
       state['_overlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
       state['_boostedOverlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
-    
+
     # update version property to current SP version
     state['_version'] = VERSION
     self.__dict__.update(state)
@@ -1707,10 +1701,6 @@ class SpatialPooler(object):
     self._potentialPools.write(proto.potentialPools)
     self._permanences.write(proto.permanences)
 
-    tieBreakersProto = proto.init("tieBreaker", len(self._tieBreaker))
-    for i, v in enumerate(self._tieBreaker):
-      tieBreakersProto[i] = float(v)
-
     overlapDutyCyclesProto = proto.init("overlapDutyCycles",
                                         len(self._overlapDutyCycles))
     for i, v in enumerate(self._overlapDutyCycles):
@@ -1733,7 +1723,7 @@ class SpatialPooler(object):
 
     boostFactorsProto = proto.init("boostFactors", len(self._boostFactors))
     for i, v in enumerate(self._boostFactors):
-      boostFactorsProto[i] = float(v) 
+      boostFactorsProto[i] = float(v)
 
 
   @classmethod
@@ -1787,8 +1777,6 @@ class SpatialPooler(object):
         instance._permanences[columnIndex], columnIndex, False
       )
 
-    instance._tieBreaker = numpy.array(proto.tieBreaker, dtype=realDType)
-
     instance._overlapDutyCycles = numpy.array(proto.overlapDutyCycles,
                                           dtype=realDType)
     instance._activeDutyCycles = numpy.array(proto.activeDutyCycles,
@@ -1798,7 +1786,7 @@ class SpatialPooler(object):
     instance._minActiveDutyCycles = numpy.array(proto.minActiveDutyCycles,
                                             dtype=realDType)
     instance._boostFactors = numpy.array(proto.boostFactors, dtype=realDType)
-    
+
     return instance
 
 
