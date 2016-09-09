@@ -22,11 +22,12 @@
 """Installation script for Python nupic package."""
 
 import os
-import setuptools
+import pkg_resources
 import sys
 
 from setuptools import setup, find_packages, Extension
 from setuptools.command.test import test as BaseTestCommand
+
 
 
 REPO_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -39,6 +40,26 @@ def getVersion():
   """
   with open(os.path.join(REPO_DIR, "VERSION"), "r") as versionFile:
     return versionFile.read().strip()
+
+
+
+def nupicBindingsPrereleaseInstalled():
+  """
+  Make an attempt to determine if a pre-release version of nupic.bindings is
+  installed already.
+
+  @return: boolean
+  """
+  try:
+    nupicDistribution = pkg_resources.get_distribution("nupic.bindings")
+    if pkg_resources.parse_version(nupicDistribution.version).is_prerelease:
+      # A pre-release dev version of nupic.bindings is installed.
+      return True
+  except pkg_resources.DistributionNotFound:
+    pass  # Silently ignore.  The absence of nupic.bindings will be handled by
+    # setuptools by default
+
+  return False
 
 
 
@@ -88,6 +109,14 @@ def findRequirements():
   """
   requirementsPath = os.path.join(REPO_DIR, "requirements.txt")
   requirements = parse_file(requirementsPath)
+
+  if nupicBindingsPrereleaseInstalled():
+    # User has a pre-release version of nupic.bindings installed, which is only
+    # possible if the user installed and built nupic.bindings from source and
+    # it is up to the user to decide when to update nupic.bindings.  We'll
+    # quietly remove the entry in requirements.txt so as to not conflate the
+    # two.
+    requirements = [req for req in requirements if "nupic.bindings" not in req]
 
   return requirements
 
