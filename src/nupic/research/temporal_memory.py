@@ -137,12 +137,14 @@ class TemporalMemory(object):
     self.permanenceIncrement = permanenceIncrement
     self.permanenceDecrement = permanenceDecrement
     self.predictedSegmentDecrement = predictedSegmentDecrement
-    # Initialize member variables
-    self.connections = Connections(self.numberOfCells(),
-                                   maxSegmentsPerCell=maxSegmentsPerCell,
-                                   maxSynapsesPerSegment=maxSynapsesPerSegment)
-    self._random = Random(seed)
 
+    # Initialize member variables
+    self.connections = self.connectionsFactory(
+      self.numberOfCells(),
+      maxSegmentsPerCell=maxSegmentsPerCell,
+      maxSynapsesPerSegment=maxSynapsesPerSegment
+    )
+    self._random = Random(seed)
     self.activeCells = []
     self.winnerCells = []
     self.activeSegments = []
@@ -151,9 +153,25 @@ class TemporalMemory(object):
     self.numActiveConnectedSynapsesForSegment = []
     self.numActivePotentialSynapsesForSegment = []
 
+
+
+  @staticmethod
+  def connectionsFactory(*args, **kwargs):
+    """ Create a Connections instance.  TemporalMemory subclasses may override
+    this method to choose a different Connections implementation, or to augment
+    the instance otherwise returned by the default Connections implementation.
+
+    See Connections for constructor signature and usage
+
+    @return: Connections instance
+    """
+    return Connections(*args, **kwargs)
+
+
   # ==============================
   # Main functions
   # ==============================
+
 
   def compute(self, activeColumns, learn=True):
     """ Feeds input record through TM, performing inference and learning.
