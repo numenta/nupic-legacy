@@ -1364,8 +1364,7 @@ class SpatialPooler(object):
     This function determines each column's overlap with the current input
     vector. The overlap of a column is the number of synapses for that column
     that are connected (permanence value is greater than '_synPermConnected')
-    to input bits which are turned on. Overlap values that are lower than
-    the 'stimulusThreshold' are ignored. The implementation takes advantage of
+    to input bits which are turned on. The implementation takes advantage of
     the SparseBinaryMatrix class to perform this calculation efficiently.
 
     Parameters:
@@ -1420,7 +1419,8 @@ class SpatialPooler(object):
     Perform global inhibition. Performing global inhibition entails picking the
     top 'numActive' columns with the highest overlap score in the entire
     region. At most half of the columns in a local neighborhood are allowed to
-    be active.
+    be active. Columns with an overlap score below the 'stimulusThreshold' are
+    always inhibited.
 
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
@@ -1454,7 +1454,8 @@ class SpatialPooler(object):
     column basis. Each column observes the overlaps of its neighbors and is
     selected if its overlap score is within the top 'numActive' in its local
     neighborhood. At most half of the columns in a local neighborhood are
-    allowed to be active.
+    allowed to be active. Columns with an overlap score below the
+    'stimulusThreshold' are always inhibited.
 
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
@@ -1466,14 +1467,16 @@ class SpatialPooler(object):
                     of surviving columns is likely to vary.
     @return list with indices of the winning columns
     """
-    winners = []
 
+    # When a column is selected, add a small number to its overlap. If it was
+    # tied with other not-yet-processed columns, those columns will now lose the
+    # tie-breaker when they're processed.
     addToWinners = max(overlaps) / 1000.0
     if addToWinners == 0:
       addToWinners = 0.001
-
     tieBrokenOverlaps = numpy.array(overlaps, dtype=realDType)
 
+    winners = []
     for i in xrange(self._numColumns):
       if overlaps[i] >= self._stimulusThreshold:
         maskNeighbors = self._getNeighborsND(i, self._columnDimensions,
