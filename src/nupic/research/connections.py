@@ -144,7 +144,8 @@ class Connections(object):
     self.maxSegmentsPerCell = maxSegmentsPerCell
     self.maxSynapsesPerSegment = maxSynapsesPerSegment
 
-    self._cells = [CellData() for _ in xrange(numCells)]
+    CellDataFactory = self.cellDataFactory # Mitigate fn lookup penalty below
+    self._cells = [CellDataFactory() for _ in xrange(numCells)]
     self._synapsesForPresynapticCell = defaultdict(list)
     self._segmentForFlatIdx = []
 
@@ -152,6 +153,11 @@ class Connections(object):
     self._numSynapses = 0
     self._nextFlatIdx = 0
     self._iteration = 0
+
+
+  @staticmethod
+  def cellDataFactory():
+    return CellData()
 
 
   def segmentsForCell(self, cell):
@@ -513,7 +519,7 @@ class Connections(object):
     for cellIdx, protoCell in enumerate(protoCells):
       protoCell = protoCells[cellIdx]
       protoSegments = protoCell.segments
-      connections._cells[cellIdx] = CellData()
+      connections._cells[cellIdx] = cls.cellDataFactory()
       segments = connections._cells[cellIdx]._segments
 
       for segmentIdx, protoSegment in enumerate(protoSegments):
