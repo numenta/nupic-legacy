@@ -187,6 +187,11 @@ class NuPICPlotOutput(NuPICOutput):
     plt.legend(('actual','predicted'), loc=3)
 
 
+  def refreshGUI(self):
+      """Give plot a pause, so data is drawn and GUI's event loop can run.
+      """
+      plt.pause(0.0001)
+
 
   def close(self):
     plt.ioff()
