@@ -1364,8 +1364,7 @@ class SpatialPooler(object):
     This function determines each column's overlap with the current input
     vector. The overlap of a column is the number of synapses for that column
     that are connected (permanence value is greater than '_synPermConnected')
-    to input bits which are turned on. Overlap values that are lower than
-    the 'stimulusThreshold' are ignored. The implementation takes advantage of
+    to input bits which are turned on. The implementation takes advantage of
     the SparseBinaryMatrix class to perform this calculation efficiently.
 
     Parameters:
@@ -1376,7 +1375,6 @@ class SpatialPooler(object):
     overlaps = numpy.zeros(self._numColumns, dtype=realDType)
     self._connectedSynapses.rightVecSumAtNZ_fast(inputVector.astype(realDType),
                                                  overlaps)
-    overlaps[overlaps < self._stimulusThreshold] = 0
     return overlaps
 
 
@@ -1400,7 +1398,6 @@ class SpatialPooler(object):
     # determine how many columns should be selected in the inhibition phase.
     # This can be specified by either setting the 'numActiveColumnsPerInhArea'
     # parameter or the 'localAreaDensity' parameter when initializing the class
-    overlaps = overlaps.copy()
     if (self._localAreaDensity > 0):
       density = self._localAreaDensity
     else:
@@ -1422,7 +1419,8 @@ class SpatialPooler(object):
     Perform global inhibition. Performing global inhibition entails picking the
     top 'numActive' columns with the highest overlap score in the entire
     region. At most half of the columns in a local neighborhood are allowed to
-    be active.
+    be active. Columns with an overlap score below the 'stimulusThreshold' are
+    always inhibited.
 
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
@@ -1436,10 +1434,18 @@ class SpatialPooler(object):
 
     # Calculate winners using stable sort algorithm (mergesort)
     # for compatibility with C++
-    winnerIndices = numpy.argsort(overlaps, kind='mergesort')
-    sortedWinnerIndices = winnerIndices[-numActive:][::-1]
+    sortedWinnerIndices = numpy.argsort(overlaps, kind='mergesort')
 
-    return sortedWinnerIndices
+    # Enforce the stimulus threshold
+    start = len(sortedWinnerIndices) - numActive
+    while start < len(sortedWinnerIndices):
+      i = sortedWinnerIndices[start]
+      if overlaps[i] >= self._stimulusThreshold:
+        break
+      else:
+        start += 1
+
+    return sortedWinnerIndices[start:][::-1]
 
 
   def _inhibitColumnsLocal(self, overlaps, density):
@@ -1448,7 +1454,8 @@ class SpatialPooler(object):
     column basis. Each column observes the overlaps of its neighbors and is
     selected if its overlap score is within the top 'numActive' in its local
     neighborhood. At most half of the columns in a local neighborhood are
-    allowed to be active.
+    allowed to be active. Columns with an overlap score below the
+    'stimulusThreshold' are always inhibited.
 
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
@@ -1460,17 +1467,26 @@ class SpatialPooler(object):
                     of surviving columns is likely to vary.
     @return list with indices of the winning columns
     """
+
+    # When a column is selected, add a small number to its overlap. If it was
+    # tied with other not-yet-processed columns, those columns will now lose the
+    # tie-breaker when they're processed.
+    addToWinners = max(overlaps) / 1000.0
+    if addToWinners == 0:
+      addToWinners = 0.001
+    tieBrokenOverlaps = numpy.array(overlaps, dtype=realDType)
+
     winners = []
-    addToWinners = max(overlaps)/1000.0
-    overlaps = numpy.array(overlaps, dtype=realDType)
     for i in xrange(self._numColumns):
-      maskNeighbors = self._getNeighborsND(i, self._columnDimensions, self._inhibitionRadius)
-      overlapSlice = overlaps[maskNeighbors]
-      numActive = int(0.5 + density * (len(maskNeighbors) + 1))
-      numBigger = numpy.count_nonzero(overlapSlice > overlaps[i])
-      if numBigger < numActive:
-        winners.append(i)
-        overlaps[i] += addToWinners
+      if overlaps[i] >= self._stimulusThreshold:
+        maskNeighbors = self._getNeighborsND(i, self._columnDimensions,
+                                             self._inhibitionRadius)
+        overlapSlice = tieBrokenOverlaps[maskNeighbors]
+        numActive = int(0.5 + density * (len(maskNeighbors) + 1))
+        numBigger = numpy.count_nonzero(overlapSlice > overlaps[i])
+        if numBigger < numActive:
+          winners.append(i)
+          tieBrokenOverlaps[i] += addToWinners
     return numpy.array(winners, dtype=uintType)
 
 
