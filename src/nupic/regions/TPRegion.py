@@ -552,8 +552,10 @@ class TPRegion(PyRegion):
       activeIndices = numpy.where(activeState != 0)[0]
       predictedIndices= numpy.where(prevPredictedState != 0)[0]
       predictedActiveIndices = numpy.intersect1d(activeIndices, predictedIndices)
-      outputs['predictedActiveCells'].fill(0)
-      outputs['predictedActiveCells'][predictedActiveIndices] = 1
+      outputs["activeCells"].fill(0)
+      outputs["activeCells"][activeIndices] = 1
+      outputs["predictedActiveCells"].fill(0)
+      outputs["predictedActiveCells"][predictedActiveIndices] = 1
 
 
   #############################################################################

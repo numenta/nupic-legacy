@@ -23,40 +23,49 @@ from itertools import groupby
 
 
 def groupby2(*args):
-  """ An extension to groupby in itertools. Allows to walk across n sorted lists
-      with respect to their key functions and yields a tuple of n lists of the
-      members of the next *smallest* group.
+  """ Like itertools.groupby, with the following additions:
 
-  @param args (list) a list of arguments alternating between sorted lists and
-                       their respective key functions. The lists should be
-                       sorted with respect to their key function.
+  - Supports multiple sequences. Instead of returning (k, g), each iteration
+    returns (k, g0, g1, ...), with one `g` for each input sequence. The value of
+    each `g` is either a non-empty iterator or `None`.
+  - It treats the value `None` as an empty sequence. So you can make subsequent
+    calls to groupby2 on any `g` value.
 
-  @return (tuple) a n + 1 dimensional tuple, where the first element is the
-                    key of the group and the other n entries are lists of
-                    objects that are a member of the current group that is being
-                    iterated over in the nth list passed in. Note that this
-                    is a generator and a n+1 dimensional tuple is yielded for
-                    every group. If a list has no members in the current
-                    group, None is returned in place of a generator.
+  @param args (list) Parameters alternating between sorted lists and their
+                     respective key functions. The lists should be sorted with
+                     respect to their key function.
+
+  @return (tuple) A n + 1 dimensional tuple, where the first element is the
+                  key of the iteration, and the other n entries are groups of
+                  objects that share this key. Each group corresponds to the an
+                  input sequence. `groupby2` is a generator that returns a tuple
+                  for every iteration. If an input sequence has no members with
+                  the current key, None is returned in place of a generator.
 
   Notes: Read up on groupby here:
          https://docs.python.org/dev/library/itertools.html#itertools.groupby
 
-"""
+  """
   generatorList = [] # list of each list's (k, group) tuples
 
   if len(args) % 2 == 1:
     raise ValueError("Must have a key function for every list.")
 
+  advanceList = []
+
   # populate above lists
   for i in xrange(0, len(args), 2):
     listn = args[i]
     fn = args[i + 1]
-    generatorList.append(groupby(listn, fn))
+    if listn is not None:
+      generatorList.append(groupby(listn, fn))
+      advanceList.append(True) # start by advancing everyone.
+    else:
+      generatorList.append(None)
+      advanceList.append(False)
 
   n = len(generatorList)
 
-  advanceList = [True] * n # start by advancing everyone.
   nextList = [None] * n
   # while all lists aren't exhausted walk through each group in order
   while True:

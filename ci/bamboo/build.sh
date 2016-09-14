@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-# ----------------------------------------------------------------------
+#!/bin/bash
+# -----------------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2016, Numenta, Inc.  Unless you have an agreement
-# with Numenta, Inc., for a separate license for this software code, the
+# Copyright (C) 2016, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -18,19 +18,11 @@
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
-# ----------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-import unittest
+apt-get update
+apt-get install -y python
 
-import nupic.bindings.algorithms
-from extensive_tm_test_base import ExtensiveTemporalMemoryTest
+./ci/bamboo/install-pip-setuptools-wheel.sh
 
-
-
-class ExtensiveTemporalMemoryTestCPP(ExtensiveTemporalMemoryTest, unittest.TestCase):
-  def getTMClass(self):
-    return nupic.bindings.algorithms.TemporalMemory
-
-
-if __name__ == "__main__":
-  unittest.main()
+python setup.py sdist

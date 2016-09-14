@@ -350,7 +350,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     """Like B5, but with activationThreshold = 8 and with each pattern
     corrupted by a small amount of spatial noise (X = 0.05)."""
     self.init({"cellsPerColumn": 4,
-               "activationThreshold": 8})
+               "activationThreshold": 8,
+               "minThreshold": 8})
 
     numbers = self.sequenceMachine.generateNumbers(1, 100)
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
@@ -498,7 +499,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     """Sensitivity to small amounts of spatial noise during inference
     (X = 0.05). Parameters the same as B11, and sequences like H2."""
     self.init({"cellsPerColumn": 4,
-               "activationThreshold": 8})
+               "activationThreshold": 8,
+               "minThreshold": 8})
 
     numbers = self.sequenceMachine.generateNumbers(2, 20, (10, 15))
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
@@ -522,7 +524,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     # train TM on noisy sequences with orphan decay turned off
     self.init({"cellsPerColumn": 4,
-               "activationThreshold": 8})
+               "activationThreshold": 8,
+               "minThreshold": 8})
 
     numbers = self.sequenceMachine.generateNumbers(2, 20, (10, 15))
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
@@ -546,6 +549,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     # train TM on the same set of noisy sequences with orphan decay turned on
     self.init({"cellsPerColumn": 4,
                "activationThreshold": 8,
+               "minThreshold": 8,
                "predictedSegmentDecrement": 0.04})
 
     for i in xrange(10):

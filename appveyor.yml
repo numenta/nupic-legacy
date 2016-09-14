@@ -61,23 +61,14 @@ install:
   - set PATH=%PYTHONPATH%;%PYTHONPATH%\Scripts;%PATH%
 
   - set ARTIFACTS_DIR=%REPO_DIR%\build\artifacts
-  - for /f %%i in ('python -c "execfile('.nupic_modules'); print NUPIC_CORE_COMMITISH"') do set NUPIC_CORE_COMMITISH=%%i
   - for /f %%i in ('python ci\appveyor\get_nupic_bindings_version.py') do set BINDINGS_VERSION=%%i
   - for /f %%i in ('type VERSION') do set NUPIC_VERSION=%%i
 
-  - echo Core commitish  = %NUPIC_CORE_COMMITISH%
   - echo Binding version = %BINDINGS_VERSION%
   - echo NuPIC version   = %NUPIC_VERSION%
 
-  - set BINDINGS_LOC="http://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings"
-  # Github tagged builds
-  - ps: >-
-      If ($env:APPVEYOR_REPO_TAG -eq "true" -or $env:APPVEYOR_REPO_TAG -eq "True") {
-        pip install $env:BINDINGS_LOC/nupic.bindings-$env:BINDINGS_VERSION-cp27-none-win_amd64.whl
-      }
-      Else {
-        pip install $env:BINDINGS_LOC/nupic.bindings-$env:BINDINGS_VERSION.$env:NUPIC_CORE_COMMITISH-cp27-none-win_amd64.whl
-      }
+  # Install the latest public release from PyPi.
+  - ps: pip install nupic.bindings==$env:BINDINGS_VERSION
 
   # Check all packages installed correctly
   - cmd: pip list
