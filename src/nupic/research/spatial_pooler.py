@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013-2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -19,13 +19,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import itertools
-
 import numpy
 from nupic.bindings.math import (SM32 as SparseMatrix,
                                  SM_01_32_32 as SparseBinaryMatrix,
                                  GetNTAReal,
                                  Random as NupicRandom)
+import nupic.math.topology as topology
 
 
 
@@ -842,18 +841,20 @@ class SpatialPooler(object):
     _updateMinDutyCyclesGlobal, here the values can be quite different for
     different columns.
     """
-    for i in xrange(self._numColumns):
-      maskNeighbors = numpy.append(i,
-        self._getNeighborsND(i, self._columnDimensions,
-        self._inhibitionRadius))
-      self._minOverlapDutyCycles[i] = (
-        self._overlapDutyCycles[maskNeighbors].max() *
-        self._minPctOverlapDutyCycles
-      )
-      self._minActiveDutyCycles[i] = (
-        self._activeDutyCycles[maskNeighbors].max() *
-        self._minPctActiveDutyCycles
-      )
+    for column in xrange(self._numColumns):
+      neighborhood = topology.neighborhood(column, self._inhibitionRadius,
+                                           self._columnDimensions)
+
+      maxActiveDuty = self._activeDutyCycles[neighborhood].max()
+      maxOverlapDuty = self._overlapDutyCycles[neighborhood].max()
+
+      self._minActiveDutyCycles[column] = (maxActiveDuty *
+                                           self._minPctActiveDutyCycles)
+      self._minOverlapDutyCycles[column] = (maxOverlapDuty *
+                                            self._minPctOverlapDutyCycles)
+
+
+
 
 
   def _updateDutyCycles(self, overlaps, activeColumns):
@@ -1259,25 +1260,28 @@ class SpatialPooler(object):
     @param wrapAround: A boolean value indicating that boundaries should be
                     fignored.
     """
-    index = self._mapColumn(index)
-    indices = self._getNeighborsND(index,
-                                   self._inputDimensions,
-                                   self._potentialRadius,
-                                   wrapAround=wrapAround)
-    indices.append(index)
-    indices = numpy.array(indices, dtype=uintType)
 
-    # TODO: See https://github.com/numenta/nupic.core/issues/128
-    indices.sort()
+    centerInput = self._mapColumn(index)
+
+    if wrapAround:
+      columnInputs = topology.wrappingNeighborhood(centerInput,
+                                                   self._potentialRadius,
+                                                   self._inputDimensions)
+    else:
+      columnInputs = topology.neighborhood(centerInput,
+                                           self._potentialRadius,
+                                           self._inputDimensions)
+
+    columnInputs = columnInputs.astype(uintType)
 
     # Select a subset of the receptive field to serve as the
     # the potential pool
-    numPotential = int(round(indices.size * self._potentialPct))
-    selectedIndices = numpy.empty(numPotential, dtype=uintType)
-    self._random.sample(indices, selectedIndices)
+    numPotential = int(round(columnInputs.size * self._potentialPct))
+    selectedInputs = numpy.empty(numPotential, dtype=uintType)
+    self._random.sample(columnInputs, selectedInputs)
 
     potential = numpy.zeros(self._numInputs, dtype=uintType)
-    potential[selectedIndices] = 1
+    potential[selectedInputs] = 1
 
     return potential
 
@@ -1477,173 +1481,22 @@ class SpatialPooler(object):
     tieBrokenOverlaps = numpy.array(overlaps, dtype=realDType)
 
     winners = []
-    for i in xrange(self._numColumns):
-      if overlaps[i] >= self._stimulusThreshold:
-        maskNeighbors = self._getNeighborsND(i, self._columnDimensions,
-                                             self._inhibitionRadius)
-        overlapSlice = tieBrokenOverlaps[maskNeighbors]
-        numActive = int(0.5 + density * (len(maskNeighbors) + 1))
-        numBigger = numpy.count_nonzero(overlapSlice > overlaps[i])
+    for column, overlap in enumerate(overlaps):
+      if overlap >= self._stimulusThreshold:
+        neighborhood = topology.neighborhood(column, self._inhibitionRadius,
+                                             self._columnDimensions)
+
+        numBigger = 0
+        for neighbor in neighborhood:
+          if neighbor != column and tieBrokenOverlaps[neighbor] > overlap:
+            numBigger += 1
+
+        numActive = int(0.5 + density * len(neighborhood))
         if numBigger < numActive:
-          winners.append(i)
-          tieBrokenOverlaps[i] += addToWinners
+          winners.append(column)
+          tieBrokenOverlaps[column] += addToWinners
+
     return numpy.array(winners, dtype=uintType)
-
-
-  @staticmethod
-  def _getNeighbors1D(columnIndex, dimensions, radius, wrapAround=False):
-    """
-    Returns a list of indices corresponding to the neighbors of a given column.
-    In this variation of the method, which only supports a one dimensional
-    column topology, a column's neighbors are those neighbors who are 'radius'
-    indices away. This information is needed to perform inhibition. This method
-    is a subset of _getNeighborsND and is only included for illustration
-    purposes, and potentially enhanced performance for spatial pooler
-    implementations that only require a one-dimensional topology.
-
-    Parameters:
-    ----------------------------
-    @param columnIndex: The index identifying a column in the permanence, potential
-                    and connectivity matrices.
-    @param dimensions: An array containing a dimensions for the column space. A 2x3
-                    grid will be represented by [2,3].
-    @param radius:  Indicates how far away from a given column are other
-                    columns to be considered its neighbors. In the previous 2x3
-                    example, each column with coordinates:
-                    [2+/-radius, 3+/-radius] is considered a neighbor.
-    @param wrapAround: A boolean value indicating whether to consider columns at
-                    the border of a dimensions to be adjacent to columns at the
-                    other end of the dimension. For example, if the columns are
-                    laid out in one dimension, columns 1 and 10 will be
-                    considered adjacent if wrapAround is set to true:
-                    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    """
-    assert(dimensions.size == 1)
-    ncols = dimensions[0]
-
-    if wrapAround:
-      neighbors = numpy.array(
-        range(columnIndex-radius,columnIndex+radius+1)) % ncols
-    else:
-      neighbors = numpy.array(
-        range(columnIndex-radius,columnIndex+radius+1))
-      neighbors = neighbors[
-        numpy.logical_and(neighbors >= 0, neighbors < ncols)]
-
-    neighbors = list(set(neighbors) - set([columnIndex]))
-    assert(neighbors)
-    return neighbors
-
-
-  @staticmethod
-  def _getNeighbors2D(columnIndex, dimensions, radius, wrapAround=False):
-    """
-    Returns a list of indices corresponding to the neighbors of a given column.
-    Since the permanence values are stored in such a way that information about
-    topology is lost, this method allows for reconstructing the topology of the
-    inputs, which are flattened to one array. Given a column's index, its
-    neighbors are defined as those columns that are 'radius' indices away from
-    it in each dimension. The method returns a list of the flat indices of
-    these columns. This method is a subset of _getNeighborsND and is only
-    included for illustration purposes, and potentially enhanced performance
-    for spatial pooler implementations that only require a two-dimensional
-    topology.
-
-    Parameters:
-    ----------------------------
-    @param columnIndex: The index identifying a column in the permanence, potential
-                    and connectivity matrices.
-    @param dimensions: An array containing a dimensions for the column space. A 2x3
-                    grid will be represented by [2,3].
-    @param radius:  Indicates how far away from a given column are other
-                    columns to be considered its neighbors. In the previous 2x3
-                    example, each column with coordinates:
-                    [2+/-radius, 3+/-radius] is considered a neighbor.
-    @param wrapAround: A boolean value indicating whether to consider columns at
-                    the border of a dimensions to be adjacent to columns at the
-                    other end of the dimension. For example, if the columns are
-                    laid out in one dimension, columns 1 and 10 will be
-                    considered adjacent if wrapAround is set to true:
-                    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    """
-    assert(dimensions.size == 2)
-    nrows = dimensions[0]
-    ncols = dimensions[1]
-
-    toRow = lambda index: index / ncols
-    toCol = lambda index: index % ncols
-    toIndex = lambda row, col: row * ncols + col
-
-    row = toRow(columnIndex)
-    col = toCol(columnIndex)
-
-    if wrapAround:
-      colRange = numpy.array(range(col-radius, col+radius+1)) % ncols
-      rowRange = numpy.array(range(row-radius, row+radius+1)) % nrows
-    else:
-      colRange = numpy.array(range(col-radius, col+radius+1))
-      colRange = colRange[
-        numpy.logical_and(colRange >= 0, colRange < ncols)]
-      rowRange = numpy.array(range(row-radius, row+radius+1))
-      rowRange = rowRange[
-        numpy.logical_and(rowRange >= 0, rowRange < nrows)]
-
-    neighbors = [toIndex(r, c) for (r, c) in
-      itertools.product(rowRange, colRange)]
-    neighbors = list(set(neighbors) - set([columnIndex]))
-    assert(neighbors)
-    return neighbors
-
-
-  @staticmethod
-  def _getNeighborsND(columnIndex, dimensions, radius, wrapAround=False):
-    """
-    Similar to _getNeighbors1D and _getNeighbors2D, this function Returns a
-    list of indices corresponding to the neighbors of a given column. Since the
-    permanence values are stored in such a way that information about topology
-    is lost. This method allows for reconstructing the topology of the inputs,
-    which are flattened to one array. Given a column's index, its neighbors are
-    defined as those columns that are 'radius' indices away from it in each
-    dimension. The method returns a list of the flat indices of these columns.
-    Parameters:
-    ----------------------------
-    @param columnIndex: The index identifying a column in the permanence, potential
-                    and connectivity matrices.
-    @param dimensions: An array containing a dimensions for the column space. A 2x3
-                    grid will be represented by [2,3].
-    @param radius:  Indicates how far away from a given column are other
-                    columns to be considered its neighbors. In the previous 2x3
-                    example, each column with coordinates:
-                    [2+/-radius, 3+/-radius] is considered a neighbor.
-    @param wrapAround: A boolean value indicating whether to consider columns at
-                    the border of a dimensions to be adjacent to columns at the
-                    other end of the dimension. For example, if the columns are
-                    laid out in one dimension, columns 1 and 10 will be
-                    considered adjacent if wrapAround is set to true:
-                    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    """
-    assert(dimensions.size > 0)
-
-    columnCoords = numpy.unravel_index(columnIndex, dimensions)
-    rangeND = []
-    for i in xrange(dimensions.size):
-      if wrapAround:
-        curRange = numpy.array(range(columnCoords[i]-radius,
-                                     columnCoords[i]+radius+1)) % dimensions[i]
-      else:
-        curRange = numpy.array(range(columnCoords[i]-radius,
-                                     columnCoords[i]+radius+1))
-        curRange = curRange[
-          numpy.logical_and(curRange >= 0, curRange < dimensions[i])]
-
-      rangeND.append(numpy.unique(curRange))
-
-    neighbors = numpy.ravel_multi_index(
-      numpy.array(list(itertools.product(*rangeND))).T, 
-      dimensions).tolist()
-
-    neighbors.remove(columnIndex)
-    return neighbors
 
 
   def _isUpdateRound(self):
