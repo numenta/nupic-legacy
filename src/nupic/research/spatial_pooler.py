@@ -84,7 +84,6 @@ class CorticalColumns(_SparseMatrixCorticalColumnAdapter, SparseMatrix):
   pass
 
 
-
 class BinaryCorticalColumns(_SparseMatrixCorticalColumnAdapter,
                             SparseBinaryMatrix):
   """ SparseBinaryMatrix variant of _SparseMatrixCorticalColumnAdapter.  Use in
@@ -1308,7 +1307,7 @@ class SpatialPooler(object):
 
 
   def _updateBoostFactors(self):
-    r"""
+    """
     Update the boost factors for all columns. The boost factors are used to
     increase the overlap of inactive columns to improve their chances of
     becoming active. and hence encourage participation of more columns in the
@@ -1332,14 +1331,36 @@ class SpatialPooler(object):
                    |
             minActiveDutyCycle
     """
+    if self._maxBoost > 1:
+      if (self._localAreaDensity > 0):
+        density = self._localAreaDensity
+      else:
+        inhibitionArea = ((2 * self._inhibitionRadius + 1)
+                          ** self._columnDimensions.size)
+        inhibitionArea = min(self._numColumns, inhibitionArea)
+        density = float(self._numActiveColumnsPerInhArea) / inhibitionArea
+        density = min(density, 0.5)
 
-    mask = numpy.where(self._minActiveDutyCycles > 0)[0]
-    self._boostFactors[mask] = ((1 - self._maxBoost) /
-      self._minActiveDutyCycles[mask] * self._activeDutyCycles[mask]
-        ).astype(realDType) + self._maxBoost
+      if self._globalInhibition:
+        targetDensity = density
+      else:
+        targetDensity = numpy.zeros(self._numColumns, dtype=realDType)
+        for i in xrange(self._numColumns):
+          maskNeighbors = self._getNeighborsND(i, self._columnDimensions,
+                                               self._inhibitionRadius)
+          targetDensity[i] = numpy.mean(self._activeDutyCycles[maskNeighbors])
 
-    self._boostFactors[self._activeDutyCycles >
-      self._minActiveDutyCycles] = 1.0
+      self._boostFactors = numpy.exp(-(
+        self._activeDutyCycles-targetDensity) * self._maxBoost)
+    else:
+      pass
+    # mask = numpy.where(self._minActiveDutyCycles > 0)[0]
+    # self._boostFactors[mask] = ((1 - self._maxBoost) /
+    #   self._minActiveDutyCycles[mask] * self._activeDutyCycles[mask]
+    #     ).astype(realDType) + self._maxBoost
+    #
+    # self._boostFactors[self._activeDutyCycles >
+    #   self._minActiveDutyCycles] = 1.0
 
 
   def _updateBookeepingVars(self, learn):
@@ -1410,6 +1431,7 @@ class SpatialPooler(object):
       density = float(self._numActiveColumnsPerInhArea) / inhibitionArea
       density = min(density, 0.5)
 
+    overlaps += self._tieBreaker
     if self._globalInhibition or \
       self._inhibitionRadius > max(self._columnDimensions):
       return self._inhibitColumnsGlobal(overlaps, density)
@@ -1464,6 +1486,8 @@ class SpatialPooler(object):
     addToWinners = max(overlaps)/1000.0
     overlaps = numpy.array(overlaps, dtype=realDType)
     for i in xrange(self._numColumns):
+      if overlaps[i] < self._stimulusThreshold:
+        continue
       maskNeighbors = self._getNeighborsND(i, self._columnDimensions, self._inhibitionRadius)
       overlapSlice = overlaps[maskNeighbors]
       numActive = int(0.5 + density * (len(maskNeighbors) + 1))
@@ -1471,6 +1495,12 @@ class SpatialPooler(object):
       if numBigger < numActive:
         winners.append(i)
         overlaps[i] += addToWinners
+
+    # activeColumns = numpy.zeros(self._numColumns)
+    # activeColumns[numpy.array(winners)] = 1
+    # for i in xrange(self._numColumns):
+    #   maskNeighbors = self._getNeighborsND(i, self._columnDimensions, self._inhibitionRadius)
+    #   print numpy.sum(activeColumns[maskNeighbors])
     return numpy.array(winners, dtype=uintType)
 
 
