@@ -115,9 +115,8 @@ def neighborhood(centerIndex, radius, dimensions):
     right = min(dimension - 1, centerPosition[i] + radius)
     intervals.append(xrange(left, right + 1))
 
-  return numpy.ravel_multi_index(
-    numpy.array(list(itertools.product(*intervals))).T,
-    dimensions)
+  coords = numpy.array(list(itertools.product(*intervals)))
+  return numpy.ravel_multi_index(coords.T, dimensions)
 
 
 def wrappingNeighborhood(centerIndex, radius, dimensions):
@@ -149,6 +148,5 @@ def wrappingNeighborhood(centerIndex, radius, dimensions):
     interval = [v % dimension for v in xrange(left, right + 1)]
     intervals.append(interval)
 
-  return numpy.ravel_multi_index(
-    numpy.array(list(itertools.product(*intervals))).T,
-    dimensions)
+  coords = numpy.array(list(itertools.product(*intervals)))
+  return numpy.ravel_multi_index(coords.T, dimensions)

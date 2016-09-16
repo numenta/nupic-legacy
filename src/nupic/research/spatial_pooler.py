@@ -349,7 +349,7 @@ class SpatialPooler(object):
     # each column is connected to enough input bits to allow it to be
     # activated.
     for columnIndex in xrange(numColumns):
-      potential = self._mapPotential(columnIndex, wrapAround=self._wrapAround)
+      potential = self._mapPotential(columnIndex)
       self._potentialPools.replace(columnIndex, potential.nonzero()[0])
       perm = self._initPermanence(potential, initConnectedPct)
       self._updatePermanencesForColumn(perm, columnIndex, raisePerm=True)
@@ -842,8 +842,7 @@ class SpatialPooler(object):
     different columns.
     """
     for column in xrange(self._numColumns):
-      neighborhood = topology.neighborhood(column, self._inhibitionRadius,
-                                           self._columnDimensions)
+      neighborhood = self._getColumnNeighborhood(column)
 
       maxActiveDuty = self._activeDutyCycles[neighborhood].max()
       maxOverlapDuty = self._overlapDutyCycles[neighborhood].max()
@@ -921,7 +920,7 @@ class SpatialPooler(object):
     diameter = avgConnectedSpan * columnsPerInput
     radius = (diameter - 1) / 2.0
     radius = max(1.0, radius)
-    self._inhibitionRadius = int(round(radius))
+    self._inhibitionRadius = int(radius + 0.5)
 
 
   def _avgColumnsPerInput(self):
@@ -1229,7 +1228,7 @@ class SpatialPooler(object):
     return inputIndex
 
 
-  def _mapPotential(self, index, wrapAround=False):
+  def _mapPotential(self, index):
     """
     Maps a column to its input bits. This method encapsulates the topology of
     the region. It takes the index of the column as an argument and determines
@@ -1257,26 +1256,14 @@ class SpatialPooler(object):
     ----------------------------
     @param index:   The index identifying a column in the permanence, potential
                     and connectivity matrices.
-    @param wrapAround: A boolean value indicating that boundaries should be
-                    fignored.
     """
 
     centerInput = self._mapColumn(index)
-
-    if wrapAround:
-      columnInputs = topology.wrappingNeighborhood(centerInput,
-                                                   self._potentialRadius,
-                                                   self._inputDimensions)
-    else:
-      columnInputs = topology.neighborhood(centerInput,
-                                           self._potentialRadius,
-                                           self._inputDimensions)
-
-    columnInputs = columnInputs.astype(uintType)
+    columnInputs = self._getInputNeighborhood(centerInput).astype(uintType)
 
     # Select a subset of the receptive field to serve as the
     # the potential pool
-    numPotential = int(round(columnInputs.size * self._potentialPct))
+    numPotential = int(columnInputs.size * self._potentialPct + 0.5)
     selectedInputs = numpy.empty(numPotential, dtype=uintType)
     self._random.sample(columnInputs, selectedInputs)
 
@@ -1483,13 +1470,10 @@ class SpatialPooler(object):
     winners = []
     for column, overlap in enumerate(overlaps):
       if overlap >= self._stimulusThreshold:
-        neighborhood = topology.neighborhood(column, self._inhibitionRadius,
-                                             self._columnDimensions)
+        neighborhood = self._getColumnNeighborhood(column)
+        neighborhoodOverlaps = tieBrokenOverlaps[neighborhood]
 
-        numBigger = 0
-        for neighbor in neighborhood:
-          if neighbor != column and tieBrokenOverlaps[neighbor] > overlap:
-            numBigger += 1
+        numBigger = numpy.count_nonzero(neighborhoodOverlaps > overlap)
 
         numActive = int(0.5 + density * len(neighborhood))
         if numBigger < numActive:
@@ -1505,6 +1489,50 @@ class SpatialPooler(object):
     duty cycles
     """
     return (self._iterationNum % self._updatePeriod) == 0
+
+
+  def _getColumnNeighborhood(self, centerColumn):
+    """
+    Gets a neighborhood of columns.
+
+    Simply calls topology.neighborhood.
+
+    A subclass can insert different topology behavior by overriding this method.
+
+    @param centerColumn (int)
+    The center of the neighborhood.
+
+    @returns (1D numpy array of integers)
+    The columns in the neighborhood.
+    """
+    return topology.neighborhood(centerColumn,
+                                 self._inhibitionRadius,
+                                 self._columnDimensions)
+
+
+
+  def _getInputNeighborhood(self, centerInput):
+    """
+    Gets a neighborhood of inputs.
+
+    Simply calls topology.wrappingNeighborhood or topology.neighborhood.
+
+    A subclass can insert different topology behavior by overriding this method.
+
+    @param centerInput (int)
+    The center of the neighborhood.
+
+    @returns (1D numpy array of integers)
+    Th inputs in the neighborhood.
+    """
+    if self._wrapAround:
+      return topology.wrappingNeighborhood(centerInput,
+                                           self._potentialRadius,
+                                           self._inputDimensions)
+    else:
+      return topology.neighborhood(centerInput,
+                                   self._potentialRadius,
+                                   self._inputDimensions)
 
 
   def _seed(self, seed=-1):

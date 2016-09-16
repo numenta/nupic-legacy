@@ -426,7 +426,8 @@ class SpatialPoolerTest(unittest.TestCase):
     params.update({
       "inputDimensions": [12],
       "columnDimensions": [4],
-      "potentialRadius": 2
+      "potentialRadius": 2,
+      "wrapAround": False
     })
 
     # Test without wrapAround and potentialPct = 1
@@ -434,23 +435,24 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = SpatialPooler(**params)
 
     expectedMask = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-    mask = sp._mapPotential(0, wrapAround=False)
+    mask = sp._mapPotential(0)
     self.assertListEqual(mask.tolist(), expectedMask)
 
     expectedMask = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0]
-    mask = sp._mapPotential(2, wrapAround=False)
+    mask = sp._mapPotential(2)
     self.assertListEqual(mask.tolist(), expectedMask)
 
     # Test with wrapAround and potentialPct = 1
     params["potentialPct"] = 1
+    params["wrapAround"] = True
     sp = SpatialPooler(**params)
 
     expectedMask = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1]
-    mask = sp._mapPotential(0, wrapAround=True)
+    mask = sp._mapPotential(0)
     self.assertListEqual(mask.tolist(), expectedMask)
 
     expectedMask = [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1]
-    mask = sp._mapPotential(3, wrapAround=True)
+    mask = sp._mapPotential(3)
     self.assertListEqual(mask.tolist(), expectedMask)
 
     # Test with potentialPct < 1
@@ -458,7 +460,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = SpatialPooler(**params)
 
     supersetMask = numpy.array([1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1])
-    mask = sp._mapPotential(0, wrapAround=True)
+    mask = sp._mapPotential(0)
     self.assertEqual(numpy.sum(mask), 3)
     unionMask = supersetMask | mask.astype(int)
     self.assertListEqual(unionMask.tolist(), supersetMask.tolist())
@@ -470,7 +472,8 @@ class SpatialPoolerTest(unittest.TestCase):
       "columnDimensions": [2, 4],
       "inputDimensions": [6, 12],
       "potentialRadius": 1,
-      "potentialPct": 1
+      "potentialPct": 1,
+      "wrapAround": False,
     })
 
     # Test without wrapAround
@@ -479,18 +482,19 @@ class SpatialPoolerTest(unittest.TestCase):
     trueIndicies = [0, 12, 24,
                     1, 13, 25,
                     2, 14, 26]
-    mask = sp._mapPotential(0, wrapAround=False)
+    mask = sp._mapPotential(0)
     self.assertSetEqual(set(numpy.flatnonzero(mask).tolist()), set(trueIndicies))
 
     trueIndicies = [6, 18, 30,
                     7, 19, 31,
                     8, 20, 32]
-    mask = sp._mapPotential(2, wrapAround=False)
+    mask = sp._mapPotential(2)
     self.assertSetEqual(set(numpy.flatnonzero(mask).tolist()), set(trueIndicies))
 
     # Test with wrapAround
     params.update({
       "potentialRadius": 2,
+      "wrapAround": True,
     })
     sp = SpatialPooler(**params)
 
@@ -499,7 +503,7 @@ class SpatialPoolerTest(unittest.TestCase):
                     61,  1, 13, 25, 37,
                     62,  2, 14, 26, 38,
                     63,  3, 15, 27, 39]
-    mask = sp._mapPotential(0, wrapAround=True)
+    mask = sp._mapPotential(0)
     self.assertSetEqual(set(numpy.flatnonzero(mask).tolist()), set(trueIndicies))
 
     trueIndicies = [68,  8, 20, 32, 44,
@@ -507,7 +511,7 @@ class SpatialPoolerTest(unittest.TestCase):
                     70, 10, 22, 34, 46,
                     71, 11, 23, 35, 47,
                     60,  0, 12, 24, 36]
-    mask = sp._mapPotential(3, wrapAround=True)
+    mask = sp._mapPotential(3)
     self.assertSetEqual(set(numpy.flatnonzero(mask).tolist()), set(trueIndicies))
 
 
@@ -516,7 +520,8 @@ class SpatialPoolerTest(unittest.TestCase):
     params.update({
       "inputDimensions": [1],
       "columnDimensions": [1],
-      "potentialRadius": 2
+      "potentialRadius": 2,
+      "wrapAround": False,
     })
 
     # Test without wrapAround and potentialPct = 1
@@ -524,7 +529,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = SpatialPooler(**params)
 
     expectedMask = [1]
-    mask = sp._mapPotential(0, wrapAround=False)
+    mask = sp._mapPotential(0)
     self.assertListEqual(mask.tolist(), expectedMask)
 
 
