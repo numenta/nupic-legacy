@@ -24,7 +24,7 @@ from nupic.bindings.math import (SM32 as SparseMatrix,
                                  SM_01_32_32 as SparseBinaryMatrix,
                                  GetNTAReal,
                                  Random as NupicRandom)
-import nupic.math.topology as topology
+from nupic.math import topology
 
 
 
