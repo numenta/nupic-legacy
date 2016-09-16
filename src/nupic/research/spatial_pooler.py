@@ -680,7 +680,7 @@ class SpatialPooler(object):
   def setPotential(self, columnIndex, potential):
     """Sets the potential mapping for a given column. 'potential' size
     must match the number of inputs, and must be greater than _stimulusThreshold """
-    assert(column < self._numColumns)
+    assert(columnIndex < self._numColumns)
 
     potentialSparse = numpy.where(potential > 0)[0]
     if len(potentialSparse) < self._stimulusThreshold:
@@ -1337,8 +1337,7 @@ class SpatialPooler(object):
       else:
         targetDensity = numpy.zeros(self._numColumns, dtype=realDType)
         for i in xrange(self._numColumns):
-          maskNeighbors = self._getNeighborsND(i, self._columnDimensions,
-                                               self._inhibitionRadius)
+          maskNeighbors = self._getColumnNeighborhood(i)
           targetDensity[i] = numpy.mean(self._activeDutyCycles[maskNeighbors])
 
       self._boostFactors = numpy.exp(-(
