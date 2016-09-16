@@ -125,7 +125,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
         'results': {
           ('DefaultTask.TemporalMultiStep.predictionLog.csv',
            "multiStepBestPredictions:multiStep:errorMetric='aae':steps=1:window=200:field=field2"):
-                    (0.0, 0.56),
+                    (0.0, 0.58),
         }
       },
 
