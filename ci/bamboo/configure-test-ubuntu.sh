@@ -1,5 +1,4 @@
 #!/bin/bash
-# -----------------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2016, Numenta, Inc.  Unless you have purchased from
 # Numenta, Inc. a separate commercial license for this software code, the
@@ -20,6 +19,31 @@
 # http://numenta.org/licenses/
 # -----------------------------------------------------------------------------
 
-pip install dist/nupic-`cat VERSION`*.tar
+# Install what's necessary on top of raw Ubuntu for testing a NuPIC wheel.
+#
+# NOTE much of this will eventually go into a custom docker image
 
-python setup.py test
+
+set -o errexit
+set -o xtrace
+
+
+MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+
+apt-get update
+apt-get install -y \
+  python2.7 \
+  python2.7-dev \
+  libffi-dev \
+  libssl-dev \
+  curl \
+  build-essential \
+  openssl
+
+${MY_DIR}/install-pip-setuptools-wheel.sh
+
+# Hack to resolve SNIMissingWarning
+pip install urllib3[secure]
+
+# ZZZ TODO Install and start mysql needed for integration and swarming tests

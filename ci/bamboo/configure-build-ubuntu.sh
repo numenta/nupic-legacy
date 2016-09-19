@@ -1,5 +1,4 @@
 #!/bin/bash
-# -----------------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2016, Numenta, Inc.  Unless you have purchased from
 # Numenta, Inc. a separate commercial license for this software code, the
@@ -20,9 +19,19 @@
 # http://numenta.org/licenses/
 # -----------------------------------------------------------------------------
 
+# Install what's necessary on top of raw Ubuntu for building a NuPIC wheel.
+#
+# NOTE much of this will eventually go into a custom docker image
+
+
+set -o errexit
+set -o xtrace
+
+
+MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+
 apt-get update
-apt-get install -y python
+apt-get install -y python2.7 curl
 
-./ci/bamboo/install-pip-setuptools-wheel.sh
-
-python setup.py sdist
+${MY_DIR}/install-pip-setuptools-wheel.sh

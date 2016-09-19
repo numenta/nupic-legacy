@@ -1,5 +1,4 @@
 #!/bin/bash
-# ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2016, Numenta, Inc.  Unless you have purchased from
 # Numenta, Inc. a separate commercial license for this software code, the
@@ -18,19 +17,26 @@
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
-# ----------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-set -o verbose
+# Run NuPIC tests on Linux.
+
+# ASSUMES:
+#   1. Current working directory is root of nupic source tree
+#   2. The nupic wheel is in the current working directory
+
+
+
+set -o errexit
 set -o xtrace
 
-# Update brew
-rm /usr/local/share/man/man1/brew-cask.1
-sudo -u vagrant -i brew tap --repair
-sudo -u vagrant -i brew update
 
-# Initialize .bashrc with PATH
-sudo -u vagrant /usr/libexec/path_helper -s >> /Users/vagrant/.bashrc
-sudo -u vagrant ln -s .bashrc .bash_profile
+pip install nupic-*.whl
 
-# Install cmake with homebrew
-sudo -u vagrant -i brew install cmake
+# TODO Investigate why setting USER is necessary here (borrowed from Scott's
+# nupic-source build plan)
+echo "ZZZ I am: $( whoami )"
+USER=ubuntu python setup.py test \
+  --pytest-args="--junit-xml=`pwd`/nupic-test-results.xml --cov nupic unit"
+
+# ZZZ TODO Execute Integration tests, too. Requires mysql server and NUPIC env var.
