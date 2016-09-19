@@ -219,11 +219,13 @@ class TemporalMemory(object):
                                self.matchingSegments, segToCol):
       (column,
        activeColumns,
-       activeSegmentsOnCol,
-       matchingSegmentsOnCol) = columnData
+       columnActiveSegments,
+       columnMatchingSegments) = columnData
       if activeColumns is not None:
-        if activeSegmentsOnCol is not None:
-          cellsToAdd = self.activatePredictedColumn(activeSegmentsOnCol,
+        if columnActiveSegments is not None:
+          cellsToAdd = self.activatePredictedColumn(column,
+                                                    columnActiveSegments,
+                                                    columnMatchingSegments,
                                                     prevActiveCells,
                                                     prevWinnerCells,
                                                     learn)
@@ -232,15 +234,21 @@ class TemporalMemory(object):
           self.winnerCells += cellsToAdd
         else:
           (cellsToAdd,
-           winnerCell) = self.burstColumn(column, matchingSegmentsOnCol,
-                                          prevActiveCells, prevWinnerCells,
+           winnerCell) = self.burstColumn(column,
+                                          columnMatchingSegments,
+                                          prevActiveCells,
+                                          prevWinnerCells,
                                           learn)
 
           self.activeCells += cellsToAdd
           self.winnerCells.append(winnerCell)
       else:
         if learn:
-          self.punishPredictedColumn(matchingSegmentsOnCol, prevActiveCells)
+          self.punishPredictedColumn(column,
+                                     columnActiveSegments,
+                                     columnMatchingSegments,
+                                     prevActiveCells,
+                                     prevWinnerCells)
 
 
   def activateDendrites(self, learn=True):
@@ -305,14 +313,21 @@ class TemporalMemory(object):
   # ==============================
 
 
-  def activatePredictedColumn(self, columnActiveSegments, prevActiveCells,
+  def activatePredictedColumn(self, column, columnActiveSegments,
+                              columnMatchingSegments, prevActiveCells,
                               prevWinnerCells, learn):
     """
     Determines which cells in a predicted column should be added to winner cells
     list, and learns on the segments that correctly predicted this column.
 
+    @param column (int)
+    Index of bursting column.
+
     @param columnActiveSegments (iter)
     Active segments in this column.
+
+    @param columnActiveSegments (iter)
+    Matching segments in this column.
 
     @param prevActiveCells (list)
     Active cells in `t-1`.
@@ -331,7 +346,8 @@ class TemporalMemory(object):
                                     columnActiveSegments,
                                     prevActiveCells, prevWinnerCells,
                                     self.numActivePotentialSynapsesForSegment,
-                                    self.maxNewSynapseCount, self.initialPermanence,
+                                    self.maxNewSynapseCount,
+                                    self.initialPermanence,
                                     self.permanenceIncrement,
                                     self.permanenceDecrement,
                                     learn)
@@ -348,7 +364,7 @@ class TemporalMemory(object):
     Index of bursting column.
 
     @param columnMatchingSegments (iter)
-    Matching segments in this column.
+    Matching segments in this column, or None if there aren't any.
 
     @param prevActiveCells (list)
     Active cells in `t-1`.
@@ -373,15 +389,26 @@ class TemporalMemory(object):
                         learn)
 
 
-  def punishPredictedColumn(self, columnMatchingSegments, prevActiveCells):
+  def punishPredictedColumn(self, column, columnActiveSegments,
+                            columnMatchingSegments, prevActiveCells,
+                            prevWinnerCells):
     """
     Punishes the Segments that incorrectly predicted a column to be active.
 
+    @param column (int)
+    Index of bursting column.
+
+    @param columnActiveSegments (iter)
+    Active segments for this column, or None if there aren't any.
+
     @param columnMatchingSegments (iter)
-    Matching segments for this column.
+    Matching segments for this column, or None if there aren't any.
 
     @param prevActiveCells (list)
     Active cells in `t-1`.
+
+    @param prevActiveCells (list)
+    Winner cells in `t-1`.
 
     """
     _punishPredictedColumn(self.connections,
