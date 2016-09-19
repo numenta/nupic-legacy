@@ -31,6 +31,11 @@ set -o errexit
 set -o xtrace
 
 
+# ZZZ Work around for linux until we have proper PyPI-compatible Linux wheels
+pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.4.8-cp27-none-linux_x86_64.whl
+
+
+# Install nupic
 pip install nupic-*.whl
 
 # TODO Investigate why setting USER is necessary here (borrowed from Scott's
