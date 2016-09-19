@@ -342,15 +342,12 @@ class TemporalMemory(object):
     A list of predicted cells that will be added to active cells and winner
     cells.
     """
-    return _activatePredictedColumn(self.connections, self._random,
-                                    columnActiveSegments,
-                                    prevActiveCells, prevWinnerCells,
-                                    self.numActivePotentialSynapsesForSegment,
-                                    self.maxNewSynapseCount,
-                                    self.initialPermanence,
-                                    self.permanenceIncrement,
-                                    self.permanenceDecrement,
-                                    learn)
+    return self._activatePredictedColumn(
+      self.connections, self._random,
+      columnActiveSegments, prevActiveCells, prevWinnerCells,
+      self.numActivePotentialSynapsesForSegment,
+      self.maxNewSynapseCount, self.initialPermanence,
+      self.permanenceIncrement, self.permanenceDecrement, learn)
 
 
   def burstColumn(self, column, columnMatchingSegments, prevActiveCells,
@@ -379,14 +376,12 @@ class TemporalMemory(object):
                       `cells`         (iter),
                       `winnerCell`    (int),
     """
-    return _burstColumn(self.connections, self._random,
-                        column, columnMatchingSegments,
-                        prevActiveCells, prevWinnerCells,
-                        self.numActivePotentialSynapsesForSegment,
-                        self.cellsPerColumn, self.maxNewSynapseCount,
-                        self.initialPermanence, self.permanenceIncrement,
-                        self.permanenceDecrement,
-                        learn)
+    return self._burstColumn(
+      self.connections, self._random,
+      column, columnMatchingSegments, prevActiveCells, prevWinnerCells,
+      self.numActivePotentialSynapsesForSegment,
+      self.cellsPerColumn, self.maxNewSynapseCount, self.initialPermanence,
+      self.permanenceIncrement, self.permanenceDecrement, learn)
 
 
   def punishPredictedColumn(self, column, columnActiveSegments,
@@ -407,17 +402,333 @@ class TemporalMemory(object):
     @param prevActiveCells (list)
     Active cells in `t-1`.
 
-    @param prevActiveCells (list)
+    @param prevWinnerCells (list)
     Winner cells in `t-1`.
 
     """
-    _punishPredictedColumn(self.connections,
-                           columnMatchingSegments, prevActiveCells,
-                           self.predictedSegmentDecrement)
+    self._punishPredictedColumn(
+      self.connections, columnMatchingSegments, prevActiveCells,
+      self.predictedSegmentDecrement)
+
 
   # ==============================
-  # Helper functions
+  # Helper methods
+  #
+  # These class methods use the following parameter ordering convention:
+  #
+  # 1. Output / mutated params
+  # 2. Traditional parameters to the method, i.e. the ones that would still
+  #    exist if this were in instance method.
+  # 3. Model state (not mutated)
+  # 4. Model parameters (including "learn")
   # ==============================
+
+
+  @classmethod
+  def _activatePredictedColumn(cls, connections, random, columnActiveSegments,
+                               prevActiveCells, prevWinnerCells,
+                               numActivePotentialSynapsesForSegment,
+                               maxNewSynapseCount,
+                               initialPermanence, permanenceIncrement,
+                               permanenceDecrement, learn):
+    """
+    @param connections (Object)
+    Connections for the TM. Gets mutated.
+
+    @param random (Object)
+    Random number generator. Gets mutated.
+
+    @param columnActiveSegments (iter)
+    Active segments in this column.
+
+    @param prevActiveCells (list)
+    Active cells in `t-1`.
+
+    @param prevWinnerCells (list)
+    Winner cells in `t-1`.
+
+    @param numActivePotentialSynapsesForSegment (list)
+    Number of active potential synapses per segment, indexed by the segment's
+    flatIdx.
+
+    @param maxNewSynapseCount (int)
+    The maximum number of synapses added to a segment during learning
+
+    @param initialPermanence (float)
+    Initial permanence of a new synapse.
+
+    @permanenceIncrement (float)
+    Amount by which permanences of synapses are incremented during learning.
+
+    @permanenceDecrement (float)
+    Amount by which permanences of synapses are decremented during learning.
+
+    @param learn (bool)
+    If true, grow and reinforce synapses.
+
+    @return cellsToAdd (list)
+    A list of predicted cells that will be added to active cells and winner
+    cells.
+
+    Pseudocode:
+    for each cell in the column that has an active distal dendrite segment
+      mark the cell as active
+      mark the cell as a winner cell
+      (learning) for each active distal dendrite segment
+        strengthen active synapses
+        weaken inactive synapses
+        grow synapses to previous winner cells
+    """
+
+    cellsToAdd = []
+    previousCell = None
+    for segment in columnActiveSegments:
+      if segment.cell != previousCell:
+        cellsToAdd.append(segment.cell)
+        previousCell = segment.cell
+
+      if learn:
+        cls._adaptSegment(connections, segment, prevActiveCells,
+                          permanenceIncrement, permanenceDecrement)
+
+        active = numActivePotentialSynapsesForSegment[segment.flatIdx]
+        nGrowDesired = maxNewSynapseCount - active
+
+        if nGrowDesired > 0:
+          cls._growSynapses(connections, random, segment, nGrowDesired,
+                            prevWinnerCells, initialPermanence)
+
+    return cellsToAdd
+
+
+  @classmethod
+  def _burstColumn(cls, connections, random, column, columnMatchingSegments,
+                   prevActiveCells, prevWinnerCells,
+                   numActivePotentialSynapsesForSegment, cellsPerColumn,
+                   maxNewSynapseCount, initialPermanence, permanenceIncrement,
+                   permanenceDecrement, learn):
+    """
+    @param connections (Object)
+    Connections for the TM. Gets mutated.
+
+    @param random (Object)
+    Random number generator. Gets mutated.
+
+    @param column (int)
+    Index of bursting column.
+
+    @param columnMatchingSegments (iter)
+    Matching segments in this column.
+
+    @param prevActiveCells (list)
+    Active cells in `t-1`.
+
+    @param prevWinnerCells (list)
+    Winner cells in `t-1`.
+
+    @param numActivePotentialSynapsesForSegment (list)
+    Number of active potential synapses per segment, indexed by the segment's
+    flatIdx.
+
+    @param cellsPerColumn (int)
+    Number of cells per column.
+
+    @param maxNewSynapseCount (int)
+    The maximum number of synapses added to a segment during learning.
+
+    @param initialPermanence (float)
+    Initial permanence of a new synapse.
+
+    @param permanenceIncrement (float)
+    Amount by which permanences of synapses are incremented during learning.
+
+    @param permanenceDecrement (float)
+    Amount by which permanences of synapses are decremented during learning.
+
+    @param learn (bool)
+    Whether or not learning is enabled.
+
+    @return (tuple) Contains:
+                      `cells`         (iter),
+                      `winnerCell`    (int),
+
+    Pseudocode:
+    mark all cells as active
+    if there are any matching distal dendrite segments
+      find the most active matching segment
+      mark its cell as a winner cell
+      (learning)
+        grow and reinforce synapses to previous winner cells
+    else
+      find the cell with the least segments, mark it as a winner cell
+      (learning)
+        (optimization) if there are prev winner cells
+          add a segment to this winner cell
+          grow synapses to previous winner cells
+    """
+    start = cellsPerColumn * column
+    cells = xrange(start, start + cellsPerColumn)
+
+    if columnMatchingSegments is not None:
+      numActive = lambda s: numActivePotentialSynapsesForSegment[s.flatIdx]
+      bestMatchingSegment = max(columnMatchingSegments, key=numActive)
+      winnerCell = bestMatchingSegment.cell
+
+      if learn:
+        cls._adaptSegment(connections, bestMatchingSegment, prevActiveCells,
+                          permanenceIncrement, permanenceDecrement)
+
+        nGrowDesired = maxNewSynapseCount - numActive(bestMatchingSegment)
+
+        if nGrowDesired > 0:
+          cls._growSynapses(connections, random, bestMatchingSegment,
+                            nGrowDesired, prevWinnerCells, initialPermanence)
+    else:
+      winnerCell = cls._leastUsedCell(random, cells, connections)
+      if learn:
+        nGrowExact = min(maxNewSynapseCount, len(prevWinnerCells))
+        if nGrowExact > 0:
+          segment = connections.createSegment(winnerCell)
+          cls._growSynapses(connections, random, segment, nGrowExact,
+                            prevWinnerCells, initialPermanence)
+
+    return cells, winnerCell
+
+
+  @classmethod
+  def _punishPredictedColumn(cls, connections, columnMatchingSegments,
+                             prevActiveCells, predictedSegmentDecrement):
+    """
+    @param connections (Object)
+    Connections for the TM. Gets mutated.
+
+    @param columnMatchingSegments (iter)
+    Matching segments for this column.
+
+    @param prevActiveCells (list)
+    Active cells in `t-1`.
+
+    @param predictedSegmentDecrement (float)
+    Amount by which segments are punished for incorrect predictions.
+
+    Pseudocode:
+    for each matching segment in the column
+      weaken active synapses
+    """
+    if predictedSegmentDecrement > 0.0 and columnMatchingSegments is not None:
+      for segment in columnMatchingSegments:
+        cls._adaptSegment(connections, segment, prevActiveCells,
+                          -predictedSegmentDecrement, 0.0)
+
+
+  @classmethod
+  def _leastUsedCell(cls, random, cells, connections):
+    """
+    Gets the cell with the smallest number of segments.
+    Break ties randomly.
+
+    @param random (Object)
+    Random number generator. Gets mutated.
+
+    @param cells (list)
+    Indices of cells.
+
+    @param connections (Object)
+    Connections instance for the TM.
+
+    @return (int) Cell index.
+    """
+    leastUsedCells = []
+    minNumSegments = float("inf")
+    for cell in cells:
+      numSegments = connections.numSegments(cell)
+
+      if numSegments < minNumSegments:
+        minNumSegments = numSegments
+        leastUsedCells = []
+
+      if numSegments == minNumSegments:
+        leastUsedCells.append(cell)
+
+    i = random.getUInt32(len(leastUsedCells))
+    return leastUsedCells[i]
+
+
+  @classmethod
+  def _growSynapses(cls, connections, random, segment, nDesiredNewSynapes,
+                    prevWinnerCells, initialPermanence):
+    """
+    Creates nDesiredNewSynapes synapses on the segment passed in if
+    possible, choosing random cells from the previous winner cells that are
+    not already on the segment.
+
+    @param  connections        (Object) Connections instance for the tm
+    @param  random             (Object) TM object used to generate random
+                                        numbers
+    @param  segment            (int)    Segment to grow synapses on.
+    @params nDesiredNewSynapes (int)    Desired number of synapses to grow
+    @params prevWinnerCells    (list)   Winner cells in `t-1`
+    @param  initialPermanence  (float)  Initial permanence of a new synapse.
+
+    Notes: The process of writing the last value into the index in the array
+    that was most recently changed is to ensure the same results that we get
+    in the c++ implentation using iter_swap with vectors.
+    """
+    candidates = list(prevWinnerCells)
+    eligibleEnd = len(candidates) - 1
+
+    for synapse in connections.synapsesForSegment(segment):
+      try:
+        index = candidates[:eligibleEnd + 1].index(synapse.presynapticCell)
+      except ValueError:
+        index = -1
+      if index != -1:
+        candidates[index] = candidates[eligibleEnd]
+        eligibleEnd -= 1
+
+    candidatesLength = eligibleEnd + 1
+    nActual = min(nDesiredNewSynapes, candidatesLength)
+
+    for _ in range(nActual):
+      rand = random.getUInt32(candidatesLength)
+      connections.createSynapse(segment, candidates[rand],
+                                initialPermanence)
+      candidates[rand] = candidates[candidatesLength - 1]
+      candidatesLength -= 1
+
+
+  @classmethod
+  def _adaptSegment(cls, connections, segment, prevActiveCells,
+                    permanenceIncrement, permanenceDecrement):
+    """
+    Updates synapses on segment.
+    Strengthens active synapses; weakens inactive synapses.
+
+    @param connections          (Object) Connections instance for the tm
+    @param segment              (int)    Segment to adapt
+    @param prevActiveCells      (list)   Active cells in `t-1`
+    @param permanenceIncrement  (float)  Amount to increment active synapses
+    @param permanenceDecrement  (float)  Amount to decrement inactive synapses
+    """
+
+    for synapse in connections.synapsesForSegment(segment):
+      permanence = synapse.permanence
+
+      if binSearch(prevActiveCells, synapse.presynapticCell) != -1:
+        permanence += permanenceIncrement
+      else:
+        permanence -= permanenceDecrement
+
+      # Keep permanence within min/max bounds
+      permanence = max(0.0, min(1.0, permanence))
+
+      if permanence < EPSILON:
+        connections.destroySynapse(synapse)
+      else:
+        connections.updateSynapsePermanence(synapse, permanence)
+
+    if connections.numSynapses(segment) == 0:
+      connections.destroySegment(segment)
 
 
   def columnForCell(self, cell):
@@ -703,7 +1014,6 @@ class TemporalMemory(object):
       )
 
 
-
   @classmethod
   def read(cls, proto):
     """
@@ -862,312 +1172,3 @@ class TemporalMemory(object):
     @param cell (int) cell to find the index of
     """
     return cell
-
-
-# The functions below use the following parameter ordering convention:
-#
-# 1. Output / mutated params
-# 2. Traditional parameters to the function, i.e. the ones that would still
-#    exist if this function were a method on a class
-# 3. Model state (not mutated)
-# 4. Model parameters (including "learn")
-
-def _activatePredictedColumn(connections, random, columnActiveSegments,
-                             prevActiveCells, prevWinnerCells,
-                             numActivePotentialSynapsesForSegment,
-                             maxNewSynapseCount,
-                             initialPermanence, permanenceIncrement,
-                             permanenceDecrement, learn):
-  """
-  @param connections (Object)
-  Connections for the TM. Gets mutated.
-
-  @param random (Object)
-  Random number generator. Gets mutated.
-
-  @param columnActiveSegments (iter)
-  Active segments in this column.
-
-  @param prevActiveCells (list)
-  Active cells in `t-1`.
-
-  @param prevWinnerCells (list)
-  Winner cells in `t-1`.
-
-  @param numActivePotentialSynapsesForSegment (list)
-  Number of active potential synapses per segment, indexed by the segment's
-  flatIdx.
-
-  @param maxNewSynapseCount (int)
-  The maximum number of synapses added to a segment during learning
-
-  @param initialPermanence (float)
-  Initial permanence of a new synapse.
-
-  @permanenceIncrement (float)
-  Amount by which permanences of synapses are incremented during learning.
-
-  @permanenceDecrement (float)
-  Amount by which permanences of synapses are decremented during learning.
-
-  @param learn (bool)
-  If true, grow and reinforce synapses.
-
-  @return cellsToAdd (list)
-  A list of predicted cells that will be added to active cells and winner
-  cells.
-
-  Pseudocode:
-  for each cell in the column that has an active distal dendrite segment
-    mark the cell as active
-    mark the cell as a winner cell
-    (learning) for each active distal dendrite segment
-      strengthen active synapses
-      weaken inactive synapses
-      grow synapses to previous winner cells
-  """
-
-  cellsToAdd = []
-  previousCell = None
-  for segment in columnActiveSegments:
-    if segment.cell != previousCell:
-      cellsToAdd.append(segment.cell)
-      previousCell = segment.cell
-
-    if learn:
-      _adaptSegment(connections, segment, prevActiveCells,
-                    permanenceIncrement, permanenceDecrement)
-
-      active = numActivePotentialSynapsesForSegment[segment.flatIdx]
-      nGrowDesired = maxNewSynapseCount - active
-
-      if nGrowDesired > 0:
-        _growSynapses(connections, random, segment, nGrowDesired,
-                      prevWinnerCells, initialPermanence)
-
-  return cellsToAdd
-
-
-def _burstColumn(connections, random, column, columnMatchingSegments,
-                 prevActiveCells, prevWinnerCells,
-                 numActivePotentialSynapsesForSegment, cellsPerColumn,
-                 maxNewSynapseCount, initialPermanence, permanenceIncrement,
-                 permanenceDecrement, learn):
-  """
-  @param connections (Object)
-  Connections for the TM. Gets mutated.
-
-  @param random (Object)
-  Random number generator. Gets mutated.
-
-  @param column (int)
-  Index of bursting column.
-
-  @param columnMatchingSegments (iter)
-  Matching segments in this column.
-
-  @param prevActiveCells (list)
-  Active cells in `t-1`.
-
-  @param prevWinnerCells (list)
-  Winner cells in `t-1`.
-
-  @param numActivePotentialSynapsesForSegment (list)
-  Number of active potential synapses per segment, indexed by the segment's
-  flatIdx.
-
-  @param cellsPerColumn (int)
-  Number of cells per column.
-
-  @param maxNewSynapseCount (int)
-  The maximum number of synapses added to a segment during learning.
-
-  @param initialPermanence (float)
-  Initial permanence of a new synapse.
-
-  @param permanenceIncrement (float)
-  Amount by which permanences of synapses are incremented during learning.
-
-  @param permanenceDecrement (float)
-  Amount by which permanences of synapses are decremented during learning.
-
-  @param learn (bool)
-  Whether or not learning is enabled.
-
-  @return (tuple) Contains:
-                    `cells`         (iter),
-                    `winnerCell`    (int),
-
-  Pseudocode:
-  mark all cells as active
-  if there are any matching distal dendrite segments
-    find the most active matching segment
-    mark its cell as a winner cell
-    (learning)
-      grow and reinforce synapses to previous winner cells
-  else
-    find the cell with the least segments, mark it as a winner cell
-    (learning)
-      (optimization) if there are prev winner cells
-        add a segment to this winner cell
-        grow synapses to previous winner cells
-  """
-  start = cellsPerColumn * column
-  cells = xrange(start, start + cellsPerColumn)
-
-  if columnMatchingSegments is not None:
-    numActive = lambda s: numActivePotentialSynapsesForSegment[s.flatIdx]
-    bestMatchingSegment = max(columnMatchingSegments, key=numActive)
-    winnerCell = bestMatchingSegment.cell
-
-    if learn:
-      _adaptSegment(connections, bestMatchingSegment, prevActiveCells,
-                    permanenceIncrement, permanenceDecrement)
-
-      nGrowDesired = maxNewSynapseCount - numActive(bestMatchingSegment)
-
-      if nGrowDesired > 0:
-        _growSynapses(connections, random, bestMatchingSegment,
-                      nGrowDesired, prevWinnerCells, initialPermanence)
-  else:
-    winnerCell = _leastUsedCell(random, cells, connections)
-    if learn:
-      nGrowExact = min(maxNewSynapseCount, len(prevWinnerCells))
-      if nGrowExact > 0:
-        segment = connections.createSegment(winnerCell)
-        _growSynapses(connections, random, segment, nGrowExact,
-                      prevWinnerCells, initialPermanence)
-
-  return cells, winnerCell
-
-
-def _punishPredictedColumn(connections, columnMatchingSegments,
-                           prevActiveCells, predictedSegmentDecrement):
-  """
-  @param connections (Object)
-  Connections for the TM. Gets mutated.
-
-  @param columnMatchingSegments (iter)
-  Matching segments for this column.
-
-  @param prevActiveCells (list)
-  Active cells in `t-1`.
-
-  @param predictedSegmentDecrement (float)
-  Amount by which segments are punished for incorrect predictions.
-
-  Pseudocode:
-  for each matching segment in the column
-    weaken active synapses
-  """
-  if predictedSegmentDecrement > 0.0 and columnMatchingSegments is not None:
-    for segment in columnMatchingSegments:
-      _adaptSegment(connections, segment, prevActiveCells,
-                    -predictedSegmentDecrement, 0.0)
-
-
-def _leastUsedCell(random, cells, connections):
-  """
-  Gets the cell with the smallest number of segments.
-  Break ties randomly.
-
-  @param random (Object)
-  Random number generator. Gets mutated.
-
-  @param cells (list)
-  Indices of cells.
-
-  @param connections (Object)
-  Connections instance for the TM.
-
-  @return (int) Cell index.
-  """
-  leastUsedCells = []
-  minNumSegments = float("inf")
-  for cell in cells:
-    numSegments = connections.numSegments(cell)
-
-    if numSegments < minNumSegments:
-      minNumSegments = numSegments
-      leastUsedCells = []
-
-    if numSegments == minNumSegments:
-      leastUsedCells.append(cell)
-
-  i = random.getUInt32(len(leastUsedCells))
-  return leastUsedCells[i]
-
-
-def _growSynapses(connections, random, segment, nDesiredNewSynapes,
-                  prevWinnerCells, initialPermanence):
-  """
-  Creates nDesiredNewSynapes synapses on the segment passed in if
-  possible, choosing random cells from the previous winner cells that are
-  not already on the segment.
-
-  @param  connections        (Object) Connections instance for the tm
-  @param  random             (Object) TM object used to generate random
-                                      numbers
-  @param  segment            (int)    Segment to grow synapses on.
-  @params nDesiredNewSynapes (int)    Desired number of synapses to grow
-  @params prevWinnerCells    (list)   Winner cells in `t-1`
-  @param  initialPermanence  (float)  Initial permanence of a new synapse.
-
-  Notes: The process of writing the last value into the index in the array
-  that was most recently changed is to ensure the same results that we get
-  in the c++ implentation using iter_swap with vectors.
-  """
-  candidates = list(prevWinnerCells)
-  eligibleEnd = len(candidates) - 1
-
-  for synapse in connections.synapsesForSegment(segment):
-    try:
-      index = candidates[:eligibleEnd + 1].index(synapse.presynapticCell)
-    except ValueError:
-      index = -1
-    if index != -1:
-      candidates[index] = candidates[eligibleEnd]
-      eligibleEnd -= 1
-
-  candidatesLength = eligibleEnd + 1
-  nActual = min(nDesiredNewSynapes, candidatesLength)
-
-  for _ in range(nActual):
-    rand = random.getUInt32(candidatesLength)
-    connections.createSynapse(segment, candidates[rand],
-                              initialPermanence)
-    candidates[rand] = candidates[candidatesLength - 1]
-    candidatesLength -= 1
-
-
-def _adaptSegment(connections, segment, prevActiveCells,
-                  permanenceIncrement, permanenceDecrement):
-  """
-  Updates synapses on segment.
-  Strengthens active synapses; weakens inactive synapses.
-
-  @param connections          (Object) Connections instance for the tm
-  @param segment              (int)    Segment to adapt
-  @param prevActiveCells      (list)   Active cells in `t-1`
-  @param permanenceIncrement  (float)  Amount to increment active synapses
-  @param permanenceDecrement  (float)  Amount to decrement inactive synapses
-  """
-
-  for synapse in connections.synapsesForSegment(segment):
-    permanence = synapse.permanence
-
-    if binSearch(prevActiveCells, synapse.presynapticCell) != -1:
-      permanence += permanenceIncrement
-    else:
-      permanence -= permanenceDecrement
-
-    # Keep permanence within min/max bounds
-    permanence = max(0.0, min(1.0, permanence))
-
-    if permanence < EPSILON:
-      connections.destroySynapse(synapse)
-    else:
-      connections.updateSynapsePermanence(synapse, permanence)
-
-  if connections.numSynapses(segment) == 0:
-    connections.destroySegment(segment)
