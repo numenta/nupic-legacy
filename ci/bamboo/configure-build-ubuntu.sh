@@ -34,4 +34,8 @@ MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 apt-get update
 apt-get install -y python2.7 curl
 
+update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+update-alternatives --set python /usr/bin/python2.7
+
+
 ${MY_DIR}/install-pip-setuptools-wheel.sh

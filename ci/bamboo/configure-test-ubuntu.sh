@@ -41,6 +41,10 @@ apt-get install -y \
   build-essential \
   openssl
 
+update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+update-alternatives --set python /usr/bin/python2.7
+
+
 ${MY_DIR}/install-pip-setuptools-wheel.sh
 
 # Hack to resolve SNIMissingWarning
