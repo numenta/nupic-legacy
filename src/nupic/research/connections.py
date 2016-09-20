@@ -324,6 +324,7 @@ class Connections(object):
       flatIdx = self._freeFlatIdxs.pop()
     else:
       flatIdx = self._nextFlatIdx
+      self._segmentForFlatIdx.append(None)
       self._nextFlatIdx += 1
 
     ordinal = self._nextSegmentOrdinal
@@ -331,7 +332,7 @@ class Connections(object):
 
     segment = Segment(cell, flatIdx,  self._iteration, ordinal)
     cellData._segments.append(segment)
-    self._segmentForFlatIdx.append(segment)
+    self._segmentForFlatIdx[flatIdx] = segment
 
     return segment
 

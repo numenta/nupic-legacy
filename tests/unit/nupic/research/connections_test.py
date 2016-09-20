@@ -59,26 +59,38 @@ class ConnectionsTest(unittest.TestCase):
     connections.startNewIteration();
     connections.startNewIteration();
 
-    # Create a segment with 1 synapse.
+    # Create a segment with 3 synapse.
     segment2 = connections.createSegment(42)
+    connections.createSynapse(segment2, 1, .5)
+    connections.createSynapse(segment2, 2, .5)
+    connections.createSynapse(segment2, 3, .5)
     connections.startNewIteration();
 
     # Give the first segment some activity.
     connections.recordSegmentActivity(segment1)
 
-    # Create a new segment with no synapses.
-    connections.createSegment(42);
+    # Create a new segment with 1 synapse.
+    segment3 = connections.createSegment(42);
+    connections.createSynapse(segment3, 1, .5)
 
     segments = connections.segmentsForCell(42)
     self.assertEqual(2, len(segments))
 
     # Verify first segment is still there with the same synapses.
-    presynapticCells = set(synapse.presynapticCell for synapse in
-                           connections.synapsesForSegment(segments[0]))
-    self.assertEqual(set([1, 2]), presynapticCells)
+    self.assertEqual(set([1, 2]),
+                     set(synapse.presynapticCell for synapse in
+                         connections.synapsesForSegment(segments[0])))
 
     # Verify second segment has been replaced.
-    self.assertEqual(0, connections.numSynapses(segments[1]))
+    self.assertEqual(set([1]),
+                     set(synapse.presynapticCell for synapse in
+                         connections.synapsesForSegment(segments[1])))
+
+    # Verify the flatIdxs were properly reused.
+    self.assertLess(segment1.flatIdx, 2)
+    self.assertLess(segment3.flatIdx, 2)
+    self.assertTrue(segment1 is connections.segmentForFlatIdx(segment1.flatIdx))
+    self.assertTrue(segment3 is connections.segmentForFlatIdx(segment3.flatIdx))
 
 
   def testSynapseReuse(self):
