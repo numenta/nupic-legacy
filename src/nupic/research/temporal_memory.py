@@ -277,7 +277,6 @@ class TemporalMemory(object):
       if numActivePotential[i] >= self.minThreshold
     )
 
-    maxSegmentsPerCell = self.connections.maxSegmentsPerCell
     self.activeSegments = sorted(activeSegments,
                                  key=self.connections.segmentPositionSortKey)
     self.matchingSegments = sorted(matchingSegments,
