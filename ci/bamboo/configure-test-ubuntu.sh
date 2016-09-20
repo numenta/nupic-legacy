@@ -50,9 +50,14 @@ update-alternatives --set python /usr/bin/python2.7
 #
 
 # Install, suppressing prompt for admin password, settling for blank password
-debconf-set-selections <<< 'mysql-server mysql-server/root_password password'
-debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password'
-apt-get -y install mysql-server
+DEBIAN_FRONTEND=noninteractive \
+  debconf-set-selections <<< 'mysql-server mysql-server/root_password password'
+
+DEBIAN_FRONTEND=noninteractive \
+  debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password'
+
+DEBIAN_FRONTEND=noninteractive \
+  apt-get -y install mysql-server
 
 # Start mysql server
 /usr/bin/mysqld_safe &
