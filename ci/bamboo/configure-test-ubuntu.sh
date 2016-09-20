@@ -39,7 +39,8 @@ apt-get install -y \
   libssl-dev \
   curl \
   build-essential \
-  openssl
+  openssl \
+  mysql-server
 
 update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
 update-alternatives --set python /usr/bin/python2.7
@@ -50,4 +51,5 @@ ${MY_DIR}/install-pip-setuptools-wheel.sh
 # Hack to resolve SNIMissingWarning
 pip install urllib3[secure]
 
-# ZZZ TODO Install and start mysql needed for integration and swarming tests
+# Start mysql (needed for integration and swarming tests)
+/usr/bin/mysqld_safe &

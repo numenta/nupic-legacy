@@ -31,6 +31,9 @@ set -o errexit
 set -o xtrace
 
 
+MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+
 # ZZZ Work around for linux until we have proper PyPI-compatible Linux wheels
 pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.4.8-cp27-none-linux_x86_64.whl
 
@@ -41,7 +44,12 @@ pip install nupic-*.whl
 # TODO Investigate why setting USER is necessary here (borrowed from Scott's
 # nupic-source build plan)
 echo "ZZZ I am: $( whoami )"
-USER=ubuntu python setup.py test \
-  --pytest-args="--junit-xml=`pwd`/nupic-test-results.xml --cov nupic unit"
+USER=ubuntu \
+  python setup.py test \
+    --pytest-args="--junit-xml=`pwd`/nupic-test-results.xml --cov nupic unit"
 
-# ZZZ TODO Execute Integration tests, too. Requires mysql server and NUPIC env var.
+# Execute Integration tests, too (requires mysql server and NUPIC env var)
+NUPIC="$( cd "${MY_DIR}/../.." && pwd )" \
+USER=ubuntu \
+  python setup.py test \
+    --pytest-args="--junit-xml=`pwd`/nupic-test-results.xml --cov nupic integration"
