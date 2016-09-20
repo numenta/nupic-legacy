@@ -33,6 +33,8 @@ set -o xtrace
 
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+NUPIC_ROOT_DIR="$( cd "${MY_DIR}/../.." && pwd )"
+
 
 # ZZZ Work around for linux until we have proper PyPI-compatible Linux wheels
 pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.4.8-cp27-none-linux_x86_64.whl
@@ -45,11 +47,9 @@ pip install nupic-*.whl
 # nupic-source build plan)
 echo "ZZZ I am: $( whoami )"
 USER=ubuntu \
-  python setup.py test \
-    --pytest-args="--junit-xml=`pwd`/nupic-test-results.xml --cov nupic unit"
+  py.test "${NUPIC_ROOT_DIR}/tests/unit"
 
 # Execute Integration tests, too (requires mysql server and NUPIC env var)
-NUPIC="$( cd "${MY_DIR}/../.." && pwd )" \
+NUPIC="${NUPIC_ROOT_DIR}" \
 USER=ubuntu \
-  python setup.py test \
-    --pytest-args="--junit-xml=`pwd`/nupic-test-results.xml --cov nupic integration"
+  py.test "${NUPIC_ROOT_DIR}/tests/integration"
