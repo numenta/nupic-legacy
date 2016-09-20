@@ -39,17 +39,31 @@ apt-get install -y \
   libssl-dev \
   curl \
   build-essential \
-  openssl \
-  mysql-server
+  openssl
 
 update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
 update-alternatives --set python /usr/bin/python2.7
 
 
+#
+# Install and start mysql (needed for integration and swarming tests)
+#
+
+# Install, suppressing prompt for admin password, settling for blank password
+debconf-set-selections <<< 'mysql-server mysql-server/root_password password'
+debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password'
+apt-get -y install mysql-server
+
+# Start mysql server
+/usr/bin/mysqld_safe &
+
+
+#
+# Install pip/setuptools/wheel
+#
 ${MY_DIR}/install-pip-setuptools-wheel.sh
+
 
 # Hack to resolve SNIMissingWarning
 pip install urllib3[secure]
 
-# Start mysql (needed for integration and swarming tests)
-/usr/bin/mysqld_safe &
