@@ -382,10 +382,10 @@ class TemporalMemory(object):
 
     return self._burstColumn(
       self.connections, self._random, column, columnMatchingSegments,
-      prevActiveCells, prevWinnerCells,
+      prevActiveCells, prevWinnerCells, cellsForColumn,
       self.numActivePotentialSynapsesForSegment, self.maxNewSynapseCount,
       self.initialPermanence, self.permanenceIncrement,
-      self.permanenceDecrement, learn, cellsForColumn)
+      self.permanenceDecrement, learn)
 
 
   def punishPredictedColumn(self, column, columnActiveSegments,
@@ -507,10 +507,10 @@ class TemporalMemory(object):
 
   @classmethod
   def _burstColumn(cls, connections, random, column, columnMatchingSegments,
-                   prevActiveCells, prevWinnerCells,
+                   prevActiveCells, prevWinnerCells, cellsForColumn,
                    numActivePotentialSynapsesForSegment, maxNewSynapseCount,
                    initialPermanence, permanenceIncrement,
-                   permanenceDecrement, learn, cellsForColumn):
+                   permanenceDecrement, learn):
     """
     @param connections (Object)
     Connections for the TM. Gets mutated.
@@ -530,6 +530,9 @@ class TemporalMemory(object):
     @param prevWinnerCells (list)
     Winner cells in `t-1`.
 
+    @param cellsForColumn (sequence)
+    Range of cell indices on which to operate.
+
     @param numActivePotentialSynapsesForSegment (list)
     Number of active potential synapses per segment, indexed by the segment's
     flatIdx.
@@ -548,9 +551,6 @@ class TemporalMemory(object):
 
     @param learn (bool)
     Whether or not learning is enabled.
-
-    @param cellsForColumn (sequence)
-    Range of cell indices on which to operate.
 
     @return (tuple) Contains:
                       `cells`         (iter),
