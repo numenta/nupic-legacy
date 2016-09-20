@@ -33,6 +33,7 @@ MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 apt-get update
 apt-get install -y \
+  apt-utils \
   python2.7 \
   python2.7-dev \
   libffi-dev \
