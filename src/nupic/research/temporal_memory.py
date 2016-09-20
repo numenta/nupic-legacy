@@ -376,12 +376,16 @@ class TemporalMemory(object):
                       `cells`         (iter),
                       `winnerCell`    (int),
     """
+
+    start = self.cellsPerColumn * column
+    cellsForColumn = xrange(start, start + self.cellsPerColumn)
+
     return self._burstColumn(
-      self.connections, self._random,
-      column, columnMatchingSegments, prevActiveCells, prevWinnerCells,
-      self.numActivePotentialSynapsesForSegment,
-      self.cellsPerColumn, self.maxNewSynapseCount, self.initialPermanence,
-      self.permanenceIncrement, self.permanenceDecrement, learn)
+      self.connections, self._random, column, columnMatchingSegments,
+      prevActiveCells, prevWinnerCells, cellsForColumn,
+      self.numActivePotentialSynapsesForSegment, self.maxNewSynapseCount,
+      self.initialPermanence, self.permanenceIncrement,
+      self.permanenceDecrement, learn)
 
 
   def punishPredictedColumn(self, column, columnActiveSegments,
@@ -503,9 +507,9 @@ class TemporalMemory(object):
 
   @classmethod
   def _burstColumn(cls, connections, random, column, columnMatchingSegments,
-                   prevActiveCells, prevWinnerCells,
-                   numActivePotentialSynapsesForSegment, cellsPerColumn,
-                   maxNewSynapseCount, initialPermanence, permanenceIncrement,
+                   prevActiveCells, prevWinnerCells, cellsForColumn,
+                   numActivePotentialSynapsesForSegment, maxNewSynapseCount,
+                   initialPermanence, permanenceIncrement,
                    permanenceDecrement, learn):
     """
     @param connections (Object)
@@ -526,12 +530,12 @@ class TemporalMemory(object):
     @param prevWinnerCells (list)
     Winner cells in `t-1`.
 
+    @param cellsForColumn (sequence)
+    Range of cell indices on which to operate.
+
     @param numActivePotentialSynapsesForSegment (list)
     Number of active potential synapses per segment, indexed by the segment's
     flatIdx.
-
-    @param cellsPerColumn (int)
-    Number of cells per column.
 
     @param maxNewSynapseCount (int)
     The maximum number of synapses added to a segment during learning.
@@ -566,9 +570,6 @@ class TemporalMemory(object):
           add a segment to this winner cell
           grow synapses to previous winner cells
     """
-    start = cellsPerColumn * column
-    cells = xrange(start, start + cellsPerColumn)
-
     if columnMatchingSegments is not None:
       numActive = lambda s: numActivePotentialSynapsesForSegment[s.flatIdx]
       bestMatchingSegment = max(columnMatchingSegments, key=numActive)
@@ -584,7 +585,7 @@ class TemporalMemory(object):
           cls._growSynapses(connections, random, bestMatchingSegment,
                             nGrowDesired, prevWinnerCells, initialPermanence)
     else:
-      winnerCell = cls._leastUsedCell(random, cells, connections)
+      winnerCell = cls._leastUsedCell(random, cellsForColumn, connections)
       if learn:
         nGrowExact = min(maxNewSynapseCount, len(prevWinnerCells))
         if nGrowExact > 0:
@@ -592,7 +593,7 @@ class TemporalMemory(object):
           cls._growSynapses(connections, random, segment, nGrowExact,
                             prevWinnerCells, initialPermanence)
 
-    return cells, winnerCell
+    return cellsForColumn, winnerCell
 
 
   @classmethod
