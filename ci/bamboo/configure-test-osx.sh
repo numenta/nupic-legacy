@@ -19,42 +19,19 @@
 # http://numenta.org/licenses/
 # -----------------------------------------------------------------------------
 
-# Run NuPIC tests on Linux.
-
-# ASSUMES:
-#   1. Current working directory is root of nupic source tree
-#   2. The nupic wheel is in the current working directory
-
+# Install what's necessary on top of the OS X Vagrant image for testing a NuPIC
+# wheel.
+#
+# NOTE much of this will eventually go into a custom docker image
 
 
 set -o errexit
 set -o xtrace
 
 
-MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-NUPIC_ROOT_DIR="$( cd "${MY_DIR}/../.." && pwd )"
-
-
-# ZZZ Work around for linux until we have proper PyPI-compatible Linux wheels
-pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.4.8-cp27-none-linux_x86_64.whl
+# Install and start mysql; needed by integration tests
+brew install mysql
+mysql.server start
 
 
-# Install nupic
-pip install nupic-*.whl
 
-
-#
-# Test
-#
-
-# TODO Investigate why setting USER is necessary here (borrowed from Scott's
-# nupic-source build plan)
-echo "ZZZ I am: $( whoami )"
-USER=ubuntu \
-  py.test "${NUPIC_ROOT_DIR}/tests/unit"
-
-# Execute Integration tests, too (requires mysql server and NUPIC env var)
-NUPIC="${NUPIC_ROOT_DIR}" \
-USER=ubuntu \
-  py.test "${NUPIC_ROOT_DIR}/tests/integration"

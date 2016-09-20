@@ -31,10 +31,18 @@ set -o errexit
 set -o xtrace
 
 
+MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+NUPIC_ROOT_DIR="$( cd "${MY_DIR}/../.." && pwd )"
+
+
+# Install nupic
 pip install --user nupic-*.whl
 
-pip install --user nupic-*.whl
-python setup.py test \
-  --pytest-args="--junit-xml=`pwd`/nupic-test-results.xml --cov nupic unit"
 
-# ZZZ TODO Execute Integration tests, too. Requires mysql server and NUPIC env var.
+# Execute unit tests
+py.test "${NUPIC_ROOT_DIR}/tests/unit"
+
+# Execute Integration tests, too (requires mysql server and NUPIC env var)
+NUPIC="${NUPIC_ROOT_DIR}" \
+  py.test "${NUPIC_ROOT_DIR}/tests/integration"
