@@ -19,11 +19,13 @@
 # http://numenta.org/licenses/
 # -----------------------------------------------------------------------------
 
-# Run NuPIC tests on Windows.
-
+# Install what's necessary on top of the Windows 10 Vagrant image for testing a
+# NuPIC wheel.
+#
+# NOTE much of this will eventually go into a VM image
+#
 # ASSUMES:
 #   1. Current working directory is root of nupic source tree
-#   2. The nupic wheel is in the current working directory
 
 
 # Stop and fail script if any command fails
@@ -33,18 +35,11 @@ $ErrorActionPreference = "Stop"
 Set-PsDebug -Trace 1
 
 
-$NupicRootDir = $(get-location).Path
-
-
 . .\ci\bamboo\win-utils.ps1  # WrapCmd
 
 
+# Install and start mysql without prompts
+WrapCmd { chocolatey.exe install mysql -y }
 
-WrapCmd { pip install "$((Get-ChildItem .\nupic-*.whl)[0].FullName)" }
-
-# Python unit tests
-WrapCmd { py.test --verbose tests\unit }
-
-# Python integration tests
-$env:NUPIC = $NupicRootDir  # Some tests rely on this to find the config files
-WrapCmd { py.test --verbose tests\integration }
+# NOTE If you need to access the just-installed executables, refresh environment
+# variables configured by chocolatey via `refreshenv` command

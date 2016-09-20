@@ -19,32 +19,38 @@
 # http://numenta.org/licenses/
 # -----------------------------------------------------------------------------
 
-# Run NuPIC tests on Windows.
 
-# ASSUMES:
-#   1. Current working directory is root of nupic source tree
-#   2. The nupic wheel is in the current working directory
-
-
-# Stop and fail script if any command fails
-$ErrorActionPreference = "Stop"
-
-# Trace script lines as they run
-Set-PsDebug -Trace 1
-
-
-$NupicRootDir = $(get-location).Path
-
-
-. .\ci\bamboo\win-utils.ps1  # WrapCmd
+# Common powershell utilities for use by windows bamboo test scripts.
 
 
 
-WrapCmd { pip install "$((Get-ChildItem .\nupic-*.whl)[0].FullName)" }
+# WrapCmd
+#
+# Use this function to wrap external commands for powershell error-checking.
+#
+# This is necessary so that `$ErrorActionPreference = "Stop"` will have the
+# desired effect.
+#
+# Returns True if command's $LastExitCode was 0, False otherwise
+#
+# Usage: WrapCmd { cmd arg1 arg2 ... }
+#
+function WrapCmd
+{
+  [CmdletBinding()]
 
-# Python unit tests
-WrapCmd { py.test --verbose tests\unit }
-
-# Python integration tests
-$env:NUPIC = $NupicRootDir  # Some tests rely on this to find the config files
-WrapCmd { py.test --verbose tests\integration }
+  param (
+    [Parameter(Position=0, Mandatory=1)]
+    [scriptblock]$Command,
+    [Parameter(Position=1, Mandatory=0)]
+    [string]$ErrorMessage = "ERROR: Command failed.`n$Command"
+  )
+  & $Command
+  if ($LastExitCode -eq 0) {
+    return $true
+  }
+  else {
+    Write-Error "WrapCmd: $ErrorMessage"
+    return $false
+  }
+}

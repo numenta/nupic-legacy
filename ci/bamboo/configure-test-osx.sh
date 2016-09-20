@@ -22,7 +22,7 @@
 # Install what's necessary on top of the OS X Vagrant image for testing a NuPIC
 # wheel.
 #
-# NOTE much of this will eventually go into a custom docker image
+# NOTE much of this will eventually go into a VM image
 
 
 set -o errexit

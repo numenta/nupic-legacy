@@ -52,9 +52,9 @@ pip install nupic-*.whl
 # nupic-source build plan)
 echo "ZZZ I am: $( whoami )"
 USER=ubuntu \
-  py.test "${NUPIC_ROOT_DIR}/tests/unit"
+  py.test --verbose "${NUPIC_ROOT_DIR}/tests/unit"
 
 # Execute Integration tests, too (requires mysql server and NUPIC env var)
 NUPIC="${NUPIC_ROOT_DIR}" \
 USER=ubuntu \
-  py.test "${NUPIC_ROOT_DIR}/tests/integration"
+  py.test --verbose "${NUPIC_ROOT_DIR}/tests/integration"

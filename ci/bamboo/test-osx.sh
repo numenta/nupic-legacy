@@ -41,8 +41,8 @@ pip install --user nupic-*.whl
 
 
 # Execute unit tests
-py.test "${NUPIC_ROOT_DIR}/tests/unit"
+py.test --verbose "${NUPIC_ROOT_DIR}/tests/unit"
 
 # Execute Integration tests, too (requires mysql server and NUPIC env var)
 NUPIC="${NUPIC_ROOT_DIR}" \
-  py.test "${NUPIC_ROOT_DIR}/tests/integration"
+  py.test --verbose "${NUPIC_ROOT_DIR}/tests/integration"
