@@ -51,10 +51,12 @@ pip install nupic-*.whl
 # TODO Investigate why setting USER is necessary here (borrowed from Scott's
 # nupic-source build plan)
 echo "ZZZ I am: $( whoami )"
-USER=ubuntu \
+USER=$(whoami) \
   py.test --verbose "${NUPIC_ROOT_DIR}/tests/unit"
 
-# Execute Integration tests, too (requires mysql server and NUPIC env var)
+# Execute Integration tests, too (requires mysql server)
+# Some tests require NUPIC env var to locate config files
+# Some nupic config files reference USER env var, so it needs to be defined.
 NUPIC="${NUPIC_ROOT_DIR}" \
-USER=ubuntu \
+USER=$(whoami) \
   py.test --verbose "${NUPIC_ROOT_DIR}/tests/integration"
