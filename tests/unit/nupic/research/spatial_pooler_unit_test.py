@@ -1398,8 +1398,8 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._columnDimensions = numpy.array([sp._numColumns])
     sp._inhibitionRadius = 2
     overlaps = numpy.array([1, 2, 7, 0, 3, 4, 16, 1, 1.5, 1.7], dtype=realDType)
-                        #   L  W  W  L  L  W  W   L   L    W
-    trueActive = [1, 2, 5, 6, 9]
+                        #   L  W  W  L  L  W  W   L   W    W
+    trueActive = [1, 2, 5, 6, 8, 9]
     active = list(sp._inhibitColumnsLocal(overlaps, density))
     self.assertListEqual(trueActive, sorted(active))
 
@@ -1408,10 +1408,10 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._columnDimensions = numpy.array([sp._numColumns])
     sp._inhibitionRadius = 3
     overlaps = numpy.array([1, 2, 7, 0, 3, 4, 16, 1, 1.5, 1.7], dtype=realDType)
-                        #   L  W  W  L  L  W  W   L   L    L
-    trueActive = [1, 2, 5, 6]
+                        #   L  W  W  L  W  W  W   L   L    W
+    trueActive = [1, 2, 4, 5, 6, 9]
     active = list(sp._inhibitColumnsLocal(overlaps, density))
-    # self.assertListEqual(trueActive, active) #FIXME see issue #2639
+    self.assertListEqual(trueActive, active)
 
     # Test add to winners
     density = 0.3333
@@ -1420,7 +1420,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inhibitionRadius = 3
     overlaps = numpy.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1], dtype=realDType)
                         #   W  W  L  L  W  W  L  L  L  W
-    trueActive = [0, 1, 4, 5, 8]
+    trueActive = [0, 1, 4, 5]
     active = list(sp._inhibitColumnsLocal(overlaps, density))
     self.assertListEqual(trueActive, sorted(active))
 
