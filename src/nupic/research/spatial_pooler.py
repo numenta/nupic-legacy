@@ -1157,6 +1157,7 @@ class SpatialPooler(object):
     p = int(p*100000) / 100000.0
     return p
 
+
   def _initPermanence(self, potential, connectedPct):
     """
     Initializes the permanences of a column. The method
@@ -1495,7 +1496,7 @@ class SpatialPooler(object):
     """
     Gets a neighborhood of columns.
 
-    Simply calls topology.neighborhood.
+    Simply calls topology.neighborhood or topology.wrappingNeighborhood
 
     A subclass can insert different topology behavior by overriding this method.
 
@@ -1505,9 +1506,15 @@ class SpatialPooler(object):
     @returns (1D numpy array of integers)
     The columns in the neighborhood.
     """
-    return topology.neighborhood(centerColumn,
-                                 self._inhibitionRadius,
-                                 self._columnDimensions)
+    if self._wrapAround:
+      return topology.wrappingNeighborhood(centerColumn,
+                                           self._inhibitionRadius,
+                                           self._columnDimensions)
+
+    else:
+      return topology.neighborhood(centerColumn,
+                                   self._inhibitionRadius,
+                                   self._columnDimensions)
 
 
 
