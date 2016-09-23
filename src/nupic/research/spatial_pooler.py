@@ -1496,7 +1496,7 @@ class SpatialPooler(object):
     """
     Gets a neighborhood of columns.
 
-    Simply calls topology.neighborhood.
+    Simply calls topology.neighborhood or topology.wrappingNeighborhood
 
     A subclass can insert different topology behavior by overriding this method.
 
