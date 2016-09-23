@@ -999,29 +999,115 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(columnsForCells[99], set([399]))
 
 
+  def serializationTestPrepare(self, tm):
+    # Create an active segment and two matching segments.
+    # Destroy a few to exercise the code.
+    destroyMe1 = tm.connections.createSegment(4)
+    tm.connections.destroySegment(destroyMe1)
+
+    activeSegment = tm.connections.createSegment(4)
+    tm.connections.createSynapse(activeSegment, 0, 0.5)
+    tm.connections.createSynapse(activeSegment, 1, 0.5)
+    destroyMe2 = tm.connections.createSynapse(activeSegment, 42, 0.5)
+    tm.connections.destroySynapse(destroyMe2)
+    tm.connections.createSynapse(activeSegment, 2, 0.5)
+    tm.connections.createSynapse(activeSegment, 3, 0.5)
+
+    matchingSegment1 = tm.connections.createSegment(8)
+    tm.connections.createSynapse(matchingSegment1, 0, 0.4)
+    tm.connections.createSynapse(matchingSegment1, 1, 0.4)
+    tm.connections.createSynapse(matchingSegment1, 2, 0.4)
+
+    matchingSegment2 = tm.connections.createSegment(9)
+    tm.connections.createSynapse(matchingSegment2, 0, 0.4)
+    tm.connections.createSynapse(matchingSegment2, 1, 0.4)
+    tm.connections.createSynapse(matchingSegment2, 2, 0.4)
+    tm.connections.createSynapse(matchingSegment2, 3, 0.4)
+
+    tm.compute([0])
+
+    self.assertEqual(len(tm.getActiveSegments()), 1)
+    self.assertEqual(len(tm.getMatchingSegments()), 3)
+
+
+  def serializationTestVerify(self, tm):
+    # Activate 3 columns. One has an active segment, one has two matching
+    # segments, and one has none. One column should be predicted, the others
+    # should burst, there should be four segments total, and they should have
+    # the correct permanences and synapse counts.
+    prevWinnerCells = tm.getWinnerCells()
+    self.assertEqual(len(prevWinnerCells), 1)
+
+    tm.compute([1, 2, 3])
+
+    # Verify the correct cells were activated.
+    self.assertEqual(tm.getActiveCells(),
+                     [4, 8, 9, 10, 11, 12, 13, 14, 15])
+    winnerCells = tm.getWinnerCells()
+    self.assertEqual(len(winnerCells), 3)
+    self.assertEqual(winnerCells[0], 4)
+    self.assertEqual(winnerCells[1], 9)
+
+    self.assertEqual(tm.connections.numSegments(), 4)
+
+    # Verify the active segment learned.
+    self.assertEqual(tm.connections.numSegments(4), 1)
+    activeSegment = tm.connections.segmentsForCell(4)[0]
+    syns1 = tm.connections.synapsesForSegment(activeSegment)
+    self.assertEqual(set([0, 1, 2, 3]),
+                     set(s.presynapticCell for s in syns1))
+    for s in syns1:
+      self.assertAlmostEqual(s.permanence, 0.6)
+
+    # Verify the non-best matching segment is unchanged.
+    self.assertEqual(tm.connections.numSegments(8), 1)
+    matchingSegment1 = tm.connections.segmentsForCell(8)[0]
+    syns2 = tm.connections.synapsesForSegment(matchingSegment1)
+    self.assertEqual(set([0, 1, 2]),
+                     set(s.presynapticCell for s in syns2))
+    for s in syns2:
+      self.assertAlmostEqual(s.permanence, 0.4)
+
+    # Verify the best matching segment learned.
+    self.assertEqual(tm.connections.numSegments(9), 1)
+    matchingSegment2 = tm.connections.segmentsForCell(9)[0]
+    syns3 = tm.connections.synapsesForSegment(matchingSegment2)
+    self.assertEqual(set([0, 1, 2, 3]),
+                     set(s.presynapticCell for s in syns3))
+    for s in syns3:
+      self.assertAlmostEqual(s.permanence, 0.5)
+
+    # Verify the winner cell in the last column grew a segment.
+    winnerCell = winnerCells[2]
+    self.assertGreaterEqual(winnerCell, 12)
+    self.assertLess(winnerCell, 16)
+    self.assertEqual(tm.connections.numSegments(winnerCell), 1)
+    newSegment = tm.connections.segmentsForCell(winnerCell)[0]
+    syns4 = tm.connections.synapsesForSegment(newSegment)
+    self.assertEqual(set([prevWinnerCells[0]]),
+                     set(s.presynapticCell for s in syns4))
+    for s in syns4:
+      self.assertAlmostEqual(s.permanence, 0.21)
+
+
   @unittest.skipUnless(
     capnp, "pycapnp is not installed, skipping serialization test.")
   def testWriteRead(self):
     tm1 = TemporalMemory(
-      columnDimensions=(100,),
+      columnDimensions=(32,),
       cellsPerColumn=4,
-      activationThreshold=7,
-      initialPermanence=0.37,
-      connectedPermanence=0.58,
-      minThreshold=4,
-      maxNewSynapseCount=18,
-      permanenceIncrement=0.23,
-      permanenceDecrement=0.08,
-      seed=91
+      activationThreshold=3,
+      initialPermanence=0.21,
+      connectedPermanence=0.50,
+      minThreshold=2,
+      maxNewSynapseCount=3,
+      permanenceIncrement=0.1,
+      permanenceDecrement=0.1,
+      predictedSegmentDecrement=0.0,
+      seed=42
     )
 
-    # Run some data through before serializing
-    patternMachine = PatternMachine(100, 4)
-    sequenceMachine = SequenceMachine(patternMachine)
-    sequence = sequenceMachine.generateFromNumbers(range(5))
-    for _ in range(3):
-      for pattern in sequence:
-        tm1.compute(pattern)
+    self.serializationTestPrepare(tm1)
 
     proto1 = TemporalMemoryProto_capnp.TemporalMemoryProto.new_message()
     tm1.write(proto1)
@@ -1035,24 +1121,42 @@ class TemporalMemoryTest(unittest.TestCase):
     # Load the deserialized proto
     tm2 = TemporalMemory.read(proto2)
 
-    # Check that the two temporal memory objects have the same attributes
     self.assertEqual(tm1, tm2)
-    # Run a couple records through after deserializing and check results match
-    tm1.compute(patternMachine.get(0))
-    tm2.compute(patternMachine.get(0))
-    self.assertEqual(set(tm1.getActiveCells()), set(tm2.getActiveCells()))
-    self.assertEqual(set(tm1.getPredictiveCells()),
-                     set(tm2.getPredictiveCells()))
-    self.assertEqual(set(tm1.getWinnerCells()), set(tm2.getWinnerCells()))
-    self.assertEqual(tm1.connections, tm2.connections)
+    self.serializationTestVerify(tm2)
 
-    tm1.compute(patternMachine.get(3))
-    tm2.compute(patternMachine.get(3))
-    self.assertEqual(set(tm1.getActiveCells()), set(tm2.getActiveCells()))
-    self.assertEqual(set(tm1.getPredictiveCells()),
-                     set(tm2.getPredictiveCells()))
-    self.assertEqual(set(tm1.getWinnerCells()), set(tm2.getWinnerCells()))
-    self.assertEqual(tm1.connections, tm2.connections)
+
+  @unittest.skip("Manually enable this when you want to use it.")
+  def testWriteTestFile(self):
+    tm = TemporalMemory(
+      columnDimensions=(32,),
+      cellsPerColumn=4,
+      activationThreshold=3,
+      initialPermanence=0.21,
+      connectedPermanence=0.50,
+      minThreshold=2,
+      maxNewSynapseCount=3,
+      permanenceIncrement=0.1,
+      permanenceDecrement=0.1,
+      predictedSegmentDecrement=0.0,
+      seed=42
+    )
+
+    self.serializationTestPrepare(tm)
+    proto = TemporalMemoryProto_capnp.TemporalMemoryProto.new_message()
+    tm.write(proto)
+    with open("TemporalMemorySerializationWrite.tmp", "w") as f:
+      proto.write(f)
+
+
+  @unittest.skip("Manually enable this when you want to use it.")
+  def testReadTestFile(self):
+    with open("TemporalMemorySerializationWrite.tmp", "r") as f:
+      proto = TemporalMemoryProto_capnp.TemporalMemoryProto.read(f)
+
+    # Load the deserialized proto
+    tm = TemporalMemory.read(proto)
+
+    self.serializationTestVerify(tm)
 
 
 if __name__ == '__main__':

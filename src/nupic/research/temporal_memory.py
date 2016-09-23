@@ -697,6 +697,24 @@ class TemporalMemory(object):
     return self.getCellIndices(self.winnerCells)
 
 
+  def getActiveSegments(self):
+    """
+    Returns the active segments.
+
+    @return (list) Active segments
+    """
+    return self.activeSegments
+
+
+  def getMatchingSegments(self):
+    """
+    Returns the matching segments.
+
+    @return (list) Matching segments
+    """
+    return self.matchingSegments
+
+
   def getCellsPerColumn(self):
     """ Returns the number of cells per column.
 
