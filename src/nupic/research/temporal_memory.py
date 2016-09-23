@@ -282,11 +282,10 @@ class TemporalMemory(object):
       if numActivePotential[i] >= self.minThreshold
     )
 
-    maxSegmentsPerCell = self.connections.maxSegmentsPerCell
-    segmentKey = lambda segment: (segment.cell * maxSegmentsPerCell
-                                  + segment.idx)
-    self.activeSegments = sorted(activeSegments, key = segmentKey)
-    self.matchingSegments = sorted(matchingSegments, key = segmentKey)
+    self.activeSegments = sorted(activeSegments,
+                                 key=self.connections.segmentPositionSortKey)
+    self.matchingSegments = sorted(matchingSegments,
+                                   key=self.connections.segmentPositionSortKey)
     self.numActiveConnectedSynapsesForSegment = numActiveConnected
     self.numActivePotentialSynapsesForSegment = numActivePotential
 
@@ -671,31 +670,20 @@ class TemporalMemory(object):
     @params prevWinnerCells    (list)   Winner cells in `t-1`
     @param  initialPermanence  (float)  Initial permanence of a new synapse.
 
-    Notes: The process of writing the last value into the index in the array
-    that was most recently changed is to ensure the same results that we get
-    in the c++ implentation using iter_swap with vectors.
     """
     candidates = list(prevWinnerCells)
-    eligibleEnd = len(candidates) - 1
 
     for synapse in connections.synapsesForSegment(segment):
-      try:
-        index = candidates[:eligibleEnd + 1].index(synapse.presynapticCell)
-      except ValueError:
-        index = -1
-      if index != -1:
-        candidates[index] = candidates[eligibleEnd]
-        eligibleEnd -= 1
+      i = binSearch(candidates, synapse.presynapticCell)
+      if i != -1:
+        del candidates[i]
 
-    candidatesLength = eligibleEnd + 1
-    nActual = min(nDesiredNewSynapes, candidatesLength)
+    nActual = min(nDesiredNewSynapes, len(candidates))
 
     for _ in range(nActual):
-      rand = random.getUInt32(candidatesLength)
-      connections.createSynapse(segment, candidates[rand],
-                                initialPermanence)
-      candidates[rand] = candidates[candidatesLength - 1]
-      candidatesLength -= 1
+      i = random.getUInt32(len(candidates))
+      connections.createSynapse(segment, candidates[i], initialPermanence)
+      del candidates[i]
 
 
   @classmethod
@@ -712,6 +700,9 @@ class TemporalMemory(object):
     @param permanenceDecrement  (float)  Amount to decrement inactive synapses
     """
 
+    # Destroying a synapse modifies the set that we're iterating through.
+    synapsesToDestroy = []
+
     for synapse in connections.synapsesForSegment(segment):
       permanence = synapse.permanence
 
@@ -724,9 +715,12 @@ class TemporalMemory(object):
       permanence = max(0.0, min(1.0, permanence))
 
       if permanence < EPSILON:
-        connections.destroySynapse(synapse)
+        synapsesToDestroy.append(synapse)
       else:
         connections.updateSynapsePermanence(synapse, permanence)
+
+    for synapse in synapsesToDestroy:
+      connections.destroySynapse(synapse)
 
     if connections.numSynapses(segment) == 0:
       connections.destroySegment(segment)
@@ -826,6 +820,24 @@ class TemporalMemory(object):
     @return (list) Indices of winner cells.
     """
     return self.getCellIndices(self.winnerCells)
+
+
+  def getActiveSegments(self):
+    """
+    Returns the active segments.
+
+    @return (list) Active segments
+    """
+    return self.activeSegments
+
+
+  def getMatchingSegments(self):
+    """
+    Returns the matching segments.
+
+    @return (list) Matching segments
+    """
+    return self.matchingSegments
 
 
   def getCellsPerColumn(self):
@@ -1000,7 +1012,8 @@ class TemporalMemory(object):
         proto.init('activeSegmentOverlaps', len(self.activeSegments))
     for i, segment in enumerate(self.activeSegments):
       activeSegmentOverlaps[i].cell = segment.cell
-      activeSegmentOverlaps[i].segment = segment.idx
+      idx = self.connections.segmentsForCell(segment.cell).index(segment)
+      activeSegmentOverlaps[i].segment = idx
       activeSegmentOverlaps[i].overlap = (
         self.numActiveConnectedSynapsesForSegment[segment.flatIdx]
       )
@@ -1009,7 +1022,8 @@ class TemporalMemory(object):
         proto.init('matchingSegmentOverlaps', len(self.matchingSegments))
     for i, segment in enumerate(self.matchingSegments):
       matchingSegmentOverlaps[i].cell = segment.cell
-      matchingSegmentOverlaps[i].segment = segment.idx
+      idx = self.connections.segmentsForCell(segment.cell).index(segment)
+      matchingSegmentOverlaps[i].segment = idx
       matchingSegmentOverlaps[i].overlap = (
         self.numActivePotentialSynapsesForSegment[segment.flatIdx]
       )
