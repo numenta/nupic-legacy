@@ -934,9 +934,11 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
   def testUpdateMinDutyCycleLocal(self):
+    # wrapAround=False
     sp = SpatialPooler(inputDimensions=(5,),
                        columnDimensions=(8,),
-                       globalInhibition=False)
+                       globalInhibition=False,
+                       wrapAround=False)
 
     sp.setInhibitionRadius(1)
     sp.setOverlapDutyCycles([0.7, 0.1, 0.5, 0.01, 0.78, 0.55, 0.1, 0.001])
@@ -957,6 +959,30 @@ class SpatialPoolerTest(unittest.TestCase):
                                 [0.14, 0.14, 0.1, 0.156, 0.156, 0.156, 0.11, 0.02]):
       self.assertAlmostEqual(actual, expected)
 
+    # wrapAround=True
+    sp = SpatialPooler(inputDimensions=(5,),
+                       columnDimensions=(8,),
+                       globalInhibition=False,
+                       wrapAround=True)
+
+    sp.setInhibitionRadius(1)
+    sp.setOverlapDutyCycles([0.7, 0.1, 0.5, 0.01, 0.78, 0.55, 0.1, 0.001])
+    sp.setActiveDutyCycles([0.9, 0.3, 0.5, 0.7, 0.1, 0.01, 0.08, 0.12])
+    sp.setMinPctActiveDutyCycles(0.1);
+    sp.setMinPctOverlapDutyCycles(0.2);
+    sp._updateMinDutyCyclesLocal()
+
+    resultMinActiveDutyCycles = numpy.zeros(sp.getNumColumns())
+    sp.getMinActiveDutyCycles(resultMinActiveDutyCycles)
+    for actual, expected in zip(resultMinActiveDutyCycles,
+                                [0.09, 0.09, 0.07, 0.07, 0.07, 0.01, 0.012, 0.09]):
+      self.assertAlmostEqual(actual, expected)
+
+    resultMinOverlapDutyCycles = numpy.zeros(sp.getNumColumns())
+    sp.getMinOverlapDutyCycles(resultMinOverlapDutyCycles)
+    for actual, expected in zip(resultMinOverlapDutyCycles,
+                                [0.14, 0.14, 0.1, 0.156, 0.156, 0.156, 0.11, 0.14]):
+      self.assertAlmostEqual(actual, expected)
 
   def testUpdateMinDutyCyclesGlobal(self):
     sp = self._sp
@@ -1398,7 +1424,15 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._columnDimensions = numpy.array([sp._numColumns])
     sp._inhibitionRadius = 2
     overlaps = numpy.array([1, 2, 7, 0, 3, 4, 16, 1, 1.5, 1.7], dtype=realDType)
-                        #   L  W  W  L  L  W  W   L   L    W
+                        #   L  W  W  L  L  W  W   L   W    W (wrapAround=True)
+                        #   L  W  W  L  L  W  W   L   L    W (wrapAround=False)
+
+    sp._wrapAround = True
+    trueActive = [1, 2, 5, 6, 8, 9]
+    active = list(sp._inhibitColumnsLocal(overlaps, density))
+    self.assertListEqual(trueActive, sorted(active))
+
+    sp._wrapAround = False
     trueActive = [1, 2, 5, 6, 9]
     active = list(sp._inhibitColumnsLocal(overlaps, density))
     self.assertListEqual(trueActive, sorted(active))
@@ -1408,10 +1442,17 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._columnDimensions = numpy.array([sp._numColumns])
     sp._inhibitionRadius = 3
     overlaps = numpy.array([1, 2, 7, 0, 3, 4, 16, 1, 1.5, 1.7], dtype=realDType)
-                        #   L  W  W  L  L  W  W   L   L    L
-    trueActive = [1, 2, 5, 6]
+                        #   L  W  W  L  W  W  W   L   L    W (wrapAround=True)
+                        #   L  W  W  L  W  W  W   L   L    L (wrapAround=False)
+    sp._wrapAround = True
+    trueActive = [1, 2, 4, 5, 6, 9]
     active = list(sp._inhibitColumnsLocal(overlaps, density))
-    # self.assertListEqual(trueActive, active) #FIXME see issue #2639
+    self.assertListEqual(trueActive, active)
+
+    sp._wrapAround = False
+    trueActive = [1, 2, 4, 5, 6, 9]
+    active = list(sp._inhibitColumnsLocal(overlaps, density))
+    self.assertListEqual(trueActive, active)
 
     # Test add to winners
     density = 0.3333
@@ -1419,7 +1460,15 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._columnDimensions = numpy.array([sp._numColumns])
     sp._inhibitionRadius = 3
     overlaps = numpy.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1], dtype=realDType)
-                        #   W  W  L  L  W  W  L  L  L  W
+                        #   W  W  L  L  W  W  L  L  L  L (wrapAround=True)
+                        #   W  W  L  L  W  W  L  L  W  L (wrapAround=False)
+
+    sp._wrapAround = True
+    trueActive = [0, 1, 4, 5]
+    active = list(sp._inhibitColumnsLocal(overlaps, density))
+    self.assertListEqual(trueActive, sorted(active))
+
+    sp._wrapAround = False
     trueActive = [0, 1, 4, 5, 8]
     active = list(sp._inhibitColumnsLocal(overlaps, density))
     self.assertListEqual(trueActive, sorted(active))
