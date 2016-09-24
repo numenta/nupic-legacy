@@ -162,6 +162,42 @@ class KNNClassifierTest(unittest.TestCase):
       msg="pctOverlapOfLarger did not calculate 0 distance as expected.")
 
 
+  def testUnnormalizedOverlap(self):
+    classifier = KNNClassifier(distanceMethod="rawOverlap", 
+      unnormalizedOverlap=True)
+
+    dimensionality = 40
+    protoA = np.array([0, 1, 3, 7, 11], dtype=np.int32)
+    protoB = np.array([20, 28, 30], dtype=np.int32)
+
+    classifier.learn(protoA, 0, isSparse=dimensionality)
+    classifier.learn(protoB, 0, isSparse=dimensionality)
+
+    # input is an arbitrary point, close to protoA, orthogonal to protoB
+    input = np.zeros(dimensionality)
+    input[:4] = 1.0
+    overlaps = [3, 0]
+
+    # Ensure that actual overlap is returned for all distanceMethods for which
+    # it is implemented.
+    for distanceMethod in ["rawOverlap", "pctOverlapOfInput"]:
+      classifier.distanceMethod = distanceMethod
+      _, _, dist, catDist = classifier.infer(input)
+      self.assertEqual(catDist, [3])
+      for actual, predicted in zip(overlaps, dist):
+        self.assertEqual(
+          actual, predicted,
+          msg="Overlap is not calculated as expected for distance method %s." %
+            distanceMethod)
+
+    # Ensure that an exception is raised for distance methods for which overlap
+    # is not implemented
+    for distanceMethod in ["pctOverlapOfProto", "pctOverlapOfLarger", "norm"]:
+      classifier.distanceMethod = distanceMethod
+      with self.assertRaises(RuntimeError):
+        _, _, _, _ = classifier.infer(input)
+
+
   def testOverlapDistanceMethodStandard(self):
     """Tests standard learning case for raw overlap"""
     params = {"distanceMethod": "rawOverlap"}
