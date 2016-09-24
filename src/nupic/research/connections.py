@@ -380,18 +380,17 @@ class Connections(object):
 
     self._synapsesForPresynapticCell[presynapticCell].add(synapse)
 
-    self._numSynapses +=1
+    self._numSynapses += 1
 
     return synapse
 
 
   def _removeSynapseFromPresynapticMap(self, synapse):
-    presynapticSynapses = \
-      self._synapsesForPresynapticCell[synapse.presynapticCell]
+    inputSynapses = self._synapsesForPresynapticCell[synapse.presynapticCell]
 
-    presynapticSynapses.remove(synapse)
+    inputSynapses.remove(synapse)
 
-    if len(presynapticSynapses) == 0:
+    if len(inputSynapses) == 0:
       del self._synapsesForPresynapticCell[synapse.presynapticCell]
 
 
