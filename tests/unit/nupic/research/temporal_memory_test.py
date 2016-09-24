@@ -1000,7 +1000,7 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(tm.connections.maxSegmentsPerCell, 200)
     self.assertEqual(tm.getMaxSegmentsPerCell(), 200)
 
-  def testMaxSynapsePerSegmentGetter(self):
+  def testMaxSynapsesPerSegmentGetter(self):
       tm = TemporalMemory(
         columnDimensions=[32,32],
         cellsPerColumn=16,
