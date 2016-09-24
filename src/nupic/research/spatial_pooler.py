@@ -42,11 +42,11 @@ class InvalidSPParamValueError(ValueError):
 
 
 
-class _SparseMatrixCorticalColumnAdapter(object):
+class _SparseMatrixMiniColumnAdapter(object):
   """ Many functions in SpatialPooler operate on a columnIndex but use an
-  underlying storage implementation based on a Sparse Matrix in which cortical
+  underlying storage implementation based on a Sparse Matrix in which mini
   columns are represented as rows.  This can be confusing to someone trying to
-  follow the algorithm, confusing terminology between matrix math and cortical
+  follow the algorithm, confusing terminology between matrix math and mini
   columns.  This class is provided to abstract away some of the details of the
   underlying implementation, providing a cleaner API that isn't specific to
   sparse matrices.
@@ -55,13 +55,13 @@ class _SparseMatrixCorticalColumnAdapter(object):
   def __getitem__(self, columnIndex):
     """ Wraps getRow() such that instances may be indexed by columnIndex.
     """
-    return super(_SparseMatrixCorticalColumnAdapter, self).getRow(columnIndex)
+    return super(_SparseMatrixMiniColumnAdapter, self).getRow(columnIndex)
 
 
   def replace(self, columnIndex, bitmap):
     """ Wraps replaceSparseRow()
     """
-    return super(_SparseMatrixCorticalColumnAdapter, self).replaceSparseRow(
+    return super(_SparseMatrixMiniColumnAdapter, self).replaceSparseRow(
       columnIndex, bitmap
     )
 
@@ -69,14 +69,14 @@ class _SparseMatrixCorticalColumnAdapter(object):
   def update(self, columnIndex, vector):
     """ Wraps setRowFromDense()
     """
-    return super(_SparseMatrixCorticalColumnAdapter, self).setRowFromDense(
+    return super(_SparseMatrixMiniColumnAdapter, self).setRowFromDense(
       columnIndex, vector
     )
 
 
 
-class CorticalColumns(_SparseMatrixCorticalColumnAdapter, SparseMatrix):
-  """ SparseMatrix variant of _SparseMatrixCorticalColumnAdapter.  Use in cases
+class MiniColumns(_SparseMatrixMiniColumnAdapter, SparseMatrix):
+  """ SparseMatrix variant of _SparseMatrixMiniColumnAdapter.  Use in cases
   where column connections are represented as float values, such as permanence
   values
   """
@@ -84,9 +84,9 @@ class CorticalColumns(_SparseMatrixCorticalColumnAdapter, SparseMatrix):
 
 
 
-class BinaryCorticalColumns(_SparseMatrixCorticalColumnAdapter,
+class BinaryMiniColumns(_SparseMatrixMiniColumnAdapter,
                             SparseBinaryMatrix):
-  """ SparseBinaryMatrix variant of _SparseMatrixCorticalColumnAdapter.  Use in
+  """ SparseBinaryMatrix variant of _SparseMatrixMiniColumnAdapter.  Use in
   cases where column connections are represented as bitmaps.
   """
   pass
@@ -300,29 +300,29 @@ class SpatialPooler(object):
     self._iterationLearnNum = 0
 
     # Store the set of all inputs within each columns potential pool as a
-    # single adjacency matrix such that matrix rows map to cortical columns,
+    # single adjacency matrix such that matrix rows map to mini columns,
     # and matrix columns map to input buts.  If potentialPools[i][j] == 1,
     # then input bit 'j' is in column 'i's potential pool. A column can only be
-    # connected to inputs in its potential pool.  Here, BinaryCorticalColumns
-    # is used to provide cortical column-centric semantics for what is
+    # connected to inputs in its potential pool.  Here, BinaryMiniColumns
+    # is used to provide mini column-centric semantics for what is
     # otherwise a sparse binary matrix implementation.  Sparse binary matrix is
     # used as an optimization since a column will only be connected to a small
     # fraction of input bits.
-    self._potentialPools = BinaryCorticalColumns(numInputs)
+    self._potentialPools = BinaryMiniColumns(numInputs)
     self._potentialPools.resize(numColumns, numInputs)
 
     # Initialize the permanences for each column. Similar to the
     # 'self._potentialPools', the permanences are stored in a matrix whose rows
-    # represent the cortical columns, and whose columns represent the input
+    # represent the mini columns, and whose columns represent the input
     # bits. If self._permanences[i][j] = 0.2, then the synapse connecting
-    # cortical column 'i' to input bit 'j'  has a permanence of 0.2. Here,
-    # CorticalColumns is used to provide cortical column-centric semantics for
+    # mini column 'i' to input bit 'j'  has a permanence of 0.2. Here,
+    # MiniColumns is used to provide mini column-centric semantics for
     # what is otherwise a sparse matrix implementation.  Sparse matrix is used
     # as an optimization to improve computation time of alforithms that
     # require iterating over the data  structure. This permanence matrix is
     # only allowed to have non-zero elements where the potential pool is
     # non-zero.
-    self._permanences = CorticalColumns(numColumns, numInputs)
+    self._permanences = MiniColumns(numColumns, numInputs)
 
     # Initialize a tiny random tie breaker. This is used to determine winning
     # columns where the overlaps are identical.
@@ -331,12 +331,12 @@ class SpatialPooler(object):
                                     dtype=realDType)
 
     # 'self._connectedSynapses' is a similar matrix to 'self._permanences'
-    # (rows represent cortical columns, columns represent input bits) whose
-    # entries represent whether the cortical column is connected to the input
+    # (rows represent mini columns, columns represent input bits) whose
+    # entries represent whether the mini column is connected to the input
     # bit, i.e. its permanence value is greater than 'synPermConnected'. While
     # this information is readily available from the 'self._permanence' matrix,
     # it is stored separately for efficiency purposes.
-    self._connectedSynapses = BinaryCorticalColumns(numInputs)
+    self._connectedSynapses = BinaryMiniColumns(numInputs)
     self._connectedSynapses.resize(numColumns, numInputs)
 
     # Stores the number of connected synapses for each column. This is simply
@@ -363,7 +363,7 @@ class SpatialPooler(object):
     self._boostFactors = numpy.ones(numColumns, dtype=realDType)
 
     # The inhibition radius determines the size of a column's local
-    # neighborhood.  A cortical column must overcome the overlap score of
+    # neighborhood.  A mini column must overcome the overlap score of
     # columns in its neighborhood in order to become active. This radius is
     # updated every learning round. It grows and shrinks with the average
     # number of connected synapses per column.
@@ -1684,7 +1684,7 @@ class SpatialPooler(object):
     instance._permanences.read(proto.permanences)
     # Initialize ephemerals and make sure they get updated
     instance._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
-    instance._connectedSynapses = BinaryCorticalColumns(numInputs)
+    instance._connectedSynapses = BinaryMiniColumns(numInputs)
     instance._connectedSynapses.resize(numColumns, numInputs)
     for columnIndex in xrange(proto.numColumns):
       instance._updatePermanencesForColumn(
