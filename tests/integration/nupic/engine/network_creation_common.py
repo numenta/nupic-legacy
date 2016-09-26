@@ -58,7 +58,7 @@ SP_PARAMS = {
     # This must be set before creating the SPRegion
     "inputWidth": 0,
     "numActiveColumnsPerInhArea": 40,
-    "seed": 1956,
+    "seed": 42,
     "potentialPct": 0.8,
     "synPermConnected": 0.1,
     "synPermActiveInc": 0.0001,

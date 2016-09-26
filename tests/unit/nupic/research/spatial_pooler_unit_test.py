@@ -205,14 +205,16 @@ class SpatialPoolerTest(unittest.TestCase):
                        stimulusThreshold=0,
                        seed=getSeed())
 
+    # This exact number of active columns is determined by the inhibition
+    # radius, which changes based on the random synapses (i.e. weird math).
+    # Force it to a known number.
+    sp.setInhibitionRadius(2);
+
     inputVector = numpy.zeros(inputSize)
     activeArray = numpy.zeros(nColumns)
     sp.compute(inputVector, True, activeArray)
 
-    # This exact number of active columns is determined by the inhibition
-    # radius, which changes based on the random synapses (i.e. weird math).
-    self.assertGreater(len(activeArray.nonzero()[0]), 2)
-    self.assertLess(len(activeArray.nonzero()[0]), 10)
+    self.assertEqual(len(activeArray.nonzero()[0]), 6)
 
 
   def testZeroOverlap_StimulusThreshold_LocalInhibition(self):
