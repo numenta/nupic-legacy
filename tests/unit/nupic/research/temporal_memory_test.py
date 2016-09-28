@@ -1005,19 +1005,16 @@ class TemporalMemoryTest(unittest.TestCase):
       cellsPerColumn=32,
       maxSegmentsPerCell=200
     )
-    self.assertEqual(tm.connections.maxSegmentsPerCell, tm.getMaxSegmentsPerCell())
-    self.assertEqual(tm.connections.maxSegmentsPerCell, 200)
     self.assertEqual(tm.getMaxSegmentsPerCell(), 200)
 
+  
   def testMaxSynapsesPerSegmentGetter(self):
-      tm = TemporalMemory(
-        columnDimensions=[32,32],
-        cellsPerColumn=16,
-        maxSynapsesPerSegment=150
-      )
-      self.assertEqual(tm.connections.maxSynapsesPerSegment, 150)
-      self.assertEqual(tm.getMaxSynapsesPerSegment(), 150)
-      self.assertEqual(tm.connections.maxSynapsesPerSegment, tm.getMaxSynapsesPerSegment())
+    tm = TemporalMemory(
+      columnDimensions=[32,32],
+      cellsPerColumn=16,
+      maxSynapsesPerSegment=150
+    )
+    self.assertEqual(tm.getMaxSynapsesPerSegment(), 150)
 
 
   def serializationTestPrepare(self, tm):
