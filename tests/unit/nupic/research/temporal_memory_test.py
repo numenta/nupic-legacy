@@ -999,6 +999,24 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(columnsForCells[99], set([399]))
 
 
+  def testMaxSegmentsPerCellGetter(self):
+    tm = TemporalMemory(
+      columnDimensions=[64,64],
+      cellsPerColumn=32,
+      maxSegmentsPerCell=200
+    )
+    self.assertEqual(tm.getMaxSegmentsPerCell(), 200)
+
+  
+  def testMaxSynapsesPerSegmentGetter(self):
+    tm = TemporalMemory(
+      columnDimensions=[32,32],
+      cellsPerColumn=16,
+      maxSynapsesPerSegment=150
+    )
+    self.assertEqual(tm.getMaxSynapsesPerSegment(), 150)
+
+
   def serializationTestPrepare(self, tm):
     # Create an active segment and two matching segments.
     # Destroy a few to exercise the code.

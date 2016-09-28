@@ -984,6 +984,22 @@ class TemporalMemory(object):
     """
     self.connectedPermanence = connectedPermanence
 
+  
+  def getMaxSegmentsPerCell(self):
+      """
+      Get the maximum number of segments per cell
+      @return (int) max number of segments per cell
+      """
+      return self.connections.maxSegmentsPerCell
+
+  
+  def getMaxSynapsesPerSegment(self):
+      """
+      Get the maximum number of synapses per segment.
+      @return (int) max number of synapses per segment
+      """
+      return self.connections.maxSynapsesPerSegment
+
 
   def write(self, proto):
     """
