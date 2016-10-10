@@ -1,5 +1,4 @@
 #!/bin/bash
-# ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2016, Numenta, Inc.  Unless you have purchased from
 # Numenta, Inc. a separate commercial license for this software code, the
@@ -18,19 +17,32 @@
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
-# ----------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-set -o verbose
+# Run NuPIC tests on OS X.
+
+# ASSUMES:
+#   1. Current working directory is root of nupic source tree
+#   2. The nupic wheel is in the current working directory
+
+
+
+set -o errexit
 set -o xtrace
 
-# Update brew
-rm /usr/local/share/man/man1/brew-cask.1
-sudo -u vagrant -i brew tap --repair
-sudo -u vagrant -i brew update
 
-# Initialize .bashrc with PATH
-sudo -u vagrant /usr/libexec/path_helper -s >> /Users/vagrant/.bashrc
-sudo -u vagrant ln -s .bashrc .bash_profile
+MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Install cmake with homebrew
-sudo -u vagrant -i brew install cmake
+NUPIC_ROOT_DIR="$( cd "${MY_DIR}/../.." && pwd )"
+
+
+# Install nupic
+pip install --user nupic-*.whl
+
+
+# Execute unit tests
+py.test --verbose "${NUPIC_ROOT_DIR}/tests/unit"
+
+# Execute Integration tests, too (requires mysql server and NUPIC env var)
+NUPIC="${NUPIC_ROOT_DIR}" \
+  py.test --verbose "${NUPIC_ROOT_DIR}/tests/integration"

@@ -1,5 +1,4 @@
 #!/bin/bash
-# -----------------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2016, Numenta, Inc.  Unless you have purchased from
 # Numenta, Inc. a separate commercial license for this software code, the
@@ -20,6 +19,32 @@
 # http://numenta.org/licenses/
 # -----------------------------------------------------------------------------
 
-pip install dist/nupic-`cat VERSION`*.tar
+# Run NuPIC tests on Windows.
 
-python setup.py test
+# ASSUMES:
+#   1. Current working directory is root of nupic source tree
+#   2. The nupic wheel is in the current working directory
+
+
+# Stop and fail script if any command fails
+$ErrorActionPreference = "Stop"
+
+# Trace script lines as they run
+Set-PsDebug -Trace 1
+
+
+$NupicRootDir = $(get-location).Path
+
+
+. .\ci\bamboo\win-utils.ps1  # WrapCmd
+
+
+
+WrapCmd { pip install "$((Get-ChildItem .\nupic-*.whl)[0].FullName)" }
+
+# Python unit tests
+WrapCmd { py.test --verbose tests\unit }
+
+# Python integration tests
+$env:NUPIC = $NupicRootDir  # Some tests rely on this to find the config files
+WrapCmd { py.test --verbose tests\integration }

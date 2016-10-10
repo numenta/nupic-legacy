@@ -1,5 +1,4 @@
 #!/bin/bash
-# -----------------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2016, Numenta, Inc.  Unless you have purchased from
 # Numenta, Inc. a separate commercial license for this software code, the
@@ -20,9 +19,27 @@
 # http://numenta.org/licenses/
 # -----------------------------------------------------------------------------
 
-apt-get update
-apt-get install -y python
+# Install what's necessary on top of the Windows 10 Vagrant image for testing a
+# NuPIC wheel.
+#
+# NOTE much of this will eventually go into a VM image
+#
+# ASSUMES:
+#   1. Current working directory is root of nupic source tree
 
-./ci/bamboo/install-pip-setuptools-wheel.sh
 
-python setup.py sdist
+# Stop and fail script if any command fails
+$ErrorActionPreference = "Stop"
+
+# Trace script lines as they run
+Set-PsDebug -Trace 1
+
+
+. .\ci\bamboo\win-utils.ps1  # WrapCmd
+
+
+# Install and start mysql without prompts
+WrapCmd { chocolatey.exe install mysql -y }
+
+# NOTE If you need to access the just-installed executables, refresh environment
+# variables configured by chocolatey via `refreshenv` command
