@@ -43,19 +43,6 @@ MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 NUPIC_ROOT_DIR="$( cd "${MY_DIR}/../.." && pwd )"
 
 
-# ZZZ Temp workaround for linux until we have proper manylinux nupic.bindings
-# wheels on PyPi
-while read line; do
-    if [[ $line == nupic.bindings* ]];
-    then
-        IFS='=' read -ra ADDR <<< "$line"
-        NUPIC_BINDINGS_VERSION="${ADDR[2]}"
-    fi
-done <requirements.txt
-
-pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-${NUPIC_BINDINGS_VERSION}-cp27-none-linux_x86_64.whl
-
-
 # Install nupic
 pip install nupic-*.whl
 
@@ -64,7 +51,7 @@ pip install nupic-*.whl
 # Test
 #
 
-# Some tests require NUPIC env var to locate config files
+# Some tests require NUPIC env var to locate config files.
 # Some nupic config files reference USER env var, so it needs to be defined.
 
 
