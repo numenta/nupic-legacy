@@ -52,4 +52,5 @@ while read line; do
     fi
 done <requirements.txt
 
-pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-${NUPIC_BINDINGS_VERSION}-cp27-none-linux_x86_64.whl
+pip install nupic.bindings==${NUPIC_BINDINGS_VERSION}
+
