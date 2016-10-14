@@ -318,8 +318,6 @@ class Connections(object):
 
     cellData = self._cells[cell]
 
-    idx = len(cellData._segments)
-
     if len(self._freeFlatIdxs) > 0:
       flatIdx = self._freeFlatIdxs.pop()
     else:

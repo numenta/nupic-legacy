@@ -325,7 +325,7 @@ class TemporalMemory(object):
     @param columnActiveSegments (iter)
     Active segments in this column.
 
-    @param columnActiveSegments (iter)
+    @param columnMatchingSegments (iter)
     Matching segments in this column.
 
     @param prevActiveCells (list)
