@@ -1345,13 +1345,6 @@ class SpatialPooler(object):
         self._activeDutyCycles-targetDensity) * self._maxBoost)
     else:
       pass
-    # mask = numpy.where(self._minActiveDutyCycles > 0)[0]
-    # self._boostFactors[mask] = ((1 - self._maxBoost) /
-    #   self._minActiveDutyCycles[mask] * self._activeDutyCycles[mask]
-    #     ).astype(realDType) + self._maxBoost
-    #
-    # self._boostFactors[self._activeDutyCycles >
-    #   self._minActiveDutyCycles] = 1.0
 
 
   def _updateBookeepingVars(self, learn):
