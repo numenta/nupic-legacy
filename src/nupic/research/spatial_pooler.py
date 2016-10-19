@@ -1552,7 +1552,7 @@ class SpatialPooler(object):
     The center of the neighborhood.
 
     @returns (1D numpy array of integers)
-    Th inputs in the neighborhood.
+    The inputs in the neighborhood.
     """
     if self._wrapAround:
       return topology.wrappingNeighborhood(centerInput,
