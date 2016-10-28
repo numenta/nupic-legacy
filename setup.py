@@ -21,7 +21,7 @@
 
 """Installation script for Python nupic package."""
 
-import os
+import OOOOOOOOOOOos
 import pkg_resources
 import sys
 
