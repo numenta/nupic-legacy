@@ -575,7 +575,7 @@ class SparseMatrixTest(unittest.TestCase):
 
     print 'Testing clip above and below'
 
-    # clip whole matrix below and above (calls clipRowAboveAndBelow)
+    # clip whole matrix below and above (calls clipRowBelowAndAbove)
     for k in range(5):
       a = rgen.randint(0,100,(10,10))
       a[where(a < 40)] = 0
@@ -589,7 +589,7 @@ class SparseMatrixTest(unittest.TestCase):
         for j in range(10):
           if a[i,j] > 0 and a[i,j] < 50:
             a[i,j] = 50
-      b.clipAboveAndBelow(50, 60)
+      b.clipBelowAndAbove(50, 60)
       if (b.toDense() != a).any():
         error('clip above and below')
 
@@ -609,7 +609,7 @@ class SparseMatrixTest(unittest.TestCase):
           if a[i,j] > 0 and a[i,j] < 50:
             a[i,j] = 50
       for i in range(10):
-        b.clipColAboveAndBelow(i, 50, 60)
+        b.clipColBelowAndAbove(i, 50, 60)
       if (b.toDense() != a).any():
         error('clipCol above and below')
 
@@ -785,13 +785,13 @@ class SparseMatrixTest(unittest.TestCase):
     self.assertTrue(success, "Should not produce the same result every time.")
 
 
-  def test_clipRowsAboveAndBelow(self):
+  def test_clipRowsBelowAndAbove(self):
 
     m = SparseMatrix([[-5, -4, 0.5, 4, 5],
                       [-5, -4, 0.5, 4, 5],
                       [-5, -4, 0.5, 4, 5]])
 
-    m.clipRowsAboveAndBelow([0,2], -4, 4)
+    m.clipRowsBelowAndAbove([0,2], -4, 4)
 
     expected = numpy.array([[-4, -4, 0.5, 4, 4],
                             [-5, -4, 0.5, 4, 5],
