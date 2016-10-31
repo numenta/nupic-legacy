@@ -643,6 +643,166 @@ class SparseMatrixTest(unittest.TestCase):
       error('incrementOnOuterWNZ')
 
 
+  def test_incrementNonZerosOnOuter(self):
+
+    print "Testing incrementNonZerosOnOuter"
+
+    for name, start, rows, cols, delta, expected in (
+        ("Test 1",
+         [[0,1,0,1],
+          [2,0,2,0],
+          [0,1,0,1],
+          [2,0,2,0]], [0,2,3], [0,1], 40,
+         [[0,41,0,1],
+          [2,0,2,0],
+          [0,41,0,1],
+          [42,0,2,0]]),
+        ("Test 2",
+         [[1,1,1,1],
+          [1,1,1,1],
+          [1,1,1,1],
+          [1,1,1,1]], [0,3], [0,3], 41,
+         [[42,1,1,42],
+          [1,1,1,1],
+          [1,1,1,1],
+          [42,1,1,42]]),
+        ("Test 3",
+         [[0,1,1,0],
+          [1,1,1,1],
+          [1,1,1,1],
+          [0,1,1,0]], [0,3], [0,3], 41,
+         [[0,1,1,0],
+          [1,1,1,1],
+          [1,1,1,1],
+          [0,1,1,0]])
+    ):
+      m = SparseMatrix(start)
+      m.incrementNonZerosOnOuter(rows, cols, delta)
+      expectedArr = numpy.array(expected, dtype="float32")
+      actual = m.toDense()
+      self.assertTrue(numpy.array_equal(actual, expectedArr),
+                      "%s\n%s \n!= \n%s" % (name,
+                                            str(actual), str(expectedArr)))
+
+
+  def test_incrementNonZerosOnRowsExcludingCols(self):
+
+    print "Testing incrementNonZerosOnRowsExcludingCols"
+
+    for name, start, rows, cols, delta, expected in (
+        ("Test 1",
+         [[0,1,0,1],
+          [2,0,2,0],
+          [0,1,0,1],
+          [2,0,2,0]], [0,2,3], [0,1], 40,
+         [[0,1,0,41],
+          [2,0,2,0],
+          [0,1,0,41],
+          [2,0,42,0]]),
+        ("Test 2",
+         [[1,1,1,1],
+          [1,1,1,1],
+          [1,1,1,1],
+          [1,1,1,1]], [0,3], [0,3], 41,
+         [[1,42,42,1],
+          [1,1,1,1],
+          [1,1,1,1],
+          [1,42,42,1]]),
+        ("Test 3",
+         [[1,0,0,1],
+          [1,1,1,1],
+          [1,1,1,1],
+          [1,0,0,1]], [0,3], [0,3], 41,
+         [[1,0,0,1],
+          [1,1,1,1],
+          [1,1,1,1],
+          [1,0,0,1]])
+    ):
+      m = SparseMatrix(start)
+      m.incrementNonZerosOnRowsExcludingCols(rows, cols, delta)
+      expectedArr = numpy.array(expected, dtype="float32")
+      actual = m.toDense()
+      self.assertTrue(numpy.array_equal(actual, expectedArr),
+                      "%s\n%s \n!= \n%s" % (name,
+                                            str(actual), str(expectedArr)))
+
+
+  def test_setRandomZerosOnOuter(self):
+
+    print "Testing setRandomZerosOnOuter"
+
+    before = numpy.array([[1, 1, 0, 0, 1, 1],
+                          [0, 0, 1, 1, 0, 0],
+                          [0, 0, 1, 0, 0, 1],
+                          [1, 0, 1, 1, 0, 0],
+                          [0, 0, 0, 0, 0, 1],
+                          [0, 0, 0, 0, 0, 0],
+                          [1, 1, 1, 1, 1, 1],
+                          [0, 0, 1, 1, 0, 1]], dtype="float32")
+
+    m = SparseMatrix(before)
+    rng = Random()
+    rows = [0, 3, 4, 5, 6, 7]
+    cols = [0, 3, 4]
+    m.setRandomZerosOnOuter(rows, cols, 2, 42, rng)
+
+    after = m.toDense()
+
+    nonzeroBefore = before[before.nonzero()]
+    nonzeroBeforeUpdated = after[before.nonzero()]
+    self.assertTrue(numpy.array_equal(nonzeroBeforeUpdated, nonzeroBefore),
+                    ("Every value that was nonzero should not have changed."
+                     "%s != %s" % (nonzeroBeforeUpdated, nonzeroBefore)))
+
+    otherRows = [1, 2, 5]
+    otherCols = [1, 2, 5]
+    unselectedBefore = before[numpy.ix_(otherRows, otherCols)]
+    unselectedAfter = after[numpy.ix_(otherRows, otherCols)]
+    self.assertTrue(numpy.array_equal(unselectedAfter, unselectedBefore),
+                    "Every value not in the selection should be unchanged.\n"
+                    "%s != %s" % (unselectedAfter, unselectedBefore))
+
+    selectedBefore = before[numpy.ix_(rows, cols)]
+    selectedAfter = after[numpy.ix_(rows, cols)]
+    for rowBefore, rowAfter in zip(selectedBefore, selectedAfter):
+      numZeros = numpy.count_nonzero(rowBefore == 0)
+      numReplaced = numpy.count_nonzero(rowAfter == 42)
+
+      expected = min(numZeros, 2)
+
+      self.assertEqual(numReplaced, expected,
+                       ("Should replace %d zeros. %s => %s" % (expected,
+                                                               rowBefore,
+                                                               rowAfter)))
+
+    success = False
+    for _ in xrange(5):
+      m2 = SparseMatrix(before)
+      m2.setRandomZerosOnOuter(rows, cols, 2, 42, rng)
+      if m2 != m:
+        success = True
+        break
+    self.assertTrue(success, "Should not produce the same result every time.")
+
+
+  def test_clipRowsAboveAndBelow(self):
+
+    m = SparseMatrix([[-5, -4, 0.5, 4, 5],
+                      [-5, -4, 0.5, 4, 5],
+                      [-5, -4, 0.5, 4, 5]])
+
+    m.clipRowsAboveAndBelow([0,2], -4, 4)
+
+    expected = numpy.array([[-4, -4, 0.5, 4, 4],
+                            [-5, -4, 0.5, 4, 5],
+                            [-4, -4, 0.5, 4, 4]],
+                           dtype="float32")
+    actual = m.toDense()
+
+    self.assertTrue(numpy.array_equal(actual, expected),
+                    "\n%s \n!= \n%s" % (str(actual), str(expected)))
+
+
   def test_boxMin_boxMax(self):
 
     print 'Testing boxMin, boxMax'
