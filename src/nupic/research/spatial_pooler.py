@@ -1300,7 +1300,7 @@ class SpatialPooler(object):
 
 
   def _updateBoostFactors(self):
-    r"""
+    """
     Update the boost factors for all columns. The boost factors are used to
     increase the overlap of inactive columns to improve their chances of
     becoming active. and hence encourage participation of more columns in the
@@ -1565,7 +1565,7 @@ class SpatialPooler(object):
       # the overlaps and boostedOverlaps properties were added in version 3,
       state['_overlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
       state['_boostedOverlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
-    
+
     # update version property to current SP version
     state['_version'] = VERSION
     self.__dict__.update(state)
@@ -1637,7 +1637,7 @@ class SpatialPooler(object):
 
     boostFactorsProto = proto.init("boostFactors", len(self._boostFactors))
     for i, v in enumerate(self._boostFactors):
-      boostFactorsProto[i] = float(v) 
+      boostFactorsProto[i] = float(v)
 
 
   @classmethod
@@ -1702,7 +1702,7 @@ class SpatialPooler(object):
     instance._minActiveDutyCycles = numpy.array(proto.minActiveDutyCycles,
                                             dtype=realDType)
     instance._boostFactors = numpy.array(proto.boostFactors, dtype=realDType)
-    
+
     return instance
 
 
