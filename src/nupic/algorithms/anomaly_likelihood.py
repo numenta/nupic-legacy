@@ -118,7 +118,7 @@ class AnomalyLikelihood(object):
 
 
     if claLearningPeriod != None:
-      print "claLearningPeriod is deprecated, use learningPeriod instead."
+      print("claLearningPeriod is deprecated, use learningPeriod instead.")
       self._learningPeriod = claLearningPeriod
     else:
       self._learningPeriod = learningPeriod
@@ -440,10 +440,10 @@ def estimateAnomalyLikelihoods(anomalyScores,
 
   """
   if verbosity > 1:
-    print "In estimateAnomalyLikelihoods."
-    print "Number of anomaly scores:", len(anomalyScores)
-    print "Skip records=", skipRecords
-    print "First 20:", anomalyScores[0:min(20, len(anomalyScores))]
+    print("In estimateAnomalyLikelihoods.")
+    print("Number of anomaly scores:", len(anomalyScores))
+    print("Skip records=", skipRecords)
+    print("First 20:", anomalyScores[0:min(20, len(anomalyScores))])
 
   if len(anomalyScores) == 0:
     raise ValueError("Must have at least one anomalyScore")
@@ -496,12 +496,12 @@ def estimateAnomalyLikelihoods(anomalyScores,
   }
 
   if verbosity > 1:
-    print "Discovered params="
-    print params
-    print "Number of likelihoods:", len(likelihoods)
-    print "First 20 likelihoods:", (
-      filteredLikelihoods[0:min(20, len(filteredLikelihoods))] )
-    print "leaving estimateAnomalyLikelihoods"
+    print("Discovered params=")
+    print(params)
+    print("Number of likelihoods:", len(likelihoods))
+    print("First 20 likelihoods:", (
+      filteredLikelihoods[0:min(20, len(filteredLikelihoods))] ))
+    print("leaving estimateAnomalyLikelihoods")
 
 
   return (filteredLikelihoods, aggRecordList, params)
@@ -541,10 +541,10 @@ def updateAnomalyLikelihoods(anomalyScores,
 
   """
   if verbosity > 3:
-    print "In updateAnomalyLikelihoods."
-    print "Number of anomaly scores:", len(anomalyScores)
-    print "First 20:", anomalyScores[0:min(20, len(anomalyScores))]
-    print "Params:", params
+    print("In updateAnomalyLikelihoods.")
+    print("Number of anomaly scores:", len(anomalyScores))
+    print("First 20:", anomalyScores[0:min(20, len(anomalyScores))])
+    print("Params:", params)
 
   if len(anomalyScores) == 0:
     raise ValueError("Must have at least one anomalyScore")
@@ -553,7 +553,7 @@ def updateAnomalyLikelihoods(anomalyScores,
     raise ValueError("'params' is not a valid params structure")
 
   # For backward compatibility.
-  if not params.has_key("historicalLikelihoods"):
+  if "historicalLikelihoods" not in params:
     params["historicalLikelihoods"] = [1.0]
 
   # Compute moving averages of these new scores using the previous values
@@ -593,9 +593,9 @@ def updateAnomalyLikelihoods(anomalyScores,
   assert len(newParams["historicalLikelihoods"]) <= windowSize
 
   if verbosity > 3:
-    print "Number of likelihoods:", len(likelihoods)
-    print "First 20 likelihoods:", likelihoods[0:min(20, len(likelihoods))]
-    print "Leaving updateAnomalyLikelihoods."
+    print("Number of likelihoods:", len(likelihoods))
+    print("First 20 likelihoods:", likelihoods[0:min(20, len(likelihoods))])
+    print("Leaving updateAnomalyLikelihoods.")
 
   return (likelihoods, aggRecordList, newParams)
 
@@ -658,7 +658,7 @@ def _anomalyScoreMovingAverage(anomalyScores,
     # Skip (but log) records without correct number of entries
     if not isinstance(record, (list, tuple)) or len(record) != 3:
       if verbosity >= 1:
-        print "Malformed record:", record
+        print("Malformed record:", record)
       continue
 
     avg, historicalValues, total = (
@@ -668,8 +668,8 @@ def _anomalyScoreMovingAverage(anomalyScores,
     averagedRecordList.append( [record[0], record[1], avg] )
 
     if verbosity > 2:
-      print "Aggregating input record:", record
-      print "Result:", [record[0], record[1], avg]
+      print("Aggregating input record:", record)
+      print("Result:", [record[0], record[1], avg])
 
   return averagedRecordList, historicalValues, total
 
@@ -719,7 +719,7 @@ def nullDistribution(verbosity=0):
       between 0 and 1 pretty likely.
   """
   if verbosity>0:
-    print "Returning nullDistribution"
+    print("Returning nullDistribution")
   return {
     "name": "normal",
     "mean": 0.5,
@@ -760,13 +760,13 @@ def isValidEstimatorParams(p):
   """
   if not isinstance(p, dict):
     return False
-  if not p.has_key("distribution"):
+  if "distribution" not in p:
     return False
-  if not p.has_key("movingAverage"):
+  if "movingAverage" not in p:
     return False
   dist = p["distribution"]
-  if not (dist.has_key("mean") and dist.has_key("name")
-          and dist.has_key("variance") and dist.has_key("stdev")):
+  if not ("mean" in dist and "name" in dist
+          and "variance" in dist and "stdev" in dist):
     return False
 
   return True
