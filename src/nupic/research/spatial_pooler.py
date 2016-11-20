@@ -258,6 +258,9 @@ class SpatialPooler(object):
       raise InvalidSPParamValueError(
         "Input dimensions must match column dimensions")
 
+    if maxBoost < 1.0:
+      raise InvalidSPParamValueError("maxBoost must be >= 1.0")
+
     self._seed(seed)
 
     self._numInputs = int(numInputs)
@@ -1302,38 +1305,41 @@ class SpatialPooler(object):
     """
     Update the boost factors for all columns. The boost factors are used to
     increase the overlap of inactive columns to improve their chances of
-    becoming active. and hence encourage participation of more columns in the
-    learning process. This is a line defined as: y = mx + b boost =
-    (1-maxBoost)/minDuty * dutyCycle + maxFiringBoost. Intuitively this means
-    that columns that have been active enough have a boost factor of 1, meaning
-    their overlap is not boosted. Columns whose active duty cycle drops too much
-    below that of their neighbors are boosted depending on how infrequently they
-    have been active. The more infrequent, the more they are boosted. The exact
-    boost factor is linearly interpolated between the points (dutyCycle:0,
-    boost:maxFiringBoost) and (dutyCycle:minDuty, boost:1.0).
+    becoming active, and hence encourage participation of more columns in the
+    learning process. This is a line defined as:
+    boostFactors = exp[ - maxBoost * (dutyCycle - targetDensity)]
+    Intuitively this means that columns that have been active at the target
+    activation level have a boost factor of 1, meaning their overlap is not
+    boosted. Columns whose active duty cycle drops too much below that of their
+    neighbors are boosted depending on how infrequently they have been active.
+    Columns that has been active more than the target activation level have
+    a boost factor below 1, meaning their overlap is suppressed
+
+    The boostFactor depends on the activeDutyCycle via an exponential function:
 
             boostFactor
                 ^
-    maxBoost _  |
+                |
                 |\
                 | \
-          1  _  |  \ _ _ _ _ _ _ _
-                |
+          1  _  |  \
+                |    _
+                |      _ _
+                |          _ _ _ _
                 +--------------------> activeDutyCycle
                    |
-            minActiveDutyCycle
+              targetDensity
     """
     if self._maxBoost > 1:
-      if (self._localAreaDensity > 0):
-        density = self._localAreaDensity
-      else:
-        inhibitionArea = ((2 * self._inhibitionRadius + 1)
-                          ** self._columnDimensions.size)
-        inhibitionArea = min(self._numColumns, inhibitionArea)
-        density = float(self._numActiveColumnsPerInhArea) / inhibitionArea
-        density = min(density, 0.5)
-
       if self._globalInhibition:
+        if (self._localAreaDensity > 0):
+          density = self._localAreaDensity
+        else:
+          inhibitionArea = ((2 * self._inhibitionRadius + 1)
+                            ** self._columnDimensions.size)
+          inhibitionArea = min(self._numColumns, inhibitionArea)
+          density = float(self._numActiveColumnsPerInhArea) / inhibitionArea
+          density = min(density, 0.5)
         targetDensity = density
       else:
         targetDensity = numpy.zeros(self._numColumns, dtype=realDType)
@@ -1343,8 +1349,6 @@ class SpatialPooler(object):
 
       self._boostFactors = numpy.exp(-(
         self._activeDutyCycles-targetDensity) * self._maxBoost)
-    else:
-      pass
 
 
   def _updateBookeepingVars(self, learn):
@@ -1412,7 +1416,6 @@ class SpatialPooler(object):
       density = float(self._numActiveColumnsPerInhArea) / inhibitionArea
       density = min(density, 0.5)
 
-    overlaps += self._tieBreaker
     if self._globalInhibition or \
       self._inhibitionRadius > max(self._columnDimensions):
       return self._inhibitColumnsGlobal(overlaps, density)
