@@ -63,23 +63,21 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   overlap. Each input pattern has 20 bits on to ensure reasonable overlap with
   almost all columns.
 
-  SP parameters: the minActiveDutyCycle is set to 1 in 10. This allows us to
-  test boosting with a small number of iterations. The SP is set to have 600
-  columns with 10% output sparsity. This ensures that the 5 inputs cannot use up
-  all the columns. Yet we still can have a reasonable number of winning columns
-  at each step in order to test overlap properties. maxBoost is set to 10 so
-  that some boosted columns are guaranteed to win eventually but not necessarily
-  quickly. potentialPct is set to 0.9 to ensure all columns have at least some
-  overlap with at least one input bit. Thus, when sufficiently boosted, every
-  column should become a winner at some point. We set permanence increment
-  and decrement to 0 so that winning columns don't change unless they have
-  been boosted.
+  SP parameters:  The SP is set to have 600 columns with 10% output sparsity.
+  This ensures that the 5 inputs cannot use up all the columns. Yet we still can h
+  ave a reasonable number of winning columns at each step in order to test
+  overlap properties. maxBoost is set to 10 so that some boosted columns are
+  guaranteed to win eventually but not necessarily quickly. potentialPct is set
+  to 0.9 to ensure all columns have at least some overlap with at least one
+  input bit. Thus, when sufficiently boosted, every column should become a
+  winner at some point. We set permanence increment and decrement to 0 so that
+  winning columns don't change unless they have been boosted.
 
   Phase 1: As learning progresses through the first 5 iterations, the first 5
   patterns should get distinct output SDRs. The two overlapping input patterns
   should have reasonably overlapping output SDRs. The other pattern
   combinations should have very little overlap. The boost factor for all
-  columns should be at 1. At this point least half of the columns should have
+  columns should be at 1. At this point at least half of the columns should have
   never become active and these columns should have duty cycle of 0. Any
   columns which have won, should have duty cycles >= 0.2.
 
@@ -207,7 +205,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   def boostTestPhase1(self):
     
     y = numpy.zeros(self.columnDimensions, dtype = uintType)
-
+    self.sp._maxBoost = 1
     # Do one training batch through the input patterns
     for idx, v in enumerate(self.x):
       y.fill(0)
@@ -268,8 +266,8 @@ class SpatialPoolerBoostTest(unittest.TestCase):
                      "Inactive columns have positive duty cycle.")
 
     # The average at-least-once-active columns should have duty cycle >= 0.15
-    # and <= 0.25
-    avg = (dutyCycles[dutyCycles>0].mean() )
+    # and <= 0.30
+    avg = dutyCycles[dutyCycles>0].mean()
     self.assertGreaterEqual(avg, 0.15,
                 "Average on-columns duty cycle is too low.")
     self.assertLessEqual(avg, 0.30,
@@ -279,7 +277,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
 
 
   def boostTestPhase3(self):
-
+    self.sp._maxBoost = 10
     # Do two more training batches through the input patterns
     y = numpy.zeros(self.columnDimensions, dtype = uintType)
     for _ in range(2):
@@ -289,12 +287,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
         self.winningIteration[y.nonzero()[0]] = self.sp.getIterationLearnNum()
         self.lastSDR[idx] = y.copy()
 
-        # The boost factor for all columns that just won should be at 1.
-        boost = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
-        self.sp.getBoostFactors(boost)
-        self.assertEqual(((boost[y.nonzero()[0]])!=1).sum(), 0,
-          "Boost factors of winning columns not 1")
-    
     # By now, every column should have been sufficiently boosted to win at least
     # once. The number of columns that have never won should now be 0
     numLosersAfter = (self.winningIteration==0).sum()
@@ -343,8 +335,8 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     self.boostTestLoop("py")
 
 
-  def testBoostingCPP(self):
-    self.boostTestLoop("cpp")
+  # def testBoostingCPP(self):
+  #   self.boostTestLoop("cpp")
 
 
 
