@@ -589,7 +589,7 @@ class SparseMatrixTest(unittest.TestCase):
         for j in range(10):
           if a[i,j] > 0 and a[i,j] < 50:
             a[i,j] = 50
-      b.clipAboveAndBelow(50, 60)
+      b.clipBelowAndAbove(50, 60)
       if (b.toDense() != a).any():
         error('clip above and below')
 
@@ -609,7 +609,7 @@ class SparseMatrixTest(unittest.TestCase):
           if a[i,j] > 0 and a[i,j] < 50:
             a[i,j] = 50
       for i in range(10):
-        b.clipColAboveAndBelow(i, 50, 60)
+        b.clipColBelowAndAbove(i, 50, 60)
       if (b.toDense() != a).any():
         error('clipCol above and below')
 
