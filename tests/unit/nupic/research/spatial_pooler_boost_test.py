@@ -64,14 +64,16 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   almost all columns.
 
   SP parameters:  The SP is set to have 600 columns with 10% output sparsity.
-  This ensures that the 5 inputs cannot use up all the columns. Yet we still can h
-  ave a reasonable number of winning columns at each step in order to test
+  This ensures that the 5 inputs cannot use up all the columns. Yet we still can
+  have a reasonable number of winning columns at each step in order to test
   overlap properties. maxBoost is set to 10 so that some boosted columns are
   guaranteed to win eventually but not necessarily quickly. potentialPct is set
   to 0.9 to ensure all columns have at least some overlap with at least one
   input bit. Thus, when sufficiently boosted, every column should become a
   winner at some point. We set permanence increment and decrement to 0 so that
   winning columns don't change unless they have been boosted.
+
+  maxBoost is set to 1.0 for Phase 1-2 and 10.0 for Phase 3-4
 
   Phase 1: As learning progresses through the first 5 iterations, the first 5
   patterns should get distinct output SDRs. The two overlapping input patterns
@@ -82,16 +84,14 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   columns which have won, should have duty cycles >= 0.2.
 
   Phase 2: Over the next 45 iterations, boosting should stay at 1 for all
-  columns since minActiveDutyCycle is only calculated after 50 iterations. The
-  winning columns should be very similar (identical?) to the columns that won
-  before. About half of the columns should never become active. At the end of
-  the this phase, most of these columns should have activity level around 0.2.
-  It's ok for some columns to have higher activity levels.
+  columns. The winning columns should be very similar (identical?) to the columns
+  that won before. About half of the columns should never become active.
+  At the end of the this phase, most of these columns should have activity level
+  around 0.2. It's ok for some columns to have higher activity levels.
 
   Phase 3: At this point about half or fewer columns have never won. These
-  should get boosted to maxBoost and start to win. As each one wins, their
-  boost gets lowered to 1. After 2 batches, the number of columns that
-  have never won should be 0.  Because of the artificially induced thrashing
+  should get boosted and start to win. After 2 batches, the number of columns
+  that have never won should be 0.  Because of the artificially induced thrashing
   behavior in this test, all the inputs should now have pretty distinct
   patterns. During this process, as soon as a new column wins, the boost value
   for that column should be set back to 1.
