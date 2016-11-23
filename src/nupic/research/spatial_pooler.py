@@ -223,12 +223,12 @@ class SpatialPooler(object):
       longer to respond to changes in boost or synPerConnectedCell. Shorter
       values make it more unstable and likely to oscillate.
     @param maxBoost:
-      The maximum overlap boost factor. Each column's overlap gets multiplied
-      by a boost factor before it gets considered for inhibition.  The actual
-      boost factor for a column is number between 1.0 and maxBoost. A boost
-      factor of 1.0 is used if the duty cycle is >= minOverlapDutyCycle,
-      maxBoost is used if the duty cycle is 0, and any duty cycle in between is
-      linearly extrapolated from these 2 endpoints.
+      A number greater or equal than 1.0, used to control the strength of
+      boosting. No boosting is applied if maxBoost=1.0. The strength of boosting
+      increases as a function of maxBoost. Boosting encourages columns to have
+      similar activeDutyCycles as their neighbors, which will lead to more
+      efficient use of columns. However, too much boosting may also lead to
+      instability of SP outputs.
     @param seed:
       Seed for our own pseudo-random number generator.
     @param spVerbosity:
@@ -1306,7 +1306,7 @@ class SpatialPooler(object):
     Update the boost factors for all columns. The boost factors are used to
     increase the overlap of inactive columns to improve their chances of
     becoming active, and hence encourage participation of more columns in the
-    learning process. This is a line defined as:
+    learning process. The boosting function is a curve defined as:
     boostFactors = exp[ - maxBoost * (dutyCycle - targetDensity)]
     Intuitively this means that columns that have been active at the target
     activation level have a boost factor of 1, meaning their overlap is not
@@ -1331,16 +1331,21 @@ class SpatialPooler(object):
               targetDensity
     """
     if self._maxBoost > 1:
+      # Determine the target activation level for each column
+      #
+      # If globalInhibition is enabled, the targetDensity is the same for all
+      # columns, it is the overall sparsity level.
+      # If globalInhibition is disabled, the targetDensity is the average
+      # activeDutyCycles of the neighbors of each column.
       if self._globalInhibition:
         if (self._localAreaDensity > 0):
-          density = self._localAreaDensity
+          targetDensity = self._localAreaDensity
         else:
           inhibitionArea = ((2 * self._inhibitionRadius + 1)
                             ** self._columnDimensions.size)
           inhibitionArea = min(self._numColumns, inhibitionArea)
-          density = float(self._numActiveColumnsPerInhArea) / inhibitionArea
-          density = min(density, 0.5)
-        targetDensity = density
+          targetDensity = float(self._numActiveColumnsPerInhArea)/inhibitionArea
+          targetDensity = min(targetDensity, 0.5)
       else:
         targetDensity = numpy.zeros(self._numColumns, dtype=realDType)
         for i in xrange(self._numColumns):
