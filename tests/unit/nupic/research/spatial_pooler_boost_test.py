@@ -308,11 +308,9 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   def testBoostingPY(self):
     self.boostTestLoop("py")
 
-  # TODO: uncomment this after the following issue is addressed
-  # https://github.com/numenta/nupic.core/issues/1155
-  # def testBoostingCPP(self):
-  #   self.boostTestLoop("cpp")
 
+  def testBoostingCPP(self):
+    self.boostTestLoop("cpp")
 
 
 
