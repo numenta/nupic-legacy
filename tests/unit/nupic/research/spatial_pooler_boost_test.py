@@ -63,43 +63,34 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   overlap. Each input pattern has 20 bits on to ensure reasonable overlap with
   almost all columns.
 
-  SP parameters: the minActiveDutyCycle is set to 1 in 10. This allows us to
-  test boosting with a small number of iterations. The SP is set to have 600
-  columns with 10% output sparsity. This ensures that the 5 inputs cannot use up
-  all the columns. Yet we still can have a reasonable number of winning columns
-  at each step in order to test overlap properties. maxBoost is set to 10 so
-  that some boosted columns are guaranteed to win eventually but not necessarily
-  quickly. potentialPct is set to 0.9 to ensure all columns have at least some
-  overlap with at least one input bit. Thus, when sufficiently boosted, every
-  column should become a winner at some point. We set permanence increment
-  and decrement to 0 so that winning columns don't change unless they have
-  been boosted.
+  SP parameters:  The SP is set to have 600 columns with 10% output sparsity.
+  This ensures that the 5 inputs cannot use up all the columns. Yet we still can
+  have a reasonable number of winning columns at each step in order to test
+  overlap properties. maxBoost is set to 10 so that some boosted columns are
+  guaranteed to win eventually but not necessarily quickly. potentialPct is set
+  to 0.9 to ensure all columns have at least some overlap with at least one
+  input bit. Thus, when sufficiently boosted, every column should become a
+  winner at some point. We set permanence increment and decrement to 0 so that
+  winning columns don't change unless they have been boosted.
 
-  Phase 1: As learning progresses through the first 5 iterations, the first 5
-  patterns should get distinct output SDRs. The two overlapping input patterns
-  should have reasonably overlapping output SDRs. The other pattern
-  combinations should have very little overlap. The boost factor for all
-  columns should be at 1. At this point least half of the columns should have
-  never become active and these columns should have duty cycle of 0. Any
-  columns which have won, should have duty cycles >= 0.2.
+  Learning is OFF for Phase 1 & 4 and ON for Phase 2 & 3
 
-  Phase 2: Over the next 45 iterations, boosting should stay at 1 for all
-  columns since minActiveDutyCycle is only calculated after 50 iterations. The
-  winning columns should be very similar (identical?) to the columns that won
-  before. About half of the columns should never become active. At the end of
-  the this phase, most of these columns should have activity level around 0.2.
-  It's ok for some columns to have higher activity levels.
+  Phase 1: Run spatial pooler on the dataset with learning off to get a baseline
+  The boosting factors should be all ones in this phase. A significant fraction
+  of the columns will not be used at all. There will be significant overlap
+  between the first two inputs.
 
-  Phase 3: At this point about half or fewer columns have never won. These
-  should get boosted to maxBoost and start to win. As each one wins, their
-  boost gets lowered to 1. After 2 batches, the number of columns that
-  have never won should be 0.  Because of the artificially induced thrashing
-  behavior in this test, all the inputs should now have pretty distinct
-  patterns. During this process, as soon as a new column wins, the boost value
-  for that column should be set back to 1.
+  Phase 2: Learning is on over the next 10 iterations. During this phase,
+  columns that are active frequently will have low boost factors, and columns
+  that are not active enough will have high boost factors. All columns should
+  be active at some point in phase 2.
+
+  Phase 3: Run one more batch on with learning On. Because of the artificially
+  induced thrashing behavior in this test due to boosting, all the inputs should
+  now have pretty distinct patterns.
   
-  Phase 4: Run for 5 iterations without learning on. Boost values and winners
-  should not change.
+  Phase 4: Run spatial pooler with learning off. Make sure boosting factors
+  do not change when learning is off
   """
 
   def setUp(self):
@@ -129,7 +120,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     self.spImplementation = "None"
     
     self.sp = None
-
 
     # Setup the SP creation parameters we will use
     self.params = {
@@ -207,11 +197,10 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   def boostTestPhase1(self):
     
     y = numpy.zeros(self.columnDimensions, dtype = uintType)
-
-    # Do one training batch through the input patterns
+    # Do one batch through the input patterns while learning is Off
     for idx, v in enumerate(self.x):
       y.fill(0)
-      self.sp.compute(v, True, y)
+      self.sp.compute(v, False, y)
       self.winningIteration[y.nonzero()[0]] = self.sp.getIterationLearnNum()
       self.lastSDR[idx] = y.copy()
 
@@ -224,16 +213,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     # At least half of the columns should have never been active.
     self.assertGreaterEqual((self.winningIteration==0).sum(),
       self.columnDimensions/2, "More than half of the columns have been active")
-    
-    # All the never-active columns should have duty cycle of 0
-    # All the at-least-once-active columns should have duty cycle >= 0.2
-    dutyCycles = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
-    self.sp.getActiveDutyCycles(dutyCycles)
-    self.assertEqual(dutyCycles[self.winningIteration == 0].sum(), 0,
-                     "Inactive columns have positive duty cycle.")
-    self.assertGreaterEqual(dutyCycles[self.winningIteration > 0].min(),
-                            0.2,
-                            "Active columns have duty cycle that is too low.")
 
     self.verifySDRProperties()
     
@@ -241,60 +220,50 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   def boostTestPhase2(self):
 
     y = numpy.zeros(self.columnDimensions, dtype = uintType)
-    boost = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
-
     # Do 9 training batch through the input patterns
-    for _ in range(9):
+    for _ in range(10):
       for idx, v in enumerate(self.x):
         y.fill(0)
         self.sp.compute(v, True, y)
         self.winningIteration[y.nonzero()[0]] = self.sp.getIterationLearnNum()
         self.lastSDR[idx] = y.copy()
-        
-        # The boost factor for all columns should be at 1.
-        self.sp.getBoostFactors(boost)
-        self.assertEqual((boost==1).sum(), self.columnDimensions,
-          "Boost factors are not all 1")
-    
-    # Roughly half of the columns should have never been active.
-    self.assertGreaterEqual((self.winningIteration==0).sum(),
-      0.4*self.columnDimensions,
-      "More than 60% of the columns have been active")
-    
+
     # All the never-active columns should have duty cycle of 0
     dutyCycles = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
     self.sp.getActiveDutyCycles(dutyCycles)
     self.assertEqual(dutyCycles[self.winningIteration == 0].sum(), 0,
                      "Inactive columns have positive duty cycle.")
 
-    # The average at-least-once-active columns should have duty cycle >= 0.15
-    # and <= 0.25
-    avg = (dutyCycles[dutyCycles>0].mean() )
-    self.assertGreaterEqual(avg, 0.15,
-                "Average on-columns duty cycle is too low.")
-    self.assertLessEqual(avg, 0.30,
-                "Average on-columns duty cycle is too high.")
+    boost = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
+    self.sp.getBoostFactors(boost)
+    self.assertLessEqual(numpy.max(boost[numpy.where(dutyCycles>0.1)]), 1.0,
+                "Strongly active columns have high boost factors")
+    self.assertGreaterEqual(numpy.min(boost[numpy.where(dutyCycles<0.1)]), 1.0,
+                "Weakly active columns have low boost factors")
 
-    self.verifySDRProperties()
+    # By now, every column should have been sufficiently boosted to win at least
+    # once. The number of columns that have never won should now be 0
+    numLosersAfter = (self.winningIteration == 0).sum()
+    self.assertEqual(numLosersAfter, 0)
+
+    # Because of the artificially induced thrashing, even the first two patterns
+    # should have low overlap. Verify that the first two SDR's now have little
+    # overlap
+    self.assertLess(_computeOverlap(self.lastSDR[0], self.lastSDR[1]), 7,
+                    "First two SDR's overlap significantly when they "
+                    "shouldn't")
 
 
   def boostTestPhase3(self):
-
-    # Do two more training batches through the input patterns
+    # Do one more training batches through the input patterns
     y = numpy.zeros(self.columnDimensions, dtype = uintType)
-    for _ in range(2):
-      for idx, v in enumerate(self.x):
-        y.fill(0)
-        self.sp.compute(v, True, y)
-        self.winningIteration[y.nonzero()[0]] = self.sp.getIterationLearnNum()
-        self.lastSDR[idx] = y.copy()
 
-        # The boost factor for all columns that just won should be at 1.
-        boost = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
-        self.sp.getBoostFactors(boost)
-        self.assertEqual(((boost[y.nonzero()[0]])!=1).sum(), 0,
-          "Boost factors of winning columns not 1")
-    
+    for idx, v in enumerate(self.x):
+      y.fill(0)
+      self.sp.compute(v, True, y)
+      self.winningIteration[y.nonzero()[0]] = self.sp.getIterationLearnNum()
+      self.lastSDR[idx] = y.copy()
+
     # By now, every column should have been sufficiently boosted to win at least
     # once. The number of columns that have never won should now be 0
     numLosersAfter = (self.winningIteration==0).sum()
@@ -309,8 +278,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
 
 
   def boostTestPhase4(self):
-    
-    # The boost factor for all columns that just won should be at 1.
     boostAtBeg = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
     self.sp.getBoostFactors(boostAtBeg)
 
@@ -320,7 +287,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       y.fill(0)
       self.sp.compute(v, False, y)
 
-      # The boost factor for all columns that just won should be at 1.
       boost = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
       self.sp.getBoostFactors(boost)
       self.assertEqual(boost.sum(), boostAtBeg.sum(),
@@ -345,7 +311,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
 
   def testBoostingCPP(self):
     self.boostTestLoop("cpp")
-
 
 
 

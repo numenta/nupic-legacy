@@ -83,7 +83,6 @@ class CorticalColumns(_SparseMatrixCorticalColumnAdapter, SparseMatrix):
   pass
 
 
-
 class BinaryCorticalColumns(_SparseMatrixCorticalColumnAdapter,
                             SparseBinaryMatrix):
   """ SparseBinaryMatrix variant of _SparseMatrixCorticalColumnAdapter.  Use in
@@ -224,12 +223,12 @@ class SpatialPooler(object):
       longer to respond to changes in boost or synPerConnectedCell. Shorter
       values make it more unstable and likely to oscillate.
     @param maxBoost:
-      The maximum overlap boost factor. Each column's overlap gets multiplied
-      by a boost factor before it gets considered for inhibition.  The actual
-      boost factor for a column is number between 1.0 and maxBoost. A boost
-      factor of 1.0 is used if the duty cycle is >= minOverlapDutyCycle,
-      maxBoost is used if the duty cycle is 0, and any duty cycle in between is
-      linearly extrapolated from these 2 endpoints.
+      A number greater or equal than 1.0, used to control the strength of
+      boosting. No boosting is applied if maxBoost=1.0. The strength of boosting
+      increases as a function of maxBoost. Boosting encourages columns to have
+      similar activeDutyCycles as their neighbors, which will lead to more
+      efficient use of columns. However, too much boosting may also lead to
+      instability of SP outputs.
     @param seed:
       Seed for our own pseudo-random number generator.
     @param spVerbosity:
@@ -258,6 +257,9 @@ class SpatialPooler(object):
     if inputDimensions.size != columnDimensions.size:
       raise InvalidSPParamValueError(
         "Input dimensions must match column dimensions")
+
+    if maxBoost < 1.0:
+      raise InvalidSPParamValueError("maxBoost must be >= 1.0")
 
     self._seed(seed)
 
@@ -681,7 +683,7 @@ class SpatialPooler(object):
   def setPotential(self, columnIndex, potential):
     """Sets the potential mapping for a given column. 'potential' size
     must match the number of inputs, and must be greater than _stimulusThreshold """
-    assert(column < self._numColumns)
+    assert(columnIndex < self._numColumns)
 
     potentialSparse = numpy.where(potential > 0)[0]
     if len(potentialSparse) < self._stimulusThreshold:
@@ -1300,38 +1302,58 @@ class SpatialPooler(object):
 
 
   def _updateBoostFactors(self):
-    r"""
+    """
     Update the boost factors for all columns. The boost factors are used to
     increase the overlap of inactive columns to improve their chances of
-    becoming active. and hence encourage participation of more columns in the
-    learning process. This is a line defined as: y = mx + b boost =
-    (1-maxBoost)/minDuty * dutyCycle + maxFiringBoost. Intuitively this means
-    that columns that have been active enough have a boost factor of 1, meaning
-    their overlap is not boosted. Columns whose active duty cycle drops too much
-    below that of their neighbors are boosted depending on how infrequently they
-    have been active. The more infrequent, the more they are boosted. The exact
-    boost factor is linearly interpolated between the points (dutyCycle:0,
-    boost:maxFiringBoost) and (dutyCycle:minDuty, boost:1.0).
+    becoming active, and hence encourage participation of more columns in the
+    learning process. The boosting function is a curve defined as:
+    boostFactors = exp[ - maxBoost * (dutyCycle - targetDensity)]
+    Intuitively this means that columns that have been active at the target
+    activation level have a boost factor of 1, meaning their overlap is not
+    boosted. Columns whose active duty cycle drops too much below that of their
+    neighbors are boosted depending on how infrequently they have been active.
+    Columns that has been active more than the target activation level have
+    a boost factor below 1, meaning their overlap is suppressed
+
+    The boostFactor depends on the activeDutyCycle via an exponential function:
 
             boostFactor
                 ^
-    maxBoost _  |
+                |
                 |\
                 | \
-          1  _  |  \ _ _ _ _ _ _ _
-                |
+          1  _  |  \
+                |    _
+                |      _ _
+                |          _ _ _ _
                 +--------------------> activeDutyCycle
                    |
-            minActiveDutyCycle
+              targetDensity
     """
+    if self._maxBoost > 1:
+      # Determine the target activation level for each column
+      #
+      # If globalInhibition is enabled, the targetDensity is the same for all
+      # columns, it is the overall sparsity level.
+      # If globalInhibition is disabled, the targetDensity is the average
+      # activeDutyCycles of the neighbors of each column.
+      if self._globalInhibition:
+        if (self._localAreaDensity > 0):
+          targetDensity = self._localAreaDensity
+        else:
+          inhibitionArea = ((2 * self._inhibitionRadius + 1)
+                            ** self._columnDimensions.size)
+          inhibitionArea = min(self._numColumns, inhibitionArea)
+          targetDensity = float(self._numActiveColumnsPerInhArea)/inhibitionArea
+          targetDensity = min(targetDensity, 0.5)
+      else:
+        targetDensity = numpy.zeros(self._numColumns, dtype=realDType)
+        for i in xrange(self._numColumns):
+          maskNeighbors = self._getColumnNeighborhood(i)
+          targetDensity[i] = numpy.mean(self._activeDutyCycles[maskNeighbors])
 
-    mask = numpy.where(self._minActiveDutyCycles > 0)[0]
-    self._boostFactors[mask] = ((1 - self._maxBoost) /
-      self._minActiveDutyCycles[mask] * self._activeDutyCycles[mask]
-        ).astype(realDType) + self._maxBoost
-
-    self._boostFactors[self._activeDutyCycles >
-      self._minActiveDutyCycles] = 1.0
+      self._boostFactors = numpy.exp(-(
+        self._activeDutyCycles-targetDensity) * self._maxBoost)
 
 
   def _updateBookeepingVars(self, learn):
@@ -1469,6 +1491,7 @@ class SpatialPooler(object):
     tieBrokenOverlaps = numpy.array(overlaps, dtype=realDType)
 
     winners = []
+
     for column, overlap in enumerate(overlaps):
       if overlap >= self._stimulusThreshold:
         neighborhood = self._getColumnNeighborhood(column)

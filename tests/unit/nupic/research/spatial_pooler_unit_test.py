@@ -618,8 +618,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = self._sp
     sp._maxBoost = 10.0
     sp._numColumns = 6
-    sp._minActiveDutyCycles = numpy.zeros(sp._numColumns) + 1e-6
-    sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
+    sp._activeDutyCycles = numpy.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
     sp._boostFactors = numpy.zeros(sp._numColumns)
     trueBoostFactors = [1, 1, 1, 1, 1, 1]
     sp._updateBoostFactors()
@@ -628,28 +627,38 @@ class SpatialPoolerTest(unittest.TestCase):
 
     sp._maxBoost = 10.0
     sp._numColumns = 6
-    sp._minActiveDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
+    sp._columnDimensions = numpy.array([6])
+    sp._numActiveColumnsPerInhArea = 1
+    sp._inhibitionRadius = 5
+    sp._wrapAround = True
     sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
-    trueBoostFactors = [1, 1, 1, 1, 1, 1]
+    trueBoostFactors = [3.105992732789097, 0.42035040622287317,
+                        6.9125139504223041, 5.659487752291307,
+                        0.0076989862471108653, 2.5429717691711562]
     sp._updateBoostFactors()
     for i in range(sp._boostFactors.size):
       self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
 
-    sp._maxBoost = 10.0
+    sp._maxBoost = 2.0
     sp._numColumns = 6
-    sp._minActiveDutyCycles = numpy.array([0.1, 0.2, 0.02, 0.03, 0.7, 0.12])
-    sp._activeDutyCycles = numpy.array([0.01, 0.02, 0.002, 0.003, 0.07, 0.012])
-    trueBoostFactors = [9.1, 9.1, 9.1, 9.1, 9.1, 9.1]
+    sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
+    trueBoostFactors = [1.2544116739825764, 0.84085729105164408,
+                        1.472065736117588, 1.4143452129997691,
+                        0.37782153555864834, 1.2052254887118465]
     sp._updateBoostFactors()
     for i in range(sp._boostFactors.size):
       self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
 
+    sp._globalInhibition = True
     sp._maxBoost = 10.0
     sp._numColumns = 6
-    sp._minActiveDutyCycles = numpy.array([0.1, 0.2, 0.02, 0.03, 0.7, 0.12])
-    sp._activeDutyCycles = numpy.zeros(sp._numColumns)
-    trueBoostFactors = 6*[sp._maxBoost]
+    sp._numActiveColumnsPerInhArea = 1
+    sp._inhibitionRadius = 3
+    sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
     sp._updateBoostFactors()
+    trueBoostFactors = [1.9477340410546755, 0.26359713811572677,
+                        4.3347618261852094, 3.5490028143663039,
+                        0.0048279499938314414, 1.5946697582283156]
     for i in range(sp._boostFactors.size):
       self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
 
