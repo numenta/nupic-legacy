@@ -15,4 +15,5 @@ version
     - Check that release notes are present for the version to be released
     - Push the wheel to PyPI
     - If successful, push a version tag to the repo
+6. Created a new Github "Release" at https://github.com/numenta/nupic/releases/new that contains the latest changelog as the description and the release number as the title.
 6. Send announcement to the committer's lounge on discourse.numenta.org that the release is complete.
