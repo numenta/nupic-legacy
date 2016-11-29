@@ -55,7 +55,7 @@ _METRIC_SPECS = (
                params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': 1}),
 )
 
-_NUM_RECORDS = 1000
+_NUM_RECORDS = 4000
 
 
 

@@ -84,7 +84,7 @@ MODEL_PARAMS = {
             # Example for 1.5 days: sensorAutoReset = dict(days=1,hours=12),
             #
             # (value generated from SENSOR_AUTO_RESET)
-            'sensorAutoReset' : None,
+            'sensorAutoReset': None,
         },
 
         'spEnable': True,
@@ -92,11 +92,11 @@ MODEL_PARAMS = {
         'spParams': {
             # SP diagnostic output verbosity control;
             # 0: silent; >=1: some info; >=2: more info;
-            'spVerbosity' : 0,
+            'spVerbosity': 0,
 
             # Spatial Pooler implementation selector.
             # Options: 'py', 'cpp' (speed optimized, new)
-            'spatialImp' : 'cpp', 
+            'spatialImp': 'cpp',
 
             'globalInhibition': 1,
 
@@ -128,6 +128,11 @@ MODEL_PARAMS = {
             'synPermActiveInc': 0.04,
 
             'synPermInactiveDec': 0.005,
+
+            # maxBoost controls the strength of boosting. It should be a
+            # a number greater or equal than 1.0. No boosting is applied if
+            # maxBoost=1.0. Boosting encourages efficient usage of SP columns.
+            'maxBoost': 3.0,
         },
 
         # Controls whether TP is enabled or disabled;
@@ -154,14 +159,14 @@ MODEL_PARAMS = {
 
             'seed': 1960,
 
-            # Temporal Pooler implementation selector (see _getTPClass in
+            # Temporal Memory implementation selector (see _getTPClass in
             # CLARegion.py).
             'temporalImp': 'cpp',
 
             # New Synapse formation count
             # NOTE: If None, use spNumActivePerInhArea
             #
-            # TODO: need better explanation
+            # The number of synapses added to a segment during learning
             'newSynapseCount': 20,
 
             # Maximum number of synapses per segment
@@ -182,8 +187,7 @@ MODEL_PARAMS = {
             # description.py.
             'maxSegmentsPerCell': 128,
 
-            # Initial Permanence
-            # TODO: need better explanation
+            # Initial permanence for newly created synapses
             'initialPerm': 0.21,
 
             # Permanence Increment
@@ -192,7 +196,7 @@ MODEL_PARAMS = {
             # Permanence Decrement
             # If set to None, will automatically default to tpPermanenceInc
             # value.
-            'permanenceDec' : 0.1,
+            'permanenceDec': 0.1,
 
             'globalDecay': 0.0,
 
@@ -221,21 +225,21 @@ MODEL_PARAMS = {
         },
 
         'clParams': {
-            'regionName' : 'SDRClassifierRegion',
+            'regionName': 'SDRClassifierRegion',
 
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
-            'verbosity' : 0,
+            'verbosity': 0,
 
-            # This controls how fast the classifier learns/forgets. Higher values
-            # make it adapt faster and forget older patterns faster.
-            'alpha': 0.0001,
+            # This controls how fast the classifier learns/forgets. Higher
+            # values make it adapt faster and forget older patterns faster.
+            'alpha': 0.1,
 
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.
             'steps': '1,5',
 
-            'implementation': 'py',
+            'implementation': 'cpp',
         },
 
         'trainSPNetOnlyIfRequested': False,
