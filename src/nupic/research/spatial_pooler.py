@@ -32,6 +32,7 @@ realDType = GetNTAReal()
 uintType = "uint32"
 
 VERSION = 3
+PERMANENCE_EPSILON = 0.000001
 
 
 
@@ -1082,7 +1083,9 @@ class SpatialPooler(object):
 
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
     while True:
-      numConnected = numpy.nonzero(perm > self._synPermConnected)[0].size
+      numConnected = numpy.nonzero(
+        perm > self._synPermConnected - PERMANENCE_EPSILON)[0].size
+
       if numConnected >= self._stimulusThreshold:
         return
       perm[mask] += self._synPermBelowStimulusInc
@@ -1120,7 +1123,8 @@ class SpatialPooler(object):
       self._raisePermanenceToThreshold(perm, maskPotential)
     perm[perm < self._synPermTrimThreshold] = 0
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
-    newConnected = numpy.where(perm >= self._synPermConnected)[0]
+    newConnected = numpy.where(perm >=
+                               self._synPermConnected - PERMANENCE_EPSILON)[0]
     self._permanences.update(columnIndex, perm)
     self._connectedSynapses.replace(columnIndex, newConnected)
     self._connectedCounts[columnIndex] = newConnected.size
@@ -1352,8 +1356,11 @@ class SpatialPooler(object):
           maskNeighbors = self._getColumnNeighborhood(i)
           targetDensity[i] = numpy.mean(self._activeDutyCycles[maskNeighbors])
 
-      self._boostFactors = numpy.exp(-(
+      boostFactors = numpy.exp(-(
         self._activeDutyCycles-targetDensity) * self._maxBoost)
+
+      # Avoid floating point mismatches between implementations.
+      self._boostFactors = numpy.round(boostFactors, decimals=2)
 
 
   def _updateBookeepingVars(self, learn):

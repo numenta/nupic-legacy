@@ -620,10 +620,9 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._numColumns = 6
     sp._activeDutyCycles = numpy.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
     sp._boostFactors = numpy.zeros(sp._numColumns)
-    trueBoostFactors = [1, 1, 1, 1, 1, 1]
     sp._updateBoostFactors()
-    for i in range(sp._boostFactors.size):
-      self.assertAlmostEqual(trueBoostFactors[i], sp._boostFactors[i])
+    self.assertListEqual(list(sp._boostFactors),
+                         [1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
 
     sp._maxBoost = 10.0
     sp._numColumns = 6
@@ -632,22 +631,16 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inhibitionRadius = 5
     sp._wrapAround = True
     sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
-    trueBoostFactors = [3.105992732789097, 0.42035040622287317,
-                        6.9125139504223041, 5.659487752291307,
-                        0.0076989862471108653, 2.5429717691711562]
     sp._updateBoostFactors()
-    for i in range(sp._boostFactors.size):
-      self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
+    self.assertListEqual(list(sp._boostFactors),
+                         [3.11, 0.42, 6.91, 5.66, 0.01, 2.54])
 
     sp._maxBoost = 2.0
     sp._numColumns = 6
     sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
-    trueBoostFactors = [1.2544116739825764, 0.84085729105164408,
-                        1.472065736117588, 1.4143452129997691,
-                        0.37782153555864834, 1.2052254887118465]
     sp._updateBoostFactors()
-    for i in range(sp._boostFactors.size):
-      self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
+    self.assertListEqual(list(sp._boostFactors),
+                         [1.25, 0.84, 1.47, 1.41, 0.38, 1.21])
 
     sp._globalInhibition = True
     sp._maxBoost = 10.0
@@ -656,11 +649,8 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inhibitionRadius = 3
     sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
     sp._updateBoostFactors()
-    trueBoostFactors = [1.9477340410546755, 0.26359713811572677,
-                        4.3347618261852094, 3.5490028143663039,
-                        0.0048279499938314414, 1.5946697582283156]
-    for i in range(sp._boostFactors.size):
-      self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
+    self.assertListEqual(list(sp._boostFactors),
+                         [1.95, 0.26, 4.33, 3.55, 0.00, 1.59])
 
 
   def testUpdateInhibitionRadius(self):
