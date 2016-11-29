@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.7
+
+* Remove tests moved to nupic.core and update version to latest bindings release.
+* Update hello_tm.py
+* Removed linux and gcc from Travis build matrix
+* Makes `anomaly_likelihood.py` compliant to Python3
+* Update env vars and paths to simplify the AV configuration and installation.
+* Cleanup references to nupic.bindings and old CI code for manually fetching nupic.bindings since it should be found on PyPI without doing anything special.
+
 ## 0.5.6
 
 * Since manylinux nupic.bindings wheel 0.4.10 has now been released to PyPi, we no longer need to install nupic.bindings from S3.
