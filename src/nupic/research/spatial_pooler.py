@@ -1349,8 +1349,8 @@ class SpatialPooler(object):
       targetDensity = float(self._numActiveColumnsPerInhArea) / inhibitionArea
       targetDensity = min(targetDensity, 0.5)
 
-    boostFactors = numpy.exp(-(
-      self._activeDutyCycles - targetDensity) * self._maxBoost)
+    boostFactors = numpy.exp(
+      (targetDensity - self._activeDutyCycles) * self._maxBoost)
 
     # Avoid floating point mismatches between implementations.
     self._boostFactors = numpy.round(boostFactors, decimals=2)
@@ -1365,8 +1365,8 @@ class SpatialPooler(object):
       maskNeighbors = self._getColumnNeighborhood(i)
       targetDensity[i] = numpy.mean(self._activeDutyCycles[maskNeighbors])
 
-    boostFactors = numpy.exp(-(
-      self._activeDutyCycles - targetDensity) * self._maxBoost)
+    boostFactors = numpy.exp(
+      (targetDensity- self._activeDutyCycles) * self._maxBoost)
 
     # Avoid floating point mismatches between implementations.
     self._boostFactors = numpy.round(boostFactors, decimals=2)
