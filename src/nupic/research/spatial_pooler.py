@@ -1338,6 +1338,9 @@ class SpatialPooler(object):
 
 
   def _updateBoostFactorsGlobal(self):
+    """
+    Update boost factors when global inhibition is used
+    """
     # When global inhibition is enabled, the target activation level is
     # the sparsity of the spatial pooler
     if (self._localAreaDensity > 0):
@@ -1357,16 +1360,19 @@ class SpatialPooler(object):
 
 
   def _updateBoostFactorsLocal(self):
+    """
+    Update boost factors when local inhibition is used
+    """
     # Determine the target activation level for each column
-    # The targetDensity is the average activeDutyCycles of the neighbors of
-    # each column.
+    # The targetDensity is the average activeDutyCycles of the neighboring
+    # columns of each column.
     targetDensity = numpy.zeros(self._numColumns, dtype=realDType)
     for i in xrange(self._numColumns):
       maskNeighbors = self._getColumnNeighborhood(i)
       targetDensity[i] = numpy.mean(self._activeDutyCycles[maskNeighbors])
 
     boostFactors = numpy.exp(
-      (targetDensity- self._activeDutyCycles) * self._maxBoost)
+      (targetDensity - self._activeDutyCycles) * self._maxBoost)
 
     # Avoid floating point mismatches between implementations.
     self._boostFactors = numpy.round(boostFactors, decimals=2)
