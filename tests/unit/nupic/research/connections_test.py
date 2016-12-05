@@ -55,22 +55,22 @@ class ConnectionsTest(unittest.TestCase):
     connections.createSynapse(segment1, 2, .5)
 
     # Let some time pass.
-    connections.startNewIteration();
-    connections.startNewIteration();
-    connections.startNewIteration();
+    connections.startNewIteration()
+    connections.startNewIteration()
+    connections.startNewIteration()
 
     # Create a segment with 3 synapse.
     segment2 = connections.createSegment(42)
     connections.createSynapse(segment2, 1, .5)
     connections.createSynapse(segment2, 2, .5)
     connections.createSynapse(segment2, 3, .5)
-    connections.startNewIteration();
+    connections.startNewIteration()
 
     # Give the first segment some activity.
     connections.recordSegmentActivity(segment1)
 
     # Create a new segment with 1 synapse.
-    segment3 = connections.createSegment(42);
+    segment3 = connections.createSegment(42)
     connections.createSynapse(segment3, 1, .5)
 
     segments = connections.segmentsForCell(42)
