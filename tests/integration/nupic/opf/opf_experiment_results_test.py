@@ -201,7 +201,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
       { 'experimentDir': 'experiments/classification/category_hub_TP_0',
         'results': {
             ('OnlineLearning.TemporalClassification.predictionLog.csv',
-             'classification:avg_err:window=200'): (0.0, 0.005),
+             'classification:avg_err:window=200'): (0.0, 0.020),
             }
       },
 
