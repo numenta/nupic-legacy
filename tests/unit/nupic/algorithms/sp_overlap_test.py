@@ -114,6 +114,7 @@ class TestSPFrequency(unittest.TestCase):
                            stimulusThreshold=stimulusThreshold,
                            potentialPct=0.5,
                            seed=spSeed,
+                           globalInhibition=True,
                            )
     rnd.seed(seed)
     numpy.random.seed(seed)
