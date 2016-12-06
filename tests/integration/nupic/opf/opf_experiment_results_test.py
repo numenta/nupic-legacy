@@ -148,7 +148,8 @@ class OPFExperimentResultsTest(unittest.TestCase):
         }
       },
 
-      # For this one, in theory the error for 1 step should be < 0.20
+      # For this one, in theory the error for 1 step should be < 0.20, but we
+      #  get slightly higher because our sample size is smaller than ideal
       { 'experimentDir': 'experiments/multistep/simple_2',
         'results': {
           ('DefaultTask.TemporalMultiStep.predictionLog.csv',
