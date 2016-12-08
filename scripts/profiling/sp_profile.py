@@ -61,7 +61,7 @@ def profileSP(spClass, spDim, nRuns):
         minPctOverlapDutyCycle=0.1,
         minPctActiveDutyCycle=0.1,
         dutyCyclePeriod=10,
-        maxBoost=10.0,
+        boostStrength=10.0,
         seed=42,
         spVerbosity=0)
 

@@ -122,7 +122,7 @@ class CLAModelTest(unittest.TestCase):
                                       u'columnCount': 2048,
                                       u'globalInhibition': 1,
                                       u'inputWidth': 0,
-                                      u'maxBoost': 1.0,
+                                      u'boostStrength': 0.0,
                                       u'numActiveColumnsPerInhArea': 40,
                                       u'seed': 1956,
                                       u'spVerbosity': 0,

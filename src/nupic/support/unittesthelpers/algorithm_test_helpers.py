@@ -101,7 +101,7 @@ def convertSP(pySp, newSeed):
   cppSp.setStimulusThreshold(pySp.getStimulusThreshold())
   cppSp.setInhibitionRadius(pySp.getInhibitionRadius())
   cppSp.setDutyCyclePeriod(pySp.getDutyCyclePeriod())
-  cppSp.setMaxBoost(pySp.getMaxBoost())
+  cppSp.setBoostStrength(pySp.getBoostStrength())
   cppSp.setIterationNum(pySp.getIterationNum())
   cppSp.setIterationLearnNum(pySp.getIterationLearnNum())
   cppSp.setSpVerbosity(pySp.getSpVerbosity())

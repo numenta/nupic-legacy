@@ -73,7 +73,7 @@ MODEL_PARAMS = {
       "columnCount": 2048,
       "globalInhibition": 1,
       "inputWidth": 0,
-      "maxBoost": 1.0,
+      "boostStrength": 0.0,
       "numActiveColumnsPerInhArea": 40,
       "seed": 1956,
       "spVerbosity": 0,

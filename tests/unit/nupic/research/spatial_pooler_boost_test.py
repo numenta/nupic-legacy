@@ -66,7 +66,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   SP parameters:  The SP is set to have 600 columns with 10% output sparsity.
   This ensures that the 5 inputs cannot use up all the columns. Yet we still can
   have a reasonable number of winning columns at each step in order to test
-  overlap properties. maxBoost is set to 10 so that some boosted columns are
+  overlap properties. boostStrength is set to 10 so that some boosted columns are
   guaranteed to win eventually but not necessarily quickly. potentialPct is set
   to 0.9 to ensure all columns have at least some overlap with at least one
   input bit. Thus, when sufficiently boosted, every column should become a
@@ -133,7 +133,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       'synPermActiveInc':           0.0,
       'synPermInactiveDec':         0.0,
       'dutyCyclePeriod':            10,
-      'maxBoost':                   10.0,
+      'boostStrength':              10.0,
       'seed':                       SEED,
     }
     print "SP seed set to:", self.params['seed']

@@ -116,10 +116,10 @@ class SpatialPoolerAPITest(unittest.TestCase):
     self.assertEqual(inParam, outParam)
 
 
-  def testGetMaxBoost(self):
+  def testGetBoostStrength(self):
     inParam = 78
-    self.sp.setMaxBoost(inParam)
-    outParam = self.sp.getMaxBoost()
+    self.sp.setBoostStrength(inParam)
+    outParam = self.sp.getBoostStrength()
     self.assertEqual(inParam, outParam)
 
 

@@ -123,7 +123,7 @@ class SpatialPooler(object):
                minPctOverlapDutyCycle=0.001,
                minPctActiveDutyCycle=0.001,
                dutyCyclePeriod=1000,
-               maxBoost=10.0,
+               boostStrength=0.0,
                seed=-1,
                spVerbosity=0,
                wrapAround=True
@@ -223,11 +223,11 @@ class SpatialPooler(object):
       The period used to calculate duty cycles. Higher values make it take
       longer to respond to changes in boost or synPerConnectedCell. Shorter
       values make it more unstable and likely to oscillate.
-    @param maxBoost:
-      A number greater or equal than 1.0, used to control the strength of
-      boosting. No boosting is applied if maxBoost=1.0. The strength of boosting
-      increases as a function of maxBoost. Boosting encourages columns to have
-      similar activeDutyCycles as their neighbors, which will lead to more
+    @param boostStrength:
+      A number greater or equal than 0.0, used to control the strength of
+      boosting. No boosting is applied if it is set to 0. Boosting strength
+      increases as a function of boostStrength. Boosting encourages columns to
+      have similar activeDutyCycles as their neighbors, which will lead to more
       efficient use of columns. However, too much boosting may also lead to
       instability of SP outputs.
     @param seed:
@@ -259,8 +259,8 @@ class SpatialPooler(object):
       raise InvalidSPParamValueError(
         "Input dimensions must match column dimensions")
 
-    if maxBoost < 1.0:
-      raise InvalidSPParamValueError("maxBoost must be >= 1.0")
+    if boostStrength < 0.0:
+      raise InvalidSPParamValueError("boostStrength must be >= 0.0")
 
     self._seed(seed)
 
@@ -281,7 +281,7 @@ class SpatialPooler(object):
     self._minPctOverlapDutyCycles = minPctOverlapDutyCycle
     self._minPctActiveDutyCycles = minPctActiveDutyCycle
     self._dutyCyclePeriod = dutyCyclePeriod
-    self._maxBoost = maxBoost
+    self._boostStrength = boostStrength
     self._spVerbosity = spVerbosity
     self._wrapAround = wrapAround
     self._synPermMin = 0.0
@@ -485,14 +485,14 @@ class SpatialPooler(object):
     self._dutyCyclePeriod = dutyCyclePeriod
 
 
-  def getMaxBoost(self):
+  def getBoostStrength(self):
     """Returns the maximum boost value"""
-    return self._maxBoost
+    return self._boostStrength
 
 
-  def setMaxBoost(self, maxBoost):
+  def setBoostStrength(self, boostStrength):
     """Sets the maximum boost value"""
-    self._maxBoost = maxBoost
+    self._boostStrength = boostStrength
 
 
   def getIterationNum(self):
@@ -1307,7 +1307,7 @@ class SpatialPooler(object):
     increase the overlap of inactive columns to improve their chances of
     becoming active, and hence encourage participation of more columns in the
     learning process. The boosting function is a curve defined as:
-    boostFactors = exp[ - maxBoost * (dutyCycle - targetDensity)]
+    boostFactors = exp[ - boostStrength * (dutyCycle - targetDensity)]
     Intuitively this means that columns that have been active at the target
     activation level have a boost factor of 1, meaning their overlap is not
     boosted. Columns whose active duty cycle drops too much below that of their
@@ -1330,11 +1330,10 @@ class SpatialPooler(object):
                    |
               targetDensity
     """
-    if self._maxBoost > 1:
-      if self._globalInhibition:
-        self._updateBoostFactorsGlobal()
-      else:
-        self._updateBoostFactorsLocal()
+    if self._globalInhibition:
+      self._updateBoostFactorsGlobal()
+    else:
+      self._updateBoostFactorsLocal()
 
 
   def _updateBoostFactorsGlobal(self):
@@ -1353,7 +1352,7 @@ class SpatialPooler(object):
       targetDensity = min(targetDensity, 0.5)
 
     boostFactors = numpy.exp(
-      (targetDensity - self._activeDutyCycles) * self._maxBoost)
+      (targetDensity - self._activeDutyCycles) * self._boostStrength)
 
     # Avoid floating point mismatches between implementations.
     self._boostFactors = numpy.round(boostFactors, decimals=2)
@@ -1372,7 +1371,7 @@ class SpatialPooler(object):
       targetDensity[i] = numpy.mean(self._activeDutyCycles[maskNeighbors])
 
     boostFactors = numpy.exp(
-      (targetDensity - self._activeDutyCycles) * self._maxBoost)
+      (targetDensity - self._activeDutyCycles) * self._boostStrength)
 
     # Avoid floating point mismatches between implementations.
     self._boostFactors = numpy.round(boostFactors, decimals=2)
@@ -1640,7 +1639,7 @@ class SpatialPooler(object):
     proto.minPctOverlapDutyCycles = self._minPctOverlapDutyCycles
     proto.minPctActiveDutyCycles = self._minPctActiveDutyCycles
     proto.dutyCyclePeriod = self._dutyCyclePeriod
-    proto.maxBoost = self._maxBoost
+    proto.boostStrength = self._boostStrength
     proto.wrapAround = self._wrapAround
     proto.spVerbosity = self._spVerbosity
 
@@ -1711,7 +1710,7 @@ class SpatialPooler(object):
     instance._minPctOverlapDutyCycles = proto.minPctOverlapDutyCycles
     instance._minPctActiveDutyCycles = proto.minPctActiveDutyCycles
     instance._dutyCyclePeriod = proto.dutyCyclePeriod
-    instance._maxBoost = proto.maxBoost
+    instance._boostStrength = proto.boostStrength
     instance._wrapAround = proto.wrapAround
     instance._spVerbosity = proto.spVerbosity
 
@@ -1770,6 +1769,6 @@ class SpatialPooler(object):
     print "minPctOverlapDutyCycle     = ", self.getMinPctOverlapDutyCycles()
     print "minPctActiveDutyCycle      = ", self.getMinPctActiveDutyCycles()
     print "dutyCyclePeriod            = ", self.getDutyCyclePeriod()
-    print "maxBoost                   = ", self.getMaxBoost()
+    print "boostStrength              = ", self.getBoostStrength()
     print "spVerbosity                = ", self.getSpVerbosity()
     print "version                    = ", self._version

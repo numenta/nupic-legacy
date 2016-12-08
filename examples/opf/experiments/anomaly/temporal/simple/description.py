@@ -196,17 +196,17 @@ config = {
 
             'synPermInactiveDec': 0.008,
 
-            # maxBoost controls the strength of boosting. It should be a
-            # a number greater or equal than 1.0. No boosting is applied if
-            # maxBoost=1.0. Boosting encourages efficient usage of SP columns.
-            'maxBoost': 1.0,
+            # boostStrength controls the strength of boosting. It should be a
+            # a number greater or equal than 0.0. No boosting is applied if
+            # boostStrength=0.0. Boosting encourages efficient usage of columns.
+            'boostStrength': 0.0,
         },
 
         # Controls whether TP is enabled or disabled;
         # TP is necessary for making temporal predictions, such as predicting
         # the next inputs.  Without TP, the model is only capable of
         # reconstructing missing sensor inputs (via SP).
-        'tpEnable' : True,
+        'tpEnable': True,
 
         'tpParams': {
             # TP diagnostic output verbosity control;

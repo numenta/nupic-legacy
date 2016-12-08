@@ -76,8 +76,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
                            cppSp.getInhibitionRadius())
     self.assertAlmostEqual(pySp.getDutyCyclePeriod(),
                            cppSp.getDutyCyclePeriod())
-    self.assertAlmostEqual(pySp.getMaxBoost(),
-                           cppSp.getMaxBoost())
+    self.assertAlmostEqual(pySp.getBoostStrength(),
+                           cppSp.getBoostStrength())
     self.assertAlmostEqual(pySp.getIterationNum(),
                            cppSp.getIterationNum())
     self.assertAlmostEqual(pySp.getIterationLearnNum(),
@@ -253,7 +253,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "minPctOverlapDutyCycle": 0.001,
       "minPctActiveDutyCycle": 0.001,
       "dutyCyclePeriod": 30,
-      "maxBoost": 10.0,
+      "boostStrength": 10.0,
       "seed": 4,
       "spVerbosity": 0
     }
@@ -283,7 +283,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "minPctOverlapDutyCycle": 0.001,
       "minPctActiveDutyCycle": 0.001,
       "dutyCyclePeriod": 30,
-      "maxBoost": 10.0,
+      "boostStrength": 10.0,
       "seed": 4,
       "spVerbosity": 0
     }
@@ -306,11 +306,11 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "minPctOverlapDutyCycle": 0.021,
       "minPctActiveDutyCycle": 0.0012,
       "dutyCyclePeriod": 20,
-      "maxBoost": 11.0,
+      "boostStrength": 11.0,
       "seed": 6,
       "spVerbosity": 0
     }
-    self.runSideBySide(params, convertEveryIteration = True)
+    self.runSideBySide(params, convertEveryIteration=True, seed=63862)
 
 
   def testCompatability3(self):
@@ -329,11 +329,11 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "minPctOverlapDutyCycle": 0.011,
       "minPctActiveDutyCycle": 0.052,
       "dutyCyclePeriod": 25,
-      "maxBoost": 11.0,
+      "boostStrength": 11.0,
       "seed": 19,
       "spVerbosity": 0
     }
-    self.runSideBySide(params, convertEveryIteration = True)
+    self.runSideBySide(params, convertEveryIteration=True, seed=63862)
 
 
   def testSerialization(self):
@@ -352,7 +352,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       'minPctOverlapDutyCycle' : 0.011,
       'minPctActiveDutyCycle' : 0.052,
       'dutyCyclePeriod' : 25,
-      'maxBoost' : 11.0,
+      'boostStrength' : 11.0,
       'seed' : 19,
       'spVerbosity' : 0
     }
@@ -381,7 +381,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       'minPctOverlapDutyCycle' : 0.011,
       'minPctActiveDutyCycle' : 0.052,
       'dutyCyclePeriod' : 25,
-      'maxBoost' : 11.0,
+      'boostStrength' : 11.0,
       'seed' : 19,
       'spVerbosity' : 0
     }

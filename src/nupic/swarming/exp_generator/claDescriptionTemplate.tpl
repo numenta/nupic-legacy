@@ -147,8 +147,9 @@ config = {
             'synPermActiveInc': 0.05,
 
             'synPermInactiveDec': 0.0005,
-            
-            'maxBoost': 1.0
+
+            # The default boosting strength is set to 0 (no boosting)
+            'boostStrength': 0.0
         },
 
         # Controls whether TP is enabled or disabled;

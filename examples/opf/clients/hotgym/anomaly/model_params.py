@@ -132,7 +132,10 @@ MODEL_PARAMS = {
 
             'synPermInactiveDec': 0.0005,
 
-            'maxBoost': 1.0,
+            # boostStrength controls the strength of boosting. It should be a
+            # a number greater or equal than 0.0. No boosting is applied if
+            # boostStrength=0.0. Boosting encourages efficient usage of columns.
+            'boostStrength': 0.0,
         },
 
         # Controls whether TP is enabled or disabled;

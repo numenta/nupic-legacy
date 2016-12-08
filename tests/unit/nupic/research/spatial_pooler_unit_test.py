@@ -71,7 +71,7 @@ class SpatialPoolerTest(unittest.TestCase):
       "minPctOverlapDutyCycle": 0.1,
       "minPctActiveDutyCycle": 0.1,
       "dutyCyclePeriod": 10,
-      "maxBoost": 10.0,
+      "boostStrength": 10.0,
       "seed": getSeed(),
       "spVerbosity": 0
     }
@@ -98,7 +98,7 @@ class SpatialPoolerTest(unittest.TestCase):
         minPctOverlapDutyCycle=0.1,
         minPctActiveDutyCycle=0.1,
         dutyCyclePeriod=10,
-        maxBoost=10.0,
+        boostStrength=10.0,
         seed=getSeed(),
         spVerbosity=0)
 
@@ -135,7 +135,7 @@ class SpatialPoolerTest(unittest.TestCase):
         minPctOverlapDutyCycle=0.1,
         minPctActiveDutyCycle=0.1,
         dutyCyclePeriod=10,
-        maxBoost=10.0,
+        boostStrength=10.0,
         seed=getSeed(),
         spVerbosity=0)
 
@@ -294,7 +294,7 @@ class SpatialPoolerTest(unittest.TestCase):
       minPctOverlapDutyCycle=0.001,
       minPctActiveDutyCycle=0.001,
       dutyCyclePeriod = 1000,
-      maxBoost = 10.0,
+      boostStrength = 10.0,
       seed = 1956,
       spVerbosity = 0
 
@@ -616,7 +616,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
   def testUpdateBoostFactors(self):
     sp = self._sp
-    sp._maxBoost = 10.0
+    sp._boostStrength = 10.0
     sp._numColumns = 6
     sp._activeDutyCycles = numpy.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
     sp._boostFactors = numpy.zeros(sp._numColumns)
@@ -624,7 +624,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(list(sp._boostFactors),
                          [1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
 
-    sp._maxBoost = 10.0
+    sp._boostStrength = 10.0
     sp._numColumns = 6
     sp._columnDimensions = numpy.array([6])
     sp._numActiveColumnsPerInhArea = 1
@@ -635,7 +635,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(list(sp._boostFactors),
                          [3.11, 0.42, 6.91, 5.66, 0.01, 2.54])
 
-    sp._maxBoost = 2.0
+    sp._boostStrength = 2.0
     sp._numColumns = 6
     sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
     sp._updateBoostFactors()
@@ -643,7 +643,7 @@ class SpatialPoolerTest(unittest.TestCase):
                          [1.25, 0.84, 1.47, 1.41, 0.38, 1.21])
 
     sp._globalInhibition = True
-    sp._maxBoost = 10.0
+    sp._boostStrength = 10.0
     sp._numColumns = 6
     sp._numActiveColumnsPerInhArea = 1
     sp._inhibitionRadius = 3
@@ -1493,7 +1493,7 @@ class SpatialPoolerTest(unittest.TestCase):
         minPctOverlapDutyCycle=0.1,
         minPctActiveDutyCycle=0.1,
         dutyCyclePeriod=10,
-        maxBoost=10.0,
+        boostStrength=10.0,
         seed=42,
         spVerbosity=0)
 
