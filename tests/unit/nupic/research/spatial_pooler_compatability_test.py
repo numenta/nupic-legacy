@@ -98,8 +98,6 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
                            cppSp.getSynPermConnected())
     self.assertAlmostEqual(pySp.getMinPctOverlapDutyCycles(),
                            cppSp.getMinPctOverlapDutyCycles())
-    self.assertAlmostEqual(pySp.getMinPctActiveDutyCycles(),
-                           cppSp.getMinPctActiveDutyCycles())
 
     numColumns = pySp.getNumColumns()
     numInputs = pySp.getNumInputs()
@@ -127,12 +125,6 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     pySp.getMinOverlapDutyCycles(pyMinOverlap)
     cppSp.getMinOverlapDutyCycles(cppMinOverlap)
     self.assertListAlmostEqual(list(pyMinOverlap), list(cppMinOverlap))
-
-    pyMinActive = numpy.zeros(numColumns).astype(realType)
-    cppMinActive = numpy.zeros(numColumns).astype(realType)
-    pySp.getMinActiveDutyCycles(pyMinActive)
-    cppSp.getMinActiveDutyCycles(cppMinActive)
-    self.assertListAlmostEqual(list(pyMinActive), list(cppMinActive))
 
     for i in xrange(pySp.getNumColumns()):
       if self.verbosity > 2: print "Column:",i
@@ -251,7 +243,6 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "synPermActiveInc": 0.1,
       "synPermConnected": 0.10,
       "minPctOverlapDutyCycle": 0.001,
-      "minPctActiveDutyCycle": 0.001,
       "dutyCyclePeriod": 30,
       "boostStrength": 10.0,
       "seed": 4,

@@ -112,7 +112,6 @@ def convertSP(pySp, newSeed):
   cppSp.setSynPermBelowStimulusInc(pySp.getSynPermBelowStimulusInc())
   cppSp.setSynPermConnected(pySp.getSynPermConnected())
   cppSp.setMinPctOverlapDutyCycles(pySp.getMinPctOverlapDutyCycles())
-  cppSp.setMinPctActiveDutyCycles(pySp.getMinPctActiveDutyCycles())
 
   boostFactors = numpy.zeros(numColumns).astype(realType)
   pySp.getBoostFactors(boostFactors)
@@ -129,10 +128,6 @@ def convertSP(pySp, newSeed):
   minOverlapDuty = numpy.zeros(numColumns).astype(realType)
   pySp.getMinOverlapDutyCycles(minOverlapDuty)
   cppSp.setMinOverlapDutyCycles(minOverlapDuty)
-
-  minActiveDuty = numpy.zeros(numColumns).astype(realType)
-  pySp.getMinActiveDutyCycles(minActiveDuty)
-  cppSp.setMinActiveDutyCycles(minActiveDuty)
 
   for i in xrange(numColumns):
     potential = numpy.zeros(numInputs).astype(uintType)
@@ -169,6 +164,7 @@ def CreateSP(imp, params):
   else:
     raise RuntimeError("unrecognized implementation")
 
+  print params
   sp = spClass(**params)
   
   return sp

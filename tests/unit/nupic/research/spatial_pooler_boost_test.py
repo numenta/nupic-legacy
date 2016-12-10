@@ -129,7 +129,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       'potentialPct':               0.9,
       'globalInhibition':           True,
       'numActiveColumnsPerInhArea': 60,
-      'minPctActiveDutyCycle':      0.1,
       'synPermActiveInc':           0.0,
       'synPermInactiveDec':         0.0,
       'dutyCyclePeriod':            10,
@@ -143,9 +142,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     Helpful debug print statements while debugging this test.
     """
 
-    minDutyCycle = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
-    self.sp.getMinActiveDutyCycles(minDutyCycle)
-    
     activeDutyCycle = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
     self.sp.getActiveDutyCycles(activeDutyCycle)
     
@@ -155,8 +151,6 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       self.sp.getIterationNum() ),"-----------------------"
     print "SP implementation:", self.spImplementation
     print "Learning iteration:",
-    print "minactiveDutyCycle (lower cycles cause boosting to start):",(
-      minDutyCycle[0] )
     print "Max/min active duty cycle:", (
       activeDutyCycle.max(), activeDutyCycle.min() )
     print "Average non-zero active duty cycle:", (

@@ -69,7 +69,6 @@ class SpatialPoolerTest(unittest.TestCase):
       "synPermActiveInc": 0.1,
       "synPermConnected": 0.10,
       "minPctOverlapDutyCycle": 0.1,
-      "minPctActiveDutyCycle": 0.1,
       "dutyCyclePeriod": 10,
       "boostStrength": 10.0,
       "seed": getSeed(),
@@ -96,7 +95,6 @@ class SpatialPoolerTest(unittest.TestCase):
         synPermActiveInc=0.1,
         synPermConnected=0.10,
         minPctOverlapDutyCycle=0.1,
-        minPctActiveDutyCycle=0.1,
         dutyCyclePeriod=10,
         boostStrength=10.0,
         seed=getSeed(),
@@ -133,7 +131,6 @@ class SpatialPoolerTest(unittest.TestCase):
         synPermActiveInc=0.1,
         synPermConnected=0.10,
         minPctOverlapDutyCycle=0.1,
-        minPctActiveDutyCycle=0.1,
         dutyCyclePeriod=10,
         boostStrength=10.0,
         seed=getSeed(),
@@ -292,7 +289,6 @@ class SpatialPoolerTest(unittest.TestCase):
       synPermActiveInc = 0.1,
       synPermConnected = 0.1,
       minPctOverlapDutyCycle=0.001,
-      minPctActiveDutyCycle=0.001,
       dutyCyclePeriod = 1000,
       boostStrength = 10.0,
       seed = 1956,
@@ -944,15 +940,8 @@ class SpatialPoolerTest(unittest.TestCase):
     sp.setInhibitionRadius(1)
     sp.setOverlapDutyCycles([0.7, 0.1, 0.5, 0.01, 0.78, 0.55, 0.1, 0.001])
     sp.setActiveDutyCycles([0.9, 0.3, 0.5, 0.7, 0.1, 0.01, 0.08, 0.12])
-    sp.setMinPctActiveDutyCycles(0.1);
     sp.setMinPctOverlapDutyCycles(0.2);
     sp._updateMinDutyCyclesLocal()
-
-    resultMinActiveDutyCycles = numpy.zeros(sp.getNumColumns())
-    sp.getMinActiveDutyCycles(resultMinActiveDutyCycles)
-    for actual, expected in zip(resultMinActiveDutyCycles,
-                                [0.09, 0.09, 0.07, 0.07, 0.07, 0.01, 0.012, 0.012]):
-      self.assertAlmostEqual(actual, expected)
 
     resultMinOverlapDutyCycles = numpy.zeros(sp.getNumColumns())
     sp.getMinOverlapDutyCycles(resultMinOverlapDutyCycles)
@@ -969,15 +958,8 @@ class SpatialPoolerTest(unittest.TestCase):
     sp.setInhibitionRadius(1)
     sp.setOverlapDutyCycles([0.7, 0.1, 0.5, 0.01, 0.78, 0.55, 0.1, 0.001])
     sp.setActiveDutyCycles([0.9, 0.3, 0.5, 0.7, 0.1, 0.01, 0.08, 0.12])
-    sp.setMinPctActiveDutyCycles(0.1);
     sp.setMinPctOverlapDutyCycles(0.2);
     sp._updateMinDutyCyclesLocal()
-
-    resultMinActiveDutyCycles = numpy.zeros(sp.getNumColumns())
-    sp.getMinActiveDutyCycles(resultMinActiveDutyCycles)
-    for actual, expected in zip(resultMinActiveDutyCycles,
-                                [0.09, 0.09, 0.07, 0.07, 0.07, 0.01, 0.012, 0.09]):
-      self.assertAlmostEqual(actual, expected)
 
     resultMinOverlapDutyCycles = numpy.zeros(sp.getNumColumns())
     sp.getMinOverlapDutyCycles(resultMinOverlapDutyCycles)
@@ -985,24 +967,20 @@ class SpatialPoolerTest(unittest.TestCase):
                                 [0.14, 0.14, 0.1, 0.156, 0.156, 0.156, 0.11, 0.14]):
       self.assertAlmostEqual(actual, expected)
 
+
   def testUpdateMinDutyCyclesGlobal(self):
     sp = self._sp
     sp._minPctOverlapDutyCycles = 0.01
-    sp._minPctActiveDutyCycles = 0.02
     sp._numColumns = 5
     sp._overlapDutyCycles = numpy.array([0.06, 1, 3, 6, 0.5])
     sp._activeDutyCycles = numpy.array([0.6, 0.07, 0.5, 0.4, 0.3])
     sp._updateMinDutyCyclesGlobal()
-    trueMinActiveDutyCycles = sp._numColumns*[0.02*0.6]
     trueMinOverlapDutyCycles = sp._numColumns*[0.01*6]
     for i in xrange(sp._numColumns):
-      self.assertAlmostEqual(trueMinActiveDutyCycles[i],
-                             sp._minActiveDutyCycles[i])
       self.assertAlmostEqual(trueMinOverlapDutyCycles[i],
                              sp._minOverlapDutyCycles[i])
 
     sp._minPctOverlapDutyCycles = 0.015
-    sp._minPctActiveDutyCycles = 0.03
     sp._numColumns = 5
     sp._overlapDutyCycles = numpy.array([0.86, 2.4, 0.03, 1.6, 1.5])
     sp._activeDutyCycles = numpy.array([0.16, 0.007, 0.15, 0.54, 0.13])
@@ -1013,16 +991,12 @@ class SpatialPoolerTest(unittest.TestCase):
                              sp._minOverlapDutyCycles[i])
 
     sp._minPctOverlapDutyCycles = 0.015
-    sp._minPctActiveDutyCycles= 0.03
     sp._numColumns = 5
     sp._overlapDutyCycles = numpy.zeros(5)
     sp._activeDutyCycles = numpy.zeros(5)
     sp._updateMinDutyCyclesGlobal()
     trueMinOverlapDutyCycles = sp._numColumns * [0]
-    trueMinActiveDutyCycles = sp._numColumns * [0]
     for i in xrange(sp._numColumns):
-      self.assertAlmostEqual(trueMinActiveDutyCycles[i],
-                             sp._minActiveDutyCycles[i])
       self.assertAlmostEqual(trueMinOverlapDutyCycles[i],
                              sp._minOverlapDutyCycles[i])
 
@@ -1491,7 +1465,6 @@ class SpatialPoolerTest(unittest.TestCase):
         synPermActiveInc=0.1,
         synPermConnected=0.10,
         minPctOverlapDutyCycle=0.1,
-        minPctActiveDutyCycle=0.1,
         dutyCyclePeriod=10,
         boostStrength=10.0,
         seed=42,

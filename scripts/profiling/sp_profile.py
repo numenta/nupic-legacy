@@ -59,7 +59,6 @@ def profileSP(spClass, spDim, nRuns):
         synPermActiveInc=0.1,
         synPermConnected=0.10,
         minPctOverlapDutyCycle=0.1,
-        minPctActiveDutyCycle=0.1,
         dutyCyclePeriod=10,
         boostStrength=10.0,
         seed=42,
