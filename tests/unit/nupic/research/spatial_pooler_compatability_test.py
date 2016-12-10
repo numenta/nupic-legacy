@@ -38,7 +38,7 @@ numRecords = 100
 
 
 
-class SpatialPoolerCompatabilityTest(unittest.TestCase):
+class SpatialPoolerCompatibilityTest(unittest.TestCase):
   """
   Tests to ensure that the PY and CPP implementations of the spatial pooler
   are functionally identical.
@@ -47,7 +47,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
   def setUp(self):
     # Set to 1 for more verbose debugging output
     self.verbosity = 1
-    
+
+
   def assertListAlmostEqual(self, alist, blist):
     self.assertEqual(len(alist), len(blist))
     for a, b in zip(alist, blist):
@@ -168,10 +169,10 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     Run the PY and CPP implementations side by side on random inputs.
     If seed is None a random seed will be chosen based on time, otherwise
     the fixed seed will be used.
-    
+
     If learnMode is None learning will be randomly turned on and off.
     If it is False or True then set it accordingly.
-    
+
     If convertEveryIteration is True, the CPP will be copied from the PY
     instance on every iteration just before each compute.
     """
@@ -184,7 +185,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     threshold = 0.8
     inputMatrix = (
       randomState.rand(numRecords,numInputs) > threshold).astype(uintType)
-    
+
     # Run side by side for numRecords iterations
     for i in xrange(numRecords):
       if learnMode is None:
@@ -196,11 +197,18 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       PyActiveArray = numpy.zeros(numColumns).astype(uintType)
       CppActiveArray = numpy.zeros(numColumns).astype(uintType)
       inputVector = inputMatrix[i,:]
-      
+
       pySp.compute(inputVector, learn, PyActiveArray)
       cppSp.compute(inputVector, learn, CppActiveArray)
       self.assertListEqual(list(PyActiveArray), list(CppActiveArray))
       self.compare(pySp,cppSp)
+
+      # The boost factors were similar enough to get this far.
+      # Now make them completely equal so that small variations don't cause
+      # columns to have slightly higher boosted overlaps.
+      cppBoostFactors = numpy.zeros(numColumns, dtype=realType)
+      cppSp.getBoostFactors(cppBoostFactors)
+      pySp.setBoostFactors(cppBoostFactors)
 
       # The permanence values for the two implementations drift ever so slowly
       # over time due to numerical precision issues. This occasionally causes
@@ -237,7 +245,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       self.assertListEqual(list(activeArray1), list(activeArray2))
 
 
-  def testCompatability1(self):
+  def testCompatibility1(self):
     params = {
       "inputDimensions": [4,4],
       "columnDimensions": [5,3],
@@ -267,7 +275,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
     self.runSideBySide(params)
 
-  def testCompatabilityNoLearn(self):
+
+  def testCompatibilityNoLearn(self):
     params = {
       "inputDimensions": [4,4],
       "columnDimensions": [5,3],
@@ -290,7 +299,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSideBySide(params, seed = None, learnMode = False)
 
 
-  def testCompatability2(self):
+  def testCompatibility2(self):
     params = {
       "inputDimensions": [12,7],
       "columnDimensions": [4,15],
@@ -313,7 +322,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSideBySide(params, convertEveryIteration = True)
 
 
-  def testCompatability3(self):
+  def testCompatibility3(self):
     params = {
       "inputDimensions": [2,4,5],
       "columnDimensions": [4,3,3],
