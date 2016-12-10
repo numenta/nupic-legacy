@@ -617,8 +617,8 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._activeDutyCycles = numpy.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
     sp._boostFactors = numpy.zeros(sp._numColumns)
     sp._updateBoostFactors()
-    self.assertListEqual(list(sp._boostFactors),
-                         [1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+    numpy.testing.assert_almost_equal(
+      sp._boostFactors, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
 
     sp._boostStrength = 10.0
     sp._numColumns = 6
@@ -628,15 +628,17 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._wrapAround = True
     sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
     sp._updateBoostFactors()
-    self.assertListEqual(list(sp._boostFactors),
-                         [3.11, 0.42, 6.91, 5.66, 0.01, 2.54])
+    numpy.testing.assert_almost_equal(
+      sp._boostFactors,
+      [3.1059927, 0.4203504, 6.912514, 5.6594878, 0.007699, 2.5429718])
 
     sp._boostStrength = 2.0
     sp._numColumns = 6
     sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
     sp._updateBoostFactors()
-    self.assertListEqual(list(sp._boostFactors),
-                         [1.25, 0.84, 1.47, 1.41, 0.38, 1.21])
+    numpy.testing.assert_almost_equal(
+      sp._boostFactors,
+      [1.2544117, 0.8408573, 1.4720657, 1.4143452, 0.3778215, 1.2052255])
 
     sp._globalInhibition = True
     sp._boostStrength = 10.0
@@ -645,8 +647,10 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inhibitionRadius = 3
     sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
     sp._updateBoostFactors()
-    self.assertListEqual(list(sp._boostFactors),
-                         [1.95, 0.26, 4.33, 3.55, 0.00, 1.59])
+
+    numpy.testing.assert_almost_equal(
+      sp._boostFactors,
+      [1.947734, 0.2635971, 4.3347618, 3.5490028, 0.0048279, 1.5946698])
 
 
   def testUpdateInhibitionRadius(self):

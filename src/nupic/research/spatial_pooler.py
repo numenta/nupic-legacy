@@ -1309,11 +1309,9 @@ class SpatialPooler(object):
       targetDensity = float(self._numActiveColumnsPerInhArea) / inhibitionArea
       targetDensity = min(targetDensity, 0.5)
 
-    boostFactors = numpy.exp(
+    self._boostFactors = numpy.exp(
       (targetDensity - self._activeDutyCycles) * self._boostStrength)
 
-    # Avoid floating point mismatches between implementations.
-    self._boostFactors = numpy.round(boostFactors, decimals=2)
 
 
   def _updateBoostFactorsLocal(self):
@@ -1328,11 +1326,8 @@ class SpatialPooler(object):
       maskNeighbors = self._getColumnNeighborhood(i)
       targetDensity[i] = numpy.mean(self._activeDutyCycles[maskNeighbors])
 
-    boostFactors = numpy.exp(
+    self._boostFactors = numpy.exp(
       (targetDensity - self._activeDutyCycles) * self._boostStrength)
-
-    # Avoid floating point mismatches between implementations.
-    self._boostFactors = numpy.round(boostFactors, decimals=2)
 
 
   def _updateBookeepingVars(self, learn):
@@ -1461,29 +1456,26 @@ class SpatialPooler(object):
     @return list with indices of the winning columns
     """
 
-    # When a column is selected, add a small number to its overlap. If it was
-    # tied with other not-yet-processed columns, those columns will now lose the
-    # tie-breaker when they're processed.
-    addToWinners = max(overlaps) / 1000.0
-    if addToWinners == 0:
-      addToWinners = 0.001
-    tieBrokenOverlaps = numpy.array(overlaps, dtype=realDType)
-
-    winners = []
+    activeArray = numpy.zeros(self._numColumns, dtype="bool")
 
     for column, overlap in enumerate(overlaps):
       if overlap >= self._stimulusThreshold:
         neighborhood = self._getColumnNeighborhood(column)
-        neighborhoodOverlaps = tieBrokenOverlaps[neighborhood]
+        neighborhoodOverlaps = overlaps[neighborhood]
 
         numBigger = numpy.count_nonzero(neighborhoodOverlaps > overlap)
 
-        numActive = int(0.5 + density * len(neighborhood))
-        if numBigger < numActive:
-          winners.append(column)
-          tieBrokenOverlaps[column] += addToWinners
+        # When there is a tie, favor neighbors that are already selected as
+        # active.
+        ties = numpy.where(neighborhoodOverlaps == overlap)
+        tiedNeighbors = neighborhood[ties]
+        numTiesLost = numpy.count_nonzero(activeArray[tiedNeighbors])
 
-    return numpy.array(winners, dtype=uintType)
+        numActive = int(0.5 + density * len(neighborhood))
+        if numBigger + numTiesLost < numActive:
+          activeArray[column] = True
+
+    return activeArray.nonzero()[0]
 
 
   def _isUpdateRound(self):
