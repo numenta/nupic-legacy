@@ -483,6 +483,8 @@ class PositiveTests(MyTestCaseBase):
       additionalFields=['anomalyScore'])
 
 
+  @unittest.skip("We aren't currently supporting serialization backward "
+                 "compatibility")
   def test_BackwardsCompatibility(self):
     """ Test that we can load in a checkpoint saved by an earlier version of
     the OPF.
