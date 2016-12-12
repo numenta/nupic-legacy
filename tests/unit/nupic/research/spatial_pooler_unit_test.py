@@ -69,9 +69,8 @@ class SpatialPoolerTest(unittest.TestCase):
       "synPermActiveInc": 0.1,
       "synPermConnected": 0.10,
       "minPctOverlapDutyCycle": 0.1,
-      "minPctActiveDutyCycle": 0.1,
       "dutyCyclePeriod": 10,
-      "maxBoost": 10.0,
+      "boostStrength": 10.0,
       "seed": getSeed(),
       "spVerbosity": 0
     }
@@ -96,9 +95,8 @@ class SpatialPoolerTest(unittest.TestCase):
         synPermActiveInc=0.1,
         synPermConnected=0.10,
         minPctOverlapDutyCycle=0.1,
-        minPctActiveDutyCycle=0.1,
         dutyCyclePeriod=10,
-        maxBoost=10.0,
+        boostStrength=10.0,
         seed=getSeed(),
         spVerbosity=0)
 
@@ -133,9 +131,8 @@ class SpatialPoolerTest(unittest.TestCase):
         synPermActiveInc=0.1,
         synPermConnected=0.10,
         minPctOverlapDutyCycle=0.1,
-        minPctActiveDutyCycle=0.1,
         dutyCyclePeriod=10,
-        maxBoost=10.0,
+        boostStrength=10.0,
         seed=getSeed(),
         spVerbosity=0)
 
@@ -292,9 +289,8 @@ class SpatialPoolerTest(unittest.TestCase):
       synPermActiveInc = 0.1,
       synPermConnected = 0.1,
       minPctOverlapDutyCycle=0.001,
-      minPctActiveDutyCycle=0.001,
       dutyCyclePeriod = 1000,
-      maxBoost = 10.0,
+      boostStrength = 10.0,
       seed = 1956,
       spVerbosity = 0
 
@@ -616,42 +612,45 @@ class SpatialPoolerTest(unittest.TestCase):
 
   def testUpdateBoostFactors(self):
     sp = self._sp
-    sp._maxBoost = 10.0
+    sp._boostStrength = 10.0
     sp._numColumns = 6
-    sp._minActiveDutyCycles = numpy.zeros(sp._numColumns) + 1e-6
-    sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
+    sp._activeDutyCycles = numpy.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
     sp._boostFactors = numpy.zeros(sp._numColumns)
-    trueBoostFactors = [1, 1, 1, 1, 1, 1]
     sp._updateBoostFactors()
-    for i in range(sp._boostFactors.size):
-      self.assertAlmostEqual(trueBoostFactors[i], sp._boostFactors[i])
+    numpy.testing.assert_almost_equal(
+      sp._boostFactors, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
 
-    sp._maxBoost = 10.0
+    sp._boostStrength = 10.0
     sp._numColumns = 6
-    sp._minActiveDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
+    sp._columnDimensions = numpy.array([6])
+    sp._numActiveColumnsPerInhArea = 1
+    sp._inhibitionRadius = 5
+    sp._wrapAround = True
     sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
-    trueBoostFactors = [1, 1, 1, 1, 1, 1]
     sp._updateBoostFactors()
-    for i in range(sp._boostFactors.size):
-      self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
+    numpy.testing.assert_almost_equal(
+      sp._boostFactors,
+      [3.1059927, 0.4203504, 6.912514, 5.6594878, 0.007699, 2.5429718])
 
-    sp._maxBoost = 10.0
+    sp._boostStrength = 2.0
     sp._numColumns = 6
-    sp._minActiveDutyCycles = numpy.array([0.1, 0.2, 0.02, 0.03, 0.7, 0.12])
-    sp._activeDutyCycles = numpy.array([0.01, 0.02, 0.002, 0.003, 0.07, 0.012])
-    trueBoostFactors = [9.1, 9.1, 9.1, 9.1, 9.1, 9.1]
+    sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
     sp._updateBoostFactors()
-    for i in range(sp._boostFactors.size):
-      self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
+    numpy.testing.assert_almost_equal(
+      sp._boostFactors,
+      [1.2544117, 0.8408573, 1.4720657, 1.4143452, 0.3778215, 1.2052255])
 
-    sp._maxBoost = 10.0
+    sp._globalInhibition = True
+    sp._boostStrength = 10.0
     sp._numColumns = 6
-    sp._minActiveDutyCycles = numpy.array([0.1, 0.2, 0.02, 0.03, 0.7, 0.12])
-    sp._activeDutyCycles = numpy.zeros(sp._numColumns)
-    trueBoostFactors = 6*[sp._maxBoost]
+    sp._numActiveColumnsPerInhArea = 1
+    sp._inhibitionRadius = 3
+    sp._activeDutyCycles = numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
     sp._updateBoostFactors()
-    for i in range(sp._boostFactors.size):
-      self.assertLessEqual(abs(trueBoostFactors[i] - sp._boostFactors[i]), 1e-6)
+
+    numpy.testing.assert_almost_equal(
+      sp._boostFactors,
+      [1.947734, 0.2635971, 4.3347618, 3.5490028, 0.0048279, 1.5946698])
 
 
   def testUpdateInhibitionRadius(self):
@@ -945,15 +944,8 @@ class SpatialPoolerTest(unittest.TestCase):
     sp.setInhibitionRadius(1)
     sp.setOverlapDutyCycles([0.7, 0.1, 0.5, 0.01, 0.78, 0.55, 0.1, 0.001])
     sp.setActiveDutyCycles([0.9, 0.3, 0.5, 0.7, 0.1, 0.01, 0.08, 0.12])
-    sp.setMinPctActiveDutyCycles(0.1);
     sp.setMinPctOverlapDutyCycles(0.2);
     sp._updateMinDutyCyclesLocal()
-
-    resultMinActiveDutyCycles = numpy.zeros(sp.getNumColumns())
-    sp.getMinActiveDutyCycles(resultMinActiveDutyCycles)
-    for actual, expected in zip(resultMinActiveDutyCycles,
-                                [0.09, 0.09, 0.07, 0.07, 0.07, 0.01, 0.012, 0.012]):
-      self.assertAlmostEqual(actual, expected)
 
     resultMinOverlapDutyCycles = numpy.zeros(sp.getNumColumns())
     sp.getMinOverlapDutyCycles(resultMinOverlapDutyCycles)
@@ -970,15 +962,8 @@ class SpatialPoolerTest(unittest.TestCase):
     sp.setInhibitionRadius(1)
     sp.setOverlapDutyCycles([0.7, 0.1, 0.5, 0.01, 0.78, 0.55, 0.1, 0.001])
     sp.setActiveDutyCycles([0.9, 0.3, 0.5, 0.7, 0.1, 0.01, 0.08, 0.12])
-    sp.setMinPctActiveDutyCycles(0.1);
     sp.setMinPctOverlapDutyCycles(0.2);
     sp._updateMinDutyCyclesLocal()
-
-    resultMinActiveDutyCycles = numpy.zeros(sp.getNumColumns())
-    sp.getMinActiveDutyCycles(resultMinActiveDutyCycles)
-    for actual, expected in zip(resultMinActiveDutyCycles,
-                                [0.09, 0.09, 0.07, 0.07, 0.07, 0.01, 0.012, 0.09]):
-      self.assertAlmostEqual(actual, expected)
 
     resultMinOverlapDutyCycles = numpy.zeros(sp.getNumColumns())
     sp.getMinOverlapDutyCycles(resultMinOverlapDutyCycles)
@@ -986,24 +971,20 @@ class SpatialPoolerTest(unittest.TestCase):
                                 [0.14, 0.14, 0.1, 0.156, 0.156, 0.156, 0.11, 0.14]):
       self.assertAlmostEqual(actual, expected)
 
+
   def testUpdateMinDutyCyclesGlobal(self):
     sp = self._sp
     sp._minPctOverlapDutyCycles = 0.01
-    sp._minPctActiveDutyCycles = 0.02
     sp._numColumns = 5
     sp._overlapDutyCycles = numpy.array([0.06, 1, 3, 6, 0.5])
     sp._activeDutyCycles = numpy.array([0.6, 0.07, 0.5, 0.4, 0.3])
     sp._updateMinDutyCyclesGlobal()
-    trueMinActiveDutyCycles = sp._numColumns*[0.02*0.6]
     trueMinOverlapDutyCycles = sp._numColumns*[0.01*6]
     for i in xrange(sp._numColumns):
-      self.assertAlmostEqual(trueMinActiveDutyCycles[i],
-                             sp._minActiveDutyCycles[i])
       self.assertAlmostEqual(trueMinOverlapDutyCycles[i],
                              sp._minOverlapDutyCycles[i])
 
     sp._minPctOverlapDutyCycles = 0.015
-    sp._minPctActiveDutyCycles = 0.03
     sp._numColumns = 5
     sp._overlapDutyCycles = numpy.array([0.86, 2.4, 0.03, 1.6, 1.5])
     sp._activeDutyCycles = numpy.array([0.16, 0.007, 0.15, 0.54, 0.13])
@@ -1014,16 +995,12 @@ class SpatialPoolerTest(unittest.TestCase):
                              sp._minOverlapDutyCycles[i])
 
     sp._minPctOverlapDutyCycles = 0.015
-    sp._minPctActiveDutyCycles= 0.03
     sp._numColumns = 5
     sp._overlapDutyCycles = numpy.zeros(5)
     sp._activeDutyCycles = numpy.zeros(5)
     sp._updateMinDutyCyclesGlobal()
     trueMinOverlapDutyCycles = sp._numColumns * [0]
-    trueMinActiveDutyCycles = sp._numColumns * [0]
     for i in xrange(sp._numColumns):
-      self.assertAlmostEqual(trueMinActiveDutyCycles[i],
-                             sp._minActiveDutyCycles[i])
       self.assertAlmostEqual(trueMinOverlapDutyCycles[i],
                              sp._minOverlapDutyCycles[i])
 
@@ -1492,9 +1469,8 @@ class SpatialPoolerTest(unittest.TestCase):
         synPermActiveInc=0.1,
         synPermConnected=0.10,
         minPctOverlapDutyCycle=0.1,
-        minPctActiveDutyCycle=0.1,
         dutyCyclePeriod=10,
-        maxBoost=10.0,
+        boostStrength=10.0,
         seed=42,
         spVerbosity=0)
 

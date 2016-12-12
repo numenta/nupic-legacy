@@ -26,7 +26,7 @@ import cPickle as pickle
 import unittest2 as unittest
 
 from nupic.bindings.math import GetNTAReal
-from nupic.research.spatial_pooler import SpatialPooler
+from nupic.bindings.algorithms import SpatialPooler
 
 realType = GetNTAReal()
 uintType = "uint32"
@@ -116,10 +116,10 @@ class SpatialPoolerAPITest(unittest.TestCase):
     self.assertEqual(inParam, outParam)
 
 
-  def testGetMaxBoost(self):
+  def testGetBoostStrength(self):
     inParam = 78
-    self.sp.setMaxBoost(inParam)
-    outParam = self.sp.getMaxBoost()
+    self.sp.setBoostStrength(inParam)
+    outParam = self.sp.getBoostStrength()
     self.assertEqual(inParam, outParam)
 
 
@@ -186,13 +186,6 @@ class SpatialPoolerAPITest(unittest.TestCase):
     self.assertAlmostEqual(inParam, outParam)
 
 
-  def testGetMinPctActiveDutyCycles(self):
-    inParam = 0.444333
-    self.sp.setMinPctActiveDutyCycles(inParam)
-    outParam = self.sp.getMinPctActiveDutyCycles()
-    self.assertAlmostEqual(inParam, outParam)
-
-
   def testGetPermanence(self):
     numInputs = 5
     numColumns = 5
@@ -253,18 +246,6 @@ class SpatialPoolerAPITest(unittest.TestCase):
     self.sp.setMinOverlapDutyCycles(inParam)
     outParam = numpy.zeros(numInputs).astype(realType)
     self.sp.getMinOverlapDutyCycles(outParam)
-    self.assertListEqual(list(inParam),list(outParam))
-
-
-  def testGetMinActiveDutyCycles(self):
-    numInputs = 3
-    numColumns = 3
-    self.sp.initialize(columnDimensions=[numInputs], 
-                       inputDimensions=[numColumns])
-    inParam = numpy.array([0.01, 0.02, 0.035, ]).astype(realType)
-    self.sp.setMinActiveDutyCycles(inParam)
-    outParam = numpy.zeros(numInputs).astype(realType)
-    self.sp.getMinActiveDutyCycles(outParam)
     self.assertListEqual(list(inParam),list(outParam))
 
 
