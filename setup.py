@@ -62,9 +62,7 @@ def nupicBindingsPrereleaseInstalled():
   # Also check for nupic.research.bindings
   try:
     nupicDistribution = pkg_resources.get_distribution("nupic.research.bindings")
-    if pkg_resources.parse_version(nupicDistribution.version).is_prerelease:
-      # A pre-release dev version of nupic.bindings is installed.
-      return True
+    return True
   except pkg_resources.DistributionNotFound:
     pass  # Silently ignore.  The absence of nupic.bindings will be handled by
     # setuptools by default
