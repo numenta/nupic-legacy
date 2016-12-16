@@ -117,7 +117,7 @@ class AnomalyLikelihood(object):
     self._distribution = None
 
 
-    if claLearningPeriod != None:
+    if claLearningPeriod is not None:
       print("claLearningPeriod is deprecated, use learningPeriod instead.")
       self._learningPeriod = claLearningPeriod
     else:

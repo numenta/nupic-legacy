@@ -60,7 +60,7 @@ class SequenceMachine(object):
     sequence = []
 
     for number in numbers:
-      if number == None:
+      if number is None:
         sequence.append(number)
       else:
         pattern = self.patternMachine.get(number)
@@ -102,7 +102,7 @@ class SequenceMachine(object):
     for i in xrange(len(sequence)):
       pattern = sequence[i]
 
-      if pattern == None:
+      if pattern is None:
         text += "<reset>"
         if i < len(sequence) - 1:
           text += "\n"

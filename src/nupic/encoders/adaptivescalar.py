@@ -91,8 +91,8 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     TODO: document
     """
     #If the stats are not fully formed, ignore.
-    if fieldStats[fieldName]['min'] == None or \
-      fieldStats[fieldName]['max'] == None:
+    if fieldStats[fieldName]['min'] is None or \
+      fieldStats[fieldName]['max'] is None:
         return
     self.minval = fieldStats[fieldName]['min']
     self.maxval = fieldStats[fieldName]['max']

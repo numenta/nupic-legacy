@@ -356,7 +356,7 @@ def evalSequences(tps,
   """
 
   # If no test sequence is specified, use the first training sequence
-  if testSequences == None:
+  if testSequences is None:
     testSequences = trainingSequences
 
   # First TP instance is used by default for verbose printing of input values,

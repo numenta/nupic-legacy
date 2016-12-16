@@ -508,7 +508,7 @@ class FileRecordStream(RecordStreamIface):
     # Collect stats only once per File object, use fresh csv iterator
     # to keep the next() method returning sequential records no matter when
     # caller asks for stats
-    if self._stats == None:
+    if self._stats is None:
       # Stats are only available when reading csv file
       assert self._mode == self._FILE_READ_MODE
 
@@ -539,10 +539,10 @@ class FileRecordStream(RecordStreamIface):
                 types[i] in [FieldMetaType.integer, FieldMetaType.float] and
                 f not in self._missingValues):
               value = self._adapters[i](f)
-              if self._stats['max'][i] == None or \
+              if self._stats['max'][i] is None or \
                  self._stats['max'][i] < value:
                 self._stats['max'][i] = value
-              if self._stats['min'][i] == None or \
+              if self._stats['min'][i] is None or \
                  self._stats['min'][i] > value:
                 self._stats['min'][i] = value
 

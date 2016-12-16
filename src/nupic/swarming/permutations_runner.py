@@ -597,7 +597,7 @@ class _HyperSearchRunner(object):
 
       # Sleep before next check
       if not hyperSearchFinished:
-        if self._options["timeout"] != None:
+        if self._options["timeout"] is not None:
           if ((datetime.now() - lastUpdateTime) >
               timedelta(minutes=self._options["timeout"])):
             print "Timeout reached, exiting"
