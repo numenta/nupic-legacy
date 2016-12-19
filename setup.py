@@ -51,7 +51,7 @@ def nupicBindingsPrereleaseInstalled():
   @return: boolean
   """
   try:
-    nupicDistribution = pkg_resources.get_distribution(distributionName)
+    nupicDistribution = pkg_resources.get_distribution("nupic.bindings")
     if pkg_resources.parse_version(nupicDistribution.version).is_prerelease:
       # A pre-release dev version of nupic.bindings is installed.
       return True
