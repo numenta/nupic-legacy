@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 permutations = dict(
                 dataSetPackage = ['firstOrder'],
