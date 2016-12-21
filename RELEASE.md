@@ -12,7 +12,9 @@ successfully
 version
 5. Deploy the release in Bamboo. This will:
     - Validate that the Bamboo release number matches the wheel version
-    - Check that release notes are present for the version to be released
     - Push the wheel to PyPI
-    - If successful, push a version tag to the repo
-6. Send announcement to the committer's lounge on discourse.numenta.org that the release is complete.
+6. Create a new Github "Release" at https://github.com/numenta/nupic/releases/new
+    - Along with the creation of the release, there is an option to create a git tag with the release. Name it "X.Y.Z" and point it to the commit SHA for the merged PR described in #2 above.
+    - Release title should be "X.Y.Z"
+    - Release description should be the latest changelog
+7. Send announcement to the committer's lounge on discourse.numenta.org that the release is complete.

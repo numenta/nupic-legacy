@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -38,7 +37,7 @@ numRecords = 100
 
 
 
-class SpatialPoolerCompatabilityTest(unittest.TestCase):
+class SpatialPoolerCompatibilityTest(unittest.TestCase):
   """
   Tests to ensure that the PY and CPP implementations of the spatial pooler
   are functionally identical.
@@ -47,7 +46,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
   def setUp(self):
     # Set to 1 for more verbose debugging output
     self.verbosity = 1
-    
+
+
   def assertListAlmostEqual(self, alist, blist):
     self.assertEqual(len(alist), len(blist))
     for a, b in zip(alist, blist):
@@ -76,8 +76,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
                            cppSp.getInhibitionRadius())
     self.assertAlmostEqual(pySp.getDutyCyclePeriod(),
                            cppSp.getDutyCyclePeriod())
-    self.assertAlmostEqual(pySp.getMaxBoost(),
-                           cppSp.getMaxBoost())
+    self.assertAlmostEqual(pySp.getBoostStrength(),
+                           cppSp.getBoostStrength())
     self.assertAlmostEqual(pySp.getIterationNum(),
                            cppSp.getIterationNum())
     self.assertAlmostEqual(pySp.getIterationLearnNum(),
@@ -98,8 +98,6 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
                            cppSp.getSynPermConnected())
     self.assertAlmostEqual(pySp.getMinPctOverlapDutyCycles(),
                            cppSp.getMinPctOverlapDutyCycles())
-    self.assertAlmostEqual(pySp.getMinPctActiveDutyCycles(),
-                           cppSp.getMinPctActiveDutyCycles())
 
     numColumns = pySp.getNumColumns()
     numInputs = pySp.getNumInputs()
@@ -127,12 +125,6 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     pySp.getMinOverlapDutyCycles(pyMinOverlap)
     cppSp.getMinOverlapDutyCycles(cppMinOverlap)
     self.assertListAlmostEqual(list(pyMinOverlap), list(cppMinOverlap))
-
-    pyMinActive = numpy.zeros(numColumns).astype(realType)
-    cppMinActive = numpy.zeros(numColumns).astype(realType)
-    pySp.getMinActiveDutyCycles(pyMinActive)
-    cppSp.getMinActiveDutyCycles(cppMinActive)
-    self.assertListAlmostEqual(list(pyMinActive), list(cppMinActive))
 
     for i in xrange(pySp.getNumColumns()):
       if self.verbosity > 2: print "Column:",i
@@ -168,10 +160,10 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     Run the PY and CPP implementations side by side on random inputs.
     If seed is None a random seed will be chosen based on time, otherwise
     the fixed seed will be used.
-    
+
     If learnMode is None learning will be randomly turned on and off.
     If it is False or True then set it accordingly.
-    
+
     If convertEveryIteration is True, the CPP will be copied from the PY
     instance on every iteration just before each compute.
     """
@@ -184,7 +176,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     threshold = 0.8
     inputMatrix = (
       randomState.rand(numRecords,numInputs) > threshold).astype(uintType)
-    
+
     # Run side by side for numRecords iterations
     for i in xrange(numRecords):
       if learnMode is None:
@@ -196,11 +188,18 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       PyActiveArray = numpy.zeros(numColumns).astype(uintType)
       CppActiveArray = numpy.zeros(numColumns).astype(uintType)
       inputVector = inputMatrix[i,:]
-      
+
       pySp.compute(inputVector, learn, PyActiveArray)
       cppSp.compute(inputVector, learn, CppActiveArray)
       self.assertListEqual(list(PyActiveArray), list(CppActiveArray))
       self.compare(pySp,cppSp)
+
+      # The boost factors were similar enough to get this far.
+      # Now make them completely equal so that small variations don't cause
+      # columns to have slightly higher boosted overlaps.
+      cppBoostFactors = numpy.zeros(numColumns, dtype=realType)
+      cppSp.getBoostFactors(cppBoostFactors)
+      pySp.setBoostFactors(cppBoostFactors)
 
       # The permanence values for the two implementations drift ever so slowly
       # over time due to numerical precision issues. This occasionally causes
@@ -237,7 +236,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       self.assertListEqual(list(activeArray1), list(activeArray2))
 
 
-  def testCompatability1(self):
+  def testCompatibility1(self):
     params = {
       "inputDimensions": [4,4],
       "columnDimensions": [5,3],
@@ -251,9 +250,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "synPermActiveInc": 0.1,
       "synPermConnected": 0.10,
       "minPctOverlapDutyCycle": 0.001,
-      "minPctActiveDutyCycle": 0.001,
       "dutyCyclePeriod": 30,
-      "maxBoost": 10.0,
+      "boostStrength": 10.0,
       "seed": 4,
       "spVerbosity": 0
     }
@@ -267,7 +265,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
     self.runSideBySide(params)
 
-  def testCompatabilityNoLearn(self):
+
+  def testCompatibilityNoLearn(self):
     params = {
       "inputDimensions": [4,4],
       "columnDimensions": [5,3],
@@ -281,16 +280,15 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "synPermActiveInc": 0.1,
       "synPermConnected": 0.10,
       "minPctOverlapDutyCycle": 0.001,
-      "minPctActiveDutyCycle": 0.001,
       "dutyCyclePeriod": 30,
-      "maxBoost": 10.0,
+      "boostStrength": 10.0,
       "seed": 4,
       "spVerbosity": 0
     }
     self.runSideBySide(params, seed = None, learnMode = False)
 
 
-  def testCompatability2(self):
+  def testCompatibility2(self):
     params = {
       "inputDimensions": [12,7],
       "columnDimensions": [4,15],
@@ -304,16 +302,15 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "synPermActiveInc": 0.14,
       "synPermConnected": 0.178,
       "minPctOverlapDutyCycle": 0.021,
-      "minPctActiveDutyCycle": 0.0012,
       "dutyCyclePeriod": 20,
-      "maxBoost": 11.0,
+      "boostStrength": 11.0,
       "seed": 6,
       "spVerbosity": 0
     }
-    self.runSideBySide(params, convertEveryIteration = True)
+    self.runSideBySide(params, convertEveryIteration=True, seed=63862)
 
 
-  def testCompatability3(self):
+  def testCompatibility3(self):
     params = {
       "inputDimensions": [2,4,5],
       "columnDimensions": [4,3,3],
@@ -327,13 +324,12 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "synPermActiveInc": 0.1,
       "synPermConnected": 0.12,
       "minPctOverlapDutyCycle": 0.011,
-      "minPctActiveDutyCycle": 0.052,
       "dutyCyclePeriod": 25,
-      "maxBoost": 11.0,
+      "boostStrength": 11.0,
       "seed": 19,
       "spVerbosity": 0
     }
-    self.runSideBySide(params, convertEveryIteration = True)
+    self.runSideBySide(params, convertEveryIteration=True, seed=63862)
 
 
   def testSerialization(self):
@@ -350,9 +346,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       'synPermActiveInc' : 0.1,
       'synPermConnected' : 0.12,
       'minPctOverlapDutyCycle' : 0.011,
-      'minPctActiveDutyCycle' : 0.052,
       'dutyCyclePeriod' : 25,
-      'maxBoost' : 11.0,
+      'boostStrength' : 11.0,
       'seed' : 19,
       'spVerbosity' : 0
     }
@@ -379,9 +374,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       'synPermActiveInc' : 0.1,
       'synPermConnected' : 0.12,
       'minPctOverlapDutyCycle' : 0.011,
-      'minPctActiveDutyCycle' : 0.052,
       'dutyCyclePeriod' : 25,
-      'maxBoost' : 11.0,
+      'boostStrength' : 11.0,
       'seed' : 19,
       'spVerbosity' : 0
     }
