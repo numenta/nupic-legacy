@@ -32,6 +32,7 @@ realDType = GetNTAReal()
 uintType = "uint32"
 
 VERSION = 3
+PERMANENCE_EPSILON = 0.000001
 
 
 
@@ -83,7 +84,6 @@ class CorticalColumns(_SparseMatrixCorticalColumnAdapter, SparseMatrix):
   pass
 
 
-
 class BinaryCorticalColumns(_SparseMatrixCorticalColumnAdapter,
                             SparseBinaryMatrix):
   """ SparseBinaryMatrix variant of _SparseMatrixCorticalColumnAdapter.  Use in
@@ -121,9 +121,8 @@ class SpatialPooler(object):
                synPermActiveInc=0.05,
                synPermConnected=0.10,
                minPctOverlapDutyCycle=0.001,
-               minPctActiveDutyCycle=0.001,
                dutyCyclePeriod=1000,
-               maxBoost=10.0,
+               boostStrength=0.0,
                seed=-1,
                spVerbosity=0,
                wrapAround=True
@@ -211,25 +210,17 @@ class SpatialPooler(object):
       cycle before  inhibition allows a cell to search for new inputs when
       either its previously learned inputs are no longer ever active, or when
       the vast majority of them have been "hijacked" by other columns.
-    @param minPctActiveDutyCycle:
-      A number between 0 and 1.0, used to set a floor on how often a column
-      should be activate.  Periodically, each column looks at the activity duty
-      cycle of all other columns within its inhibition radius and sets its own
-      internal minimal acceptable duty cycle to: minPctDutyCycleAfterInh *
-      max(other columns' duty cycles).  On each iteration, any column whose duty
-      cycle after inhibition falls below this computed value will get its
-      internal boost factor increased.
     @param dutyCyclePeriod:
       The period used to calculate duty cycles. Higher values make it take
       longer to respond to changes in boost or synPerConnectedCell. Shorter
       values make it more unstable and likely to oscillate.
-    @param maxBoost:
-      The maximum overlap boost factor. Each column's overlap gets multiplied
-      by a boost factor before it gets considered for inhibition.  The actual
-      boost factor for a column is number between 1.0 and maxBoost. A boost
-      factor of 1.0 is used if the duty cycle is >= minOverlapDutyCycle,
-      maxBoost is used if the duty cycle is 0, and any duty cycle in between is
-      linearly extrapolated from these 2 endpoints.
+    @param boostStrength:
+      A number greater or equal than 0.0, used to control the strength of
+      boosting. No boosting is applied if it is set to 0. Boosting strength
+      increases as a function of boostStrength. Boosting encourages columns to
+      have similar activeDutyCycles as their neighbors, which will lead to more
+      efficient use of columns. However, too much boosting may also lead to
+      instability of SP outputs.
     @param seed:
       Seed for our own pseudo-random number generator.
     @param spVerbosity:
@@ -259,6 +250,9 @@ class SpatialPooler(object):
       raise InvalidSPParamValueError(
         "Input dimensions must match column dimensions")
 
+    if boostStrength < 0.0:
+      raise InvalidSPParamValueError("boostStrength must be >= 0.0")
+
     self._seed(seed)
 
     self._numInputs = int(numInputs)
@@ -276,9 +270,8 @@ class SpatialPooler(object):
     self._synPermBelowStimulusInc = synPermConnected / 10.0
     self._synPermConnected = synPermConnected
     self._minPctOverlapDutyCycles = minPctOverlapDutyCycle
-    self._minPctActiveDutyCycles = minPctActiveDutyCycle
     self._dutyCyclePeriod = dutyCyclePeriod
-    self._maxBoost = maxBoost
+    self._boostStrength = boostStrength
     self._spVerbosity = spVerbosity
     self._wrapAround = wrapAround
     self._synPermMin = 0.0
@@ -358,8 +351,6 @@ class SpatialPooler(object):
     self._activeDutyCycles = numpy.zeros(numColumns, dtype=realDType)
     self._minOverlapDutyCycles = numpy.zeros(numColumns,
                                              dtype=realDType)
-    self._minActiveDutyCycles = numpy.zeros(numColumns,
-                                            dtype=realDType)
     self._boostFactors = numpy.ones(numColumns, dtype=realDType)
 
     # The inhibition radius determines the size of a column's local
@@ -482,14 +473,14 @@ class SpatialPooler(object):
     self._dutyCyclePeriod = dutyCyclePeriod
 
 
-  def getMaxBoost(self):
+  def getBoostStrength(self):
     """Returns the maximum boost value"""
-    return self._maxBoost
+    return self._boostStrength
 
 
-  def setMaxBoost(self, maxBoost):
+  def setBoostStrength(self, boostStrength):
     """Sets the maximum boost value"""
-    self._maxBoost = maxBoost
+    self._boostStrength = boostStrength
 
 
   def getIterationNum(self):
@@ -599,18 +590,6 @@ class SpatialPooler(object):
     self._minPctOverlapDutyCycles = minPctOverlapDutyCycles
 
 
-  def getMinPctActiveDutyCycles(self):
-    """Returns the minimum tolerated activity duty cycle, given as percent of
-    neighbors' activity duty cycle"""
-    return self._minPctActiveDutyCycles
-
-
-  def setMinPctActiveDutyCycles(self, minPctActiveDutyCycles):
-    """Sets the minimum tolerated activity duty, given as percent of
-    neighbors' activity duty cycle"""
-    self._minPctActiveDutyCycles = minPctActiveDutyCycles
-
-
   def getBoostFactors(self, boostFactors):
     """Returns the boost factors for all columns. 'boostFactors' size must
     match the number of columns"""
@@ -659,18 +638,6 @@ class SpatialPooler(object):
     self._minOverlapDutyCycles[:] = minOverlapDutyCycles[:]
 
 
-  def getMinActiveDutyCycles(self, minActiveDutyCycles):
-    """Returns the minimum activity duty cycles for all columns.
-    '_minActiveDutyCycles' size must match the number of columns"""
-    minActiveDutyCycles[:] = self._minActiveDutyCycles[:]
-
-
-  def setMinActiveDutyCycles(self, minActiveDutyCycles):
-    """Sets the minimum activity duty cycles for all columns.
-    '_minActiveDutyCycles' size must match the number of columns"""
-    self._minActiveDutyCycles = minActiveDutyCycles
-
-
   def getPotential(self, columnIndex, potential):
     """Returns the potential mapping for a given column. 'potential' size
     must match the number of inputs"""
@@ -681,7 +648,7 @@ class SpatialPooler(object):
   def setPotential(self, columnIndex, potential):
     """Sets the potential mapping for a given column. 'potential' size
     must match the number of inputs, and must be greater than _stimulusThreshold """
-    assert(column < self._numColumns)
+    assert(columnIndex < self._numColumns)
 
     potentialSparse = numpy.where(potential > 0)[0]
     if len(potentialSparse) < self._stimulusThreshold:
@@ -819,17 +786,13 @@ class SpatialPooler(object):
   def _updateMinDutyCyclesGlobal(self):
     """
     Updates the minimum duty cycles in a global fashion. Sets the minimum duty
-    cycles for the overlap and activation of all columns to be a percent of the
-    maximum in the region, specified by minPctOverlapDutyCycle and
-    minPctActiveDutyCycle respectively. Functionality it is equivalent to
-    _updateMinDutyCyclesLocal, but this function exploits the globality of the
-    computation to perform it in a straightforward, and more efficient manner.
+    cycles for the overlap all columns to be a percent of the maximum in the
+    region, specified by minPctOverlapDutyCycle. Functionality it is equivalent
+    to _updateMinDutyCyclesLocal, but this function exploits the globality of
+    the computation to perform it in a straightforward, and efficient manner.
     """
     self._minOverlapDutyCycles.fill(
         self._minPctOverlapDutyCycles * self._overlapDutyCycles.max()
-      )
-    self._minActiveDutyCycles.fill(
-        self._minPctActiveDutyCycles * self._activeDutyCycles.max()
       )
 
 
@@ -847,13 +810,8 @@ class SpatialPooler(object):
       maxActiveDuty = self._activeDutyCycles[neighborhood].max()
       maxOverlapDuty = self._overlapDutyCycles[neighborhood].max()
 
-      self._minActiveDutyCycles[column] = (maxActiveDuty *
-                                           self._minPctActiveDutyCycles)
       self._minOverlapDutyCycles[column] = (maxOverlapDuty *
                                             self._minPctOverlapDutyCycles)
-
-
-
 
 
   def _updateDutyCycles(self, overlaps, activeColumns):
@@ -894,7 +852,6 @@ class SpatialPooler(object):
                                 activeArray,
                                 period
                               )
-
 
 
   def _updateInhibitionRadius(self):
@@ -1080,7 +1037,9 @@ class SpatialPooler(object):
 
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
     while True:
-      numConnected = numpy.nonzero(perm > self._synPermConnected)[0].size
+      numConnected = numpy.nonzero(
+        perm > self._synPermConnected - PERMANENCE_EPSILON)[0].size
+
       if numConnected >= self._stimulusThreshold:
         return
       perm[mask] += self._synPermBelowStimulusInc
@@ -1118,7 +1077,8 @@ class SpatialPooler(object):
       self._raisePermanenceToThreshold(perm, maskPotential)
     perm[perm < self._synPermTrimThreshold] = 0
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
-    newConnected = numpy.where(perm >= self._synPermConnected)[0]
+    newConnected = numpy.where(perm >=
+                               self._synPermConnected - PERMANENCE_EPSILON)[0]
     self._permanences.update(columnIndex, perm)
     self._connectedSynapses.replace(columnIndex, newConnected)
     self._connectedCounts[columnIndex] = newConnected.size
@@ -1300,38 +1260,74 @@ class SpatialPooler(object):
 
 
   def _updateBoostFactors(self):
-    r"""
+    """
     Update the boost factors for all columns. The boost factors are used to
     increase the overlap of inactive columns to improve their chances of
-    becoming active. and hence encourage participation of more columns in the
-    learning process. This is a line defined as: y = mx + b boost =
-    (1-maxBoost)/minDuty * dutyCycle + maxFiringBoost. Intuitively this means
-    that columns that have been active enough have a boost factor of 1, meaning
-    their overlap is not boosted. Columns whose active duty cycle drops too much
-    below that of their neighbors are boosted depending on how infrequently they
-    have been active. The more infrequent, the more they are boosted. The exact
-    boost factor is linearly interpolated between the points (dutyCycle:0,
-    boost:maxFiringBoost) and (dutyCycle:minDuty, boost:1.0).
+    becoming active, and hence encourage participation of more columns in the
+    learning process. The boosting function is a curve defined as:
+    boostFactors = exp[ - boostStrength * (dutyCycle - targetDensity)]
+    Intuitively this means that columns that have been active at the target
+    activation level have a boost factor of 1, meaning their overlap is not
+    boosted. Columns whose active duty cycle drops too much below that of their
+    neighbors are boosted depending on how infrequently they have been active.
+    Columns that has been active more than the target activation level have
+    a boost factor below 1, meaning their overlap is suppressed
+
+    The boostFactor depends on the activeDutyCycle via an exponential function:
 
             boostFactor
                 ^
-    maxBoost _  |
+                |
                 |\
                 | \
-          1  _  |  \ _ _ _ _ _ _ _
-                |
+          1  _  |  \
+                |    _
+                |      _ _
+                |          _ _ _ _
                 +--------------------> activeDutyCycle
                    |
-            minActiveDutyCycle
+              targetDensity
     """
+    if self._globalInhibition:
+      self._updateBoostFactorsGlobal()
+    else:
+      self._updateBoostFactorsLocal()
 
-    mask = numpy.where(self._minActiveDutyCycles > 0)[0]
-    self._boostFactors[mask] = ((1 - self._maxBoost) /
-      self._minActiveDutyCycles[mask] * self._activeDutyCycles[mask]
-        ).astype(realDType) + self._maxBoost
 
-    self._boostFactors[self._activeDutyCycles >
-      self._minActiveDutyCycles] = 1.0
+  def _updateBoostFactorsGlobal(self):
+    """
+    Update boost factors when global inhibition is used
+    """
+    # When global inhibition is enabled, the target activation level is
+    # the sparsity of the spatial pooler
+    if (self._localAreaDensity > 0):
+      targetDensity = self._localAreaDensity
+    else:
+      inhibitionArea = ((2 * self._inhibitionRadius + 1)
+                        ** self._columnDimensions.size)
+      inhibitionArea = min(self._numColumns, inhibitionArea)
+      targetDensity = float(self._numActiveColumnsPerInhArea) / inhibitionArea
+      targetDensity = min(targetDensity, 0.5)
+
+    self._boostFactors = numpy.exp(
+      (targetDensity - self._activeDutyCycles) * self._boostStrength)
+
+
+
+  def _updateBoostFactorsLocal(self):
+    """
+    Update boost factors when local inhibition is used
+    """
+    # Determine the target activation level for each column
+    # The targetDensity is the average activeDutyCycles of the neighboring
+    # columns of each column.
+    targetDensity = numpy.zeros(self._numColumns, dtype=realDType)
+    for i in xrange(self._numColumns):
+      maskNeighbors = self._getColumnNeighborhood(i)
+      targetDensity[i] = numpy.mean(self._activeDutyCycles[maskNeighbors])
+
+    self._boostFactors = numpy.exp(
+      (targetDensity - self._activeDutyCycles) * self._boostStrength)
 
 
   def _updateBookeepingVars(self, learn):
@@ -1460,28 +1456,26 @@ class SpatialPooler(object):
     @return list with indices of the winning columns
     """
 
-    # When a column is selected, add a small number to its overlap. If it was
-    # tied with other not-yet-processed columns, those columns will now lose the
-    # tie-breaker when they're processed.
-    addToWinners = max(overlaps) / 1000.0
-    if addToWinners == 0:
-      addToWinners = 0.001
-    tieBrokenOverlaps = numpy.array(overlaps, dtype=realDType)
+    activeArray = numpy.zeros(self._numColumns, dtype="bool")
 
-    winners = []
     for column, overlap in enumerate(overlaps):
       if overlap >= self._stimulusThreshold:
         neighborhood = self._getColumnNeighborhood(column)
-        neighborhoodOverlaps = tieBrokenOverlaps[neighborhood]
+        neighborhoodOverlaps = overlaps[neighborhood]
 
         numBigger = numpy.count_nonzero(neighborhoodOverlaps > overlap)
 
-        numActive = int(0.5 + density * len(neighborhood))
-        if numBigger < numActive:
-          winners.append(column)
-          tieBrokenOverlaps[column] += addToWinners
+        # When there is a tie, favor neighbors that are already selected as
+        # active.
+        ties = numpy.where(neighborhoodOverlaps == overlap)
+        tiedNeighbors = neighborhood[ties]
+        numTiesLost = numpy.count_nonzero(activeArray[tiedNeighbors])
 
-    return numpy.array(winners, dtype=uintType)
+        numActive = int(0.5 + density * len(neighborhood))
+        if numBigger + numTiesLost < numActive:
+          activeArray[column] = True
+
+    return activeArray.nonzero()[0]
 
 
   def _isUpdateRound(self):
@@ -1593,9 +1587,8 @@ class SpatialPooler(object):
     proto.synPermBelowStimulusInc = self._synPermBelowStimulusInc
     proto.synPermConnected = self._synPermConnected
     proto.minPctOverlapDutyCycles = self._minPctOverlapDutyCycles
-    proto.minPctActiveDutyCycles = self._minPctActiveDutyCycles
     proto.dutyCyclePeriod = self._dutyCyclePeriod
-    proto.maxBoost = self._maxBoost
+    proto.boostStrength = self._boostStrength
     proto.wrapAround = self._wrapAround
     proto.spVerbosity = self._spVerbosity
 
@@ -1630,11 +1623,6 @@ class SpatialPooler(object):
     for i, v in enumerate(self._minOverlapDutyCycles):
       minOverlapDutyCyclesProto[i] = float(v)
 
-    minActiveDutyCyclesProto = proto.init("minActiveDutyCycles",
-                                          len(self._minActiveDutyCycles))
-    for i, v in enumerate(self._minActiveDutyCycles):
-      minActiveDutyCyclesProto[i] = float(v)
-
     boostFactorsProto = proto.init("boostFactors", len(self._boostFactors))
     for i, v in enumerate(self._boostFactors):
       boostFactorsProto[i] = float(v) 
@@ -1664,9 +1652,8 @@ class SpatialPooler(object):
     instance._synPermBelowStimulusInc = proto.synPermBelowStimulusInc
     instance._synPermConnected = proto.synPermConnected
     instance._minPctOverlapDutyCycles = proto.minPctOverlapDutyCycles
-    instance._minPctActiveDutyCycles = proto.minPctActiveDutyCycles
     instance._dutyCyclePeriod = proto.dutyCyclePeriod
-    instance._maxBoost = proto.maxBoost
+    instance._boostStrength = proto.boostStrength
     instance._wrapAround = proto.wrapAround
     instance._spVerbosity = proto.spVerbosity
 
@@ -1699,8 +1686,6 @@ class SpatialPooler(object):
                                          dtype=realDType)
     instance._minOverlapDutyCycles = numpy.array(proto.minOverlapDutyCycles,
                                              dtype=realDType)
-    instance._minActiveDutyCycles = numpy.array(proto.minActiveDutyCycles,
-                                            dtype=realDType)
     instance._boostFactors = numpy.array(proto.boostFactors, dtype=realDType)
     
     return instance
@@ -1723,8 +1708,7 @@ class SpatialPooler(object):
     print "synPermInactiveDec         = ", self.getSynPermInactiveDec()
     print "synPermConnected           = ", self.getSynPermConnected()
     print "minPctOverlapDutyCycle     = ", self.getMinPctOverlapDutyCycles()
-    print "minPctActiveDutyCycle      = ", self.getMinPctActiveDutyCycles()
     print "dutyCyclePeriod            = ", self.getDutyCyclePeriod()
-    print "maxBoost                   = ", self.getMaxBoost()
+    print "boostStrength              = ", self.getBoostStrength()
     print "spVerbosity                = ", self.getSpVerbosity()
     print "version                    = ", self._version

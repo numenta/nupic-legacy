@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2015, Numenta, Inc.  Unless you have an agreement
@@ -66,7 +65,7 @@ SP_PARAMS = {"spVerbosity": _VERBOSITY,
              "synPermConnected": 0.1,
              "synPermActiveInc": 0.0001,
              "synPermInactiveDec": 0.0005,
-             "maxBoost": 1.0}
+             "boostStrength": 0.0}
 
 # Parameter dict for TPRegion
 TP_PARAMS = {"verbosity": _VERBOSITY,
