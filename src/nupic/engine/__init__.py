@@ -21,10 +21,13 @@
 # ----------------------------------------------------------------------
 
 import os
-import sys
 import nupic.bindings.engine_internal as engine
 from nupic.support.lockattributes import LockAttributesMixin
 import functools
+
+import networkx as nx
+import matplotlib
+import matplotlib.pyplot as plt
 
 basicTypes = ['Byte',
               'Int16', 'UInt16',
@@ -759,6 +762,36 @@ class Network(engine.Network):
         regions.append(region)
 
     return regions
+
+  def _buildGraph(self):
+    G = nx.OrderedMultiDiGraph()
+
+    # Add regions as nodes in the graph
+    for name in self.regions:
+      G.add_node(name)
+
+    # TODO: Edges! i.e. links between regions
+
+    return G
+
+  def _renderGraph(self, G):
+    pos = nx.spring_layout(G)
+
+    # Draw nodes
+    nx.draw_networkx_nodes(G, pos, node_shape="s")
+
+    # some math labels
+    nx.draw_networkx_labels(G, pos, labels = dict(zip(G.nodes(), G.nodes())), font_size=12)
+
+  def visualize(self):
+    """
+    Network visualization entry point.
+
+    1. Build graph
+    2. Render graph
+    3. Show figure
+    """
+    self._renderGraph(self._buildGraph())
 
   @staticmethod
   def registerRegion(regionClass):
