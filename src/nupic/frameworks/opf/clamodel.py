@@ -456,7 +456,7 @@ class CLAModel(Model):
     """
     absoluteValue = None
     bucketIdx = None
-    
+
     if self._predictedFieldName is not None and self._classifierInputEncoder is not None:
       absoluteValue = inputRecord[self._predictedFieldName]
       bucketIdx = self._classifierInputEncoder.getBucketIndices(absoluteValue)[0]
@@ -474,6 +474,8 @@ class CLAModel(Model):
     except StopIteration as e:
       raise Exception("Unexpected StopIteration", e,
                       "ACTUAL TRACEBACK: %s" % traceback.format_exc())
+    finally:
+      sensor.purgeInputLinkBufferHeads()
 
 
   def _spCompute(self):
@@ -486,6 +488,8 @@ class CLAModel(Model):
     sp.setParameter('learningMode', self.isLearningEnabled())
     sp.prepareInputs()
     sp.compute()
+    sp.purgeInputLinkBufferHeads()
+
 
 
   def _tpCompute(self):
@@ -505,6 +509,7 @@ class CLAModel(Model):
     tp.setParameter('learningMode', self.isLearningEnabled())
     tp.prepareInputs()
     tp.compute()
+    tp.purgeInputLinkBufferHeads()
 
 
   def _isReconstructionModel(self):
@@ -562,6 +567,7 @@ class CLAModel(Model):
     classifier.setParameter('learningMode', self.isLearningEnabled())
     classifier.prepareInputs()
     classifier.compute()
+    classifier.purgeInputLinkBufferHeads()
 
     # What we get out is the score for each category. The argmax is
     # then the index of the winning category
@@ -589,12 +595,14 @@ class CLAModel(Model):
     sp.setParameter('topDownMode', True)
     sp.prepareInputs()
     sp.compute()
+    sp.purgeInputLinkBufferHeads()
 
     #--------------------------------------------------
     # Sensor Top-down flow
     sensor.setParameter('topDownMode', True)
     sensor.prepareInputs()
     sensor.compute()
+    sensor.purgeInputLinkBufferHeads()
 
     # Need to call getOutputValues() instead of going through getOutputData()
     # because the return values may contain strings, which cannot be passed
@@ -636,7 +644,7 @@ class CLAModel(Model):
 
       if not self._predictedFieldName in self._input:
         raise ValueError(
-          "Expected predicted field '%s' in input row, but was not found!" 
+          "Expected predicted field '%s' in input row, but was not found!"
           % self._predictedFieldName
         )
       # Calculate the anomaly score using the active columns
@@ -652,6 +660,8 @@ class CLAModel(Model):
             "activeColumnCount", len(activeColumns))
         self._getAnomalyClassifier().prepareInputs()
         self._getAnomalyClassifier().compute()
+        self._getAnomalyClassifier().purgeInputLinkBufferHeads()
+
         labels = self._getAnomalyClassifier().getSelf().getLabelResults()
         inferences[InferenceElement.anomalyLabel] = "%s" % labels
 
