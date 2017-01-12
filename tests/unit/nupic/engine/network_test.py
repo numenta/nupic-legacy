@@ -19,6 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import copy
 import sys
 from mock import Mock
 from mock import patch
@@ -280,8 +281,6 @@ class NetworkTest(unittest.TestCase):
       print "Time for 1M getParameter calls: %.2f seconds" % (t2 - t1)
 
 
-  @unittest.skipIf(sys.platform.lower().startswith("win"),
-                   "Not supported on Windows, yet!")
   def testTwoRegionNetwork(self):
     n = engine.Network()
 
@@ -317,6 +316,42 @@ class NetworkTest(unittest.TestCase):
     # Negative test
     with self.assertRaises(Exception):
       region2.setDimensions(r1dims)
+
+
+  def testDelayedLink(self):
+    n = engine.Network()
+
+    region1 = n.addRegion("region1", "TestNode", "")
+    region2 = n.addRegion("region2", "TestNode", "")
+
+    names = []
+
+    propagationDelay = 2
+    n.link("region1", "region2", "TestFanIn2", "",
+           propagationDelay=propagationDelay)
+
+    r1dims = engine.Dimensions([6, 4])
+    region1.setDimensions(r1dims)
+
+    n.initialize()
+
+    outputArrays = []
+    inputArrays = []
+
+    iterations = propagationDelay + 2
+    for i in xrange(iterations):
+      n.run(1)
+
+      if i < iterations - propagationDelay:
+        outputArrays.append(list(region1.getOutputData("bottomUpOut")))
+
+      if i < propagationDelay:
+        # Pre-initialized delay elements should be arrays of all 0's
+        outputArrays.insert(i, [0.0] * len(outputArrays[0]))
+
+      inputArrays.append(list(region2.getInputData("bottomUpIn")))
+
+    self.assertListEqual(inputArrays, outputArrays)
 
 
   def testInputsAndOutputs(self):
