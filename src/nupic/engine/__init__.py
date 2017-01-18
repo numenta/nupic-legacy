@@ -1,7 +1,6 @@
-
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2017, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -21,7 +20,6 @@
 # ----------------------------------------------------------------------
 
 import os
-import sys
 import nupic.bindings.engine_internal as engine
 from nupic.support.lockattributes import LockAttributesMixin
 import functools
@@ -226,20 +224,6 @@ def ArrayRef(dtype):
   return Array(dtype, None, True)
 
 
-class CollectionIterator(object):
-
-  def __init__(self, collection):
-    self.collection = collection
-    self.index = 0
-
-  def next(self):
-    index = self.index
-    if index == self.collection.getCount():
-      raise StopIteration
-    self.index += 1
-    return self.collection.getByIndex(index)[0]
-
-
 class CollectionWrapper(object):
   """Wrap an nupic::Collection with a dict-like interface
   
@@ -259,7 +243,7 @@ class CollectionWrapper(object):
     self.__class__.__doc__ == collection.__class__.__doc__
 
   def __iter__(self):
-    return CollectionIterator(self.collection)
+    return engine.IterableCollection(self.collection)
 
   def __str__(self):
     return str(self.collection)

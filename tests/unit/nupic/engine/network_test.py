@@ -287,9 +287,7 @@ class NetworkTest(unittest.TestCase):
     region1 = n.addRegion("region1", "TestNode", "")
     region2 = n.addRegion("region2", "TestNode", "")
 
-    names = []
-    for name in n.regions:
-      names.append(name)
+    names = [region[0] for region in n.regions]
     self.assertEqual(names, ['region1', 'region2'])
     print n.getPhases('region1')
     self.assertEqual(n.getPhases('region1'), (0,))

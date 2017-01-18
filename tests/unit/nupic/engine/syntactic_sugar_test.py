@@ -85,9 +85,9 @@ class NetworkSugarTest(unittest.TestCase):
     # for iteration
     for i, r in enumerate(regions):
       if i == 0:
-        self.assertEqual(r, 'r1')
+        self.assertEqual(r[0], 'r1')
       elif i == 1:
-        self.assertEqual(r, 'r2')
+        self.assertEqual(r[0], 'r2')
       else:
         self.fail("Expected i == 0 or i == 1")
 
