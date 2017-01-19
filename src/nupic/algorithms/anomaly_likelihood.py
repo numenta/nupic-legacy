@@ -731,9 +731,11 @@ def nullDistribution(verbosity=0):
 
 def normalProbability(x, distributionParams):
   """
-  Given the normal distribution specified by the mean and standard deviation in
-  distributionParams, return the probability of getting samples > x.
-  This is the Q-function: the tail probability of the normal distribution.
+  Given the normal distribution specified by the mean and standard deviation
+  in distributionParams, return the probability of getting samples further
+  from the mean. For values above the mean, this is the probability of getting
+  samples > x and for values below the mean, the probability of getting
+  samples < x. This is the Q-function: the tail probability of the normal distribution.
 
   :param distributionParams: dict with 'mean' and 'stdev' of the distribution
   """
