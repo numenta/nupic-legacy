@@ -347,10 +347,10 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
     self.assertWithinEpsilon(an.normalProbability(0.0, p), 0.5)
     self.assertWithinEpsilon(an.normalProbability(0.3, p), 0.3820885780)
     self.assertWithinEpsilon(an.normalProbability(1.0, p), 0.1587)
-    self.assertWithinEpsilon(1.0 - an.normalProbability(1.0, p),
+    self.assertWithinEpsilon(an.normalProbability(1.0, p),
                              an.normalProbability(-1.0, p))
     self.assertWithinEpsilon(an.normalProbability(-0.3, p),
-                             1.0 - an.normalProbability(0.3, p))
+                             an.normalProbability(0.3, p))
 
     # Non standard normal distribution
     p = {"name": "normal", "mean": 1.0, "variance": 4.0, "stdev": 2.0}
@@ -358,9 +358,9 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
     self.assertWithinEpsilon(an.normalProbability(2.0, p), 0.3085)
     self.assertWithinEpsilon(an.normalProbability(3.0, p), 0.1587)
     self.assertWithinEpsilon(an.normalProbability(3.0, p),
-                             1.0 - an.normalProbability(-1.0, p))
+                             an.normalProbability(-1.0, p))
     self.assertWithinEpsilon(an.normalProbability(0.0, p),
-                             1.0 - an.normalProbability(2.0, p))
+                             an.normalProbability(2.0, p))
 
     # Non standard normal distribution
     p = {"name": "normal", "mean": -2.0, "variance": 0.5,
@@ -368,7 +368,7 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
     self.assertWithinEpsilon(an.normalProbability(-2.0, p), 0.5)
     self.assertWithinEpsilon(an.normalProbability(-1.5, p), 0.241963652)
     self.assertWithinEpsilon(an.normalProbability(-2.5, p),
-                             1.0 - an.normalProbability(-1.5, p))
+                             an.normalProbability(-1.5, p))
 
 
   def testEstimateNormal(self):
