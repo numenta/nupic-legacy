@@ -478,7 +478,7 @@ def estimateAnomalyLikelihoods(anomalyScores,
   # Estimate likelihoods based on this distribution
   likelihoods = numpy.array(dataValues, dtype=float)
   for i, s in enumerate(dataValues):
-    likelihoods[i] = normalProbability(s, distributionParams)
+    likelihoods[i] = tailProbability(s, distributionParams)
 
   # Filter likelihood values
   filteredLikelihoods = numpy.array(
@@ -569,7 +569,7 @@ def updateAnomalyLikelihoods(anomalyScores,
       MovingAverage.compute(historicalValues, total, v[2], windowSize)
     )
     aggRecordList[i] = newAverage
-    likelihoods[i]   = normalProbability(newAverage, params["distribution"])
+    likelihoods[i]   = tailProbability(newAverage, params["distribution"])
 
   # Filter the likelihood values. First we prepend the historical likelihoods
   # to the current set. Then we filter the values.  We peel off the likelihoods
@@ -729,7 +729,7 @@ def nullDistribution(verbosity=0):
 
 
 
-def normalProbability(x, distributionParams):
+def tailProbability(x, distributionParams):
   """
   Given the normal distribution specified by the mean and standard deviation
   in distributionParams, return the probability of getting samples further
@@ -745,7 +745,7 @@ def normalProbability(x, distributionParams):
   if x < distributionParams["mean"]:
     # Gaussian is symmetrical around mean, so flip to get the tail probability
     xp = 2 * distributionParams["mean"] - x
-    return normalProbability(xp, distributionParams)
+    return tailProbability(xp, distributionParams)
 
   # Calculate the Q function with the complementary error function, explained
   # here: http://www.gaussianwaves.com/2012/07/q-function-and-error-functions
