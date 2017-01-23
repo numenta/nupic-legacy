@@ -62,7 +62,6 @@ DEBIAN_FRONTEND=noninteractive \
   apt-get -y install mysql-server
 
 # Start mysql server
-#/usr/bin/mysqld_safe &
 /etc/init.d/mysql start
 
 
