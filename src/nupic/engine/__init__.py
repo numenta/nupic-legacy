@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
@@ -44,23 +43,22 @@ arrayTypes = ['ByteArray',
               'BoolArray']
 
 pyRegions = (
-    ("nupic.regions.AnomalyRegion", "AnomalyRegion"),
+    ("nupic.bindings.regions.TestNode", "TestNode"),
     ("nupic.regions.AnomalyLikelihoodRegion", "AnomalyLikelihoodRegion"),
+    ("nupic.regions.AnomalyRegion", "AnomalyRegion"),
     ("nupic.regions.CLAClassifierRegion", "CLAClassifierRegion"),
-    ("nupic.regions.SDRClassifierRegion", "SDRClassifierRegion"),
-    ("nupic.regions.ImageSensor", "ImageSensor"),
     ("nupic.regions.KNNAnomalyClassifierRegion", "KNNAnomalyClassifierRegion"),
     ("nupic.regions.KNNClassifierRegion", "KNNClassifierRegion"),
+    ("nupic.regions.PluggableEncoderSensor", "PluggableEncoderSensor"),
     ("nupic.regions.PyRegion", "PyRegion"),
     ("nupic.regions.RecordSensor", "RecordSensor"),
+    ("nupic.regions.SDRClassifierRegion", "SDRClassifierRegion"),
     ("nupic.regions.SPRegion", "SPRegion"),
     ("nupic.regions.SVMClassifierNode", "SVMClassifierNode"),
-    ("nupic.regions.TPRegion", "TPRegion"),
-    ("nupic.bindings.regions.TestNode", "TestNode"),
     ("nupic.regions.TestRegion", "TestRegion"),
+    ("nupic.regions.TPRegion", "TPRegion"),
     ("nupic.regions.UnimportableNode", "UnimportableNode"),
-    ("nupic.regions.PluggableEncoderSensor", "PluggableEncoderSensor"),
-    ("nupic.regions.extra.GaborNode2", "GaborNode2"))
+)
 
 registeredRegions = False
 

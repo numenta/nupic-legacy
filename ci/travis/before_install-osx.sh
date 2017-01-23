@@ -35,17 +35,6 @@ python -c 'import pip; print "pip version=", pip.__version__'
 python -c 'import setuptools; print "setuptools version=", setuptools.__version__'
 python -c 'import wheel; print "wheel version=", wheel.__version__'
 
-# Fetch nupic.core build
-while read line; do
-    if [[ $line == nupic.bindings* ]];
-    then
-        IFS='=' read -ra ADDR <<< "$line"
-        NUPIC_BINDINGS_VERSION="${ADDR[2]}"
-    fi
-done <requirements.txt
-
-pip install nupic.bindings==${NUPIC_BINDINGS_VERSION}
-
 # Install and start MySQL on OSX
 echo ">>> brew install mysql"
 brew update

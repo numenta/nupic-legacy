@@ -15,35 +15,26 @@ NuPIC binaries are available for:
 - OS X 10.10
 - Windows 64bit
 
-#### Dependencies
+### Dependencies
 
 The following dependencies are required to install NuPIC on all operating systems.
 
-- [Python 2.7 & development headers](https://docs.python.org/devguide/setup.html#build-dependencies)
+- [Python 2.7](https://www.python.org/)
 - [pip](https://pip.pypa.io/en/stable/installing/)>=8.1.2
 - [setuptools](https://setuptools.readthedocs.io)>=25.2.0
 - [wheel](http://pythonwheels.com)>=0.29.0
 - [numpy](http://www.numpy.org/)
 - C++ 11 compiler like [gcc](https://gcc.gnu.org/) (4.8+) or [clang](http://clang.llvm.org/)
 
-### Install OS X
+Additional OS X requirements:
 
-First, you must install [Xcode command line tools](https://developer.apple.com/library/ios/technotes/tn2339/_index.html), which will get you a C++ compiler.
+- [Xcode command line tools](https://developer.apple.com/library/ios/technotes/tn2339/_index.html)
 
-    pip install nupic
+### Install
 
-### Install Linux
-
-> **NOTE**: The `nupic.bindings` binary distribution is not stored on [PyPi](https://pypi.python.org/pypi/nupic) along with the OS X distribution. NuPIC uses the [wheel](http://pythonwheels.com) binary format, and PyPi does not support hosting Linux wheel files. So we are forced to host our own.
-
-    pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-0.4.5-cp27-none-linux_x86_64.whl
-    pip install nupic
-
-### Install Windows
+Run the following to install NuPIC:
 
     pip install nupic
-
-For problems installing NuPIC, please see our [Installation and Build Wiki](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC).
 
 ### Test
 

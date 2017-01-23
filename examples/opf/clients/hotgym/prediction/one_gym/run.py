@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -126,6 +125,9 @@ def runIoThroughNupic(inputData, model, gymName, plot):
 
     prediction = result.inferences["multiStepBestPredictions"][1]
     output.write([timestamp], [consumption], [prediction])
+
+    if plot and counter % 20 == 0:
+        output.refreshGUI()
 
   inputFile.close()
   output.close()

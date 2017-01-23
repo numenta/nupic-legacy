@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013-2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -19,13 +19,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import itertools
-
 import numpy
 from nupic.bindings.math import (SM32 as SparseMatrix,
                                  SM_01_32_32 as SparseBinaryMatrix,
                                  GetNTAReal,
                                  Random as NupicRandom)
+from nupic.math import topology
 
 
 
@@ -33,6 +32,7 @@ realDType = GetNTAReal()
 uintType = "uint32"
 
 VERSION = 3
+PERMANENCE_EPSILON = 0.000001
 
 
 
@@ -84,7 +84,6 @@ class CorticalColumns(_SparseMatrixCorticalColumnAdapter, SparseMatrix):
   pass
 
 
-
 class BinaryCorticalColumns(_SparseMatrixCorticalColumnAdapter,
                             SparseBinaryMatrix):
   """ SparseBinaryMatrix variant of _SparseMatrixCorticalColumnAdapter.  Use in
@@ -122,9 +121,8 @@ class SpatialPooler(object):
                synPermActiveInc=0.05,
                synPermConnected=0.10,
                minPctOverlapDutyCycle=0.001,
-               minPctActiveDutyCycle=0.001,
                dutyCyclePeriod=1000,
-               maxBoost=10.0,
+               boostStrength=0.0,
                seed=-1,
                spVerbosity=0,
                wrapAround=True
@@ -212,25 +210,17 @@ class SpatialPooler(object):
       cycle before  inhibition allows a cell to search for new inputs when
       either its previously learned inputs are no longer ever active, or when
       the vast majority of them have been "hijacked" by other columns.
-    @param minPctActiveDutyCycle:
-      A number between 0 and 1.0, used to set a floor on how often a column
-      should be activate.  Periodically, each column looks at the activity duty
-      cycle of all other columns within its inhibition radius and sets its own
-      internal minimal acceptable duty cycle to: minPctDutyCycleAfterInh *
-      max(other columns' duty cycles).  On each iteration, any column whose duty
-      cycle after inhibition falls below this computed value will get its
-      internal boost factor increased.
     @param dutyCyclePeriod:
       The period used to calculate duty cycles. Higher values make it take
       longer to respond to changes in boost or synPerConnectedCell. Shorter
       values make it more unstable and likely to oscillate.
-    @param maxBoost:
-      The maximum overlap boost factor. Each column's overlap gets multiplied
-      by a boost factor before it gets considered for inhibition.  The actual
-      boost factor for a column is number between 1.0 and maxBoost. A boost
-      factor of 1.0 is used if the duty cycle is >= minOverlapDutyCycle,
-      maxBoost is used if the duty cycle is 0, and any duty cycle in between is
-      linearly extrapolated from these 2 endpoints.
+    @param boostStrength:
+      A number greater or equal than 0.0, used to control the strength of
+      boosting. No boosting is applied if it is set to 0. Boosting strength
+      increases as a function of boostStrength. Boosting encourages columns to
+      have similar activeDutyCycles as their neighbors, which will lead to more
+      efficient use of columns. However, too much boosting may also lead to
+      instability of SP outputs.
     @param seed:
       Seed for our own pseudo-random number generator.
     @param spVerbosity:
@@ -260,6 +250,9 @@ class SpatialPooler(object):
       raise InvalidSPParamValueError(
         "Input dimensions must match column dimensions")
 
+    if boostStrength < 0.0:
+      raise InvalidSPParamValueError("boostStrength must be >= 0.0")
+
     self._seed(seed)
 
     self._numInputs = int(numInputs)
@@ -277,9 +270,8 @@ class SpatialPooler(object):
     self._synPermBelowStimulusInc = synPermConnected / 10.0
     self._synPermConnected = synPermConnected
     self._minPctOverlapDutyCycles = minPctOverlapDutyCycle
-    self._minPctActiveDutyCycles = minPctActiveDutyCycle
     self._dutyCyclePeriod = dutyCyclePeriod
-    self._maxBoost = maxBoost
+    self._boostStrength = boostStrength
     self._spVerbosity = spVerbosity
     self._wrapAround = wrapAround
     self._synPermMin = 0.0
@@ -350,7 +342,7 @@ class SpatialPooler(object):
     # each column is connected to enough input bits to allow it to be
     # activated.
     for columnIndex in xrange(numColumns):
-      potential = self._mapPotential(columnIndex, wrapAround=self._wrapAround)
+      potential = self._mapPotential(columnIndex)
       self._potentialPools.replace(columnIndex, potential.nonzero()[0])
       perm = self._initPermanence(potential, initConnectedPct)
       self._updatePermanencesForColumn(perm, columnIndex, raisePerm=True)
@@ -359,8 +351,6 @@ class SpatialPooler(object):
     self._activeDutyCycles = numpy.zeros(numColumns, dtype=realDType)
     self._minOverlapDutyCycles = numpy.zeros(numColumns,
                                              dtype=realDType)
-    self._minActiveDutyCycles = numpy.zeros(numColumns,
-                                            dtype=realDType)
     self._boostFactors = numpy.ones(numColumns, dtype=realDType)
 
     # The inhibition radius determines the size of a column's local
@@ -483,14 +473,14 @@ class SpatialPooler(object):
     self._dutyCyclePeriod = dutyCyclePeriod
 
 
-  def getMaxBoost(self):
+  def getBoostStrength(self):
     """Returns the maximum boost value"""
-    return self._maxBoost
+    return self._boostStrength
 
 
-  def setMaxBoost(self, maxBoost):
+  def setBoostStrength(self, boostStrength):
     """Sets the maximum boost value"""
-    self._maxBoost = maxBoost
+    self._boostStrength = boostStrength
 
 
   def getIterationNum(self):
@@ -600,18 +590,6 @@ class SpatialPooler(object):
     self._minPctOverlapDutyCycles = minPctOverlapDutyCycles
 
 
-  def getMinPctActiveDutyCycles(self):
-    """Returns the minimum tolerated activity duty cycle, given as percent of
-    neighbors' activity duty cycle"""
-    return self._minPctActiveDutyCycles
-
-
-  def setMinPctActiveDutyCycles(self, minPctActiveDutyCycles):
-    """Sets the minimum tolerated activity duty, given as percent of
-    neighbors' activity duty cycle"""
-    self._minPctActiveDutyCycles = minPctActiveDutyCycles
-
-
   def getBoostFactors(self, boostFactors):
     """Returns the boost factors for all columns. 'boostFactors' size must
     match the number of columns"""
@@ -660,18 +638,6 @@ class SpatialPooler(object):
     self._minOverlapDutyCycles[:] = minOverlapDutyCycles[:]
 
 
-  def getMinActiveDutyCycles(self, minActiveDutyCycles):
-    """Returns the minimum activity duty cycles for all columns.
-    '_minActiveDutyCycles' size must match the number of columns"""
-    minActiveDutyCycles[:] = self._minActiveDutyCycles[:]
-
-
-  def setMinActiveDutyCycles(self, minActiveDutyCycles):
-    """Sets the minimum activity duty cycles for all columns.
-    '_minActiveDutyCycles' size must match the number of columns"""
-    self._minActiveDutyCycles = minActiveDutyCycles
-
-
   def getPotential(self, columnIndex, potential):
     """Returns the potential mapping for a given column. 'potential' size
     must match the number of inputs"""
@@ -682,7 +648,7 @@ class SpatialPooler(object):
   def setPotential(self, columnIndex, potential):
     """Sets the potential mapping for a given column. 'potential' size
     must match the number of inputs, and must be greater than _stimulusThreshold """
-    assert(column < self._numColumns)
+    assert(columnIndex < self._numColumns)
 
     potentialSparse = numpy.where(potential > 0)[0]
     if len(potentialSparse) < self._stimulusThreshold:
@@ -820,17 +786,13 @@ class SpatialPooler(object):
   def _updateMinDutyCyclesGlobal(self):
     """
     Updates the minimum duty cycles in a global fashion. Sets the minimum duty
-    cycles for the overlap and activation of all columns to be a percent of the
-    maximum in the region, specified by minPctOverlapDutyCycle and
-    minPctActiveDutyCycle respectively. Functionality it is equivalent to
-    _updateMinDutyCyclesLocal, but this function exploits the globality of the
-    computation to perform it in a straightforward, and more efficient manner.
+    cycles for the overlap all columns to be a percent of the maximum in the
+    region, specified by minPctOverlapDutyCycle. Functionality it is equivalent
+    to _updateMinDutyCyclesLocal, but this function exploits the globality of
+    the computation to perform it in a straightforward, and efficient manner.
     """
     self._minOverlapDutyCycles.fill(
         self._minPctOverlapDutyCycles * self._overlapDutyCycles.max()
-      )
-    self._minActiveDutyCycles.fill(
-        self._minPctActiveDutyCycles * self._activeDutyCycles.max()
       )
 
 
@@ -842,18 +804,14 @@ class SpatialPooler(object):
     _updateMinDutyCyclesGlobal, here the values can be quite different for
     different columns.
     """
-    for i in xrange(self._numColumns):
-      maskNeighbors = numpy.append(i,
-        self._getNeighborsND(i, self._columnDimensions,
-        self._inhibitionRadius))
-      self._minOverlapDutyCycles[i] = (
-        self._overlapDutyCycles[maskNeighbors].max() *
-        self._minPctOverlapDutyCycles
-      )
-      self._minActiveDutyCycles[i] = (
-        self._activeDutyCycles[maskNeighbors].max() *
-        self._minPctActiveDutyCycles
-      )
+    for column in xrange(self._numColumns):
+      neighborhood = self._getColumnNeighborhood(column)
+
+      maxActiveDuty = self._activeDutyCycles[neighborhood].max()
+      maxOverlapDuty = self._overlapDutyCycles[neighborhood].max()
+
+      self._minOverlapDutyCycles[column] = (maxOverlapDuty *
+                                            self._minPctOverlapDutyCycles)
 
 
   def _updateDutyCycles(self, overlaps, activeColumns):
@@ -896,7 +854,6 @@ class SpatialPooler(object):
                               )
 
 
-
   def _updateInhibitionRadius(self):
     """
     Update the inhibition radius. The inhibition radius is a measure of the
@@ -920,7 +877,7 @@ class SpatialPooler(object):
     diameter = avgConnectedSpan * columnsPerInput
     radius = (diameter - 1) / 2.0
     radius = max(1.0, radius)
-    self._inhibitionRadius = int(round(radius))
+    self._inhibitionRadius = int(radius + 0.5)
 
 
   def _avgColumnsPerInput(self):
@@ -1080,7 +1037,9 @@ class SpatialPooler(object):
 
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
     while True:
-      numConnected = numpy.nonzero(perm > self._synPermConnected)[0].size
+      numConnected = numpy.nonzero(
+        perm > self._synPermConnected - PERMANENCE_EPSILON)[0].size
+
       if numConnected >= self._stimulusThreshold:
         return
       perm[mask] += self._synPermBelowStimulusInc
@@ -1118,7 +1077,8 @@ class SpatialPooler(object):
       self._raisePermanenceToThreshold(perm, maskPotential)
     perm[perm < self._synPermTrimThreshold] = 0
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
-    newConnected = numpy.where(perm >= self._synPermConnected)[0]
+    newConnected = numpy.where(perm >=
+                               self._synPermConnected - PERMANENCE_EPSILON)[0]
     self._permanences.update(columnIndex, perm)
     self._connectedSynapses.replace(columnIndex, newConnected)
     self._connectedCounts[columnIndex] = newConnected.size
@@ -1156,6 +1116,7 @@ class SpatialPooler(object):
     # implementations
     p = int(p*100000) / 100000.0
     return p
+
 
   def _initPermanence(self, potential, connectedPct):
     """
@@ -1228,7 +1189,7 @@ class SpatialPooler(object):
     return inputIndex
 
 
-  def _mapPotential(self, index, wrapAround=False):
+  def _mapPotential(self, index):
     """
     Maps a column to its input bits. This method encapsulates the topology of
     the region. It takes the index of the column as an argument and determines
@@ -1256,28 +1217,19 @@ class SpatialPooler(object):
     ----------------------------
     @param index:   The index identifying a column in the permanence, potential
                     and connectivity matrices.
-    @param wrapAround: A boolean value indicating that boundaries should be
-                    fignored.
     """
-    index = self._mapColumn(index)
-    indices = self._getNeighborsND(index,
-                                   self._inputDimensions,
-                                   self._potentialRadius,
-                                   wrapAround=wrapAround)
-    indices.append(index)
-    indices = numpy.array(indices, dtype=uintType)
 
-    # TODO: See https://github.com/numenta/nupic.core/issues/128
-    indices.sort()
+    centerInput = self._mapColumn(index)
+    columnInputs = self._getInputNeighborhood(centerInput).astype(uintType)
 
     # Select a subset of the receptive field to serve as the
     # the potential pool
-    numPotential = int(round(indices.size * self._potentialPct))
-    selectedIndices = numpy.empty(numPotential, dtype=uintType)
-    self._random.sample(indices, selectedIndices)
+    numPotential = int(columnInputs.size * self._potentialPct + 0.5)
+    selectedInputs = numpy.empty(numPotential, dtype=uintType)
+    self._random.sample(columnInputs, selectedInputs)
 
     potential = numpy.zeros(self._numInputs, dtype=uintType)
-    potential[selectedIndices] = 1
+    potential[selectedInputs] = 1
 
     return potential
 
@@ -1308,38 +1260,74 @@ class SpatialPooler(object):
 
 
   def _updateBoostFactors(self):
-    r"""
+    """
     Update the boost factors for all columns. The boost factors are used to
     increase the overlap of inactive columns to improve their chances of
-    becoming active. and hence encourage participation of more columns in the
-    learning process. This is a line defined as: y = mx + b boost =
-    (1-maxBoost)/minDuty * dutyCycle + maxFiringBoost. Intuitively this means
-    that columns that have been active enough have a boost factor of 1, meaning
-    their overlap is not boosted. Columns whose active duty cycle drops too much
-    below that of their neighbors are boosted depending on how infrequently they
-    have been active. The more infrequent, the more they are boosted. The exact
-    boost factor is linearly interpolated between the points (dutyCycle:0,
-    boost:maxFiringBoost) and (dutyCycle:minDuty, boost:1.0).
+    becoming active, and hence encourage participation of more columns in the
+    learning process. The boosting function is a curve defined as:
+    boostFactors = exp[ - boostStrength * (dutyCycle - targetDensity)]
+    Intuitively this means that columns that have been active at the target
+    activation level have a boost factor of 1, meaning their overlap is not
+    boosted. Columns whose active duty cycle drops too much below that of their
+    neighbors are boosted depending on how infrequently they have been active.
+    Columns that has been active more than the target activation level have
+    a boost factor below 1, meaning their overlap is suppressed
+
+    The boostFactor depends on the activeDutyCycle via an exponential function:
 
             boostFactor
                 ^
-    maxBoost _  |
+                |
                 |\
                 | \
-          1  _  |  \ _ _ _ _ _ _ _
-                |
+          1  _  |  \
+                |    _
+                |      _ _
+                |          _ _ _ _
                 +--------------------> activeDutyCycle
                    |
-            minActiveDutyCycle
+              targetDensity
     """
+    if self._globalInhibition:
+      self._updateBoostFactorsGlobal()
+    else:
+      self._updateBoostFactorsLocal()
 
-    mask = numpy.where(self._minActiveDutyCycles > 0)[0]
-    self._boostFactors[mask] = ((1 - self._maxBoost) /
-      self._minActiveDutyCycles[mask] * self._activeDutyCycles[mask]
-        ).astype(realDType) + self._maxBoost
 
-    self._boostFactors[self._activeDutyCycles >
-      self._minActiveDutyCycles] = 1.0
+  def _updateBoostFactorsGlobal(self):
+    """
+    Update boost factors when global inhibition is used
+    """
+    # When global inhibition is enabled, the target activation level is
+    # the sparsity of the spatial pooler
+    if (self._localAreaDensity > 0):
+      targetDensity = self._localAreaDensity
+    else:
+      inhibitionArea = ((2 * self._inhibitionRadius + 1)
+                        ** self._columnDimensions.size)
+      inhibitionArea = min(self._numColumns, inhibitionArea)
+      targetDensity = float(self._numActiveColumnsPerInhArea) / inhibitionArea
+      targetDensity = min(targetDensity, 0.5)
+
+    self._boostFactors = numpy.exp(
+      (targetDensity - self._activeDutyCycles) * self._boostStrength)
+
+
+
+  def _updateBoostFactorsLocal(self):
+    """
+    Update boost factors when local inhibition is used
+    """
+    # Determine the target activation level for each column
+    # The targetDensity is the average activeDutyCycles of the neighboring
+    # columns of each column.
+    targetDensity = numpy.zeros(self._numColumns, dtype=realDType)
+    for i in xrange(self._numColumns):
+      maskNeighbors = self._getColumnNeighborhood(i)
+      targetDensity[i] = numpy.mean(self._activeDutyCycles[maskNeighbors])
+
+    self._boostFactors = numpy.exp(
+      (targetDensity - self._activeDutyCycles) * self._boostStrength)
 
 
   def _updateBookeepingVars(self, learn):
@@ -1364,8 +1352,7 @@ class SpatialPooler(object):
     This function determines each column's overlap with the current input
     vector. The overlap of a column is the number of synapses for that column
     that are connected (permanence value is greater than '_synPermConnected')
-    to input bits which are turned on. Overlap values that are lower than
-    the 'stimulusThreshold' are ignored. The implementation takes advantage of
+    to input bits which are turned on. The implementation takes advantage of
     the SparseBinaryMatrix class to perform this calculation efficiently.
 
     Parameters:
@@ -1376,7 +1363,6 @@ class SpatialPooler(object):
     overlaps = numpy.zeros(self._numColumns, dtype=realDType)
     self._connectedSynapses.rightVecSumAtNZ_fast(inputVector.astype(realDType),
                                                  overlaps)
-    overlaps[overlaps < self._stimulusThreshold] = 0
     return overlaps
 
 
@@ -1400,7 +1386,6 @@ class SpatialPooler(object):
     # determine how many columns should be selected in the inhibition phase.
     # This can be specified by either setting the 'numActiveColumnsPerInhArea'
     # parameter or the 'localAreaDensity' parameter when initializing the class
-    overlaps = overlaps.copy()
     if (self._localAreaDensity > 0):
       density = self._localAreaDensity
     else:
@@ -1422,7 +1407,8 @@ class SpatialPooler(object):
     Perform global inhibition. Performing global inhibition entails picking the
     top 'numActive' columns with the highest overlap score in the entire
     region. At most half of the columns in a local neighborhood are allowed to
-    be active.
+    be active. Columns with an overlap score below the 'stimulusThreshold' are
+    always inhibited.
 
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
@@ -1436,10 +1422,18 @@ class SpatialPooler(object):
 
     # Calculate winners using stable sort algorithm (mergesort)
     # for compatibility with C++
-    winnerIndices = numpy.argsort(overlaps, kind='mergesort')
-    sortedWinnerIndices = winnerIndices[-numActive:][::-1]
+    sortedWinnerIndices = numpy.argsort(overlaps, kind='mergesort')
 
-    return sortedWinnerIndices
+    # Enforce the stimulus threshold
+    start = len(sortedWinnerIndices) - numActive
+    while start < len(sortedWinnerIndices):
+      i = sortedWinnerIndices[start]
+      if overlaps[i] >= self._stimulusThreshold:
+        break
+      else:
+        start += 1
+
+    return sortedWinnerIndices[start:][::-1]
 
 
   def _inhibitColumnsLocal(self, overlaps, density):
@@ -1448,7 +1442,8 @@ class SpatialPooler(object):
     column basis. Each column observes the overlaps of its neighbors and is
     selected if its overlap score is within the top 'numActive' in its local
     neighborhood. At most half of the columns in a local neighborhood are
-    allowed to be active.
+    allowed to be active. Columns with an overlap score below the
+    'stimulusThreshold' are always inhibited.
 
     @param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
@@ -1460,174 +1455,27 @@ class SpatialPooler(object):
                     of surviving columns is likely to vary.
     @return list with indices of the winning columns
     """
-    winners = []
-    addToWinners = max(overlaps)/1000.0
-    overlaps = numpy.array(overlaps, dtype=realDType)
-    for i in xrange(self._numColumns):
-      maskNeighbors = self._getNeighborsND(i, self._columnDimensions, self._inhibitionRadius)
-      overlapSlice = overlaps[maskNeighbors]
-      numActive = int(0.5 + density * (len(maskNeighbors) + 1))
-      numBigger = numpy.count_nonzero(overlapSlice > overlaps[i])
-      if numBigger < numActive:
-        winners.append(i)
-        overlaps[i] += addToWinners
-    return numpy.array(winners, dtype=uintType)
 
+    activeArray = numpy.zeros(self._numColumns, dtype="bool")
 
-  @staticmethod
-  def _getNeighbors1D(columnIndex, dimensions, radius, wrapAround=False):
-    """
-    Returns a list of indices corresponding to the neighbors of a given column.
-    In this variation of the method, which only supports a one dimensional
-    column topology, a column's neighbors are those neighbors who are 'radius'
-    indices away. This information is needed to perform inhibition. This method
-    is a subset of _getNeighborsND and is only included for illustration
-    purposes, and potentially enhanced performance for spatial pooler
-    implementations that only require a one-dimensional topology.
+    for column, overlap in enumerate(overlaps):
+      if overlap >= self._stimulusThreshold:
+        neighborhood = self._getColumnNeighborhood(column)
+        neighborhoodOverlaps = overlaps[neighborhood]
 
-    Parameters:
-    ----------------------------
-    @param columnIndex: The index identifying a column in the permanence, potential
-                    and connectivity matrices.
-    @param dimensions: An array containing a dimensions for the column space. A 2x3
-                    grid will be represented by [2,3].
-    @param radius:  Indicates how far away from a given column are other
-                    columns to be considered its neighbors. In the previous 2x3
-                    example, each column with coordinates:
-                    [2+/-radius, 3+/-radius] is considered a neighbor.
-    @param wrapAround: A boolean value indicating whether to consider columns at
-                    the border of a dimensions to be adjacent to columns at the
-                    other end of the dimension. For example, if the columns are
-                    laid out in one dimension, columns 1 and 10 will be
-                    considered adjacent if wrapAround is set to true:
-                    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    """
-    assert(dimensions.size == 1)
-    ncols = dimensions[0]
+        numBigger = numpy.count_nonzero(neighborhoodOverlaps > overlap)
 
-    if wrapAround:
-      neighbors = numpy.array(
-        range(columnIndex-radius,columnIndex+radius+1)) % ncols
-    else:
-      neighbors = numpy.array(
-        range(columnIndex-radius,columnIndex+radius+1))
-      neighbors = neighbors[
-        numpy.logical_and(neighbors >= 0, neighbors < ncols)]
+        # When there is a tie, favor neighbors that are already selected as
+        # active.
+        ties = numpy.where(neighborhoodOverlaps == overlap)
+        tiedNeighbors = neighborhood[ties]
+        numTiesLost = numpy.count_nonzero(activeArray[tiedNeighbors])
 
-    neighbors = list(set(neighbors) - set([columnIndex]))
-    assert(neighbors)
-    return neighbors
+        numActive = int(0.5 + density * len(neighborhood))
+        if numBigger + numTiesLost < numActive:
+          activeArray[column] = True
 
-
-  @staticmethod
-  def _getNeighbors2D(columnIndex, dimensions, radius, wrapAround=False):
-    """
-    Returns a list of indices corresponding to the neighbors of a given column.
-    Since the permanence values are stored in such a way that information about
-    topology is lost, this method allows for reconstructing the topology of the
-    inputs, which are flattened to one array. Given a column's index, its
-    neighbors are defined as those columns that are 'radius' indices away from
-    it in each dimension. The method returns a list of the flat indices of
-    these columns. This method is a subset of _getNeighborsND and is only
-    included for illustration purposes, and potentially enhanced performance
-    for spatial pooler implementations that only require a two-dimensional
-    topology.
-
-    Parameters:
-    ----------------------------
-    @param columnIndex: The index identifying a column in the permanence, potential
-                    and connectivity matrices.
-    @param dimensions: An array containing a dimensions for the column space. A 2x3
-                    grid will be represented by [2,3].
-    @param radius:  Indicates how far away from a given column are other
-                    columns to be considered its neighbors. In the previous 2x3
-                    example, each column with coordinates:
-                    [2+/-radius, 3+/-radius] is considered a neighbor.
-    @param wrapAround: A boolean value indicating whether to consider columns at
-                    the border of a dimensions to be adjacent to columns at the
-                    other end of the dimension. For example, if the columns are
-                    laid out in one dimension, columns 1 and 10 will be
-                    considered adjacent if wrapAround is set to true:
-                    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    """
-    assert(dimensions.size == 2)
-    nrows = dimensions[0]
-    ncols = dimensions[1]
-
-    toRow = lambda index: index / ncols
-    toCol = lambda index: index % ncols
-    toIndex = lambda row, col: row * ncols + col
-
-    row = toRow(columnIndex)
-    col = toCol(columnIndex)
-
-    if wrapAround:
-      colRange = numpy.array(range(col-radius, col+radius+1)) % ncols
-      rowRange = numpy.array(range(row-radius, row+radius+1)) % nrows
-    else:
-      colRange = numpy.array(range(col-radius, col+radius+1))
-      colRange = colRange[
-        numpy.logical_and(colRange >= 0, colRange < ncols)]
-      rowRange = numpy.array(range(row-radius, row+radius+1))
-      rowRange = rowRange[
-        numpy.logical_and(rowRange >= 0, rowRange < nrows)]
-
-    neighbors = [toIndex(r, c) for (r, c) in
-      itertools.product(rowRange, colRange)]
-    neighbors = list(set(neighbors) - set([columnIndex]))
-    assert(neighbors)
-    return neighbors
-
-
-  @staticmethod
-  def _getNeighborsND(columnIndex, dimensions, radius, wrapAround=False):
-    """
-    Similar to _getNeighbors1D and _getNeighbors2D, this function Returns a
-    list of indices corresponding to the neighbors of a given column. Since the
-    permanence values are stored in such a way that information about topology
-    is lost. This method allows for reconstructing the topology of the inputs,
-    which are flattened to one array. Given a column's index, its neighbors are
-    defined as those columns that are 'radius' indices away from it in each
-    dimension. The method returns a list of the flat indices of these columns.
-    Parameters:
-    ----------------------------
-    @param columnIndex: The index identifying a column in the permanence, potential
-                    and connectivity matrices.
-    @param dimensions: An array containing a dimensions for the column space. A 2x3
-                    grid will be represented by [2,3].
-    @param radius:  Indicates how far away from a given column are other
-                    columns to be considered its neighbors. In the previous 2x3
-                    example, each column with coordinates:
-                    [2+/-radius, 3+/-radius] is considered a neighbor.
-    @param wrapAround: A boolean value indicating whether to consider columns at
-                    the border of a dimensions to be adjacent to columns at the
-                    other end of the dimension. For example, if the columns are
-                    laid out in one dimension, columns 1 and 10 will be
-                    considered adjacent if wrapAround is set to true:
-                    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    """
-    assert(dimensions.size > 0)
-
-    columnCoords = numpy.unravel_index(columnIndex, dimensions)
-    rangeND = []
-    for i in xrange(dimensions.size):
-      if wrapAround:
-        curRange = numpy.array(range(columnCoords[i]-radius,
-                                     columnCoords[i]+radius+1)) % dimensions[i]
-      else:
-        curRange = numpy.array(range(columnCoords[i]-radius,
-                                     columnCoords[i]+radius+1))
-        curRange = curRange[
-          numpy.logical_and(curRange >= 0, curRange < dimensions[i])]
-
-      rangeND.append(numpy.unique(curRange))
-
-    neighbors = numpy.ravel_multi_index(
-      numpy.array(list(itertools.product(*rangeND))).T, 
-      dimensions).tolist()
-
-    neighbors.remove(columnIndex)
-    return neighbors
+    return activeArray.nonzero()[0]
 
 
   def _isUpdateRound(self):
@@ -1636,6 +1484,56 @@ class SpatialPooler(object):
     duty cycles
     """
     return (self._iterationNum % self._updatePeriod) == 0
+
+
+  def _getColumnNeighborhood(self, centerColumn):
+    """
+    Gets a neighborhood of columns.
+
+    Simply calls topology.neighborhood or topology.wrappingNeighborhood
+
+    A subclass can insert different topology behavior by overriding this method.
+
+    @param centerColumn (int)
+    The center of the neighborhood.
+
+    @returns (1D numpy array of integers)
+    The columns in the neighborhood.
+    """
+    if self._wrapAround:
+      return topology.wrappingNeighborhood(centerColumn,
+                                           self._inhibitionRadius,
+                                           self._columnDimensions)
+
+    else:
+      return topology.neighborhood(centerColumn,
+                                   self._inhibitionRadius,
+                                   self._columnDimensions)
+
+
+
+  def _getInputNeighborhood(self, centerInput):
+    """
+    Gets a neighborhood of inputs.
+
+    Simply calls topology.wrappingNeighborhood or topology.neighborhood.
+
+    A subclass can insert different topology behavior by overriding this method.
+
+    @param centerInput (int)
+    The center of the neighborhood.
+
+    @returns (1D numpy array of integers)
+    The inputs in the neighborhood.
+    """
+    if self._wrapAround:
+      return topology.wrappingNeighborhood(centerInput,
+                                           self._potentialRadius,
+                                           self._inputDimensions)
+    else:
+      return topology.neighborhood(centerInput,
+                                   self._potentialRadius,
+                                   self._inputDimensions)
 
 
   def _seed(self, seed=-1):
@@ -1689,9 +1587,8 @@ class SpatialPooler(object):
     proto.synPermBelowStimulusInc = self._synPermBelowStimulusInc
     proto.synPermConnected = self._synPermConnected
     proto.minPctOverlapDutyCycles = self._minPctOverlapDutyCycles
-    proto.minPctActiveDutyCycles = self._minPctActiveDutyCycles
     proto.dutyCyclePeriod = self._dutyCyclePeriod
-    proto.maxBoost = self._maxBoost
+    proto.boostStrength = self._boostStrength
     proto.wrapAround = self._wrapAround
     proto.spVerbosity = self._spVerbosity
 
@@ -1726,11 +1623,6 @@ class SpatialPooler(object):
     for i, v in enumerate(self._minOverlapDutyCycles):
       minOverlapDutyCyclesProto[i] = float(v)
 
-    minActiveDutyCyclesProto = proto.init("minActiveDutyCycles",
-                                          len(self._minActiveDutyCycles))
-    for i, v in enumerate(self._minActiveDutyCycles):
-      minActiveDutyCyclesProto[i] = float(v)
-
     boostFactorsProto = proto.init("boostFactors", len(self._boostFactors))
     for i, v in enumerate(self._boostFactors):
       boostFactorsProto[i] = float(v) 
@@ -1760,9 +1652,8 @@ class SpatialPooler(object):
     instance._synPermBelowStimulusInc = proto.synPermBelowStimulusInc
     instance._synPermConnected = proto.synPermConnected
     instance._minPctOverlapDutyCycles = proto.minPctOverlapDutyCycles
-    instance._minPctActiveDutyCycles = proto.minPctActiveDutyCycles
     instance._dutyCyclePeriod = proto.dutyCyclePeriod
-    instance._maxBoost = proto.maxBoost
+    instance._boostStrength = proto.boostStrength
     instance._wrapAround = proto.wrapAround
     instance._spVerbosity = proto.spVerbosity
 
@@ -1795,8 +1686,6 @@ class SpatialPooler(object):
                                          dtype=realDType)
     instance._minOverlapDutyCycles = numpy.array(proto.minOverlapDutyCycles,
                                              dtype=realDType)
-    instance._minActiveDutyCycles = numpy.array(proto.minActiveDutyCycles,
-                                            dtype=realDType)
     instance._boostFactors = numpy.array(proto.boostFactors, dtype=realDType)
     
     return instance
@@ -1819,8 +1708,7 @@ class SpatialPooler(object):
     print "synPermInactiveDec         = ", self.getSynPermInactiveDec()
     print "synPermConnected           = ", self.getSynPermConnected()
     print "minPctOverlapDutyCycle     = ", self.getMinPctOverlapDutyCycles()
-    print "minPctActiveDutyCycle      = ", self.getMinPctActiveDutyCycles()
     print "dutyCyclePeriod            = ", self.getDutyCyclePeriod()
-    print "maxBoost                   = ", self.getMaxBoost()
+    print "boostStrength              = ", self.getBoostStrength()
     print "spVerbosity                = ", self.getSpVerbosity()
     print "version                    = ", self._version

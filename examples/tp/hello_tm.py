@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -65,7 +64,7 @@ tm = TM(columnDimensions = (50,),
         cellsPerColumn=2,
         initialPermanence=0.5,
         connectedPermanence=0.5,
-        minThreshold=10,
+        minThreshold=8,
         maxNewSynapseCount=20,
         permanenceIncrement=0.1,
         permanenceDecrement=0.0,

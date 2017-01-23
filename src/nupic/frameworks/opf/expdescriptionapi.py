@@ -277,6 +277,7 @@ class ExperimentDescriptionAPI(DescriptionIface):
       synPermConnected = config.get('spSynPermConnected', 0.1),
       synPermActiveInc = config.get('synPermActiveInc', 0.1),
       synPermInactiveDec = config.get('synPermInactiveDec', 0.01),
+      boostStrength = config.get('boostStrength', 1.0),
     )
 
     tpParams = dict(

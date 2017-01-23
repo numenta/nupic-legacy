@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -483,6 +482,8 @@ class PositiveTests(MyTestCaseBase):
       additionalFields=['anomalyScore'])
 
 
+  @unittest.skip("We aren't currently supporting serialization backward "
+                 "compatibility")
   def test_BackwardsCompatibility(self):
     """ Test that we can load in a checkpoint saved by an earlier version of
     the OPF.

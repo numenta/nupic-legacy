@@ -43,13 +43,3 @@ python -c 'import pip; print "pip version=", pip.__version__'
 python -c 'import setuptools; print "setuptools version=", setuptools.__version__'
 python -c 'import wheel; print "wheel version=", wheel.__version__'
 
-# Fetch nupic.core build
-while read line; do
-    if [[ $line == nupic.bindings* ]];
-    then
-        IFS='=' read -ra ADDR <<< "$line"
-        NUPIC_BINDINGS_VERSION="${ADDR[2]}"
-    fi
-done <requirements.txt
-
-pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-${NUPIC_BINDINGS_VERSION}-cp27-none-linux_x86_64.whl

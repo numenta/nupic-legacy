@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2015, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -55,6 +55,14 @@ def nupicBindingsPrereleaseInstalled():
     if pkg_resources.parse_version(nupicDistribution.version).is_prerelease:
       # A pre-release dev version of nupic.bindings is installed.
       return True
+  except pkg_resources.DistributionNotFound:
+    pass  # Silently ignore.  The absence of nupic.bindings will be handled by
+    # setuptools by default
+
+  # Also check for nupic.research.bindings
+  try:
+    nupicDistribution = pkg_resources.get_distribution("nupic.research.bindings")
+    return True
   except pkg_resources.DistributionNotFound:
     pass  # Silently ignore.  The absence of nupic.bindings will be handled by
     # setuptools by default

@@ -7,29 +7,10 @@ branches:
 language: cpp
 
 os:
-  - linux
   - osx
 
 compiler:
   - clang
-  - gcc
-
-addons:
-  apt:
-    sources:
-      - deadsnakes
-      - ubuntu-toolchain-r-test
-    packages:
-      - python2.7
-      - python2.7-dev
-      - python-virtualenv
-      - python-numpy-1.9.2
-      - pylint
-      # install gcc-4.8 for C++11 compatibility, #TODO remove when Travis has gcc>=4.8, (it's used for clang too, in coveralls)
-      - g++-4.8
-      - cmake
-      - cmake-data
-      - tree
 
 env:
   global:
@@ -44,12 +25,6 @@ env:
     # PYPI_PASSWD encrypted below.
     - secure: "elm3E3MwpbZqTCz+EHPQ7CEBwoBvRgqS3q5MHY+jUcpdrWeSjmy7TZoRN5+rAjDQYuR5g33pMXnyeRGw/DG7Xa5FG0g3PoMnO6fnIe7Hs7gPlDXbwilfYxfi462N7Y9aAGPFuvNkZsgd0dfwXKwNEiZ5hYfsbFFwHMeXMQA/SA8="
     - NUPIC_DEPLOYMENT_BUILD=true
-
-matrix:
-  # This excludes OSX GCC builds.
-  exclude:
-    - os: osx
-      compiler: gcc
 
 git:
   submodules: false
