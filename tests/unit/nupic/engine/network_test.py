@@ -21,7 +21,6 @@
 
 import copy
 import sys
-from mock import Mock
 from mock import patch
 import unittest2 as unittest
 
@@ -464,6 +463,36 @@ class NetworkTest(unittest.TestCase):
 
     self.assertEqual(n.getRegionsByType(SPRegion), [])
 
+
+  def testSimpleTwoRegionNetworkIntrospection(self):
+    # Create Network instance
+    network = engine.Network()
+
+    # Add two TestNode regions to network
+    network.addRegion("region1", "TestNode", "")
+    network.addRegion("region2", "TestNode", "")
+
+    # Set dimensions on first region
+    network.regions["region1"].setDimensions(engine.Dimensions([1, 1]))
+
+    # Link region1 and region2
+    network.link("region1", "region2", "UniformLink", "")
+
+    # Initialize network
+    network.initialize()
+
+    # Get link
+    links = network.getLinks()
+    self.assertEqual(links.getCount(), 1)
+    linkPair = links.getByIndex(0)
+    link = linkPair[1]
+
+    # Compare Link API to what we know about the network
+    self.assertEqual(link.getDestRegionName(), "region2")
+    self.assertEqual(link.getSrcRegionName(), "region1")
+    self.assertEqual(link.getLinkType(), "UniformLink")
+    self.assertEqual(link.getDestInputName(), "bottomUpIn")
+    self.assertEqual(link.getSrcOutputName(), "bottomUpOut")
 
 
 if __name__ == "__main__":
