@@ -55,7 +55,7 @@ class NetworkVisualizer(object):
 
     :return: networkx MultiDiGraph
     """
-    G = nx.MultiDiGraph()
+    graph = nx.MultiDiGraph()
 
     # Add regions to graph as nodes, annotated by name
     regions = self.network.getRegions()
@@ -63,17 +63,17 @@ class NetworkVisualizer(object):
     for idx in xrange(regions.getCount()):
       regionPair = regions.getByIndex(idx)
       regionName = regionPair[0]
-      G.add_node(regionName, label=regionName)
+      graph.add_node(regionName, label=regionName)
 
     # Add links between regions to graph as edges, annotate by input-output
     # name pairs
     for linkName, link in self.network.getLinks():
-      G.add_edge(link.getSrcRegionName(),
-                 link.getDestRegionName(),
-                 src=link.getSrcOutputName(),
-                 dest=link.getDestInputName())
+      graph.add_edge(link.getSrcRegionName(),
+                     link.getDestRegionName(),
+                     src=link.getSrcOutputName(),
+                     dest=link.getDestInputName())
 
-    return G
+    return graph
 
 
   def render(self, renderer=DEFAULT_RENDERER):
