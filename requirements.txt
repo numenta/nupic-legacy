@@ -17,5 +17,5 @@ pyproj==1.9.3
 prettytable==0.7.2
 # When updating nupic.bindings, also update any shared dependencies to keep
 # versions in sync.
-nupic.bindings==0.5.0
+nupic.bindings==0.5.1
 numpy==1.11.2
