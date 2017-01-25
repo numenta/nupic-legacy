@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014-2017, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -19,9 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import copy
 import sys
-from mock import Mock
 from mock import patch
 import unittest2 as unittest
 
@@ -463,8 +461,3 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(type(region.getSelf()), TestNode)
 
     self.assertEqual(n.getRegionsByType(SPRegion), [])
-
-
-
-if __name__ == "__main__":
-  unittest.main()
