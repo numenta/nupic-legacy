@@ -162,6 +162,7 @@ if __name__ == "__main__":
       # Superseded by platform_system-conditional requirement, but keeping
       # empty extra for compatibility as recommended by setuptools doc.
       "capnp": [],
+      "viz": ["networkx", "matplotlib", "pygraphviz"]
     },
     description="Numenta Platform for Intelligent Computing",
     author="Numenta",
