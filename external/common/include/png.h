@@ -1,1 +1,0 @@
-libpng12/png.h
