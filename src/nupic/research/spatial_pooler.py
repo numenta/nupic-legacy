@@ -1633,8 +1633,9 @@ class SpatialPooler(object):
     numInputs = int(proto.numInputs)
     numColumns = int(proto.numColumns)
 
-    instance = cls()
+    instance = cls.__new__(cls)
 
+    instance._random = NupicRandom()
     instance._random.read(proto.random)
     instance._numInputs = numInputs
     instance._numColumns = numColumns
@@ -1660,14 +1661,22 @@ class SpatialPooler(object):
     instance._synPermMin = proto.synPermMin
     instance._synPermMax = proto.synPermMax
     instance._synPermTrimThreshold = proto.synPermTrimThreshold
+
+    # TODO: These two overlaps attributes aren't currently saved.
+    instance._overlaps = numpy.zeros(numColumns, dtype=realDType)
+    instance._boostedOverlaps = numpy.zeros(numColumns, dtype=realDType)
+
     instance._updatePeriod = proto.updatePeriod
 
     instance._version = VERSION
     instance._iterationNum = proto.iterationNum
     instance._iterationLearnNum = proto.iterationLearnNum
 
+    instance._potentialPools = BinaryCorticalColumns(numInputs)
+    instance._potentialPools.resize(numColumns, numInputs)
     instance._potentialPools.read(proto.potentialPools)
 
+    instance._permanences = CorticalColumns(numColumns, numInputs)
     instance._permanences.read(proto.permanences)
     # Initialize ephemerals and make sure they get updated
     instance._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
