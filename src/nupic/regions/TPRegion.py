@@ -20,6 +20,12 @@
 # ----------------------------------------------------------------------
 
 import os
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+
 import numpy
 
 from nupic.algorithms import anomaly
@@ -28,6 +34,9 @@ from nupic.research import TP10X2
 from nupic.research import TP_shim
 from nupic.support import getArgumentDescriptions
 from nupic.bindings.regions.PyRegion import PyRegion
+
+if capnp:
+  from nupic.regions.TPRegion_capnp import TPRegionProto
 
 gDefaultTemporalImp = 'py'
 
@@ -366,7 +375,7 @@ class TPRegion(PyRegion):
     self._fpLogTPOutput = None
 
     # Variables set up in initInNetwork()
-    self._tfdr                = None  # FDRTemporal instance
+    self._tfdr = None  # FDRTemporal instance
 
 
   #############################################################################
@@ -509,7 +518,7 @@ class TPRegion(PyRegion):
 
     if self.computePredictedActiveCellIndices:
       prevPredictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
-    
+
     if self.anomalyMode:
       prevPredictedColumns = self._tfdr.topDownCompute().copy().nonzero()[0]
 
@@ -541,8 +550,8 @@ class TPRegion(PyRegion):
       activeLearnCells = self._tfdr.getLearnActiveStateT()
       size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
-      
-      activeColumns = buInputVector.nonzero()[0]  
+
+      activeColumns = buInputVector.nonzero()[0]
       outputs['anomalyScore'][:] = anomaly.computeRawAnomalyScore(
         activeColumns, prevPredictedColumns)
 
@@ -775,6 +784,54 @@ class TPRegion(PyRegion):
   # Methods to support serialization
   #
   #############################################################################
+
+  @staticmethod
+  def getProtoType():
+    """Return the pycapnp proto type that the class uses for serialization."""
+    return TPRegionProto
+
+
+  def writeToProto(self, proto):
+    """Write state to proto object.
+
+    proto: TPRegionProto capnproto object
+    """
+    proto.temporalImp = self.temporalImp
+    proto.columnCount = self.columnCount
+    proto.inputWidth = self.inputWidth
+    proto.cellsPerColumn = self.cellsPerColumn
+    proto.learningMode = 1 if self.learningMode else 0
+    proto.inferenceMode = 1 if self.inferenceMode else 0
+    proto.anomalyMode = 1 if self.anomalyMode else 0
+    proto.topDownMode = 1 if self.topDownMode else 0
+    proto.computePredictedActiveCellIndices = (
+      1 if self.computePredictedActiveCellIndices else 0)
+    proto.orColumnOutputs = 1 if self.orColumnOutputs else 0
+
+    self._tfdr.write(proto.temporalMemory)
+
+
+  @classmethod
+  def readFromProto(cls, proto):
+    """Read state from proto object.
+
+    proto: TPRegionProto capnproto object
+    """
+    instance = cls(proto.columnCount, proto.inputWidth, proto.cellsPerColumn)
+
+    instance.temporalImp = proto.temporalImp
+    instance.learningMode = proto.learningMode
+    instance.inferenceMode = proto.inferenceMode
+    instance.anomalyMode = proto.anomalyMode
+    instance.topDownMode = proto.topDownMode
+    instance.computePredictedActiveCellIndices = (
+      proto.computePredictedActiveCellIndices)
+    instance.orColumnOutputs = proto.orColumnOutputs
+
+    temporalImp = proto.temporalImp
+    instance._tfdr = _getTPClass(temporalImp).read(proto.temporalMemory)
+
+    return instance
 
 
   def __getstate__(self):

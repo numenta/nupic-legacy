@@ -53,7 +53,7 @@ class TPShimMixin(object):
                permanenceDec=0.10,
                permanenceMax=1.0,
                activationThreshold=12,
-               predictedSegmentDecrement=0,
+               predictedSegmentDecrement=0.0,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255,
                globalDecay=0.10,
@@ -80,8 +80,6 @@ class TPShimMixin(object):
       maxSynapsesPerSegment=maxSynapsesPerSegment,
       seed=seed)
 
-    self.infActiveState = {"t": None}
-
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """
@@ -101,7 +99,7 @@ class TPShimMixin(object):
 
     activeState = numpy.zeros(numberOfCells)
     activeState[self.getActiveCells()] = 1
-    self.infActiveState["t"] = activeState
+    self.infActiveState = {"t": activeState}
 
     output = numpy.zeros(numberOfCells)
     output[self.getPredictiveCells() + self.getActiveCells()] = 1
@@ -170,7 +168,7 @@ class MonitoredTPShim(MonitoredTemporalMemory):
                permanenceDec=0.10,
                permanenceMax=1.0,
                activationThreshold=12,
-               predictedSegmentDecrement=0,
+               predictedSegmentDecrement=0.0,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255,
                globalDecay=0.10,
@@ -197,8 +195,6 @@ class MonitoredTPShim(MonitoredTemporalMemory):
       maxSynapsesPerSegment=maxSynapsesPerSegment,
       seed=seed)
 
-    self.infActiveState = {"t": None}
-
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """
@@ -218,7 +214,7 @@ class MonitoredTPShim(MonitoredTemporalMemory):
 
     activeState = numpy.zeros(numberOfCells)
     activeState[self.getActiveCells()] = 1
-    self.infActiveState["t"] = activeState
+    self.infActiveState = {"t": activeState}
 
     output = numpy.zeros(numberOfCells)
     output[self.getPredictiveCells() + self.getActiveCells()] = 1

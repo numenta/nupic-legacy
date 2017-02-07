@@ -22,8 +22,9 @@
 import unittest
 import numpy
 
-from nupic.regions.SPRegion import SPRegion
 from nupic.regions.RecordSensor import RecordSensor
+from nupic.regions.SPRegion import SPRegion
+from nupic.regions.TPRegion import TPRegion
 
 from network_creation_common import createAndRunNetwork
 
@@ -64,6 +65,26 @@ class NetworkCheckpointTest(unittest.TestCase):
       result2 = list(results2[i].nonzero()[0])
       self.assertEqual(result1, result2,
         "Row {0} not equal: {1} vs. {2}".format(i, result1, result2))
+
+
+  @unittest.skipUnless(
+    capnp, "pycapnp is not installed, skipping serialization test.")
+  def testTPRegion(self):
+    results1 = createAndRunNetwork(TPRegion, "bottomUpOut",
+                                   checkpointMidway=False,
+                                   temporalImp="tm_py")
+
+    results2 = createAndRunNetwork(TPRegion, "bottomUpOut",
+                                   checkpointMidway=True,
+                                   temporalImp="tm_py")
+
+    self.assertEqual(len(results1), len(results2))
+
+    for i in xrange(len(results1)):
+      result1 = list(results1[i].nonzero()[0])
+      result2 = list(results2[i].nonzero()[0])
+      self.assertEqual(result1, result2,
+                       "Row {0} not equal: {1} vs. {2}".format(i, result1, result2))
 
 
   def compareArrayResults(self, results1, results2):

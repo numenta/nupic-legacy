@@ -119,7 +119,7 @@ class TemporalMemory(object):
     # TODO: Validate all parameters (and add validation tests)
 
     # Save member variables
-    self.columnDimensions = columnDimensions
+    self.columnDimensions = list(columnDimensions)
     self.cellsPerColumn = cellsPerColumn
     self.activationThreshold = activationThreshold
     self.initialPermanence = initialPermanence
@@ -984,7 +984,7 @@ class TemporalMemory(object):
     """
     self.connectedPermanence = connectedPermanence
 
-  
+
   def getMaxSegmentsPerCell(self):
       """
       Get the maximum number of segments per cell
@@ -992,7 +992,7 @@ class TemporalMemory(object):
       """
       return self.connections.maxSegmentsPerCell
 
-  
+
   def getMaxSynapsesPerSegment(self):
       """
       Get the maximum number of synapses per segment.

@@ -303,6 +303,9 @@ class Connections(object):
 
     @return (set) Synapse objects
     """
+    if not presynapticCell in self._synapsesForSegment:
+      return dict()
+
     return self._synapsesForPresynapticCell[presynapticCell]
 
 
