@@ -21,7 +21,8 @@
 # ----------------------------------------------------------------------
 
 from nupic.engine import Network, Dimensions
-from nupic.frameworks.viz import (NetworkVisualizer,
+from nupic.frameworks.viz import (DotRenderer,
+                                  NetworkVisualizer,
                                   GraphVizRenderer,
                                   NetworkXRenderer)
 
@@ -58,6 +59,11 @@ def main():
   # Render w/ networkx
   viz.render(renderer=NetworkXRenderer)
 
+  # Render to dot (stdout)
+  viz.render(renderer=DotRenderer)
+
+  # Render to dot (file)
+  viz.render(renderer=lambda: DotRenderer(open("example.dot", "w")))
 
 
 if __name__ == "__main__":

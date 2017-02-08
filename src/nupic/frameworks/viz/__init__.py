@@ -21,4 +21,6 @@
 
 from nupic.frameworks.viz.graphviz_renderer import GraphVizRenderer
 from nupic.frameworks.viz.networkx_renderer import NetworkXRenderer
+from nupic.frameworks.viz.dot_renderer import DotRenderer
 from nupic.frameworks.viz.network_visualization import NetworkVisualizer
+
