@@ -21,7 +21,7 @@
 
 import networkx as nx
 
-from nupic.frameworks.viz import NetworkXRenderer as DEFAULT_RENDERER
+from nupic.frameworks.viz import DotRenderer as DEFAULT_RENDERER
 
 
 
