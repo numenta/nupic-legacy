@@ -146,12 +146,12 @@ class TemporalMemoryPerformanceBenchmark(object):
         reader.next()
         reader.next()
 
-        encodedValue = numpy.zeros(2048, dtype=numpy.int32)
+        encodedValue = numpy.zeros(2048, dtype=numpy.uint32)
 
         for timeStr, valueStr in reader:
           value = float(valueStr)
           scalarEncoder.encodeIntoArray(value, output=encodedValue)
-          activeBits = encodedValue.nonzero()[0]
+          activeBits = numpy.flatnonzero(encodedValue)
 
           for i in xrange(len(self.contestants)):
             tmInstance = instances[i]
@@ -223,10 +223,10 @@ def tmParamsFn(cellsPerColumn):
     "initialPermanence": 0.5,
     "connectedPermanence": 0.8,
     "minThreshold": 10,
-    "maxNewSynapseCount": 12,
+    "maxNewSynapseCount": 20,
     "permanenceIncrement": 0.1,
     "permanenceDecrement": 0.05,
-    "activationThreshold": 15
+    "activationThreshold": 13
   }
 
 
@@ -237,10 +237,10 @@ def tpParamsFn(cellsPerColumn):
     "initialPerm": 0.5,
     "connectedPerm": 0.8,
     "minThreshold": 10,
-    "newSynapseCount": 12,
+    "newSynapseCount": 20,
     "permanenceInc": 0.1,
     "permanenceDec": 0.05,
-    "activationThreshold": 15,
+    "activationThreshold": 13,
     "globalDecay": 0,
     "burnIn": 1,
     "checkSynapseConsistency": False,
@@ -267,6 +267,9 @@ if __name__ == "__main__":
                "20_simple_sequence", "20_simple_sequence_no_resets",
                "20_hotgym", "20_hotgym_1_cell"]
 
+  defaultTests = ["simple_sequence", "simple_sequence_no_resets",
+                  "hotgym", "hotgym_1_cell", "random", "5_random"]
+
   parser.add_argument("-i", "--implementations",
                       nargs="*",
                       type=str,
@@ -279,7 +282,7 @@ if __name__ == "__main__":
                       type=str,
                       help=("The tests to run. Options: %s"
                             % ", ".join(testNames)),
-                      default=testNames)
+                      default=defaultTests)
 
   parser.add_argument("--pause",
                       help="Pause before each test.",
