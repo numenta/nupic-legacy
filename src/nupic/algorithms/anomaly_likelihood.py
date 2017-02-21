@@ -85,7 +85,7 @@ class AnomalyLikelihood(object):
     claLearningPeriod and learningPeriod are specifying the same variable,
     although claLearningPeriod is a deprecated name for it.
 
-    @param learningPeriod (claLeraningPeriod: deprecated) - (int) the number of
+    @param learningPeriod (claLearningPeriod: deprecated) - (int) the number of
       iterations required for the algorithm to learn the basic patterns in the
       dataset and for the anomaly score to 'settle down'. The default is based
       on empirical observations but in reality this could be larger for more
