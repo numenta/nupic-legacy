@@ -1,0 +1,30 @@
+
+language: python
+
+python:
+  - "2.7"
+
+env:
+  - PYTHONPATH=$PYTHONPATH:`pwd`/install/lib/python2.7/site-packages NUPIC=`pwd`
+
+install:
+  - pwd
+  - ls
+  - pip install --install-option="--prefix=$NUPIC/install" -r external/common/requirements.txt
+  - sudo apt-get install cmake
+  #- pip install --install-option="--prefix=$NUPIC/install" .
+  - mkdir -p build/scripts
+  - cd build/scripts
+  - cmake ../..
+  - make install
+  - ls $NUPIC/install
+  - ls $NUPIC/install/bin/
+  - ls $NUPIC/install/lib/python2.7/site-packages/
+  - ls $NUPIC/install/lib/python2.7/site-packages/nupic/bindings/
+  #- mkdir tmp; cd tmp; pwd; echo $NUPIC
+  #- python -c "import os; print os.environ['PYTHONPATH']; import nupic; print nupic.__file__; print 'blah'"
+  - cd ../..
+
+script:
+  - make python_unit_tests
+  #- py.test --junit-xml=../shippable/testresults/tests.xml --cov=nupic --cov-report=xml ../tests/unit/py2/
