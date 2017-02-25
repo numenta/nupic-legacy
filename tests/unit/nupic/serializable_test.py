@@ -22,13 +22,18 @@
 import os
 import unittest
 
-import capnp
-import serializable_test_capnp
+try:
+  import capnp
+  import serializable_test_capnp
+except ImportError:
+  # Ignore for platforms in which capnp is not available, e.g. windows
+  capnp = None
 
 from nupic.serializable import  Serializable
 
 
 
+@unittest.skipUnless(capnp, "Capnp not available.")
 class SerializableTest(unittest.TestCase):
 
   def testABCProtocolEnforced(self):
@@ -55,7 +60,7 @@ class SerializableTest(unittest.TestCase):
 
 
       @classmethod
-      def getCapnpSchema(cls):
+      def getSchema(cls):
         return serializable_test_capnp.Foo
 
 
@@ -69,12 +74,14 @@ class SerializableTest(unittest.TestCase):
       def write(self, proto):
         proto.bar = self.bar
 
+    def _remove(fname):
+      if os.path.isfile(fname):
+        os.remove(fname)
 
-    self.addCleanup(os.remove, "foo.data")
+    self.addCleanup(_remove, "foo.data")
 
     with open("foo.data", "wb") as outp:
       Foo("bar").writeToFile(outp)
 
     with open("foo.data", "rb") as inp:
-      foo = Foo.readFromFile(inp)
-      self.assertEqual(foo.bar, "bar")
+      self.assertEqual(Foo.readFromFile(inp).bar, "bar")

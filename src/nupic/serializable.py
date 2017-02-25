@@ -35,31 +35,54 @@ class Serializable(object):
 
   @classmethod
   @abstractmethod
-  def getCapnpSchema(cls):
-    pass  # Not implemented here.  Per abc protocol, attempts to subclass without
-    # overriding will fail.
+  def getSchema(cls):
+    """
+    Get Cap'n Proto schema
+
+    Note: This is an abstract method.  Per abc protocol, attempts to subclass
+    without overriding will fail.
+    """
+    pass
 
 
   @classmethod
   @abstractmethod
   def read(cls, proto):
-    pass # Not implemented here.  Per abc protocol, attempts to subclass without
-         # overriding will fail.
+    """
+    Create a new object initialized from Cap'n Proto obj.
+
+    Note: This is an abstract method.  Per abc protocol, attempts to subclass
+    without overriding will fail.
+
+    :param proto: Cap'n Proto obj
+    :return: Obj initialized from proto
+    """
+    pass
 
 
   @abstractmethod
   def write(self, proto):
-    pass # Not implemented here.  Per abc protocol, attempts to subclass without
-         # overriding will fail.
+    """
+    Write obj instance to Cap'n Proto object
+
+    Note: This is an abstract method.  Per abc protocol, attempts to subclass
+    without overriding will fail.
+
+    :param proto: Cap'n Proto obj
+    """
+    pass
 
 
   @classmethod
   def readFromFile(cls, inp, packed=True):
     # Get capnproto schema from instance
-    schema = cls.getCapnpSchema()
+    schema = cls.getSchema()
 
     # Read from file
-    proto = getattr(schema, "read_packed" if packed else "read")(inp)
+    if packed:
+      proto = schema.read_packed(inp)
+    else:
+      proto = schema.read(inp)
 
     # Return first-class instance initialized from proto obj
     return cls.read(proto)
@@ -67,7 +90,7 @@ class Serializable(object):
 
   def writeToFile(self, outp, packed=True):
     # Get capnproto schema from instance
-    schema = self.getCapnpSchema()
+    schema = self.getSchema()
 
     # Construct new message, otherwise refered to as `proto`
     proto = schema.new_message()
@@ -76,4 +99,7 @@ class Serializable(object):
     self.write(proto)
 
     # Finally, write to file
-    getattr(proto, "write_packed" if packed else "write")(outp)
+    if packed:
+      proto.write_packed(outp)
+    else:
+      proto.write(outp)
