@@ -187,7 +187,7 @@ class Model(object):
     raise NotImplementedError()
 
   @staticmethod
-  def _getModelCheckpointFilePath(checkpointDir):
+  def getModelCheckpointFilePath(checkpointDir):
     """ Return the absolute path of the model's checkpoint file.
     @param checkpointDir (string)
            Directory of where the experiment is to be or was saved
@@ -203,7 +203,7 @@ class Model(object):
 
     self.write(proto)
 
-    checkpointPath = self._getModelCheckpointFilePath(checkpointDir)
+    checkpointPath = self.getModelCheckpointFilePath(checkpointDir)
 
     # Clean up old saved state, if any
     if os.path.exists(checkpointDir):
@@ -228,7 +228,7 @@ class Model(object):
   @classmethod
   def readFromCheckpoint(cls, checkpointDir):
     """Deerializes model from checkpointDir using capnproto"""
-    checkpointPath = cls._getModelCheckpointFilePath(checkpointDir)
+    checkpointPath = cls.getModelCheckpointFilePath(checkpointDir)
 
     with open(checkpointPath, 'r') as f:
       proto = cls.getProtoType().read(f)
@@ -269,7 +269,7 @@ class Model(object):
     logger.debug("(%s) Creating local checkpoint in %r...",
                        self, saveModelDir)
 
-    modelPickleFilePath = self._getModelPickleFilePath(saveModelDir)
+    modelPickleFilePath = self.getModelPickleFilePath(saveModelDir)
 
     # Clean up old saved state, if any
     if os.path.exists(saveModelDir):
@@ -323,7 +323,7 @@ class Model(object):
     logger.debug("Loading model from local checkpoint at %r...", savedModelDir)
 
     # Load the model
-    modelPickleFilePath = Model._getModelPickleFilePath(savedModelDir)
+    modelPickleFilePath = Model.getModelPickleFilePath(savedModelDir)
 
     with open(modelPickleFilePath, 'r') as modelPickleFile:
       logger.debug("Unpickling Model instance...")
@@ -351,7 +351,7 @@ class Model(object):
     pass
 
   @staticmethod
-  def _getModelPickleFilePath(saveModelDir):
+  def getModelPickleFilePath(saveModelDir):
     """ Return the absolute path of the model's pickle file.
     @param saveModelDir (string)
            Directory of where the experiment is to be or was saved

@@ -151,6 +151,12 @@ if __name__ == "__main__":
       "nupic.swarming.jsonschema": ["*.json"],
       "nupic.datafiles": ["*.csv", "*.txt"],
     },
+    entry_points = {
+        "console_scripts": [
+            "nupic-migrate-checkpoints="
+            "nupic.frameworks.opf.checkpoint_migration:migrateCheckpointsMain",
+        ],
+    },
     cmdclass = {"test": TestCommand},
     include_package_data=True,
     zip_safe=False,
