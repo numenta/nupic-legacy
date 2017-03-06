@@ -54,29 +54,38 @@ class Encoder(object):
 
   This is the base class for encoders that are compatible with the OPF. The OPF
   requires that values can be represented as a scalar value for use in places
-  like the SDR Classifier. The Encoder superclass implements:
+  like the SDR Classifier.
 
-  - encode() - returns a numpy array encoding the input; syntactic sugar
-    on top of encodeIntoArray. If pprint, prints the encoding to the terminal
-  - pprintHeader() - prints a header describing the encoding to the terminal
-  - pprint() - prints an encoding to the terminal
+  .. note:: The Encoder superclass implements:
 
-  Methods/properties that must be implemented by subclasses:
-  - getDecoderOutputFieldTypes() - must be implemented by leaf encoders
-      returns \[`nupic.data.fieldmeta.FieldMetaType.XXXXX`\]
-      (e.g., \[nupic.data.fieldmetaFieldMetaType.float\])
-  - getWidth() - returns the output width, in bits
-  - encodeIntoArray() - encodes input and puts the encoded value into the
-      numpy output array, which is a 1-D array of length returned by getWidth()
-  - getDescription() - returns a list of (name, offset) pairs describing the
-      encoded output
+  - :func:`~nupic.encoders.base.Encoder.encode` - returns a numpy array encoding
+    the input; syntactic sugar on top of encodeIntoArray. If pprint, prints the
+    encoding to the terminal
+  - :func:`~nupic.encoders.base.Encoder.pprintHeader` - prints a header
+    describing the encoding to the terminal
+  - :func:`~nupic.encoders.base.Encoder.pprint` - prints an encoding to the
+    terminal
+
+  .. warning:: The following methods and properties must be implemented by
+     subclasses:
+
+  - :func:`~nupic.encoders.base.Encoder.getDecoderOutputFieldTypes` - must be
+     implemented by leaf encoders. Returns :class:`nupic.data.fieldmeta.FieldMetaType`.XXXXX
+     (e.g., :class:`nupic.data.fieldmeta.FieldMetaType`.float)
+  - :func:`~nupic.encoders.base.Encoder.getWidth` - returns the output width, in
+     bits
+  - :func:`~nupic.encoders.base.Encoder.encodeIntoArray` - encodes input and
+     puts the encoded value into the numpy output array, which is a 1-D array of
+     length returned by :func:`~nupic.encoders.base.Encoder.getWidth`
+  - :func:`~nupic.encoders.base.Encoder.getDescription` - returns a list of
+     (name, offset) pairs describing the encoded output
   """
 
 
   def getWidth(self):
     """Should return the output width, in bits.
 
-    @returns output width in bits
+    :return: output width in bits
     """
     raise NotImplementedError()
 
@@ -88,8 +97,8 @@ class Encoder(object):
 
     Note: The numpy output array is reused, so clear it before updating it.
 
-    @param inputData Data to encode. This should be validated by the encoder.
-    @param output numpy 1-D array of same length returned by getWidth()
+    :param inputData: Data to encode. This should be validated by the encoder.
+    :param output: numpy 1-D array of same length returned by getWidth()
     """
     raise NotImplementedError()
 
@@ -97,7 +106,7 @@ class Encoder(object):
   def setLearning(self, learningEnabled):
     """Set whether learning is enabled.
 
-    @param learningEnabled whether learning should be enabled
+    :param learningEnabled: whether learning should be enabled
     """
     # TODO: (#1943) Make sure subclasses don't rely on this and remove it.
     # Default behavior should be a noop.
@@ -110,10 +119,10 @@ class Encoder(object):
     This method is called by the model to set the statistics like min and
     max for the underlying encoders if this information is available.
 
-    @param fieldName name of the field this encoder is encoding, provided by
+    :param fieldName: name of the field this encoder is encoding, provided by
           multiencoder
 
-    @param fieldStatistics dictionary of dictionaries with the first level being
+    :param fieldStatistics: dictionary of dictionaries with the first level being
           the fieldname and the second index the statistic ie:
           fieldStatistics['pounds']['min']
     """
@@ -126,8 +135,8 @@ class Encoder(object):
     This may be less efficient because it allocates a new numpy array every
     call.
 
-    @param inputData TODO: document
-    @returns a numpy array with the encoded representation of inputData
+    :param inputData: undocumented
+    :return: a numpy array with the encoded representation of inputData
     """
     output = numpy.zeros((self.getWidth(),), dtype=defaultDtype)
     self.encodeIntoArray(inputData, output)
@@ -139,11 +148,11 @@ class Encoder(object):
     Return the field names for each of the scalar values returned by
     getScalars.
 
-    @param parentFieldName The name of the encoder which is our parent. This
+    :param parentFieldName: The name of the encoder which is our parent. This
         name is prefixed to each of the field names within this encoder to
         form the keys of the dict() in the retval.
 
-    @returns array of field names
+    :return: array of field names
     """
     names = []
 
@@ -166,9 +175,9 @@ class Encoder(object):
     """
     Returns a sequence of field types corresponding to the elements in the
     decoded output field array.  The types are defined by
-    nupic.data.fieldmeta.FieldMetaType.
+    :class:`nupic.data.fieldmeta.FieldMetaType`.
 
-    @returns list of nupic.data.fieldmeta.FieldMetaType objects
+    :return: list of :class:`nupic.data.fieldmeta.FieldMetaType` objects
     """
     if hasattr(self, '_flattenedFieldTypeList') and \
           self._flattenedFieldTypeList is not None:
@@ -219,7 +228,7 @@ class Encoder(object):
 
   def getEncoderList(self):
     """
-    @returns a reference to each sub-encoder in this encoder. They are
+    :return: a reference to each sub-encoder in this encoder. They are
              returned in the same order as they are for getScalarNames() and
              getScalars().
 
@@ -258,9 +267,9 @@ class Encoder(object):
     of the inputData with the scalar value returned from topDownCompute() on a
     top-down representation to evaluate prediction accuracy, for example.
 
-    @param inputData The data from the source. This is typically a object with
+    :param inputData: The data from the source. This is typically a object with
                  members
-    @returns array of scalar values
+    :return: array of scalar values
     """
 
     retVals = numpy.array([])
@@ -286,9 +295,9 @@ class Encoder(object):
     This method is essentially the same as getScalars() except that it returns
     strings
 
-    @param inputData The input data in the format it is received from the data source
+    :param inputData: The input data in the format it is received from the data source
 
-    @returns A list of values, in the same format and in the same order as they
+    :return: A list of values, in the same format and in the same order as they
     are returned by topDownCompute.
     """
 
@@ -317,9 +326,9 @@ class Encoder(object):
     each sub-field of the inputData. To get the associated field names for each of
     the buckets, call getScalarNames().
 
-    @param inputData The data from the source. This is typically a object with
+    :param inputData: The data from the source. This is typically a object with
                  members.
-    @returns array of bucket indices
+    :return: array of bucket indices
     """
 
     retVals = []
@@ -340,10 +349,10 @@ class Encoder(object):
     Return a pretty print string representing the return values from
     getScalars and getScalarNames().
 
-    @param scalarValues input values to encode to string
-    @param scalarNames optional input of scalar names to convert. If None, gets
+    :param scalarValues: input values to encode to string
+    :param scalarNames: optional input of scalar names to convert. If None, gets
                        scalar names from getScalarNames()
-    @returns string representation of scalar values
+    :return: string representation of scalar values
     """
 
     if scalarNames is None:
@@ -370,7 +379,7 @@ class Encoder(object):
 
     **Must be overridden by subclasses.**
 
-    @returns list of tuples containing (name, offset)
+    :return: list of tuples containing (name, offset)
     """
     raise Exception("getDescription must be implemented by all subclasses")
 
@@ -379,8 +388,8 @@ class Encoder(object):
     """
     Return the offset and length of a given field within the encoded output.
 
-    @param fieldName      Name of the field
-    @returns tuple(offset, width) of the field within the encoded output
+    :param fieldName:      Name of the field
+    :return: tuple(offset, width) of the field within the encoded output
     """
 
     # Find which field it's in
@@ -402,10 +411,10 @@ class Encoder(object):
     Return a description of the given bit in the encoded output.
     This will include the field name and the offset within the field.
 
-    @param bitOffset      Offset of the bit to get the description of
-    @param formatted      If True, the bitOffset is w.r.t. formatted output,
+    :param bitOffset:      Offset of the bit to get the description of
+    :param formatted:      If True, the bitOffset is w.r.t. formatted output,
                           which includes separators
-    @returns             tuple(fieldName, offsetWithinField)
+    :return:             tuple(fieldName, offsetWithinField)
     """
 
     # Find which field it's in
@@ -439,7 +448,7 @@ class Encoder(object):
     Pretty-print a header that labels the sub-fields of the encoded
     output. This can be used in conjuction with pprint.
 
-    @param prefix printed before the header if specified
+    :param prefix: printed before the header if specified
     """
     print prefix,
     description = self.getDescription() + [("end", self.getWidth())]
@@ -460,8 +469,8 @@ class Encoder(object):
     """
     Pretty-print the encoded output using ascii art.
 
-    @param output to print
-    @param prefix printed before the header if specified
+    :param output: to print
+    :param prefix: printed before the header if specified
     """
     print prefix,
     description = self.getDescription() + [("end", self.getWidth())]
@@ -491,12 +500,12 @@ class Encoder(object):
     If you want to pretty print the return value from this method, use the
     decodedToStr() method.
 
-    @param encoded      The encoded output that you want decode
-    @param parentFieldName The name of the encoder which is our parent. This name
+    :param encoded:      The encoded output that you want decode
+    :param parentFieldName: The name of the encoder which is our parent. This name
            is prefixed to each of the field names within this encoder to form the
            keys of the dict() in the retval.
 
-    @returns tuple(fieldsDict, fieldOrder) (see below for details)
+    :return: tuple(fieldsDict, fieldOrder) (see below for details)
 
     fieldsDict is a dict() where the keys represent field names
     (only 1 if this is a simple encoder, > 1 if this is a multi
@@ -598,7 +607,7 @@ class Encoder(object):
 
     **Must be overridden by subclasses.**
 
-    @returns list of items, each item representing the bucket value for that
+    :return: list of items, each item representing the bucket value for that
              bucket.
     """
     raise Exception("getBucketValues must be implemented by all subclasses")
@@ -610,10 +619,10 @@ class Encoder(object):
     each sub-field that correspond to the bucket indices passed in 'buckets'.
     To get the associated field names for each of the values, call getScalarNames().
 
-    @param buckets The list of bucket indices, one for each sub-field encoder.
+    :param buckets: The list of bucket indices, one for each sub-field encoder.
                    These bucket indices for example may have been retrieved
                    from the getBucketIndices() call.
-    @retuns A list of EncoderResult namedtuples. Each EncoderResult has
+    :return: A list of EncoderResult namedtuples. Each EncoderResult has
             three attributes:
 
             -# value:         This is the value for the sub-field
@@ -664,10 +673,10 @@ class Encoder(object):
     To get the associated field names for each of the values, call
     getScalarNames().
 
-    @param encoded The encoded output. Typically received from the topDown outputs
+    :param encoded: The encoded output. Typically received from the topDown outputs
                    from the spatial pooler just above us.
 
-    @returns A list of EncoderResult namedtuples. Each EncoderResult has
+    :return: A list of EncoderResult namedtuples. Each EncoderResult has
              three attributes:
 
              -# value:         This is the best-guess value for the sub-field
@@ -732,12 +741,12 @@ class Encoder(object):
     a category encoder may return either 1 or 0, if the scalar matches exactly
     or not. A scalar encoder might return a percentage match, etc.
 
-    @param expValues Array of expected scalar values, typically obtained from
+    :param expValues: Array of expected scalar values, typically obtained from
                      getScalars()
-    @param actValues Array of actual values, typically obtained from
+    :param actValues: Array of actual values, typically obtained from
                      topDownCompute()
 
-    @returns Array of closeness scores, one per item in expValues (or
+    :return: Array of closeness scores, one per item in expValues (or
              actValues).
     """
     # Fallback closenss is a percentage match
@@ -771,7 +780,7 @@ class Encoder(object):
     """
     Calculate width of display for bits plus blanks between fields.
 
-    @returns width of display for bits plus blanks between fields
+    :return: width of display for bits plus blanks between fields
     """
     width = self.getWidth() + len(self.getDescription()) - 1
     return width
@@ -784,11 +793,11 @@ class Encoder(object):
     If leftpad is one, then there is a dummy value at element 0
     of the arrays, and we should start our counting from 1 rather than 0
 
-    @param inarray TODO: document
-    @param outarray TODO: document
-    @param scale TODO: document
-    @param blank TODO: document
-    @param leftpad TODO: document
+    :param inarray: TODO: document
+    :param outarray: TODO: document
+    :param scale: TODO: document
+    :param blank: TODO: document
+    :param leftpad: TODO: document
     """
     description = self.getDescription() + [("end", self.getWidth())]
 
