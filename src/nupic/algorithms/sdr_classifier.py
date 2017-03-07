@@ -54,33 +54,44 @@ class SDRClassifier(object):
 
   Example Usage:
 
-  c = SDRClassifier(steps=[1], alpha=0.1, actValueAlpha=0.1, verbosity=0)
+  .. code-block:: python
 
-  # learning
-  c.compute(recordNum=0, patternNZ=[1, 5, 9],
-            classification={"bucketIdx": 4, "actValue": 34.7},
-            learn=True, infer=False)
+     c = SDRClassifier(steps=[1], alpha=0.1, actValueAlpha=0.1, verbosity=0)
 
-  # inference
-  result = c.compute(recordNum=1, patternNZ=[1, 5, 9],
-                     classification={"bucketIdx": 4, "actValue": 34.7},
-                     learn=False, infer=True)
+     # learning
+     c.compute(recordNum=0, patternNZ=[1, 5, 9],
+               classification={"bucketIdx": 4, "actValue": 34.7},
+               learn=True, infer=False)
 
-  # Print the top three predictions for 1 steps out.
-  topPredictions = sorted(zip(result[1],
-                          result["actualValues"]), reverse=True)[:3]
-  for probability, value in topPredictions:
-    print "Prediction of {} has probability of {}.".format(value,
-                                                           probability*100.0)
+     # inference
+     result = c.compute(recordNum=1, patternNZ=[1, 5, 9],
+                        classification={"bucketIdx": 4, "actValue": 34.7},
+                        learn=False, infer=True)
+
+     # Print the top three predictions for 1 steps out.
+     topPredictions = sorted(zip(result[1],
+                             result["actualValues"]), reverse=True)[:3]
+     for probability, value in topPredictions:
+       print "Prediction of {} has probability of {}.".format(value,
+                                                              probability*100.0)
 
   References:
-    Alex Graves. Supervised Sequence Labeling with Recurrent Neural Networks
-    PhD Thesis, 2008
 
-    J. S. Bridle. Probabilistic interpretation of feedforward classification
-    network outputs, with relationships to statistical pattern recognition.
-    In F. Fogleman-Soulie and J.Herault, editors, Neurocomputing: Algorithms,
+  * Alex Graves. Supervised Sequence Labeling with Recurrent Neural Networks,
+    PhD Thesis, 2008
+  * J. S. Bridle. Probabilistic interpretation of feedforward classification
+    network outputs, with relationships to statistical pattern recognition
+  * In F. Fogleman-Soulie and J.Herault, editors, Neurocomputing: Algorithms,
     Architectures and Applications, pp 227-236, Springer-Verlag, 1990
+
+  :param steps: (list) Sequence of the different steps of multi-step predictions
+    to learn
+  :param alpha: (float) The alpha used to adapt the weight matrix during
+    learning. A larger alpha results in faster adaptation to the data.
+  :param actValueAlpha: (float) Used to track the actual value within each
+    bucket. A lower actValueAlpha results in longer term memory
+  :param verbosity: (int) verbosity level, can be 0, 1, or 2
+
   """
 
   VERSION = 1
@@ -91,18 +102,7 @@ class SDRClassifier(object):
                alpha=0.001,
                actValueAlpha=0.3,
                verbosity=0):
-    """Constructor for the SDR classifier.
 
-    Parameters:
-    ---------------------------------------------------------------------
-    @param steps (list) Sequence of the different steps of multi-step
-        predictions to learn
-    @param alpha (float) The alpha used to adapt the weight matrix during
-        learning. A larger alpha results in faster adaptation to the data.
-    @param actValueAlpha (float) Used to track the actual value within each
-        bucket. A lower actValueAlpha results in longer term memory
-    @param verbosity (int) verbosity level, can be 0, 1, or 2
-    """
     if len(steps) == 0:
       raise TypeError("steps cannot be empty")
     if not all(isinstance(item, int) for item in steps):
@@ -157,27 +157,31 @@ class SDRClassifier(object):
   def compute(self, recordNum, patternNZ, classification, learn, infer):
     """
     Process one input sample.
+    
     This method is called by outer loop code outside the nupic-engine. We
     use this instead of the nupic engine compute() because our inputs and
     outputs aren't fixed size vectors of reals.
 
-    Parameters:
-    --------------------------------------------------------------------
-    @param recordNum  Record number of this input pattern. Record numbers
-                normally increase sequentially by 1 each time unless there
-                are missing records in the dataset. Knowing this information
-                insures that we don't get confused by missing records.
-    @param patternNZ  List of the active indices from the output below.
-                - When the input is from TemporalMemory, this list should be the
-                  indices of the active cells.
-    @param classification Dict of the classification information:
-                    bucketIdx: index of the encoder bucket
-                    actValue:  actual value going into the encoder
-                    classification could be None for inference mode
-    @param learn (bool) if true, learn this sample
-    @param infer (bool) if true, perform inference
 
-    @return     Dict containing inference results, there is one entry for each
+    :param recordNum: Record number of this input pattern. Record numbers
+      normally increase sequentially by 1 each time unless there are missing
+      records in the dataset. Knowing this information insures that we don't get
+      confused by missing records.
+
+    :param patternNZ: List of the active indices from the output below. When the
+      input is from TemporalMemory, this list should be the indices of the
+      active cells.
+
+    :param classification: Dict of the classification information where:
+
+      - bucketIdx: index of the encoder bucket
+      - actValue: actual value going into the encoder
+
+      Classification could be None for inference mode.
+    :param learn: (bool) if true, learn this sample
+    :param infer: (bool) if true, perform inference
+
+    :return:    Dict containing inference results, there is one entry for each
                 step in self.steps, where the key is the number of steps, and
                 the value is an array containing the relative likelihood for
                 each bucketIdx starting from bucketIdx 0.
@@ -186,10 +190,13 @@ class SDRClassifier(object):
                 use for each bucket. The key is 'actualValues'.
 
                 for example:
-                  {1 :             [0.1, 0.3, 0.2, 0.7],
-                   4 :             [0.2, 0.4, 0.3, 0.5],
-                   'actualValues': [1.5, 3,5, 5,5, 7.6],
-                  }
+
+                .. code-block:: python
+
+                   {1 :             [0.1, 0.3, 0.2, 0.7],
+                     4 :             [0.2, 0.4, 0.3, 0.5],
+                     'actualValues': [1.5, 3,5, 5,5, 7.6],
+                   }
     """
     if self.verbosity >= 1:
       print "  recordNum:", recordNum
@@ -286,22 +293,23 @@ class SDRClassifier(object):
     Return the inference value from one input sample. The actual
     learning happens in compute().
 
-    Parameters:
-    --------------------------------------------------------------------
-    @param patternNZ  list of the active indices from the output below
-    @param classification dict of the classification information:
+    :param patternNZ: list of the active indices from the output below
+    :param classification: dict of the classification information:
                     bucketIdx: index of the encoder bucket
                     actValue:  actual value going into the encoder
 
-    @return     dict containing inference results, one entry for each step in
+    :return:    dict containing inference results, one entry for each step in
                 self.steps. The key is the number of steps, the value is an
                 array containing the relative likelihood for each bucketIdx
                 starting from bucketIdx 0.
 
                 for example:
-                  {'actualValues': [0.0, 1.0, 2.0, 3.0]
-                    1 : [0.1, 0.3, 0.2, 0.7]
-                    4 : [0.2, 0.4, 0.3, 0.5]}
+
+                .. code-block:: python
+
+                   {'actualValues': [0.0, 1.0, 2.0, 3.0]
+                     1 : [0.1, 0.3, 0.2, 0.7]
+                     4 : [0.2, 0.4, 0.3, 0.5]}
     """
 
     # Return value dict. For buckets which we don't have an actual value
@@ -331,9 +339,9 @@ class SDRClassifier(object):
     Perform inference for a single step. Given an SDR input and a weight
     matrix, return a predicted distribution.
 
-    @param patternNZ  list of the active indices from the output below
-    @param weightMatrix numpy array of the weight matrix
-    @return numpy array of the predicted class label distribution
+    :param patternNZ: list of the active indices from the output below
+    :param weightMatrix: numpy array of the weight matrix
+    :return: numpy array of the predicted class label distribution
     """
     outputActivation = weightMatrix[patternNZ].sum(axis=0)
 
@@ -430,10 +438,11 @@ class SDRClassifier(object):
   def _calculateError(self, recordNum, classification):
     """
     Calculate error signal
-    @param classification dict of the classification information:
+
+    :param classification: dict of the classification information:
                     bucketIdx: index of the encoder bucket
                     actValue:  actual value going into the encoder
-    @return: dict containing error. The key is the number of steps
+    :return: dict containing error. The key is the number of steps
              The value is a numpy array of error at the output layer
     """
     error = dict()
@@ -454,4 +463,3 @@ def _pFormatArray(array_, fmt="%.2f"):
   """Return a string with pretty-print of a numpy array using the given format
   for each element"""
   return "[ " + " ".join(fmt % x for x in array_) + " ]"
-

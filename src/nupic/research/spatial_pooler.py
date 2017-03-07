@@ -99,13 +99,114 @@ class SpatialPooler(object):
   relationships between the columns of a region and the inputs bits. The
   primary public interface to this function is the "compute" method, which
   takes in an input vector and returns a list of activeColumns columns.
-  Example Usage:
-  >
-  > sp = SpatialPooler(...)
-  > for line in file:
-  >   inputVector = numpy.array(line)
-  >   sp.compute(inputVector)
-  >   ...
+
+  .. code-block:: python
+
+     sp = SpatialPooler(...)
+     for line in file:
+       inputVector = numpy.array(line)
+       sp.compute(inputVector)
+       ...
+
+  :param inputDimensions:
+      A sequence representing the dimensions of the input vector. Format is
+      (height, width, depth, ...), where each value represents the size of the
+      dimension.  For a topology of one dimension with 100 inputs use 100, or
+      (100,). For a two dimensional topology of 10x5 use (10,5).
+  :param columnDimensions:
+      A sequence representing the dimensions of the columns in the region.
+      Format is (height, width, depth, ...), where each value represents the
+      size of the dimension.  For a topology of one dimension with 2000 columns
+      use 2000, or (2000,). For a three dimensional topology of 32x64x16 use
+      (32, 64, 16).
+  :param potentialRadius:
+      This parameter determines the extent of the input that each column can
+      potentially be connected to.  This can be thought of as the input bits
+      that are visible to each column, or a 'receptiveField' of the field of
+      vision. A large enough value will result in 'global coverage', meaning
+      that each column can potentially be connected to every input bit. This
+      parameter defines a square (or hyper
+      square) area: a column will have a max square potential pool with sides of
+      length 2 * potentialRadius + 1.
+  :param potentialPct:
+      The percent of the inputs, within a column's potential radius, that a
+      column can be connected to.  If set to 1, the column will be connected
+      to every input within its potential radius. This parameter is used to
+      give each column a unique potential pool when a large potentialRadius
+      causes overlap between the columns. At initialization time we choose
+      ((2*potentialRadius + 1)^(# inputDimensions) * potentialPct) input bits
+      to comprise the column's potential pool.
+  :param globalInhibition:
+      If true, then during inhibition phase the winning columns are selected
+      as the most active columns from the region as a whole. Otherwise, the
+      winning columns are selected with respect to their local neighborhoods.
+      Using global inhibition boosts performance x60.
+  :param localAreaDensity:
+      The desired density of active columns within a local inhibition area
+      (the size of which is set by the internally calculated inhibitionRadius,
+      which is in turn determined from the average size of the connected
+      potential pools of all columns). The inhibition logic will insure that
+      at most N columns remain ON within a local inhibition area, where
+      N = localAreaDensity * (total number of columns in inhibition area).
+  :param numActiveColumnsPerInhArea:
+      An alternate way to control the density of the active columns. If
+      numActiveColumnsPerInhArea is specified then localAreaDensity must be
+      less than 0, and vice versa.  When using numActiveColumnsPerInhArea, the
+      inhibition logic will insure that at most 'numActiveColumnsPerInhArea'
+      columns remain ON within a local inhibition area (the size of which is
+      set by the internally calculated inhibitionRadius, which is in turn
+      determined from the average size of the connected receptive fields of all
+      columns). When using this method, as columns learn and grow their
+      effective receptive fields, the inhibitionRadius will grow, and hence the
+      net density of the active columns will *decrease*. This is in contrast to
+      the localAreaDensity method, which keeps the density of active columns
+      the same regardless of the size of their receptive fields.
+  :param stimulusThreshold:
+      This is a number specifying the minimum number of synapses that must be
+      on in order for a columns to turn ON. The purpose of this is to prevent
+      noise input from activating columns. Specified as a percent of a fully
+      grown synapse.
+  :param synPermInactiveDec:
+      The amount by which an inactive synapse is decremented in each round.
+      Specified as a percent of a fully grown synapse.
+  :param synPermActiveInc:
+      The amount by which an active synapse is incremented in each round.
+      Specified as a percent of a fully grown synapse.
+  :param synPermConnected:
+      The default connected threshold. Any synapse whose permanence value is
+      above the connected threshold is a "connected synapse", meaning it can
+      contribute to the cell's firing.
+  :param minPctOverlapDutyCycle:
+      A number between 0 and 1.0, used to set a floor on how often a column
+      should have at least stimulusThreshold active inputs. Periodically, each
+      column looks at the overlap duty cycle of all other columns within its
+      inhibition radius and sets its own internal minimal acceptable duty cycle
+      to: minPctDutyCycleBeforeInh * max(other columns' duty cycles).  On each
+      iteration, any column whose overlap duty cycle falls below this computed
+      value will  get all of its permanence values boosted up by
+      synPermActiveInc. Raising all permanences in response to a sub-par duty
+      cycle before  inhibition allows a cell to search for new inputs when
+      either its previously learned inputs are no longer ever active, or when
+      the vast majority of them have been "hijacked" by other columns.
+  :param dutyCyclePeriod:
+      The period used to calculate duty cycles. Higher values make it take
+      longer to respond to changes in boost or synPerConnectedCell. Shorter
+      values make it more unstable and likely to oscillate.
+  :param boostStrength:
+      A number greater or equal than 0.0, used to control the strength of
+      boosting. No boosting is applied if it is set to 0. Boosting strength
+      increases as a function of boostStrength. Boosting encourages columns to
+      have similar activeDutyCycles as their neighbors, which will lead to more
+      efficient use of columns. However, too much boosting may also lead to
+      instability of SP outputs.
+  :param seed:
+      Seed for our own pseudo-random number generator.
+  :param spVerbosity:
+      spVerbosity level: 0, 1, 2, or 3
+  :param wrapAround:
+      Determines if inputs at the beginning and end of an input dimension should
+      be considered neighbors when mapping columns to inputs.
+
   """
 
   def __init__(self,
@@ -127,108 +228,6 @@ class SpatialPooler(object):
                spVerbosity=0,
                wrapAround=True
                ):
-    """
-    Parameters:
-    ----------------------------
-    @param inputDimensions:
-      A sequence representing the dimensions of the input vector. Format is
-      (height, width, depth, ...), where each value represents the size of the
-      dimension.  For a topology of one dimension with 100 inputs use 100, or
-      (100,). For a two dimensional topology of 10x5 use (10,5).
-    @param columnDimensions:
-      A sequence representing the dimensions of the columns in the region.
-      Format is (height, width, depth, ...), where each value represents the
-      size of the dimension.  For a topology of one dimension with 2000 columns
-      use 2000, or (2000,). For a three dimensional topology of 32x64x16 use
-      (32, 64, 16).
-    @param potentialRadius:
-      This parameter determines the extent of the input that each column can
-      potentially be connected to.  This can be thought of as the input bits
-      that are visible to each column, or a 'receptiveField' of the field of
-      vision. A large enough value will result in 'global coverage', meaning
-      that each column can potentially be connected to every input bit. This
-      parameter defines a square (or hyper
-      square) area: a column will have a max square potential pool with sides of
-      length 2 * potentialRadius + 1.
-    @param potentialPct:
-      The percent of the inputs, within a column's potential radius, that a
-      column can be connected to.  If set to 1, the column will be connected
-      to every input within its potential radius. This parameter is used to
-      give each column a unique potential pool when a large potentialRadius
-      causes overlap between the columns. At initialization time we choose
-      ((2*potentialRadius + 1)^(# inputDimensions) * potentialPct) input bits
-      to comprise the column's potential pool.
-    @param globalInhibition:
-      If true, then during inhibition phase the winning columns are selected
-      as the most active columns from the region as a whole. Otherwise, the
-      winning columns are selected with respect to their local neighborhoods.
-      Using global inhibition boosts performance x60.
-    @param localAreaDensity:
-      The desired density of active columns within a local inhibition area
-      (the size of which is set by the internally calculated inhibitionRadius,
-      which is in turn determined from the average size of the connected
-      potential pools of all columns). The inhibition logic will insure that
-      at most N columns remain ON within a local inhibition area, where
-      N = localAreaDensity * (total number of columns in inhibition area).
-    @param numActiveColumnsPerInhArea:
-      An alternate way to control the density of the active columns. If
-      numActiveColumnsPerInhArea is specified then localAreaDensity must be
-      less than 0, and vice versa.  When using numActiveColumnsPerInhArea, the
-      inhibition logic will insure that at most 'numActiveColumnsPerInhArea'
-      columns remain ON within a local inhibition area (the size of which is
-      set by the internally calculated inhibitionRadius, which is in turn
-      determined from the average size of the connected receptive fields of all
-      columns). When using this method, as columns learn and grow their
-      effective receptive fields, the inhibitionRadius will grow, and hence the
-      net density of the active columns will *decrease*. This is in contrast to
-      the localAreaDensity method, which keeps the density of active columns
-      the same regardless of the size of their receptive fields.
-    @param stimulusThreshold:
-      This is a number specifying the minimum number of synapses that must be
-      on in order for a columns to turn ON. The purpose of this is to prevent
-      noise input from activating columns. Specified as a percent of a fully
-      grown synapse.
-    @param synPermInactiveDec:
-      The amount by which an inactive synapse is decremented in each round.
-      Specified as a percent of a fully grown synapse.
-    @param synPermActiveInc:
-      The amount by which an active synapse is incremented in each round.
-      Specified as a percent of a fully grown synapse.
-    @param synPermConnected:
-      The default connected threshold. Any synapse whose permanence value is
-      above the connected threshold is a "connected synapse", meaning it can
-      contribute to the cell's firing.
-    @param minPctOverlapDutyCycle:
-      A number between 0 and 1.0, used to set a floor on how often a column
-      should have at least stimulusThreshold active inputs. Periodically, each
-      column looks at the overlap duty cycle of all other columns within its
-      inhibition radius and sets its own internal minimal acceptable duty cycle
-      to: minPctDutyCycleBeforeInh * max(other columns' duty cycles).  On each
-      iteration, any column whose overlap duty cycle falls below this computed
-      value will  get all of its permanence values boosted up by
-      synPermActiveInc. Raising all permanences in response to a sub-par duty
-      cycle before  inhibition allows a cell to search for new inputs when
-      either its previously learned inputs are no longer ever active, or when
-      the vast majority of them have been "hijacked" by other columns.
-    @param dutyCyclePeriod:
-      The period used to calculate duty cycles. Higher values make it take
-      longer to respond to changes in boost or synPerConnectedCell. Shorter
-      values make it more unstable and likely to oscillate.
-    @param boostStrength:
-      A number greater or equal than 0.0, used to control the strength of
-      boosting. No boosting is applied if it is set to 0. Boosting strength
-      increases as a function of boostStrength. Boosting encourages columns to
-      have similar activeDutyCycles as their neighbors, which will lead to more
-      efficient use of columns. However, too much boosting may also lead to
-      instability of SP outputs.
-    @param seed:
-      Seed for our own pseudo-random number generator.
-    @param spVerbosity:
-      spVerbosity level: 0, 1, 2, or 3
-    @param wrapAround:
-      Determines if inputs at the beginning and end of an input dimension should
-      be considered neighbors when mapping columns to inputs.
-    """
     if (numActiveColumnsPerInhArea == 0 and
         (localAreaDensity == 0 or localAreaDensity > 0.5)):
       raise InvalidSPParamValueError("Inhibition parameters are invalid")
@@ -703,7 +702,7 @@ class SpatialPooler(object):
     If 'learn' is set to True, this method also updates the permanences of the
     columns.
 
-    @param inputVector: A numpy array of 0's and 1's that comprises the input
+    :param inputVector: A numpy array of 0's and 1's that comprises the input
         to the spatial pooler. The array will be treated as a one dimensional
         array, therefore the dimensions of the array do not have to match the
         exact dimensions specified in the class constructor. In fact, even a
@@ -711,12 +710,12 @@ class SpatialPooler(object):
         however, match the number of bits specified by the call to the
         constructor. Therefore there must be a '0' or '1' in the array for
         every input bit.
-    @param learn: A boolean value indicating whether learning should be
+    :param learn: A boolean value indicating whether learning should be
         performed. Learning entails updating the  permanence values of the
         synapses, and hence modifying the 'state' of the model. Setting
         learning to 'off' freezes the SP and has many uses. For example, you
         might want to feed in various inputs and examine the resulting SDR's.
-    @param activeArray: An array whose size is equal to the number of columns.
+    :param activeArray: An array whose size is equal to the number of columns.
         Before the function returns this array will be populated with 1's at
         the indices of the active columns, and 0's everywhere else.
     """
@@ -763,7 +762,7 @@ class SpatialPooler(object):
     is required. This should not be done when using a random, unlearned SP
     since you would end up with no active columns.
 
-    @param activeArray: An array whose size is equal to the number of columns.
+    :param activeArray: An array whose size is equal to the number of columns.
         Any columns marked as active with an activeDutyCycle of 0 have
         never been activated before and therefore are not active due to
         learning. Any of these (unlearned) columns will be disabled (set to 0).
@@ -823,12 +822,12 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param overlaps:
+    :param overlaps:
                     An array containing the overlap score for each column.
                     The overlap score for a column is defined as the number
                     of synapses in a "connected state" (connected synapses)
                     that are connected to input bits which are turned on.
-    @param activeColumns:
+    :param activeColumns:
                     An array containing the indices of the active columns,
                     the sparse set of columns which survived inhibition
     """
@@ -909,7 +908,7 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param columnIndex:   The index identifying a column in the permanence,
+    :param columnIndex:   The index identifying a column in the permanence,
                           potential and connectivity matrices
     """
     assert(self._inputDimensions.size == 1)
@@ -928,7 +927,7 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param columnIndex:   The index identifying a column in the permanence,
+    :param columnIndex:   The index identifying a column in the permanence,
                           potential and connectivity matrices
     """
     assert(self._inputDimensions.size == 2)
@@ -949,7 +948,7 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param index:   The index identifying a column in the permanence, potential
+    :param index:   The index identifying a column in the permanence, potential
                     and connectivity matrices.
     """
     dimensions = self._inputDimensions
@@ -976,11 +975,11 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param inputVector:
+    :param inputVector:
                     A numpy array of 0's and 1's that comprises the input to
                     the spatial pooler. There exists an entry in the array
                     for every input bit.
-    @param activeColumns:
+    :param activeColumns:
                     An array containing the indices of the columns that
                     survived inhibition.
     """
@@ -1024,10 +1023,10 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param perm:    An array of permanence values for a column. The array is
+    :param perm:    An array of permanence values for a column. The array is
                     "dense", i.e. it contains an entry for each input bit, even
                     if the permanence value is 0.
-    @param mask:    the indices of the columns whose permanences need to be
+    :param mask:    the indices of the columns whose permanences need to be
                     raised.
     """
     if len(mask) < self._stimulusThreshold:
@@ -1062,12 +1061,12 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param perm:    An array of permanence values for a column. The array is
+    :param perm:    An array of permanence values for a column. The array is
                     "dense", i.e. it contains an entry for each input bit, even
                     if the permanence value is 0.
-    @param index:   The index identifying a column in the permanence, potential
+    :param index:   The index identifying a column in the permanence, potential
                     and connectivity matrices
-    @param raisePerm: A boolean value indicating whether the permanence values
+    :param raisePerm: A boolean value indicating whether the permanence values
                     should be raised until a minimum number are synapses are in
                     a connected state. Should be set to 'false' when a direct
                     assignment is required.
@@ -1128,10 +1127,10 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param potential: A numpy array specifying the potential pool of the column.
+    :param potential: A numpy array specifying the potential pool of the column.
                     Permanence values will only be generated for input bits
                     corresponding to indices for which the mask value is 1.
-    @param connectedPct: A value between 0 or 1 governing the chance, for each
+    :param connectedPct: A value between 0 or 1 governing the chance, for each
                          permanence, that the initial permanence value will
                          be a value that is considered connected.
     """
@@ -1174,9 +1173,9 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param index:   The index identifying a column in the permanence, potential
+    :param index:   The index identifying a column in the permanence, potential
                     and connectivity matrices.
-    @param wrapAround: A boolean value indicating that boundaries should be
+    :param wrapAround: A boolean value indicating that boundaries should be
                     ignored.
     """
     columnCoords = numpy.unravel_index(index, self._columnDimensions)
@@ -1215,7 +1214,7 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param index:   The index identifying a column in the permanence, potential
+    :param index:   The index identifying a column in the permanence, potential
                     and connectivity matrices.
     """
 
@@ -1250,10 +1249,10 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param dutyCycles: An array containing one or more duty cycle values that need
+    :param dutyCycles: An array containing one or more duty cycle values that need
                     to be updated
-    @param newInput: A new numerical value used to update the duty cycle
-    @param period:  The period of the duty cycle
+    :param newInput: A new numerical value used to update the duty cycle
+    :param period:  The period of the duty cycle
     """
     assert(period >= 1)
     return (dutyCycles * (period -1.0) + newInput) / period
@@ -1336,7 +1335,7 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param learn:   a boolean value indicating whether learning should be
+    :param learn:   a boolean value indicating whether learning should be
                     performed. Learning entails updating the  permanence
                     values of the synapses, and hence modifying the 'state'
                     of the model. setting learning to 'off' might be useful
@@ -1357,7 +1356,7 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param inputVector: a numpy array of 0's and 1's that comprises the input to
+    :param inputVector: a numpy array of 0's and 1's that comprises the input to
                     the spatial pooler.
     """
     overlaps = numpy.zeros(self._numColumns, dtype=realDType)
@@ -1378,7 +1377,7 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param overlaps: an array containing the overlap score for each  column.
+    :param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
                     of synapses in a "connected state" (connected synapses)
                     that are connected to input bits which are turned on.
@@ -1410,11 +1409,11 @@ class SpatialPooler(object):
     be active. Columns with an overlap score below the 'stimulusThreshold' are
     always inhibited.
 
-    @param overlaps: an array containing the overlap score for each  column.
+    :param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
                     of synapses in a "connected state" (connected synapses)
                     that are connected to input bits which are turned on.
-    @param density: The fraction of columns to survive inhibition.
+    :param density: The fraction of columns to survive inhibition.
     @return list with indices of the winning columns
     """
     #calculate num active per inhibition area
@@ -1445,11 +1444,11 @@ class SpatialPooler(object):
     allowed to be active. Columns with an overlap score below the
     'stimulusThreshold' are always inhibited.
 
-    @param overlaps: an array containing the overlap score for each  column.
+    :param overlaps: an array containing the overlap score for each  column.
                     The overlap score for a column is defined as the number
                     of synapses in a "connected state" (connected synapses)
                     that are connected to input bits which are turned on.
-    @param density: The fraction of columns to survive inhibition. This
+    :param density: The fraction of columns to survive inhibition. This
                     value is only an intended target. Since the surviving
                     columns are picked in a local fashion, the exact fraction
                     of surviving columns is likely to vary.
@@ -1494,7 +1493,7 @@ class SpatialPooler(object):
 
     A subclass can insert different topology behavior by overriding this method.
 
-    @param centerColumn (int)
+    :param centerColumn (int)
     The center of the neighborhood.
 
     @returns (1D numpy array of integers)
@@ -1520,7 +1519,7 @@ class SpatialPooler(object):
 
     A subclass can insert different topology behavior by overriding this method.
 
-    @param centerInput (int)
+    :param centerInput (int)
     The center of the neighborhood.
 
     @returns (1D numpy array of integers)
@@ -1559,7 +1558,7 @@ class SpatialPooler(object):
       # the overlaps and boostedOverlaps properties were added in version 3,
       state['_overlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
       state['_boostedOverlaps'] = numpy.zeros(self._numColumns, dtype=realDType)
-    
+
     # update version property to current SP version
     state['_version'] = VERSION
     self.__dict__.update(state)
@@ -1625,7 +1624,7 @@ class SpatialPooler(object):
 
     boostFactorsProto = proto.init("boostFactors", len(self._boostFactors))
     for i, v in enumerate(self._boostFactors):
-      boostFactorsProto[i] = float(v) 
+      boostFactorsProto[i] = float(v)
 
 
   @classmethod
@@ -1696,7 +1695,7 @@ class SpatialPooler(object):
     instance._minOverlapDutyCycles = numpy.array(proto.minOverlapDutyCycles,
                                              dtype=realDType)
     instance._boostFactors = numpy.array(proto.boostFactors, dtype=realDType)
-    
+
     return instance
 
 

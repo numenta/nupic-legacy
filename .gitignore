@@ -12,6 +12,9 @@ test.out
 *.swp
 *.coverage*
 
+# virtual environments
+venv/
+
 # build
 build/
 
