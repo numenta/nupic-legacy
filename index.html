@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>NuPIC API Documentation &#8212; NuPIC 0.5.8.dev0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.5.8.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Encoders" href="encoders.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="nupic-api-documentation">
+<h1>NuPIC API Documentation<a class="headerlink" href="#nupic-api-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="encoders.html">Encoders</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="encoders.html#encoder">Encoder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encoders.html#scalar-encoder">Scalar Encoder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encoders.html#random-distributed-scalar-encoder">Random Distributed Scalar Encoder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encoders.html#dateencoder">DateEncoder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encoders.html#multiencoder">MultiEncoder</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="encoders.html#data">Data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="encoders.html#fieldmetatype">FieldMetaType</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms.html">Algorithms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spatial-pooler.html">Spatial Pooler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="temporal-memory.html">Temporal Memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classifiers.html">Classifiers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="classifiers.html#sdr-classifier">SDR Classifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="classifiers.html#cla-classifier">CLA Classifier</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="network.html">Network API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="network-network.html">Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network-regions.html">Regions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="network-regions.html#pyregion">PyRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network-regions.html#anomalyregion">AnomalyRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network-regions.html#spregion">SPRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network-regions.html#tpregion">TPRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network-regions.html#anomalylikelihoodregion">AnomalyLikelihoodRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network-regions.html#claclassifierregion">CLAClassifierRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network-regions.html#knnanomalyclassifierregion">KNNAnomalyClassifierRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network-regions.html#knnclassifierregion">KNNClassifierRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network-regions.html#sdrclassifierregion">SDRClassifierRegion</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="network-sensors.html">Sensors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="network-sensors.html#pluggableencodersensor">PluggableEncoderSensor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network-sensors.html#recordsensor">RecordSensor</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opf.html">Online Prediction Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opf-models.html">Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opf-models.html#model">Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-models.html#clamodel">CLAModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-models.html#twogrammodel">TwoGramModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-models.html#modelfactory">ModelFactory</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opf-metrics.html">Metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opf-metrics.html#metricsmanager">MetricsManager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-metrics.html#metricspec">MetricSpec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-metrics.html#metrics-interface">Metrics Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-metrics.html#aggregatemetric">AggregateMetric</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-metrics.html#metricpassthruprediction">MetricPassThruPrediction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-metrics.html#customerrormetric">CustomErrorMetric</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-metrics.html#metricmovingmode">MetricMovingMode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-metrics.html#metrictrivial">MetricTrivial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-metrics.html#metrictwogram">MetricTwoGram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-metrics.html#metricaccuracy">MetricAccuracy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-metrics.html#metricaveerror">MetricAveError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-metrics.html#metricnegauc">MetricNegAUC</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-metrics.html#metricmultistep">MetricMultiStep</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opf-utils.html">Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opf-utils.html#common-models">Common Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf-utils.html#helpers">Helpers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Input / Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="io.html#filerecordstream">FileRecordStream</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#network-helpers">Network Helpers</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="#">
+              <img class="logo" src="_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">NuPIC API Documentation</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="encoders.html" title="next chapter">Encoders</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
