@@ -44,8 +44,35 @@
             
   <div class="section" id="utilities">
 <h1>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="network-helpers">
-<h2>Network Helpers<a class="headerlink" href="#network-helpers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-nupic.engine.common_networks">
+<span id="network-helpers"></span><h2>Network Helpers<a class="headerlink" href="#module-nupic.engine.common_networks" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nupic.engine.common_networks.createTemporalAnomaly">
+<code class="descclassname">nupic.engine.common_networks.</code><code class="descname">createTemporalAnomaly</code><span class="sig-paren">(</span><em>recordParams</em>, <em>spatialParams={'columnCount': 2048</em>, <em>'spVerbosity': 0</em>, <em>'spatialImp': 'cpp'</em>, <em>'synPermConnected': 0.1</em>, <em>'seed': 1956</em>, <em>'numActiveColumnsPerInhArea': 40</em>, <em>'globalInhibition': 1</em>, <em>'inputWidth': 0</em>, <em>'synPermInactiveDec': 0.0005</em>, <em>'synPermActiveInc': 0.0001</em>, <em>'potentialPct': 0.8</em>, <em>'boostStrength': 0.0}</em>, <em>temporalParams={'columnCount': 2048</em>, <em>'activationThreshold': 12</em>, <em>'pamLength': 3</em>, <em>'cellsPerColumn': 32</em>, <em>'permanenceInc': 0.1</em>, <em>'minThreshold': 9</em>, <em>'verbosity': 0</em>, <em>'maxSynapsesPerSegment': 32</em>, <em>'outputType': 'normal'</em>, <em>'initialPerm': 0.21</em>, <em>'globalDecay': 0.0</em>, <em>'maxAge': 0</em>, <em>'permanenceDec': 0.1</em>, <em>'seed': 1960</em>, <em>'newSynapseCount': 20</em>, <em>'maxSegmentsPerCell': 128</em>, <em>'temporalImp': 'cpp'</em>, <em>'inputWidth': 2048}</em>, <em>verbosity=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.engine.common_networks.createTemporalAnomaly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a Network with connected RecordSensor, SP, TP.</p>
+<p>This function takes care of generating regions and the canonical links.
+The network has a sensor region reading data from a specified input and
+passing the encoded representation to an SPRegion.
+The SPRegion output is passed to a TPRegion.</p>
+<p>Note: this function returns a network that needs to be initialized. This
+allows the user to extend the network by adding further regions and
+connections.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>recordParams</strong> &#8211; a dict with parameters for creating RecordSensor region.</li>
+<li><strong>spatialParams</strong> &#8211; a dict with parameters for creating SPRegion.</li>
+<li><strong>temporalParams</strong> &#8211; a dict with parameters for creating TPRegion.</li>
+<li><strong>verbosity</strong> &#8211; an integer representing how chatty the network will be.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 </div>
 
@@ -61,7 +88,7 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Utilities</a><ul>
-<li><a class="reference internal" href="#network-helpers">Network Helpers</a></li>
+<li><a class="reference internal" href="#module-nupic.engine.common_networks">Network Helpers</a></li>
 </ul>
 </li>
 </ul>
