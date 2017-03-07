@@ -20,8 +20,3 @@ prettytable==0.7.2
 # versions in sync.
 nupic.bindings==0.5.1
 numpy==1.11.2
-
-# for documentation
-sphinx==1.5.3
-sphinx-autobuild==0.6.0
-
