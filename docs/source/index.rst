@@ -1,4 +1,4 @@
-NuPIC API Documentation
+NuPIC |release| API Documentation
 =======================
 
 .. toctree::
