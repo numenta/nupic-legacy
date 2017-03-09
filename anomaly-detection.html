@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Anomaly Detection &#8212; NuPIC 0.5.8.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.5.8.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Input / Output" href="io.html" />
+    <link rel="prev" title="Utilities" href="opf-utils.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="anomaly-detection">
+<h1>Anomaly Detection<a class="headerlink" href="#anomaly-detection" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="anomaly">
+<h2>Anomaly<a class="headerlink" href="#anomaly" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.algorithms.anomaly.Anomaly">
+<em class="property">class </em><code class="descclassname">nupic.algorithms.anomaly.</code><code class="descname">Anomaly</code><span class="sig-paren">(</span><em>slidingWindowSize=None</em>, <em>mode='pure'</em>, <em>binaryAnomalyThreshold=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.anomaly.Anomaly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility class for generating anomaly scores in different ways.</p>
+<dl class="docutils">
+<dt>Supported modes:</dt>
+<dd><p class="first">MODE_PURE - the raw anomaly score as computed by computeRawAnomalyScore
+MODE_LIKELIHOOD - uses the AnomalyLikelihood class on top of the raw</p>
+<blockquote>
+<div>anomaly scores</div></blockquote>
+<dl class="last docutils">
+<dt>MODE_WEIGHTED - multiplies the likelihood result with the raw anomaly score</dt>
+<dd>that was used to generate the likelihood</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="nupic.algorithms.anomaly.Anomaly.compute">
+<code class="descname">compute</code><span class="sig-paren">(</span><em>activeColumns</em>, <em>predictedColumns</em>, <em>inputValue=None</em>, <em>timestamp=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.anomaly.Anomaly.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the anomaly score as the percent of active columns not predicted.</p>
+<p>&#64;param activeColumns: array of active column indices
+&#64;param predictedColumns: array of columns indices predicted in this step</p>
+<blockquote>
+<div>(used for anomaly in step T+1)</div></blockquote>
+<dl class="docutils">
+<dt>&#64;param inputValue: (optional) value of current input to encoders </dt>
+<dd>(eg &#8220;cat&#8221; for category encoder)
+(used in anomaly-likelihood)</dd>
+<dt>&#64;param timestamp: (optional) date timestamp when the sample occured</dt>
+<dd>(used in anomaly-likelihood)</dd>
+</dl>
+<p>&#64;return the computed anomaly score; float 0..1</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="anomalylikelihood">
+<h2>AnomalyLikelihood<a class="headerlink" href="#anomalylikelihood" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.algorithms.anomaly_likelihood.AnomalyLikelihood">
+<em class="property">class </em><code class="descclassname">nupic.algorithms.anomaly_likelihood.</code><code class="descname">AnomalyLikelihood</code><span class="sig-paren">(</span><em>claLearningPeriod=None</em>, <em>learningPeriod=288</em>, <em>estimationSamples=100</em>, <em>historicWindowSize=8640</em>, <em>reestimationPeriod=100</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.anomaly_likelihood.AnomalyLikelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper class for running anomaly likelihood computation.</p>
+<dl class="method">
+<dt id="nupic.algorithms.anomaly_likelihood.AnomalyLikelihood.anomalyProbability">
+<code class="descname">anomalyProbability</code><span class="sig-paren">(</span><em>value</em>, <em>anomalyScore</em>, <em>timestamp=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.anomaly_likelihood.AnomalyLikelihood.anomalyProbability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the probability that the current value plus anomaly score represents
+an anomaly given the historical distribution of anomaly scores. The closer
+the number is to 1, the higher the chance it is an anomaly.</p>
+<dl class="docutils">
+<dt>&#64;param value - the current metric (&#8220;raw&#8221;) input value, eg. &#8220;orange&#8221;, or</dt>
+<dd>&#8216;21.2&#8217; (deg. Celsius), ...</dd>
+</dl>
+<p>&#64;param anomalyScore - the current anomaly score
+&#64;param timestamp - (optional) timestamp of the ocurrence,</p>
+<blockquote>
+<div>default (None) results in using iteration step.</div></blockquote>
+<p>&#64;return the anomalyLikelihood for this record.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="nupic.algorithms.anomaly_likelihood.AnomalyLikelihood.computeLogLikelihood">
+<em class="property">static </em><code class="descname">computeLogLikelihood</code><span class="sig-paren">(</span><em>likelihood</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.anomaly_likelihood.AnomalyLikelihood.computeLogLikelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a log scale representation of the likelihood value. Since the
+likelihood computations return low probabilities that often go into four 9&#8217;s
+or five 9&#8217;s, a log value is more useful for visualization, thresholding,
+etc.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.algorithms.anomaly_likelihood.AnomalyLikelihood.read">
+<em class="property">classmethod </em><code class="descname">read</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.anomaly_likelihood.AnomalyLikelihood.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>capnp deserialization method for the anomaly likelihood object</p>
+<dl class="docutils">
+<dt>&#64;param proto (Object) capnp proto object specified in</dt>
+<dd>nupic.regions.AnomalyLikelihoodRegion.capnp</dd>
+</dl>
+<p>&#64;return (Object) the deserialized AnomalyLikelihood object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.anomaly_likelihood.AnomalyLikelihood.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.anomaly_likelihood.AnomalyLikelihood.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>capnp serialization method for the anomaly likelihood object</p>
+<dl class="docutils">
+<dt>&#64;param proto (Object) capnp proto object specified in</dt>
+<dd>nupic.regions.AnomalyLikelihoodRegion.capnp</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Anomaly Detection</a><ul>
+<li><a class="reference internal" href="#anomaly">Anomaly</a></li>
+<li><a class="reference internal" href="#anomalylikelihood">AnomalyLikelihood</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="opf-utils.html" title="previous chapter">Utilities</a></li>
+      <li>Next: <a href="io.html" title="next chapter">Input / Output</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/anomaly-detection.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/anomaly-detection.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
