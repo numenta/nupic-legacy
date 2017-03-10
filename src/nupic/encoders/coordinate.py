@@ -53,11 +53,7 @@ class CoordinateEncoder(Encoder):
   (barring chance hash collisions).
   """
 
-  def __init__(self,
-               w=21,
-               n=1000,
-               name=None,
-               verbosity=0):
+  def __init__(self, w=21, n=1000, name=None, verbosity=0):
     """
     See `nupic.encoders.base.Encoder` for more information.
 
@@ -101,11 +97,15 @@ class CoordinateEncoder(Encoder):
     """
     See `nupic.encoders.base.Encoder` for more information.
 
-    @param inputData (tuple) Contains coordinate (numpy.array)
-                             and radius (float)
+    @param inputData (tuple) Contains coordinate (numpy.array, N-dimensional
+                             integer coordinate) and radius (int)
     @param output (numpy.array) Stores encoded SDR in this numpy array
     """
     (coordinate, radius) = inputData
+
+    assert isinstance(radius, int), ("Expected integer radius, got: {} ({})"
+                                     .format(radius, type(radius)))
+
     neighbors = self._neighbors(coordinate, radius)
     winners = self._topWCoordinates(neighbors, self.w)
 
@@ -122,12 +122,12 @@ class CoordinateEncoder(Encoder):
     Returns coordinates around given coordinate, within given radius.
     Includes given coordinate.
 
-    @param coordinate (numpy.array) Coordinate whose neighbors to find
-    @param radius (float) Radius around `coordinate`
+    @param coordinate (numpy.array) N-dimensional integer coordinate
+    @param radius (int) Radius around `coordinate`
 
     @return (numpy.array) List of coordinates
     """
-    ranges = [range(n-radius, n+radius+1) for n in coordinate.tolist()]
+    ranges = (xrange(n-radius, n+radius+1) for n in coordinate.tolist())
     return numpy.array(list(itertools.product(*ranges)))
 
 

@@ -176,6 +176,10 @@ class CoordinateEncoderTest(unittest.TestCase):
     output2 = encode(encoder, coordinate, radius)
     self.assertTrue(np.array_equal(output2, output1))
 
+    # Test that a float radius raises an assertion error
+    with self.assertRaises(AssertionError):
+      encoder.encode((coordinate, float(radius)))
+
 
   def testEncodeSaturateArea(self):
     n = 1999
