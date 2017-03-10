@@ -11,8 +11,8 @@ Scalar Encoder
 ^^^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.scalar.ScalarEncoder
-  :members:
-  :show-inheritance:
+   :members:
+   :show-inheritance:
 
 Random Distributed Scalar Encoder
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -25,15 +25,29 @@ DateEncoder
 ^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.date.DateEncoder
-  :members:
-  :show-inheritance:
+   :members:
+   :show-inheritance:
+
+CoordinateEncoder
+^^^^^^^^^^^^^^^^^
+
+.. autoclass:: nupic.encoders.coordinate.CoordinateEncoder
+   :members:
+
+GeospatialCoordinateEncoder
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder
+   :members:
+
+
 
 MultiEncoder
 ^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.multi.MultiEncoder
-  :members:
-  :show-inheritance:
+   :members:
+   :show-inheritance:
 
 Data
 ----
