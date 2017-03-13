@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from nupic.encoders import Encoder
+from nupic.encoders.base import Encoder
 from nupic.encoders import ScalarEncoder
 from nupic.encoders import AdaptiveScalarEncoder
 from nupic.encoders import DateEncoder
