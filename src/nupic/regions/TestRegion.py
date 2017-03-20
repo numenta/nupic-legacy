@@ -132,15 +132,12 @@ class TestRegion(PyRegion):
   #############################################################################
 
 
-  def initialize(self, dims, splitterMaps):
+  def initialize(self):
     """ Called by network after all links have been set up
-
-    dims, splitterMaps:   Unused legacy args
     """
     self.identityPolicy.initialize(self)
 
     _debugOut(self.identityPolicy.getName())
-    return
 
 
   #############################################################################

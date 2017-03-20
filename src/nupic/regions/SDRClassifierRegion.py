@@ -243,12 +243,10 @@ class SDRClassifierRegion(PyRegion):
     self._computeFlag = False
 
 
-  def initialize(self, inputs, outputs):
+  def initialize(self):
     """
     Is called once by NuPIC before the first call to compute().
-    Initializes self._sdrClassifier is it is not already initialized.
-    @param inputs -- inputs of the classifier region
-    @param outputs -- outputs of the classifier region
+    Initializes self._sdrClassifier if it is not already initialized.
     """
     if self._sdrClassifier is None:
       self._sdrClassifier = SDRClassifierFactory.create(

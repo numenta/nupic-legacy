@@ -413,12 +413,12 @@ class TPRegion(PyRegion):
     self._checkEphemeralMembers()
 
 
-  def initialize(self, dims, splitterMaps):
+  def initialize(self):
 
     # Allocate appropriate temporal pooler object
     # Retrieve the necessary extra arguments that were handled automatically
     autoArgs = dict((name, getattr(self, name))
-                     for name in self._temporalArgNames)
+                    for name in self._temporalArgNames)
 
     if self._tfdr is None:
       tpClass = _getTPClass(self.temporalImp)

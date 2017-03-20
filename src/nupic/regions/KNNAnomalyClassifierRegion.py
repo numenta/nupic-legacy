@@ -234,8 +234,8 @@ class KNNAnomalyClassifierRegion(PyRegion):
     self._version = KNNAnomalyClassifierRegion.__VERSION__
 
 
-  def initialize(self, dims, splitterMaps):
-    assert tuple(dims) == (1,) * len(dims)
+  def initialize(self):
+    pass
 
 
   def getParameter(self, name, index=-1):

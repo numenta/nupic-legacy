@@ -617,8 +617,8 @@ class KNNClassifierRegion(PyRegion):
     return state
 
 
-  def initialize(self, dims, splitterMaps):
-    assert tuple(dims) == (1,) * len(dims)
+  def initialize(self):
+    pass
 
 
   def _getActiveOutputCount(self):

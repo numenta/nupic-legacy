@@ -434,16 +434,14 @@ class SPRegion(PyRegion):
     self._checkEphemeralMembers()
 
 
-  def initialize(self, dims, splitterMaps):
-    """"""
-
+  def initialize(self):
     # Zero out the spatial output in case it is requested
     self._spatialPoolerOutput = numpy.zeros(self.columnCount,
                                             dtype=GetNTAReal())
 
-
     # Zero out the rfInput in case it is requested
-    self._spatialPoolerInput = numpy.zeros((1,self.inputWidth), dtype=GetNTAReal())
+    self._spatialPoolerInput = numpy.zeros((1, self.inputWidth),
+                                           dtype=GetNTAReal())
 
     # Allocate the spatial pooler
     self._allocateSpatialFDR(None)

@@ -48,7 +48,7 @@ class PluggableEncoderSensor(PyRegion):
     # We don't know the sensed value's type, so it's not a spec parameter.
     self._sensedValue = None
 
-  def initialize(self, dims, splitterMaps):
+  def initialize(self):
     pass
 
   def compute(self, inputs, outputs):

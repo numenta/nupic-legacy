@@ -111,7 +111,7 @@ class AnomalyRegion(PyRegion):
     proto.prevPredictedColumns = self.prevPredictedColumns.tolist()
 
 
-  def initialize(self, inputs, outputs):
+  def initialize(self):
     pass
 
 

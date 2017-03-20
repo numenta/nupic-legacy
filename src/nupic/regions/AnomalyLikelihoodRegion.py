@@ -137,7 +137,7 @@ class AnomalyLikelihoodRegion(PyRegion):
     self.anomalyLikelihood.write(proto)
 
 
-  def initialize(self, inputs, outputs):
+  def initialize(self):
     pass
 
 
