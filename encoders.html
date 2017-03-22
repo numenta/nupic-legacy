@@ -999,6 +999,117 @@ specified in the encoder</p>
 </dd></dl>
 
 </div>
+<div class="section" id="coordinateencoder">
+<h2>CoordinateEncoder<a class="headerlink" href="#coordinateencoder" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.encoders.coordinate.CoordinateEncoder">
+<em class="property">class </em><code class="descclassname">nupic.encoders.coordinate.</code><code class="descname">CoordinateEncoder</code><span class="sig-paren">(</span><em>w=21</em>, <em>n=1000</em>, <em>name=None</em>, <em>verbosity=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.coordinate.CoordinateEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a coordinate in an N-dimensional space, and a radius around
+that coordinate, the Coordinate Encoder returns an SDR representation
+of that position.</p>
+<p>The Coordinate Encoder uses an N-dimensional integer coordinate space.
+For example, a valid coordinate in this space is (150, -49, 58), whereas
+an invalid coordinate would be (55.4, -5, 85.8475).</p>
+<p>It uses the following algorithm:</p>
+<p>1. Find all the coordinates around the input coordinate, within the
+specified radius.
+2. For each coordinate, use a uniform hash function to
+deterministically map it to a real number between 0 and 1. This is the
+&#8220;order&#8221; of the coordinate.
+3. Of these coordinates, pick the top W by order, where W is the
+number of active bits desired in the SDR.
+4. For each of these W coordinates, use a uniform hash function to
+deterministically map it to one of the bits in the SDR. Make this bit active.
+5. This results in a final SDR with exactly W bits active
+(barring chance hash collisions).</p>
+<dl class="method">
+<dt id="nupic.encoders.coordinate.CoordinateEncoder.encodeIntoArray">
+<code class="descname">encodeIntoArray</code><span class="sig-paren">(</span><em>inputData</em>, <em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.coordinate.CoordinateEncoder.encodeIntoArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
+<dl class="docutils">
+<dt>&#64;param inputData (tuple) Contains coordinate (numpy.array, N-dimensional</dt>
+<dd>integer coordinate) and radius (int)</dd>
+</dl>
+<p>&#64;param output (numpy.array) Stores encoded SDR in this numpy array</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.encoders.coordinate.CoordinateEncoder.getDescription">
+<code class="descname">getDescription</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.coordinate.CoordinateEncoder.getDescription" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.encoders.coordinate.CoordinateEncoder.getScalars">
+<code class="descname">getScalars</code><span class="sig-paren">(</span><em>inputData</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.coordinate.CoordinateEncoder.getScalars" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.encoders.coordinate.CoordinateEncoder.getWidth">
+<code class="descname">getWidth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.coordinate.CoordinateEncoder.getWidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="geospatialcoordinateencoder">
+<h2>GeospatialCoordinateEncoder<a class="headerlink" href="#geospatialcoordinateencoder" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder">
+<em class="property">class </em><code class="descclassname">nupic.encoders.geospatial_coordinate.</code><code class="descname">GeospatialCoordinateEncoder</code><span class="sig-paren">(</span><em>scale</em>, <em>timestep</em>, <em>w=21</em>, <em>n=1000</em>, <em>name=None</em>, <em>verbosity=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a GPS coordinate and a speed reading, the
+Geospatial Coordinate Encoder returns an SDR representation
+of that position.</p>
+<dl class="method">
+<dt id="nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.coordinateForPosition">
+<code class="descname">coordinateForPosition</code><span class="sig-paren">(</span><em>longitude</em>, <em>latitude</em>, <em>altitude=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.coordinateForPosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns coordinate for given GPS position.</p>
+<p>&#64;param longitude (float) Longitude of position
+&#64;param latitude (float) Latitude of position
+&#64;param altitude (float) Altitude of position
+&#64;return (numpy.array) Coordinate that the given GPS position</p>
+<blockquote>
+<div>maps to</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.encodeIntoArray">
+<code class="descname">encodeIntoArray</code><span class="sig-paren">(</span><em>inputData</em>, <em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.encodeIntoArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
+<dl class="docutils">
+<dt>&#64;param inputData (tuple) Contains speed (float), longitude (float),</dt>
+<dd>latitude (float), altitude (float)</dd>
+</dl>
+<p>&#64;param output (numpy.array) Stores encoded SDR in this numpy array</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.getDescription">
+<code class="descname">getDescription</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.getDescription" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.getScalars">
+<code class="descname">getScalars</code><span class="sig-paren">(</span><em>inputData</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.getScalars" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.radiusForSpeed">
+<code class="descname">radiusForSpeed</code><span class="sig-paren">(</span><em>speed</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.radiusForSpeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns radius for given speed.</p>
+<p>Tries to get the encodings of consecutive readings to be
+adjacent with some overlap.</p>
+<p>&#64;param speed (float) Speed (in meters per second)
+&#64;return (int) Radius for given speed</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="multiencoder">
 <h2>MultiEncoder<a class="headerlink" href="#multiencoder" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -1138,6 +1249,8 @@ False if not</td>
 <li><a class="reference internal" href="#scalar-encoder">Scalar Encoder</a></li>
 <li><a class="reference internal" href="#random-distributed-scalar-encoder">Random Distributed Scalar Encoder</a></li>
 <li><a class="reference internal" href="#dateencoder">DateEncoder</a></li>
+<li><a class="reference internal" href="#coordinateencoder">CoordinateEncoder</a></li>
+<li><a class="reference internal" href="#geospatialcoordinateencoder">GeospatialCoordinateEncoder</a></li>
 <li><a class="reference internal" href="#multiencoder">MultiEncoder</a><ul>
 <li><a class="reference internal" href="#data">Data</a><ul>
 <li><a class="reference internal" href="#fieldmetatype">FieldMetaType</a></li>
