@@ -55,7 +55,7 @@ class SparsePassThroughEncoder(pass_through_encoder.PassThroughEncoder):
       denseInput[value] = 1
     except IndexError:
       if isinstance(value, numpy.ndarray):
-        raise TypeError(
+        raise ValueError(
             "Numpy array must have integer dtype but got {}".format(
                 value.dtype))
       raise

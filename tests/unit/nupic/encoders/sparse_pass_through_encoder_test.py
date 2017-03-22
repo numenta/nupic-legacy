@@ -67,7 +67,7 @@ class SparsePassThroughEncoderTest(unittest.TestCase):
     e = self._encoder(self.n, 1)
     v = numpy.zeros(self.n)
     v[0] = 12
-    with self.assertRaises(TypeError):
+    with self.assertRaises(ValueError):
       e.encode(v)
 
 
