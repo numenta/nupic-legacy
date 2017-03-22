@@ -228,7 +228,7 @@ class RecordSensor(PyRegion):
       self.numCategories = 1
 
 
-  def initialize(self, dims, splitterMaps):
+  def initialize(self):
     if self.encoder is None:
       raise Exception("Unable to initialize RecordSensor "
                       "-- encoder has not been set")

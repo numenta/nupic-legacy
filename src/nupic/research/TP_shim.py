@@ -104,7 +104,9 @@ class TPShimMixin(object):
     self.infActiveState["t"] = activeState
 
     output = numpy.zeros(numberOfCells)
-    output[self.getPredictiveCells() + self.getActiveCells()] = 1
+
+    output[self.getPredictiveCells()] = 1
+    output[self.getActiveCells()] = 1
     return output
 
 

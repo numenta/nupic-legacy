@@ -252,7 +252,7 @@ class CLAClassifierRegion(PyRegion):
     pass
 
 
-  def initialize(self, dims, splitterMaps):
+  def initialize(self):
     pass
 
 
