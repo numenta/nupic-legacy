@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013-2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2017, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -48,8 +48,15 @@ class SparsePassThroughEncoder(pass_through_encoder.PassThroughEncoder):
         n, w, name, forced, verbosity)
 
 
-  def encodeIntoArray(self, input, output):
+  def encodeIntoArray(self, value, output):
     """ See method description in base.py """
     denseInput = numpy.zeros(output.shape)
-    denseInput[input] = 1
+    try:
+      denseInput[value] = 1
+    except IndexError:
+      if isinstance(value, numpy.ndarray):
+        raise TypeError(
+            "Numpy array must have integer dtype but got {}".format(
+                value.dtype))
+      raise
     super(SparsePassThroughEncoder, self).encodeIntoArray(denseInput, output)
