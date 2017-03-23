@@ -233,14 +233,12 @@ outputs: dict of numpy arrays (one per output)</p>
 
 <dl class="method">
 <dt id="nupic.bindings.regions.PyRegion.PyRegion.initialize">
-<code class="descname">initialize</code><span class="sig-paren">(</span><em>inputs</em>, <em>outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.initialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize the node after the network is fully linked</p>
-<p>It is called once by NuPIC before the first call to compute(). It is
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the node after the network is fully linked
+It is called once by NuPIC before the first call to compute(). It is
 a good place to perform one time initialization that depend on the inputs
 and/or outputs. The region may also remember its inputs and outputs here
 because they will not change.</p>
-<p>inputs: dict of numpy arrays (one per input)
-outputs: dict of numpy arrays (one per output)</p>
 </dd></dl>
 
 <dl class="classmethod">
@@ -996,11 +994,9 @@ starting from bucketIdx 0.</p>
 
 <dl class="method">
 <dt id="nupic.regions.SDRClassifierRegion.SDRClassifierRegion.initialize">
-<code class="descname">initialize</code><span class="sig-paren">(</span><em>inputs</em>, <em>outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.SDRClassifierRegion.SDRClassifierRegion.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.SDRClassifierRegion.SDRClassifierRegion.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Is called once by NuPIC before the first call to compute().
-Initializes self._sdrClassifier is it is not already initialized.
-&#64;param inputs &#8211; inputs of the classifier region
-&#64;param outputs &#8211; outputs of the classifier region</p>
+Initializes self._sdrClassifier if it is not already initialized.</p>
 </dd></dl>
 
 <dl class="classmethod">
