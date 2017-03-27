@@ -55,6 +55,9 @@ def writeModelParamsToFile(modelParams, name):
   outDir = os.path.join(os.getcwd(), 'model_params')
   if not os.path.isdir(outDir):
     os.mkdir(outDir)
+    # Create an __init__.py so the params are recognized.
+    initPath = os.path.join(outDir, '__init__.py')
+    open(initPath, 'a').close()
   outPath = os.path.join(os.getcwd(), 'model_params', paramsName)
   with open(outPath, "wb") as outFile:
     modelParamsString = modelParamsToString(modelParams)
