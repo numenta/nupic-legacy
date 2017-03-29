@@ -1,5 +1,47 @@
 # Changelog
 
+## 0.6.0
+
+* Touch init even if model params dir exists
+* Auto-add __init__.py when model parms created
+* Shift code from otherwise unused `nupic.engine.common_networks` to example where it's used.  Includes bugfix renaming `rawAnomalyScore` to `anomalyScore`
+* Explicitly import and use `engine_internal` in lieu of `engine` to avoid confusion, create `nupic.engine.OS` and `nupic.engine.Timer` by assignment rather than subclass
+* Change SparsePassThroughEncoder dtype error to ValueError
+* Fix for an unrelated change that resulted in numpy arrays being used in cpp implementation
+* Give better message for bad dtype to SparsePassThroughEncoder
+* Add test for passing float values for radius
+* Adds api docs for coordinate encoders
+* Cleanup CoordinateEncoder
+* Remove svm, cells4 tests that are moved to nupic.core.
+* Added missing anomaly stuff, fixed requirements
+* Moved sphinx deps out of requirements.txt
+* Fix hotgym_regression_test.py to make it work with nupic.core PR 1236.
+* Skip test when capnp is not available, such as windows as well as address feedback from Scott
+* Serialization base python class analagous to nupic.core Serializable c++ class
+* Adds a demo Jupyter notebook, useful for demonstrating usage of visualization framework and as an entrypoint for tinkering with different network topologies
+* Speed up SpatialPooler read method.
+* Rename normalProbability to tailProbability.
+* Use IterableCollection from engine_internal
+* Call Region.purgeInputLinkBufferHeads after compute() calls in CLAModel to integrate with the new delayed link implementation from nupic.core.
+* rename maxBoost to boostStrength in hotgym example
+* Disable backward compatibility serialization test
+* remove minPctActiveDutyCycle parameter form SP compatability test
+* update expected result in hotgym, result change due to different rounding rules in boosting
+* eliminate minPctActiveDutyCycle from spatial pooler
+* Rename maxBoost to BoostStrength
+* Stop changing the overlaps to do tie-breaking
+* Stop trying to get identical boost factors between py and cpp
+* set maxBoost in expdescriptionapi
+* update sp_overlap_test to use global inhibition
+* slight simplification of boostFactor calculation
+* Implement update boost factors local and global
+* Avoid floating point differences with C++ SpatialPooler
+* run C++ SP in spatial_pooler_boost_tests
+* update spatial pooler boost test
+* update boosting rules for spatial pooler
+* fix bug in setPotential
+* modified SP boosting rule
+
 ## 0.5.7
 
 * Remove tests moved to nupic.core and update version to latest bindings release.
