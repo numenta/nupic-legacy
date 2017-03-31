@@ -4,7 +4,7 @@ Guide
 .. include:: guide-overview.rst
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 4
 
     guide-algorithms
     guide-opf

@@ -8,35 +8,8 @@ Contents
     :maxdepth: 4
 
     guide
-    encoders
-    algorithms
-    network
-    opf
-    anomaly-detection
-    io
+    api
 
-
-.. Guide
-.. -----
-..
-.. .. toctree::
-..    :maxdepth: 4
-..
-..    guide
-..
-.. API Docs
-.. --------
-..
-.. .. toctree::
-..    :maxdepth: 4
-..
-..    encoders
-..    algorithms
-..    network
-..    opf
-..    anomaly-detection
-..    io
-..    utils
 
 Other Resources
 ===============

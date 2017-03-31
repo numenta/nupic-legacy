@@ -1,5 +1,5 @@
 Hot Gym Code Example
-====================
+--------------------
 
 The ["hot gym"](https://github.com/numenta/nupic/tree/master/examples/opf/clients/hotgym) sample application has been around for a long time, and was one of the first real-world applications of NuPIC that proved the value of cortically-inspired learning algorithms. The data used is real energy consumption data from a gym in Australia, which simply contains a timestamp and float value for energy consumption.
 
