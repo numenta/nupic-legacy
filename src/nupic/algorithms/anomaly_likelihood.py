@@ -61,6 +61,7 @@ updateAnomalyLikelihoods. The details of these are described below.
 
 import collections
 import math
+import numbers
 import numpy
 
 from nupic.utils import MovingAverage
@@ -468,12 +469,14 @@ def estimateAnomalyLikelihoods(anomalyScores,
     # detect and handle completely flat metric values by reporting them as not
     # anomalous.
     s = [r[1] for r in aggRecordList]
-    metricValues = numpy.array(s)
-    metricDistribution = estimateNormal(metricValues[skipRecords:],
-                                        performLowerBoundCheck=False)
+    # Only do this if the values are numeric
+    if all([isinstance(r[1], numbers.Number) for r in aggRecordList]):
+      metricValues = numpy.array(s)
+      metricDistribution = estimateNormal(metricValues[skipRecords:],
+                                          performLowerBoundCheck=False)
 
-    if metricDistribution["variance"] < 1.5e-5:
-      distributionParams = nullDistribution(verbosity = verbosity)
+      if metricDistribution["variance"] < 1.5e-5:
+        distributionParams = nullDistribution(verbosity = verbosity)
 
   # Estimate likelihoods based on this distribution
   likelihoods = numpy.array(dataValues, dtype=float)
