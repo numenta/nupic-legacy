@@ -1,5 +1,5 @@
 Network API
-===========
+-----------
 
 .. toctree::
    :maxdepth: 3

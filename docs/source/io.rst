@@ -1,5 +1,5 @@
 Input / Output
-==============
+--------------
 
 FileRecordStream
 ^^^^^^^^^^^^^^^^
