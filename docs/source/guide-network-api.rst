@@ -1,4 +1,5 @@
-## The Network API
+The Network API
+===============
 
 The Network API is a lower-level API designed to allow users the power and flexibility to construct hierarchical structures of nodes. Watch this video for an overview:
 

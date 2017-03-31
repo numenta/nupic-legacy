@@ -1,27 +1,42 @@
 NuPIC |release| API Documentation
 =================================
 
-Guide
------
+Contents
+========
 
 .. toctree::
-   :maxdepth: 4
+    :maxdepth: 4
 
-   guide
+    guide
+    encoders
+    algorithms
+    network
+    opf
+    anomaly-detection
+    io
 
-API Docs
---------
 
-.. toctree::
-   :maxdepth: 4
-
-   encoders
-   algorithms
-   network
-   opf
-   anomaly-detection
-   io
-   utils
+.. Guide
+.. -----
+..
+.. .. toctree::
+..    :maxdepth: 4
+..
+..    guide
+..
+.. API Docs
+.. --------
+..
+.. .. toctree::
+..    :maxdepth: 4
+..
+..    encoders
+..    algorithms
+..    network
+..    opf
+..    anomaly-detection
+..    io
+..    utils
 
 Other Resources
 ===============

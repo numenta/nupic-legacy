@@ -124,6 +124,15 @@ html_theme_options = {
 html_static_path = ['_static']
 html_logo = 'numenta-logo.png'
 
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+    ]
+}
+
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.

@@ -1,4 +1,5 @@
-## Algorithm API
+Algorithm API
+=============
 
 There are several components to an HTM system:
 

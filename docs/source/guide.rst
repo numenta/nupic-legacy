@@ -1,11 +1,13 @@
-guide-overview
+Guide
+=====
+
+.. include:: guide-overview.rst
 
 .. toctree::
-   :maxdepth: 4
+    :maxdepth: 2
 
-   guide-overview
-   guide-algorithms
-   guide-opf
-   guide-network-api
-   guide-swarming
-   guide-sample-code
+    guide-algorithms
+    guide-opf
+    guide-network-api
+    guide-swarming
+    guide-sample-code
