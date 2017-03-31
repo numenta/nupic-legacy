@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>&lt;no title&gt; &#8212; NuPIC 0.6.1.dev0
+    <title>Guide &#8212; NuPIC 0.6.1.dev0
  documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="guide-overview.html" />
+    <link rel="next" title="Algorithm API" href="guide-algorithms.html" />
     <link rel="prev" title="NuPIC 0.6.1.dev0 API Documentation" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -44,7 +44,19 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <p>guide-overview</p>
+  <div class="section" id="guide">
+<h1>Guide<a class="headerlink" href="#guide" title="Permalink to this headline">¶</a></h1>
+<p>NuPIC exposes three primary interfaces: the raw <a class="reference external" href="algorithms.html">Algorithms</a>,
+the <a class="reference external" href="network.html">Network API</a>, and the
+<a class="reference external" href="opf.html">Online Prediction Framework (OPF)</a>.</p>
+<p>The OPF is an easier-to-use interface, but compromises the flexibility to create
+new network structures. The OPF takes a typical network design and wraps it in a
+model class so it can be easily created. Many of our examples use the OPF
+because it is easier to set up new experiments.</p>
+<p>There is also a third API for <a class="reference external" href="guide-swarming.html">Swarming</a>, which allows
+users to find the best model parameters for a particular data set using a
+particle swarm optimization algorithm. This API is not always needed, however.
+You can always use existing model parameters and tweak them to your needs.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="guide-algorithms.html">Algorithm API</a></li>
@@ -53,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="guide-swarming.html">Swarming</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guide-sample-code.html">Hot Gym Code Example</a></li>
 </ul>
+</div>
 </div>
 
 
@@ -63,22 +76,37 @@
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
               <img class="logo" src="_static/numenta-logo.png" alt="Logo"/>
-            </a></p><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">NuPIC 0.6.1.dev0 API Documentation</a></li>
-      <li>Next: <a href="guide-overview.html" title="next chapter">&lt;no title&gt;</a></li>
-  </ul></li>
+            </a></p>
+<h1 class="logo"><a href="index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide-algorithms.html">Algorithm API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide-opf.html">The Online Prediction Framework (OPF)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide-network-api.html">The Network API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide-swarming.html">Swarming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide-sample-code.html">Hot Gym Code Example</a></li>
 </ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/guide.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Docs</a></li>
+</ul>
+
+
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">

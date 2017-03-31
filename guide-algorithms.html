@@ -28,7 +28,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="The Online Prediction Framework (OPF)" href="guide-opf.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="guide-overview.html" />
+    <link rel="prev" title="Guide" href="guide.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -45,16 +45,21 @@
           <div class="body" role="main">
             
   <div class="section" id="algorithm-api">
-<span id="algorithm-api"></span><h1>Algorithm API<a class="headerlink" href="#algorithm-api" title="Permalink to this headline">¶</a></h1>
+<h1>Algorithm API<a class="headerlink" href="#algorithm-api" title="Permalink to this headline">¶</a></h1>
 <p>There are several components to an HTM system:</p>
-<ol class="simple">
+<ol class="arabic simple">
 <li>encoding data into SDR using <a class="reference external" href="encoders.html">Encoders</a></li>
 <li>passing encoded data through the <a class="reference external" href="spatial-pooler.html">Spatial Pooler</a></li>
 <li>running <a class="reference external" href="temporal-memory.html">Temporal Memory</a> over the Spatial Pooler&#8217;s active columns</li>
 <li>extracting predictions using a <a class="reference external" href="classifiers.html">Classifier</a></li>
-<li>extracting anomalies using <a class="reference external" href="anomaly-detection.html"><code class="docutils literal"><span class="pre">Anomaly</span></code> and <code class="docutils literal"><span class="pre">AnomalyLikelihood</span></code></a></li>
+<li>extracting anomalies using <code class="docutils literal"><span class="pre">Anomaly</span></code> and <code class="docutils literal"><span class="pre">AnomalyLikelihood</span></code> (see <a class="reference external" href="anomaly-detection.html#">anomaly detection</a>)</li>
 </ol>
-<p>Each of these components can be run independently of each other. The only communication between the are binary arrays (SDRs) representing cell activations. Spatial representations are maintained within the <em>proximal</em> synapse permanences between the Spatial Pooler&#8217;s columns and the input space. Temporal representations are maintained within the <em>distal</em> synapse permanences between the cells in the Temporal Memory representation.</p>
+<p>Each of these components can be run independently of each other. The only
+communication between the are binary arrays (SDRs) representing cell
+activations. Spatial representations are maintained within the <em>proximal</em>
+synapse permanences between the Spatial Pooler&#8217;s columns and the input space.
+Temporal representations are maintained within the <em>distal</em> synapse permanences
+between the cells in the Temporal Memory representation.</p>
 <p>See the low-level APIs for <a class="reference external" href="encoders.html">Encoders</a> and <a class="reference external" href="algorithms.html">Algorithms</a>.</p>
 </div>
 
@@ -66,24 +71,37 @@
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
               <img class="logo" src="_static/numenta-logo.png" alt="Logo"/>
-            </a></p><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  <li><a href="guide.html">&lt;no title&gt;</a><ul>
-      <li>Previous: <a href="guide-overview.html" title="previous chapter">&lt;no title&gt;</a></li>
-      <li>Next: <a href="guide-opf.html" title="next chapter">The Online Prediction Framework (OPF)</a></li>
-  </ul></li>
-  </ul></li>
+            </a></p>
+<h1 class="logo"><a href="index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="guide.html">Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Algorithm API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide-opf.html">The Online Prediction Framework (OPF)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide-network-api.html">The Network API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide-swarming.html">Swarming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide-sample-code.html">Hot Gym Code Example</a></li>
 </ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/guide-algorithms.md.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Docs</a></li>
+</ul>
+
+
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -106,7 +124,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/guide-algorithms.md.txt"
+      <a href="_sources/guide-algorithms.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

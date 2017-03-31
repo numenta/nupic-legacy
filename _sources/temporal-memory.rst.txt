@@ -1,5 +1,5 @@
 Temporal Memory
-===============
+^^^^^^^^^^^^^^^
 
 .. automodule:: nupic.research.temporal_memory
 

@@ -27,8 +27,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Algorithm API" href="guide-algorithms.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="guide.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -44,9 +42,17 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <p>NuPIC exposes three primary interfaces: the <a class="reference external" href="#the-network-api">Network API</a>, the <a class="reference external" href="#the-online-prediction-framework-opf">Online Prediction Framework</a> (OPF). The OPF is an easier-to-use interface, but compromises the flexibility to create new network structures.</p>
-<p>The OPF takes a typical network design and wraps it in a model class so it can be easily created. Many of our examples use the OPF because it is easier to set up new experiments.</p>
-<p>There is also a third API for <a class="reference external" href="#swarming">Swarming</a>, which allows users to find the best model parameters for a particular data set using a particle swarm optimization algorithm. This API is not always needed, however, so it is listed in the <a class="reference external" href="#advanced">Advanced</a> section.</p>
+  <p>NuPIC exposes three primary interfaces: the raw <a class="reference external" href="algorithms.html">Algorithms</a>,
+the <a class="reference external" href="network.html">Network API</a>, and the
+<a class="reference external" href="opf.html">Online Prediction Framework (OPF)</a>.</p>
+<p>The OPF is an easier-to-use interface, but compromises the flexibility to create
+new network structures. The OPF takes a typical network design and wraps it in a
+model class so it can be easily created. Many of our examples use the OPF
+because it is easier to set up new experiments.</p>
+<p>There is also a third API for <a class="reference external" href="guide-swarming.html">Swarming</a>, which allows
+users to find the best model parameters for a particular data set using a
+particle swarm optimization algorithm. This API is not always needed, however.
+You can always use existing model parameters and tweak them to your needs.</p>
 
 
           </div>
@@ -56,24 +62,30 @@
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
               <img class="logo" src="_static/numenta-logo.png" alt="Logo"/>
-            </a></p><div class="relations">
-<h3>Related Topics</h3>
+            </a></p>
+<h1 class="logo"><a href="index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
 <ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  <li><a href="guide.html">&lt;no title&gt;</a><ul>
-      <li>Previous: <a href="guide.html" title="previous chapter">&lt;no title&gt;</a></li>
-      <li>Next: <a href="guide-algorithms.html" title="next chapter">Algorithm API</a></li>
-  </ul></li>
-  </ul></li>
+<li class="toctree-l1"><a class="reference internal" href="guide.html">Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Docs</a></li>
 </ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/guide-overview.md.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
+
+
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -96,7 +108,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/guide-overview.md.txt"
+      <a href="_sources/guide-overview.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
