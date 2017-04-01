@@ -63,9 +63,7 @@ The resulting ``model`` will be an instance of :class:`.CLAModel`.
 Feed the Model Data
 ^^^^^^^^^^^^^^^^^^^
 
-The data we want to feed into the model looks like this:
-
-.. literalinclude:: ../examples/gymdata-example.csv
+The raw input data file is described `here <example-data.html>`_ in detail.
 
 Our `model parameters <example-model-params.html>`_ define how this data will be
 encoded in the ``encoders`` section:
@@ -101,6 +99,38 @@ This means the ``results`` object will have prediction information keyed by both
 
 .. literalinclude:: ../examples/results-example.py
 
+As you can see in the example above, the ``results`` object contains an
+``inferences`` property that contains all the information about predictions.
+This includes the following keys:
+
+* ``multiStepBestPredictions``: Contains information about the *best* prediction
+    that was returned for the last row of data.
+* ``multiStepPredictions``: Contains information about *all* predictions for the
+    last row of data, including confidence values for each prediction.
+
+Each of these dictionaries should have a key corresponding to the *steps ahead*
+for each prediction. In this example, we are retrieving predictions for both
+``1`` and ``5`` steps ahead (which was defined in the `Model Parameters`_).
+
+In order to get both the best prediction as well as the confidence in the
+prediction, we need to find the value for the best prediction from the
+``multiStepBestPredictions`` structure, then use it to find the confidence in
+the ``multiStepPredictions`` (for both ``1`` and ``5`` step predictions).
+
+When this example program is run, you can see both predictions and their
+confidences in the console output, which should look something like this:
+
+::
+
+    1-step:             35.7 (65.53%)	5-step:             35.7 (99.82%)
+    1-step:             38.9 (65.73%)	5-step:             23.5 (99.82%)
+    1-step:             36.6 (99.11%)	5-step:             35.7 (99.81%)
+    1-step:             38.9 (85.73%)	5-step:             36.6 (99.96%)
+    1-step:             38.2 (89.59%)	5-step:             38.2 (92.61%)
+
+**Congratulations! You've got HTM predictions for a scalar data stream!**
 
 Network API
 -----------
+
+**UNDER CONSTRUCTION**
