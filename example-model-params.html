@@ -1,0 +1,346 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Example Model Params &#8212; NuPIC 0.6.1.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.6.1.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="example-model-params">
+<h1>Example Model Params<a class="headerlink" href="#example-model-params" title="Permalink to this headline">¶</a></h1>
+<p>These are used in our Hot Gym examples. This raw model params file is used in
+the <a class="reference external" href="quick-start.html">Quick Start</a>.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">MODEL_PARAMS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Type of model that the rest of these parameters apply to.</span>
+    <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="s2">&quot;CLA&quot;</span><span class="p">,</span>
+
+    <span class="c1"># Version that specifies the format of the config.</span>
+    <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+
+    <span class="c1"># Intermediate variables used to compute fields in modelParams and also</span>
+    <span class="c1"># referenced from the control section.</span>
+    <span class="s1">&#39;aggregationInfo&#39;</span><span class="p">:</span> <span class="p">{</span>   <span class="s1">&#39;days&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="s1">&#39;consumption&#39;</span><span class="p">,</span> <span class="s1">&#39;sum&#39;</span><span class="p">)],</span>
+        <span class="s1">&#39;hours&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s1">&#39;microseconds&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;milliseconds&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;minutes&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;months&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;seconds&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;weeks&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;years&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+
+    <span class="s1">&#39;predictAheadTime&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+
+    <span class="c1"># Model parameter dictionary.</span>
+    <span class="s1">&#39;modelParams&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1"># The type of inference that this model will perform</span>
+        <span class="s1">&#39;inferenceType&#39;</span><span class="p">:</span> <span class="s1">&#39;TemporalMultiStep&#39;</span><span class="p">,</span>
+
+        <span class="s1">&#39;sensorParams&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="c1"># Sensor diagnostic output verbosity control;</span>
+            <span class="c1"># if &gt; 0: sensor region will print out on screen what it&#39;s sensing</span>
+            <span class="c1"># at each step 0: silent; &gt;=1: some info; &gt;=2: more info;</span>
+            <span class="c1"># &gt;=3: even more info (see compute() in py/regions/RecordSensor.py)</span>
+            <span class="s1">&#39;verbosity&#39;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+
+            <span class="c1"># Include the encoders we use</span>
+            <span class="s1">&#39;encoders&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="sa">u</span><span class="s1">&#39;consumption&#39;</span><span class="p">:</span>    <span class="p">{</span>
+                    <span class="s1">&#39;fieldname&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;consumption&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;resolution&#39;</span><span class="p">:</span> <span class="mf">0.88</span><span class="p">,</span>
+                    <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;consumption&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;RandomDistributedScalarEncoder&#39;</span><span class="p">,</span>
+                    <span class="p">},</span>
+
+                <span class="s1">&#39;timestamp_timeOfDay&#39;</span><span class="p">:</span> <span class="p">{</span>   <span class="s1">&#39;fieldname&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span>
+                                           <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;timestamp_timeOfDay&#39;</span><span class="p">,</span>
+                                           <span class="s1">&#39;timeOfDay&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                           <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;DateEncoder&#39;</span><span class="p">},</span>
+                <span class="s1">&#39;timestamp_weekend&#39;</span><span class="p">:</span> <span class="p">{</span>   <span class="s1">&#39;fieldname&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;timestamp_weekend&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;DateEncoder&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;weekend&#39;</span><span class="p">:</span> <span class="mi">21</span><span class="p">}</span>
+            <span class="p">},</span>
+
+            <span class="c1"># A dictionary specifying the period for automatically-generated</span>
+            <span class="c1"># resets from a RecordSensor;</span>
+            <span class="c1">#</span>
+            <span class="c1"># None = disable automatically-generated resets (also disabled if</span>
+            <span class="c1"># all of the specified values evaluate to 0).</span>
+            <span class="c1"># Valid keys is the desired combination of the following:</span>
+            <span class="c1">#   days, hours, minutes, seconds, milliseconds, microseconds, weeks</span>
+            <span class="c1">#</span>
+            <span class="c1"># Example for 1.5 days: sensorAutoReset = dict(days=1,hours=12),</span>
+            <span class="c1">#</span>
+            <span class="c1"># (value generated from SENSOR_AUTO_RESET)</span>
+            <span class="s1">&#39;sensorAutoReset&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">},</span>
+
+        <span class="s1">&#39;spEnable&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+
+        <span class="s1">&#39;spParams&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="c1"># SP diagnostic output verbosity control;</span>
+            <span class="c1"># 0: silent; &gt;=1: some info; &gt;=2: more info;</span>
+            <span class="s1">&#39;spVerbosity&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+
+            <span class="c1"># Spatial Pooler implementation selector.</span>
+            <span class="c1"># Options: &#39;py&#39;, &#39;cpp&#39; (speed optimized, new)</span>
+            <span class="s1">&#39;spatialImp&#39;</span><span class="p">:</span> <span class="s1">&#39;cpp&#39;</span><span class="p">,</span>
+
+            <span class="s1">&#39;globalInhibition&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+
+            <span class="c1"># Number of cell columns in the cortical region (same number for</span>
+            <span class="c1"># SP and TP)</span>
+            <span class="c1"># (see also tpNCellsPerCol)</span>
+            <span class="s1">&#39;columnCount&#39;</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+
+            <span class="s1">&#39;inputWidth&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+
+            <span class="c1"># SP inhibition control (absolute value);</span>
+            <span class="c1"># Maximum number of active columns in the SP region&#39;s output (when</span>
+            <span class="c1"># there are more, the weaker ones are suppressed)</span>
+            <span class="s1">&#39;numActiveColumnsPerInhArea&#39;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+
+            <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="mi">1956</span><span class="p">,</span>
+
+            <span class="c1"># potentialPct</span>
+            <span class="c1"># What percent of the columns&#39;s receptive field is available</span>
+            <span class="c1"># for potential synapses.</span>
+            <span class="s1">&#39;potentialPct&#39;</span><span class="p">:</span> <span class="mf">0.85</span><span class="p">,</span>
+
+            <span class="c1"># The default connected threshold. Any synapse whose</span>
+            <span class="c1"># permanence value is above the connected threshold is</span>
+            <span class="c1"># a &quot;connected synapse&quot;, meaning it can contribute to the</span>
+            <span class="c1"># cell&#39;s firing. Typical value is 0.10.</span>
+            <span class="s1">&#39;synPermConnected&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+
+            <span class="s1">&#39;synPermActiveInc&#39;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">,</span>
+
+            <span class="s1">&#39;synPermInactiveDec&#39;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
+
+            <span class="c1"># boostStrength controls the strength of boosting. It should be a</span>
+            <span class="c1"># a number greater or equal than 0.0. No boosting is applied if</span>
+            <span class="c1"># boostStrength=0.0. Boosting encourages efficient usage of SP columns.</span>
+            <span class="s1">&#39;boostStrength&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
+        <span class="p">},</span>
+
+        <span class="c1"># Controls whether TP is enabled or disabled;</span>
+        <span class="c1"># TP is necessary for making temporal predictions, such as predicting</span>
+        <span class="c1"># the next inputs.  Without TP, the model is only capable of</span>
+        <span class="c1"># reconstructing missing sensor inputs (via SP).</span>
+        <span class="s1">&#39;tpEnable&#39;</span> <span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+
+        <span class="s1">&#39;tpParams&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="c1"># TP diagnostic output verbosity control;</span>
+            <span class="c1"># 0: silent; [1..6]: increasing levels of verbosity</span>
+            <span class="c1"># (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)</span>
+            <span class="s1">&#39;verbosity&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+
+            <span class="c1"># Number of cell columns in the cortical region (same number for</span>
+            <span class="c1"># SP and TP)</span>
+            <span class="c1"># (see also tpNCellsPerCol)</span>
+            <span class="s1">&#39;columnCount&#39;</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+
+            <span class="c1"># The number of cells (i.e., states), allocated per column.</span>
+            <span class="s1">&#39;cellsPerColumn&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+
+            <span class="s1">&#39;inputWidth&#39;</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+
+            <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="mi">1960</span><span class="p">,</span>
+
+            <span class="c1"># Temporal Memory implementation selector (see _getTPClass in</span>
+            <span class="c1"># CLARegion.py).</span>
+            <span class="s1">&#39;temporalImp&#39;</span><span class="p">:</span> <span class="s1">&#39;cpp&#39;</span><span class="p">,</span>
+
+            <span class="c1"># New Synapse formation count</span>
+            <span class="c1"># NOTE: If None, use spNumActivePerInhArea</span>
+            <span class="c1">#</span>
+            <span class="c1"># The number of synapses added to a segment during learning</span>
+            <span class="s1">&#39;newSynapseCount&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+
+            <span class="c1"># Maximum number of synapses per segment</span>
+            <span class="c1">#  &gt; 0 for fixed-size CLA</span>
+            <span class="c1"># -1 for non-fixed-size CLA</span>
+            <span class="c1">#</span>
+            <span class="c1"># TODO: for Ron: once the appropriate value is placed in TP</span>
+            <span class="c1"># constructor, see if we should eliminate this parameter from</span>
+            <span class="c1"># description.py.</span>
+            <span class="s1">&#39;maxSynapsesPerSegment&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+
+            <span class="c1"># Maximum number of segments per cell</span>
+            <span class="c1">#  &gt; 0 for fixed-size CLA</span>
+            <span class="c1"># -1 for non-fixed-size CLA</span>
+            <span class="c1">#</span>
+            <span class="c1"># TODO: for Ron: once the appropriate value is placed in TP</span>
+            <span class="c1"># constructor, see if we should eliminate this parameter from</span>
+            <span class="c1"># description.py.</span>
+            <span class="s1">&#39;maxSegmentsPerCell&#39;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
+
+            <span class="c1"># Initial permanence for newly created synapses</span>
+            <span class="s1">&#39;initialPerm&#39;</span><span class="p">:</span> <span class="mf">0.21</span><span class="p">,</span>
+
+            <span class="c1"># Permanence Increment</span>
+            <span class="s1">&#39;permanenceInc&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+
+            <span class="c1"># Permanence Decrement</span>
+            <span class="c1"># If set to None, will automatically default to tpPermanenceInc</span>
+            <span class="c1"># value.</span>
+            <span class="s1">&#39;permanenceDec&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+
+            <span class="s1">&#39;globalDecay&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+
+            <span class="s1">&#39;maxAge&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+
+            <span class="c1"># Minimum number of active synapses for a segment to be considered</span>
+            <span class="c1"># during search for the best-matching segments.</span>
+            <span class="c1"># None=use default</span>
+            <span class="c1"># Replaces: tpMinThreshold</span>
+            <span class="s1">&#39;minThreshold&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+
+            <span class="c1"># Segment activation threshold.</span>
+            <span class="c1"># A segment is active if it has &gt;= tpSegmentActivationThreshold</span>
+            <span class="c1"># connected synapses that are active due to infActiveState</span>
+            <span class="c1"># None=use default</span>
+            <span class="c1"># Replaces: tpActivationThreshold</span>
+            <span class="s1">&#39;activationThreshold&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+
+            <span class="s1">&#39;outputType&#39;</span><span class="p">:</span> <span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+
+            <span class="c1"># &quot;Pay Attention Mode&quot; length. This tells the TP how many new</span>
+            <span class="c1"># elements to append to the end of a learned sequence at a time.</span>
+            <span class="c1"># Smaller values are better for datasets with short sequences,</span>
+            <span class="c1"># higher values are better for datasets with long sequences.</span>
+            <span class="s1">&#39;pamLength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">},</span>
+
+        <span class="s1">&#39;clParams&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;regionName&#39;</span><span class="p">:</span> <span class="s1">&#39;SDRClassifierRegion&#39;</span><span class="p">,</span>
+
+            <span class="c1"># Classifier diagnostic output verbosity control;</span>
+            <span class="c1"># 0: silent; [1..6]: increasing levels of verbosity</span>
+            <span class="s1">&#39;verbosity&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+
+            <span class="c1"># This controls how fast the classifier learns/forgets. Higher</span>
+            <span class="c1"># values make it adapt faster and forget older patterns faster.</span>
+            <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+
+            <span class="c1"># This is set after the call to updateConfigFromSubConfig and is</span>
+            <span class="c1"># computed from the aggregationInfo and predictAheadTime.</span>
+            <span class="s1">&#39;steps&#39;</span><span class="p">:</span> <span class="s1">&#39;1,5&#39;</span><span class="p">,</span>
+
+            <span class="s1">&#39;implementation&#39;</span><span class="p">:</span> <span class="s1">&#39;cpp&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+
+        <span class="s1">&#39;trainSPNetOnlyIfRequested&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide.html">Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Docs</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/example-model-params.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
