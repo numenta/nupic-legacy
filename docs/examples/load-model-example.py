@@ -10,7 +10,7 @@ with open ("gymdata.csv") as fileIn:
   reader.next()
   reader.next()
 
-  for i, record in enumerate(reader, start=1):
+  for record in reader:
     # Create a dictionary with field names as keys, row values as values.
     modelInput = dict(zip(headers, record))
     # Convert string consumption to float value.

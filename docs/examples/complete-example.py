@@ -1,11 +1,12 @@
 import csv
 import datetime
+from itertools import islice
 
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
 import model_params
 
-_NUM_RECORDS = 4000
+_NUM_RECORDS = 3000
 _INPUT_FILE_PATH = "gymdata.csv"
 lastSeenValue = None
 
@@ -20,7 +21,7 @@ def runHotgym():
     headers = reader.next()
     reader.next()
     reader.next()
-    for i, record in enumerate(reader, start=1):
+    for record in islice(reader, _NUM_RECORDS):
       modelInput = dict(zip(headers, record))
       modelInput["consumption"] = float(modelInput["consumption"])
       modelInput["timestamp"] = datetime.datetime.strptime(
@@ -32,12 +33,8 @@ def runHotgym():
       oneStepConfidence = allPredictions[1][oneStep]
       fiveStep = bestPredictions[5]
       fiveStepConfidence = allPredictions[5][fiveStep]
-      isLast = i == _NUM_RECORDS
 
       print("1-step: {:16} ({:4.4}%)\t5-step: {:16} ({:4.4}%)".format(oneStep, oneStepConfidence*100, fiveStep, fiveStepConfidence*100))
-
-      if isLast:
-        break
 
 
 

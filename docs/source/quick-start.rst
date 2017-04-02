@@ -14,23 +14,27 @@ for details.
 
 The output of this command should end with:
 
+::
+
     Successfully installed nupic-X.X.X nupic.bindings-X.X.X
 
-If your installation was unsuccessful, you can find help on
+...where ``X.X.X`` represents the most recent version shown at
+https://pypi.python.org/pypi/nupic. If your installation was unsuccessful, you
+can find help on
 `NuPIC Forums <https://discourse.numenta.org/c/nupic/>`_ and on
 `Github <https://github.com/numenta/nupic/issues/>`_.
 
 Choose Your API
 ---------------
 
-See the `OPF <guide-opf.html>`_ and `Network API <guide-network-api.html>`_
-sections of the `Guide <guide.html>`_.
+See the `Online Prediction Framework (OPF) <guide-opf.html>`_ and
+`Network API <guide-network-api.html>`_ sections of the `Guide <guide.html>`_.
 
 OPF
 ---
 
 Here is the complete program we are going to use as an example. In sections
-below, we'll break it down into parts and explain what is happening (wintout
+below, we'll break it down into parts and explain what is happening (without
 some of the plumbing details).
 
 .. literalinclude:: ../examples/complete-example.py
@@ -75,9 +79,10 @@ first is the scalar energy ``consumption`` value, which is being encoded with
 the :class:`.RandomDistributedScalarEncoder`. The next two values represent two
 different aspects of time. The encoder called ``timestamp_timeOfDay`` encodes
 the time of day, while the ``timestamp_weekend`` encoder will output different
-representations for weekends vs weekdays.
+representations for weekends vs weekdays. The :class:`.CLAModel` will combine
+these encodings using the :class:`.MultiEncoder`.
 
-    For details about encoding and how these encoders work, see the the
+    For details about encoding and how these encoders work, see the
     `HTM School <https://numenta.org/htm-school/>`_ episodes on encoders.
 
 Now that you see the raw input data and how it is configured to be encoded into
