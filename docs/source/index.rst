@@ -1,15 +1,22 @@
 NuPIC |release| API Documentation
 =================================
 
+Source code: https://github.com/numenta/nupic
+
+Numenta Platform for Intelligent Computing (NuPIC) is an implementation of
+`Hierarchical Temporal Memory (HTM) <http://numenta.org/hierarchical-temporal-memory/>`_,
+a theory of intelligence based strictly on the neuroscience of the neocortex.
+See http://numenta.org/ for more details.
+
 Contents
 ========
 
 .. toctree::
     :maxdepth: 4
 
+    quick-start
     guide
     api
-
 
 Other Resources
 ===============
