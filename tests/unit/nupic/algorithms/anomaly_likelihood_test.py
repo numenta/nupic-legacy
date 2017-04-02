@@ -460,6 +460,22 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
     self.assertGreaterEqual(numpy.sum(likelihoods < 0.02), 1)
 
 
+  def testEstimateAnomalyLikelihoodsCategoryValues(self):
+    start = datetime.datetime(2017, 1, 1, 0, 0, 0)
+    delta = datetime.timedelta(minutes=5)
+    dts = [start + (i * delta) for i in xrange(10)]
+    values = ["a", "b", "c", "d", "e"] * 2
+    rawScores = [0.1 * i for i in xrange(10)]
+    data = zip(dts, values, rawScores)
+
+    likelihoods, avgRecordList, estimatorParams = (
+      an.estimateAnomalyLikelihoods(data)
+    )
+    self.assertEqual(len(likelihoods), 10)
+    self.assertEqual(len(avgRecordList), 10)
+    self.assertTrue(an.isValidEstimatorParams(estimatorParams))
+
+
   def testEstimateAnomalyLikelihoodsMalformedRecords(self):
     """
     This calls estimateAnomalyLikelihoods with malformed records, which should
