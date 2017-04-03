@@ -40,7 +40,8 @@ We need to encode this into three encodings:
 Creating Encoders
 +++++++++++++++++
 
-First, we'll need to create the encoders we'll use to do this:
+First, let's create the encoders we'll use to encode different semantics
+of our input data stream:
 
 .. literalinclude:: ../../examples/algo/create-encoders.py
 
