@@ -104,7 +104,7 @@ config = {
         'seconds': 0,
         'weeks': 0,
         'years': 0},
-    
+
     'predictAheadTime': None,
 
     # Model parameter dictionary.
@@ -197,9 +197,9 @@ config = {
         # TP is necessary for making temporal predictions, such as predicting
         # the next inputs.  Without TP, the model is only capable of
         # reconstructing missing sensor inputs (via SP).
-        'tpEnable' : True,
+        'tmEnable' : True,
 
-        'tpParams': {
+        'tmParams': {
             # TP diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
             # (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)
@@ -286,7 +286,7 @@ config = {
         'clParams': {
             # Classifier implementation selection.
             'implementation': 'py',
-            
+
             'regionName' : 'SDRClassifierRegion',
 
             # Classifier diagnostic output verbosity control;
@@ -300,14 +300,14 @@ config = {
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.
             'steps': '1',
-            
-            
+
+
         },
 
         'trainSPNetOnlyIfRequested': False,
     },
-          
-  
+
+
 }
 # end of config dictionary
 
@@ -333,7 +333,7 @@ applyValueGettersToContainer(config)
 control = {
   # The environment that the current model is being run in
   "environment": 'nupic',
-  
+
   # Input stream specification per py/nupic/cluster/database/StreamDef.json.
   #
   'dataset' : {   u'info': u'cerebro_dummy',
@@ -343,7 +343,7 @@ control = {
                         }
                     ],
         u'version': 1},
-  
+
   # Iteration count: maximum number of iterations.  Each iteration corresponds
   # to one record from the (possibly aggregated) dataset.  The task is
   # terminated when either number of iterations reaches iterationCount or
@@ -352,17 +352,17 @@ control = {
   #
   # iterationCount of -1 = iterate over the entire dataset
   'iterationCount' : -1,
-  
-  
+
+
   # A dictionary containing all the supplementary parameters for inference
   "inferenceArgs":None,
-  
+
   # Metrics: A list of MetricSpecs that instantiate the metrics that are
   # computed for this experiment
   'metrics':[
     MetricSpec(field=u'f', metric='aae', inferenceElement='prediction', params={'window': 1000}),
   ],
-    
+
   # Logged Metrics: A sequence of regular expressions that specify which of
   # the metrics from the Inference Specifications section MUST be logged for
   # every prediction. The regex's correspond to the automatically generated

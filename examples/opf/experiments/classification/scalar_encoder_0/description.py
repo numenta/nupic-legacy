@@ -26,8 +26,8 @@ from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
 
 # the sub-experiment configuration
 config = \
-{ 
-  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
+{
+  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__),
                                          '../datasets/scalar_SP_0.csv'),
   'modelParams': { 'clParams': { 'verbosity': 0},
                    'inferenceType': 'NontemporalClassification',
@@ -42,8 +42,8 @@ config = \
                                      'verbosity': 0},
                    'spEnable': False,
                    'spParams': { 'spVerbosity': 0},
-                   'tpEnable': False,
-                   'tpParams': { }}}
+                   'tmEnable': False,
+                   'tmParams': { }}}
 
 mod = importBaseDescription('../base_scalar/description.py', config)
 locals().update(mod.__dict__)

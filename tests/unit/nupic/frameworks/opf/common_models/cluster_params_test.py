@@ -60,7 +60,7 @@ class ClusterParamsTest(TestCaseBase):
 
     # Ensure tm_cpp returns correct json file
     params = getScalarMetricWithTimeOfDayAnomalyParams([0], tmImplementation="tm_cpp")
-    self.assertEqual(params['modelConfig']['modelParams']['tpParams']['temporalImp'], "tm_cpp",
+    self.assertEqual(params['modelConfig']['modelParams']['tmParams']['temporalImp'], "tm_cpp",
                      "Incorrect json for tm_cpp tmImplementation")
 
     # Ensure incorrect tmImplementation throws exception

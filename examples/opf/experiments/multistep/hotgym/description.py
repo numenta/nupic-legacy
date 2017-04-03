@@ -104,7 +104,7 @@ config = {
         'seconds': 0,
         'weeks': 0,
         'years': 0},
-    
+
     'predictAheadTime': None,
 
     # Model parameter dictionary.
@@ -165,10 +165,10 @@ config = {
             # 0: silent; >=1: some info; >=2: more info;
             'spVerbosity' : 0,
 
-            # Spatial Pooler implementation selector, see getSPClass 
+            # Spatial Pooler implementation selector, see getSPClass
             # in py/regions/SPRegion.py for details
             # 'py' (default), 'cpp' (speed optimized, new)
-            'spatialImp' : 'cpp', 
+            'spatialImp' : 'cpp',
 
             'globalInhibition': 1,
 
@@ -217,9 +217,9 @@ config = {
         # TP is necessary for making temporal predictions, such as predicting
         # the next inputs.  Without TP, the model is only capable of
         # reconstructing missing sensor inputs (via SP).
-        'tpEnable' : True,
+        'tmEnable' : True,
 
-        'tpParams': {
+        'tmParams': {
             # TP diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
             # (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)
@@ -306,7 +306,7 @@ config = {
         'clParams': {
             # Classifier implementation selection.
             'implementation': 'py',
-            
+
             'regionName' : 'SDRClassifierRegion',
 
             # Classifier diagnostic output verbosity control;
@@ -320,14 +320,14 @@ config = {
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.
             'steps': '1,5',
-            
-            
+
+
         },
 
         'trainSPNetOnlyIfRequested': False,
     },
-          
-  
+
+
   'predictionSteps': [1, 5],
   'predictedField': 'consumption',
   'numRecords': 4000,
@@ -356,10 +356,10 @@ applyValueGettersToContainer(config)
 control = {
   # The environment that the current model is being run in
   "environment": 'nupic',
-  
+
   # Input stream specification per py/nupic/cluster/database/StreamDef.json.
   #
-  'dataset' : {   
+  'dataset' : {
         u'info': u'test_hotgym',
         u'streams': [   {   u'columns': [u'*'],
                             u'info': u'hotGym.csv',
@@ -367,7 +367,7 @@ control = {
                             u'source': u'file://extra/hotgym/hotgym.csv'}],
          'aggregation': config['aggregationInfo'],
         u'version': 1},
-  
+
   # Iteration count: maximum number of iterations.  Each iteration corresponds
   # to one record from the (possibly aggregated) dataset.  The task is
   # terminated when either number of iterations reaches iterationCount or
@@ -376,16 +376,16 @@ control = {
   #
   # iterationCount of -1 = iterate over the entire dataset
   'iterationCount' : -1,
-  
-  
+
+
   # A dictionary containing all the supplementary parameters for inference
-  "inferenceArgs":{'predictedField': config['predictedField'], 
+  "inferenceArgs":{'predictedField': config['predictedField'],
                    'predictionSteps': config['predictionSteps']},
-  
+
   # Metrics: A list of MetricSpecs that instantiate the metrics that are
   # computed for this experiment
   'metrics':[],
-    
+
   # Logged Metrics: A sequence of regular expressions that specify which of
   # the metrics from the Inference Specifications section MUST be logged for
   # every prediction. The regex's correspond to the automatically generated
@@ -396,21 +396,21 @@ control = {
 
 # Add multi-step prediction metrics
 for steps in config['predictionSteps']:
-  control['metrics'].append(    
-      MetricSpec(field=config['predictedField'], metric='multiStep', 
-                 inferenceElement='multiStepBestPredictions', 
+  control['metrics'].append(
+      MetricSpec(field=config['predictedField'], metric='multiStep',
+                 inferenceElement='multiStepBestPredictions',
                  params={'errorMetric': 'aae', 'window': 1000, 'steps': steps}))
-  control['metrics'].append(    
-      MetricSpec(field=config['predictedField'], metric='trivial', 
-                 inferenceElement='prediction', 
+  control['metrics'].append(
+      MetricSpec(field=config['predictedField'], metric='trivial',
+                 inferenceElement='prediction',
                  params={'errorMetric': 'aae', 'window': 1000, 'steps': steps}))
-  control['metrics'].append(    
-      MetricSpec(field=config['predictedField'], metric='multiStep', 
-                 inferenceElement='multiStepBestPredictions', 
+  control['metrics'].append(
+      MetricSpec(field=config['predictedField'], metric='multiStep',
+                 inferenceElement='multiStepBestPredictions',
                  params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': steps}))
-  control['metrics'].append(    
-      MetricSpec(field=config['predictedField'], metric='trivial', 
-                 inferenceElement='prediction', 
+  control['metrics'].append(
+      MetricSpec(field=config['predictedField'], metric='trivial',
+                 inferenceElement='prediction',
                  params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': steps}))
 
 

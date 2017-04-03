@@ -96,39 +96,39 @@ config = {
             #                  'w': 21}}
             #
             'encoders': {
-              'consumption':     {   
+              'consumption':     {
                 'clipInput': True,
                 'fieldname': u'consumption',
                 'n': 100,
                 'name': u'consumption',
                 'type': 'AdaptiveScalarEncoder',
                 'w': 21},
-              'address': {   
+              'address': {
                 'fieldname': u'address',
                 'n': 300,
                 'name': u'address',
                 'type': 'SDRCategoryEncoder',
                 'w': 21},
-              'gym':     {   
+              'gym':     {
                 'fieldname': u'gym',
                 'n': 100,
                 'name': u'gym',
                 'type': 'SDRCategoryEncoder',
                 'w': 21},
-              'timestamp_dayOfWeek': {   
+              'timestamp_dayOfWeek': {
                 'dayOfWeek': (7, 3),
                 'fieldname': u'timestamp',
                 'name': u'timestamp_dayOfWeek',
                 'type': 'DateEncoder'},
-              'timestamp_timeOfDay': {   
+              'timestamp_timeOfDay': {
                 'fieldname': u'timestamp',
                 'name': u'timestamp_timeOfDay',
                 'timeOfDay': (7, 8),
-                'type': 'DateEncoder'},              
+                'type': 'DateEncoder'},
               '_classifierInput':     {
                 'name': u'_classifierInput',
                 'fieldname': u'consumption',
-                'classifierOnly': True,   
+                'classifierOnly': True,
                 'type': 'AdaptiveScalarEncoder',
                 'clipInput': True,
                 'n': 100,
@@ -198,9 +198,9 @@ config = {
         # TP is necessary for making temporal predictions, such as predicting
         # the next inputs.  Without TP, the model is only capable of
         # reconstructing missing sensor inputs (via SP).
-        'tpEnable' : True,
+        'tmEnable' : True,
 
-        'tpParams': {
+        'tmParams': {
             # TP diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
             # (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)
@@ -286,7 +286,7 @@ config = {
 
         'clParams': {
             'regionName' : 'SDRClassifierRegion',
-            
+
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
             'verbosity' : 0,
@@ -337,7 +337,7 @@ control = {
 
   # Input stream specification per py/nupic/frameworks/opf/jsonschema/stream_def.json.
   #
-  'dataset' : {   
+  'dataset' : {
         u'info': u'test_hotgym',
         u'streams': [   {   u'columns': [u'*'],
                             u'info': u'test data',
@@ -360,8 +360,8 @@ control = {
   # Metrics: A list of MetricSpecs that instantiate the metrics that are
   # computed for this experiment
   'metrics':[
-    MetricSpec(field=u'consumption', metric='multiStep', 
-               inferenceElement='multiStepBestPredictions', 
+    MetricSpec(field=u'consumption', metric='multiStep',
+               inferenceElement='multiStepBestPredictions',
                params={'window': 1000, 'steps': [1], 'errorMetric': 'altMAPE'}),
   ],
 

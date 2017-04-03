@@ -88,7 +88,7 @@ VERBOSITY = 0
 #      updateConfigFromSubConfig(config)
 #      applyValueGettersToContainer(config)
 config = {
-    
+
     # Type of model that the rest of these parameters apply to.
     'model': "CLA",
 
@@ -97,7 +97,7 @@ config = {
 
     # Intermediate variables used to compute fields in modelParams and also
     # referenced from the control section.
-    'aggregationInfo': {   
+    'aggregationInfo': {
       'days': 0,
       'hours': 0,
       'microseconds': 0,
@@ -109,7 +109,7 @@ config = {
       'years': 0,
       'fields': [(u'c1', 'first'), (u'c0', 'first')],
       },
-          
+
     'predictAheadTime': None,
 
     # Model parameter dictionary.
@@ -214,9 +214,9 @@ config = {
         # TP is necessary for making temporal predictions, such as predicting
         # the next inputs.  Without TP, the model is only capable of
         # reconstructing missing sensor inputs (via SP).
-        'tpEnable' : True,
+        'tmEnable' : True,
 
-        'tpParams': {
+        'tmParams': {
             # TP diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
             # (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)
@@ -342,7 +342,7 @@ if config['predictAheadTime'] is not None:
 applyValueGettersToContainer(config)
 
 
-dataPath = os.path.abspath(os.path.join(os.path.dirname(__file__), 
+dataPath = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                         'data.csv'))
 
 control = {

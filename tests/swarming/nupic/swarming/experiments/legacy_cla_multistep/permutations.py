@@ -59,25 +59,25 @@ permutations = {
     'sensorParams': {
       'encoders': {
         u'timestamp_timeOfDay': PermuteEncoder(
-                              fieldName='timestamp', 
-                              encoderClass='DateEncoder.timeOfDay', 
-                              w=21, 
+                              fieldName='timestamp',
+                              encoderClass='DateEncoder.timeOfDay',
+                              w=21,
                               radius=PermuteFloat(0.5, 12)),
         u'timestamp_dayOfWeek': PermuteEncoder(
-                              fieldName='timestamp', 
-                              encoderClass='DateEncoder.dayOfWeek', 
-                              w=21, 
+                              fieldName='timestamp',
+                              encoderClass='DateEncoder.dayOfWeek',
+                              w=21,
                               radius=PermuteFloat(1, 6)),
         u'timestamp_weekend': PermuteEncoder(
-                              fieldName='timestamp', 
-                              encoderClass='DateEncoder.weekend', 
-                              w=21, 
+                              fieldName='timestamp',
+                              encoderClass='DateEncoder.weekend',
+                              w=21,
                               radius=PermuteChoices([1])),
         u'consumption': PermuteEncoder(
-                              fieldName='consumption', 
-                              encoderClass='AdaptiveScalarEncoder', 
-                              w=21, 
-                              n=PermuteInt(28, 521), 
+                              fieldName='consumption',
+                              encoderClass='AdaptiveScalarEncoder',
+                              w=21,
+                              n=PermuteInt(28, 521),
                               clipInput=True),
       },
     },
@@ -86,7 +86,7 @@ permutations = {
       'synPermInactiveDec': PermuteFloat(0.005, 0.1),
     },
 
-    'tpParams': {
+    'tmParams': {
       'activationThreshold': PermuteInt(12, 16),
       'minThreshold': PermuteInt(9, 12),
       'pamLength': PermuteInt(1, 5),
@@ -95,7 +95,7 @@ permutations = {
     'clParams': {
       'alpha': PermuteFloat(0.0001, 0.1),
     },
-                  
+
   }
 }
 
