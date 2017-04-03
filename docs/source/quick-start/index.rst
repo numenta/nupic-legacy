@@ -34,10 +34,9 @@ You can choose to construct an HTM several ways with NuPIC. See the
 `Guide <guide.html>`_ for more details. Below are Quick Start guides for each
 interface:
 
-* `Online Prediction Framework (OPF)`_
-* `Network API`_
-* `Algorithms API`_
+.. toctree::
+    :maxdepth: 2
 
-.. include:: quick-start-opf.rst
-.. include:: quick-start-network.rst
-.. include:: quick-start-algorithms.rst
+    opf
+    network
+    algorithms
