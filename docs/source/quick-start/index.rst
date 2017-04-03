@@ -1,3 +1,5 @@
+.. include:: common.rst
+
 Quick Start
 ===========
 
@@ -31,7 +33,7 @@ Choose Your API
 ---------------
 
 You can choose to construct an HTM several ways with NuPIC. See the
-`Guide <guide.html>`_ for more details. Below are Quick Start guides for each
+`Guide <../guide/index.html>`_ for more details. Below are Quick Start guides for each
 interface:
 
 .. toctree::
