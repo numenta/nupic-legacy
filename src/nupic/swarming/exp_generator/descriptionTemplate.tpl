@@ -34,7 +34,7 @@ from nupic.frameworks.opf.expdescriptionhelpers import (
   applyValueGettersToContainer,
   DeferredDictLookup)
 
-from nupic.frameworks.opf.clamodelcallbacks import *
+from nupic.frameworks.opf.opfmodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.swarming.experimentutils import (InferenceType, InferenceElement)
 from nupic.support import aggregationDivide
@@ -95,17 +95,17 @@ config = {
 
   # The type of inference that this model will perform
   'inferenceType': $INFERENCE_TYPE,
-  
+
   # How much in advance we want to predict. Used only when swarming over
   #  aggregations
   'predictAheadTime': $PREDICT_AHEAD_TIME,
-  
+
   # The number of prediction steps to use. When swarming over aggregations, this
-  #  is computed and filled in by the logic that follows this config 
+  #  is computed and filled in by the logic that follows this config
   #  declaration. It is computed based on the chosen aggreation and the
-  #  above predictAheadTime. 
+  #  above predictAheadTime.
   'predictionSteps': 'FilledInBelow',
-  
+
 
   ##############################################################################
   # Dataset Aggregation Parameters (for training and inference datasets)
@@ -391,8 +391,8 @@ config = {
 # sub-experiment
 updateConfigFromSubConfig(config)
 
-# Compute predictionSteps based on the predictAheadTime and the aggregation 
-# period, which may be permuted over. 
+# Compute predictionSteps based on the predictAheadTime and the aggregation
+# period, which may be permuted over.
 if config['predictAheadTime'] is not None:
   predictionSteps =  int(round(aggregationDivide(
         config['predictAheadTime'], config['__aggregationPeriod'])))

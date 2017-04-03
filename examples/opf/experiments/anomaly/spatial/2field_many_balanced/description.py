@@ -34,7 +34,7 @@ from nupic.frameworks.opf.expdescriptionhelpers import (
   applyValueGettersToContainer,
   DeferredDictLookup)
 
-from nupic.frameworks.opf.clamodelcallbacks import *
+from nupic.frameworks.opf.opfmodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
@@ -98,7 +98,7 @@ config = {
                       ('numericFieldNameB', 'sum'),
                       ('categoryFieldNameC', 'first')],
         'hours': 0},
-    
+
     'predictAheadTime': None,
 
     # Model parameter dictionary.
@@ -119,7 +119,7 @@ config = {
             #     ],
             #
             # (value generated from DS_ENCODER_SCHEMA)
-            'encoders': {  
+            'encoders': {
               'f0': dict(fieldname='f0', n=100, name='f0', type='SDRCategoryEncoder', w=21),
               'f1': dict(fieldname='f1', n=100, name='f1', type='SDRCategoryEncoder', w=21),
               },
@@ -276,7 +276,7 @@ config = {
         'clParams': {
             # Classifier implementation selection.
             'implementation': 'py',
-            
+
             'regionName' : 'SDRClassifierRegion',
 
             # Classifier diagnostic output verbosity control;
@@ -290,14 +290,14 @@ config = {
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.
             'steps': '1',
-            
-            
+
+
         },
 
         'trainSPNetOnlyIfRequested': False,
     },
-          
-  
+
+
 }
 # end of config dictionary
 
@@ -330,9 +330,9 @@ applyValueGettersToContainer(config)
 # NOTE: The tasks are intended for OPF clients that make use of OPFTaskDriver.
 #       Clients that interact with OPFExperiment directly do not make use of
 #       the tasks specification.
-#       
+#
 control = dict(
-  environment='opfExperiment',  
+  environment='opfExperiment',
 
 tasks = [
   {
@@ -345,15 +345,15 @@ tasks = [
     'dataset' : {
       'info': 'test_NoProviders',
       'version': 1,
-      
+
       'streams': [
-        {  
+        {
           'columns': ['*'],
           'info': 'my simple dataset',
           'source': 'file://'+os.path.join(os.path.dirname(__file__), 'data.csv'),
         }
       ],
-      
+
       # TODO: Aggregation is not supported yet by run_opf_experiment.py
       #'aggregation' : config['aggregationInfo']
     },
@@ -367,10 +367,10 @@ tasks = [
     # iterationCount of -1 = iterate over the entire dataset
     'iterationCount' : -1,
 
-    
+
     # Task Control parameters for OPFTaskDriver (per opfTaskControlSchema.json)
     'taskControl' : {
-        
+
       # Iteration cycle list consisting of opftaskdriver.IterationPhaseSpecXXXXX
       # instances.
       'iterationCycle' : [
@@ -378,7 +378,7 @@ tasks = [
         IterationPhaseSpecLearnAndInfer(1000, inferenceArgs=None),
         #IterationPhaseSpecInferOnly(10, inferenceArgs=None),
       ],
-        
+
       'metrics' : [
       ],
 
@@ -388,8 +388,8 @@ tasks = [
       # metric labels. This is similar to the way the optimization metric is
       # specified in permutations.py.
       'loggedMetrics': ['.*nupicScore.*'],
-      
-      
+
+
       # Callbacks for experimentation/research (optional)
       'callbacks' : {
         # Callbacks to be called at the beginning of a task, before model iterations.
@@ -397,11 +397,11 @@ tasks = [
 #        'setup' : [claModelControlEnableSPLearningCb, claModelControlEnableTPLearningCb],
 #        'setup' : [claModelControlDisableTPLearningCb],
         'setup' : [],
-        
+
         # Callbacks to be called after every learning/inference iteration
         # Signature: callback(<reference to OPFExperiment>); returns nothing
         'postIter' : [],
-        
+
         # Callbacks to be called when the experiment task is finished
         # Signature: callback(<reference to OPFExperiment>); returns nothing
         'finish' : []

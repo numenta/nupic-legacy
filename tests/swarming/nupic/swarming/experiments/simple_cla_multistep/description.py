@@ -34,7 +34,7 @@ from nupic.frameworks.opf.expdescriptionhelpers import (
   applyValueGettersToContainer
   )
 
-from nupic.frameworks.opf.clamodelcallbacks import *
+from nupic.frameworks.opf.opfmodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
@@ -96,19 +96,19 @@ config = {
             #                  'w': 21}}
             #
             'encoders': {
-              'consumption':     {   
+              'consumption':     {
                 'clipInput': True,
                 'fieldname': u'consumption',
                 'n': 100,
                 'name': u'consumption',
                 'type': 'AdaptiveScalarEncoder',
                 'w': 21},
-              'timestamp_timeOfDay':     {   
+              'timestamp_timeOfDay':     {
                 'fieldname': u'timestamp',
                 'name': u'timestamp_timeOfDay',
                 'type': 'DateEncoder',
                 'timeOfDay': (21, 1)},
-              'timestamp_dayOfWeek':     {   
+              'timestamp_dayOfWeek':     {
                 'fieldname': u'timestamp',
                 'name': u'timestamp_dayOfWeek',
                 'type': 'DateEncoder',
@@ -116,7 +116,7 @@ config = {
               '_classifierInput':     {
                 'name': u'_classifierInput',
                 'fieldname': u'consumption',
-                'classifierOnly': True,   
+                'classifierOnly': True,
                 'type': 'AdaptiveScalarEncoder',
                 'clipInput': True,
                 'n': 100,
@@ -274,7 +274,7 @@ config = {
 
         'clParams': {
             'regionName' : 'SDRClassifierRegion',
-            
+
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
             'verbosity' : 0,
@@ -325,7 +325,7 @@ control = {
 
   # Input stream specification per py/nupic/frameworks/opf/jsonschema/stream_def.json.
   #
-  'dataset' : {   
+  'dataset' : {
         u'info': u'test_hotgym',
         u'streams': [   {   u'columns': [u'*'],
                             u'info': u'test data',
@@ -348,8 +348,8 @@ control = {
   # Metrics: A list of MetricSpecs that instantiate the metrics that are
   # computed for this experiment
   'metrics':[
-    MetricSpec(field=u'consumption', metric='multiStep', 
-               inferenceElement='multiStepBestPredictions', 
+    MetricSpec(field=u'consumption', metric='multiStep',
+               inferenceElement='multiStepBestPredictions',
                params={'window': 1000, 'steps': [1], 'errorMetric': 'altMAPE'}),
   ],
 

@@ -59,10 +59,10 @@ class CLAModelClassifierHelper(object):
 
   __VERSION__ = 3
 
-  def __init__(self, clamodel, anomalyParams={}):
+  def __init__(self, opfmodel, anomalyParams={}):
     if anomalyParams is None:
       anomalyParams = {}
-    self.clamodel = clamodel
+    self.opfmodel = opfmodel
 
     self._version = CLAModelClassifierHelper.__VERSION__
 
@@ -97,7 +97,7 @@ class CLAModelClassifierHelper(object):
       self._vectorType = anomalyParams['anomalyVectorType']
 
     self._activeColumnCount = \
-      self.clamodel._getSPRegion().getSelf().getParameter('numActiveColumnsPerInhArea')
+      self.opfmodel._getSPRegion().getSelf().getParameter('numActiveColumnsPerInhArea')
 
     # Storage for last run
     self._anomalyVectorLength = None
@@ -146,7 +146,7 @@ class CLAModelClassifierHelper(object):
       'recordLabels': []
     }
 
-    classifier = self.clamodel._getAnomalyClassifier()
+    classifier = self.opfmodel._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     ROWIDX = numpy.array(
@@ -325,7 +325,7 @@ class CLAModelClassifierHelper(object):
     """
     This method will add the record to the KNN classifier.
     """
-    classifier = self.clamodel._getAnomalyClassifier()
+    classifier = self.opfmodel._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     prototype_idx = classifier.getSelf().getParameter('categoryRecencyList')
@@ -350,7 +350,7 @@ class CLAModelClassifierHelper(object):
     ------------
     recordsToDelete - list of records to delete from the classififier
     """
-    classifier = self.clamodel._getAnomalyClassifier()
+    classifier = self.opfmodel._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     prototype_idx = classifier.getSelf().getParameter('categoryRecencyList')
@@ -373,7 +373,7 @@ class CLAModelClassifierHelper(object):
     end - integer representing the ROWID of the end of the deletion range,
       if None, it will default to end.
     """
-    classifier = self.clamodel._getAnomalyClassifier()
+    classifier = self.opfmodel._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     prototype_idx = numpy.array(
@@ -405,7 +405,7 @@ class CLAModelClassifierHelper(object):
                "categoryProbabilitiesOut":numpy.zeros((1,))}
 
     # Run inference only to capture state before learning
-    classifier = self.clamodel._getAnomalyClassifier()
+    classifier = self.opfmodel._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     # Only use points before record to classify and after the wait period.
@@ -439,12 +439,12 @@ class CLAModelClassifierHelper(object):
   def _constructClassificationRecord(self):
     """
     Construct a _CLAClassificationRecord based on the current state of the
-    clamodel of this classifier.
+    opfmodel of this classifier.
 
     ***This will look into the internals of the model and may depend on the
     SP, TP, and KNNClassifier***
     """
-    model = self.clamodel
+    model = self.opfmodel
     sp = model._getSPRegion()
     tp = model._getTPRegion()
     tpImp = tp.getSelf()._tfdr

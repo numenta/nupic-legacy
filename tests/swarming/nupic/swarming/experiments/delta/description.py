@@ -34,7 +34,7 @@ from nupic.frameworks.opf.expdescriptionhelpers import (
   applyValueGettersToContainer,
   DeferredDictLookup)
 
-from nupic.frameworks.opf.clamodelcallbacks import *
+from nupic.frameworks.opf.opfmodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
@@ -104,7 +104,7 @@ config = {
         'seconds': 0,
         'weeks': 0,
         'years': 0},
-    
+
     'predictAheadTime': None,
 
     # Model parameter dictionary.
@@ -125,8 +125,8 @@ config = {
             #     ],
             #
             # (value generated from DS_ENCODER_SCHEMA)
-            'encoders': {   
-              'value': {   
+            'encoders': {
+              'value': {
                   'clipInput': True,
                   'fieldname': u'value',
                   'n': 100,
@@ -136,7 +136,7 @@ config = {
               '_classifierInput':     {
                 'name': u'_classifierInput',
                 'fieldname': u'value',
-                'classifierOnly': True,   
+                'classifierOnly': True,
                 'type': 'ScalarSpaceEncoder',
                 'n': 100,
                 'w': 21},
@@ -305,14 +305,14 @@ config = {
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.
             'steps': '1,5',
-            
-            
+
+
         },
 
         'trainSPNetOnlyIfRequested': False,
     },
-          
-  
+
+
 }
 # end of config dictionary
 

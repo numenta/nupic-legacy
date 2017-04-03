@@ -29,7 +29,7 @@ import logging
 import nupic.frameworks.opf.opfutils as opfutils
 
 # Import models
-from clamodel import CLAModel
+from opfmodel import OPFModel
 from model import Model
 from two_gram_model import TwoGramModel
 from previousvaluemodel import PreviousValueModel
@@ -68,7 +68,7 @@ class ModelFactory(object):
 
     modelClass = None
     if modelConfig['model'] == "CLA":
-      modelClass = CLAModel
+      modelClass = OPFModel
     elif modelConfig['model'] == "TwoGram":
       modelClass = TwoGramModel
     elif modelConfig['model'] == "PreviousValue":
@@ -87,6 +87,6 @@ class ModelFactory(object):
     @returns (nupic.frameworks.opf.model.Model) The loaded model instance.
     """
     if newSerialization:
-      return CLAModel.readFromCheckpoint(savedModelDir)
+      return OPFModel.readFromCheckpoint(savedModelDir)
     else:
       return Model.load(savedModelDir)

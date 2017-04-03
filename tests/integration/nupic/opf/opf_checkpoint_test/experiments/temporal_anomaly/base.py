@@ -34,7 +34,7 @@ from nupic.frameworks.opf.expdescriptionhelpers import (
   applyValueGettersToContainer,
   DeferredDictLookup)
 
-from nupic.frameworks.opf.clamodelcallbacks import *
+from nupic.frameworks.opf.opfmodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
@@ -88,7 +88,7 @@ VERBOSITY = 0
 #      updateConfigFromSubConfig(config)
 #      applyValueGettersToContainer(config)
 config = {
-    
+
     # Type of model that the rest of these parameters apply to.
     'model': "CLA",
 
@@ -97,7 +97,7 @@ config = {
 
     # Intermediate variables used to compute fields in modelParams and also
     # referenced from the control section.
-    'aggregationInfo': {   
+    'aggregationInfo': {
       'days': 0,
       'hours': 0,
       'microseconds': 0,
@@ -109,7 +109,7 @@ config = {
       'years': 0,
       'fields': [(u'c1', 'first'), (u'c0', 'first')],
       },
-          
+
     'predictAheadTime': None,
 
     # Model parameter dictionary.
@@ -342,7 +342,7 @@ if config['predictAheadTime'] is not None:
 applyValueGettersToContainer(config)
 
 
-dataPath = os.path.abspath(os.path.join(os.path.dirname(__file__), 
+dataPath = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                         'data.csv'))
 
 control = {

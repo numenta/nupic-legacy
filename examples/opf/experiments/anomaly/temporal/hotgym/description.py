@@ -34,7 +34,7 @@ from nupic.frameworks.opf.expdescriptionhelpers import (
   applyValueGettersToContainer,
   DeferredDictLookup)
 
-from nupic.frameworks.opf.clamodelcallbacks import *
+from nupic.frameworks.opf.opfmodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
@@ -296,7 +296,7 @@ config = {
         'clParams': {
             # Classifier implementation selection.
             'implementation': 'py',
-            
+
             'regionName' : 'SDRClassifierRegion',
 
             # Classifier diagnostic output verbosity control;

@@ -38,13 +38,13 @@ from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError,
 
 class KNNAnomalyClassifierRegion(PyRegion):
   """
-  KNNAnomalyClassifierRegion wraps the KNNClassifierRegion to classify clamodel
+  KNNAnomalyClassifierRegion wraps the KNNClassifierRegion to classify opfmodel
   state.  It allows for individual records to be classified as anomalies and
   supports anomaly detection even after the model has learned the anomalous
   sequence.
 
   Methods:
-    compute() - called by clamodel during record processing
+    compute() - called by opfmodel during record processing
     getLabels() - return points with classification records
     addLabel() - add a set label to a given set of points
     removeLabels() - remove labels from a given set of points

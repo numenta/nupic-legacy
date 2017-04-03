@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-""" @file clamodel.py
+""" @file opfmodel.py
 
 Encapsulation of CLAnetwork that implements the ModelBase.
 
@@ -82,7 +82,7 @@ def requireAnomalyModel(func):
 
 class NetworkInfo(object):
   """ Data type used as return value type by
-  CLAModel.__createCLANetwork()
+  OPFModel.__createCLANetwork()
   """
 
   def __init__(self, net, statsCollectors):
@@ -101,7 +101,7 @@ class NetworkInfo(object):
 
 
 
-class CLAModel(Model):
+class OPFModel(Model):
 
   __supportedInferenceKindSet = set((InferenceType.TemporalNextStep,
                                      InferenceType.TemporalClassification,
@@ -111,7 +111,7 @@ class CLAModel(Model):
                                      InferenceType.TemporalMultiStep,
                                      InferenceType.NontemporalMultiStep))
 
-  __myClassName = "CLAModel"
+  __myClassName = "OPFModel"
 
 
   def __init__(self,
@@ -131,7 +131,7 @@ class CLAModel(Model):
       minLikelihoodThreshold=DEFAULT_LIKELIHOOD_THRESHOLD,
       maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP,
       network=None):
-    """CLAModel constructor.
+    """OPFModel constructor.
 
     Args:
       inferenceType: A value from the InferenceType enum class.
@@ -161,7 +161,7 @@ class CLAModel(Model):
                        .format(self.__class__, inferenceType))
 
     # Call super class constructor
-    super(CLAModel, self).__init__(inferenceType)
+    super(OPFModel, self).__init__(inferenceType)
 
     # self.__restoringFromState is set to True by our __setstate__ method
     # and back to False at completion of our _deSerializeExtraData() method.
@@ -236,7 +236,7 @@ class CLAModel(Model):
     if paramName == '__numRunCalls':
       return self.__numRunCalls
     else:
-      raise RuntimeError("'%s' parameter is not exposed by clamodel." % \
+      raise RuntimeError("'%s' parameter is not exposed by opfmodel." % \
         (paramName))
 
 
@@ -249,7 +249,7 @@ class CLAModel(Model):
       # Reset TP's sequence states
       self._getTPRegion().executeCommand(['resetSequenceStates'])
 
-      self.__logger.debug("CLAModel.resetSequenceStates(): reset temporal "
+      self.__logger.debug("OPFModel.resetSequenceStates(): reset temporal "
                          "pooler's sequence states")
 
       return
@@ -270,13 +270,13 @@ class CLAModel(Model):
       # Finish SP learning
       self._getSPRegion().executeCommand(['finishLearning'])
       self.__logger.debug(
-        "CLAModel.finishLearning(): finished SP learning")
+        "OPFModel.finishLearning(): finished SP learning")
 
     if self._hasTP:
       # Finish temporal network's TP learning
       self._getTPRegion().executeCommand(['finishLearning'])
       self.__logger.debug(
-        "CLAModel.finishLearning(): finished TP learning")
+        "OPFModel.finishLearning(): finished TP learning")
 
     self.__spLearningEnabled = self.__tpLearningEnabled = False
     self.__finishedLearning = True
@@ -294,13 +294,13 @@ class CLAModel(Model):
 
   def enableLearning(self):
     """[override] Turn Learning on for the current model """
-    super(CLAModel, self).enableLearning()
+    super(OPFModel, self).enableLearning()
     self.setEncoderLearning(True)
 
 
   def disableLearning(self):
     """[override] Turn Learning off for the current model """
-    super(CLAModel, self).disableLearning()
+    super(OPFModel, self).disableLearning()
     self.setEncoderLearning(False)
 
 
@@ -363,12 +363,12 @@ class CLAModel(Model):
     assert not self.__restoringFromState
     assert inputRecord
 
-    results = super(CLAModel, self).run(inputRecord)
+    results = super(OPFModel, self).run(inputRecord)
 
     self.__numRunCalls += 1
 
     if self.__logger.isEnabledFor(logging.DEBUG):
-      self.__logger.debug("CLAModel.run() inputRecord=%s", (inputRecord))
+      self.__logger.debug("OPFModel.run() inputRecord=%s", (inputRecord))
 
     results.inferences = {}
     self._input = inputRecord
@@ -837,7 +837,7 @@ class CLAModel(Model):
 
       # Remove entries with 0 likelihood or likelihood less than
       # minLikelihoodThreshold, but don't leave an empty dict.
-      likelihoodsDict = CLAModel._removeUnlikelyPredictions(
+      likelihoodsDict = OPFModel._removeUnlikelyPredictions(
           likelihoodsDict, minLikelihoodThreshold, maxPredictionsPerStep)
 
       # calculate likelihood for each bucket

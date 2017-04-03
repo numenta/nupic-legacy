@@ -34,7 +34,7 @@ from nupic.frameworks.opf.expdescriptionhelpers import (
   applyValueGettersToContainer
   )
 
-from nupic.frameworks.opf.clamodelcallbacks import *
+from nupic.frameworks.opf.opfmodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.swarming.experimentutils import (InferenceType, InferenceElement)
 from nupic.support import aggregationDivide
@@ -104,7 +104,7 @@ config = {
         'spEnable': $SP_ENABLE,
 
         'spParams': {
-            # Spatial pooler implementation to use. 
+            # Spatial pooler implementation to use.
             # Options: "py" (slow, good for debugging), and "cpp" (optimized).
             'spatialImp': 'cpp',
 
@@ -130,7 +130,7 @@ config = {
 
             # potentialPct
             # What percent of the columns's receptive field is available
-            # for potential synapses. 
+            # for potential synapses.
             'potentialPct': $SP_POOL_PCT,
 
             # The default connected threshold. Any synapse whose
@@ -229,7 +229,7 @@ config = {
 
         'clParams': {
             'regionName' : 'SDRClassifierRegion',
-            
+
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
             'verbosity' : 0,

@@ -34,7 +34,7 @@ from nupic.frameworks.opf.expdescriptionhelpers import (
   applyValueGettersToContainer,
   DeferredDictLookup)
 
-from nupic.frameworks.opf.clamodelcallbacks import *
+from nupic.frameworks.opf.opfmodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
@@ -89,7 +89,7 @@ VERBOSITY = 1
 #      applyValueGettersToContainer(config)
 config = {
     'dataPath': None,   # filled in by sub-experiment
-    
+
     # Type of model that the rest of these parameters apply to.
     'model': "CLA",
 

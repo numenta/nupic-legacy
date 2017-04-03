@@ -53,7 +53,7 @@ likelihood = anomalyLikelihood.anomalyProbability(
 
 ## How is the Output Handled?
 
-Most of the code changes for this tutorial were done outside of instantiating and running an OPF CLAModel. For this example, the `nupic_output.py` file was replaced with `nupic_anomaly_output.py`, which properly handles the additional anomaly data being produced by the model. For file output (sans `--plot` option), the "anomaly score" and "anomaly likelihood" values are simply written to the CSV file as additional columns. For the matplotlib `--plot` option, it plots the "anomaly score" and "anomaly likelihood" values in a separate chart aligned with the energy consumption predictions.
+Most of the code changes for this tutorial were done outside of instantiating and running an OPF OPFModel. For this example, the `nupic_output.py` file was replaced with `nupic_anomaly_output.py`, which properly handles the additional anomaly data being produced by the model. For file output (sans `--plot` option), the "anomaly score" and "anomaly likelihood" values are simply written to the CSV file as additional columns. For the matplotlib `--plot` option, it plots the "anomaly score" and "anomaly likelihood" values in a separate chart aligned with the energy consumption predictions.
 
 ### The Chart Explained
 

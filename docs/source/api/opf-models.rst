@@ -8,12 +8,12 @@ Model
    :members:
 
 
-CLAModel
+OPFModel
 ^^^^^^^^
 
 This class is poorly named.
 
-.. autoclass:: nupic.frameworks.opf.clamodel.CLAModel
+.. autoclass:: nupic.frameworks.opf.opfmodel.OPFModel
    :members:
    :show-inheritance:
 

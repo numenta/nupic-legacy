@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Unit tests for the clamodel module."""
+"""Unit tests for the opfmodel module."""
 
 import sys
 import copy
@@ -30,8 +30,8 @@ from mock import Mock, patch, ANY, call
 from nupic.support.unittesthelpers.testcasebase import (unittest,
                                                         TestOptionParser)
 
-from nupic.frameworks.opf.clamodel import CLAModel
-from nupic.frameworks.opf.clamodel_classifier_helper import \
+from nupic.frameworks.opf.opfmodel import OPFModel
+from nupic.frameworks.opf.opfmodel_classifier_helper import \
   CLAModelClassifierHelper, _CLAClassificationRecord, Configuration
 
 from nupic.frameworks.opf.opfutils import InferenceType
@@ -148,7 +148,7 @@ records= [
 class CLAClassifierHelperTest(unittest.TestCase):
   """CLAModelClassifierHelper unit tests."""
   def setUp(self):
-    self.helper = CLAModelClassifierHelper(Mock(spec=CLAModel))
+    self.helper = CLAModelClassifierHelper(Mock(spec=OPFModel))
 
   @patch.object(Configuration, 'get')
   @patch.object(CLAModelClassifierHelper, 'compute')
@@ -166,25 +166,25 @@ class CLAClassifierHelperTest(unittest.TestCase):
       'nupic.model.temporalAnomaly.anomaly_vector': 'tpc',
     }
     configurationGet.side_effect = conf.get
-    helper = CLAModelClassifierHelper(Mock(spec=CLAModel), anomalyParams)
+    helper = CLAModelClassifierHelper(Mock(spec=OPFModel), anomalyParams)
 
-    self.assertEqual(helper._autoDetectWaitRecords, 
+    self.assertEqual(helper._autoDetectWaitRecords,
                      anomalyParams['autoDetectWaitRecords'])
-    self.assertEqual(helper._autoDetectThreshold, 
+    self.assertEqual(helper._autoDetectThreshold,
                      anomalyParams['autoDetectThreshold'])
-    self.assertEqual(helper._history_length, 
+    self.assertEqual(helper._history_length,
                      anomalyParams['anomalyCacheRecords'])
-    self.assertEqual(helper._vectorType, 
+    self.assertEqual(helper._vectorType,
                      anomalyParams['anomalyVectorType'])
 
-    helper = CLAModelClassifierHelper(Mock(spec=CLAModel), None)
-    self.assertEqual(helper._autoDetectWaitRecords, 
+    helper = CLAModelClassifierHelper(Mock(spec=OPFModel), None)
+    self.assertEqual(helper._autoDetectWaitRecords,
                      conf['nupic.model.temporalAnomaly.wait_records'])
-    self.assertEqual(helper._autoDetectThreshold, 
+    self.assertEqual(helper._autoDetectThreshold,
                      conf['nupic.model.temporalAnomaly.auto_detect_threshold'])
-    self.assertEqual(helper._history_length, 
+    self.assertEqual(helper._history_length,
                      conf['nupic.model.temporalAnomaly.window_length'])
-    self.assertEqual(helper._vectorType, 
+    self.assertEqual(helper._vectorType,
                      conf['nupic.model.temporalAnomaly.anomaly_vector'])
 
 
@@ -201,7 +201,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     result = self.helper.run()
     compute.assert_called_once_with()
     self.assertEqual(result, state['anomalyLabel'])
-    
+
 
   def testGetLabels(self):
     # No saved_states
@@ -228,14 +228,14 @@ class CLAClassifierHelperTest(unittest.TestCase):
     }
     self.helper.saved_categories = ['TestCategory']
     categoryList = [1,1,1]
-    classifier = self.helper.clamodel._getAnomalyClassifier().getSelf()
+    classifier = self.helper.opfmodel._getAnomalyClassifier().getSelf()
     classifier.getParameter.side_effect = values.get
     classifier._knn._categoryList = categoryList
 
     results = self.helper.getLabels()
     self.assertTrue('isProcessing' in results)
     self.assertTrue('recordLabels' in results)
-    self.assertEqual(len(results['recordLabels']), 
+    self.assertEqual(len(results['recordLabels']),
       len(values['categoryRecencyList']))
     for record in results['recordLabels']:
       self.assertTrue(record['ROWID'] in values['categoryRecencyList'])
@@ -244,7 +244,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
   @patch.object(CLAModelClassifierHelper, '_getStateAnomalyVector')
   @patch.object(CLAModelClassifierHelper, '_updateState')
   def testAddLabel(self, _updateState, _getStateAnomalyVector):
-    self.helper.clamodel._getAnomalyClassifier().getSelf().getParameter.return_value = [1,2,3]
+    self.helper.opfmodel._getAnomalyClassifier().getSelf().getParameter.return_value = [1,2,3]
     self.helper.saved_states = []
     self.assertRaises(CLAModelInvalidRangeError,
       self.helper.addLabel, start=100, end=100, labelName="test")
@@ -273,11 +273,11 @@ class CLAClassifierHelperTest(unittest.TestCase):
     self.assertEqual(results, None)
     self.assertTrue('Added' in self.helper.saved_states[1].anomalyLabel)
     self.assertTrue(self.helper.saved_states[1].setByUser)
-    
+
     # Verifies record added to KNN classifier
-    knn = self.helper.clamodel._getAnomalyClassifier().getSelf()._knn
+    knn = self.helper.opfmodel._getAnomalyClassifier().getSelf()._knn
     knn.learn.assert_called_once_with(ANY, ANY, rowID=11)
-    
+
     # Verifies records after added label is recomputed
     _updateState.assert_called_once_with(self.helper.saved_states[2])
 
@@ -285,11 +285,11 @@ class CLAClassifierHelperTest(unittest.TestCase):
   @patch.object(CLAModelClassifierHelper, '_getStateAnomalyVector')
   @patch.object(CLAModelClassifierHelper, '_updateState')
   def testRemoveLabel(self, _updateState, _getStateAnomalyVector):
-    classifier = self.helper.clamodel._getAnomalyClassifier().getSelf()
+    classifier = self.helper.opfmodel._getAnomalyClassifier().getSelf()
     classifier.getParameter.return_value = [10,11,12]
     classifier._knn._numPatterns = 3
     classifier._knn.removeIds.side_effect = self.mockRemoveIds
-      
+
 
     self.helper.saved_states = []
     self.assertRaises(CLAModelInvalidRangeError,
@@ -317,9 +317,9 @@ class CLAClassifierHelperTest(unittest.TestCase):
 
     self.assertEqual(results, {'status': 'success'})
     self.assertTrue('Test' not in self.helper.saved_states[1].anomalyLabel)
-    
+
     # Verifies records removed from KNN classifier
-    knn = self.helper.clamodel._getAnomalyClassifier().getSelf()._knn
+    knn = self.helper.opfmodel._getAnomalyClassifier().getSelf()._knn
     self.assertEqual(knn.removeIds.mock_calls, [call([11]), call([])])
 
     # Verifies records after removed record are updated
@@ -329,7 +329,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
   @patch.object(CLAModelClassifierHelper, '_getStateAnomalyVector')
   @patch.object(CLAModelClassifierHelper, '_updateState')
   def testRemoveLabelNoFilter(self, _updateState, _getStateAnomalyVector):
-    classifier = self.helper.clamodel._getAnomalyClassifier().getSelf()
+    classifier = self.helper.opfmodel._getAnomalyClassifier().getSelf()
     values = {
       'categoryRecencyList': [10, 11, 12]
     }
@@ -346,21 +346,21 @@ class CLAClassifierHelperTest(unittest.TestCase):
 
     self.assertEqual(results, {'status': 'success'})
     self.assertTrue('Test' not in self.helper.saved_states[1].anomalyLabel)
-    
+
     # Verifies records removed from KNN classifier
-    knn = self.helper.clamodel._getAnomalyClassifier().getSelf()._knn
+    knn = self.helper.opfmodel._getAnomalyClassifier().getSelf()._knn
     self.assertEqual(knn.removeIds.mock_calls, [call([11]), call([])])
 
     # Verifies records after removed record are updated
-    _updateState.assert_called_once_with(self.helper.saved_states[2]) 
+    _updateState.assert_called_once_with(self.helper.saved_states[2])
 
 
   @patch.object(CLAModelClassifierHelper, '_updateState')
   def testSetGetThreshold(self, updateState):
-    self.helper.saved_states = [Mock(), Mock(), Mock()] 
-    
+    self.helper.saved_states = [Mock(), Mock(), Mock()]
+
     self.helper.setAutoDetectThreshold(1.0)
-    
+
     self.assertAlmostEqual(self.helper._autoDetectThreshold, 1.0)
     self.assertEqual(len(updateState.mock_calls), len(self.helper.saved_states))
 
@@ -374,16 +374,16 @@ class CLAClassifierHelperTest(unittest.TestCase):
       Mock(ROWID=10, anomalyLabel=["Test"], setByUser=False),
       Mock(ROWID=11, anomalyLabel=["Test"], setByUser=False),
       Mock(ROWID=12, anomalyLabel=["Test"], setByUser=True)]
-    
+
     self.helper.setAutoDetectWaitRecords(20)
-    
+
     self.assertEqual(self.helper._autoDetectWaitRecords, 20)
     self.assertEqual(len(updateState.mock_calls), len(self.helper.saved_states))
 
     self.assertEqual(self.helper.getAutoDetectWaitRecords(), 20)
 
     # Test invalid parameter type
-    self.assertRaises(Exception, self.helper.setAutoDetectWaitRecords, 
+    self.assertRaises(Exception, self.helper.setAutoDetectWaitRecords,
       'invalid')
 
     # Test invalid value before first record ROWID in cache
@@ -421,7 +421,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     toLabelList.return_value = []
     state = _CLAClassificationRecord(**record)
     self.helper._updateState(state)
-    
+
     self.assertEqual(state.anomalyLabel, \
       [CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL])
     addRecord.assert_called_once_with(state)
@@ -434,7 +434,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     toLabelList.return_value = []
     state = _CLAClassificationRecord(**record)
     self.helper._updateState(state)
-    
+
     self.assertEqual(state.anomalyLabel, [])
     self.assertTrue(not addRecord.called)
 
@@ -458,7 +458,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     recordCopy['setByUser'] = True
     state = _CLAClassificationRecord(**recordCopy)
     self.helper._updateState(state)
-    self.assertEqual(state.anomalyLabel, 
+    self.assertEqual(state.anomalyLabel,
       [recordCopy["anomalyLabel"][0], toLabelList.return_value[0]])
     addRecord.assert_called_once_with(state)
 
@@ -489,7 +489,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
       [CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL]
     state = _CLAClassificationRecord(**recordCopy)
     self.helper._updateState(state)
-    self.assertEqual(state.anomalyLabel, 
+    self.assertEqual(state.anomalyLabel,
       [CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL + \
         CLAModelClassifierHelper.AUTO_TAG])
     addRecord.assert_called_once_with(state)
@@ -508,7 +508,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
       [CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL]
     state = _CLAClassificationRecord(**recordCopy)
     self.helper._updateState(state)
-    self.assertEqual(state.anomalyLabel, 
+    self.assertEqual(state.anomalyLabel,
       [CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL])
     addRecord.assert_called_once_with(state)
 
@@ -519,7 +519,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     values = {
       'categoryRecencyList': [1, 2, 3]
     }
-    classifier = self.helper.clamodel._getAnomalyClassifier().getSelf()
+    classifier = self.helper.opfmodel._getAnomalyClassifier().getSelf()
     classifier.getParameter.side_effect = values.get
     state = {
       "ROWID": 5,
@@ -553,7 +553,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     values = {
       'categoryRecencyList': [1, 2, 3]
     }
-    classifier = self.helper.clamodel._getAnomalyClassifier().getSelf()
+    classifier = self.helper.opfmodel._getAnomalyClassifier().getSelf()
     classifier.getParameter.side_effect = values.get
     classifier._knn._numPatterns = len(values['categoryRecencyList'])
     classifier._knn.removeIds.side_effect = self.mockRemoveIds
@@ -570,7 +570,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     classifier.getParameter.side_effect = values.get
     self.helper._deleteRangeFromKNN(start=1)
     classifier._knn.removeIds.assert_called_once_with([1,2,3,5])
-    
+
 
   @patch.object(CLAModelClassifierHelper, '_getStateAnomalyVector')
   def testRecomputeRecordFromKNN(self, getAnomalyVector):
@@ -580,7 +580,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
       'latestDists': numpy.array([0.7, 0.2, 0.5, 1, 0.3, 0.2, 0.1]),
       'categories': ['A','B','C','D','E','F','G']
     }
-    classifier = self.helper.clamodel._getAnomalyClassifier().getSelf()
+    classifier = self.helper.opfmodel._getAnomalyClassifier().getSelf()
     classifier.getLatestDistances.return_value = values['latestDists']
     classifier.getCategoryList.return_value = values['categories']
     classifier.getParameter.side_effect = values.get
@@ -633,19 +633,19 @@ class CLAClassifierHelperTest(unittest.TestCase):
         'topDownOut': numpy.array([1,0,0,0,1])
       }
     }
-    self.helper.clamodel.getParameter.side_effect = modelParams.get
-    sp = self.helper.clamodel._getSPRegion()
-    tp = self.helper.clamodel._getTPRegion()
+    self.helper.opfmodel.getParameter.side_effect = modelParams.get
+    sp = self.helper.opfmodel._getSPRegion()
+    tp = self.helper.opfmodel._getTPRegion()
     tpImp = tp.getSelf()._tfdr
 
     sp.getParameter.side_effect = spVals['params'].get
     sp.getOutputData.side_effect = spVals['output'].get
 
     self.helper._activeColumnCount = 5
-    
+
     tp.getParameter.side_effect = tpVals['params'].get
     tp.getOutputData.side_effect = tpVals['output'].get
-    
+
     tpImp.getLearnActiveStateT.return_value = tpVals['output']['lrnActive']
 
     # Test TP Cell vector
@@ -756,15 +756,15 @@ class CLAClassifierHelperTest(unittest.TestCase):
       'nupic.model.temporalAnomaly.anomaly_vector': 'tpc'
     }
     configurationGet.side_effect = conf.get
-    helper = CLAModelClassifierHelper(Mock(spec=CLAModel))
+    helper = CLAModelClassifierHelper(Mock(spec=OPFModel))
 
-    self.assertEqual(helper._autoDetectWaitRecords, 
+    self.assertEqual(helper._autoDetectWaitRecords,
       conf['nupic.model.temporalAnomaly.wait_records'])
-    self.assertTrue(helper._autoDetectThreshold, 
+    self.assertTrue(helper._autoDetectThreshold,
       conf['nupic.model.temporalAnomaly.auto_detect_threshold'])
-    self.assertTrue(helper._history_length, 
+    self.assertTrue(helper._history_length,
       conf['nupic.model.temporalAnomaly.window_length'])
-    self.assertTrue(helper._vectorType, 
+    self.assertTrue(helper._vectorType,
       conf['nupic.model.temporalAnomaly.anomaly_vector'])
 
 
@@ -775,7 +775,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
       'nupic.model.temporalAnomaly.anomaly_vector': 'tpc'
     }
     configurationGet.side_effect = conf.get
-    self.assertRaises(TypeError, CLAModelClassifierHelper, Mock(spec=CLAModel))
+    self.assertRaises(TypeError, CLAModelClassifierHelper, Mock(spec=OPFModel))
 
   @patch.object(Configuration, 'get')
   def testSetState(self, configurationGet):
@@ -789,7 +789,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
 
     self.helper._vectorType = None
     state = self.helper.__setstate__(state)
-    self.assertEqual(self.helper._vectorType, 
+    self.assertEqual(self.helper._vectorType,
       conf['nupic.model.temporalAnomaly.anomaly_vector'])
     self.assertEqual(self.helper._version, CLAModelClassifierHelper.__VERSION__)
 
@@ -879,10 +879,10 @@ class CLAClassifierHelperTest(unittest.TestCase):
 
 
   def mockRemoveIds(self, ids):
-    self.helper.clamodel._getAnomalyClassifier().getSelf()._knn._numPatterns -= len(ids)
+    self.helper.opfmodel._getAnomalyClassifier().getSelf()._knn._numPatterns -= len(ids)
     for idx in ids:
-      if idx in self.helper.clamodel._getAnomalyClassifier().getSelf().getParameter('categoryRecencyList'):
-        self.helper.clamodel._getAnomalyClassifier().getSelf().getParameter('categoryRecencyList').remove(idx)
+      if idx in self.helper.opfmodel._getAnomalyClassifier().getSelf().getParameter('categoryRecencyList'):
+        self.helper.opfmodel._getAnomalyClassifier().getSelf().getParameter('categoryRecencyList').remove(idx)
 
 
 
