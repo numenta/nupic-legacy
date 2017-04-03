@@ -2,11 +2,11 @@ Example Data
 ============
 
 The example data we want to feed into the model for the
-`Quick Start <quick-start.html>`_ looks like this:
+`Quick Start <index.html>`_ looks like this:
 
-.. literalinclude:: ../examples/gymdata-example.csv
+.. literalinclude:: ../../examples/data/gymdata-example.csv
 
-`Running Swarmings <guide-swarming.html>`_ and using the `OPF <guide-opf.html>`_
+`Running Swarmings <../guide/swarming.html>`_ and using the `OPF <../guide/opf.html>`_
 requires your input data to be in a certain format, described in this document.
 
 Header Rows

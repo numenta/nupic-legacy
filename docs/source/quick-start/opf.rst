@@ -1,43 +1,11 @@
-Quick Start
-===========
-
-Install NuPIC
--------------
-
-.. code-block:: bash
-
-   pip install nupic [--user]
-
-The ``--user`` is in brackets because it is optional. See the
-`pip reference guide <https://pip.pypa.io/en/stable/reference/pip_install/#cmdoption-user>`_
-for details.
-
-The output of this command should end with:
-
-::
-
-    Successfully installed nupic-X.X.X nupic.bindings-X.X.X
-
-...where ``X.X.X`` represents the most recent version shown at
-https://pypi.python.org/pypi/nupic. If your installation was unsuccessful, you
-can find help on
-`NuPIC Forums <https://discourse.numenta.org/c/nupic/>`_ and on
-`Github <https://github.com/numenta/nupic/issues/>`_.
-
-Choose Your API
----------------
-
-See the `Online Prediction Framework (OPF) <guide-opf.html>`_ and
-`Network API <guide-network-api.html>`_ sections of the `Guide <guide.html>`_.
-
-OPF
----
+Online Prediction Framework (OPF) Quick Start
+---------------------------------------------
 
 Here is the complete program we are going to use as an example. In sections
 below, we'll break it down into parts and explain what is happening (without
 some of the plumbing details).
 
-.. literalinclude:: ../examples/complete-example.py
+.. literalinclude:: ../../examples/opf/complete-example.py
 
 Model Parameters
 ^^^^^^^^^^^^^^^^
@@ -60,7 +28,7 @@ Create an OPF Model
 The easiest way to create a model once you have access to model parameters is by
 using the :class:`.ModelFactory`.
 
-.. literalinclude:: ../examples/create-model-example.py
+.. literalinclude:: ../../examples/opf/create-model-example.py
 
 The resulting ``model`` will be an instance of :class:`.CLAModel`.
 
@@ -72,7 +40,7 @@ The raw input data file is described `here <example-data.html>`_ in detail.
 Our `model parameters <example-model-params.html>`_ define how this data will be
 encoded in the ``encoders`` section:
 
-.. literalinclude:: ../examples/example-model-param-encoders.py
+.. literalinclude:: ../../examples/opf/example-model-param-encoders.py
 
 Notice that three semantic values are being encoded into the input space. The
 first is the scalar energy ``consumption`` value, which is being encoded with
@@ -89,7 +57,7 @@ Now that you see the raw input data and how it is configured to be encoded into
 binary arrays for the HTM to process it, let's see the code that actually reads
 the CSV data file and runs it through our ``model``.
 
-.. literalinclude:: ../examples/load-model-example.py
+.. literalinclude:: ../../examples/opf/load-model-example.py
 
 Extract the results
 ^^^^^^^^^^^^^^^^^^^
@@ -102,7 +70,7 @@ and five steps into the future as shown by the value ``1,5``.
 This means the ``results`` object will have prediction information keyed by both
 ``1`` and ``5``.
 
-.. literalinclude:: ../examples/results-example.py
+.. literalinclude:: ../../examples/opf/results-example.py
 
 As you can see in the example above, the ``results`` object contains an
 ``inferences`` property that contains all the information about predictions.
@@ -134,8 +102,3 @@ confidences in the console output, which should look something like this:
     1-step:             38.2 (89.59%)	5-step:             38.2 (92.61%)
 
 **Congratulations! You've got HTM predictions for a scalar data stream!**
-
-Network API
------------
-
-**UNDER CONSTRUCTION**
