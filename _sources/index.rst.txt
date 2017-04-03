@@ -14,9 +14,9 @@ Contents
 .. toctree::
     :maxdepth: 4
 
-    quick-start
-    guide
-    api
+    quick-start/index
+    guide/index
+    api/index
 
 Other Resources
 ===============
