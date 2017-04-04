@@ -14,6 +14,7 @@ SPTMModel
 .. autoclass:: nupic.frameworks.opf.sptmmodel.SPTMModel
    :members:
    :show-inheritance:
+=======
 
 TwoGramModel
 ^^^^^^^^^^^^
