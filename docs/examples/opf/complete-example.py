@@ -7,8 +7,7 @@ from nupic.frameworks.opf.modelfactory import ModelFactory
 import model_params
 
 _NUM_RECORDS = 3000
-_INPUT_FILE_PATH = "gymdata.csv"
-lastSeenValue = None
+_INPUT_FILE_PATH = "../data/gymdata.csv"
 
 def createModel():
   return ModelFactory.create(model_params.MODEL_PARAMS)
