@@ -74,7 +74,7 @@ permutations = {
       },
     },
 
-    'tpParams': {
+    'tmParams': {
       'activationThreshold': [12, 16],
       'minThreshold': [9, 12],
     },

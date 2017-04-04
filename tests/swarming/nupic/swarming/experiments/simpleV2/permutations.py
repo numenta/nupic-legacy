@@ -37,7 +37,7 @@ from nupic.swarming.permutationhelpers import *
 predictedField = 'consumption'
 
 permutations = {
-  
+
   'modelParams': {
     'sensorParams': {
       'encoders': {
@@ -48,14 +48,14 @@ permutations = {
         'address': PermuteEncoder(fieldName='address', encoderClass='SDRCategoryEncoder', w=7, n=100),
       },
     },
-  
-  
-    'tpParams': {
+
+
+    'tmParams': {
       'minThreshold': PermuteInt(9, 12),
       'activationThreshold': PermuteInt(12, 16),
     },
-  
-  
+
+
     }
 }
 
@@ -79,10 +79,10 @@ minimize = 'prediction:rmse:field=consumption'
 
 def dummyModelParams(perm):
   """ This function can be used for Hypersearch algorithm development. When
-  present, Hypersearch doesn't actually run the CLA model in the OPF, but 
-  instead runs a dummy model. This function returns the dummy model params that 
+  present, Hypersearch doesn't actually run the CLA model in the OPF, but
+  instead runs a dummy model. This function returns the dummy model params that
   will be used. See the OPFDummyModelRunner class source code (in
-  nupic.swarming.ModelRunner) for a description of the schema 
+  nupic.swarming.ModelRunner) for a description of the schema
   for the dummy model params.
   """
 

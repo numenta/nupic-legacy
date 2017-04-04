@@ -220,7 +220,7 @@ class PositiveTests(MyTestCaseBase):
     modelDesc = expIface.getModelDescription()
 
     tpActivationThreshold = modelDesc['modelParams'] \
-        ['tpParams']['activationThreshold']
+        ['tmParams']['activationThreshold']
 
     expectedValue = 12
     self.assertEqual(tpActivationThreshold, expectedValue,

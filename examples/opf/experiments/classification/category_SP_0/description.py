@@ -26,15 +26,15 @@ from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
 
 # the sub-experiment configuration
 config = \
-{ 
-  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
+{
+  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__),
                                          '../datasets/category_SP_0.csv'),
   'modelParams': { 'clParams': { 'verbosity': 1},
                    'inferenceType': 'NontemporalClassification',
                    'sensorParams': { 'encoders': { }, 'verbosity': 1},
                    'spParams': { 'spVerbosity': 1 },
-                   'tpEnable': False,
-                   'tpParams': { }}}
+                   'tmEnable': False,
+                   'tmParams': { }}}
 
 mod = importBaseDescription('../base_category/description.py', config)
 locals().update(mod.__dict__)

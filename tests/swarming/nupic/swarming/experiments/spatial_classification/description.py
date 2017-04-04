@@ -94,7 +94,7 @@ config = {
 
     # Intermediate variables used to compute fields in modelParams and also
     # referenced from the control section.
-    'aggregationInfo': {   
+    'aggregationInfo': {
       'fields': [],
       'days': 0,
       'hours': 0,
@@ -106,7 +106,7 @@ config = {
       'weeks': 0,
       'years': 0
     },
-    
+
     'predictAheadTime': None,
 
     # Model parameter dictionary.
@@ -127,15 +127,15 @@ config = {
             #     ],
             #
             # (value generated from DS_ENCODER_SCHEMA)
-            'encoders': {   
-              'address': { 
+            'encoders': {
+              'address': {
                 'fieldname': u'address',
                  'n': 300,
                  'name': u'address',
                  'type': 'SDRCategoryEncoder',
                  'w': 21
               },
-              '_classifierInput': {   
+              '_classifierInput': {
                  'name': u'_classifierInput',
                  'fieldname': u'consumption',
                  'classifierOnly': True,
@@ -146,20 +146,20 @@ config = {
                  'type': 'ScalarEncoder',
                  'w': 21
               },
-              'gym': {   
+              'gym': {
                 'fieldname': u'gym',
                 'n': 300,
                 'name': u'gym',
                 'type': 'SDRCategoryEncoder',
                 'w': 21
               },
-              'timestamp_dayOfWeek': {   
+              'timestamp_dayOfWeek': {
                 'dayOfWeek': (7, 3),
                 'fieldname': u'timestamp',
                 'name': u'timestamp_dayOfWeek',
                 'type': 'DateEncoder'
               },
-              'timestamp_timeOfDay': {   
+              'timestamp_timeOfDay': {
                 'fieldname': u'timestamp',
                 'name': u'timestamp_timeOfDay',
                 'timeOfDay': (7, 8),
@@ -230,9 +230,9 @@ config = {
         # TP is necessary for making temporal predictions, such as predicting
         # the next inputs.  Without TP, the model is only capable of
         # reconstructing missing sensor inputs (via SP).
-        'tpEnable' : False,
+        'tmEnable' : False,
 
-        'tpParams': {
+        'tmParams': {
             # TP diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
             # (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)
@@ -318,7 +318,7 @@ config = {
 
         'clParams': {
             'regionName' : 'SDRClassifierRegion',
-            
+
             'implementation': 'py',
 
             # Classifier diagnostic output verbosity control;
@@ -393,8 +393,8 @@ control = {
   # Metrics: A list of MetricSpecs that instantiate the metrics that are
   # computed for this experiment
   'metrics':[
-    MetricSpec(field=u'consumption', metric='multiStep', 
-               inferenceElement='multiStepBestPredictions', 
+    MetricSpec(field=u'consumption', metric='multiStep',
+               inferenceElement='multiStepBestPredictions',
                params={'window': 1000, 'steps': [0], 'errorMetric': 'avg_err'})
   ],
 

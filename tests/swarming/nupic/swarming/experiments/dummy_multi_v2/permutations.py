@@ -39,7 +39,7 @@ numModels = int(os.environ.get('NTA_TEST_max_num_models',10))
 
 permutations = {
   '__model_num' : PermuteInt(0, numModels-1, 1),
-  
+
   'modelParams': {
     'sensorParams': {
       'encoders': {
@@ -50,14 +50,14 @@ permutations = {
         'address': PermuteEncoder(fieldName='address', encoderClass='SDRCategoryEncoder', w=7, n=100),
       },
     },
-  
-  
-    'tpParams': {
+
+
+    'tmParams': {
       'minThreshold': PermuteInt(9, 12),
       'activationThreshold': PermuteInt(12, 16),
     },
-  
-  
+
+
     }
 }
 

@@ -40,37 +40,37 @@ predictedField = 'consumption'
 
 
 permutations = {
-  
+
   'modelParams': {
     'sensorParams': {
       'encoders': {
-        'consumption': PermuteEncoder(fieldName='consumption', 
-                  encoderClass='ScalarEncoder', 
-                  maxval=PermuteInt(100, 300, 25), 
+        'consumption': PermuteEncoder(fieldName='consumption',
+                  encoderClass='ScalarEncoder',
+                  maxval=PermuteInt(100, 300, 25),
                   n=PermuteInt(13, 500, 20), w=7, minval=0),
-        'gym': PermuteEncoder(fieldName='gym', 
+        'gym': PermuteEncoder(fieldName='gym',
                   encoderClass='SDRCategoryEncoder', w=7, n=100),
-        'timestamp_dayOfWeek': PermuteEncoder(fieldName='timestamp', 
-                  encoderClass='DateEncoder.dayOfWeek', 
+        'timestamp_dayOfWeek': PermuteEncoder(fieldName='timestamp',
+                  encoderClass='DateEncoder.dayOfWeek',
                   radius=PermuteChoices([1, 3]), w=7),
-        'timestamp_timeOfDay': PermuteEncoder(fieldName='timestamp', 
-                  encoderClass='DateEncoder.timeOfDay', 
+        'timestamp_timeOfDay': PermuteEncoder(fieldName='timestamp',
+                  encoderClass='DateEncoder.timeOfDay',
                   radius=PermuteChoices([1, 8]), w=7),
-        'address': PermuteEncoder(fieldName='address', 
+        'address': PermuteEncoder(fieldName='address',
                   encoderClass='SDRCategoryEncoder', w=7, n=100),
-        '_classifierInput': dict(fieldname='consumption', 
-                  classifierOnly=True, encoderClass='ScalarEncoder', 
-                  maxval=PermuteInt(100, 300, 25), 
+        '_classifierInput': dict(fieldname='consumption',
+                  classifierOnly=True, encoderClass='ScalarEncoder',
+                  maxval=PermuteInt(100, 300, 25),
                   n=PermuteInt(13, 500, 20), w=7, minval=0),
       },
     },
 
     'spParams': {
-      
+
     },
 
-    'tpParams': {
-      
+    'tmParams': {
+
     },
 
     'clParams': {
@@ -104,10 +104,10 @@ inputPredictedField = os.environ.get("NTA_TEST_inputPredictedField", "auto")
 
 def dummyModelParams(perm):
   """ This function can be used for Hypersearch algorithm development. When
-  present, Hypersearch doesn't actually run the CLA model in the OPF, but 
-  instead runs a dummy model. This function returns the dummy model params that 
+  present, Hypersearch doesn't actually run the CLA model in the OPF, but
+  instead runs a dummy model. This function returns the dummy model params that
   will be used. See the OPFDummyModelRunner class source code (in
-  nupic.swarming.ModelRunner) for a description of the schema 
+  nupic.swarming.ModelRunner) for a description of the schema
   for the dummy model params.
   """
 
@@ -116,7 +116,7 @@ def dummyModelParams(perm):
   #   any address encoder
   #   any gym encoder
   #   no other fields
-  
+
   errScore = 50
 
   if perm['modelParams']['sensorParams']['encoders']['consumption'] is not None:
@@ -127,11 +127,11 @@ def dummyModelParams(perm):
 
   if perm['modelParams']['sensorParams']['encoders']['gym'] is not None:
     errScore -= 20
-  
+
   if perm['modelParams']['sensorParams']['encoders']['timestamp_timeOfDay'] \
         is not None:
     errScore -= 30
-  
+
   if perm['modelParams']['sensorParams']['encoders']['timestamp_dayOfWeek'] \
         is not None:
     errScore -= 40

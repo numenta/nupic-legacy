@@ -230,7 +230,7 @@ def tmParamsFn(cellsPerColumn):
   }
 
 
-def tpParamsFn(cellsPerColumn):
+def tmParamsFn(cellsPerColumn):
   return {
     "numberOfCols": 2048,
     "cellsPerColumn": cellsPerColumn,
@@ -321,7 +321,7 @@ if __name__ == "__main__":
     import nupic.research.TP
     benchmark.addContestant(
       nupic.research.TP.TP,
-      paramsFn=tpParamsFn,
+      paramsFn=tmParamsFn,
       computeFn=tpComputeFn,
       name="tp_py")
 
@@ -329,7 +329,7 @@ if __name__ == "__main__":
     import nupic.research.TP10X2
     benchmark.addContestant(
       nupic.research.TP10X2.TP10X2,
-      paramsFn=tpParamsFn,
+      paramsFn=tmParamsFn,
       computeFn=tpComputeFn,
       name="tp_cpp")
 

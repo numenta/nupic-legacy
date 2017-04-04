@@ -37,7 +37,7 @@ from nupic.swarming.permutationhelpers import *
 predictedField = 'consumption'
 
 permutations = {
-  
+
   'modelParams': {
     'sensorParams': {
       'encoders': {
@@ -48,14 +48,14 @@ permutations = {
         'address': PermuteEncoder(fieldName='address', encoderClass='SDRCategoryEncoder', w=21, n=300),
       },
     },
-  
-  
-    'tpParams': {
+
+
+    'tmParams': {
       'minThreshold': PermuteInt(9, 12),
       'activationThreshold': PermuteInt(12, 16),
     },
-  
-  
+
+
     }
 }
 
