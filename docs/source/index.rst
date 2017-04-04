@@ -12,10 +12,10 @@ Contents
 ========
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 3
 
     quick-start/index
-    guide/index
+    guides/index
     api/index
 
 Other Resources

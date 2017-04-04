@@ -14,8 +14,8 @@ CLAModel
 This class is poorly named.
 
 .. autoclass:: nupic.frameworks.opf.clamodel.CLAModel
-   :members:
-   :show-inheritance:
+  :members:
+  :show-inheritance:
 
 TwoGramModel
 ^^^^^^^^^^^^
