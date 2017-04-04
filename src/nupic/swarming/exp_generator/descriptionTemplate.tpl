@@ -293,7 +293,7 @@ config = {
   # inputs.  Without TP, the model is only capable of reconstructing missing sensor
   # inputs (via SP).
   #
-  'tpEnable' : True,
+  'tmEnable' : True,
 
   # The number of cells (i.e., states), allocated per column
   #

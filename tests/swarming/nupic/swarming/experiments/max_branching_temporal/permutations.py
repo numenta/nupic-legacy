@@ -37,7 +37,7 @@ from nupic.swarming.permutationhelpers import *
 predictedField = 'attendance'
 
 permutations = {
-  
+
   'modelParams': {
     'sensorParams': {
       'encoders': {
@@ -50,14 +50,14 @@ permutations = {
         'home_winloss': PermuteEncoder(fieldName='home_winloss', encoderClass='AdaptiveScalarEncoder', maxval=0.7, n=PermuteInt(13, 500, 25), clipInput=True, w=7, minval=0),
       },
     },
-  
-  
-    'tpParams': {
+
+
+    'tmParams': {
       'minThreshold': PermuteInt(9, 12),
       'activationThreshold': PermuteInt(12, 16),
     },
-  
-  
+
+
     }
 }
 

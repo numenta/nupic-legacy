@@ -26,14 +26,14 @@ from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
 
 # the sub-experiment configuration
 config = \
-{ 
-  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
+{
+  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__),
                                          '../datasets/category_TP_0.csv'),
   'modelParams': { 'clParams': { 'verbosity': 0},
                    'sensorParams': { 'encoders': { }, 'verbosity': 0},
                    'spParams': { },
-                   'tpEnable': True,
-                   'tpParams': { }}}
+                   'tmEnable': True,
+                   'tmParams': { }}}
 
 mod = importBaseDescription('../base_category/description.py', config)
 locals().update(mod.__dict__)

@@ -37,26 +37,26 @@ from nupic.swarming.permutationhelpers import *
 predictedField = 'consumption'
 
 permutations = {
-  
+
   'modelParams': {
     'sensorParams': {
       'encoders': {
-        'consumption': PermuteEncoder(fieldName='consumption', 
+        'consumption': PermuteEncoder(fieldName='consumption',
                                       encoderClass='ScalarEncoder',
-                                       maxval=PermuteInt(100, 300, 1), 
-                                       n=PermuteInt(13, 500, 1), 
-                                       w=7, 
+                                       maxval=PermuteInt(100, 300, 1),
+                                       n=PermuteInt(13, 500, 1),
+                                       w=7,
                                        minval=0),
       },
     },
-  
-  
-    'tpParams': {
+
+
+    'tmParams': {
       'minThreshold': PermuteInt(9, 12),
       'activationThreshold': PermuteInt(12, 16),
     },
-  
-  
+
+
     }
 }
 

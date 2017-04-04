@@ -33,8 +33,8 @@ from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
 
 # the sub-experiment configuration
 config ={
-  'modelParams' : {'sensorParams': {'encoders': {u'c0_timeOfDay': None, u'c0_dayOfWeek': None, u'c1': {'name': 'c1', 'clipInput': True, 'n': 275, 'fieldname': 'c1', 'w': 21, 'type': 'AdaptiveScalarEncoder'}, u'c0_weekend': None}}, 'inferenceType': 'NontemporalMultiStep', 'spParams': {'synPermInactiveDec': 0.052500000000000005}, 'tpParams': {'minThreshold': 11, 'activationThreshold': 14, 'pamLength': 3}, 'clParams': {'alpha': 0.050050000000000004}},
-  
+  'modelParams' : {'sensorParams': {'encoders': {u'c0_timeOfDay': None, u'c0_dayOfWeek': None, u'c1': {'name': 'c1', 'clipInput': True, 'n': 275, 'fieldname': 'c1', 'w': 21, 'type': 'AdaptiveScalarEncoder'}, u'c0_weekend': None}}, 'inferenceType': 'NontemporalMultiStep', 'spParams': {'synPermInactiveDec': 0.052500000000000005}, 'tmParams': {'minThreshold': 11, 'activationThreshold': 14, 'pamLength': 3}, 'clParams': {'alpha': 0.050050000000000004}},
+
   'firstRecord': 250,
   'lastRecord': 500,
 }

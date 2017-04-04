@@ -29,7 +29,7 @@ config = \
 { 'modelParams': { 'clParams': { },
                    'sensorParams': { 'encoders': { }},
                    'spParams': { },
-                   'tpParams': { 'activationThreshold': 12}}}
+                   'tmParams': { 'activationThreshold': 12}}}
 
 mod = importBaseDescription('./base.py', config)
 locals().update(mod.__dict__)

@@ -42,7 +42,7 @@ config = \
                                                    'timestamp_weekend': None},
                                      'verbosity': 0},
                    'spParams': { },
-                   'tpParams': { 'activationThreshold': 14,
+                   'tmParams': { 'activationThreshold': 14,
                                  'minThreshold': 12,
                                  'verbosity': 0}},
   'numRecords': 16000}

@@ -71,7 +71,7 @@ MODEL_PARAMS = {
         'spParams': {
             'spVerbosity' : 0,
             'globalInhibition': 1,
-            'spatialImp' : 'cpp', 
+            'spatialImp' : 'cpp',
             'columnCount': 512,
             'inputWidth': 0,
             'numActiveColumnsPerInhArea': 20,
@@ -81,8 +81,8 @@ MODEL_PARAMS = {
             'synPermActiveInc': 0.1,
             'synPermInactiveDec': 0.005,
         },
-        'tpEnable' : True,
-        'tpParams': {
+        'tmEnable' : True,
+        'tmParams': {
             'verbosity': 0,
             'columnCount': 512,
             'cellsPerColumn': 8,
@@ -124,21 +124,21 @@ class CheckpointStressTest(TestCaseBase):
     model = ModelFactory.create(MODEL_PARAMS)
     model.enableInference({'predictedField': 'consumption'})
     headers = ['timestamp', 'consumption']
-  
+
     # Now do a bunch of small load/train/save batches
-    for _ in range(20):  
+    for _ in range(20):
 
       for _ in range(2):
         record = [datetime.datetime(2013, 12, 12), numpy.random.uniform(100)]
         modelInput = dict(zip(headers, record))
         model.run(modelInput)
-  
+
       # Save and load a checkpoint after each batch. Clean up.
       tmpBundleName = os.path.join(tmpDir, "test_checkpoint")
       self.assertIs(model.save(tmpBundleName), None, "Save command failed.")
       model = ModelFactory.loadFromCheckpoint(tmpBundleName)
       shutil.rmtree(tmpBundleName)
-    
+
 
 if __name__ == "__main__":
   unittest.main()

@@ -63,8 +63,8 @@
         "synPermInactiveDec": 0.0005
       },
       "trainSPNetOnlyIfRequested": false,
-      "tpEnable": true,
-      "tpParams": {
+      "tmEnable": true,
+      "tmParams": {
         "activationThreshold":20,
         "cellsPerColumn": 32,
         "columnCount": 2048,

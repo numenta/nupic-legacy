@@ -37,37 +37,37 @@ from nupic.swarming.permutationhelpers import *
 predictedField = 'value'
 
 permutations = {
-  
+
   'modelParams': {
     'sensorParams': {
       'encoders': {
-        'value': PermuteEncoder(fieldName='value', 
-                                encoderClass='ScalarSpaceEncoder', 
-                                space=PermuteChoices(['delta', 'absolute']), 
-                                clipInput=True, 
-                                w=21, 
+        'value': PermuteEncoder(fieldName='value',
+                                encoderClass='ScalarSpaceEncoder',
+                                space=PermuteChoices(['delta', 'absolute']),
+                                clipInput=True,
+                                w=21,
                                 n=PermuteInt(28, 521)),
-        '_classifierInput': dict(fieldname='value', 
-                                type='ScalarSpaceEncoder', 
+        '_classifierInput': dict(fieldname='value',
+                                type='ScalarSpaceEncoder',
                                 classifierOnly=True,
-                                space=PermuteChoices(['delta', 'absolute']), 
-                                clipInput=True, 
-                                w=21, 
+                                space=PermuteChoices(['delta', 'absolute']),
+                                clipInput=True,
+                                w=21,
                                 n=PermuteInt(28, 521)),
       },
     },
-  
-  
-    'tpParams': {
+
+
+    'tmParams': {
       'minThreshold': PermuteInt(9, 12),
       'activationThreshold': PermuteInt(12, 16),
       'pamLength': PermuteInt(1, 5),
     },
-  
+
     'clParams': {
       'alpha': PermuteFloat(0.000100, 0.100000),
     },
-  
+
     }
 }
 

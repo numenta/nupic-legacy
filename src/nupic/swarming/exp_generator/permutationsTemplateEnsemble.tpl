@@ -51,7 +51,7 @@ permutations = {
       $PERM_SP_CHOICES
     },
 
-    'tpParams': {
+    'tmParams': {
       $PERM_TP_CHOICES
     },
 

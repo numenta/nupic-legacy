@@ -37,8 +37,7 @@ PERMANENCE_EPSILON = 0.000001
 
 
 class InvalidSPParamValueError(ValueError):
-  """The user passed an invalid value for a SpatialPooler parameter
-  """
+  """The user passed an invalid value for a SpatialPooler parameter"""
   pass
 
 
@@ -54,22 +53,19 @@ class _SparseMatrixCorticalColumnAdapter(object):
   """
 
   def __getitem__(self, columnIndex):
-    """ Wraps getRow() such that instances may be indexed by columnIndex.
-    """
+    """ Wraps getRow() such that instances may be indexed by columnIndex."""
     return super(_SparseMatrixCorticalColumnAdapter, self).getRow(columnIndex)
 
 
   def replace(self, columnIndex, bitmap):
-    """ Wraps replaceSparseRow()
-    """
+    """ Wraps replaceSparseRow()"""
     return super(_SparseMatrixCorticalColumnAdapter, self).replaceSparseRow(
       columnIndex, bitmap
     )
 
 
   def update(self, columnIndex, vector):
-    """ Wraps setRowFromDense()
-    """
+    """ Wraps setRowFromDense()"""
     return super(_SparseMatrixCorticalColumnAdapter, self).setRowFromDense(
       columnIndex, vector
     )
