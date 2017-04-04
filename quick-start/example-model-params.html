@@ -162,13 +162,13 @@ the <a class="reference external" href="index.html">Quick Start</a>.</p>
             <span class="s1">&#39;boostStrength&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
         <span class="p">},</span>
 
-        <span class="c1"># Controls whether TP is enabled or disabled;</span>
-        <span class="c1"># TP is necessary for making temporal predictions, such as predicting</span>
-        <span class="c1"># the next inputs.  Without TP, the model is only capable of</span>
+        <span class="c1"># Controls whether TM is enabled or disabled;</span>
+        <span class="c1"># TM is necessary for making temporal predictions, such as predicting</span>
+        <span class="c1"># the next inputs.  Without TM, the model is only capable of</span>
         <span class="c1"># reconstructing missing sensor inputs (via SP).</span>
-        <span class="s1">&#39;tpEnable&#39;</span> <span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;tmEnable&#39;</span> <span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
 
-        <span class="s1">&#39;tpParams&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;tmParams&#39;</span><span class="p">:</span> <span class="p">{</span>
             <span class="c1"># TP diagnostic output verbosity control;</span>
             <span class="c1"># 0: silent; [1..6]: increasing levels of verbosity</span>
             <span class="c1"># (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)</span>
