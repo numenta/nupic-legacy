@@ -1,5 +1,9 @@
-Online Prediction Framework (OPF) Quick Start
----------------------------------------------
+.. include:: common.rst
+
+Online Prediction Framework (OPF)
+---------------------------------
+
+See the `OPF Guide <../guide/opf.html>`_ for an overview of this API.
 
 Here is the complete program we are going to use as an example. In sections
 below, we'll break it down into parts and explain what is happening (without
@@ -45,10 +49,11 @@ encoded in the ``encoders`` section:
 Notice that three semantic values are being encoded into the input space. The
 first is the scalar energy ``consumption`` value, which is being encoded with
 the :class:`.RandomDistributedScalarEncoder`. The next two values represent two
-different aspects of time. The encoder called ``timestamp_timeOfDay`` encodes
-the time of day, while the ``timestamp_weekend`` encoder will output different
-representations for weekends vs weekdays. The :class:`.CLAModel` will combine
-these encodings using the :class:`.MultiEncoder`.
+different aspects of time using the :class:`.DateEncoder`. The encoder called
+``timestamp_timeOfDay`` encodes the time of day, while the ``timestamp_weekend``
+encoder will output different representations for weekends vs weekdays. The
+:class:`.CLAModel` will combine these encodings using the
+:class:`.MultiEncoder`.
 
     For details about encoding and how these encoders work, see the
     `HTM School <https://numenta.org/htm-school/>`_ episodes on encoders.

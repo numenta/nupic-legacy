@@ -1,4 +1,6 @@
-Network API Quick Start
------------------------
+.. include:: common.rst
+
+Network API
+-----------
 
 **UNDER CONSTRUCTION**
