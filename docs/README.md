@@ -2,7 +2,7 @@
 
 ## Usage
 * Install `nupic` in dev mode: `python setup.py develop --user`
-* Install dev dependencies: `pip install -r requirements-dev.txt --user` 
+* Install dev dependencies: `pip install -r requirements-dev.txt --user`
 * Build the docs by running: `make html`
 * Or instead, to build the docs and watch for changes in the code and `.rst` files, run:
 ```
@@ -13,7 +13,7 @@ sphinx-autobuild  ${NUPIC}/docs/source  ${NUPIC}/docs/_build_html  \
 ## Documentation status
 List of NuPIC packages and their documentation status:
 * `TODO`: Package doc needs to be reviewed and potentially converted to RST
-* `OK`: Package RST doc reviewed and approved. 
+* `OK`: Package RST doc reviewed and approved.
 
 ```
 nupic
