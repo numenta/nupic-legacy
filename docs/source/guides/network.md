@@ -5,13 +5,13 @@
 
 [![Thumbnail of Network API video](http://img.youtube.com/vi/g9yS9zFt3dM/hqdefault.jpg)](https://www.youtube.com/watch?v=g9yS9zFt3dM)
 
-## 1	Introduction
+## Introduction
 
 The Numenta Platform for Intelligent Computing (NuPIC) allows programmers to design, create, train, test, and deploy Hierarchical Temporary Memory (HTM) technology.
 As described in the NuPIC 2 Overview document, NuPIC consists of a Network Engine library along with layered software including examples and frameworks.
 Core HTM functionality is provided by the Network Engine, which can create and manipulate HTM Networks.
 
-## 2	Goals and Technical Requirements
+## Goals and Technical Requirements
 
 An HTM Network is a collection of Regions that implement HTM algorithms and other algorithms.
 The Network Engine allows users to create and manipulate HTM Networks, including:
@@ -34,9 +34,9 @@ A "Network" is a Network, not a proxy; no asynchronous operation; exceptions pro
 -	Easy to add support for new algorithms.
 Modular architecture for algorithms; isolate algorithm developers from needing to know much about Network Engine internals.
 
-## 3	Overview of the Network Engine
+## Overview of the Network Engine
 
-### 3.1	Network Structure
+### Network Structure
 
 An example HTM network is shown in Figure 1.
 
@@ -48,7 +48,7 @@ The key structural features of this network are:
 -	The output of one region may be connected to the input of another region with a link.
 While the figure does not show it, an input may be linked to multiple outputs and vice-versa.
 
-#### 3.2	Object Model
+### Object Model
 
 The Network Engine is a library written in C++, using an object-oriented design.
 
@@ -69,7 +69,7 @@ Note: As of 10/2010, a Region is logically a collection of one or more nodes, an
 It is possible that we will remove nodes from the object model.
 Because of this, nodes and region functionality related to nodes are not described in this document.
 
-#### 3.3	Internal and External API
+### Internal and External API
 
 NuPIC users access the Network Engine through the Core API.
 The Core API does not include the full object model.
@@ -83,12 +83,12 @@ There are three types of methods in the Network Engine object model.
 -	Public/internal methods are declared "public" in the C++ definition and are not exposed in the Core API. They are used internally by other classes within the Network Engine.
 -	Private methods are declared "private" in the C++ definition and are only available to the class for which they are defined.
 
-### 4	Network Engine Classes
+## Network Engine Classes
 
 This section gives an overview of each important class.
 It assumes that the reader has access to header and implementation files in `nta/*`.
 
-#### 4.1	Network
+###	Network
 
 Network is the "root" object in the Network Engine.
 All other objects are contained within a Network object, either directly or indirectly.
@@ -114,7 +114,7 @@ It also appears as the key in the Network's Region collection, where it is used 
 The second is the phase information, which the network stores in a way that allows it so quickly select all regions at a given phase, and which the Region stores to facilitate serialization.
 The network controls both pieces of information, and there is no public/external API on Region to set the name or phase of a Region.
 
-#### 4.2	Region
+###	Region
 
 A Region is the fundamental computational unit in an HTM.
 A Region has inputs and outputs, and has a `compute()` method that generates the outputs (from inputs, internal state, and perhaps external data sources, such as a file).
@@ -142,7 +142,7 @@ They could not be templated because they are passed through to `RegionImpl`, and
 
 The `prepareInputs()` method of Region evaluates all of the incoming links and copies necessary data into each of the Region's inputs.
 
-#### 4.3	RegionImpl
+###	RegionImpl
 
 The `RegionImpl` does all of the algorithm-specific work of a Region.
 It is a base class from which the actual algorithm-specific class is derived.
@@ -160,7 +160,7 @@ there are no proxies and no asynchronous behavior (unlike in the previous versio
 The `RegionImpl` supplies (via a class method) the RegionSpec for the type of Region it implements.
 The `RegionSpec` includes a list of inputs, outputs, parameters, and execute methods.
 
-#### 4.4	Output
+###	Output
 
 An Output is essentially a contiguous buffer of typed data (in the `data_` member), plus a list of Links whose source is that Output.
 The buffer is not allocated when the Output is created, but in the `initialize()` method, which is called (indirectly) at Network initialization time.
@@ -179,7 +179,7 @@ If we move to one node per Region, the output size will be given directly by the
 
 The Output has a list of pointers to Links for which it is the source, but it does not own those links (links are owned by the Input on the other side).
 
-#### 4.5	Input
+###	Input
 
 An Input has similar structure to an Output --
 it has a contiguous buffer of typed data, plus a list of Links whose destination is that Input.
@@ -198,7 +198,7 @@ Currently, data is always copied from the source Output into the destination Inp
 If an Input has only a single incoming Link, then there is a one-to-one mapping between an Output and Input, and the Input buffer can simply be a pointer to the linked Output buffer.
 This optimization is deferred until there is a demonstrated need.
 
-#### 4.6	Link
+###	Link
 
 A Link is logically a connection from one Output to one Input.
 Internally, the Link keeps track of this information in two ways.
@@ -221,16 +221,16 @@ Specifically, it can generate a splitter map, or directly generate the input for
 This functionality is not described here because it may be removed.
 A Link contains a `LinkPolicy`, also not described here, which is responsible for generating the splitter map.
 
-#### 4.7	Collection
+###	Collection
 
 A Collection is a templatized container used throughout the API instead of STL containers.
 It is easy to wrap, because its interface is simpler than an STL interface, and it provides a consistent way to access collections of objects.
 A container provides lookup by name and index.
 In the external API, a container is always read-only.
 
-### 5	Specific topics
+## Specific topics
 
-#### 5.1	Network serialization
+###	Network serialization
 
 Networks are serialized into a "bundle", which is a directory with several files.
 Automatic Zip support (so that the network bundle can be distributed as a single file) is anticipated, but won't be implemented until there is a demonstrated need.
@@ -250,7 +250,7 @@ Network serialization proceeds as follows:
 
 Network de-serialization is the reverse of the serialization process.
 
-#### 5.2	Network initialization
+###	Network initialization
 
 Network initialization involves a complicated choreography.
 Much of the complication is related to inducing dimensions on Regions and making sure that all dimensions are consistent.
@@ -262,7 +262,7 @@ That part of network initialization is not described here because Region dimensi
 3. Initialize the RegionImpl in each Region. The `RegionImpl` is given pointers to its input and output buffers, which it can safely cache.
 4. Set the minimum and maximum enabled phase for the Network.
 
-#### 5.3	Running a network
+###	Running a network
 
 The main job of a Network is to choreograph Region computation by calling Region `compute()` methods in the right order.
 The network associates with each region a list of one or more integer phases.
@@ -281,7 +281,7 @@ A network callback is an arbitrary user-specified function that is called at eve
 An arbitrary number of network callbacks may be attached to a Network.
 Callbacks allow us to add functionality (such as watchers) without changing or expanding the Core API.
 
-### 6	History, Implementation Status and Future Plans
+## History, Implementation Status and Future Plans
 
 * Currently a Region is logically composed of one or more Nodes.
 The Node class may be removed, as it does not appear to be necessary with the new algorithms.
