@@ -1,5 +1,5 @@
-Algorithm API
--------------
+Algorithms
+----------
 
 There are several components to an HTM system:
 
@@ -16,4 +16,14 @@ synapse permanences between the Spatial Pooler's columns and the input space.
 Temporal representations are maintained within the *distal* synapse permanences
 between the cells in the Temporal Memory representation.
 
-See the low-level APIs for `Encoders <../api/encoders.html>`_ and `Algorithms <../api/algorithms.html>`_.
+--------------------------------------------
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Contents:
+
+   encoders
+   spatial-pooler
+   temporal-memory
+   classifiers
+   anomaly-detection

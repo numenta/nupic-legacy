@@ -33,8 +33,9 @@ Choose Your API
 ---------------
 
 You can choose to construct an HTM several ways with NuPIC. See the
-`Guide <../guide/index.html>`_ for more details. Below are Quick Start guides for each
-interface:
+`Network Guide <../guides/network.html>`_ and
+`Network API Docs <../api/network/>`_ for more details. Below are Quick Start
+guides for each interface:
 
 .. toctree::
     :maxdepth: 2
