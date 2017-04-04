@@ -1,0 +1,630 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Algorithms API &#8212; NuPIC 0.6.1.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.6.1.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Guide" href="../guide/index.html" />
+    <link rel="prev" title="Network API" href="network.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <img alt="../_images/quickstart.png" class="align-right" src="../_images/quickstart.png" />
+<div class="section" id="algorithms-api">
+<h1>Algorithms API<a class="headerlink" href="#algorithms-api" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div>See the <a class="reference external" href="../guide/algorithms.html">Algorithms Guide</a> for an overview of
+this API.</div></blockquote>
+<p>Here is the complete program we are going to use as an example. In sections
+below, we&#8217;ll break it down into parts and explain what is happening (without
+some of the plumbing details).</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="kn">from</span> <span class="nn">nupic.encoders.date</span> <span class="k">import</span> <span class="n">DateEncoder</span>
+<span class="kn">from</span> <span class="nn">nupic.encoders.random_distributed_scalar</span> <span class="k">import</span> \
+    <span class="n">RandomDistributedScalarEncoder</span>
+<span class="kn">from</span> <span class="nn">nupic.research.spatial_pooler</span> <span class="k">import</span> <span class="n">SpatialPooler</span>
+<span class="kn">from</span> <span class="nn">nupic.research.temporal_memory</span> <span class="k">import</span> <span class="n">TemporalMemory</span>
+<span class="kn">from</span> <span class="nn">nupic.algorithms.sdr_classifier_factory</span> <span class="k">import</span> <span class="n">SDRClassifierFactory</span>
+
+<span class="n">_INPUT_FILE_PATH</span> <span class="o">=</span> <span class="s2">&quot;../data/gymdata.csv&quot;</span>
+
+<span class="k">def</span> <span class="nf">runHotgym</span><span class="p">():</span>
+
+  <span class="n">timeOfDayEncoder</span> <span class="o">=</span> <span class="n">DateEncoder</span><span class="p">(</span><span class="n">timeOfDay</span><span class="o">=</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+  <span class="n">weekendEncoder</span> <span class="o">=</span> <span class="n">DateEncoder</span><span class="p">(</span><span class="n">weekend</span><span class="o">=</span><span class="mi">21</span><span class="p">)</span>
+  <span class="n">scalarEncoder</span> <span class="o">=</span> <span class="n">RandomDistributedScalarEncoder</span><span class="p">(</span><span class="mf">0.88</span><span class="p">)</span>
+
+  <span class="n">encodingWidth</span> <span class="o">=</span> <span class="n">timeOfDayEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span> \
+    <span class="o">+</span> <span class="n">weekendEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span> \
+    <span class="o">+</span> <span class="n">scalarEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span>
+
+  <span class="n">sp</span> <span class="o">=</span> <span class="n">SpatialPooler</span><span class="p">(</span>
+    <span class="c1"># How large the input encoding will be.</span>
+    <span class="n">inputDimensions</span><span class="o">=</span><span class="p">(</span><span class="n">encodingWidth</span><span class="p">),</span>
+    <span class="c1"># How many mini-columns will be in the Spatial Pooler.</span>
+    <span class="n">columnDimensions</span><span class="o">=</span><span class="p">(</span><span class="mi">2048</span><span class="p">),</span>
+    <span class="c1"># What percent of the columns&#39;s receptive field is available for potential</span>
+    <span class="c1"># synapses?</span>
+    <span class="n">potentialPct</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span>
+    <span class="c1"># This means that the input space has no topology.</span>
+    <span class="n">globalInhibition</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">localAreaDensity</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="c1"># Roughly 2%, giving that there is only one inhibition area because we have</span>
+    <span class="c1"># turned on globalInhibition (40 / 2048 = 0.0195)</span>
+    <span class="n">numActiveColumnsPerInhArea</span><span class="o">=</span><span class="mf">40.0</span><span class="p">,</span>
+    <span class="c1"># How quickly synapses grow and degrade.</span>
+    <span class="n">synPermInactiveDec</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+    <span class="n">synPermActiveInc</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span>
+    <span class="n">synPermConnected</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="c1"># boostStrength controls the strength of boosting. Boosting encourages</span>
+    <span class="c1"># efficient usage of SP columns.</span>
+    <span class="n">boostStrength</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+    <span class="c1"># Random number generator seed.</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">1956</span><span class="p">,</span>
+    <span class="c1"># Determines if inputs at the beginning and end of an input dimension should</span>
+    <span class="c1"># be considered neighbors when mapping columns to inputs.</span>
+    <span class="n">wrapAround</span><span class="o">=</span><span class="kc">False</span>
+  <span class="p">)</span>
+
+  <span class="n">tm</span> <span class="o">=</span> <span class="n">TemporalMemory</span><span class="p">(</span>
+    <span class="c1"># Must be the same dimensions as the SP</span>
+    <span class="n">columnDimensions</span><span class="o">=</span><span class="p">(</span><span class="mi">2048</span><span class="p">,</span> <span class="p">),</span>
+    <span class="c1"># How many cells in each mini-column.</span>
+    <span class="n">cellsPerColumn</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="c1"># A segment is active if it has &gt;= activationThreshold connected synapses</span>
+    <span class="c1"># that are active due to infActiveState</span>
+    <span class="n">activationThreshold</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+    <span class="n">initialPermanence</span><span class="o">=</span><span class="mf">0.21</span><span class="p">,</span>
+    <span class="n">connectedPermanence</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="c1"># Minimum number of active synapses for a segment to be considered during</span>
+    <span class="c1"># search for the best-matching segments.</span>
+    <span class="n">minThreshold</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+    <span class="c1"># The max number of synapses added to a segment during learning</span>
+    <span class="n">maxNewSynapseCount</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">permanenceIncrement</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">permanenceDecrement</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">predictedSegmentDecrement</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">maxSegmentsPerCell</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+    <span class="n">maxSynapsesPerSegment</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">1960</span>
+  <span class="p">)</span>
+
+  <span class="n">classifier</span> <span class="o">=</span> <span class="n">SDRClassifierFactory</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+
+  <span class="k">with</span> <span class="nb">open</span> <span class="p">(</span><span class="n">_INPUT_FILE_PATH</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">fin</span><span class="p">)</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+    <span class="n">reader</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+    <span class="n">reader</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reader</span><span class="p">):</span>
+      <span class="c1"># Convert data string into Python date object.</span>
+      <span class="n">dateString</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;%m/</span><span class="si">%d</span><span class="s2">/%y %H:%M&quot;</span><span class="p">)</span>
+      <span class="c1"># Convert data value string into float.</span>
+      <span class="n">consumption</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+      <span class="c1"># To encode, we need to provide zero-filled numpy arrays for the encoders</span>
+      <span class="c1"># to populate.</span>
+      <span class="n">timeOfDayBits</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">timeOfDayEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">())</span>
+      <span class="n">weekendBits</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">weekendEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">())</span>
+      <span class="n">consumptionBits</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">scalarEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">())</span>
+
+      <span class="c1"># Now we call the encoders create bit representations for each value.</span>
+      <span class="n">timeOfDayEncoder</span><span class="o">.</span><span class="n">encodeIntoArray</span><span class="p">(</span><span class="n">dateString</span><span class="p">,</span> <span class="n">timeOfDayBits</span><span class="p">)</span>
+      <span class="n">weekendEncoder</span><span class="o">.</span><span class="n">encodeIntoArray</span><span class="p">(</span><span class="n">dateString</span><span class="p">,</span> <span class="n">weekendBits</span><span class="p">)</span>
+      <span class="n">scalarEncoder</span><span class="o">.</span><span class="n">encodeIntoArray</span><span class="p">(</span><span class="n">consumption</span><span class="p">,</span> <span class="n">consumptionBits</span><span class="p">)</span>
+
+      <span class="c1"># Concatenate all these encodings into one large encoding for Spatial</span>
+      <span class="c1"># Pooling.</span>
+      <span class="n">encoding</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">timeOfDayBits</span><span class="p">,</span> <span class="n">weekendBits</span><span class="p">,</span> <span class="n">consumptionBits</span><span class="p">]</span>
+      <span class="p">)</span>
+
+      <span class="c1"># Create an array to represent active columns, all initially zero. This</span>
+      <span class="c1"># will be populated by the compute method below. It must have the same</span>
+      <span class="c1"># dimensions as the Spatial Pooler.</span>
+      <span class="n">activeColumns</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2048</span><span class="p">)</span>
+
+      <span class="c1"># Execute Spatial Pooling algorithm over input space.</span>
+      <span class="n">sp</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">activeColumns</span><span class="p">)</span>
+      <span class="n">activeColumnIndices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">activeColumns</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+      <span class="c1"># Execute Temporal Memory algorithm over active mini-columns.</span>
+      <span class="n">tm</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">activeColumnIndices</span><span class="p">,</span> <span class="n">learn</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+      <span class="n">activeCells</span> <span class="o">=</span> <span class="n">tm</span><span class="o">.</span><span class="n">getActiveCells</span><span class="p">()</span>
+
+      <span class="c1"># Get the bucket info for this input value for classification.</span>
+      <span class="n">bucketIdx</span> <span class="o">=</span> <span class="n">scalarEncoder</span><span class="o">.</span><span class="n">getBucketIndices</span><span class="p">(</span><span class="n">consumption</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+      <span class="c1"># Run classifier to translate active cells back to scalar value.</span>
+      <span class="n">classifierResult</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span>
+        <span class="n">recordNum</span><span class="o">=</span><span class="n">count</span><span class="p">,</span>
+        <span class="n">patternNZ</span><span class="o">=</span><span class="n">activeCells</span><span class="p">,</span>
+        <span class="n">classification</span><span class="o">=</span><span class="p">{</span>
+          <span class="s2">&quot;bucketIdx&quot;</span><span class="p">:</span> <span class="n">bucketIdx</span><span class="p">,</span>
+          <span class="s2">&quot;actValue&quot;</span><span class="p">:</span> <span class="n">consumption</span>
+        <span class="p">},</span>
+        <span class="n">learn</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">infer</span><span class="o">=</span><span class="kc">True</span>
+      <span class="p">)</span>
+
+      <span class="c1"># Print the best prediction for 1 step out.</span>
+      <span class="n">probability</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="p">(</span><span class="n">classifierResult</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">classifierResult</span><span class="p">[</span><span class="s2">&quot;actualValues&quot;</span><span class="p">]),</span>
+        <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span>
+      <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">probability</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+  <span class="n">runHotgym</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="section" id="encoding-data">
+<h2>Encoding Data<a class="headerlink" href="#encoding-data" title="Permalink to this headline">¶</a></h2>
+<p>For this quick start, we&#8217;ll be using the same raw input data file described
+<a class="reference external" href="example-data.html">here</a> in detail and used for the
+<a class="reference external" href="opf.html">OPF Quick Start</a>. But we will be ignoring the file format and just
+looping over the CSV, encoding one row at a time programmatically before sending
+encodings to the Spatial Pooler and Temporal Memory algorithms.</p>
+<div class="section" id="one-row-of-data">
+<h3>One Row Of Data<a class="headerlink" href="#one-row-of-data" title="Permalink to this headline">¶</a></h3>
+<p>Each row of data in this input file is formatted like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">7</span><span class="o">/</span><span class="mi">2</span><span class="o">/</span><span class="mi">10</span> <span class="mi">9</span><span class="p">:</span><span class="mi">00</span><span class="p">,</span><span class="mf">41.5</span>
+</pre></div>
+</div>
+<p>We need to encode this into three encodings:</p>
+<ul class="simple">
+<li>time of day</li>
+<li>weekend or not</li>
+<li>scalar value for energy consumption</li>
+</ul>
+</div>
+<div class="section" id="creating-encoders">
+<h3>Creating Encoders<a class="headerlink" href="#creating-encoders" title="Permalink to this headline">¶</a></h3>
+<p>First, let&#8217;s create the encoders we&#8217;ll use to encode different semantics
+of our input data stream:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nupic.encoders.date</span> <span class="k">import</span> <span class="n">DateEncoder</span>
+<span class="kn">from</span> <span class="nn">nupic.encoders.random_distributed_scalar</span> <span class="k">import</span> \
+    <span class="n">RandomDistributedScalarEncoder</span>
+
+<span class="n">timeOfDayEncoder</span> <span class="o">=</span> <span class="n">DateEncoder</span><span class="p">(</span><span class="n">timeOfDay</span><span class="o">=</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">weekendEncoder</span> <span class="o">=</span> <span class="n">DateEncoder</span><span class="p">(</span><span class="n">weekend</span><span class="o">=</span><span class="mi">21</span><span class="p">)</span>
+<span class="n">scalarEncoder</span> <span class="o">=</span> <span class="n">RandomDistributedScalarEncoder</span><span class="p">(</span><span class="mf">0.88</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id1">
+<h3>Encoding Data<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>With these encoders created, we can loop over each row of data, encode it into
+bits, and concatenate them together to form a complete representation for the next
+step:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span> <span class="p">(</span><span class="n">_INPUT_FILE_PATH</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+  <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">fin</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reader</span><span class="p">):</span>
+    <span class="c1"># Convert data string into Python date object.</span>
+    <span class="n">dateString</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;%m/</span><span class="si">%d</span><span class="s2">/%y %H:%M&quot;</span><span class="p">)</span>
+    <span class="c1"># Convert data value string into float.</span>
+    <span class="n">consumption</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="c1"># To encode, we need to provide zero-filled numpy arrays for the encoders</span>
+    <span class="c1"># to populate.</span>
+    <span class="n">timeOfDayBits</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">timeOfDayEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">())</span>
+    <span class="n">weekendBits</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">weekendEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">())</span>
+    <span class="n">consumptionBits</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">scalarEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">())</span>
+
+    <span class="c1"># Now we call the encoders create bit representations for each value.</span>
+    <span class="n">timeOfDayEncoder</span><span class="o">.</span><span class="n">encodeIntoArray</span><span class="p">(</span><span class="n">dateString</span><span class="p">,</span> <span class="n">timeOfDayBits</span><span class="p">)</span>
+    <span class="n">weekendEncoder</span><span class="o">.</span><span class="n">encodeIntoArray</span><span class="p">(</span><span class="n">dateString</span><span class="p">,</span> <span class="n">weekendBits</span><span class="p">)</span>
+    <span class="n">scalarEncoder</span><span class="o">.</span><span class="n">encodeIntoArray</span><span class="p">(</span><span class="n">consumption</span><span class="p">,</span> <span class="n">consumptionBits</span><span class="p">)</span>
+
+    <span class="c1"># Concatenate all these encodings into one large encoding for Spatial</span>
+    <span class="c1"># Pooling.</span>
+    <span class="n">encoding</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+      <span class="p">[</span><span class="n">timeOfDayBits</span><span class="p">,</span> <span class="n">weekendBits</span><span class="p">,</span> <span class="n">consumptionBits</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Print complete encoding to the console as a binary representation.</span>
+    <span class="nb">print</span> <span class="n">encoding</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int16&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Each encoding will print to the console and look something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>By visually inspecting this output, you can see the buckets of continuous on
+bits representing the different encodings for time of day and weekend. Near the
+bottom of the encoding are the bits representing scalar data, distributed
+throughout the space by the <a class="reference internal" href="../api/encoders.html#nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder" title="nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">RandomDistributedScalarEncoder</span></code></a>.</p>
+</div>
+</div>
+<div class="section" id="spatial-pooling">
+<h2>Spatial Pooling<a class="headerlink" href="#spatial-pooling" title="Permalink to this headline">¶</a></h2>
+<p>Now that we have data encoded into a binary format with semantic meaning, we can
+pass each encoding to into the Spatial Pooling algorithm.</p>
+<div class="section" id="creating-the-sp">
+<h3>Creating the SP<a class="headerlink" href="#creating-the-sp" title="Permalink to this headline">¶</a></h3>
+<p>First, we must identify parameters for the creation of the
+<a class="reference internal" href="../api/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler" title="nupic.research.spatial_pooler.SpatialPooler"><code class="xref py py-class docutils literal"><span class="pre">SpatialPooler</span></code></a> instance. We will be using the same parameters
+identified in the <a class="reference external" href="opf.html">OPF Quick Start</a> document&#8217;s
+<a class="reference external" href="example-model-params.html">model parameters</a> (see the <code class="docutils literal"><span class="pre">spParams</span></code> section).</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nupic.research.spatial_pooler</span> <span class="k">import</span> <span class="n">SpatialPooler</span>
+
+<span class="n">encodingWidth</span> <span class="o">=</span> <span class="n">timeOfDayEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span> \
+  <span class="o">+</span> <span class="n">weekendEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span> \
+  <span class="o">+</span> <span class="n">scalarEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span>
+
+<span class="n">sp</span> <span class="o">=</span> <span class="n">SpatialPooler</span><span class="p">(</span>
+  <span class="c1"># How large the input encoding will be.</span>
+  <span class="n">inputDimensions</span><span class="o">=</span><span class="p">(</span><span class="n">encodingWidth</span><span class="p">),</span>
+  <span class="c1"># How many mini-columns will be in the Spatial Pooler.</span>
+  <span class="n">columnDimensions</span><span class="o">=</span><span class="p">(</span><span class="mi">2048</span><span class="p">),</span>
+  <span class="c1"># What percent of the columns&#39;s receptive field is available for potential</span>
+  <span class="c1"># synapses?</span>
+  <span class="n">potentialPct</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span>
+  <span class="c1"># This means that the input space has no topology.</span>
+  <span class="n">globalInhibition</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+  <span class="n">localAreaDensity</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
+  <span class="c1"># Roughly 2%, giving that there is only one inhibition area because we have</span>
+  <span class="c1"># turned on globalInhibition (40 / 2048 = 0.0195)</span>
+  <span class="n">numActiveColumnsPerInhArea</span><span class="o">=</span><span class="mf">40.0</span><span class="p">,</span>
+  <span class="c1"># How quickly synapses grow and degrade.</span>
+  <span class="n">synPermInactiveDec</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+  <span class="n">synPermActiveInc</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span>
+  <span class="n">synPermConnected</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+  <span class="c1"># boostStrength controls the strength of boosting. Boosting encourages</span>
+  <span class="c1"># efficient usage of SP columns.</span>
+  <span class="n">boostStrength</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+  <span class="c1"># Random number generator seed.</span>
+  <span class="n">seed</span><span class="o">=</span><span class="mi">1956</span><span class="p">,</span>
+  <span class="c1"># Determines if inputs at the beginning and end of an input dimension should</span>
+  <span class="c1"># be considered neighbors when mapping columns to inputs.</span>
+  <span class="n">wrapAround</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-the-sp">
+<h3>Running the SP<a class="headerlink" href="#running-the-sp" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference internal" href="../api/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler" title="nupic.research.spatial_pooler.SpatialPooler"><code class="xref py py-class docutils literal"><span class="pre">SpatialPooler</span></code></a> instance should be created once, and each encoded
+row of data passed into its <a class="reference internal" href="../api/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.compute" title="nupic.research.spatial_pooler.SpatialPooler.compute"><code class="xref py py-meth docutils literal"><span class="pre">compute()</span></code></a> function.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Create an array to represent active columns, all initially zero. This</span>
+<span class="c1"># will be populated by the compute method below. It must have the same</span>
+<span class="c1"># dimensions as the Spatial Pooler.</span>
+<span class="n">activeColumns</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2048</span><span class="p">)</span>
+
+<span class="c1"># Execute Spatial Pooling algorithm over input space.</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">activeColumns</span><span class="p">)</span>
+<span class="n">activeColumnIndices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">activeColumns</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="nb">print</span> <span class="n">activeColumnIndices</span>
+</pre></div>
+</div>
+<p>This will print out the indices of the active mini-columns in the SP at each
+time step, and will look something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span> <span class="mi">929</span>  <span class="mi">932</span>  <span class="mi">938</span>  <span class="mi">939</span>  <span class="mi">940</span>  <span class="mi">941</span>  <span class="mi">942</span>  <span class="mi">943</span>  <span class="mi">944</span>  <span class="mi">945</span>  <span class="mi">946</span>  <span class="mi">949</span>  <span class="mi">950</span>  <span class="mi">951</span>  <span class="mi">953</span>
+  <span class="mi">955</span>  <span class="mi">956</span>  <span class="mi">957</span>  <span class="mi">958</span>  <span class="mi">960</span>  <span class="mi">961</span>  <span class="mi">962</span>  <span class="mi">964</span>  <span class="mi">965</span>  <span class="mi">966</span>  <span class="mi">968</span>  <span class="mi">969</span>  <span class="mi">970</span>  <span class="mi">971</span>  <span class="mi">973</span>
+  <span class="mi">974</span>  <span class="mi">975</span>  <span class="mi">977</span>  <span class="mi">978</span>  <span class="mi">979</span>  <span class="mi">980</span> <span class="mi">1105</span> <span class="mi">1114</span> <span class="mi">1120</span> <span class="mi">1129</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="temporal-memory">
+<h2>Temporal Memory<a class="headerlink" href="#temporal-memory" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="../api/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory" title="nupic.research.temporal_memory.TemporalMemory"><code class="xref py py-class docutils literal"><span class="pre">TemporalMemory</span></code></a> algorithm works within the active mini-columns
+created by the <a class="reference internal" href="../api/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler" title="nupic.research.spatial_pooler.SpatialPooler"><code class="xref py py-class docutils literal"><span class="pre">SpatialPooler</span></code></a>. Given a list of active columns, it
+performs sequence memory operations by activating individual cells within each
+mini-column structure.</p>
+<div class="section" id="creating-the-tm">
+<h3>Creating the TM<a class="headerlink" href="#creating-the-tm" title="Permalink to this headline">¶</a></h3>
+<p>Just like the SP, we must create an instance of the
+<a class="reference internal" href="../api/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory" title="nupic.research.temporal_memory.TemporalMemory"><code class="xref py py-class docutils literal"><span class="pre">TemporalMemory</span></code></a> with parameters we identified in the
+<a class="reference external" href="opf.html">OPF Quick Start</a> document&#8217;s
+<a class="reference external" href="example-model-params.html">model parameters</a> (see the <code class="docutils literal"><span class="pre">tpParams</span></code> section).</p>
+<blockquote>
+<div><strong>NOTE</strong>: The term <cite>tpParams</cite> is leftover from an older generation of code
+where the Temporal Memory algorithm was called <em>Temporal Pooling</em>.</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nupic.research.temporal_memory</span> <span class="k">import</span> <span class="n">TemporalMemory</span>
+
+<span class="n">tm</span> <span class="o">=</span> <span class="n">TemporalMemory</span><span class="p">(</span>
+  <span class="c1"># Must be the same dimensions as the SP</span>
+  <span class="n">columnDimensions</span><span class="o">=</span><span class="p">(</span><span class="mi">2048</span><span class="p">,</span> <span class="p">),</span>
+  <span class="c1"># How many cells in each mini-column.</span>
+  <span class="n">cellsPerColumn</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+  <span class="c1"># A segment is active if it has &gt;= activationThreshold connected synapses</span>
+  <span class="c1"># that are active due to infActiveState</span>
+  <span class="n">activationThreshold</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+  <span class="n">initialPermanence</span><span class="o">=</span><span class="mf">0.21</span><span class="p">,</span>
+  <span class="n">connectedPermanence</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+  <span class="c1"># Minimum number of active synapses for a segment to be considered during</span>
+  <span class="c1"># search for the best-matching segments.</span>
+  <span class="n">minThreshold</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+  <span class="c1"># The max number of synapses added to a segment during learning</span>
+  <span class="n">maxNewSynapseCount</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+  <span class="n">permanenceIncrement</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+  <span class="n">permanenceDecrement</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+  <span class="n">predictedSegmentDecrement</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+  <span class="n">maxSegmentsPerCell</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+  <span class="n">maxSynapsesPerSegment</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+  <span class="n">seed</span><span class="o">=</span><span class="mi">1960</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-the-tm">
+<h3>Running the TM<a class="headerlink" href="#running-the-tm" title="Permalink to this headline">¶</a></h3>
+<p>Now, after <a class="reference internal" href="../api/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.compute" title="nupic.research.spatial_pooler.SpatialPooler.compute"><code class="xref py py-meth docutils literal"><span class="pre">SpatialPooler.compute()</span></code></a>, we will run the
+<a class="reference internal" href="../api/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory.compute" title="nupic.research.temporal_memory.TemporalMemory.compute"><code class="xref py py-meth docutils literal"><span class="pre">TemporalMemory.compute()</span></code></a> function using the active columns presented by
+the SP. Then we can call <a class="reference internal" href="../api/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory.getActiveCells" title="nupic.research.temporal_memory.TemporalMemory.getActiveCells"><code class="xref py py-meth docutils literal"><span class="pre">TemporalMemory.getActiveCells()</span></code></a> to return the
+indices of the active cells within the structure. All active cells will fall
+within active mini-columns.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Execute Temporal Memory algorithm over active mini-columns.</span>
+<span class="n">tm</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">activeColumnIndices</span><span class="p">,</span> <span class="n">learn</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">activeCells</span> <span class="o">=</span> <span class="n">tm</span><span class="o">.</span><span class="n">getActiveCells</span><span class="p">()</span>
+<span class="nb">print</span> <span class="n">activeCells</span>
+</pre></div>
+</div>
+<p>Now we have an array of indices for each active cell in the HTM structure. When
+printed to the console, each step looks like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="mi">13817</span><span class="p">,</span> <span class="mi">13856</span><span class="p">,</span> <span class="mi">14003</span><span class="p">,</span> <span class="mi">14078</span><span class="p">,</span> <span class="mi">14104</span><span class="p">,</span> <span class="mi">14159</span><span class="p">,</span> <span class="mi">14259</span><span class="p">,</span> <span class="mi">14313</span><span class="p">,</span> <span class="mi">14351</span><span class="p">,</span> <span class="mi">14377</span><span class="p">,</span> <span class="mi">14415</span><span class="p">,</span>
+<span class="mi">14524</span><span class="p">,</span> <span class="mi">14563</span><span class="p">,</span> <span class="mi">14594</span><span class="p">,</span> <span class="mi">14652</span><span class="p">,</span> <span class="mi">14686</span><span class="p">,</span> <span class="mi">14715</span><span class="p">,</span> <span class="mi">14763</span><span class="p">,</span> <span class="mi">14863</span><span class="p">,</span> <span class="mi">14950</span><span class="p">,</span> <span class="mi">15037</span><span class="p">,</span> <span class="mi">15053</span><span class="p">,</span>
+<span class="mi">15107</span><span class="p">,</span> <span class="mi">15209</span><span class="p">,</span> <span class="mi">15258</span><span class="p">,</span> <span class="mi">15412</span><span class="p">,</span> <span class="mi">15449</span><span class="p">,</span> <span class="mi">35008</span><span class="p">,</span> <span class="mi">35009</span><span class="p">,</span> <span class="mi">35010</span><span class="p">,</span> <span class="mi">35011</span><span class="p">,</span> <span class="mi">35012</span><span class="p">,</span> <span class="mi">35013</span><span class="p">,</span>
+<span class="mi">35014</span><span class="p">,</span> <span class="mi">35015</span><span class="p">,</span> <span class="mi">35016</span><span class="p">,</span> <span class="mi">35017</span><span class="p">,</span> <span class="mi">35018</span><span class="p">,</span> <span class="mi">35019</span><span class="p">,</span> <span class="mi">35020</span><span class="p">,</span> <span class="mi">35021</span><span class="p">,</span> <span class="mi">35022</span><span class="p">,</span> <span class="mi">35023</span><span class="p">,</span> <span class="mi">35024</span><span class="p">,</span>
+<span class="mi">35025</span><span class="p">,</span> <span class="mi">35026</span><span class="p">,</span> <span class="mi">35027</span><span class="p">,</span> <span class="mi">35028</span><span class="p">,</span> <span class="mi">35029</span><span class="p">,</span> <span class="mi">35030</span><span class="p">,</span> <span class="mi">35031</span><span class="p">,</span> <span class="mi">35032</span><span class="p">,</span> <span class="mi">35033</span><span class="p">,</span> <span class="mi">35034</span><span class="p">,</span> <span class="mi">35035</span><span class="p">,</span>
+<span class="mi">35036</span><span class="p">,</span> <span class="mi">35037</span><span class="p">,</span> <span class="mi">35038</span><span class="p">,</span> <span class="mi">35039</span><span class="p">,</span> <span class="mi">35040</span><span class="p">,</span> <span class="mi">35041</span><span class="p">,</span> <span class="mi">35042</span><span class="p">,</span> <span class="mi">35043</span><span class="p">,</span> <span class="mi">35044</span><span class="p">,</span> <span class="mi">35045</span><span class="p">,</span> <span class="mi">35046</span><span class="p">,</span>
+<span class="mi">35047</span><span class="p">,</span> <span class="mi">35048</span><span class="p">,</span> <span class="mi">35049</span><span class="p">,</span> <span class="mi">35050</span><span class="p">,</span> <span class="mi">35051</span><span class="p">,</span> <span class="mi">35052</span><span class="p">,</span> <span class="mi">35053</span><span class="p">,</span> <span class="mi">35054</span><span class="p">,</span> <span class="mi">35055</span><span class="p">,</span> <span class="mi">35056</span><span class="p">,</span> <span class="mi">35057</span><span class="p">,</span>
+<span class="mi">35058</span><span class="p">,</span> <span class="mi">35059</span><span class="p">,</span> <span class="mi">35060</span><span class="p">,</span> <span class="mi">35061</span><span class="p">,</span> <span class="mi">35062</span><span class="p">,</span> <span class="mi">35063</span><span class="p">,</span> <span class="mi">35064</span><span class="p">,</span> <span class="mi">35065</span><span class="p">,</span> <span class="mi">35066</span><span class="p">,</span> <span class="mi">35067</span><span class="p">,</span> <span class="mi">35068</span><span class="p">,</span>
+<span class="mi">35069</span><span class="p">,</span> <span class="mi">35070</span><span class="p">,</span> <span class="mi">35071</span><span class="p">,</span> <span class="mi">35360</span><span class="p">,</span> <span class="mi">35361</span><span class="p">,</span> <span class="mi">35362</span><span class="p">,</span> <span class="mi">35363</span><span class="p">,</span> <span class="mi">35364</span><span class="p">,</span> <span class="mi">35365</span><span class="p">,</span> <span class="mi">35366</span><span class="p">,</span> <span class="mi">35367</span><span class="p">,</span>
+<span class="mi">35368</span><span class="p">,</span> <span class="mi">35369</span><span class="p">,</span> <span class="mi">35370</span><span class="p">,</span> <span class="mi">35371</span><span class="p">,</span> <span class="mi">35372</span><span class="p">,</span> <span class="mi">35373</span><span class="p">,</span> <span class="mi">35374</span><span class="p">,</span> <span class="mi">35375</span><span class="p">,</span> <span class="mi">35376</span><span class="p">,</span> <span class="mi">35377</span><span class="p">,</span> <span class="mi">35378</span><span class="p">,</span>
+<span class="mi">35379</span><span class="p">,</span> <span class="mi">35380</span><span class="p">,</span> <span class="mi">35381</span><span class="p">,</span> <span class="mi">35382</span><span class="p">,</span> <span class="mi">35383</span><span class="p">,</span> <span class="mi">35384</span><span class="p">,</span> <span class="mi">35385</span><span class="p">,</span> <span class="mi">35386</span><span class="p">,</span> <span class="mi">35387</span><span class="p">,</span> <span class="mi">35388</span><span class="p">,</span> <span class="mi">35389</span><span class="p">,</span>
+<span class="mi">35390</span><span class="p">,</span> <span class="mi">35391</span><span class="p">,</span> <span class="mi">35424</span><span class="p">,</span> <span class="mi">35425</span><span class="p">,</span> <span class="mi">35426</span><span class="p">,</span> <span class="mi">35427</span><span class="p">,</span> <span class="mi">35428</span><span class="p">,</span> <span class="mi">35429</span><span class="p">,</span> <span class="mi">35430</span><span class="p">,</span> <span class="mi">35431</span><span class="p">,</span> <span class="mi">35432</span><span class="p">,</span>
+<span class="mi">35433</span><span class="p">,</span> <span class="mi">35434</span><span class="p">,</span> <span class="mi">35435</span><span class="p">,</span> <span class="mi">35436</span><span class="p">,</span> <span class="mi">35437</span><span class="p">,</span> <span class="mi">35438</span><span class="p">,</span> <span class="mi">35439</span><span class="p">,</span> <span class="mi">35440</span><span class="p">,</span> <span class="mi">35441</span><span class="p">,</span> <span class="mi">35442</span><span class="p">,</span> <span class="mi">35443</span><span class="p">,</span>
+<span class="mi">35444</span><span class="p">,</span> <span class="mi">35445</span><span class="p">,</span> <span class="mi">35446</span><span class="p">,</span> <span class="mi">35447</span><span class="p">,</span> <span class="mi">35448</span><span class="p">,</span> <span class="mi">35449</span><span class="p">,</span> <span class="mi">35450</span><span class="p">,</span> <span class="mi">35451</span><span class="p">,</span> <span class="mi">35452</span><span class="p">,</span> <span class="mi">35453</span><span class="p">,</span> <span class="mi">35454</span><span class="p">,</span>
+<span class="mi">35455</span><span class="p">,</span> <span class="mi">35488</span><span class="p">,</span> <span class="mi">35489</span><span class="p">,</span> <span class="mi">35490</span><span class="p">,</span> <span class="mi">35491</span><span class="p">,</span> <span class="mi">35492</span><span class="p">,</span> <span class="mi">35493</span><span class="p">,</span> <span class="mi">35494</span><span class="p">,</span> <span class="mi">35495</span><span class="p">,</span> <span class="mi">35496</span><span class="p">,</span> <span class="mi">35497</span><span class="p">,</span>
+<span class="mi">35498</span><span class="p">,</span> <span class="mi">35499</span><span class="p">,</span> <span class="mi">35500</span><span class="p">,</span> <span class="mi">35501</span><span class="p">,</span> <span class="mi">35502</span><span class="p">,</span> <span class="mi">35503</span><span class="p">,</span> <span class="mi">35504</span><span class="p">,</span> <span class="mi">35505</span><span class="p">,</span> <span class="mi">35506</span><span class="p">,</span> <span class="mi">35507</span><span class="p">,</span> <span class="mi">35508</span><span class="p">,</span>
+<span class="mi">35509</span><span class="p">,</span> <span class="mi">35510</span><span class="p">,</span> <span class="mi">35511</span><span class="p">,</span> <span class="mi">35512</span><span class="p">,</span> <span class="mi">35513</span><span class="p">,</span> <span class="mi">35514</span><span class="p">,</span> <span class="mi">35515</span><span class="p">,</span> <span class="mi">35516</span><span class="p">,</span> <span class="mi">35517</span><span class="p">,</span> <span class="mi">35518</span><span class="p">,</span> <span class="mi">35519</span><span class="p">,</span>
+<span class="mi">35584</span><span class="p">,</span> <span class="mi">35585</span><span class="p">,</span> <span class="mi">35586</span><span class="p">,</span> <span class="mi">35587</span><span class="p">,</span> <span class="mi">35588</span><span class="p">,</span> <span class="mi">35589</span><span class="p">,</span> <span class="mi">35590</span><span class="p">,</span> <span class="mi">35591</span><span class="p">,</span> <span class="mi">35592</span><span class="p">,</span> <span class="mi">35593</span><span class="p">,</span> <span class="mi">35594</span><span class="p">,</span>
+<span class="mi">35595</span><span class="p">,</span> <span class="mi">35596</span><span class="p">,</span> <span class="mi">35597</span><span class="p">,</span> <span class="mi">35598</span><span class="p">,</span> <span class="mi">35599</span><span class="p">,</span> <span class="mi">35600</span><span class="p">,</span> <span class="mi">35601</span><span class="p">,</span> <span class="mi">35602</span><span class="p">,</span> <span class="mi">35603</span><span class="p">,</span> <span class="mi">35604</span><span class="p">,</span> <span class="mi">35605</span><span class="p">,</span>
+<span class="mi">35606</span><span class="p">,</span> <span class="mi">35607</span><span class="p">,</span> <span class="mi">35608</span><span class="p">,</span> <span class="mi">35609</span><span class="p">,</span> <span class="mi">35610</span><span class="p">,</span> <span class="mi">35611</span><span class="p">,</span> <span class="mi">35612</span><span class="p">,</span> <span class="mi">35613</span><span class="p">,</span> <span class="mi">35614</span><span class="p">,</span> <span class="mi">35615</span><span class="p">,</span> <span class="mi">35616</span><span class="p">,</span>
+<span class="mi">35617</span><span class="p">,</span> <span class="mi">35618</span><span class="p">,</span> <span class="mi">35619</span><span class="p">,</span> <span class="mi">35620</span><span class="p">,</span> <span class="mi">35621</span><span class="p">,</span> <span class="mi">35622</span><span class="p">,</span> <span class="mi">35623</span><span class="p">,</span> <span class="mi">35624</span><span class="p">,</span> <span class="mi">35625</span><span class="p">,</span> <span class="mi">35626</span><span class="p">,</span> <span class="mi">35627</span><span class="p">,</span>
+<span class="mi">35628</span><span class="p">,</span> <span class="mi">35629</span><span class="p">,</span> <span class="mi">35630</span><span class="p">,</span> <span class="mi">35631</span><span class="p">,</span> <span class="mi">35632</span><span class="p">,</span> <span class="mi">35633</span><span class="p">,</span> <span class="mi">35634</span><span class="p">,</span> <span class="mi">35635</span><span class="p">,</span> <span class="mi">35636</span><span class="p">,</span> <span class="mi">35637</span><span class="p">,</span> <span class="mi">35638</span><span class="p">,</span>
+<span class="mi">35639</span><span class="p">,</span> <span class="mi">35640</span><span class="p">,</span> <span class="mi">35641</span><span class="p">,</span> <span class="mi">35642</span><span class="p">,</span> <span class="mi">35643</span><span class="p">,</span> <span class="mi">35644</span><span class="p">,</span> <span class="mi">35645</span><span class="p">,</span> <span class="mi">35646</span><span class="p">,</span> <span class="mi">35647</span><span class="p">,</span> <span class="mi">35648</span><span class="p">,</span> <span class="mi">35649</span><span class="p">,</span>
+<span class="mi">35650</span><span class="p">,</span> <span class="mi">35651</span><span class="p">,</span> <span class="mi">35652</span><span class="p">,</span> <span class="mi">35653</span><span class="p">,</span> <span class="mi">35654</span><span class="p">,</span> <span class="mi">35655</span><span class="p">,</span> <span class="mi">35656</span><span class="p">,</span> <span class="mi">35657</span><span class="p">,</span> <span class="mi">35658</span><span class="p">,</span> <span class="mi">35659</span><span class="p">,</span> <span class="mi">35660</span><span class="p">,</span>
+<span class="mi">35661</span><span class="p">,</span> <span class="mi">35662</span><span class="p">,</span> <span class="mi">35663</span><span class="p">,</span> <span class="mi">35664</span><span class="p">,</span> <span class="mi">35665</span><span class="p">,</span> <span class="mi">35666</span><span class="p">,</span> <span class="mi">35667</span><span class="p">,</span> <span class="mi">35668</span><span class="p">,</span> <span class="mi">35669</span><span class="p">,</span> <span class="mi">35670</span><span class="p">,</span> <span class="mi">35671</span><span class="p">,</span>
+<span class="mi">35672</span><span class="p">,</span> <span class="mi">35673</span><span class="p">,</span> <span class="mi">35674</span><span class="p">,</span> <span class="mi">35675</span><span class="p">,</span> <span class="mi">35676</span><span class="p">,</span> <span class="mi">35677</span><span class="p">,</span> <span class="mi">35678</span><span class="p">,</span> <span class="mi">35679</span><span class="p">,</span> <span class="mi">35840</span><span class="p">,</span> <span class="mi">35841</span><span class="p">,</span> <span class="mi">35842</span><span class="p">,</span>
+<span class="mi">35843</span><span class="p">,</span> <span class="mi">35844</span><span class="p">,</span> <span class="mi">35845</span><span class="p">,</span> <span class="mi">35846</span><span class="p">,</span> <span class="mi">35847</span><span class="p">,</span> <span class="mi">35848</span><span class="p">,</span> <span class="mi">35849</span><span class="p">,</span> <span class="mi">35850</span><span class="p">,</span> <span class="mi">35851</span><span class="p">,</span> <span class="mi">35852</span><span class="p">,</span> <span class="mi">35853</span><span class="p">,</span>
+<span class="mi">35854</span><span class="p">,</span> <span class="mi">35855</span><span class="p">,</span> <span class="mi">35856</span><span class="p">,</span> <span class="mi">35857</span><span class="p">,</span> <span class="mi">35858</span><span class="p">,</span> <span class="mi">35859</span><span class="p">,</span> <span class="mi">35860</span><span class="p">,</span> <span class="mi">35861</span><span class="p">,</span> <span class="mi">35862</span><span class="p">,</span> <span class="mi">35863</span><span class="p">,</span> <span class="mi">35864</span><span class="p">,</span>
+<span class="mi">35865</span><span class="p">,</span> <span class="mi">35866</span><span class="p">,</span> <span class="mi">35867</span><span class="p">,</span> <span class="mi">35868</span><span class="p">,</span> <span class="mi">35869</span><span class="p">,</span> <span class="mi">35870</span><span class="p">,</span> <span class="mi">35871</span><span class="p">,</span> <span class="mi">35936</span><span class="p">,</span> <span class="mi">35937</span><span class="p">,</span> <span class="mi">35938</span><span class="p">,</span> <span class="mi">35939</span><span class="p">,</span>
+<span class="mi">35940</span><span class="p">,</span> <span class="mi">35941</span><span class="p">,</span> <span class="mi">35942</span><span class="p">,</span> <span class="mi">35943</span><span class="p">,</span> <span class="mi">35944</span><span class="p">,</span> <span class="mi">35945</span><span class="p">,</span> <span class="mi">35946</span><span class="p">,</span> <span class="mi">35947</span><span class="p">,</span> <span class="mi">35948</span><span class="p">,</span> <span class="mi">35949</span><span class="p">,</span> <span class="mi">35950</span><span class="p">,</span>
+<span class="mi">35951</span><span class="p">,</span> <span class="mi">35952</span><span class="p">,</span> <span class="mi">35953</span><span class="p">,</span> <span class="mi">35954</span><span class="p">,</span> <span class="mi">35955</span><span class="p">,</span> <span class="mi">35956</span><span class="p">,</span> <span class="mi">35957</span><span class="p">,</span> <span class="mi">35958</span><span class="p">,</span> <span class="mi">35959</span><span class="p">,</span> <span class="mi">35960</span><span class="p">,</span> <span class="mi">35961</span><span class="p">,</span>
+<span class="mi">35962</span><span class="p">,</span> <span class="mi">35963</span><span class="p">,</span> <span class="mi">35964</span><span class="p">,</span> <span class="mi">35965</span><span class="p">,</span> <span class="mi">35966</span><span class="p">,</span> <span class="mi">35967</span><span class="p">,</span> <span class="mi">35968</span><span class="p">,</span> <span class="mi">35969</span><span class="p">,</span> <span class="mi">35970</span><span class="p">,</span> <span class="mi">35971</span><span class="p">,</span> <span class="mi">35972</span><span class="p">,</span>
+<span class="mi">35973</span><span class="p">,</span> <span class="mi">35974</span><span class="p">,</span> <span class="mi">35975</span><span class="p">,</span> <span class="mi">35976</span><span class="p">,</span> <span class="mi">35977</span><span class="p">,</span> <span class="mi">35978</span><span class="p">,</span> <span class="mi">35979</span><span class="p">,</span> <span class="mi">35980</span><span class="p">,</span> <span class="mi">35981</span><span class="p">,</span> <span class="mi">35982</span><span class="p">,</span> <span class="mi">35983</span><span class="p">,</span>
+<span class="mi">35984</span><span class="p">,</span> <span class="mi">35985</span><span class="p">,</span> <span class="mi">35986</span><span class="p">,</span> <span class="mi">35987</span><span class="p">,</span> <span class="mi">35988</span><span class="p">,</span> <span class="mi">35989</span><span class="p">,</span> <span class="mi">35990</span><span class="p">,</span> <span class="mi">35991</span><span class="p">,</span> <span class="mi">35992</span><span class="p">,</span> <span class="mi">35993</span><span class="p">,</span> <span class="mi">35994</span><span class="p">,</span>
+<span class="mi">35995</span><span class="p">,</span> <span class="mi">35996</span><span class="p">,</span> <span class="mi">35997</span><span class="p">,</span> <span class="mi">35998</span><span class="p">,</span> <span class="mi">35999</span><span class="p">,</span> <span class="mi">36352</span><span class="p">,</span> <span class="mi">36353</span><span class="p">,</span> <span class="mi">36354</span><span class="p">,</span> <span class="mi">36355</span><span class="p">,</span> <span class="mi">36356</span><span class="p">,</span> <span class="mi">36357</span><span class="p">,</span>
+<span class="mi">36358</span><span class="p">,</span> <span class="mi">36359</span><span class="p">,</span> <span class="mi">36360</span><span class="p">,</span> <span class="mi">36361</span><span class="p">,</span> <span class="mi">36362</span><span class="p">,</span> <span class="mi">36363</span><span class="p">,</span> <span class="mi">36364</span><span class="p">,</span> <span class="mi">36365</span><span class="p">,</span> <span class="mi">36366</span><span class="p">,</span> <span class="mi">36367</span><span class="p">,</span> <span class="mi">36368</span><span class="p">,</span>
+<span class="mi">36369</span><span class="p">,</span> <span class="mi">36370</span><span class="p">,</span> <span class="mi">36371</span><span class="p">,</span> <span class="mi">36372</span><span class="p">,</span> <span class="mi">36373</span><span class="p">,</span> <span class="mi">36374</span><span class="p">,</span> <span class="mi">36375</span><span class="p">,</span> <span class="mi">36376</span><span class="p">,</span> <span class="mi">36377</span><span class="p">,</span> <span class="mi">36378</span><span class="p">,</span> <span class="mi">36379</span><span class="p">,</span>
+<span class="mi">36380</span><span class="p">,</span> <span class="mi">36381</span><span class="p">,</span> <span class="mi">36382</span><span class="p">,</span> <span class="mi">36383</span><span class="p">,</span> <span class="mi">36576</span><span class="p">,</span> <span class="mi">36577</span><span class="p">,</span> <span class="mi">36578</span><span class="p">,</span> <span class="mi">36579</span><span class="p">,</span> <span class="mi">36580</span><span class="p">,</span> <span class="mi">36581</span><span class="p">,</span> <span class="mi">36582</span><span class="p">,</span>
+<span class="mi">36583</span><span class="p">,</span> <span class="mi">36584</span><span class="p">,</span> <span class="mi">36585</span><span class="p">,</span> <span class="mi">36586</span><span class="p">,</span> <span class="mi">36587</span><span class="p">,</span> <span class="mi">36588</span><span class="p">,</span> <span class="mi">36589</span><span class="p">,</span> <span class="mi">36590</span><span class="p">,</span> <span class="mi">36591</span><span class="p">,</span> <span class="mi">36592</span><span class="p">,</span> <span class="mi">36593</span><span class="p">,</span>
+<span class="mi">36594</span><span class="p">,</span> <span class="mi">36595</span><span class="p">,</span> <span class="mi">36596</span><span class="p">,</span> <span class="mi">36597</span><span class="p">,</span> <span class="mi">36598</span><span class="p">,</span> <span class="mi">36599</span><span class="p">,</span> <span class="mi">36600</span><span class="p">,</span> <span class="mi">36601</span><span class="p">,</span> <span class="mi">36602</span><span class="p">,</span> <span class="mi">36603</span><span class="p">,</span> <span class="mi">36604</span><span class="p">,</span>
+<span class="mi">36605</span><span class="p">,</span> <span class="mi">36606</span><span class="p">,</span> <span class="mi">36607</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>That&#8217;s a lot of active cells! But remember our structure is 65,536 cells total
+(2,048 columns, each with 32 cells), so these active cells represent only about
+2% of the total number of cells.</p>
+</div>
+<div class="section" id="predictive-cells">
+<h3>Predictive Cells<a class="headerlink" href="#predictive-cells" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference internal" href="../api/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory" title="nupic.research.temporal_memory.TemporalMemory"><code class="xref py py-class docutils literal"><span class="pre">TemporalMemory</span></code></a> interface has many methods of getting cellular
+state information. In the section above, we used the
+<code class="xref py py-meth docutils literal"><span class="pre">getActiveCells()</span></code> function to get the indices of active
+cells. We can also get predictive cells by calling
+<a class="reference internal" href="../api/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory.getPredictiveCells" title="nupic.research.temporal_memory.TemporalMemory.getPredictiveCells"><code class="xref py py-meth docutils literal"><span class="pre">TemporalMemory.getPredictiveCells()</span></code></a>, which returns an array of indices of
+cells in a depolarized, or predictive, state.</p>
+</div>
+</div>
+<div class="section" id="getting-predictions">
+<h2>Getting Predictions<a class="headerlink" href="#getting-predictions" title="Permalink to this headline">¶</a></h2>
+<p>In order to associate the predictive cells in the TM to an input pattern, we use
+a non biological method of classification. This requires that we add a
+<a class="reference external" href="../api/classifiers.html">Classifier</a> to do this work. We will be using the
+<a class="reference internal" href="../api/classifiers.html#nupic.algorithms.sdr_classifier.SDRClassifier" title="nupic.algorithms.sdr_classifier.SDRClassifier"><code class="xref py py-class docutils literal"><span class="pre">SDRClassifier</span></code></a> to do this.</p>
+<p>The goal is to extract a prediction for the value of <cite>consumption</cite> that was
+passed into the system.</p>
+<div class="section" id="creating-an-sdr-classifier">
+<h3>Creating an SDR Classifier<a class="headerlink" href="#creating-an-sdr-classifier" title="Permalink to this headline">¶</a></h3>
+<p>We will use the <code class="xref py py-class docutils literal"><span class="pre">SDRClassifierFactory</span></code> for this and use the default
+factory settings.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nupic.algorithms.sdr_classifier_factory</span> <span class="k">import</span> <span class="n">SDRClassifierFactory</span>
+
+<span class="n">classifier</span> <span class="o">=</span> <span class="n">SDRClassifierFactory</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-the-classifier">
+<h3>Running the Classifier<a class="headerlink" href="#running-the-classifier" title="Permalink to this headline">¶</a></h3>
+<p>In order to call <code class="xref py py-meth docutils literal"><span class="pre">compute()</span></code> on the classifier, we need pass
+it both the actual <code class="docutils literal"><span class="pre">consumption</span></code> value and the <code class="docutils literal"><span class="pre">bucketIdx</span></code> (bucket index),
+which we can get from the encoder itself. This will allow the encoder to
+classify predictions into a previously seen value.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Get the bucket info for this input value for classification.</span>
+<span class="n">bucketIdx</span> <span class="o">=</span> <span class="n">scalarEncoder</span><span class="o">.</span><span class="n">getBucketIndices</span><span class="p">(</span><span class="n">consumption</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Run classifier to translate active cells back to scalar value.</span>
+<span class="n">classifierResult</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span>
+  <span class="n">recordNum</span><span class="o">=</span><span class="n">count</span><span class="p">,</span>
+  <span class="n">patternNZ</span><span class="o">=</span><span class="n">activeCells</span><span class="p">,</span>
+  <span class="n">classification</span><span class="o">=</span><span class="p">{</span>
+    <span class="s2">&quot;bucketIdx&quot;</span><span class="p">:</span> <span class="n">bucketIdx</span><span class="p">,</span>
+    <span class="s2">&quot;actValue&quot;</span><span class="p">:</span> <span class="n">consumption</span>
+  <span class="p">},</span>
+  <span class="n">learn</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+  <span class="n">infer</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Print the best prediction for 1 step out.</span>
+<span class="n">probability</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+  <span class="nb">zip</span><span class="p">(</span><span class="n">classifierResult</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">classifierResult</span><span class="p">[</span><span class="s2">&quot;actualValues&quot;</span><span class="p">]),</span>
+  <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">probability</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">classiferResult</span></code> contains predicted values. Running the code above will
+print the best prediction and its associated probability to the console:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="o">-</span><span class="n">step</span><span class="p">:</span>    <span class="mf">5.11804943107</span> <span class="p">(</span><span class="mf">52.12</span><span class="o">%</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Congratulations! You&#8217;ve got HTM predictions for a scalar data stream!</strong></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Quick Start</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#install-nupic">Install NuPIC</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#choose-your-api">Choose Your API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opf.html">Online Prediction Framework (OPF)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html">Network API</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Algorithms API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#encoding-data">Encoding Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spatial-pooling">Spatial Pooling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#temporal-memory">Temporal Memory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#getting-predictions">Getting Predictions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/index.html">Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Docs</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/quick-start/algorithms.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
