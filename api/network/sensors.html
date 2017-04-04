@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Sensors &#8212; NuPIC 0.6.1.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.6.1.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Algorithms" href="../algorithms/index.html" />
+    <link rel="prev" title="Regions" href="regions.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sensors">
+<h1>Sensors<a class="headerlink" href="#sensors" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pluggableencodersensor">
+<h2>PluggableEncoderSensor<a class="headerlink" href="#pluggableencodersensor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.regions.PluggableEncoderSensor.PluggableEncoderSensor">
+<em class="property">class </em><code class="descclassname">nupic.regions.PluggableEncoderSensor.</code><code class="descname">PluggableEncoderSensor</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.PluggableEncoderSensor.PluggableEncoderSensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regions.html#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion</span></code></a></p>
+<p>A PluggableEncoderSensor holds a value and encodes it into network output.</p>
+<p>It requires you to reach in and insert an encoder.</p>
+<dl class="method">
+<dt id="nupic.regions.PluggableEncoderSensor.PluggableEncoderSensor.setSensedValue">
+<code class="descname">setSensedValue</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.PluggableEncoderSensor.PluggableEncoderSensor.setSensedValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the value that will be encoded when this region does a compute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="recordsensor">
+<h2>RecordSensor<a class="headerlink" href="#recordsensor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.regions.RecordSensor.RecordSensor">
+<em class="property">class </em><code class="descclassname">nupic.regions.RecordSensor.</code><code class="descname">RecordSensor</code><span class="sig-paren">(</span><em>verbosity=0</em>, <em>numCategories=1</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.RecordSensor.RecordSensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regions.html#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion</span></code></a></p>
+<p>A Record Sensor (RS) retrieves an information &#8220;record&#8221; and encodes
+it to be suitable as input to an HTM.</p>
+<p>An information record is analogous database record &#8211; it is just a
+collection of typed values: date, amount, category, location, etc.</p>
+<dl class="docutils">
+<dt>The RS may obtain information from one of three sources:</dt>
+<dd>. a file (e.g. csv or tsv)
+. a sql database (not yet implemented)
+. a data generator (for artificial data)</dd>
+</dl>
+<p>The RS encodes a record using an encoding scheme that can be specified
+programmatically.</p>
+<p>An RS is essentially a shell containing two objects:</p>
+<p>1. A DataSource object gets one record at a time. This record is returned
+either as a dictionary or a user-defined object. The fields within a record
+correspond to entries in the dictionary or attributes of the object. For
+example, a DataSource might return:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>dict(date=&#8221;02-01-2010 23:12:23&#8221;, amount=4.95, country=&#8221;US&#8221;, </dt>
+<dd>_reset=0, _sequenceId=0)</dd>
+</dl>
+</div></blockquote>
+<p>or an object with attributes &#8220;date&#8221;, &#8220;amount&#8221; and &#8220;country&#8221;.</p>
+<p>The _reset and _sequenceId attributes must always exist, and are provided by
+the DataSource if not directly present in the data.</p>
+<p>DataSource methods are:
+&#8211; getNext() &#8211; return the next record, which is a dict
+&#8211; TBD: something like getIterationCount()?</p>
+<p>2. A MultiEncoder object encodes one record into a fixed-sparsity
+distributed representation. MultiEncoder is defined in
+nupic.encoders</p>
+<p>The DataSource and MultiEncoder are supplied after the node is created,
+not in the node itself.</p>
+<p>Example usage in NuPIC:</p>
+<p>from nupic.net import Network
+from nupic.encoders import MultiEncoder
+from nupic.data.file.file_record_stream import FileRecordStream</p>
+<p>n = Network()
+s = n.addRegion(&#8220;sensor&#8221;, &#8220;py.RecordSensor&#8221;, &#8220;&#8221;)
+mysource = FileRecordStream(&#8220;mydata.txt&#8221;)
+myencoder = MultiEncoder()
+... set up myencoder ...
+s.getSelf().dataSource = mysource
+s.getSelf().encoder = myencoder</p>
+<p>l1 = n.addRegion(&#8220;l1&#8221;, &#8220;py.FDRCNode&#8221;, &#8220;[create params]&#8221;)
+n.initialize()</p>
+<p>n.run(100)</p>
+<p>TBD: the data source could also include the type of data, and we could
+more closely tie the DataSource output to the encoder input, ensuring that
+data types match and that allfields the encoder expects to see are in fact
+present.</p>
+<dl class="method">
+<dt id="nupic.regions.RecordSensor.RecordSensor.applyFilters">
+<code class="descname">applyFilters</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.RecordSensor.RecordSensor.applyFilters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply pre-encoding filters.
+These filters may modify or add data
+If a filter needs another record (e.g. a delta filter)
+it will request another record by returning False and the current record
+will be skipped (but will still be given to all filters)</p>
+<p>We have to be very careful about resets. A filter may add a reset,
+but other filters should not see the added reset, each filter sees
+the original reset value, and we keep track of whether any filter
+adds a reset.</p>
+<p>&#64;param data: The data that will be processed by the filter.
+&#64;type data: dict
+&#64;return: a tuple with the data processed by the filter and a boolean to</p>
+<blockquote>
+<div>know whether or not the filter needs mode data.</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.RecordSensor.RecordSensor.compute">
+<code class="descname">compute</code><span class="sig-paren">(</span><em>inputs</em>, <em>outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.RecordSensor.RecordSensor.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a record from the dataSource and encode it.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.RecordSensor.RecordSensor.getNextRecord">
+<code class="descname">getNextRecord</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.RecordSensor.RecordSensor.getNextRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the next record to encode. Includes getting a record
+from the datasource and applying filters. If the filters
+request more data from the datasource continue to get data
+from the datasource until all filters are satisfied.
+This method is separate from compute() so that we can use
+a standalone RecordSensor to get filtered data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.RecordSensor.RecordSensor.getOutputElementCount">
+<code class="descname">getOutputElementCount</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.RecordSensor.RecordSensor.getOutputElementCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the width of dataOut</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.RecordSensor.RecordSensor.getOutputValues">
+<code class="descname">getOutputValues</code><span class="sig-paren">(</span><em>outputName</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.RecordSensor.RecordSensor.getOutputValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the dictionary of output values. Note that these are normal Python
+lists, rather than numpy arrays. This is to support lists with mixed scalars
+and strings, as in the case of records with categorical variables</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="nupic.regions.RecordSensor.RecordSensor.getProtoType">
+<em class="property">static </em><code class="descname">getProtoType</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.RecordSensor.RecordSensor.getProtoType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the pycapnp proto type that the class uses for serialization.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.RecordSensor.RecordSensor.populateCategoriesOut">
+<code class="descname">populateCategoriesOut</code><span class="sig-paren">(</span><em>categories</em>, <em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.RecordSensor.RecordSensor.populateCategoriesOut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Populate the output array with the category indices.
+Note: non-categories are represented with -1.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.regions.RecordSensor.RecordSensor.readFromProto">
+<em class="property">classmethod </em><code class="descname">readFromProto</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.RecordSensor.RecordSensor.readFromProto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read state from proto object.</p>
+<p>proto: RecordSensorProto capnproto object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.RecordSensor.RecordSensor.rewind">
+<code class="descname">rewind</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.RecordSensor.RecordSensor.rewind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the sensor to beginning of data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.RecordSensor.RecordSensor.setParameter">
+<code class="descname">setParameter</code><span class="sig-paren">(</span><em>parameterName</em>, <em>index</em>, <em>parameterValue</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.RecordSensor.RecordSensor.setParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of a Spec parameter. Most parameters are handled
+automatically by PyRegion&#8217;s parameter set mechanism. The ones that need
+special treatment are explicitly handled here.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.RecordSensor.RecordSensor.writeToProto">
+<code class="descname">writeToProto</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.RecordSensor.RecordSensor.writeToProto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write state to proto object.</p>
+<p>proto: RecordSensorProto capnproto object</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/index.html">Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../opf/index.html">Online Prediction Framework</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Network API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="network.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html">Regions</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Sensors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../io.html">Input / Output</a></li>
+</ul>
+</li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/network/sensors.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

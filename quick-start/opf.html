@@ -47,7 +47,7 @@
   <img alt="../_images/quickstart.png" class="align-right" src="../_images/quickstart.png" />
 <div class="section" id="online-prediction-framework-opf">
 <h1>Online Prediction Framework (OPF)<a class="headerlink" href="#online-prediction-framework-opf" title="Permalink to this headline">¶</a></h1>
-<p>See the <a class="reference external" href="../guide/opf.html">OPF Guide</a> for an overview of this API.</p>
+<p>See the <a class="reference external" href="../guides/opf.html">OPF Guide</a> for an overview of this API.</p>
 <p>Here is the complete program we are going to use as an example. In sections
 below, we&#8217;ll break it down into parts and explain what is happening (without
 some of the plumbing details).</p>
@@ -110,7 +110,7 @@ called <code class="docutils literal"><span class="pre">model_params.py</span></
 <div class="section" id="create-an-opf-model">
 <h2>Create an OPF Model<a class="headerlink" href="#create-an-opf-model" title="Permalink to this headline">¶</a></h2>
 <p>The easiest way to create a model once you have access to model parameters is by
-using the <a class="reference internal" href="../api/opf-models.html#nupic.frameworks.opf.modelfactory.ModelFactory" title="nupic.frameworks.opf.modelfactory.ModelFactory"><code class="xref py py-class docutils literal"><span class="pre">ModelFactory</span></code></a>.</p>
+using the <a class="reference internal" href="../api/opf/models.html#nupic.frameworks.opf.modelfactory.ModelFactory" title="nupic.frameworks.opf.modelfactory.ModelFactory"><code class="xref py py-class docutils literal"><span class="pre">ModelFactory</span></code></a>.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nupic.frameworks.opf.modelfactory</span> <span class="k">import</span> <span class="n">ModelFactory</span>
 
 <span class="kn">import</span> <span class="nn">model_params</span>
@@ -121,7 +121,7 @@ using the <a class="reference internal" href="../api/opf-models.html#nupic.frame
 <span class="n">model</span><span class="o">.</span><span class="n">enableInference</span><span class="p">({</span><span class="s1">&#39;predictedField&#39;</span><span class="p">:</span> <span class="s1">&#39;consumption&#39;</span><span class="p">})</span>
 </pre></div>
 </div>
-<p>The resulting <code class="docutils literal"><span class="pre">model</span></code> will be an instance of <a class="reference internal" href="../api/opf-models.html#nupic.frameworks.opf.clamodel.CLAModel" title="nupic.frameworks.opf.clamodel.CLAModel"><code class="xref py py-class docutils literal"><span class="pre">CLAModel</span></code></a>.</p>
+<p>The resulting <code class="docutils literal"><span class="pre">model</span></code> will be an instance of <a class="reference internal" href="../api/opf/models.html#nupic.frameworks.opf.clamodel.CLAModel" title="nupic.frameworks.opf.clamodel.CLAModel"><code class="xref py py-class docutils literal"><span class="pre">CLAModel</span></code></a>.</p>
 </div>
 <div class="section" id="feed-the-model-data">
 <h2>Feed the Model Data<a class="headerlink" href="#feed-the-model-data" title="Permalink to this headline">¶</a></h2>
@@ -150,12 +150,12 @@ encoded in the <code class="docutils literal"><span class="pre">encoders</span><
 </div>
 <p>Notice that three semantic values are being encoded into the input space. The
 first is the scalar energy <code class="docutils literal"><span class="pre">consumption</span></code> value, which is being encoded with
-the <a class="reference internal" href="../api/encoders.html#nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder" title="nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">RandomDistributedScalarEncoder</span></code></a>. The next two values represent two
-different aspects of time using the <a class="reference internal" href="../api/encoders.html#nupic.encoders.date.DateEncoder" title="nupic.encoders.date.DateEncoder"><code class="xref py py-class docutils literal"><span class="pre">DateEncoder</span></code></a>. The encoder called
+the <a class="reference internal" href="../api/algorithms/encoders.html#nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder" title="nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">RandomDistributedScalarEncoder</span></code></a>. The next two values represent two
+different aspects of time using the <a class="reference internal" href="../api/algorithms/encoders.html#nupic.encoders.date.DateEncoder" title="nupic.encoders.date.DateEncoder"><code class="xref py py-class docutils literal"><span class="pre">DateEncoder</span></code></a>. The encoder called
 <code class="docutils literal"><span class="pre">timestamp_timeOfDay</span></code> encodes the time of day, while the <code class="docutils literal"><span class="pre">timestamp_weekend</span></code>
 encoder will output different representations for weekends vs weekdays. The
-<a class="reference internal" href="../api/opf-models.html#nupic.frameworks.opf.clamodel.CLAModel" title="nupic.frameworks.opf.clamodel.CLAModel"><code class="xref py py-class docutils literal"><span class="pre">CLAModel</span></code></a> will combine these encodings using the
-<a class="reference internal" href="../api/encoders.html#nupic.encoders.multi.MultiEncoder" title="nupic.encoders.multi.MultiEncoder"><code class="xref py py-class docutils literal"><span class="pre">MultiEncoder</span></code></a>.</p>
+<a class="reference internal" href="../api/opf/models.html#nupic.frameworks.opf.clamodel.CLAModel" title="nupic.frameworks.opf.clamodel.CLAModel"><code class="xref py py-class docutils literal"><span class="pre">CLAModel</span></code></a> will combine these encodings using the
+<a class="reference internal" href="../api/algorithms/encoders.html#nupic.encoders.multi.MultiEncoder" title="nupic.encoders.multi.MultiEncoder"><code class="xref py py-class docutils literal"><span class="pre">MultiEncoder</span></code></a>.</p>
 <blockquote>
 <div>For details about encoding and how these encoders work, see the
 <a class="reference external" href="https://numenta.org/htm-school/">HTM School</a> episodes on encoders.</div></blockquote>
@@ -278,20 +278,14 @@ confidences in the console output, which should look something like this:</p>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Quick Start</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="index.html#install-nupic">Install NuPIC</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#choose-your-api">Choose Your API</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Online Prediction Framework (OPF)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#model-parameters">Model Parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#create-an-opf-model">Create an OPF Model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#feed-the-model-data">Feed the Model Data</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#extract-the-results">Extract the results</a></li>
-</ul>
-</li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Online Prediction Framework (OPF)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="network.html">Network API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="algorithms.html">Algorithms API</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../guide/index.html">Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/index.html">Guides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Docs</a></li>
 </ul>
 
