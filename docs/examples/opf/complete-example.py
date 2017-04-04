@@ -1,16 +1,18 @@
 import csv
 import datetime
+import yaml
 from itertools import islice
 
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
-import model_params
-
 _NUM_RECORDS = 3000
-_INPUT_FILE_PATH = "../data/gymdata.csv"
+_INPUT_FILE_PATH = '../data/gymdata.csv'
+_PARAMS_PATH = '../params/model.yaml'
 
 def createModel():
-  return ModelFactory.create(model_params.MODEL_PARAMS)
+  with open(_PARAMS_PATH, 'r') as f:
+    model_params = yaml.safe_load(f)
+  return ModelFactory.create(model_params)
 
 def runHotgym():
   model = createModel()
@@ -22,9 +24,9 @@ def runHotgym():
     reader.next()
     for record in islice(reader, _NUM_RECORDS):
       modelInput = dict(zip(headers, record))
-      modelInput["consumption"] = float(modelInput["consumption"])
-      modelInput["timestamp"] = datetime.datetime.strptime(
-          modelInput["timestamp"], "%m/%d/%y %H:%M")
+      modelInput['consumption'] = float(modelInput['consumption'])
+      modelInput['timestamp'] = datetime.datetime.strptime(
+          modelInput['timestamp'], '%m/%d/%y %H:%M')
       result = model.run(modelInput)
       bestPredictions = result.inferences['multiStepBestPredictions']
       allPredictions = result.inferences['multiStepPredictions']
@@ -33,9 +35,9 @@ def runHotgym():
       fiveStep = bestPredictions[5]
       fiveStepConfidence = allPredictions[5][fiveStep]
 
-      print("1-step: {:16} ({:4.4}%)\t5-step: {:16} ({:4.4}%)".format(oneStep, oneStepConfidence*100, fiveStep, fiveStepConfidence*100))
+      print('1-step: {:16} ({:4.4}%)\t5-step: {:16} ({:4.4}%)'.format(oneStep, oneStepConfidence*100, fiveStep, fiveStepConfidence*100))
 
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
   runHotgym()
