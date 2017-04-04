@@ -30,7 +30,7 @@ using the :class:`.ModelFactory`.
 
 .. literalinclude:: ../../examples/opf/create-model-example.py
 
-The resulting ``model`` will be an instance of :class:`.OPFModel`.
+The resulting ``model`` will be an instance of :class:`.SPTMModel`.
 
 Feed the Model Data
 ^^^^^^^^^^^^^^^^^^^
@@ -47,7 +47,7 @@ first is the scalar energy ``consumption`` value, which is being encoded with
 the :class:`.RandomDistributedScalarEncoder`. The next two values represent two
 different aspects of time. The encoder called ``timestamp_timeOfDay`` encodes
 the time of day, while the ``timestamp_weekend`` encoder will output different
-representations for weekends vs weekdays. The :class:`.OPFModel` will combine
+representations for weekends vs weekdays. The :class:`.SPTMModel` will combine
 these encodings using the :class:`.MultiEncoder`.
 
     For details about encoding and how these encoders work, see the

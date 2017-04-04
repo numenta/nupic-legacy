@@ -8,12 +8,10 @@ Model
    :members:
 
 
-OPFModel
+SPTMModel
 ^^^^^^^^
 
-This class is poorly named.
-
-.. autoclass:: nupic.frameworks.opf.opfmodel.OPFModel
+.. autoclass:: nupic.frameworks.opf.sptmmodel.SPTMModel
    :members:
    :show-inheritance:
 

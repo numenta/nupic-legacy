@@ -19,59 +19,59 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Unit tests for the opfmodel module."""
+"""Unit tests for the sptmmodel module."""
 
 import datetime
 import unittest2 as unittest
 
-from nupic.frameworks.opf.opfmodel import OPFModel
+from nupic.frameworks.opf.sptmmodel import SPTMModel
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf.opfutils import ModelResult
 
 
 
 class CLAModelTest(unittest.TestCase):
-  """OPFModel unit tests."""
+  """SPTMModel unit tests."""
 
 
   def testRemoveUnlikelyPredictionsEmpty(self):
-    result = OPFModel._removeUnlikelyPredictions({}, 0.01, 3)
+    result = SPTMModel._removeUnlikelyPredictions({}, 0.01, 3)
     self.assertDictEqual(result, {})
 
 
   def testRemoveUnlikelyPredictionsSingleValues(self):
-    result = OPFModel._removeUnlikelyPredictions({1: 0.1}, 0.01, 3)
+    result = SPTMModel._removeUnlikelyPredictions({1: 0.1}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.1})
-    result = OPFModel._removeUnlikelyPredictions({1: 0.001}, 0.01, 3)
+    result = SPTMModel._removeUnlikelyPredictions({1: 0.001}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.001})
 
 
   def testRemoveUnlikelyPredictionsLikelihoodThresholds(self):
-    result = OPFModel._removeUnlikelyPredictions({1: 0.1, 2: 0.001}, 0.01, 3)
+    result = SPTMModel._removeUnlikelyPredictions({1: 0.1, 2: 0.001}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.1})
-    result = OPFModel._removeUnlikelyPredictions({1: 0.001, 2: 0.002}, 0.01, 3)
+    result = SPTMModel._removeUnlikelyPredictions({1: 0.001, 2: 0.002}, 0.01, 3)
     self.assertDictEqual(result, {2: 0.002})
-    result = OPFModel._removeUnlikelyPredictions({1: 0.002, 2: 0.001}, 0.01, 3)
+    result = SPTMModel._removeUnlikelyPredictions({1: 0.002, 2: 0.001}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.002})
 
 
   def testRemoveUnlikelyPredictionsMaxPredictions(self):
-    result = OPFModel._removeUnlikelyPredictions({1: 0.1, 2: 0.2, 3: 0.3},
+    result = SPTMModel._removeUnlikelyPredictions({1: 0.1, 2: 0.2, 3: 0.3},
                                                  0.01, 3)
     self.assertDictEqual(result, {1: 0.1, 2: 0.2, 3: 0.3})
-    result = OPFModel._removeUnlikelyPredictions(
+    result = SPTMModel._removeUnlikelyPredictions(
         {1: 0.1, 2: 0.2, 3: 0.3, 4: 0.4}, 0.01, 3)
     self.assertDictEqual(result, {2: 0.2, 3: 0.3, 4: 0.4})
 
 
   def testRemoveUnlikelyPredictionsComplex(self):
-    result = OPFModel._removeUnlikelyPredictions(
+    result = SPTMModel._removeUnlikelyPredictions(
         {1: 0.1, 2: 0.2, 3: 0.3, 4: 0.004}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.1, 2: 0.2, 3: 0.3})
-    result = OPFModel._removeUnlikelyPredictions(
+    result = SPTMModel._removeUnlikelyPredictions(
         {1: 0.1, 2: 0.2, 3: 0.3, 4: 0.4, 5: 0.005}, 0.01, 3)
     self.assertDictEqual(result, {2: 0.2, 3: 0.3, 4: 0.4})
-    result = OPFModel._removeUnlikelyPredictions(
+    result = SPTMModel._removeUnlikelyPredictions(
         {1: 0.1, 2: 0.2, 3: 0.3, 4: 0.004, 5: 0.005}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.1, 2: 0.2, 3: 0.3})
 

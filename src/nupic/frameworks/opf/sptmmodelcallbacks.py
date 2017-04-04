@@ -20,13 +20,13 @@
 # ----------------------------------------------------------------------
 
 
-# OPFModel-specific experiment task callbacks that may be used
+# SPTMModel-specific experiment task callbacks that may be used
 # in setup, postIter, and finish callback lists
 
 import os
 
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
-from opfmodel import OPFModel
+from sptmmodel import SPTMModel
 
 
 
@@ -35,12 +35,12 @@ def claModelControlEnableSPLearningCb(claModel):
 
   See also claModelControlDisableSPLearningCb.
 
-  claModel:  pointer to a OPFModel instance
+  claModel:  pointer to a SPTMModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(claModel, OPFModel)
+  assert isinstance(claModel, SPTMModel)
 
   claModel._getSPRegion().setParameter('learningMode', True)
   return
@@ -54,12 +54,12 @@ def claModelControlDisableSPLearningCb(claModel):
   See also: claModelControlEnableSPLearningCb.
   See also: modelcallbacks.modelControlFinishLearningCb.
 
-  claModel:  pointer to a OPFModel instance
+  claModel:  pointer to a SPTMModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(claModel, OPFModel)
+  assert isinstance(claModel, SPTMModel)
 
   claModel._getSPRegion().setParameter('learningMode', False)
   return
@@ -71,12 +71,12 @@ def claModelControlEnableTPLearningCb(claModel):
 
   See also claModelControlDisableTPLearningCb.
 
-  claModel:  pointer to a OPFModel instance
+  claModel:  pointer to a SPTMModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(claModel, OPFModel)
+  assert isinstance(claModel, SPTMModel)
 
   claModel._getTPRegion().setParameter('learningMode', True)
   return
@@ -90,12 +90,12 @@ def claModelControlDisableTPLearningCb(claModel):
   See also: claModelControlEnableTPLearningCb.
   See also: modelcallbacks.modelControlFinishLearningCb.
 
-  claModel:  pointer to a OPFModel instance
+  claModel:  pointer to a SPTMModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(claModel, OPFModel)
+  assert isinstance(claModel, SPTMModel)
 
   claModel._getTPRegion().setParameter('learningMode', False)
   return
@@ -120,7 +120,7 @@ class CLAModelPickleSPInitArgs(object):
     import pickle
 
     # Get the SP args dictionary
-    assert isinstance(claModel, OPFModel)
+    assert isinstance(claModel, SPTMModel)
 
     spRegion = claModel._getSPRegion().getSelf()
 
@@ -160,7 +160,7 @@ class CLAModelPickleTPInitArgs(object):
     import pickle
 
     # Get the TP args dictionary
-    assert isinstance(claModel, OPFModel)
+    assert isinstance(claModel, SPTMModel)
 
     tpRegion = claModel._getTPRegion().getSelf()
 

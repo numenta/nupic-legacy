@@ -24,7 +24,7 @@
 import unittest
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 from nupic.frameworks.opf.modelfactory import ModelFactory
-from nupic.frameworks.opf.opfmodel import OPFModel
+from nupic.frameworks.opf.sptmmodel import SPTMModel
 from nupic.frameworks.opf.common_models.cluster_params import (
   getScalarMetricWithTimeOfDayAnomalyParams)
 
@@ -36,7 +36,7 @@ class ClusterParamsTest(TestCaseBase):
   def testModelParams(self):
     """
     Test that clusterParams loads returns a valid dict that can be instantiated
-    as a OPFModel.
+    as a SPTMModel.
     """
     params = getScalarMetricWithTimeOfDayAnomalyParams([0],
                                                        minVal=23.42,
@@ -47,7 +47,7 @@ class ClusterParamsTest(TestCaseBase):
 
     model = ModelFactory.create(modelConfig=params['modelConfig'])
     self.assertIsInstance(model,
-                          OPFModel,
+                          SPTMModel,
                           "JSON returned cannot be used to create a model")
 
     # Ensure we have a time of day field

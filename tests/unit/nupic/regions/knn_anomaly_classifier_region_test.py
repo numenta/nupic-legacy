@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Unit tests for the opfmodel module."""
+"""Unit tests for the sptmmodel module."""
 
 import sys
 import copy

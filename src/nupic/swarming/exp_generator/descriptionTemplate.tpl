@@ -34,7 +34,7 @@ from nupic.frameworks.opf.expdescriptionhelpers import (
   applyValueGettersToContainer,
   DeferredDictLookup)
 
-from nupic.frameworks.opf.opfmodelcallbacks import *
+from nupic.frameworks.opf.sptmmodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.swarming.experimentutils import (InferenceType, InferenceElement)
 from nupic.support import aggregationDivide
