@@ -1,0 +1,483 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Guide to Running Swarms &#8212; NuPIC 0.6.1.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.6.1.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="The Swarming Algorithm" href="algorithm.html" />
+    <link rel="prev" title="Swarming" href="index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="guide-to-running-swarms">
+<span id="guide-to-running-swarms"></span><h1>Guide to Running Swarms<a class="headerlink" href="#guide-to-running-swarms" title="Permalink to this headline">¶</a></h1>
+<p>This document contains detailed instructions for configuring and running swarms. Please see the document <a class="reference external" href="Swarming-Algorithm">Swarming Algorithm</a> for a description of the underlying swarming algorithm.</p>
+<p>Swarming is a process that automatically determines the best model for a given dataset. By &#8220;best&#8221;, we mean the model that most accurately produces the desired output. Swarming figures out which optional components should go into a model (encoders, spatial pooler, temporal pooler, classifier, etc.), as well as the best parameter values to use for each component.</p>
+<p>When you run a swarm, you provide the following information:</p>
+<ul class="simple">
+<li>A dataset to optimize over (a .csv file containing the inputs and desired output).</li>
+<li>Which fields (columns) of the dataset to consider as inputs to the model and their datatypes.</li>
+<li>How much to aggregate the input records (or not at all) before feeding them into the model (e.g. &#8220;aggregate hourly&#8221;).</li>
+<li>The task you are trying to perform (e.g. &#8220;predict 4 steps in advance&#8221;).</li>
+<li>An optional custom error metric to use for evaluating the effectiveness of the model.</li>
+</ul>
+<p>The output of a swarm is an OPF (Online Prediction Framework) format description.py text file that completely describes the components of the model and their parameters. This description.py file can in turn be instantiated in the OPF and run against any other dataset you wish.</p>
+<p>Also a <a class="reference external" href="http://www.youtube.com/watch?v=KuFfm3ncEwI">video tutorial &#8220;Sine Wave example&#8221;</a> is available.</p>
+<div class="section" id="prerequisites">
+<span id="prerequisites"></span><h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>To enable finding the best model as quickly as possible, swarming can leverage multiple processes running concurrently on the same machine. You can tell the swarming tool how many processes to use via a command line option. Depending on the machine you are running on (available cores and memory), you might choose a value as low as 1 or as high as 32 on a high end machine.</p>
+<p>A MySQL database is used as part of the coordination logic between each of the worker processes, so swarming needs the credentials to a MySQL database in order to run. The default is to use a database hosted on &#8220;localhost&#8221;, with a user name of &#8220;root&#8221; and an empty password (when you install MySQL for the first time on a machine, these are the default credentials it creates). If you wish to use a different database instance, name or password, edit the &#8220;$NUPIC/nupic/support/nupic-default.xml&#8221; configuration file. You can run the simple test script below to validate that your MySQL setup is compatible with NuPIC:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>python $NUPIC/examples/swarm/test_db.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="example">
+<span id="example"></span><h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>To run a sample swarm, execute the following command line (assuming your current directory is the root of the nupic repo). This will launch a swarm using 4 worker processes:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$NUPIC/scripts/run_swarm.py $NUPIC/examples/swarm/simple/search_def.json  --maxWorkers=4
+</pre></div>
+</div>
+<p>As the swarm runs, you will see a bunch of progress messages printed to stdout. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">&lt;</span><span class="n">jobID</span><span class="p">:</span> <span class="mi">1104</span><span class="o">&gt;</span> <span class="mi">44</span>  <span class="n">models</span> <span class="n">finished</span> <span class="p">[</span><span class="n">success</span><span class="p">:</span> <span class="mi">44</span><span class="p">;</span> <span class="n">EOF</span><span class="p">:</span> <span class="mi">44</span><span class="p">;</span> <span class="n">stopped</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span> <span class="n">killed</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span> <span class="n">error</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span> <span class="n">orphaned</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span> <span class="n">unknown</span><span class="p">:</span> <span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Once it completes (for this particular example, it takes about 30 seconds on a high-end laptop), it will print a summary message describing the best model found. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Best</span> <span class="n">results</span> <span class="n">on</span> <span class="n">the</span> <span class="n">optimization</span> <span class="n">metric</span> <span class="n">multiStepBestPredictions</span><span class="p">:</span><span class="n">multiStep</span><span class="p">:</span><span class="n">errorMetric</span><span class="o">=</span><span class="s1">&#39;altMAPE&#39;</span><span class="p">:</span><span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">window</span><span class="o">=</span><span class="mi">1000</span><span class="p">:</span><span class="n">field</span><span class="o">=</span><span class="n">consumption</span> <span class="p">(</span><span class="n">maximize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="p">[</span><span class="mi">18</span><span class="p">]</span> <span class="n">Experiment</span> <span class="n">_GrokModelInfo</span><span class="p">(</span><span class="n">jobID</span><span class="o">=</span><span class="mi">1104</span><span class="p">,</span> <span class="n">modelID</span><span class="o">=</span><span class="mi">17507</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">completed</span><span class="p">,</span> <span class="n">completionReason</span><span class="o">=</span><span class="n">eof</span><span class="p">,</span> <span class="n">updateCounter</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">numRecords</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span> <span class="p">(</span><span class="n">modelParams</span><span class="o">|</span><span class="n">sensorParams</span><span class="o">|</span><span class="n">encoders</span><span class="o">|</span><span class="n">timestamp_timeOfDay</span><span class="p">:</span><span class="n">radius_3</span><span class="o">.</span><span class="mf">375.</span><span class="n">modelParams</span><span class="o">|</span><span class="n">clParams</span><span class="o">|</span><span class="n">alpha_0</span><span class="o">.</span><span class="mf">075025.</span><span class="n">modelParams</span><span class="o">|</span><span class="n">tpParams</span><span class="o">|</span><span class="n">minThreshold_11</span><span class="o">.</span><span class="n">modelParams</span><span class="o">|</span><span class="n">tpParams</span><span class="o">|</span><span class="n">activationThreshold_15</span><span class="o">.</span><span class="n">modelParams</span><span class="o">|</span><span class="n">tpParams</span><span class="o">|</span><span class="n">pamLength_4</span><span class="o">.</span><span class="n">modelParams</span><span class="o">|</span><span class="n">sensorParams</span><span class="o">|</span><span class="n">encoders</span><span class="o">|</span><span class="n">_classifierInput</span><span class="o">|</span><span class="n">n_398</span><span class="o">.</span><span class="n">modelParams</span><span class="o">|</span><span class="n">inferenceType_NontemporalMultiStep</span><span class="o">.</span><span class="n">modelParams</span><span class="o">|</span><span class="n">spParams</span><span class="o">|</span><span class="n">synPermInactiveDec_0</span><span class="o">.</span><span class="mi">07625</span><span class="p">):</span>
+    <span class="n">multiStepBestPredictions</span><span class="p">:</span><span class="n">multiStep</span><span class="p">:</span><span class="n">errorMetric</span><span class="o">=</span><span class="s1">&#39;altMAPE&#39;</span><span class="p">:</span><span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">window</span><span class="o">=</span><span class="mi">1000</span><span class="p">:</span><span class="n">field</span><span class="o">=</span><span class="n">consumption</span><span class="p">:</span>    <span class="mf">25.1044742329</span>
+
+<span class="n">Total</span> <span class="n">number</span> <span class="n">of</span> <span class="n">Records</span> <span class="n">processed</span><span class="p">:</span> <span class="mi">1625</span>
+
+<span class="n">Total</span> <span class="n">wall</span> <span class="n">time</span> <span class="k">for</span> <span class="nb">all</span> <span class="n">models</span><span class="p">:</span> <span class="mi">100</span>
+
+<span class="n">Generating</span> <span class="n">description</span> <span class="n">files</span> <span class="k">for</span> <span class="n">top</span> <span class="mi">1</span> <span class="n">models</span><span class="o">...</span>
+<span class="n">Generating</span> <span class="n">description</span> <span class="n">file</span> <span class="k">for</span> <span class="n">model</span> <span class="mi">17507</span> <span class="n">at</span>      <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">me</span><span class="o">/</span><span class="n">Projects</span><span class="o">/</span><span class="n">Numenta</span><span class="o">/</span><span class="n">nupic</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">swarm</span><span class="o">/</span><span class="n">simple</span><span class="o">/</span><span class="n">model_0</span>
+
+<span class="n">Report</span> <span class="n">csv</span> <span class="n">saved</span> <span class="ow">in</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">me</span><span class="o">/</span><span class="n">Projects</span><span class="o">/</span><span class="n">Numenta</span><span class="o">/</span><span class="n">nupic</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">swarm</span><span class="o">/</span><span class="n">simple</span><span class="o">/</span><span class="n">search_def_Report</span><span class="o">.</span><span class="n">csv</span>
+<span class="n">Elapsed</span> <span class="n">time</span> <span class="p">(</span><span class="n">h</span><span class="p">:</span><span class="n">mm</span><span class="p">:</span><span class="n">ss</span><span class="p">):</span> <span class="mi">0</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">33</span>
+</pre></div>
+</div>
+<p>In addition to the information printed to stdout, run_swarm also generates the following files in examples/swarm/simple:</p>
+<ul class="simple">
+<li><strong>description.py</strong>: This is an OPF description file with default model parameters for the type of model you are creating.</li>
+<li><strong>permutations.py</strong>: This is a swarming permutations file that defines the extent of the search space used during the swarm. For example, it includes the min and max allowed value for each parameter. Unless you want to perform a more advanced swarm (see below), you can ignore this file.</li>
+<li><strong>model_0/description.py</strong>: This is an OPF description file which overrides specific parameters from the above description.py with the best values found during the swarming process. This description file can be run using run_opf_experiment.py.</li>
+<li><strong>model_0/params.csv</strong>: A csv file containing the parameter values chosen for this best model. This is for reference only.</li>
+<li><strong>model_0/model_params.py</strong>: The model parameters, which can be used for creating models manually through the <a class="reference external" href="https://github.com/numenta/nupic/blob/master/py/nupic/frameworks/opf/modelfactory.py#L33"><code class="docutils literal"><span class="pre">ModelFactory</span></code></a>.</li>
+<li><strong>search_def_Report.csv</strong>: This is a spreadsheet that lists information on each of the models that were evaluated as part of the swarm. For each model, it has the parameters that were used and the results that that model generated on each of the error metrics that were evaluated.</li>
+</ul>
+<p><strong>Note:</strong> when running the swarm, if you get an error such as &#8220;No handlers could be found for logger...&#8221; it could be a MySQL setup issue. You can check this using the <a class="reference external" href="#prerequisites">above script</a>.</p>
+</div>
+<div class="section" id="running-models-discovered-by-the-swarm">
+<span id="running-models-discovered-by-the-swarm"></span><h2>Running models discovered by the swarm<a class="headerlink" href="#running-models-discovered-by-the-swarm" title="Permalink to this headline">¶</a></h2>
+<p>The result of the swarm is a model with the best discovered parameters. The directory <code class="docutils literal"><span class="pre">model_0</span></code> contains the full details. If you now want to run that best model by itself on additional data, issue the following command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>python $NUPIC/scripts/run_opf_experiment.py examples/swarm/simple/model_0/
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-a-swarm-programmatically">
+<span id="running-a-swarm-programmatically"></span><h2>Running a Swarm Programmatically<a class="headerlink" href="#running-a-swarm-programmatically" title="Permalink to this headline">¶</a></h2>
+<p>You don&#8217;t have to use the <code class="docutils literal"><span class="pre">run_opf_experiment.py</span></code> command line script to run models after a swarm. It can also be done programmatically. Running the swarm can be accomplished by importing the <code class="docutils literal"><span class="pre">permutations_runner</span></code> as shown below:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">nupic.swarming.permutations_runner</span>
+
+<span class="n">swarm_config</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># complete swarm config here</span>
+<span class="n">model_params</span> <span class="o">=</span> <span class="n">permutations_runner</span><span class="o">.</span><span class="n">runWithConfig</span><span class="p">(</span><span class="n">swarm_config</span><span class="p">,</span>
+      <span class="p">{</span><span class="s1">&#39;maxWorkers&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;overwrite&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ModelFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">model_params</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Instead of putting the swarm configuration into a JSON file, they can be created as a python dictionary. The command line arguments you would have used when calling <code class="docutils literal"><span class="pre">run_swarm.py</span></code> must be specified in a dictionary to the <code class="docutils literal"><span class="pre">runWithConfig()</span></code> function. Once the swarm has completed, it will an object representing the best model&#8217;s parameters. This config can be used to start NuPIC with the model parameters created by the swarm.</p>
+</div>
+<div class="section" id="specifying-a-swarm">
+<span id="specifying-a-swarm"></span><h2>Specifying a Swarm<a class="headerlink" href="#specifying-a-swarm" title="Permalink to this headline">¶</a></h2>
+<p>There are two major pieces of input required to define a swarm:</p>
+<ol class="simple">
+<li>The swarm description. This describes the type of model to create as well as some meta information about the input data.</li>
+<li>A data file. This is a csv file containing the input data and the desired output from the model.</li>
+</ol>
+<div class="section" id="the-swarm-description">
+<span id="the-swarm-description"></span><h3>The swarm description<a class="headerlink" href="#the-swarm-description" title="Permalink to this headline">¶</a></h3>
+<p>For an example of #1, see <a class="reference external" href="https://github.com/numenta/nupic/blob/master/examples/swarm/simple/search_def.json">examples/swarm/simple/search_def.json</a>. This is a JSON file containing the swarm description (for more advanced use, you can alternatively tell run_swarm to use a permutations.py file which was generated by ExpGenerator. This will be discussed below).</p>
+<p>This is just a brief overview of this specific JSON file (<a class="reference external" href="https://github.com/numenta/nupic/blob/master/examples/swarm/simple/search_def.json">examples/swarm/simple/search_def.json</a>) to give you a flavor as to what can be done. A complete discussion of all the possible settings and values that can be included in a swarm JSON file are a topic for another wiki page (if you&#8217;re <em>really</em> interested, the schema for this JSON file can be found at <a class="reference external" href="https://github.com/numenta/nupic/blob/master/src/nupic/swarming/exp_generator/experimentDescriptionSchema.json">src/nupic/swarming/exp_generator/experimentDescriptionSchema.json</a>).</p>
+<p>The <em>includedFields</em> section describes which fields of the .csv file to consider as inputs to the model and the datatype of each field. By default, swarming does not consider a field as a possible input to the model unless it is listed in this section.</p>
+<p>The <em>streamDef</em> section describes where the input data file is (it includes the path to a .csv file) as well as the amount of aggregation you wish to perform on the data.</p>
+<p>The <em>inferenceType</em> section describes the type of model you wish to create. For this particular example, we are creating a prediction model that is capable of predicting multiple steps in advance, so we set this value to &#8220;MultiStep&#8221;. A full discussion of all the possible model types is beyond the scope of this document.</p>
+<p>The <em>inferenceArgs</em> section for a MultiStep model includes the number of steps in advance you would like to predict as well as the name of the predicted field (i.e. which column in your input .csv file contains the predicted field). In this example, we are trying to predict the value of the &#8220;consumption&#8221; field 1 step in advance.</p>
+<p>The <em>iterationCount</em> value gives the maximum number of <em>aggregated</em> records to feed into the model. If your data file contains 1000 records spaced 15 minutes apart, and you&#8217;ve specified a 1 hour aggregation interval, then you have a max of 250 aggregated records available to feed into the model. Setting this value to -1 means to feed all available aggregated records.</p>
+<p>Finally, the <em>swarmSize</em> setting controls how exhaustive the swarm should be. The three possible settings are &#8220;small&#8221;, &#8220;medium&#8221;, and &#8220;large&#8221;. A &#8220;small&#8221; swarm runs very fast and is really just a small test to make sure you don&#8217;t have any syntax errors in your description or input data files. It evaluates only one possible model and only on the first 100 records of the dataset. For most cases, a &#8220;medium&#8221; swarm is the best choice. If you&#8217;re willing to tradeoff extra swarming time for a possibly better model, you can set this to &#8220;large&#8221;.</p>
+</div>
+<div class="section" id="the-data-file">
+<span id="the-data-file"></span><h3>The Data File<a class="headerlink" href="#the-data-file" title="Permalink to this headline">¶</a></h3>
+<p>Each <code class="docutils literal"><span class="pre">stream</span></code> object in the <code class="docutils literal"><span class="pre">streamDef</span></code> configuration object should contain a <code class="docutils literal"><span class="pre">source</span></code> value that is a path to the input CSV data file. This may be an absolute or relative path, but must start with the <code class="docutils literal"><span class="pre">file://</span></code> descriptor.</p>
+<p>See <a class="reference external" href="NuPIC-Input-Data-File-Format">NuPIC Input Data File Format</a> for more details.</p>
+</div>
+</div>
+<div class="section" id="foot-view-of-the-swarming-process">
+<span id="foot-view-of-the-swarming-process"></span><h2>30,000 Foot View of The Swarming Process<a class="headerlink" href="#foot-view-of-the-swarming-process" title="Permalink to this headline">¶</a></h2>
+<p>Swarming works by trying a bunch of different models on the dataset and in the end chooses and outputs the model that produced the lowest error score. For a prediction model, the error score is a measure of how close the predictions were to the actual data. In the example we are working with in this document, we are trying to predict 1 step in advance, so the error score is a measure of how close the model&#8217;s prediction is to the actual value that arrives to the model in the next record. The error score is updated after every record and is computed as a rolling average over the last N records seen by the model (the default is to use the last 1000 records).</p>
+<p>A typical swarm might be searching a fairly large parameter space. For example, there may be 5 possible input fields to choose from in the data file and a dozen different parameters for the model with a wide range of possible values each. An exhaustive search of this space is prohibitively expensive, so swarming tries to be intelligent about how it searches.</p>
+<p>Internally, swarming uses a method akin to particle swarm optimization for searching scalar parameters of the model. For an in-depth description of the swarming algorithm, see <a class="reference external" href="Swarming-Algorithm">The Swarming Algorithm</a> . Roughly speaking though, the space is first coarsely subsampled and a model is run on each &#8220;location&#8221; (particle). Once the error is evaluated at each location, each particle is allowed to move to a different location and that new location is chosen such that each particle tends to gravitate towards whichever other particle had the lowest error so far.</p>
+<p>Swarming also figures out which fields of the input are useful in making good predictions. If a field is not useful, it is not included in the final model. To accomplish this, it first tries each field by itself. From the best set of fields found from that evaluation, it then builds up combinations of 2 fields, then 3 fields, etc. until the error score stops improving.</p>
+<p>For a typical dataset, swarming might need to evaluate 10&#8217;s or 100&#8217;s of models in order to settle in on the best set of parameters. If you are running just one process on the machine, only one model can be evaluated at a time. The more processes you run, the more models that can be evaluated simultaneously and the faster the swarm can complete.</p>
+<div class="section" id="a-simple-example">
+<span id="a-simple-example"></span><h3>A Simple Example<a class="headerlink" href="#a-simple-example" title="Permalink to this headline">¶</a></h3>
+<p>Here&#8217;s a simple example of what you need to do to run swarming on your own dataset. Suppose you have a new dataset where the first few lines are as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">dttm</span><span class="p">,</span><span class="n">value</span>
+<span class="n">datetime</span><span class="p">,</span><span class="nb">float</span>
+<span class="n">T</span><span class="p">,</span>
+<span class="mi">2013</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">09</span> <span class="mi">12</span><span class="p">:</span><span class="mi">05</span><span class="p">:</span><span class="mf">00.0</span><span class="p">,</span><span class="mf">117.0666667</span>
+<span class="mi">2013</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">09</span> <span class="mi">12</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">00.0</span><span class="p">,</span><span class="mf">118.6666667</span>
+<span class="mi">2013</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">09</span> <span class="mi">12</span><span class="p">:</span><span class="mi">35</span><span class="p">:</span><span class="mf">00.0</span><span class="p">,</span><span class="mf">120.0666667</span>
+<span class="mi">2013</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">09</span> <span class="mi">12</span><span class="p">:</span><span class="mi">50</span><span class="p">:</span><span class="mf">00.0</span><span class="p">,</span><span class="mi">121</span>
+</pre></div>
+</div>
+<p>The field names are different from before and the <code class="docutils literal"><span class="pre">gym</span></code> column is missing. Create a new directory <code class="docutils literal"><span class="pre">~/myswarm</span></code> and a subdirectory <code class="docutils literal"><span class="pre">~/myswarm/data</span></code>. Copy <code class="docutils literal"><span class="pre">examples/swarm/simple/search_def.json</span></code> into <code class="docutils literal"><span class="pre">~/myswarm</span></code>. Copy the data file into <code class="docutils literal"><span class="pre">~/myswarm/data</span></code>.</p>
+<p>You now need to edit the .json file to include the new field information as well as the new file name. The field names are specified in several places. The following changed search_def.json should now work (changes marked):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;includedFields&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;fieldName&quot;</span><span class="p">:</span> <span class="s2">&quot;dttm&quot;</span><span class="p">,</span>    <span class="c1"># CHANGED</span>
+      <span class="s2">&quot;fieldType&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;fieldName&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span>  <span class="c1"># CHANGED</span>
+      <span class="s2">&quot;fieldType&quot;</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;streamDef&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;streams&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="s2">&quot;small_test.csv&quot;</span><span class="p">,</span> <span class="c1"># CHANGED</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;file://small_test.csv&quot;</span><span class="p">,</span> <span class="c1"># CHANGED</span>
+        <span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="s2">&quot;*&quot;</span>
+        <span class="p">],</span>
+        <span class="c1"># Note: the last_record field specifies how many records to run. Leave this OUT to run</span>
+        <span class="c1"># on the whole file. Leave this to 100 if you want to do quicker runs for debugging.</span>
+        <span class="s2">&quot;last_record&quot;</span><span class="p">:</span> <span class="mi">100</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;aggregation&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;hours&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;microseconds&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;seconds&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span>
+          <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="c1"># CHANGED</span>
+          <span class="s2">&quot;sum&quot;</span>
+        <span class="p">],</span>
+        <span class="c1"># Note: The lines referring to the field &#39;gym&#39; which is</span>
+        <span class="c1"># no longer present have been removed</span>
+        <span class="p">[</span>
+          <span class="s2">&quot;dttm&quot;</span><span class="p">,</span> <span class="c1"># CHANGED</span>
+          <span class="s2">&quot;first&quot;</span>
+        <span class="p">]</span>
+      <span class="p">],</span>
+      <span class="s2">&quot;weeks&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;months&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;minutes&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;milliseconds&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;years&quot;</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;inferenceType&quot;</span><span class="p">:</span> <span class="s2">&quot;MultiStep&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;inferenceArgs&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;predictionSteps&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;predictedField&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span> <span class="c1"># CHANGED</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;iterationCount&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+  <span class="s2">&quot;swarmSize&quot;</span><span class="p">:</span> <span class="s2">&quot;medium&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now type:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">~/</span><span class="n">myswarm</span><span class="o">/</span>
+<span class="n">run_swarm</span><span class="o">.</span><span class="n">py</span> <span class="n">search_def</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="advanced-usage">
+<span id="advanced-usage"></span><h2>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this headline">¶</a></h2>
+<p>This section covers some advanced topics: running a swarm from a permutations.py file, using custom error metrics, and running a swarm in a Docker container.</p>
+<div class="section" id="running-a-swarm-using-a-permutations-py-file">
+<span id="running-a-swarm-using-a-permutations-py-file"></span><h3>Running a Swarm Using a permutations.py File<a class="headerlink" href="#running-a-swarm-using-a-permutations-py-file" title="Permalink to this headline">¶</a></h3>
+<p>As described above, the easiest way to create a swarm from scratch is to provide a JSON file with the high level swarm description in it. When you use the run_swarm tool in this manner, before the swarm is actually run, the swarm tool internally does the following:</p>
+<ol class="simple">
+<li>Runs the JSON file through ExpGenerator to generate a permutations.py file and a description.py file.</li>
+<li>Uses the permutations.py file to guide the parameter search space for the swarm.</li>
+</ol>
+<p>ExpGenerator creates the permutation options (search space) for the model and writes these to a permutations.py file. If you would like to modify these options, you can instead tell run_swarm to use your custom written permutations.py file directly. You do this by providing .py filename argument instead of a
+.json filename:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">run_swarm</span><span class="o">.</span><span class="n">py</span> <span class="n">examples</span><span class="o">/</span><span class="n">swarm</span><span class="o">/</span><span class="n">simple</span><span class="o">/</span><span class="n">permutations</span><span class="o">.</span><span class="n">py</span>  <span class="o">--</span><span class="n">maxWorkers</span><span class="o">=</span><span class="mi">4</span>
+</pre></div>
+</div>
+<p>(If you don&#8217;t already have a permutations.py file, you can call run_swarm with a JSON file and it will generate both a permutations.py file and description.py file for you).</p>
+<p>When you call run_swarm using a permutations.py file, it also assumes that a description.py file can be found in the same directory as the permutations.py. The description.py contains the entire OPF model description with some default parameter values. As swarming runs, various different parameter values, chosen from the parameter space defined by permutations.py, are plugged into this description.py framework in order to generate each model.</p>
+<p>Some of the things you can do in the permutations.py file are:</p>
+<ul class="simple">
+<li>Change the range of possible values for a parameter</li>
+<li>Add additional parameters from the description.py to be permuted over</li>
+<li>Hardcode specific parameter values that are normally permuted over</li>
+</ul>
+</div>
+<div class="section" id="using-custom-error-metrics">
+<span id="using-custom-error-metrics"></span><h3>Using Custom Error Metrics<a class="headerlink" href="#using-custom-error-metrics" title="Permalink to this headline">¶</a></h3>
+<p>By default, your model&#8217;s accuracy will be evaluated using a MAPE (Mean Average Percent Error) error metric over the last 1000 records seen by the model. To compute this, the OPF takes the average of the absolute error (abs(prediction - actual)) over the last 1000 records divided by the average actual value over the last 1000 records.</p>
+<p>If you would like to evaluate your model&#8217;s accuracy over a different number of records, or use a completely different error metric, you can do so through the &#8220;metricWindow&#8221; and &#8220;customErrorMetric&#8221; sections of your swarm JSON description file (or alternatively by editing the description.py file if you are running swarms using a permutations.py directly).</p>
+<p>If you only want to change the number of records that the default error metric is evaluated over, include a &#8220;metricWindow&#8221; section in your JSON file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;metricWindow&quot;</span><span class="p">:</span> <span class="mi">500</span>
+</pre></div>
+</div>
+<p>If you want to change the error metric itself, include a &#8220;customErrorMetric&#8221; section. The sample at <a class="reference external" href="https://github.com/numenta/nupic/blob/master/examples/swarm/simple/search_def_custom_error.json">/examples/swarm/simple/search_def_custom_error.json</a> shows how to do this. Here is an extract from that example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;customErrorMetric&quot;</span><span class="p">:</span> <span class="p">{</span>
+  <span class="s2">&quot;customExpr&quot;</span><span class="p">:</span> <span class="s2">&quot;(prediction - groundTruth) ** 2&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;errorWindow&quot;</span><span class="p">:</span> <span class="mi">500</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This particular example shows how to generate an error metric that evaluates the square of the error between the prediction and the actual and does so over the last 500 records.</p>
+<p>For more complex error functions, you can write a function that utilizes historical values and intermediate variables. Because the custom error metric function is evaluated in a &#8220;sandbox&#8221;, there are special constructs you need to use to store and access these variables. For example, if you wanted to evaluate the following error metric:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>                  <span class="n">sumOverI</span> <span class="p">(</span><span class="n">actual</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">predicted</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+  <span class="n">error</span> <span class="o">=</span>   <span class="o">-</span><span class="mi">1</span> <span class="o">*</span>  <span class="o">---------------------------------</span>
+                    <span class="n">sumOverI</span> <span class="p">(</span><span class="nb">abs</span> <span class="p">(</span><span class="n">predicted</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>The custom error function code you would provide would be as follows (this is just to give you a flavor for what can be done, an explanation of the complete custom error metric syntax is beyond the scope of this document).</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">tools</span><span class="o">.</span><span class="n">getData</span><span class="p">(</span><span class="s1">&#39;num&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  <span class="n">tools</span><span class="o">.</span><span class="n">storeData</span><span class="p">(</span><span class="s1">&#39;num&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">tools</span><span class="o">.</span><span class="n">getData</span><span class="p">(</span><span class="s1">&#39;den&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  <span class="n">tools</span><span class="o">.</span><span class="n">storeData</span><span class="p">(</span><span class="s1">&#39;den&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">tools</span><span class="o">.</span><span class="n">storeData</span><span class="p">(</span><span class="s1">&#39;num&#39;</span><span class="p">,</span> <span class="n">tools</span><span class="o">.</span><span class="n">getData</span><span class="p">(</span><span class="s1">&#39;num&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">prediction</span> <span class="o">*</span> <span class="n">groundTruth</span><span class="p">)</span>
+<span class="n">tools</span><span class="o">.</span><span class="n">storeData</span><span class="p">(</span><span class="s1">&#39;den&#39;</span><span class="p">,</span> <span class="n">tools</span><span class="o">.</span><span class="n">getData</span><span class="p">(</span><span class="s1">&#39;den&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">prediction</span><span class="p">))</span>
+<span class="k">if</span> <span class="n">tools</span><span class="o">.</span><span class="n">getData</span><span class="p">(</span><span class="s1">&#39;den&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+  <span class="n">tools</span><span class="o">.</span><span class="n">storeData</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">tools</span><span class="o">.</span><span class="n">getData</span><span class="p">(</span><span class="s1">&#39;num&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.0001</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+  <span class="n">tools</span><span class="o">.</span><span class="n">storeData</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">tools</span><span class="o">.</span><span class="n">getData</span><span class="p">(</span><span class="s1">&#39;num&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="n">tools</span><span class="o">.</span><span class="n">getData</span><span class="p">(</span><span class="s1">&#39;den&#39;</span><span class="p">))</span>
+<span class="n">tools</span><span class="o">.</span><span class="n">getData</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When you embed the above function into your JSON file, you will need to escape any special characters. The easiest way to do this is to run the text through python&#8217;s string encode() method:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">foo</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;if tools.getData(&#39;num&#39;) is None:...&quot;&quot;&quot;</span>
+<span class="o">&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;string_escape&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After encoding the above function, your JSON file will look like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;customErrorMetric&quot;</span><span class="p">:</span> <span class="p">{</span>
+  <span class="s2">&quot;customExpr&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">nif tools.getData(</span><span class="se">\\</span><span class="s2">&#39;num</span><span class="se">\\</span><span class="s2">&#39;) is None:</span><span class="se">\\</span><span class="s2">n  tools.storeData(</span><span class="se">\\</span><span class="s2">&#39;num</span><span class="se">\\</span><span class="s2">&#39;, 0)</span><span class="se">\\</span><span class="s2">nif tools.getData(</span><span class="se">\\</span><span class="s2">&#39;den</span><span class="se">\\</span><span class="s2">&#39;) is None:</span><span class="se">\\</span><span class="s2">n  tools.storeData(</span><span class="se">\\</span><span class="s2">&#39;den</span><span class="se">\\</span><span class="s2">&#39;, 0)</span><span class="se">\\</span><span class="s2">ntools.storeData(</span><span class="se">\\</span><span class="s2">&#39;num</span><span class="se">\\</span><span class="s2">&#39;, tools.getData(</span><span class="se">\\</span><span class="s2">&#39;num</span><span class="se">\\</span><span class="s2">&#39;) + prediction * groundTruth)</span><span class="se">\\</span><span class="s2">ntools.storeData(</span><span class="se">\\</span><span class="s2">&#39;den</span><span class="se">\\</span><span class="s2">&#39;, tools.getData(</span><span class="se">\\</span><span class="s2">&#39;den</span><span class="se">\\</span><span class="s2">&#39;) + abs(prediction))</span><span class="se">\\</span><span class="s2">nif tools.getData(</span><span class="se">\\</span><span class="s2">&#39;den</span><span class="se">\\</span><span class="s2">&#39;) == 0:</span><span class="se">\\</span><span class="s2">n  tools.storeData(</span><span class="se">\\</span><span class="s2">&#39;result</span><span class="se">\\</span><span class="s2">&#39;, -1 * tools.getData(</span><span class="se">\\</span><span class="s2">&#39;num</span><span class="se">\\</span><span class="s2">&#39;) / 0.0001)</span><span class="se">\\</span><span class="s2">nelse:</span><span class="se">\\</span><span class="s2">n  tools.storeData(</span><span class="se">\\</span><span class="s2">&#39;result</span><span class="se">\\</span><span class="s2">&#39;, -1 * tools.getData(</span><span class="se">\\</span><span class="s2">&#39;num</span><span class="se">\\</span><span class="s2">&#39;) / tools.getData(</span><span class="se">\\</span><span class="s2">&#39;den</span><span class="se">\\</span><span class="s2">&#39;))</span><span class="se">\\</span><span class="s2">ntools.getData(</span><span class="se">\\</span><span class="s2">&#39;result</span><span class="se">\\</span><span class="s2">&#39;)</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;errorWindow&quot;</span><span class="p">:</span> <span class="mi">500</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-a-swarm-with-docker">
+<span id="running-a-swarm-with-docker"></span><h3>Running a swarm with Docker<a class="headerlink" href="#running-a-swarm-with-docker" title="Permalink to this headline">¶</a></h3>
+<p>NuPIC includes a Dockerfile for use with <a class="reference external" href="http://docker.io/">Docker</a>, as well as publishes an official Docker image at the <a class="reference external" href="https://hub.docker.com/r/numenta/nupic/">Docker Hub</a>.  The instructions below demonstrate how you could use Docker to run a swarm in an isolated environment.</p>
+<p>[TL;DR] Watch the <a class="reference external" href="https://youtu.be/BtkGn22KSrQ">video</a>.</p>
+<p><a class="reference external" href="https://youtu.be/BtkGn22KSrQ"><img alt="Swarming in NuPIC video thumbnail" src="http://img.youtube.com/vi/BtkGn22KSrQ/hqdefault.jpg" /></a></p>
+<div class="section" id="before-you-begin">
+<span id="before-you-begin"></span><h4>Before you begin<a class="headerlink" href="#before-you-begin" title="Permalink to this headline">¶</a></h4>
+<p>You must have access to a Docker host, and a basic familiarity with the <code class="docutils literal"><span class="pre">docker</span> <span class="pre">run</span></code> command (see https://docs.docker.com/reference/run/ for additional details).  Additionally, there are instructions at https://github.com/numenta/nupic/tree/master/coreos-vagrant for running Docker in a Virtual Machine with <a class="reference external" href="https://www.vagrantup.com/">Vagrant</a> and <a class="reference external" href="https://coreos.com/">CoreOS</a>.</p>
+</div>
+<div class="section" id="start-mysql-container">
+<span id="start-mysql-container"></span><h4>Start MySQL container<a class="headerlink" href="#start-mysql-container" title="Permalink to this headline">¶</a></h4>
+<p>We&#8217;ll use the official MySQL 5.6 image from https://hub.docker.com/_/mysql/.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">run</span> \
+  <span class="o">--</span><span class="n">name</span> <span class="n">nupic</span><span class="o">-</span><span class="n">mysql</span> \
+  <span class="o">-</span><span class="n">e</span> <span class="n">MYSQL_ROOT_PASSWORD</span><span class="o">=</span><span class="n">nupic</span> \
+  <span class="o">-</span><span class="n">p</span> <span class="mi">3306</span><span class="p">:</span><span class="mi">3306</span> \
+  <span class="o">-</span><span class="n">d</span> \
+  <span class="n">mysql</span><span class="p">:</span><span class="mf">5.6</span>
+</pre></div>
+</div>
+<p>Run <code class="docutils literal"><span class="pre">docker</span> <span class="pre">ps</span></code> and you should see something similar to:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">CONTAINER</span> <span class="n">ID</span>        <span class="n">IMAGE</span>               <span class="n">COMMAND</span>                <span class="n">CREATED</span>             <span class="n">STATUS</span>              <span class="n">PORTS</span>                    <span class="n">NAMES</span>
+<span class="n">e0098ef3aae9</span>        <span class="n">mysql</span><span class="p">:</span><span class="mf">5.6</span>           <span class="s2">&quot;/entrypoint.sh mysq   2 hours ago         Up 2 hours          0.0.0.0:3306-&gt;3306/tcp   nupic-mysql</span>
+</pre></div>
+</div>
+<p>A few salient points in the above <code class="docutils literal"><span class="pre">docker</span> <span class="pre">ps</span></code> output in relation to the <code class="docutils literal"><span class="pre">docker</span> <span class="pre">run</span></code> command:</p>
+<ol class="simple">
+<li>We named the container &#8220;nupic-mysql&#8221; with the <code class="docutils literal"><span class="pre">--name</span></code> argument.</li>
+<li>We specified the password to be &#8220;nupic&#8221; for the default user (&#8220;root&#8221;) using the <code class="docutils literal"><span class="pre">-e</span></code> argument to override default environment variable value for <code class="docutils literal"><span class="pre">MYSQL_ROOT_PASSWORD</span></code>.  You may specify additional credentials with additional <code class="docutils literal"><span class="pre">-e</span></code> arguments.  See https://github.com/docker-library/docs/blob/master/mysql/README.md#environment-variables for additional details.</li>
+<li>We&#8217;re listening on port 3306 on the docker host.  You should be able to connect to it from the command line or other clients.  For example, <code class="docutils literal"><span class="pre">mysql</span> <span class="pre">-u</span> <span class="pre">root</span> <span class="pre">-p</span> <span class="pre">-h</span> <span class="pre">&lt;docker</span> <span class="pre">host&gt;</span></code></li>
+<li><code class="docutils literal"><span class="pre">-d</span></code> daemonizes the process and keeps it running in the background</li>
+<li>Finally, the image is <code class="docutils literal"><span class="pre">mysql:5.6</span></code>, indicating that we are running the <code class="docutils literal"><span class="pre">5.6</span></code> tag of the <code class="docutils literal"><span class="pre">mysql</span></code> docker repository, which correlates with a 5.6.x version of mysql.</li>
+</ol>
+</div>
+<div class="section" id="start-nupic-container">
+<span id="start-nupic-container"></span><h4>Start nupic container<a class="headerlink" href="#start-nupic-container" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">run</span> \
+  <span class="o">--</span><span class="n">name</span> <span class="n">nupic</span> \
+  <span class="o">-</span><span class="n">e</span> <span class="n">NTA_CONF_PROP_nupic_cluster_database_passwd</span><span class="o">=</span><span class="n">nupic</span> \
+  <span class="o">-</span><span class="n">e</span> <span class="n">NTA_CONF_PROP_nupic_cluster_database_host</span><span class="o">=</span><span class="n">mysql</span> \
+  <span class="o">--</span><span class="n">link</span> <span class="n">nupic</span><span class="o">-</span><span class="n">mysql</span><span class="p">:</span><span class="n">mysql</span> \
+  <span class="o">-</span><span class="n">ti</span> \
+  <span class="n">numenta</span><span class="o">/</span><span class="n">nupic</span>
+</pre></div>
+</div>
+<p>This pulls the latest official numenta/nupic image from the docker hub and drops you into a shell in a container in which nupic has already been built and installed.  A few points to consider:</p>
+<ol class="simple">
+<li>We named it &#8220;nupic&#8221;</li>
+<li>NuPIC has a configuration scheme that allows the user to specify configuration directives in the environment.  <code class="docutils literal"><span class="pre">NTA_CONF_PROP_nupic_cluster_database_passwd</span></code> overrides the <code class="docutils literal"><span class="pre">nupic.cluster.database.passwd</span></code> configuration defaults in <code class="docutils literal"><span class="pre">nupic/support/nupic-default.xml</span></code>.  If you specified any additional credentials when you started mysql, be sure to include the matching correlating NuPIC configuration override.</li>
+<li>We linked the &#8220;nupic&#8221; container to &#8220;nupic-mysql&#8221; by virtue of the <code class="docutils literal"><span class="pre">--link</span></code> argument, which sets the &#8220;mysql&#8221; hostname to point to the &#8220;nupic-mysql&#8221; container.  We also set the <code class="docutils literal"><span class="pre">NTA_CONF_PROP_nupic_cluster_database_host</span></code> environment override to point to &#8220;mysql&#8221;.</li>
+<li><code class="docutils literal"><span class="pre">-ti</span></code> indicates that this will be run in interactive mode, as opposed to daemonized as with the mysql container above.  This is how you get to a shell in the container.</li>
+</ol>
+</div>
+<div class="section" id="run-a-swarm">
+<span id="run-a-swarm"></span><h4>Run a swarm<a class="headerlink" href="#run-a-swarm" title="Permalink to this headline">¶</a></h4>
+<p>From the interactive shell above, run the following command to verify that swarming works:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>${NUPIC}/scripts/run_swarm.py ${NUPIC}/examples/swarm/simple/search_def.json --maxWorkers=4
+</pre></div>
+</div>
+<p>You should see some output that ends with something like the following:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="n">Total</span> <span class="n">number</span> <span class="n">of</span> <span class="n">Records</span> <span class="n">processed</span><span class="p">:</span> <span class="mi">2175</span>
+
+<span class="n">Total</span> <span class="n">wall</span> <span class="n">time</span> <span class="k">for</span> <span class="nb">all</span> <span class="n">models</span><span class="p">:</span> <span class="mi">53</span>
+
+<span class="n">Generating</span> <span class="n">description</span> <span class="n">files</span> <span class="k">for</span> <span class="n">top</span> <span class="mi">1</span> <span class="n">models</span><span class="o">...</span>
+<span class="n">Generating</span> <span class="n">description</span> <span class="n">file</span> <span class="k">for</span> <span class="n">model</span> <span class="mi">1915</span> <span class="n">at</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">nupic</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">swarm</span><span class="o">/</span><span class="n">simple</span><span class="o">/</span><span class="n">model_0</span>
+<span class="n">Generating</span> <span class="n">model</span> <span class="n">params</span> <span class="n">file</span><span class="o">...</span>
+
+<span class="n">Report</span> <span class="n">csv</span> <span class="n">saved</span> <span class="ow">in</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">nupic</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">swarm</span><span class="o">/</span><span class="n">simple</span><span class="o">/</span><span class="n">search_def_Report</span><span class="o">.</span><span class="n">csv</span>
+<span class="n">Elapsed</span> <span class="n">time</span> <span class="p">(</span><span class="n">h</span><span class="p">:</span><span class="n">mm</span><span class="p">:</span><span class="n">ss</span><span class="p">):</span> <span class="mi">0</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">22</span>
+<span class="n">Hypersearch</span> <span class="n">ClientJobs</span> <span class="n">job</span> <span class="n">ID</span><span class="p">:</span>  <span class="mi">1002</span>
+</pre></div>
+</div>
+<p>The output is in <code class="docutils literal"><span class="pre">/usr/local/src/nupic/examples/swarm/simple/search_def_Report.csv</span></code></p>
+</div>
+<div class="section" id="next-steps">
+<span id="next-steps"></span><h4>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h4>
+<p>Now that you know how to run a swarm in Docker, consider using the <code class="docutils literal"><span class="pre">-v</span></code> <code class="docutils literal"><span class="pre">docker</span> <span class="pre">run</span></code> argument to mount a directory in the container to another local directory that contains your swarm definition.  This will allow you run arbitrary swarms in a transient Docker container and save the results for later use.  You can also run a swarm without having to drop into an interactive shell by appending the swarm command to your <code class="docutils literal"><span class="pre">docker</span> <span class="pre">run</span></code> invocation.  For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">run</span> \
+  <span class="o">-</span><span class="n">e</span> <span class="n">NTA_CONF_PROP_nupic_cluster_database_passwd</span><span class="o">=</span><span class="n">nupic</span> \
+  <span class="o">-</span><span class="n">e</span> <span class="n">NTA_CONF_PROP_nupic_cluster_database_host</span><span class="o">=</span><span class="n">mysql</span> \
+  <span class="o">-</span><span class="n">v</span> <span class="o">&lt;</span><span class="n">local</span> <span class="nb">dir</span><span class="o">&gt;</span><span class="p">:</span><span class="o">/</span><span class="n">swarmdef</span> \
+  <span class="o">--</span><span class="n">link</span> <span class="n">nupic</span><span class="o">-</span><span class="n">mysql</span><span class="p">:</span><span class="n">mysql</span> \
+  <span class="n">numenta</span><span class="o">/</span><span class="n">nupic</span> \
+  <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">nupic</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">run_swarm</span><span class="o">.</span><span class="n">py</span> <span class="o">/</span><span class="n">swarmdef</span><span class="o">/</span><span class="n">search_def</span><span class="o">.</span><span class="n">json</span> <span class="o">--</span><span class="n">maxWorkers</span><span class="o">=</span><span class="mi">4</span>
+</pre></div>
+</div>
+<p>Where <code class="docutils literal"><span class="pre">&lt;local</span> <span class="pre">dir&gt;</span></code> above is the absolute path on your local file system to a directory containing <code class="docutils literal"><span class="pre">search_def.json</span></code>.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../opf.html">OPF Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../network.html">Network API Guide</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Swarming</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Guide to Running Swarms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithm.html">The Swarming Algorithm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Docs</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/guides/swarming/running.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
