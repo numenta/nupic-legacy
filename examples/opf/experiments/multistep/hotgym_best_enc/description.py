@@ -51,8 +51,8 @@ config = \
                                      'verbosity': 0},
                    'spEnable': False,
                    'spParams': { },
-                   'tpEnable': False,
-                   'tpParams': { 'activationThreshold': 14,
+                   'tmEnable': False,
+                   'tmParams': { 'activationThreshold': 14,
                                  'minThreshold': 12,
                                  'verbosity': 0}}}
 

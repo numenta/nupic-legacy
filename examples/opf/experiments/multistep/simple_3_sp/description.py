@@ -26,14 +26,14 @@ from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
 
 # the sub-experiment configuration
 config = \
-{ 
-  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
+{
+  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__),
                                          '../datasets/simple_3.csv'),
   'modelParams': { 'clParams': { 'verbosity': 0, 'steps': '1,3'},
                    'inferenceType': 'NontemporalMultiStep',
                    'sensorParams': { 'encoders': { }, 'verbosity': 0},
                    'spParams': { },
-                   'tpParams': { }},
+                   'tmParams': { }},
   'predictionSteps': [1, 3]}
 
 mod = importBaseDescription('../base/description.py', config)

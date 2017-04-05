@@ -3,7 +3,7 @@
 Algorithms API
 --------------
 
-    See the `Algorithms Guide <../guide/algorithms.html>`_ for an overview of
+    See the `Algorithms API <../api/algorithms/>`_ for an overview of
     this API.
 
 Here is the complete program we are going to use as an example. In sections
@@ -221,7 +221,7 @@ Getting Predictions
 
 In order to associate the predictive cells in the TM to an input pattern, we use
 a non biological method of classification. This requires that we add a
-`Classifier <../api/classifiers.html>`_ to do this work. We will be using the
+`Classifier <../api/algorithms/classifiers.html>`_ to do this work. We will be using the
 :class:`.SDRClassifier` to do this.
 
 The goal is to extract a prediction for the value of `consumption` that was
@@ -238,7 +238,7 @@ factory settings.
 Running the Classifier
 ++++++++++++++++++++++
 
-In order to call :meth:`~SDRClassifier.compute` on the classifier, we need pass
+In order to call :meth:`.SDRClassifier.compute` on the classifier, we need pass
 it both the actual ``consumption`` value and the ``bucketIdx`` (bucket index),
 which we can get from the encoder itself. This will allow the encoder to
 classify predictions into a previously seen value.

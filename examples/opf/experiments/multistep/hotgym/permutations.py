@@ -36,10 +36,10 @@ from nupic.swarming.permutationhelpers import *
 predictedField = 'consumption'
 
 permutations = {
-  
+
   'modelParams': {
     'inferenceType': PermuteChoices(['NontemporalMultiStep', 'TemporalMultiStep']),
-  
+
     'sensorParams': {
       'encoders': {
         'timestamp_dayOfWeek': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.dayOfWeek', radius=PermuteFloat(1.000000, 6.000000), w=21),
@@ -48,15 +48,15 @@ permutations = {
         'timestamp_weekend': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.weekend', radius=PermuteChoices([1]), w=21),
       },
     },
-  
-  
-    'tpParams': {
+
+
+    'tmParams': {
       'minThreshold': PermuteInt(9, 12),
       'activationThreshold': PermuteInt(12, 16),
       'pamLength': PermuteInt(1, 5),
     },
-  
-  
+
+
     }
 }
 
@@ -82,16 +82,16 @@ def permutationFilter(perm):
   """ This function can be used to selectively filter out specific permutation
   combinations. It is called by RunPermutations for every possible permutation
   of the variables in the permutations dict. It should return True for valid a
-  combination of permutation values and False for an invalid one. 
-  
+  combination of permutation values and False for an invalid one.
+
   Parameters:
   ---------------------------------------------------------
   perm: dict of one possible combination of name:value
         pairs chosen from permutations.
   """
-  
+
   # An example of how to use this
   #if perm['__consumption_encoder']['maxval'] > 300:
   #  return False;
-  # 
+  #
   return True

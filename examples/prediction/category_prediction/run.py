@@ -95,8 +95,8 @@ MODEL_PARAMS = {
         "synPermInactiveDec": 0.01,
     },
 
-    "tpEnable" : True,
-    "tpParams": {
+    "tmEnable" : True,
+    "tmParams": {
       "verbosity": 0,
         "columnCount": 2048,
         "cellsPerColumn": 32,

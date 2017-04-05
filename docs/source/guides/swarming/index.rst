@@ -17,7 +17,8 @@ have no API documentation for it.
         <iframe width="560" height="315" src="https://www.youtube.com/embed/xYPKjKQ4YZ0" frameborder="0" allowfullscreen></iframe>
     </div>
 
-**Other Resources**
+.. toctree::
+    :maxdepth: 2
 
-- `Running Swarms <https://github.com/numenta/nupic/wiki/Running-Swarms>`_
-- `Swarming Algorithm <https://github.com/numenta/nupic/wiki/Swarming-Algorithm>`_
+    running
+    algorithm

@@ -83,8 +83,8 @@ MODEL_PARAMS = {
       "synPermInactiveDec": 0.0005
     },
     "trainSPNetOnlyIfRequested": False,
-    "tpEnable": True,
-    "tpParams": {
+    "tmEnable": True,
+    "tmParams": {
       "activationThreshold": 13,
       "cellsPerColumn": 32,
       "columnCount": 2048,

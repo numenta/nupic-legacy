@@ -3,7 +3,7 @@
 Online Prediction Framework (OPF)
 ---------------------------------
 
-See the `OPF Guide <../guide/opf.html>`_ for an overview of this API.
+See the `OPF Guide <../guides/opf.html>`_ for an overview of this API.
 
 Here is the complete program we are going to use as an example. In sections
 below, we'll break it down into parts and explain what is happening (without

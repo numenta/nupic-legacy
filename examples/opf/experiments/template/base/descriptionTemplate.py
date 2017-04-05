@@ -89,7 +89,7 @@ from nupic.frameworks.opf.opftaskdriver import (
 #
 
 config = {
-  
+
   # Type of model that the rest of these parameters apply to
   'model' : "CLA",
 
@@ -215,7 +215,7 @@ config = {
          w=DeferredDictLookup('spNumActivePerInhArea')),
   ],
 
-  
+
   ##############################################################################
   # General CLA Region Parameters
   ##############################################################################
@@ -224,7 +224,7 @@ config = {
   # (see also tpNCellsPerCol)
   # Replaces: spCoincCount
   'claRegionNColumns' : 2048,
-  
+
 
   ##############################################################################
   # Spatial Pooler (SP) Parameters (SP is always enabled in OPF)
@@ -246,10 +246,10 @@ config = {
 
   # potentialPct
   # What percent of the columns's receptive field is available
-  # for potential synapses. At initialization time, we will 
-  # choose potentialPct * (2*potentialRadius+1)^2 
+  # for potential synapses. At initialization time, we will
+  # choose potentialPct * (2*potentialRadius+1)^2
   'spCoincInputPoolPct' : 1.0,
-  
+
 
   ##############################################################################
   # Temporal Pooler (TP) Parameters
@@ -274,17 +274,17 @@ config = {
   # inputs.  Without TP, the model is only capable of reconstructing missing sensor
   # inputs (via SP).
   #
-  'tpEnable' : True,
-  
+  'tmEnable' : True,
+
   # The number of cells (i.e., states), allocated per column
   #
   'tpNCellsPerCol' : 32,
-  
+
   # Initial Permanence
   # TODO need better explanation
   #
   'tpInitialPerm' : 0.21,
-  
+
   # Permanence Increment
   #
   'tpPermanenceInc' : 0.1,
@@ -293,7 +293,7 @@ config = {
   # If set to None, will automatically default to tpPermanenceInc value
   #
   'tpPermanenceDec' : None,
-  
+
   # Temporal Pooler implementation selector (see _getTPClass in CLARegion.py)
   #
   'tpImplementation' : 'cpp',
@@ -306,7 +306,7 @@ config = {
   #  we should eliminate this parameter from description.py
   #
   'tpMaxSegmentsPerCell' : 128,
-  
+
   # Segment activation threshold.
   # A segment is active if it has >= tpSegmentActivationThreshold connected
   # synapses that are active due to infActiveState
@@ -319,7 +319,7 @@ config = {
   # None=use default
   # Replaces: tpMinThreshold
   'tpMinSegmentMatchSynapseThreshold' : None,
-  
+
   # Maximum number of synapses per segment
   #  > 0 for fixed-size CLA
   # -1 for non-fixed-size CLA
@@ -328,7 +328,7 @@ config = {
   #  we should eliminate this parameter from description.py
   #
   'tpMaxSynapsesPerSegment' : 32,
-  
+
   # New Synapse formation count
   # NOTE: If None, use spNumActivePerInhArea
   #
@@ -361,7 +361,7 @@ applyValueGettersToContainer(config)
 # NOTE: The tasks are intended for OPF clients that make use of OPFTaskDriver.
 #       Clients that interact with OPFExperiment directly do not make use of
 #       the tasks specification.
-#       
+#
 tasks = [
   {
     # Task label; this label string may be used for diagnostic logging and for
@@ -374,9 +374,9 @@ tasks = [
     'dataset' : {
       'info': 'test_NoProviders',
       'version': 1,
-      
+
       'streams': [
-        {  
+        {
           'columns': ['*'],
           'info': 'my gym.csv dataset',
           'source': 'file://extra/gym/gym.csv',
@@ -384,10 +384,10 @@ tasks = [
           'last_record': 4000
         }
       ],
-      
+
       'aggregation' : config['aggregationInfo']
     },
-      
+
 
     # Iteration count: maximum number of iterations.  Each iteration corresponds
     # to one record from the (possibly aggregated) dataset.  The task is
@@ -398,10 +398,10 @@ tasks = [
     # iterationCount of -1 = iterate over the entire dataset
     'iterationCount' : -1,
 
-    
+
     # Task Control parameters for OPFTaskDriver (per opfTaskControlSchema.json)
     'taskControl' : {
-        
+
       # Iteration cycle list consisting of opftaskdriver.IterationPhaseSpecXXXXX
       # instances.
       'iterationCycle' : [
@@ -409,8 +409,8 @@ tasks = [
         IterationPhaseSpecLearnAndInfer(1000),
         #IterationPhaseSpecInferOnly(10),
       ],
-        
-      
+
+
       # Inference specifications: sequence of opftaskdriver.InferenceSpecXXXXX
       # instances that indicate which inferences to perform and which metrics to
       # gather for each inference step. Note that it is up to the client
@@ -430,7 +430,7 @@ tasks = [
             MetricSpec(metric='rmse', field="consumption"),
           )
         ),
-        
+
         InferenceSpecTemporal(
           # [optional] Sequence of inference metrics to gather. If omitted,
           # no metrics will be gathered for this inference type
@@ -439,24 +439,24 @@ tasks = [
           ),
         ),
       ],
-      
+
       # Logged Metrics: A sequence of regular expressions that specify which of
       # the metrics from the Inference Specifications section MUST be logged for
       # every prediction. The regex's correspond to the automatically generated
       # metric labels. This is similar to the way the optimization metric is
       # specified in permutations.py.
       'loggedMetrics': [],
-      
+
       # Callbacks for experimentation/research (optional)
       'callbacks' : {
         # Callbacks to be called at the beginning of a task, before model iterations.
         # Signature: callback(<reference to OPFExperiment>); returns nothing
         'setup' : [claModelControlEnableSPLearningCb, claModelControlEnableTPLearningCb],
-        
+
         # Callbacks to be called after every learning/inference iteration
         # Signature: callback(<reference to OPFExperiment>); returns nothing
         'postIter' : [],
-        
+
         # Callbacks to be called when the experiment task is finished
         # Signature: callback(<reference to OPFExperiment>); returns nothing
         'finish' : []

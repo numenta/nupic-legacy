@@ -95,17 +95,17 @@ config = {
 
   # The type of inference that this model will perform
   'inferenceType': $INFERENCE_TYPE,
-  
+
   # How much in advance we want to predict. Used only when swarming over
   #  aggregations
   'predictAheadTime': $PREDICT_AHEAD_TIME,
-  
+
   # The number of prediction steps to use. When swarming over aggregations, this
-  #  is computed and filled in by the logic that follows this config 
+  #  is computed and filled in by the logic that follows this config
   #  declaration. It is computed based on the chosen aggreation and the
-  #  above predictAheadTime. 
+  #  above predictAheadTime.
   'predictionSteps': 'FilledInBelow',
-  
+
 
   ##############################################################################
   # Dataset Aggregation Parameters (for training and inference datasets)
@@ -293,7 +293,7 @@ config = {
   # inputs.  Without TP, the model is only capable of reconstructing missing sensor
   # inputs (via SP).
   #
-  'tpEnable' : True,
+  'tmEnable' : True,
 
   # The number of cells (i.e., states), allocated per column
   #
@@ -391,8 +391,8 @@ config = {
 # sub-experiment
 updateConfigFromSubConfig(config)
 
-# Compute predictionSteps based on the predictAheadTime and the aggregation 
-# period, which may be permuted over. 
+# Compute predictionSteps based on the predictAheadTime and the aggregation
+# period, which may be permuted over.
 if config['predictAheadTime'] is not None:
   predictionSteps =  int(round(aggregationDivide(
         config['predictAheadTime'], config['__aggregationPeriod'])))

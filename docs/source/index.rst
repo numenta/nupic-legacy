@@ -15,14 +15,15 @@ Contents
     :maxdepth: 4
 
     quick-start/index
-    guide/index
+    guides/index
     api/index
 
 Other Resources
 ===============
 
-Please see the `NuPIC Wiki <https://github.com/numenta/nupic/wiki>`_ for many more details on HTM and NuPIC.
-
+* `NuPIC on HTM Forum <https://discourse.numenta.org/c/nupic/>`_
+* `Github <https://github.com/numenta/nupic/>`_
+* `numenta.org <https://numenta.org>`_
 
 Indices and tables
 ==================

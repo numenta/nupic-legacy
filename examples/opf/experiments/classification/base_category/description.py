@@ -201,9 +201,9 @@ config = {
         # TP is necessary for making temporal predictions, such as predicting
         # the next inputs.  Without TP, the model is only capable of
         # reconstructing missing sensor inputs (via SP).
-        'tpEnable' : True,
+        'tmEnable' : True,
 
-        'tpParams': {
+        'tmParams': {
             # TP diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
             # (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)
@@ -332,7 +332,7 @@ if config['predictAheadTime'] is not None:
 applyValueGettersToContainer(config)
 
 # With no TP, there are no columns
-if not config['modelParams']['tpEnable']:
+if not config['modelParams']['tmEnable']:
   config['modelParams']['clParams']['cellsPerCol'] = 0
 
 
