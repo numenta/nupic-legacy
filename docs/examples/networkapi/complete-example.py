@@ -68,7 +68,7 @@ def createNetwork(dataSource):
   network.addRegion('SP', 'py.SPRegion', json.dumps(model_params['spParams']))
   network.addRegion('TM', 'py.TPRegion', json.dumps(model_params['tpParams']))
 
-  # Add the classifier
+  # Add the classifier.
   clParams = model_params['clParams']
   clName = clParams.pop('regionName')
   network.addRegion('classifier', 'py.' + clName, json.dumps(clParams))
@@ -85,14 +85,35 @@ def createNetwork(dataSource):
   createResetLink(network, 'sensor', 'SP')
   createResetLink(network, 'sensor', 'TM')
 
-  # Send the category labels from the sensor region to the classifier.
-  createCategoryLink(network, 'sensor', 'classifier')
+  # FIXME NUP-2396: replace this by new link(s) from sensor region to classif.
+  # createCategoryLink(network, 'sensor', 'classifier')
 
-  # Make sure all objects are initialized
+  # Make sure all objects are initialized.
   network.initialize()
 
   return network
 
+# FIXME NUP-2396: the network API doesn't support continuous inference.
+def runClassifier(classifier, sensorRegion, tmRegion, recordNumber):
+  """Call classifier manually, not using network."""
+
+  # Obtain input, its encoding, and the TM output for classification
+  actualInput = float(sensorRegion.getOutputData("sourceOut")[0])
+  scalarEncoder = sensorRegion.getSelf().encoder.encoders[0][1]
+  bucketIndex = scalarEncoder.getBucketIndices(actualInput)[0]
+  tmOutput = tmRegion.getOutputData("bottomUpOut").nonzero()[0]
+  classDict = {"actValue": actualInput, "bucketIdx": bucketIndex}
+
+  # Call classifier
+  results = classifier.getSelf().customCompute(recordNum=recordNumber,
+                                               patternNZ=tmOutput,
+                                               classification=classDict)
+
+  # Sort results by prediction confidence taking most confident prediction
+  mostLikelyResult = sorted(zip(results[1], results["actualValues"]))[-1]
+  predictionConfidence = mostLikelyResult[0]
+  predictedValue = mostLikelyResult[1]
+  return actualInput, predictedValue, predictionConfidence
 
 
 def runHotGym():
@@ -104,23 +125,29 @@ def runHotGym():
 
   network = createNetwork(dataSource)
 
-  # Enable learning for all regions
+  # Enable learning for all regions.
   network.regions['SP'].setParameter('learningMode', 1)
   network.regions['TM'].setParameter('learningMode', 1)
   network.regions['classifier'].setParameter('learningMode', 1)
 
-  # Enable inference for all regions
+  # Enable inference for all regions.
   network.regions['SP'].setParameter('inferenceMode', 1)
   network.regions['TM'].setParameter('inferenceMode', 1)
   network.regions['classifier'].setParameter('inferenceMode', 1)
 
-  N = 1  # Run the network, N iterations at a time.
-  for iteration in range(0, numRecords, N):
-    network.run(N)
-    result = network.regions['classifier'].getOutputData("categoriesOut")
-    print result
+  # Run the network, 1 iteration at a time.
+  for iteration in range(numRecords):
+    network.run(1)
+    (actualInput,
+     predictedValue,
+     predictionConfidence) = runClassifier(network.regions['classifier'],
+                                           network.regions['sensor'],
+                                           network.regions['TM'],
+                                           iteration)
 
-    # TODO: Print the best prediction for 1 step out.
+    # Print the best prediction for 1 step out.
+    print("1-step: {:16} ({:4.4}%)".format(predictedValue,
+                                           predictionConfidence * 100))
 
 
 
