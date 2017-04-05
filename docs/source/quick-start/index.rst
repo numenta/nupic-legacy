@@ -38,7 +38,7 @@ You can choose to construct an HTM several ways with NuPIC. See the
 guides for each interface:
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
 
     opf
     network
