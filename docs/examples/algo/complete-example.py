@@ -10,7 +10,8 @@ from nupic.research.spatial_pooler import SpatialPooler
 from nupic.research.temporal_memory import TemporalMemory
 from nupic.algorithms.sdr_classifier_factory import SDRClassifierFactory
 
-_INPUT_FILE_PATH = "../data/gymdata.csv"
+_INPUT_FILE_PATH = '../data/gymdata.csv'
+_OUTPUT_FILE_PATH = 'predictions.csv'
 
 def runHotgym():
 
@@ -75,70 +76,77 @@ def runHotgym():
 
   classifier = SDRClassifierFactory.create()
 
-  with open (_INPUT_FILE_PATH) as fin:
-    reader = csv.reader(fin)
-    headers = reader.next()
-    reader.next()
-    reader.next()
+  with open(_INPUT_FILE_PATH, 'r') as fin:
+    with open(_OUTPUT_FILE_PATH, 'w') as fo:
+      reader = csv.reader(fin)
+      headers = reader.next()
+      reader.next()
+      reader.next()
 
-    for count, record in enumerate(reader):
-      # Convert data string into Python date object.
-      dateString = datetime.datetime.strptime(record[0], "%m/%d/%y %H:%M")
-      # Convert data value string into float.
-      consumption = float(record[1])
+      writer = csv.writer(fo)
+      writer.writerow(['input', 'prediction', 'confidence'])
 
-      # To encode, we need to provide zero-filled numpy arrays for the encoders
-      # to populate.
-      timeOfDayBits = numpy.zeros(timeOfDayEncoder.getWidth())
-      weekendBits = numpy.zeros(weekendEncoder.getWidth())
-      consumptionBits = numpy.zeros(scalarEncoder.getWidth())
+      for count, record in enumerate(reader):
+        # Convert data string into Python date object.
+        dateString = datetime.datetime.strptime(record[0], "%m/%d/%y %H:%M")
+        # Convert data value string into float.
+        consumption = float(record[1])
 
-      # Now we call the encoders create bit representations for each value.
-      timeOfDayEncoder.encodeIntoArray(dateString, timeOfDayBits)
-      weekendEncoder.encodeIntoArray(dateString, weekendBits)
-      scalarEncoder.encodeIntoArray(consumption, consumptionBits)
+        # To encode, we need to provide zero-filled numpy arrays for the encoders
+        # to populate.
+        timeOfDayBits = numpy.zeros(timeOfDayEncoder.getWidth())
+        weekendBits = numpy.zeros(weekendEncoder.getWidth())
+        consumptionBits = numpy.zeros(scalarEncoder.getWidth())
 
-      # Concatenate all these encodings into one large encoding for Spatial
-      # Pooling.
-      encoding = numpy.concatenate(
-        [timeOfDayBits, weekendBits, consumptionBits]
-      )
+        # Now we call the encoders create bit representations for each value.
+        timeOfDayEncoder.encodeIntoArray(dateString, timeOfDayBits)
+        weekendEncoder.encodeIntoArray(dateString, weekendBits)
+        scalarEncoder.encodeIntoArray(consumption, consumptionBits)
 
-      # Create an array to represent active columns, all initially zero. This
-      # will be populated by the compute method below. It must have the same
-      # dimensions as the Spatial Pooler.
-      activeColumns = numpy.zeros(2048)
+        # Concatenate all these encodings into one large encoding for Spatial
+        # Pooling.
+        encoding = numpy.concatenate(
+          [timeOfDayBits, weekendBits, consumptionBits]
+        )
 
-      # Execute Spatial Pooling algorithm over input space.
-      sp.compute(encoding, True, activeColumns)
-      activeColumnIndices = numpy.nonzero(activeColumns)[0]
+        # Create an array to represent active columns, all initially zero. This
+        # will be populated by the compute method below. It must have the same
+        # dimensions as the Spatial Pooler.
+        activeColumns = numpy.zeros(2048)
 
-      # Execute Temporal Memory algorithm over active mini-columns.
-      tm.compute(activeColumnIndices, learn=True)
+        # Execute Spatial Pooling algorithm over input space.
+        sp.compute(encoding, True, activeColumns)
+        activeColumnIndices = numpy.nonzero(activeColumns)[0]
 
-      activeCells = tm.getActiveCells()
+        # Execute Temporal Memory algorithm over active mini-columns.
+        tm.compute(activeColumnIndices, learn=True)
 
-      # Get the bucket info for this input value for classification.
-      bucketIdx = scalarEncoder.getBucketIndices(consumption)[0]
+        activeCells = tm.getActiveCells()
 
-      # Run classifier to translate active cells back to scalar value.
-      classifierResult = classifier.compute(
-        recordNum=count,
-        patternNZ=activeCells,
-        classification={
-          "bucketIdx": bucketIdx,
-          "actValue": consumption
-        },
-        learn=True,
-        infer=True
-      )
+        # Get the bucket info for this input value for classification.
+        bucketIdx = scalarEncoder.getBucketIndices(consumption)[0]
 
-      # Print the best prediction for 1 step out.
-      probability, value = sorted(
-        zip(classifierResult[1], classifierResult["actualValues"]),
-        reverse=True
-      )[0]
-      print("1-step: {:16} ({:4.4}%)".format(value, probability * 100))
+        # Run classifier to translate active cells back to scalar value.
+        classifierResult = classifier.compute(
+          recordNum=count,
+          patternNZ=activeCells,
+          classification={
+            "bucketIdx": bucketIdx,
+            "actValue": consumption
+          },
+          learn=True,
+          infer=True
+        )
+
+        # Print the best prediction for 1 step out.
+        probability, value = sorted(
+          zip(classifierResult[1], classifierResult["actualValues"]),
+          reverse=True
+        )[0]
+        print("1-step: {:16} ({:4.4}%)".format(value, probability * 100))
+        writer.writerow(['%.5f' % consumption,
+                         '%.5f' % value,
+                         '%.5f' % probability])
 
 
 if __name__ == "__main__":

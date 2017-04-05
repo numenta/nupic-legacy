@@ -1,3 +1,4 @@
+import csv
 import json
 import yaml
 
@@ -7,6 +8,7 @@ from nupic.data.file_record_stream import FileRecordStream
 
 _NUM_RECORDS = 3000
 _INPUT_FILE_PATH = '../data/gymdata.csv'
+_OUTPUT_FILE_PATH = 'predictions.csv'
 _PARAMS_PATH = '../params/model.yaml'
 
 
@@ -85,15 +87,17 @@ def createNetwork(dataSource):
   createResetLink(network, 'sensor', 'SP')
   createResetLink(network, 'sensor', 'TM')
 
-  # FIXME NUP-2396: replace this by new link(s) from sensor region to classif.
-  # createCategoryLink(network, 'sensor', 'classifier')
+  # FIXME NUP-2396: replace this by new link(s) after changes.
+  createCategoryLink(network, 'sensor', 'classifier')
 
   # Make sure all objects are initialized.
   network.initialize()
 
   return network
 
-# FIXME NUP-2396: the network API doesn't support continuous inference.
+
+
+# FIXME NUP-2396: delete after changes
 def runClassifier(classifier, sensorRegion, tmRegion, recordNumber):
   """Call classifier manually, not using network."""
 
@@ -105,15 +109,21 @@ def runClassifier(classifier, sensorRegion, tmRegion, recordNumber):
   classDict = {"actValue": actualInput, "bucketIdx": bucketIndex}
 
   # Call classifier
+  classifier.getSelf()._computeFlag = False
+  classifier.setParameter('learningMode', 1)
+  classifier.setParameter('inferenceMode', 1)
   results = classifier.getSelf().customCompute(recordNum=recordNumber,
                                                patternNZ=tmOutput,
                                                classification=classDict)
+  classifier.setParameter('learningMode', 0)
+  classifier.setParameter('inferenceMode', 0)
 
   # Sort results by prediction confidence taking most confident prediction
   mostLikelyResult = sorted(zip(results[1], results["actualValues"]))[-1]
   predictionConfidence = mostLikelyResult[0]
   predictedValue = mostLikelyResult[1]
   return actualInput, predictedValue, predictionConfidence
+
 
 
 def runHotGym():
@@ -128,26 +138,35 @@ def runHotGym():
   # Enable learning for all regions.
   network.regions['SP'].setParameter('learningMode', 1)
   network.regions['TM'].setParameter('learningMode', 1)
-  network.regions['classifier'].setParameter('learningMode', 1)
+  # FIXME NUP-2396: reintroduce after changes
+  # network.regions['classifier'].setParameter('learningMode', 1)
 
   # Enable inference for all regions.
   network.regions['SP'].setParameter('inferenceMode', 1)
   network.regions['TM'].setParameter('inferenceMode', 1)
-  network.regions['classifier'].setParameter('inferenceMode', 1)
+  # FIXME NUP-2396: reintroduce after changes
+  # network.regions['classifier'].setParameter('inferenceMode', 1)
 
-  # Run the network, 1 iteration at a time.
-  for iteration in range(numRecords):
-    network.run(1)
-    (actualInput,
-     predictedValue,
-     predictionConfidence) = runClassifier(network.regions['classifier'],
-                                           network.regions['sensor'],
-                                           network.regions['TM'],
-                                           iteration)
+  with open(_OUTPUT_FILE_PATH, 'w') as of:
+    writer = csv.writer(of)
+    writer.writerow(['input', 'prediction', 'confidence'])
 
-    # Print the best prediction for 1 step out.
-    print("1-step: {:16} ({:4.4}%)".format(predictedValue,
-                                           predictionConfidence * 100))
+    # Run the network, 1 iteration at a time.
+    for iteration in range(numRecords):
+      network.run(1)
+      (actualInput,
+       predictedValue,
+       predictionConfidence) = runClassifier(network.regions['classifier'],
+                                             network.regions['sensor'],
+                                             network.regions['TM'],
+                                             iteration)
+
+      # Print and save the best prediction for 1 step out.
+      print("1-step: {:16} ({:4.4}%)".format(predictedValue,
+                                             predictionConfidence * 100))
+      writer.writerow(['%.5f' % actualInput,
+                       '%.5f' % predictedValue,
+                       '%.5f' % predictionConfidence])
 
 
 
