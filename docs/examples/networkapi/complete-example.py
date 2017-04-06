@@ -68,7 +68,7 @@ def createNetwork(dataSource):
 
   # Add the SP and TM regions.
   network.addRegion('SP', 'py.SPRegion', json.dumps(model_params['spParams']))
-  network.addRegion('TM', 'py.TPRegion', json.dumps(model_params['tpParams']))
+  network.addRegion('TM', 'py.TPRegion', json.dumps(model_params['tmParams']))
 
   # Add the classifier.
   clParams = model_params['clParams']
@@ -152,7 +152,7 @@ def runHotGym():
     writer.writerow(['input', 'prediction', 'confidence'])
 
     # Run the network, 1 iteration at a time.
-    for iteration in range(numRecords):
+    for iteration in range(min(numRecords, _NUM_RECORDS)):
       network.run(1)
       (actualInput,
        predictedValue,
