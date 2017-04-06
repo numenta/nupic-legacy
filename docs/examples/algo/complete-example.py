@@ -1,51 +1,65 @@
 import csv
 import datetime
-
+import yaml
 import numpy
 
 from nupic.encoders.date import DateEncoder
 from nupic.encoders.random_distributed_scalar import \
-    RandomDistributedScalarEncoder
+  RandomDistributedScalarEncoder
 from nupic.research.spatial_pooler import SpatialPooler
 from nupic.research.temporal_memory import TemporalMemory
 from nupic.algorithms.sdr_classifier_factory import SDRClassifierFactory
 
+_NUM_RECORDS = 3000
 _INPUT_FILE_PATH = '../data/gymdata.csv'
 _OUTPUT_FILE_PATH = 'predictions.csv'
+_PARAMS_PATH = '../params/model.yaml'
+
+
 
 def runHotgym():
+  with open(_PARAMS_PATH, 'r') as f:
+    modelParams = yaml.safe_load(f)['modelParams']
+    enParams = modelParams['sensorParams']['encoders']
+    spParams = modelParams['spParams']
+    tmParams = modelParams['tmParams']
+    clParams = modelParams['clParams']
 
-  timeOfDayEncoder = DateEncoder(timeOfDay=(21,1))
-  weekendEncoder = DateEncoder(weekend=21)
-  scalarEncoder = RandomDistributedScalarEncoder(0.88)
+  timeOfDayEncoder = DateEncoder(
+    timeOfDay=enParams['timestamp_timeOfDay']['timeOfDay'])
+  weekendEncoder = DateEncoder(
+    weekend=enParams['timestamp_weekend']['weekend'])
+  scalarEncoder = RandomDistributedScalarEncoder(
+    enParams['consumption']['resolution'])
 
-  encodingWidth = timeOfDayEncoder.getWidth() \
-    + weekendEncoder.getWidth() \
-    + scalarEncoder.getWidth()
+  encodingWidth = (timeOfDayEncoder.getWidth()
+                   + weekendEncoder.getWidth()
+                   + scalarEncoder.getWidth())
 
   sp = SpatialPooler(
     # How large the input encoding will be.
     inputDimensions=(encodingWidth),
     # How many mini-columns will be in the Spatial Pooler.
-    columnDimensions=(2048),
+    columnDimensions=(spParams['columnCount']),
     # What percent of the columns's receptive field is available for potential
     # synapses?
-    potentialPct=0.85,
+    potentialPct=spParams['potentialPct'],
     # This means that the input space has no topology.
-    globalInhibition=True,
-    localAreaDensity=-1.0,
+    globalInhibition=spParams['globalInhibition'],
+    localAreaDensity=spParams['localAreaDensity'],
     # Roughly 2%, giving that there is only one inhibition area because we have
     # turned on globalInhibition (40 / 2048 = 0.0195)
-    numActiveColumnsPerInhArea=40.0,
+    numActiveColumnsPerInhArea=spParams['numActiveColumnsPerInhArea'],
     # How quickly synapses grow and degrade.
-    synPermInactiveDec=0.005,
-    synPermActiveInc=0.04,
-    synPermConnected=0.1,
+    synPermInactiveDec=spParams['synPermInactiveDec'],
+    synPermActiveInc=spParams['synPermActiveInc'],
+    synPermConnected=spParams['synPermConnected'],
     # boostStrength controls the strength of boosting. Boosting encourages
     # efficient usage of SP columns.
-    boostStrength=3.0,
+    boostStrength=spParams['boostStrength'],
     # Random number generator seed.
-    seed=1956,
+    seed=spParams['seed'],
+    # TODO: is this useful?
     # Determines if inputs at the beginning and end of an input dimension should
     # be considered neighbors when mapping columns to inputs.
     wrapAround=False
@@ -53,25 +67,26 @@ def runHotgym():
 
   tm = TemporalMemory(
     # Must be the same dimensions as the SP
-    columnDimensions=(2048, ),
+    columnDimensions=(tmParams['columnCount'],),
     # How many cells in each mini-column.
-    cellsPerColumn=32,
+    cellsPerColumn=tmParams['cellsPerColumn'],
     # A segment is active if it has >= activationThreshold connected synapses
     # that are active due to infActiveState
-    activationThreshold=16,
-    initialPermanence=0.21,
-    connectedPermanence=0.5,
+    activationThreshold=tmParams['activationThreshold'],
+    initialPermanence=tmParams['initialPerm'],
+    # TODO: This comes from the SP params, is this normal
+    connectedPermanence=spParams['synPermConnected'],
     # Minimum number of active synapses for a segment to be considered during
     # search for the best-matching segments.
-    minThreshold=12,
+    minThreshold=tmParams['minThreshold'],
     # The max number of synapses added to a segment during learning
-    maxNewSynapseCount=20,
-    permanenceIncrement=0.1,
-    permanenceDecrement=0.1,
+    maxNewSynapseCount=tmParams['newSynapseCount'],
+    permanenceIncrement=tmParams['permanenceInc'],
+    permanenceDecrement=tmParams['permanenceDec'],
     predictedSegmentDecrement=0.0,
-    maxSegmentsPerCell=128,
-    maxSynapsesPerSegment=32,
-    seed=1960
+    maxSegmentsPerCell=tmParams['maxSegmentsPerCell'],
+    maxSynapsesPerSegment=tmParams['maxSynapsesPerSegment'],
+    seed=tmParams['seed']
   )
 
   classifier = SDRClassifierFactory.create()
@@ -87,6 +102,9 @@ def runHotgym():
       writer.writerow(['input', 'prediction', 'confidence'])
 
       for count, record in enumerate(reader):
+
+        if count > _NUM_RECORDS: return
+
         # Convert data string into Python date object.
         dateString = datetime.datetime.strptime(record[0], "%m/%d/%y %H:%M")
         # Convert data value string into float.
@@ -112,7 +130,7 @@ def runHotgym():
         # Create an array to represent active columns, all initially zero. This
         # will be populated by the compute method below. It must have the same
         # dimensions as the Spatial Pooler.
-        activeColumns = numpy.zeros(2048)
+        activeColumns = numpy.zeros(spParams['columnCount'])
 
         # Execute Spatial Pooling algorithm over input space.
         sp.compute(encoding, True, activeColumns)
@@ -147,6 +165,7 @@ def runHotgym():
         writer.writerow(['%.5f' % consumption,
                          '%.5f' % value,
                          '%.5f' % probability])
+
 
 
 if __name__ == "__main__":
