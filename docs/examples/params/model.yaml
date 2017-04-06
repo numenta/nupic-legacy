@@ -1,5 +1,3 @@
-# The comments in blue marked as TODO need more information.
-
 # Type of model that the rest of these parameters apply to.
 model: CLA
 
@@ -39,7 +37,6 @@ aggregationInfo:
   weeks: 0
   years: 0
 
-# TODO: more details required
 predictAheadTime: null
 
 # Parameters of the model to be created.
@@ -122,24 +119,56 @@ modelParams:
     # Values can be: "py" or "cpp" (speed optimized)
     spatialImp: cpp
 
-    # TODO: more details required
+    # If 1, then during inhibition phase the winning columns are selected
+    # as the most active columns from the region as a whole. Otherwise, the
+    # winning columns are selected with respect to their local neighborhoods.
+    # Using global inhibition boosts performance x60.
     globalInhibition: 1
+
+    # The desired density of active columns within a local inhibition area
+    # (the size of which is set by the internally calculated inhibitionRadius,
+    # which is in turn determined from the average size of the connected
+    # potential pools of all columns). The inhibition logic will insure that
+    # at most N columns remain ON within a local inhibition area, where
+    # N = localAreaDensity * (total number of columns in inhibition area).
+    localAreaDensity: -1.0
 
     # Number of mini-columns in the region. This values needs to be the same
     # as "columnCount" for the TM region (see "columnCount" under "tmParams").
     columnCount: 2048
 
-    # TODO: how come this works with the value 0? Shouldn't it be equal to
-    # the ouput width of the SensorRegion?
-    inputWidth: 0
+    # Input size of the SP region. Must be the same as the output size of the
+    # previous region, that feeds into the SP region.
+    inputWidth: 946
 
-    # "numActiveColumnsPerInhArea" controls column inhibition in the SP region.
-    # Maximum number of active columns in the SP region's output. If more SP
-    # columns than "numActiveColumnsPerInhArea" are active then the weaker
-    # columns are suppressed.
+    # numActiveColumnsPerInhArea controls column inhibition in the SP region.
+    # It sets the maximum number of active columns in the SP region's output.
+    # If more mini-columns than "numActiveColumnsPerInhArea" are active then
+    # the weaker columns are suppressed.
+    # In the case where globalInhibition is turned on (only one inhibition area)
+    # numActiveColumnsPerInhArea should be set to 40. Because 40 means roughly
+    # 2% active mini-columns. Given that there is only one inhibition area:
+    # 40 / 2048 = 0.0195 so ~2% active mini-columns.
     numActiveColumnsPerInhArea: 40
 
-    # TODO: more details required
+    # An alternate way to control the density of the active columns. If
+    # numActiveColumnsPerInhArea is specified then localAreaDensity must be
+    # less than 0, and vice versa.  When using numActiveColumnsPerInhArea, the
+    # inhibition logic will insure that at most 'numActiveColumnsPerInhArea'
+    # columns remain ON within a local inhibition area (the size of which is
+    # set by the internally calculated inhibitionRadius, which is in turn
+    # determined from the average size of the connected receptive fields of all
+    # columns). When using this method, as columns learn and grow their
+    # effective receptive fields, the inhibitionRadius will grow, and hence the
+    # net density of the active columns will *decrease*. This is in contrast to
+    # the localAreaDensity method, which keeps the density of active columns
+    # the same regardless of the size of their receptive fields.
+    numActiveColumnsPerInhArea: 40
+
+    # Random number generator seed.
+    # The seed affects the random aspects of initialization like the initial
+    # permanence values and which input bits are in the potential pool for
+    # each column. A fixed value ensures a reproducible result.
     seed: 1956
 
     # "potentialPct" controls what percentage of the columns's receptive field
@@ -151,10 +180,14 @@ modelParams:
     # it can contribute to the cell's firing. Typical value is 0.10.
     synPermConnected: 0.1
 
-    # TODO: more details required
+    # The amount by which an active synapse is incremented in each round.
+    # For active columns, the permanences to all active input bits in the
+    # columns potential pool are incremented by this amount.
     synPermActiveInc: 0.04
 
-    # TODO: more details required
+    # How quickly synapses grow and degrade.
+    # For active columns, the permanences to all inactive input bits in the
+    # columns potential pool are decremented by this amount.
     synPermInactiveDec: 0.005
 
     # "boostStrength" controls the strength of boosting. It should be a
@@ -163,14 +196,14 @@ modelParams:
     boostStrength: 3.0
 
   # Controls whether the Temporal Memory (TM) region is enabled.
-  tpEnable: true
+  tmEnable: true
 
   # Parameters of the TM region.
-  tpParams:
+  tmParams:
     # Controls the verbosity of the TM diagnostic output:
     # - verbosity == 0: silent
     # - verbosity in [1..6]: increasing levels of verbosity
-    # See verbosity in nupic.research.TP for more details.
+    # See verbosity in nupic.research.TM for more details.
     verbosity: 0
 
     # Number of mini-columns in the region. This values needs to be the same
@@ -184,36 +217,41 @@ modelParams:
     # previous region.
     inputWidth: 2048
 
-    # TODO: more details required
+    # Random number generator seed.
+    # The seed affects the random aspects of initialization like the initial
+    # permanence values and which input bits are in the potential pool for
+    # each column. A fixed value ensures a reproducible result.
     seed: 1960
 
     # Temporal implementation of the TM region.
     # Valid values are: 'py', 'cpp', 'tm_py', 'monitored_tm_py'
     temporalImp: cpp
 
-    # The number of synapses added to a segment during learning
+    # The max number of synapses added to a segment during learning
     newSynapseCount: 20
-
-    # Maximum number of synapses per segment
-    maxSynapsesPerSegment: 32
-
-    # Maximum number of segments per cell
-    maxSegmentsPerCell: 128
 
     # Initial permanence for newly created synapses
     initialPerm: 0.21
 
-    # Permanence Increment
+    # Active synapses get their permanence counts incremented by permanenceInc.
+    # All other synapses get their permanence counts decremented
+    # by permanenceDec.
     permanenceInc: 0.1
-
-    # Permanence Decrement
     permanenceDec: 0.1
 
-    # TODO: more details required
+    # maxAge controls globalDecay. Global decay will only decay segments
+    # that have not been activated for maxAge iterations, and will
+    # only do the global decay loop every maxAge iterations. The
+    # default (maxAge=1) reverts to the behavior where global decay
+    # is applied every iteration to every segment. Using maxAge > 1
+    # can significantly speed up the TM when global decay is used.
+    maxAge: 0
     globalDecay: 0.0
 
-    # TODO: more details required
-    maxAge: 0
+    # Note that maxSegmentsPerCell and maxSynapsesPerSegment cannot be set at
+    # the same time as globalDecay and maxAge.
+    maxSynapsesPerSegment: 32
+    maxSegmentsPerCell: 128
 
     # Minimum number of active synapses for a segment to be considered
     # during search for the best-matching segments.
@@ -226,7 +264,15 @@ modelParams:
     # that are active. If set to null, then use default value.
     activationThreshold: 16
 
-    # TODO: more details required
+    # Can be one of the following: 'normal', 'activeState',
+    # 'activeState1CellPerCol'.
+    # - 'normal': output the OR of the active and predicted state.
+    # - 'activeState': output only the active state.
+    # - 'activeState1CellPerCol': output only the active state, and at
+    #                             most 1 cell/column. If more than 1 cell is
+    #                             active in a column, the one with the highest
+    #                             confidence is sent up.
+    # Default value is 'normal'.
     outputType: normal
 
     # "Pay Attention Mode" length. This tells the TM Region how many new
@@ -255,7 +301,5 @@ modelParams:
     # Values can be: "py" or "cpp" (speed optimized)
     implementation: cpp
 
-  # TODO: more details required
+  # If set, don't create the SP network unless the user requests SP metrics.
   trainSPNetOnlyIfRequested: false
-
-
