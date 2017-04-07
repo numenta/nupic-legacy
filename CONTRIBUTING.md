@@ -8,17 +8,6 @@ Before considering contribution, we would like you to understand what NuPIC is a
 
 Learn about the other contributors who you'll be working alongside.
 
-### Developer Communication
-
-[HTM Forum](https://discourse.numenta.org/) has two places to discuss NuPIC:
-
-- [NuPIC User Forum](https://discourse.numenta.org/c/nupic): Where people post questions about installing and running NuPIC.
-- [NuPIC Developer Forum](https://discourse.numenta.org/c/nupic/developers): Where we discuss bug fixes, new features, hold votes, etc.
-
-#### Live Chat
-
-[![Gitter chat](https://badges.gitter.im/numenta.png)](https://gitter.im/numenta)
-
 ### Ways to Contribute
 
 #### Bounties
@@ -60,7 +49,6 @@ Provide technical details about how code changes are vetted, tested, approved, a
 Learn more about how NuPIC is released through the wiki linked above.
 
 ### Developer Resources
-- [rhyolight](https://github.com/rhyolight)'s [nupic.devtools](https://github.com/rhyolight/nupic.devtools)
 - [Development Tips](https://discourse.numenta.org/t/development-tips/2140)
 - [C++ Development Workflow](https://github.com/numenta/nupic.core/wiki/Development-Workflow)
 - [Documenting Code](docs/README.md)
