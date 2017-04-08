@@ -15,8 +15,8 @@ _PARAMS_PATH = '../params/model.yaml'
 
 def createDataOutLink(network, sensorRegionName, regionName):
   """Link sensor region to other region so that it can pass it data."""
-  network.link(sensorRegionName, regionName, "UniformLink", "",
-               srcOutput="dataOut", destInput="bottomUpIn")
+  network.link(sensorRegionName, regionName, 'UniformLink', '',
+               srcOutput='dataOut', destInput='bottomUpIn')
 
 
 
@@ -34,8 +34,13 @@ def createResetLink(network, sensorRegionName, regionName):
 
 
 
-def createCategoryLink(network, sensorRegionName, classifierRegionName):
-  """Create a category link from a sensor region to a classifier region."""
+def createSensorToClassifierLinks(network, sensorRegionName,
+                                  classifierRegionName):
+  """Create required links from a sensor region to a classifier region."""
+  network.link(sensorRegionName, classifierRegionName, 'UniformLink', '',
+               srcOutput='bucketIdxOut', destInput='bucketIdxIn')
+  network.link(sensorRegionName, classifierRegionName, 'UniformLink', '',
+               srcOutput='actValueOut', destInput='actValueIn')
   network.link(sensorRegionName, classifierRegionName, 'UniformLink', '',
                srcOutput='categoryOut', destInput='categoryIn')
 
@@ -75,6 +80,9 @@ def createNetwork(dataSource):
   clName = clParams.pop('regionName')
   network.addRegion('classifier', 'py.' + clName, json.dumps(clParams))
 
+  # Add all links
+  createSensorToClassifierLinks(network, 'sensor', 'classifier')
+
   # Link the sensor region to the SP region so that it can pass it data.
   createDataOutLink(network, 'sensor', 'SP')
 
@@ -87,9 +95,6 @@ def createNetwork(dataSource):
   createResetLink(network, 'sensor', 'SP')
   createResetLink(network, 'sensor', 'TM')
 
-  # FIXME NUP-2396: replace this by new link(s) after changes.
-  createCategoryLink(network, 'sensor', 'classifier')
-
   # Make sure all objects are initialized.
   network.initialize()
 
@@ -97,32 +102,23 @@ def createNetwork(dataSource):
 
 
 
-# FIXME NUP-2396: delete after changes
-def runClassifier(classifier, sensorRegion, tmRegion, recordNumber):
-  """Call classifier manually, not using network."""
-
-  # Obtain input, its encoding, and the TM output for classification
-  actualInput = float(sensorRegion.getOutputData("sourceOut")[0])
-  scalarEncoder = sensorRegion.getSelf().encoder.encoders[0][1]
-  bucketIndex = scalarEncoder.getBucketIndices(actualInput)[0]
-  tmOutput = tmRegion.getOutputData("bottomUpOut").nonzero()[0]
-  classDict = {"actValue": actualInput, "bucketIdx": bucketIndex}
-
-  # Call classifier
-  classifier.getSelf()._computeFlag = False
-  classifier.setParameter('learningMode', 1)
-  classifier.setParameter('inferenceMode', 1)
-  results = classifier.getSelf().customCompute(recordNum=recordNumber,
-                                               patternNZ=tmOutput,
-                                               classification=classDict)
-  classifier.setParameter('learningMode', 0)
-  classifier.setParameter('inferenceMode', 0)
-
-  # Sort results by prediction confidence taking most confident prediction
-  mostLikelyResult = sorted(zip(results[1], results["actualValues"]))[-1]
-  predictionConfidence = mostLikelyResult[0]
-  predictedValue = mostLikelyResult[1]
-  return actualInput, predictedValue, predictionConfidence
+def getPredictionResults(network, clRegionName):
+  """Get prediction results for all prediction steps."""
+  classifierRegion = network.regions[clRegionName]
+  actualValues = classifierRegion.getOutputData('actualValues')
+  probabilities = classifierRegion.getOutputData('probabilities')
+  steps = classifierRegion.getSelf().stepsList
+  N = classifierRegion.getSelf().maxCategoryCount
+  results = {step: {} for step in steps}
+  for i in range(len(steps)):
+    # stepProbabilities: probabilities for this prediction step only.
+    stepProbabilities = probabilities[i * N:(i + 1) * N - 1]
+    mostLikelyCategoryIdx = stepProbabilities.argmax()
+    predictedValue = actualValues[mostLikelyCategoryIdx]
+    predictionConfidence = stepProbabilities[mostLikelyCategoryIdx]
+    results[steps[i]]['predictedValue'] = predictedValue
+    results[steps[i]]['predictionConfidence'] = predictionConfidence
+  return results
 
 
 
@@ -131,42 +127,47 @@ def runHotGym():
 
   # Create a data source for the network.
   dataSource = FileRecordStream(streamID=_INPUT_FILE_PATH)
-  numRecords = dataSource.getDataRowCount()
-
+  numRecords = min(_NUM_RECORDS, dataSource.getDataRowCount())
   network = createNetwork(dataSource)
+
+  # Set predicted field index. It needs to be the same index as the data source.
+  predictedIdx = dataSource.getFieldNames().index('consumption')
+  network.regions['sensor'].setParameter('predictedFieldIdx', predictedIdx)
 
   # Enable learning for all regions.
   network.regions['SP'].setParameter('learningMode', 1)
   network.regions['TM'].setParameter('learningMode', 1)
-  # FIXME NUP-2396: reintroduce after changes
-  # network.regions['classifier'].setParameter('learningMode', 1)
+  network.regions['classifier'].setParameter('learningMode', 1)
 
   # Enable inference for all regions.
   network.regions['SP'].setParameter('inferenceMode', 1)
   network.regions['TM'].setParameter('inferenceMode', 1)
-  # FIXME NUP-2396: reintroduce after changes
-  # network.regions['classifier'].setParameter('inferenceMode', 1)
+  network.regions['classifier'].setParameter('inferenceMode', 1)
 
   with open(_OUTPUT_FILE_PATH, 'w') as of:
     writer = csv.writer(of)
     writer.writerow(['input', 'prediction', 'confidence'])
 
-    # Run the network, 1 iteration at a time.
-    for iteration in range(min(numRecords, _NUM_RECORDS)):
-      network.run(1)
-      (actualInput,
-       predictedValue,
-       predictionConfidence) = runClassifier(network.regions['classifier'],
-                                             network.regions['sensor'],
-                                             network.regions['TM'],
-                                             iteration)
+    N = 1  # Run the network, N iterations at a time.
+    for iteration in range(0, numRecords, N):
+      network.run(N)
 
-      # Print and save the best prediction for 1 step out.
-      print("1-step: {:16} ({:4.4}%)".format(predictedValue,
-                                             predictionConfidence * 100))
-      writer.writerow(['%.5f' % actualInput,
-                       '%.5f' % predictedValue,
-                       '%.5f' % predictionConfidence])
+      # Get prediction results.
+      results = getPredictionResults(network, 'classifier')
+      oneStep = results[1]['predictedValue']
+      oneStepConfidence = results[1]['predictionConfidence']
+      fiveStep = results[5]['predictedValue']
+      fiveStepConfidence = results[5]['predictionConfidence']
+
+      # Write and print results and input value.
+      inputVal = float(network.regions['sensor'].getOutputData('sourceOut')[0])
+      writer.writerow(['%.5f' % inputVal, '%.5f' % oneStep,
+                       '%.5f' % oneStepConfidence])
+      print('1-step: {:16} ({:4.4}%)\t'
+            '5-step: {:16} ({:4.4}%)'.format(oneStep,
+                                             oneStepConfidence * 100,
+                                             fiveStep,
+                                             fiveStepConfidence * 100))
 
 
 

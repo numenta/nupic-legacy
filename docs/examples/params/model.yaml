@@ -298,6 +298,18 @@ modelParams:
     # computed from the aggregationInfo and predictAheadTime.
     steps: '1,5'
 
+    # maxCategoryCount reprensents the max number of categories / bucket indices
+    # of the field being learned on.
+    # In this case, we are not learning a category field, but we are trying to
+    # predict the next value of a continous field. So maxCategoryCount is the
+    # max number of buckets used by the encoder of this field. We set
+    # maxCategoryCount to 1000, an arbitrarily large number, to accomodate the
+    # max number of buckets created by the encoder.
+    # In a case where the classifier is learning a category field with
+    # 3 categories, then maxCategoryCount should be set to 3 (higher values are
+    # also OK).
+    maxCategoryCount: 1000
+
     # Values can be: "py" or "cpp" (speed optimized)
     implementation: cpp
 
