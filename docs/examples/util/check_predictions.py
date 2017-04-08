@@ -48,17 +48,21 @@ ax31.plot(algResults.prediction, label='predictions')
 ax31.legend()
 ax31.set_title('Algorithms Predictions')
 
+opfRMSE = opfResults.error.mean()
+netRMSE = netResults.error.mean()
+algRMSE = algResults.error.mean()
+
 ax12 = plt.subplot(3, 2, 2, sharex=ax11, sharey=ax11)
 ax12.plot(opfResults.error)
-ax12.set_title('OPF Prediction Error')
+ax12.set_title('OPF Prediction Error (RMSE: %.2f)' % opfRMSE)
 
 ax22 = plt.subplot(3, 2, 4, sharex=ax11, sharey=ax11)
 ax22.plot(netResults.error)
-ax22.set_title('Network API Prediction Error')
+ax22.set_title('Network API Prediction Error (RMSE: %.2f)' % netRMSE)
 
 ax32 = plt.subplot(3, 2, 6, sharex=ax11, sharey=ax11)
 ax32.plot(algResults.error)
-ax32.set_title('Algorithms Prediction Error')
+ax32.set_title('Algorithms Prediction Error (RMSE: %.2f)' % algRMSE)
 
 plt.xlim(0, nPointsToPlot)
 plt.tight_layout()
@@ -66,9 +70,9 @@ plt.tight_layout()
 plt.savefig('predictions.png')
 print '\nFigure saved: %s\n' % outFile
 
-print 'OPF RMSE:',  opfResults.error.mean()
-print 'Network API RMSE:',  netResults.error.mean()
-print 'Algorithms RMSE:',  algResults.error.mean()
+print 'OPF RMSE:', opfRMSE
+print 'Network API RMSE:', netRMSE
+print 'Algorithms RMSE:',  algRMSE
 
 if opfResults.error.mean() != netResults.error.mean():
   warnings.warn('OPF and Network API predictions are different.')
