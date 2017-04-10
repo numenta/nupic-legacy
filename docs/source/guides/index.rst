@@ -7,3 +7,4 @@ Guides
     opf
     network
     swarming/index
+    anomaly-detection
