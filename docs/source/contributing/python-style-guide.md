@@ -16,16 +16,7 @@ The NuPIC installation should put `pylint` on your path and you should create a 
 
 ### Executables
 
-If your source file is meant to be an executable, then:
-
-make the first line a _shebang_:
-
-
-    #!/usr/bin/env python
-
-and change its mode:
-
-    $ chmod +x
+Executables should be specified in the `setup.py` as described [here](http://setuptools.readthedocs.io/en/latest/setuptools.html#automatic-script-creation).
 
 ### Legal Notice
 
@@ -54,7 +45,7 @@ At the top of each source file (after the shebang, if any), include the followin
 # ----------------------------------------------------------------------
 ```
 
-In the date, include any years in which the code was modified, e.g. "2006-2009", "2006, 2008, 2010".
+In the date, include any years in which the code was modified as either one year or a range, e.g. "2006-2009", "2010".
 
 ### Module Docstring
 
@@ -62,7 +53,7 @@ After the legal notice, include a docstring to describe the contents of the file
 
 ### Tests
 
-Do not include tests in source files. All tests should be in a tests package inside the top-level Python package. So in NuPIC, `nupic.tests` should contain all tests. This allows test utilities and base tests to be imported by tests. Nothing outside `nupic.tests` should import modules inside `nupic.tests`.
+Do not include tests in source files. All tests are in the [`/tests`](https://github.com/numenta/nupic/tree/master/tests) directory.
 
 ## Coding Style
 
