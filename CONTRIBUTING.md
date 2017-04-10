@@ -46,18 +46,18 @@ Provide technical details about how code changes are vetted, tested, approved, a
 
 #### [Release Process](RELEASE.md)
 
-Learn more about how NuPIC is released through the wiki linked above.
+Learn more about how NuPIC is released through the page linked above.
 
 ### Developer Resources
 - [Development Tips](https://discourse.numenta.org/t/development-tips/2140)
-- [C++ Development Workflow](https://github.com/numenta/nupic.core/wiki/Development-Workflow)
+- [Developer Workflow](https://discourse.numenta.org/t/developer-workflow/2132)
 - [Documenting Code](docs/README.md)
 - [External Libraries](https://discourse.numenta.org/t/external-libraries/2141)
-- [Profiling and Optimization for Speed](https://github.com/numenta/nupic/wiki/Optimization-&-Profiling,-Speed)
+- [Profiling and Optimization for Speed](https://discourse.numenta.org/t/optimization-profiling-speed/2142)
 
 #### Coding Standards and Guides
 
-- [C/C++ Coding Guide](https://github.com/numenta/nupic/wiki/C-Coding-Guide)
+- [C/C++ Coding Guide](https://numenta.github.io/nupic/guides/contributing/cpp-style-guide.html)
 - [CMake Style Guide](https://discourse.numenta.org/t/cmake-style-guide/2137/1)
 - [Python Style Guide](https://discourse.numenta.org/t/python-style-guide/2128/1)
 - [Contribution Standards](https://discourse.numenta.org/t/contribution-standards/2130/1)
