@@ -14,18 +14,13 @@ sphinx-autobuild  ${NUPIC}/docs/source  ${NUPIC}/docs/_build_html  \
 List of NuPIC packages and their documentation status:
 * `TODO`: Package doc needs to be reviewed and potentially converted to RST
 * `OK`: Package RST doc reviewed and approved.
-* `PRIV`: Private, no need to include in public API docs
-* `OBSL`: Obsolete, no need to include in public API docs
 
 ```
 nupic
 ├── algorithms
-│   ├── CLAClassifier.py [OBSL]
-│   ├── KNNClassifier.py [TODO]
+│   ├── KNNClassifier.py [OK]
 │   ├── anomaly.py [TODO]
 │   ├── anomaly_likelihood.py [TODO]
-│   ├── cla_classifier_diff.py [OBSL]
-│   ├── cla_classifier_factory.py [OBSL]
 │   ├── sdr_classifier.py [TODO]
 │   └── sdr_classifier_factory.py [TODO]
 ├── data
