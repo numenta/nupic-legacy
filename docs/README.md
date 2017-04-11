@@ -21,7 +21,7 @@ nupic
 │   ├── CLAClassifier.py [TODO]
 │   ├── KNNClassifier.py [TODO]
 │   ├── anomaly.py [OK]
-│   ├── anomaly_likelihood.py [TODO]
+│   ├── anomaly_likelihood.py [OK]
 │   ├── cla_classifier_diff.py [TODO]
 │   ├── cla_classifier_factory.py [TODO]
 │   ├── sdr_classifier.py [TODO]
