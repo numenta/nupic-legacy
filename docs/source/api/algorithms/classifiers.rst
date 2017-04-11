@@ -7,10 +7,8 @@ SDR Classifier
 .. autoclass:: nupic.algorithms.sdr_classifier.SDRClassifier
    :members:
 
-CLA Classifier
+KNN Classifier
 ++++++++++++++
 
-Outdated. Use SDR Classifier.
-
-.. autoclass:: nupic.algorithms.CLAClassifier.CLAClassifier
+.. autoclass:: nupic.algorithms.KNNClassifier.KNNClassifier
    :members:
