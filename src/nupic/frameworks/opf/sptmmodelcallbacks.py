@@ -30,74 +30,74 @@ from sptmmodel import SPTMModel
 
 
 
-def claModelControlEnableSPLearningCb(claModel):
+def smtpModelControlEnableSPLearningCb(smtpModel):
   """ Enables learning in the CLA model's Spatial Pooler
 
-  See also claModelControlDisableSPLearningCb.
+  See also smtpModelControlDisableSPLearningCb.
 
-  claModel:  pointer to a SPTMModel instance
+  smtpModel:  pointer to a SPTMModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(claModel, SPTMModel)
+  assert isinstance(smtpModel, SPTMModel)
 
-  claModel._getSPRegion().setParameter('learningMode', True)
+  smtpModel._getSPRegion().setParameter('learningMode', True)
   return
 
 
 
-def claModelControlDisableSPLearningCb(claModel):
+def smtpModelControlDisableSPLearningCb(smtpModel):
   """ Disables learning in the CLA model's Spatial Pooler, while retaining
   the ability to re-enable SP learning in the future.
 
-  See also: claModelControlEnableSPLearningCb.
+  See also: smtpModelControlEnableSPLearningCb.
   See also: modelcallbacks.modelControlFinishLearningCb.
 
-  claModel:  pointer to a SPTMModel instance
+  smtpModel:  pointer to a SPTMModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(claModel, SPTMModel)
+  assert isinstance(smtpModel, SPTMModel)
 
-  claModel._getSPRegion().setParameter('learningMode', False)
+  smtpModel._getSPRegion().setParameter('learningMode', False)
   return
 
 
 
-def claModelControlEnableTPLearningCb(claModel):
+def smtpModelControlEnableTPLearningCb(smtpModel):
   """ Enables learning in the CLA model's Temporal Pooler
 
-  See also claModelControlDisableTPLearningCb.
+  See also smtpModelControlDisableTPLearningCb.
 
-  claModel:  pointer to a SPTMModel instance
+  smtpModel:  pointer to a SPTMModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(claModel, SPTMModel)
+  assert isinstance(smtpModel, SPTMModel)
 
-  claModel._getTPRegion().setParameter('learningMode', True)
+  smtpModel._getTPRegion().setParameter('learningMode', True)
   return
 
 
 
-def claModelControlDisableTPLearningCb(claModel):
+def smtpModelControlDisableTPLearningCb(smtpModel):
   """ Disables learning in the CLA model's Temporal Pooler, while retaining
   the ability to re-enable TP learning in the future.
 
-  See also: claModelControlEnableTPLearningCb.
+  See also: smtpModelControlEnableTPLearningCb.
   See also: modelcallbacks.modelControlFinishLearningCb.
 
-  claModel:  pointer to a SPTMModel instance
+  smtpModel:  pointer to a SPTMModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(claModel, SPTMModel)
+  assert isinstance(smtpModel, SPTMModel)
 
-  claModel._getTPRegion().setParameter('learningMode', False)
+  smtpModel._getTPRegion().setParameter('learningMode', False)
   return
 
 
@@ -115,14 +115,14 @@ class CLAModelPickleSPInitArgs(object):
     return
 
 
-  def __call__(self, claModel):
+  def __call__(self, smtpModel):
 
     import pickle
 
     # Get the SP args dictionary
-    assert isinstance(claModel, SPTMModel)
+    assert isinstance(smtpModel, SPTMModel)
 
-    spRegion = claModel._getSPRegion().getSelf()
+    spRegion = smtpModel._getSPRegion().getSelf()
 
     sfdr = spRegion._sfdr
 
@@ -155,14 +155,14 @@ class CLAModelPickleTPInitArgs(object):
     return
 
 
-  def __call__(self, claModel):
+  def __call__(self, smtpModel):
 
     import pickle
 
     # Get the TP args dictionary
-    assert isinstance(claModel, SPTMModel)
+    assert isinstance(smtpModel, SPTMModel)
 
-    tpRegion = claModel._getTPRegion().getSelf()
+    tpRegion = smtpModel._getTPRegion().getSelf()
 
     tfdr = tpRegion._tfdr
 

@@ -451,7 +451,7 @@ tasks = [
       'callbacks' : {
         # Callbacks to be called at the beginning of a task, before model iterations.
         # Signature: callback(<reference to OPFExperiment>); returns nothing
-        'setup' : [claModelControlEnableSPLearningCb, claModelControlEnableTPLearningCb],
+        'setup' : [smtpModelControlEnableSPLearningCb, smtpModelControlEnableTPLearningCb],
 
         # Callbacks to be called after every learning/inference iteration
         # Signature: callback(<reference to OPFExperiment>); returns nothing
