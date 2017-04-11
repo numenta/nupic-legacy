@@ -30,33 +30,10 @@ as it seems. For records that arrive every minute, this means once every hour
 and 40 minutes. A likelihood of 0.0001 or 0.01% means we see it once out of
 10,000 records, or about once every 7 days.
 
-USAGE
------
-
-There are two ways to use the code: using the AnomalyLikelihood helper class or
-using the raw individual functions.
-
-
-Helper Class
-------------
-The helper class AnomalyLikelihood is the easiest to use.  To use it simply
-create an instance and then feed it successive anomaly scores:
-
-anomalyLikelihood = AnomalyLikelihood()
-while still_have_data:
-  # Get anomaly score from model
-
-  # Compute probability that an anomaly has ocurred
-  anomalyProbability = anomalyLikelihood.anomalyProbability(
-      value, anomalyScore, timestamp)
-
-
-Raw functions
--------------
-
-There are two lower level functions, estimateAnomalyLikelihoods and
-updateAnomalyLikelihoods. The details of these are described below.
-
+There are two ways to use the code: using the
+:class:`.anomaly_likelihood.AnomalyLikelihood` helper class or using the raw
+individual functions :func:`~.anomaly_likelihood.estimateAnomalyLikelihoods` and
+:func:`~.anomaly_likelihood.updateAnomalyLikelihoods`.
 """
 
 import collections
@@ -69,7 +46,19 @@ from nupic.utils import MovingAverage
 
 class AnomalyLikelihood(object):
   """
-  Helper class for running anomaly likelihood computation.
+  Helper class for running anomaly likelihood computation. To use it simply
+  create an instance and then feed it successive anomaly scores:
+
+  .. code-block:: python
+
+      anomalyLikelihood = AnomalyLikelihood()
+      while still_have_data:
+        # Get anomaly score from model
+
+        # Compute probability that an anomaly has ocurred
+        anomalyProbability = anomalyLikelihood.anomalyProbability(
+            value, anomalyScore, timestamp)
+
   """
 
 
