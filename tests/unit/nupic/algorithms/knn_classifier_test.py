@@ -353,7 +353,7 @@ class KNNClassifierTest(unittest.TestCase):
     self.assertEquals(classifier.getNumPartitionIds(), 3)
 
     # Check that the full set of partition ids is what we expect
-    self.assertItemsEqual(classifier.getPartitionIdPerPattern(),
+    self.assertItemsEqual(classifier.getPartitionIds(),
                           [433, 213, np.inf, 433, 413])
     self.assertItemsEqual(classifier.getPartitionIdList(),[433, 413, 213])
 
@@ -369,7 +369,7 @@ class KNNClassifierTest(unittest.TestCase):
     self.assertEquals(classifier.getNumPartitionIds(), 2)
 
     # Check that the full set of partition ids is what we expect
-    self.assertItemsEqual(classifier.getPartitionIdPerPattern(), [433, 413])
+    self.assertItemsEqual(classifier.getPartitionIds(), [433, 413])
     self.assertItemsEqual(classifier.getPartitionIdList(),[433, 413])
 
 
