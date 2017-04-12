@@ -21,12 +21,12 @@ nupic
 ├── algorithms
 │   ├── CLAClassifier.py [TODO]
 │   ├── KNNClassifier.py [TODO]
-│   ├── anomaly.py [TODO]
-│   ├── anomaly_likelihood.py [TODO]
+│   ├── anomaly.py [OK]
+│   ├── anomaly_likelihood.py [OK]
 │   ├── cla_classifier_diff.py [TODO]
 │   ├── cla_classifier_factory.py [TODO]
-│   ├── sdr_classifier.py [TODO]
-│   └── sdr_classifier_factory.py [TODO]
+│   ├── sdr_classifier.py [OK]
+│   └── sdr_classifier_factory.py [OK]
 ├── data
 │   ├── aggregator.py [DEFER]
 │   ├── dictutils.py [DEFER]

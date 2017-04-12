@@ -4,13 +4,11 @@ Classifiers
 SDR Classifier
 ++++++++++++++
 
+.. automodule:: nupic.algorithms.sdr_classifier
+
 .. autoclass:: nupic.algorithms.sdr_classifier.SDRClassifier
    :members:
 
-CLA Classifier
-++++++++++++++
+.. autoclass:: nupic.algorithms.sdr_classifier_factory.SDRClassifierFactory
+   :members: create
 
-Outdated. Use SDR Classifier.
-
-.. autoclass:: nupic.algorithms.CLAClassifier.CLAClassifier
-   :members:
