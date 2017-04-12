@@ -867,11 +867,9 @@ class KNNClassifier(object):
       return partitionId
 
 
-  def getPartitionIds(self):
+  def getPartitionIdList(self):
     """
-    Gets all the partition ids.
-
-    :returns: a list of partition ids
+    :returns: a list of complete partition id objects
     """
     return self._partitionIdList
 
@@ -883,9 +881,9 @@ class KNNClassifier(object):
     return len(self._partitionIdMap)
 
 
-  def getPartitionIdList(self):
+  def getPartitionIdKeys(self):
     """
-    :returns: a list containing unique (non-None) partition Ids
+    :returns: a list containing unique (non-None) partition Ids (just the keys)
     """
     return self._partitionIdMap.keys()
 
