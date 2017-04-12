@@ -35,26 +35,19 @@ FieldMetaInfoBase = namedtuple('FieldMetaInfoBase', ['name', 'type', 'special'])
 class FieldMetaInfo(FieldMetaInfoBase):
   """
   This class acts as a container of meta-data for a single field (column) of
-  a dataset.
-
-  The layout is backward-compatible with the tuples exposed via the ``fields``
-  attribute of the legacy nupic.data.file.File class (in file.py). However, the
-  elements may be accessed in a less error-prone and more self-documenting way
-  using object attribute notation (e.g., fieldmeta.special instead of
-  fieldmeta[2]). Because namedtuple creates a subclass of tuple, the elements
-  can also be accessed using list access semantics and operations (i.e.,
-  fieldmeta[2])
+  a dataset. Each instance of this class has ``name``, ``type``, and ``special``
+  properties.
 
   Examples:
 
   1. Access a sub-element from an instance of FieldMetaInfo:
 
-     - metainfo.name
-     - metainfo.type
-     - metainfo.special
+     - ``metainfo.name``
+     - ``metainfo.type``
+     - ``metainfo.special``
 
-  2. Convert a single element from ``nupic.data.file.File.fields`` to
-     ``FieldMetaInfo``
+  2. Create a single element of ``FieldMetaInfo`` from a tuple of ``name``,
+     ``type``, and ``special``:
 
      .. code-block:: python
 
@@ -85,10 +78,11 @@ class FieldMetaInfo(FieldMetaInfoBase):
   @staticmethod
   def createFromFileFieldElement(fieldInfoTuple):
     """
-    Creates a :class:`.fieldmeta.FieldMetaInfo` instance from an element of the
-    File.fields list of a nupic.data.file.File class instance.
-    :param fieldInfoTuple:
-    :return:
+    Creates a :class:`.fieldmeta.FieldMetaInfo` instance from a tuple containing
+    ``name``, ``type``, and ``special``.
+
+    :param fieldInfoTuple: Must contain ``name``, ``type``, and ``special``
+    :return: :class:`~.fieldmeta.FieldMetaInfo` instance
     """
     return FieldMetaInfo._make(fieldInfoTuple)
 
@@ -96,9 +90,8 @@ class FieldMetaInfo(FieldMetaInfoBase):
   @classmethod
   def createListFromFileFieldList(cls, fields):
     """
-    Creates a FieldMetaInfo list from the File.fields value of a
-    nupic.data.file.File class instance.
-
+    Creates a FieldMetaInfo list from the a list of tuples. Basically runs
+    :meth:`~.fieldmeta.FieldMetaInfo.createFromFileFieldElement` on each tuple.
 
     *Example:*
 
@@ -114,8 +107,7 @@ class FieldMetaInfo(FieldMetaInfoBase):
         ml = FieldMetaInfo.createListFromFileFieldList(el)
 
     :param fields: a sequence of field attribute tuples conforming to the format
-                   of the File.fields attribute of a nupic.data.file.File class
-                   instance.
+                   of ``name``, ``type``, and ``special``
 
     :return: A list of :class:`~.fieldmeta.FieldMetaInfo` elements corresponding
              to the given 'fields' list.
