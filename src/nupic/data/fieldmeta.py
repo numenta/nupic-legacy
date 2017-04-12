@@ -118,7 +118,15 @@ class FieldMetaInfo(FieldMetaInfoBase):
 
 class FieldMetaType(object):
   """
-  Public values for the field data types
+  Public values for the field data types. Valid types are:
+
+    - ``string``
+    - ``datetime``
+    - ``int``
+    - ``float``
+    - ``bool``
+    - ``list``
+    - ``sdr``
   """
   string = 'string'
   datetime = 'datetime'
@@ -126,7 +134,7 @@ class FieldMetaType(object):
   float = 'float'
   boolean = 'bool'
   list = 'list'
-  sdr = 'sdr'  # sparse distributed representation
+  sdr = 'sdr'
 
   _ALL = (string, datetime, integer, float, boolean, list, sdr)
 
@@ -135,10 +143,9 @@ class FieldMetaType(object):
   def isValid(cls, fieldDataType):
     """Check a candidate value whether it's one of the valid field data types
 
-    :param str fieldDataType: candidate field data type
+    :param fieldDataType: (string) candidate field data type
     :returns: True if the candidate value is a legitimate field data type value;
-      False if not
-    :rtype: bool
+              False if not
     """
     return fieldDataType in cls._ALL
 
@@ -146,7 +153,13 @@ class FieldMetaType(object):
 
 class FieldMetaSpecial(object):
   """
-  Public values for the "special" field attribute
+  Public values for the "special" field attribute. Valid values are:
+
+    - ``R``: reset
+    - ``S``: sequence
+    - ``T``: timestamp
+    - ``C``: category
+    - ``L``: learning
   """
   none = ''
   reset = 'R'
@@ -162,9 +175,8 @@ class FieldMetaSpecial(object):
   def isValid(cls, attr):
     """Check a candidate value whether it's one of the valid attributes
 
-    :param str attr: candidate value
+    :param attr: (string) candidate value
     :returns: True if the candidate value is a legitimate "special" field
-      attribute; False if not
-    :rtype: bool
+              attribute; False if not
     """
     return attr in cls._ALL
