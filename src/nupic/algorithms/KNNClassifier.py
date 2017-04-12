@@ -1079,7 +1079,7 @@ class KNNClassifier(object):
       return len(v)-1
 
 
-  def _finalizeSVD(sfinalizeSelf, numSVDDims=None):
+  def _finalizeSVD(self, numSVDDims=None):
     """
     Called by finalizeLearning(). This will project all the patterns onto the
     SVD eigenvectors.
