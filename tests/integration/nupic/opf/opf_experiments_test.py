@@ -52,11 +52,6 @@ def getAllDirectoriesWithFile(path, filename, excludeDirs):
         dirnames.remove(d)
         print "EXCLUDING %s..." % (os.path.join(dirpath, d))
 
-      # If this directory is UNDER_DEVELOPMENT, exclude it
-      elif 'UNDER_DEVELOPMENT' in os.listdir(os.path.join(dirpath, d)):
-        dirnames.remove(d)
-        print "EXCLUDING %s..." % (os.path.join(dirpath, d))
-
     for f in filenames:
       if f==filename:
         directoryList.append(dirpath)
