@@ -24,8 +24,8 @@ nupic
 │   ├── anomaly_likelihood.py [OK]
 │   ├── cla_classifier_diff.py [TODO]
 │   ├── cla_classifier_factory.py [TODO]
-│   ├── sdr_classifier.py [TODO]
-│   └── sdr_classifier_factory.py [TODO]
+│   ├── sdr_classifier.py [OK]
+│   └── sdr_classifier_factory.py [OK]
 ├── data
 │   ├── CategoryFilter.py [TODO]
 │   ├── aggregator.py [TODO]
