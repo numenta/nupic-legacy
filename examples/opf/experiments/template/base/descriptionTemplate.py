@@ -91,7 +91,7 @@ from nupic.frameworks.opf.opftaskdriver import (
 config = {
 
   # Type of model that the rest of these parameters apply to
-  'model' : "CLA",
+  'model' : "HTMPrediction",
 
 
   ##############################################################################

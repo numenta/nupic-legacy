@@ -102,7 +102,7 @@ def smtpModelControlDisableTPLearningCb(smtpModel):
 
 
 
-class CLAModelPickleSPInitArgs(object):
+class HTMPredictionModelPickleSPInitArgs(object):
   """ Saves SP initialization args
   """
   def __init__(self, filePath):
@@ -142,7 +142,7 @@ class CLAModelPickleSPInitArgs(object):
 
 
 
-class CLAModelPickleTPInitArgs(object):
+class HTMPredictionModelPickleTPInitArgs(object):
   """ Saves TP10X2 initialization args
   """
   def __init__(self, filePath):

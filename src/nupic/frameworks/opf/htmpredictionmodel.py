@@ -54,7 +54,7 @@ try:
 except ImportError:
   capnp = None
 if capnp:
-  from nupic.frameworks.opf.CLAModelProto_capnp import CLAModelProto
+  from nupic.frameworks.opf.HTMPredictionModelProto_capnp import HTMPredictionModelProto
 
 
 DEFAULT_LIKELIHOOD_THRESHOLD = 0.0001
@@ -1234,9 +1234,9 @@ class HTMPredictionModel(Model):
       self._Model__inferenceEnabled = True
 
       # Remove obsolete members
-      self.__dict__.pop("_CLAModel__encoderNetInfo", None)
-      self.__dict__.pop("_CLAModel__nonTemporalNetInfo", None)
-      self.__dict__.pop("_CLAModel__temporalNetInfo", None)
+      self.__dict__.pop("_HTMPredictionModel__encoderNetInfo", None)
+      self.__dict__.pop("_HTMPredictionModel__nonTemporalNetInfo", None)
+      self.__dict__.pop("_HTMPredictionModel__temporalNetInfo", None)
 
 
     # -----------------------------------------------------------------------
@@ -1255,9 +1255,9 @@ class HTMPredictionModel(Model):
         self._hasTP = True
 
       # Remove obsolete members
-      self.__dict__.pop("_CLAModel__encoderNetInfo", None)
-      self.__dict__.pop("_CLAModel__nonTemporalNetInfo", None)
-      self.__dict__.pop("_CLAModel__temporalNetInfo", None)
+      self.__dict__.pop("_HTMPredictionModel__encoderNetInfo", None)
+      self.__dict__.pop("_HTMPredictionModel__nonTemporalNetInfo", None)
+      self.__dict__.pop("_HTMPredictionModel__temporalNetInfo", None)
 
 
     # This gets filled in during the first infer because it can only be
@@ -1278,7 +1278,7 @@ class HTMPredictionModel(Model):
 
   @staticmethod
   def getProtoType():
-    return CLAModelProto
+    return HTMPredictionModelProto
 
 
   def write(self, proto):
@@ -1382,7 +1382,7 @@ class HTMPredictionModel(Model):
 
 
     # Used for backwards compatibility for anomaly classification models.
-    # Previous versions used the CLAModelClassifierHelper class for utilizing
+    # Previous versions used the HTMPredictionModelClassifierHelper class for utilizing
     # the KNN classifier. Current version uses KNNAnomalyClassifierRegion to
     # encapsulate all the classifier functionality.
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
@@ -1514,7 +1514,7 @@ class HTMPredictionModel(Model):
     skipCheck:    Pass True to skip test for presence of the demangled member
                   in our instance.
 
-    Returns:      The demangled member name (e.g., "_CLAModel__logger")
+    Returns:      The demangled member name (e.g., "_HTMPredictionModel__logger")
     """
 
     assert privateMemberName.startswith("__"), \

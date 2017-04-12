@@ -37,7 +37,7 @@ MODEL_PARAMS = {
       "minutes": 0,
       "milliseconds": 0
     },
-  "model": "CLA",
+  "model": "HTMPrediction",
   "version": 1,
   "predictAheadTime": None,
   "modelParams": {

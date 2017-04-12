@@ -151,7 +151,7 @@ class ExperimentDescriptionAPI(DescriptionIface):
     if (self.__modelConfig['model'] == 'HTMPrediction' and
         'version' not in self.__modelConfig):
       # The modelConfig is in the old CLA format, update it.
-      return self.__getCLAModelDescription()
+      return self.__getHTMPredictionModelDescription()
     else:
       return self.__modelConfig
 
@@ -262,7 +262,7 @@ class ExperimentDescriptionAPI(DescriptionIface):
                           tasks = [task])
 
 
-  def __getCLAModelDescription(self):
+  def __getHTMPredictionModelDescription(self):
     config = self.__modelConfig
 
     assert config['model'] == "HTMPrediction"

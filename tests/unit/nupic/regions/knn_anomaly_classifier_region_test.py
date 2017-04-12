@@ -38,7 +38,7 @@ from nupic.regions.KNNAnomalyClassifierRegion import (
 
 from nupic.frameworks.opf.opfutils import InferenceType
 
-from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError)
+from nupic.frameworks.opf.exceptions import (HTMPredictionModelInvalidRangeError)
 
 
 
@@ -112,16 +112,16 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
 
     # Invalid ranges
     self.helper._recordsCache = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.getLabels, start=100, end=100)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.getLabels, start=100, end=100)
 
     self.helper._recordsCache = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.getLabels, start=-100, end=-100)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.getLabels, start=-100, end=-100)
 
     self.helper._recordsCache = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.getLabels, start=100, end=-100)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.getLabels, start=100, end=-100)
 
     # Valid no threshold labels
     values = {
@@ -155,20 +155,20 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
 
     # Invalid ranges
     self.helper._recordsCache = []
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.addLabel, start=100, end=100, labelName="test")
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.addLabel, start=100, end=100, labelName="test")
 
     self.helper._recordsCache = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.addLabel, start=100, end=100, labelName="test")
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.addLabel, start=100, end=100, labelName="test")
 
     self.helper._recordsCache = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.addLabel, start=-100, end=-100, labelName="test")
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.addLabel, start=-100, end=-100, labelName="test")
 
     self.helper._recordsCache = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.addLabel, start=100, end=-100, labelName="test")
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.addLabel, start=100, end=-100, labelName="test")
 
     # Valid no threshold labels
     self.helper._recordsCache = [
@@ -198,21 +198,21 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     knn.removeIds = Mock(side_effect = self.mockRemoveIds)
 
     self.helper._recordsCache = []
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.removeLabels,)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.removeLabels, )
 
     # Invalid ranges
     self.helper._recordsCache = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.removeLabels, start=100, end=100)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.removeLabels, start=100, end=100)
 
     self.helper._recordsCache = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.removeLabels, start=-100, end=-100)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.removeLabels, start=-100, end=-100)
 
     self.helper._recordsCache = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.removeLabels, start=100, end=-100)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.removeLabels, start=100, end=-100)
 
     # Valid no threshold labels
     self.helper._recordsCache = [
@@ -737,7 +737,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     self.assertRaises(Exception, self.helper.__setstate__, state)
 
 
-  # Tests for _CLAClassificationRecord class
+  # Tests for _HTMClassificationRecord class
   # ===========================================================================
 
   def testCLAClassificationRecord(self):

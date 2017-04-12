@@ -30,7 +30,7 @@ from nupic.frameworks.opf.opfutils import ModelResult
 
 
 
-class CLAModelTest(unittest.TestCase):
+class HTMPredictionModelTest(unittest.TestCase):
   """HTMPredictionModel unit tests."""
 
 
@@ -92,7 +92,7 @@ class CLAModelTest(unittest.TestCase):
                             u'seconds': 0,
                             u'weeks': 0,
                             u'years': 0},
-       u'model': u'CLA',
+       u'model': u'HTMPrediction',
        u'modelParams': {u'anomalyParams': {u'anomalyCacheRecords': None,
                                            u'autoDetectThreshold': None,
                                            u'autoDetectWaitRecords': 5030},

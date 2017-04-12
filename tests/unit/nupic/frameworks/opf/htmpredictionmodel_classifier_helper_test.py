@@ -32,11 +32,11 @@ from nupic.support.unittesthelpers.testcasebase import (unittest,
 
 from nupic.frameworks.opf.htmpredictionmodel import HTMPredictionModel
 from nupic.frameworks.opf.htmpredictionmodel_classifier_helper import \
-  CLAModelClassifierHelper, _CLAClassificationRecord, Configuration
+  HTMPredictionModelClassifierHelper, _CLAClassificationRecord, Configuration
 
 from nupic.frameworks.opf.opfutils import InferenceType
 
-from nupic.frameworks.opf.exceptions import CLAModelInvalidRangeError
+from nupic.frameworks.opf.exceptions import HTMPredictionModelInvalidRangeError
 
 experimentDesc = {
     "inferenceType": InferenceType.TemporalAnomaly,
@@ -146,12 +146,12 @@ records= [
 
 
 class CLAClassifierHelperTest(unittest.TestCase):
-  """CLAModelClassifierHelper unit tests."""
+  """HTMPredictionModelClassifierHelper unit tests."""
   def setUp(self):
-    self.helper = CLAModelClassifierHelper(Mock(spec=HTMPredictionModel))
+    self.helper = HTMPredictionModelClassifierHelper(Mock(spec=HTMPredictionModel))
 
   @patch.object(Configuration, 'get')
-  @patch.object(CLAModelClassifierHelper, 'compute')
+  @patch.object(HTMPredictionModelClassifierHelper, 'compute')
   def testInit(self, compute, configurationGet):
     anomalyParams = {
       'autoDetectWaitRecords': 100,
@@ -166,7 +166,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
       'nupic.model.temporalAnomaly.anomaly_vector': 'tpc',
     }
     configurationGet.side_effect = conf.get
-    helper = CLAModelClassifierHelper(Mock(spec=HTMPredictionModel), anomalyParams)
+    helper = HTMPredictionModelClassifierHelper(Mock(spec=HTMPredictionModel), anomalyParams)
 
     self.assertEqual(helper._autoDetectWaitRecords,
                      anomalyParams['autoDetectWaitRecords'])
@@ -177,7 +177,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     self.assertEqual(helper._vectorType,
                      anomalyParams['anomalyVectorType'])
 
-    helper = CLAModelClassifierHelper(Mock(spec=HTMPredictionModel), None)
+    helper = HTMPredictionModelClassifierHelper(Mock(spec=HTMPredictionModel), None)
     self.assertEqual(helper._autoDetectWaitRecords,
                      conf['nupic.model.temporalAnomaly.wait_records'])
     self.assertEqual(helper._autoDetectThreshold,
@@ -189,7 +189,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
 
 
 
-  @patch.object(CLAModelClassifierHelper, 'compute')
+  @patch.object(HTMPredictionModelClassifierHelper, 'compute')
   def testRun(self,compute):
     state = {
       "ROWID": 0,
@@ -211,16 +211,16 @@ class CLAClassifierHelperTest(unittest.TestCase):
 
     # Invalid ranges
     self.helper.saved_states = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.getLabels, start=100, end=100)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.getLabels, start=100, end=100)
 
     self.helper.saved_states = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.getLabels, start=-100, end=-100)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.getLabels, start=-100, end=-100)
 
     self.helper.saved_states = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.getLabels, start=100, end=-100)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.getLabels, start=100, end=-100)
 
     # Valid no threshold labels
     values = {
@@ -241,26 +241,26 @@ class CLAClassifierHelperTest(unittest.TestCase):
       self.assertTrue(record['ROWID'] in values['categoryRecencyList'])
       self.assertEqual(record['labels'], self.helper.saved_categories)
 
-  @patch.object(CLAModelClassifierHelper, '_getStateAnomalyVector')
-  @patch.object(CLAModelClassifierHelper, '_updateState')
+  @patch.object(HTMPredictionModelClassifierHelper, '_getStateAnomalyVector')
+  @patch.object(HTMPredictionModelClassifierHelper, '_updateState')
   def testAddLabel(self, _updateState, _getStateAnomalyVector):
     self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf().getParameter.return_value = [1,2,3]
     self.helper.saved_states = []
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.addLabel, start=100, end=100, labelName="test")
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.addLabel, start=100, end=100, labelName="test")
 
     # Invalid ranges
     self.helper.saved_states = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.addLabel, start=100, end=100, labelName="test")
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.addLabel, start=100, end=100, labelName="test")
 
     self.helper.saved_states = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.addLabel, start=-100, end=-100, labelName="test")
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.addLabel, start=-100, end=-100, labelName="test")
 
     self.helper.saved_states = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.addLabel, start=100, end=-100, labelName="test")
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.addLabel, start=100, end=-100, labelName="test")
 
     # Valid no threshold labels
     self.helper.saved_states = [
@@ -282,8 +282,8 @@ class CLAClassifierHelperTest(unittest.TestCase):
     _updateState.assert_called_once_with(self.helper.saved_states[2])
 
 
-  @patch.object(CLAModelClassifierHelper, '_getStateAnomalyVector')
-  @patch.object(CLAModelClassifierHelper, '_updateState')
+  @patch.object(HTMPredictionModelClassifierHelper, '_getStateAnomalyVector')
+  @patch.object(HTMPredictionModelClassifierHelper, '_updateState')
   def testRemoveLabel(self, _updateState, _getStateAnomalyVector):
     classifier = self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf()
     classifier.getParameter.return_value = [10,11,12]
@@ -292,21 +292,21 @@ class CLAClassifierHelperTest(unittest.TestCase):
 
 
     self.helper.saved_states = []
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.removeLabels,)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.removeLabels, )
 
     # Invalid ranges
     self.helper.saved_states = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.removeLabels, start=100, end=100)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.removeLabels, start=100, end=100)
 
     self.helper.saved_states = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.removeLabels, start=-100, end=-100)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.removeLabels, start=-100, end=-100)
 
     self.helper.saved_states = [Mock(ROWID=10)]
-    self.assertRaises(CLAModelInvalidRangeError,
-      self.helper.removeLabels, start=100, end=-100)
+    self.assertRaises(HTMPredictionModelInvalidRangeError,
+                      self.helper.removeLabels, start=100, end=-100)
 
     # Valid no threshold labels
     self.helper.saved_states = [
@@ -326,8 +326,8 @@ class CLAClassifierHelperTest(unittest.TestCase):
     _updateState.assert_called_once_with(self.helper.saved_states[2])
 
 
-  @patch.object(CLAModelClassifierHelper, '_getStateAnomalyVector')
-  @patch.object(CLAModelClassifierHelper, '_updateState')
+  @patch.object(HTMPredictionModelClassifierHelper, '_getStateAnomalyVector')
+  @patch.object(HTMPredictionModelClassifierHelper, '_updateState')
   def testRemoveLabelNoFilter(self, _updateState, _getStateAnomalyVector):
     classifier = self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf()
     values = {
@@ -355,7 +355,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     _updateState.assert_called_once_with(self.helper.saved_states[2])
 
 
-  @patch.object(CLAModelClassifierHelper, '_updateState')
+  @patch.object(HTMPredictionModelClassifierHelper, '_updateState')
   def testSetGetThreshold(self, updateState):
     self.helper.saved_states = [Mock(), Mock(), Mock()]
 
@@ -368,7 +368,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
 
     self.assertRaises(Exception, self.helper.setAutoDetectThreshold, 'invalid')
 
-  @patch.object(CLAModelClassifierHelper, '_updateState')
+  @patch.object(HTMPredictionModelClassifierHelper, '_updateState')
   def testSetGetWaitRecords(self, updateState):
     self.helper.saved_states = [
       Mock(ROWID=10, anomalyLabel=["Test"], setByUser=False),
@@ -390,10 +390,10 @@ class CLAClassifierHelperTest(unittest.TestCase):
     self.assertRaises(Exception, self.helper.setAutoDetectWaitRecords, 0)
 
 
-  @patch.object(CLAModelClassifierHelper, '_addRecordToKNN')
-  @patch.object(CLAModelClassifierHelper, '_deleteRecordsFromKNN')
-  @patch.object(CLAModelClassifierHelper, '_recomputeRecordFromKNN')
-  @patch.object(CLAModelClassifierHelper, '_categoryToLabelList')
+  @patch.object(HTMPredictionModelClassifierHelper, '_addRecordToKNN')
+  @patch.object(HTMPredictionModelClassifierHelper, '_deleteRecordsFromKNN')
+  @patch.object(HTMPredictionModelClassifierHelper, '_recomputeRecordFromKNN')
+  @patch.object(HTMPredictionModelClassifierHelper, '_categoryToLabelList')
   def testUpdateState(self, toLabelList, recompute, deleteRecord, addRecord):
     record = {
       "ROWID": 0,
@@ -423,7 +423,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     self.helper._updateState(state)
 
     self.assertEqual(state.anomalyLabel, \
-      [CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL])
+      [HTMPredictionModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL])
     addRecord.assert_called_once_with(state)
 
     # Test record not labeled and above threshold during wait period
@@ -470,9 +470,9 @@ class CLAClassifierHelperTest(unittest.TestCase):
     recordCopy = copy.deepcopy(record)
     recordCopy['setByUser'] = True
     recordCopy['anomalyLabel'] = \
-      [CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL,
-       CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL + \
-        CLAModelClassifierHelper.AUTO_TAG]
+      [HTMPredictionModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL,
+       HTMPredictionModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL + \
+        HTMPredictionModelClassifierHelper.AUTO_TAG]
     state = _CLAClassificationRecord(**recordCopy)
     self.helper._updateState(state)
     self.assertEqual(state.anomalyLabel, [])
@@ -482,16 +482,16 @@ class CLAClassifierHelperTest(unittest.TestCase):
     addRecord.reset_mock()
     self.helper._autoDetectThreshold = 1.1
     toLabelList.return_value = \
-      [CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL]
+      [HTMPredictionModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL]
     recordCopy = copy.deepcopy(record)
     recordCopy['setByUser'] = True
     recordCopy['anomalyLabel'] = \
-      [CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL]
+      [HTMPredictionModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL]
     state = _CLAClassificationRecord(**recordCopy)
     self.helper._updateState(state)
     self.assertEqual(state.anomalyLabel,
-      [CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL + \
-        CLAModelClassifierHelper.AUTO_TAG])
+      [HTMPredictionModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL + \
+        HTMPredictionModelClassifierHelper.AUTO_TAG])
     addRecord.assert_called_once_with(state)
 
     # Test precedence of threshold label above auto threshold label
@@ -499,21 +499,21 @@ class CLAClassifierHelperTest(unittest.TestCase):
     addRecord.reset_mock()
     self.helper._autoDetectThreshold = 0.8
     toLabelList.return_value = \
-      [CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL,
-        CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL + \
-        CLAModelClassifierHelper.AUTO_TAG]
+      [HTMPredictionModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL,
+        HTMPredictionModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL + \
+        HTMPredictionModelClassifierHelper.AUTO_TAG]
     recordCopy = copy.deepcopy(record)
     recordCopy['setByUser'] = True
     recordCopy['anomalyLabel'] = \
-      [CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL]
+      [HTMPredictionModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL]
     state = _CLAClassificationRecord(**recordCopy)
     self.helper._updateState(state)
     self.assertEqual(state.anomalyLabel,
-      [CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL])
+      [HTMPredictionModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL])
     addRecord.assert_called_once_with(state)
 
 
-  @patch.object(CLAModelClassifierHelper, '_getStateAnomalyVector')
+  @patch.object(HTMPredictionModelClassifierHelper, '_getStateAnomalyVector')
   def testAddRecordToKNN(self, getAnomalyVector):
     getAnomalyVector.return_value = "Vector"
     values = {
@@ -547,7 +547,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     self.assertTrue(not classifier._knn.learn.called)
 
 
-  @patch.object(CLAModelClassifierHelper, '_getStateAnomalyVector')
+  @patch.object(HTMPredictionModelClassifierHelper, '_getStateAnomalyVector')
   def testDeleteRangeFromKNN(self, getAnomalyVector):
     getAnomalyVector.return_value = "Vector"
     values = {
@@ -572,7 +572,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     classifier._knn.removeIds.assert_called_once_with([1,2,3,5])
 
 
-  @patch.object(CLAModelClassifierHelper, '_getStateAnomalyVector')
+  @patch.object(HTMPredictionModelClassifierHelper, '_getStateAnomalyVector')
   def testRecomputeRecordFromKNN(self, getAnomalyVector):
     getAnomalyVector.return_value = "Vector"
     values = {
@@ -667,8 +667,8 @@ class CLAClassifierHelperTest(unittest.TestCase):
     self.assertRaises(TypeError, self.helper._constructClassificationRecord)
 
 
-  @patch.object(CLAModelClassifierHelper ,'_updateState')
-  @patch.object(CLAModelClassifierHelper, '_constructClassificationRecord')
+  @patch.object(HTMPredictionModelClassifierHelper ,'_updateState')
+  @patch.object(HTMPredictionModelClassifierHelper, '_constructClassificationRecord')
   def testCompute(self, createRecord, updateState):
     state = {
       "ROWID": 0,
@@ -756,7 +756,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
       'nupic.model.temporalAnomaly.anomaly_vector': 'tpc'
     }
     configurationGet.side_effect = conf.get
-    helper = CLAModelClassifierHelper(Mock(spec=HTMPredictionModel))
+    helper = HTMPredictionModelClassifierHelper(Mock(spec=HTMPredictionModel))
 
     self.assertEqual(helper._autoDetectWaitRecords,
       conf['nupic.model.temporalAnomaly.wait_records'])
@@ -775,7 +775,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
       'nupic.model.temporalAnomaly.anomaly_vector': 'tpc'
     }
     configurationGet.side_effect = conf.get
-    self.assertRaises(TypeError, CLAModelClassifierHelper, Mock(spec=HTMPredictionModel))
+    self.assertRaises(TypeError, HTMPredictionModelClassifierHelper, Mock(spec=HTMPredictionModel))
 
   @patch.object(Configuration, 'get')
   def testSetState(self, configurationGet):
@@ -791,17 +791,17 @@ class CLAClassifierHelperTest(unittest.TestCase):
     state = self.helper.__setstate__(state)
     self.assertEqual(self.helper._vectorType,
       conf['nupic.model.temporalAnomaly.anomaly_vector'])
-    self.assertEqual(self.helper._version, CLAModelClassifierHelper.__VERSION__)
+    self.assertEqual(self.helper._version, HTMPredictionModelClassifierHelper.__VERSION__)
 
     state = dict(_version=2, _classificationDelay=100)
     state = self.helper.__setstate__(state)
-    self.assertEqual(self.helper._version, CLAModelClassifierHelper.__VERSION__)
+    self.assertEqual(self.helper._version, HTMPredictionModelClassifierHelper.__VERSION__)
 
     state = dict(_version="invalid")
     self.assertRaises(Exception, self.helper.__setstate__, state)
 
 
-  # Tests for _CLAClassificationRecord class
+  # Tests for _HTMClassificationRecord class
   # ===========================================================================
   def testCLAClassificationRecord(self):
     record = {

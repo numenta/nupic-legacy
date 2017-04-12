@@ -63,7 +63,7 @@ outfile.close()
 # Create and run the model:
 
 MODEL_PARAMS = {
-  "model": "CLA",
+  "model": "HTMPrediction",
   "version": 1,
   "predictAheadTime": None,
   "modelParams": {
