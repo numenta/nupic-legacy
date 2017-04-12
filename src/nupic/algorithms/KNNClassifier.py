@@ -1060,7 +1060,7 @@ class KNNClassifier(object):
     u,self._s,self._vt = numpy.linalg.svd(self._a[:numSVDSamples])
 
     if finalize:
-      self.VD()
+      self._finalizeSVD()
 
     return self._s
 
