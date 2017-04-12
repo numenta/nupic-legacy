@@ -19,10 +19,10 @@ List of NuPIC packages and their documentation status:
 nupic
 ├── algorithms
 │   ├── KNNClassifier.py [OK]
-│   ├── anomaly.py [TODO]
-│   ├── anomaly_likelihood.py [TODO]
-│   ├── sdr_classifier.py [TODO]
-│   └── sdr_classifier_factory.py [TODO]
+│   ├── anomaly.py [OK]
+│   ├── anomaly_likelihood.py [OK]
+│   ├── sdr_classifier.py [OK]
+│   └── sdr_classifier_factory.py [OK]
 ├── data
 │   ├── CategoryFilter.py [TODO]
 │   ├── aggregator.py [TODO]
