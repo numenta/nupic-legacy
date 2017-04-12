@@ -1014,9 +1014,8 @@ class KNNClassifier(object):
 
   def finishLearning(self):
     """
-    TODO: Somebody help me write this.
-
-    :return:
+    Used for batch scenarios.  This method needs to be called between learning
+    and inference.
     """
     if self.numSVDDims is not None and self._vt is None:
       self.computeSVD()
@@ -1024,11 +1023,29 @@ class KNNClassifier(object):
 
   def computeSVD(self, numSVDSamples=None, finalize=True):
     """
-    TODO: Somebody help me write this.
+    Compute the singular value decomposition (SVD). The SVD is a factorization
+    of a real or complex matrix. It factors the matrix `a` as
+    `u * np.diag(s) * v`, where `u` and `v` are unitary and `s` is a 1-d array
+    of `a`'s singular values.
 
-    :param numSVDSamples:
-    :param finalize:
-    :return:
+    **Reason for computing the SVD:**
+    There are cases where you want to feed a lot of vectors to the
+    KNNClassifier. However, this can be slow. You can speed up training by (1)
+    computing the SVD of the input patterns which will give you the
+    eigenvectors, (2) only keeping a fraction of the eigenvectors, and (3)
+    projecting the input patterns onto the remaining eigenvectors.
+
+    Note that all input patterns are projected onto the eigenvectors in the same
+    fashion. Keeping only the highest eigenvectors increases training
+    performance since it reduces the dimensionality of the input.
+
+    :param numSVDSamples: (int) the number of samples to use for the SVD
+                          computation.
+
+    :param finalize: (bool) whether to apply SVD to the input patterns.
+
+    :returns: (array) The singular values for every matrix, sorted in
+               descending order.
     """
     if numSVDSamples is None:
       numSVDSamples = self._numPatterns
@@ -1043,14 +1060,14 @@ class KNNClassifier(object):
     u,self._s,self._vt = numpy.linalg.svd(self._a[:numSVDSamples])
 
     if finalize:
-      self.finalizeSVD()
+      self.VD()
 
     return self._s
 
 
   def getAdaptiveSVDDims(self, singularValues, fractionOfMax=0.001):
     """
-    TODO: Somebody help me write this.
+    Compute the number of eigenvectors (singularValues) to keep.
 
     :param singularValues:
     :param fractionOfMax:
@@ -1066,11 +1083,11 @@ class KNNClassifier(object):
       return len(v)-1
 
 
-  def finalizeSVD(self, numSVDDims=None):
+  def _finalizeSVD(sfinalizeSelf, numSVDDims=None):
     """
-    TODO: Somebody help me write this.
-
-    :param numSVDDims:
+    Called by finalizeLearning(). This will project all the patterns onto the
+    SVD eigenvectors.
+    :param numSVDDims: (int) number of egeinvectors used for projection.
     :return:
     """
     if numSVDDims is not None:
