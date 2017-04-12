@@ -1,6 +1,6 @@
 MODEL_PARAMS = {
     # Type of model that the rest of these parameters apply to.
-    'model': "CLA",
+    'model': "HTMPrediction",
 
     # Version that specifies the format of the config.
     'version': 1,

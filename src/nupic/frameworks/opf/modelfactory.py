@@ -29,14 +29,14 @@ import logging
 import nupic.frameworks.opf.opfutils as opfutils
 
 # Import models
-from sptmmodel import SPTMModel
+from htmpredictionmodel import HTMPredictionModel
 from model import Model
 from two_gram_model import TwoGramModel
 from previousvaluemodel import PreviousValueModel
 
 class ModelFactory(object):
   """ Static factory class that produces a Model based on a description dict.
-  Eventually this will be the source for all Model creation, CLA and otherwise.
+  Eventually this will be the source for all Model creation, HTM and otherwise.
   We may also implement building the description dict from a database or a
   description.py file. For now, this is a very skeletal implementation.
   """
@@ -67,8 +67,8 @@ class ModelFactory(object):
     logger.debug("ModelFactory returning Model from dict: %s", modelConfig)
 
     modelClass = None
-    if modelConfig['model'] == "CLA":
-      modelClass = SPTMModel
+    if modelConfig['model'] == "HTMPrediction":
+      modelClass = HTMPredictionModel
     elif modelConfig['model'] == "TwoGram":
       modelClass = TwoGramModel
     elif modelConfig['model'] == "PreviousValue":
@@ -87,6 +87,6 @@ class ModelFactory(object):
     @returns (nupic.frameworks.opf.model.Model) The loaded model instance.
     """
     if newSerialization:
-      return SPTMModel.readFromCheckpoint(savedModelDir)
+      return HTMPredictionModel.readFromCheckpoint(savedModelDir)
     else:
       return Model.load(savedModelDir)

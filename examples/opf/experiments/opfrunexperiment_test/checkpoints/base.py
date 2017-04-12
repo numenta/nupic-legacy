@@ -34,7 +34,7 @@ from nupic.frameworks.opf.expdescriptionhelpers import (
   applyValueGettersToContainer,
   DeferredDictLookup)
 
-from nupic.frameworks.opf.sptmmodelcallbacks import *
+from nupic.frameworks.opf.htmpredictionmodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
@@ -91,7 +91,7 @@ config = {
     'dataPath': None,   # filled in by sub-experiment
 
     # Type of model that the rest of these parameters apply to.
-    'model': "CLA",
+    'model': "HTMPrediction",
 
     # Version that specifies the format of the config.
     'version': 1,

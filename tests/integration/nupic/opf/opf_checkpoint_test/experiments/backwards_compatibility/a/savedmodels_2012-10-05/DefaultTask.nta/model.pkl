@@ -1,8 +1,8 @@
 ccopy_reg
 _reconstructor
 p1
-(cnupic.frameworks.opf.sptmmodel
-SPTMModel
+(cnupic.frameworks.opf.htmpredictionmodel
+HTMPredictionModel
 p2
 c__builtin__
 object
@@ -43,7 +43,7 @@ p19
 ssS'_netInfo'
 p20
 g1
-(cnupic.frameworks.opf.sptmmodel
+(cnupic.frameworks.opf.htmpredictionmodel
 NetworkInfo
 p21
 g3

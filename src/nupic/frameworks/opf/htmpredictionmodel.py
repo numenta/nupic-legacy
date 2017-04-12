@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-""" @file sptmmodel.py
+""" @file htmpredictionmodel.py
 
 Encapsulation of CLAnetwork that implements the ModelBase.
 
@@ -82,7 +82,7 @@ def requireAnomalyModel(func):
 
 class NetworkInfo(object):
   """ Data type used as return value type by
-  SPTMModel.__createCLANetwork()
+  HTMPredictionModel.__createCLANetwork()
   """
 
   def __init__(self, net, statsCollectors):
@@ -101,7 +101,7 @@ class NetworkInfo(object):
 
 
 
-class SPTMModel(Model):
+class HTMPredictionModel(Model):
 
   __supportedInferenceKindSet = set((InferenceType.TemporalNextStep,
                                      InferenceType.TemporalClassification,
@@ -111,7 +111,7 @@ class SPTMModel(Model):
                                      InferenceType.TemporalMultiStep,
                                      InferenceType.NontemporalMultiStep))
 
-  __myClassName = "SPTMModel"
+  __myClassName = "HTMPredictionModel"
 
 
   def __init__(self,
@@ -131,7 +131,7 @@ class SPTMModel(Model):
       minLikelihoodThreshold=DEFAULT_LIKELIHOOD_THRESHOLD,
       maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP,
       network=None):
-    """SPTMModel constructor.
+    """HTMPredictionModel constructor.
 
     Args:
       inferenceType: A value from the InferenceType enum class.
@@ -161,7 +161,7 @@ class SPTMModel(Model):
                        .format(self.__class__, inferenceType))
 
     # Call super class constructor
-    super(SPTMModel, self).__init__(inferenceType)
+    super(HTMPredictionModel, self).__init__(inferenceType)
 
     # self.__restoringFromState is set to True by our __setstate__ method
     # and back to False at completion of our _deSerializeExtraData() method.
@@ -236,7 +236,7 @@ class SPTMModel(Model):
     if paramName == '__numRunCalls':
       return self.__numRunCalls
     else:
-      raise RuntimeError("'%s' parameter is not exposed by sptmmodel." % \
+      raise RuntimeError("'%s' parameter is not exposed by htmpredictionmodel." % \
         (paramName))
 
 
@@ -249,7 +249,7 @@ class SPTMModel(Model):
       # Reset TP's sequence states
       self._getTPRegion().executeCommand(['resetSequenceStates'])
 
-      self.__logger.debug("SPTMModel.resetSequenceStates(): reset temporal "
+      self.__logger.debug("HTMPredictionModel.resetSequenceStates(): reset temporal "
                          "pooler's sequence states")
 
       return
@@ -270,13 +270,13 @@ class SPTMModel(Model):
       # Finish SP learning
       self._getSPRegion().executeCommand(['finishLearning'])
       self.__logger.debug(
-        "SPTMModel.finishLearning(): finished SP learning")
+        "HTMPredictionModel.finishLearning(): finished SP learning")
 
     if self._hasTP:
       # Finish temporal network's TP learning
       self._getTPRegion().executeCommand(['finishLearning'])
       self.__logger.debug(
-        "SPTMModel.finishLearning(): finished TP learning")
+        "HTMPredictionModel.finishLearning(): finished TP learning")
 
     self.__spLearningEnabled = self.__tpLearningEnabled = False
     self.__finishedLearning = True
@@ -294,13 +294,13 @@ class SPTMModel(Model):
 
   def enableLearning(self):
     """[override] Turn Learning on for the current model """
-    super(SPTMModel, self).enableLearning()
+    super(HTMPredictionModel, self).enableLearning()
     self.setEncoderLearning(True)
 
 
   def disableLearning(self):
     """[override] Turn Learning off for the current model """
-    super(SPTMModel, self).disableLearning()
+    super(HTMPredictionModel, self).disableLearning()
     self.setEncoderLearning(False)
 
 
@@ -363,12 +363,12 @@ class SPTMModel(Model):
     assert not self.__restoringFromState
     assert inputRecord
 
-    results = super(SPTMModel, self).run(inputRecord)
+    results = super(HTMPredictionModel, self).run(inputRecord)
 
     self.__numRunCalls += 1
 
     if self.__logger.isEnabledFor(logging.DEBUG):
-      self.__logger.debug("SPTMModel.run() inputRecord=%s", (inputRecord))
+      self.__logger.debug("HTMPredictionModel.run() inputRecord=%s", (inputRecord))
 
     results.inferences = {}
     self._input = inputRecord
@@ -829,7 +829,7 @@ class SPTMModel(Model):
 
       # Remove entries with 0 likelihood or likelihood less than
       # minLikelihoodThreshold, but don't leave an empty dict.
-      likelihoodsDict = SPTMModel._removeUnlikelyPredictions(
+      likelihoodsDict = HTMPredictionModel._removeUnlikelyPredictions(
           likelihoodsDict, minLikelihoodThreshold, maxPredictionsPerStep)
 
       # calculate likelihood for each bucket
@@ -1060,7 +1060,7 @@ class SPTMModel(Model):
                          tmParams, clEnable, clParams, anomalyParams):
     """ Create a CLA network and return it.
 
-    description:  CLA Model description dictionary (TODO: define schema)
+    description:  HTMPredictionModel description dictionary (TODO: define schema)
     Returns:      NetworkInfo instance;
     """
 

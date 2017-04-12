@@ -8,10 +8,10 @@ Model
    :members:
 
 
-SPTMModel
+HTMPredictionModel
 ^^^^^^^^
 
-.. autoclass:: nupic.frameworks.opf.sptmmodel.SPTMModel
+.. autoclass:: nupic.frameworks.opf.htmpredictionmodel.HTMPredictionModel
    :members:
    :show-inheritance:
 =======

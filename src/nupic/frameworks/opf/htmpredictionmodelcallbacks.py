@@ -20,27 +20,27 @@
 # ----------------------------------------------------------------------
 
 
-# SPTMModel-specific experiment task callbacks that may be used
+# HTMPredictionModel-specific experiment task callbacks that may be used
 # in setup, postIter, and finish callback lists
 
 import os
 
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
-from sptmmodel import SPTMModel
+from htmpredictionmodel import HTMPredictionModel
 
 
 
 def smtpModelControlEnableSPLearningCb(smtpModel):
-  """ Enables learning in the CLA model's Spatial Pooler
+  """ Enables learning in the HTMPredictionModel's Spatial Pooler
 
   See also smtpModelControlDisableSPLearningCb.
 
-  smtpModel:  pointer to a SPTMModel instance
+  smtpModel:  pointer to a HTMPredictionModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(smtpModel, SPTMModel)
+  assert isinstance(smtpModel, HTMPredictionModel)
 
   smtpModel._getSPRegion().setParameter('learningMode', True)
   return
@@ -48,18 +48,18 @@ def smtpModelControlEnableSPLearningCb(smtpModel):
 
 
 def smtpModelControlDisableSPLearningCb(smtpModel):
-  """ Disables learning in the CLA model's Spatial Pooler, while retaining
-  the ability to re-enable SP learning in the future.
+  """ Disables learning in the HTMPredictionModel's Spatial Pooler, while
+  retaining the ability to re-enable SP learning in the future.
 
   See also: smtpModelControlEnableSPLearningCb.
   See also: modelcallbacks.modelControlFinishLearningCb.
 
-  smtpModel:  pointer to a SPTMModel instance
+  smtpModel:  pointer to a HTMPredictionModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(smtpModel, SPTMModel)
+  assert isinstance(smtpModel, HTMPredictionModel)
 
   smtpModel._getSPRegion().setParameter('learningMode', False)
   return
@@ -67,16 +67,16 @@ def smtpModelControlDisableSPLearningCb(smtpModel):
 
 
 def smtpModelControlEnableTPLearningCb(smtpModel):
-  """ Enables learning in the CLA model's Temporal Pooler
+  """ Enables learning in the HTMPredictionModel's Temporal Pooler
 
   See also smtpModelControlDisableTPLearningCb.
 
-  smtpModel:  pointer to a SPTMModel instance
+  smtpModel:  pointer to a HTMPredictionModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(smtpModel, SPTMModel)
+  assert isinstance(smtpModel, HTMPredictionModel)
 
   smtpModel._getTPRegion().setParameter('learningMode', True)
   return
@@ -84,18 +84,18 @@ def smtpModelControlEnableTPLearningCb(smtpModel):
 
 
 def smtpModelControlDisableTPLearningCb(smtpModel):
-  """ Disables learning in the CLA model's Temporal Pooler, while retaining
-  the ability to re-enable TP learning in the future.
+  """ Disables learning in the HTMPredictionModel's Temporal Pooler, while
+  retaining the ability to re-enable TP learning in the future.
 
   See also: smtpModelControlEnableTPLearningCb.
   See also: modelcallbacks.modelControlFinishLearningCb.
 
-  smtpModel:  pointer to a SPTMModel instance
+  smtpModel:  pointer to a HTMPredictionModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(smtpModel, SPTMModel)
+  assert isinstance(smtpModel, HTMPredictionModel)
 
   smtpModel._getTPRegion().setParameter('learningMode', False)
   return
@@ -120,7 +120,7 @@ class CLAModelPickleSPInitArgs(object):
     import pickle
 
     # Get the SP args dictionary
-    assert isinstance(smtpModel, SPTMModel)
+    assert isinstance(smtpModel, HTMPredictionModel)
 
     spRegion = smtpModel._getSPRegion().getSelf()
 
@@ -160,7 +160,7 @@ class CLAModelPickleTPInitArgs(object):
     import pickle
 
     # Get the TP args dictionary
-    assert isinstance(smtpModel, SPTMModel)
+    assert isinstance(smtpModel, HTMPredictionModel)
 
     tpRegion = smtpModel._getTPRegion().getSelf()
 
