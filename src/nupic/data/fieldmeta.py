@@ -19,10 +19,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-
-# This script defines the structure of meta-data that describes the field name,
-# field type, special field attribute, etc. for a field in a dataset
-
+"""
+This module defines the structure of meta-data that describes the field name,
+field type, special field attribute, etc. for a field in a dataset.
+"""
 
 from collections import namedtuple
 
@@ -37,7 +37,7 @@ class FieldMetaInfo(FieldMetaInfoBase):
   This class acts as a container of meta-data for a single field (column) of
   a dataset.
 
-  The layout is backward-compatible with the tuples exposed via the 'fields'
+  The layout is backward-compatible with the tuples exposed via the ``fields``
   attribute of the legacy nupic.data.file.File class (in file.py). However, the
   elements may be accessed in a less error-prone and more self-documenting way
   using object attribute notation (e.g., fieldmeta.special instead of
@@ -48,15 +48,23 @@ class FieldMetaInfo(FieldMetaInfoBase):
   Examples:
 
   1. Access a sub-element from an instance of FieldMetaInfo:
-        metainfo.name
-        metainfo.type
-        metainfo.special
 
-  2. Convert a single element from nupic.data.file.File.fields to FieldMetaInfo
+     - metainfo.name
+     - metainfo.type
+     - metainfo.special
+
+  2. Convert a single element from ``nupic.data.file.File.fields`` to
+     ``FieldMetaInfo``
+
+     .. code-block:: python
+
         e = ('pounds', FieldMetaType.float, FieldMetaSpecial.none)
         m = FieldMetaInfo.createFromFileFieldElement(e)
 
-  3.
+  :param str name: field name
+  :param str type: one of the values from FieldMetaType
+  :param str special: one of the values from FieldMetaSpecial
+  :raises ValueError: if type or special arg values are invalid
   """
 
 
@@ -64,12 +72,6 @@ class FieldMetaInfo(FieldMetaInfoBase):
                name,
                type,  # pylint: disable=W0622
                special):
-    """
-    :param str name: field name
-    :param str type: one of the values from FieldMetaType
-    :param str special: one of the values from FieldMetaSpecial
-    :raises ValueError: if type or special arg values are invalid
-    """
 
     if not FieldMetaType.isValid(type):
       raise ValueError('Unexpected field type %r' % (type,))
@@ -82,22 +84,41 @@ class FieldMetaInfo(FieldMetaInfoBase):
 
   @staticmethod
   def createFromFileFieldElement(fieldInfoTuple):
-    """ Creates a FieldMetaInfo instance from an element of the File.fields list
-    of a nupic.data.file.File class instance.
+    """
+    Creates a :class:`.fieldmeta.FieldMetaInfo` instance from an element of the
+    File.fields list of a nupic.data.file.File class instance.
+    :param fieldInfoTuple:
+    :return:
     """
     return FieldMetaInfo._make(fieldInfoTuple)
 
 
   @classmethod
   def createListFromFileFieldList(cls, fields):
-    """ Creates a FieldMetaInfo list from the File.fields value of a
+    """
+    Creates a FieldMetaInfo list from the File.fields value of a
     nupic.data.file.File class instance.
 
-    fields: a sequence of field attribute tuples conforming to the format
-    of the File.fields attribute of a nupic.data.file.File class instance.
 
-    Returns:  A list of FieldMetaInfo elements corresponding to the given
-              'fields' list.
+    *Example:*
+
+    .. code-block:: python
+
+        # Create a list of FieldMetaInfo instances from a list of File meta-data
+        # tuples
+        el = [("pounds", FieldMetaType.float, FieldMetaSpecial.none),
+              ("price", FieldMetaType.float, FieldMetaSpecial.none),
+              ("id", FieldMetaType.string, FieldMetaSpecial.sequence),
+              ("date", FieldMetaType.datetime, FieldMetaSpecial.timestamp),
+             ]
+        ml = FieldMetaInfo.createListFromFileFieldList(el)
+
+    :param fields: a sequence of field attribute tuples conforming to the format
+                   of the File.fields attribute of a nupic.data.file.File class
+                   instance.
+
+    :return: A list of :class:`~.fieldmeta.FieldMetaInfo` elements corresponding
+             to the given 'fields' list.
     """
     return [cls.createFromFileFieldElement(f) for f in fields]
 
