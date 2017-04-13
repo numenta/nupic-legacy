@@ -12,3 +12,8 @@ SDR Classifier
 .. autoclass:: nupic.algorithms.sdr_classifier_factory.SDRClassifierFactory
    :members: create
 
+KNN Classifier
+++++++++++++++
+
+.. autoclass:: nupic.algorithms.KNNClassifier.KNNClassifier
+   :members:

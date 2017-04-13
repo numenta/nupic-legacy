@@ -19,12 +19,9 @@ List of NuPIC packages and their documentation status:
 ```
 nupic
 ├── algorithms
-│   ├── CLAClassifier.py [TODO]
-│   ├── KNNClassifier.py [TODO]
+│   ├── KNNClassifier.py [OK]
 │   ├── anomaly.py [OK]
 │   ├── anomaly_likelihood.py [OK]
-│   ├── cla_classifier_diff.py [TODO]
-│   ├── cla_classifier_factory.py [TODO]
 │   ├── sdr_classifier.py [OK]
 │   └── sdr_classifier_factory.py [OK]
 ├── data
