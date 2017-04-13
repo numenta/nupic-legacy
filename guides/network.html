@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Network API Guide &#8212; NuPIC 0.6.1.dev0
+    <title>Network API Guide &#8212; NuPIC 0.7.0.dev0
  documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.6.1.dev0',
+        VERSION:     '0.7.0.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -52,13 +52,13 @@
 </ul>
 <p><a class="reference external" href="https://www.youtube.com/watch?v=g9yS9zFt3dM"><img alt="Thumbnail of Network API video" src="http://img.youtube.com/vi/g9yS9zFt3dM/hqdefault.jpg" /></a></p>
 <div class="section" id="introduction">
-<span id="introduction"></span><h2>1    Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<span id="introduction"></span><h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>The Numenta Platform for Intelligent Computing (NuPIC) allows programmers to design, create, train, test, and deploy Hierarchical Temporary Memory (HTM) technology.
 As described in the NuPIC 2 Overview document, NuPIC consists of a Network Engine library along with layered software including examples and frameworks.
 Core HTM functionality is provided by the Network Engine, which can create and manipulate HTM Networks.</p>
 </div>
 <div class="section" id="goals-and-technical-requirements">
-<span id="goals-and-technical-requirements"></span><h2>2    Goals and Technical Requirements<a class="headerlink" href="#goals-and-technical-requirements" title="Permalink to this headline">¶</a></h2>
+<span id="goals-and-technical-requirements"></span><h2>Goals and Technical Requirements<a class="headerlink" href="#goals-and-technical-requirements" title="Permalink to this headline">¶</a></h2>
 <p>An HTM Network is a collection of Regions that implement HTM algorithms and other algorithms.
 The Network Engine allows users to create and manipulate HTM Networks, including:</p>
 <ul class="simple">
@@ -82,9 +82,9 @@ Modular architecture for algorithms; isolate algorithm developers from needing t
 </ul>
 </div>
 <div class="section" id="overview-of-the-network-engine">
-<span id="overview-of-the-network-engine"></span><h2>3    Overview of the Network Engine<a class="headerlink" href="#overview-of-the-network-engine" title="Permalink to this headline">¶</a></h2>
+<span id="overview-of-the-network-engine"></span><h2>Overview of the Network Engine<a class="headerlink" href="#overview-of-the-network-engine" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="network-structure">
-<span id="network-structure"></span><h3>3.1 Network Structure<a class="headerlink" href="#network-structure" title="Permalink to this headline">¶</a></h3>
+<span id="network-structure"></span><h3>Network Structure<a class="headerlink" href="#network-structure" title="Permalink to this headline">¶</a></h3>
 <p>An example HTM network is shown in Figure 1.</p>
 <p>[Needs to place example HTM network here]</p>
 <p>The key structural features of this network are:</p>
@@ -94,8 +94,9 @@ Modular architecture for algorithms; isolate algorithm developers from needing t
 <li>The output of one region may be connected to the input of another region with a link.
 While the figure does not show it, an input may be linked to multiple outputs and vice-versa.</li>
 </ul>
+</div>
 <div class="section" id="object-model">
-<span id="object-model"></span><h4>3.2    Object Model<a class="headerlink" href="#object-model" title="Permalink to this headline">¶</a></h4>
+<span id="object-model"></span><h3>Object Model<a class="headerlink" href="#object-model" title="Permalink to this headline">¶</a></h3>
 <p>The Network Engine is a library written in C++, using an object-oriented design.</p>
 <p>The Network Engine defines a class corresponding to each of the components shown in Figure 1.
 Each of these is discussed in more detail in the next section:</p>
@@ -114,7 +115,7 @@ It is possible that we will remove nodes from the object model.
 Because of this, nodes and region functionality related to nodes are not described in this document.</p>
 </div>
 <div class="section" id="internal-and-external-api">
-<span id="internal-and-external-api"></span><h4>3.3    Internal and External API<a class="headerlink" href="#internal-and-external-api" title="Permalink to this headline">¶</a></h4>
+<span id="internal-and-external-api"></span><h3>Internal and External API<a class="headerlink" href="#internal-and-external-api" title="Permalink to this headline">¶</a></h3>
 <p>NuPIC users access the Network Engine through the Core API.
 The Core API does not include the full object model.
 Only the Network and Region classes are exposed to users, and only a subset of their methods (&#8220;public external&#8221; methods, as described below) is seen by users.
@@ -129,11 +130,11 @@ The details of how methods are selectively exposed in the Core API are described
 </div>
 </div>
 <div class="section" id="network-engine-classes">
-<span id="network-engine-classes"></span><h3>4   Network Engine Classes<a class="headerlink" href="#network-engine-classes" title="Permalink to this headline">¶</a></h3>
+<span id="network-engine-classes"></span><h2>Network Engine Classes<a class="headerlink" href="#network-engine-classes" title="Permalink to this headline">¶</a></h2>
 <p>This section gives an overview of each important class.
 It assumes that the reader has access to header and implementation files in <code class="docutils literal"><span class="pre">nta/*</span></code>.</p>
 <div class="section" id="network">
-<span id="network"></span><h4>4.1    Network<a class="headerlink" href="#network" title="Permalink to this headline">¶</a></h4>
+<span id="network"></span><h3>Network<a class="headerlink" href="#network" title="Permalink to this headline">¶</a></h3>
 <p>Network is the &#8220;root&#8221; object in the Network Engine.
 All other objects are contained within a Network object, either directly or indirectly.
 A Network can be saved to a network bundle, loaded from a network bundle, or constructed programmatically (see &#8220;Network Serialization&#8221;, below).
@@ -155,7 +156,7 @@ The second is the phase information, which the network stores in a way that allo
 The network controls both pieces of information, and there is no public/external API on Region to set the name or phase of a Region.</p>
 </div>
 <div class="section" id="region">
-<span id="region"></span><h4>4.2    Region<a class="headerlink" href="#region" title="Permalink to this headline">¶</a></h4>
+<span id="region"></span><h3>Region<a class="headerlink" href="#region" title="Permalink to this headline">¶</a></h3>
 <p>A Region is the fundamental computational unit in an HTM.
 A Region has inputs and outputs, and has a <code class="docutils literal"><span class="pre">compute()</span></code> method that generates the outputs (from inputs, internal state, and perhaps external data sources, such as a file).
 A Region without inputs is known as a sensor, and a Region without outputs is known as an effector.
@@ -179,7 +180,7 @@ They could not be templated because they are passed through to <code class="docu
 <p>The <code class="docutils literal"><span class="pre">prepareInputs()</span></code> method of Region evaluates all of the incoming links and copies necessary data into each of the Region&#8217;s inputs.</p>
 </div>
 <div class="section" id="regionimpl">
-<span id="regionimpl"></span><h4>4.3    RegionImpl<a class="headerlink" href="#regionimpl" title="Permalink to this headline">¶</a></h4>
+<span id="regionimpl"></span><h3>RegionImpl<a class="headerlink" href="#regionimpl" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal"><span class="pre">RegionImpl</span></code> does all of the algorithm-specific work of a Region.
 It is a base class from which the actual algorithm-specific class is derived.
 Region types implemented in C++ are derived directly from <code class="docutils literal"><span class="pre">RegionImpl</span></code>.
@@ -194,7 +195,7 @@ there are no proxies and no asynchronous behavior (unlike in the previous versio
 The <code class="docutils literal"><span class="pre">RegionSpec</span></code> includes a list of inputs, outputs, parameters, and execute methods.</p>
 </div>
 <div class="section" id="output">
-<span id="output"></span><h4>4.4    Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h4>
+<span id="output"></span><h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
 <p>An Output is essentially a contiguous buffer of typed data (in the <code class="docutils literal"><span class="pre">data_</span></code> member), plus a list of Links whose source is that Output.
 The buffer is not allocated when the Output is created, but in the <code class="docutils literal"><span class="pre">initialize()</span></code> method, which is called (indirectly) at Network initialization time.</p>
 <p>Output objects are allocated in the Region constructor, which creates an Output for each output specified in the <code class="docutils literal"><span class="pre">RegionSpec</span></code>.</p>
@@ -210,7 +211,7 @@ If we move to one node per Region, the output size will be given directly by the
 <p>The Output has a list of pointers to Links for which it is the source, but it does not own those links (links are owned by the Input on the other side).</p>
 </div>
 <div class="section" id="input">
-<span id="input"></span><h4>4.5    Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h4>
+<span id="input"></span><h3>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h3>
 <p>An Input has similar structure to an Output &#8211;
 it has a contiguous buffer of typed data, plus a list of Links whose destination is that Input.
 Input objects are allocated in the Region constructor, which creates an Input for each input specified in the RegionSpec.</p>
@@ -226,7 +227,7 @@ If an Input has only a single incoming Link, then there is a one-to-one mapping 
 This optimization is deferred until there is a demonstrated need.</p>
 </div>
 <div class="section" id="link">
-<span id="link"></span><h4>4.6    Link<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h4>
+<span id="link"></span><h3>Link<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h3>
 <p>A Link is logically a connection from one Output to one Input.
 Internally, the Link keeps track of this information in two ways.
 First, it contains strings with the names of the source and destination Regions and Input/Output.
@@ -245,7 +246,7 @@ This functionality is not described here because it may be removed.
 A Link contains a <code class="docutils literal"><span class="pre">LinkPolicy</span></code>, also not described here, which is responsible for generating the splitter map.</p>
 </div>
 <div class="section" id="collection">
-<span id="collection"></span><h4>4.7    Collection<a class="headerlink" href="#collection" title="Permalink to this headline">¶</a></h4>
+<span id="collection"></span><h3>Collection<a class="headerlink" href="#collection" title="Permalink to this headline">¶</a></h3>
 <p>A Collection is a templatized container used throughout the API instead of STL containers.
 It is easy to wrap, because its interface is simpler than an STL interface, and it provides a consistent way to access collections of objects.
 A container provides lookup by name and index.
@@ -253,9 +254,9 @@ In the external API, a container is always read-only.</p>
 </div>
 </div>
 <div class="section" id="specific-topics">
-<span id="specific-topics"></span><h3>5   Specific topics<a class="headerlink" href="#specific-topics" title="Permalink to this headline">¶</a></h3>
+<span id="specific-topics"></span><h2>Specific topics<a class="headerlink" href="#specific-topics" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="network-serialization">
-<span id="network-serialization"></span><h4>5.1    Network serialization<a class="headerlink" href="#network-serialization" title="Permalink to this headline">¶</a></h4>
+<span id="network-serialization"></span><h3>Network serialization<a class="headerlink" href="#network-serialization" title="Permalink to this headline">¶</a></h3>
 <p>Networks are serialized into a &#8220;bundle&#8221;, which is a directory with several files.
 Automatic Zip support (so that the network bundle can be distributed as a single file) is anticipated, but won&#8217;t be implemented until there is a demonstrated need.</p>
 <p>Each network bundle contains:</p>
@@ -273,7 +274,7 @@ Automatic Zip support (so that the network bundle can be distributed as a single
 <p>Network de-serialization is the reverse of the serialization process.</p>
 </div>
 <div class="section" id="network-initialization">
-<span id="network-initialization"></span><h4>5.2    Network initialization<a class="headerlink" href="#network-initialization" title="Permalink to this headline">¶</a></h4>
+<span id="network-initialization"></span><h3>Network initialization<a class="headerlink" href="#network-initialization" title="Permalink to this headline">¶</a></h3>
 <p>Network initialization involves a complicated choreography.
 Much of the complication is related to inducing dimensions on Regions and making sure that all dimensions are consistent.
 That part of network initialization is not described here because Region dimensions may be removed from the API.</p>
@@ -286,7 +287,7 @@ That part of network initialization is not described here because Region dimensi
 </ol>
 </div>
 <div class="section" id="running-a-network">
-<span id="running-a-network"></span><h4>5.3    Running a network<a class="headerlink" href="#running-a-network" title="Permalink to this headline">¶</a></h4>
+<span id="running-a-network"></span><h3>Running a network<a class="headerlink" href="#running-a-network" title="Permalink to this headline">¶</a></h3>
 <p>The main job of a Network is to choreograph Region computation by calling Region <code class="docutils literal"><span class="pre">compute()</span></code> methods in the right order.
 The network associates with each region a list of one or more integer phases.
 The method <code class="docutils literal"><span class="pre">run(n)</span></code> is best shown by pseudocode:</p>
@@ -304,14 +305,13 @@ Callbacks allow us to add functionality (such as watchers) without changing or e
 </div>
 </div>
 <div class="section" id="history-implementation-status-and-future-plans">
-<span id="history-implementation-status-and-future-plans"></span><h3>6   History, Implementation Status and Future Plans<a class="headerlink" href="#history-implementation-status-and-future-plans" title="Permalink to this headline">¶</a></h3>
+<span id="history-implementation-status-and-future-plans"></span><h2>History, Implementation Status and Future Plans<a class="headerlink" href="#history-implementation-status-and-future-plans" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Currently a Region is logically composed of one or more Nodes.
 The Node class may be removed, as it does not appear to be necessary with the new algorithms.
 If Node is removed, <code class="docutils literal"><span class="pre">Dimensions</span></code> and <code class="docutils literal"><span class="pre">NodeSet</span></code> will also be removed.</li>
 <li>The Network Engine design allows &#8220;zero copy&#8221; links, in which a Region&#8217;s input is a reference to an output of another region.</li>
 </ul>
-</div>
 </div>
 </div>
 
@@ -346,15 +346,39 @@ If Node is removed, <code class="docutils literal"><span class="pre">Dimensions<
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Guides</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="opf.html">OPF Guide</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Network API Guide</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#introduction">1    Introduction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#goals-and-technical-requirements">2    Goals and Technical Requirements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#overview-of-the-network-engine">3    Overview of the Network Engine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#goals-and-technical-requirements">Goals and Technical Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#overview-of-the-network-engine">Overview of the Network Engine</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#network-structure">Network Structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#object-model">Object Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#internal-and-external-api">Internal and External API</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#network-engine-classes">Network Engine Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#network">Network</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#region">Region</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#regionimpl">RegionImpl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#input">Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#link">Link</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#collection">Collection</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#specific-topics">Specific topics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#network-serialization">Network serialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#network-initialization">Network initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#running-a-network">Running a network</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#history-implementation-status-and-future-plans">History, Implementation Status and Future Plans</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="swarming/index.html">Swarming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anomaly-detection.html">Anomaly Detection</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
 </ul>
 
 

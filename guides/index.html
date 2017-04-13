@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Guides &#8212; NuPIC 0.6.1.dev0
+    <title>Guides &#8212; NuPIC 0.7.0.dev0
  documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.6.1.dev0',
+        VERSION:     '0.7.0.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -73,15 +73,31 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="network.html">Network API Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="network.html#introduction">1    Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="network.html#goals-and-technical-requirements">2    Goals and Technical Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="network.html#overview-of-the-network-engine">3    Overview of the Network Engine</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="network.html#network-structure">3.1 Network Structure</a></li>
-<li class="toctree-l3"><a class="reference internal" href="network.html#network-engine-classes">4   Network Engine Classes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="network.html#specific-topics">5   Specific topics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="network.html#history-implementation-status-and-future-plans">6   History, Implementation Status and Future Plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#goals-and-technical-requirements">Goals and Technical Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#overview-of-the-network-engine">Overview of the Network Engine</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="network.html#network-structure">Network Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html#object-model">Object Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html#internal-and-external-api">Internal and External API</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#network-engine-classes">Network Engine Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="network.html#network">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html#region">Region</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html#regionimpl">RegionImpl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html#input">Input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html#link">Link</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html#collection">Collection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#specific-topics">Specific topics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="network.html#network-serialization">Network serialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html#network-initialization">Network initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html#running-a-network">Running a network</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#history-implementation-status-and-future-plans">History, Implementation Status and Future Plans</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="swarming/index.html">Swarming</a><ul>
@@ -101,6 +117,24 @@
 <li class="toctree-l3"><a class="reference internal" href="swarming/algorithm.html#choosing-scalar-parameter-values">Choosing Scalar Parameter Values</a></li>
 <li class="toctree-l3"><a class="reference internal" href="swarming/algorithm.html#choosing-enumerated-parameter-values">Choosing Enumerated Parameter Values</a></li>
 <li class="toctree-l3"><a class="reference internal" href="swarming/algorithm.html#speculative-execution">Speculative Execution</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="anomaly-detection.html">Anomaly Detection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="anomaly-detection.html#temporalanomaly-model">TemporalAnomaly model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="anomaly-detection.html#description">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="anomaly-detection.html#computation">Computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="anomaly-detection.html#rationale">Rationale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="anomaly-detection.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="anomaly-detection.html#confidences-vs-predicted-cells">Confidences vs. Predicted Cells</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="anomaly-detection.html#non-temporal-anomaly-detection">Non-Temporal Anomaly Detection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="anomaly-detection.html#description">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="anomaly-detection.html#computation">Computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="anomaly-detection.html#rationale">Rationale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="anomaly-detection.html#results">Results</a></li>
 </ul>
 </li>
 </ul>
@@ -141,9 +175,11 @@
 <li class="toctree-l2"><a class="reference internal" href="opf.html">OPF Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="network.html">Network API Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="swarming/index.html">Swarming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anomaly-detection.html">Anomaly Detection</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
 </ul>
 
 

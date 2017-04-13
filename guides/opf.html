@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>OPF Guide &#8212; NuPIC 0.6.1.dev0
+    <title>OPF Guide &#8212; NuPIC 0.7.0.dev0
  documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.6.1.dev0',
+        VERSION:     '0.7.0.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -337,16 +337,32 @@ metric&#8217;s value is stored under the key &#8216;value&#8217; (confusing, rig
 <li class="toctree-l3"><a class="reference internal" href="#opf-in-a-nutshell">OPF in a nutshell</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-does-the-opf-do">What does the OPF do?</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-doesnt-the-opf-do">What doesn’t the OPF do?</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#models">Models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#metrics">Metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#models">Models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-model-interface">The Model Interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#model-input">Model Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#model-output-the-modelresult-object">Model Output: The ModelResult Object</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#inference-elements">Inference Elements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#metrics">Metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#metric-specs">Metric Specs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#metriclabels">MetricLabels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#metrics-calculation-modules-metrics-py">Metrics Calculation Modules (metrics.py)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#output">Output</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#outputting-inferences">Outputting Inferences</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="network.html">Network API Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="swarming/index.html">Swarming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anomaly-detection.html">Anomaly Detection</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
 </ul>
 
 

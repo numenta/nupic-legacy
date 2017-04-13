@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Quick Start &#8212; NuPIC 0.6.1.dev0
+    <title>Quick Start &#8212; NuPIC 0.7.0.dev0
  documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.6.1.dev0',
+        VERSION:     '0.7.0.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -28,7 +28,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Online Prediction Framework (OPF)" href="opf.html" />
-    <link rel="prev" title="NuPIC 0.6.1.dev0 API Documentation" href="../index.html" />
+    <link rel="prev" title="NuPIC 0.7.0.dev0 API Documentation" href="../index.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -85,10 +85,28 @@ guides for each interface:</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="network.html">Network API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="algorithms.html">Algorithms API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="algorithms.html#encoding-data">Encoding Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="algorithms.html#spatial-pooling">Spatial Pooling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="algorithms.html#temporal-memory">Temporal Memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="algorithms.html#getting-predictions">Getting Predictions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#encoding-data">Encoding Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#one-row-of-data">One Row Of Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#creating-encoders">Creating Encoders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#id2">Encoding Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#spatial-pooling">Spatial Pooling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#creating-the-sp">Creating the SP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#running-the-sp">Running the SP</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#temporal-memory">Temporal Memory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#creating-the-tm">Creating the TM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#running-the-tm">Running the TM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#predictive-cells">Predictive Cells</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#getting-predictions">Getting Predictions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#creating-an-sdr-classifier">Creating an SDR Classifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#running-the-classifier">Running the Classifier</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -135,6 +153,7 @@ guides for each interface:</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/index.html">Guides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
 </ul>
 
 

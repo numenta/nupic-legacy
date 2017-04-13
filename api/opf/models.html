@@ -1,0 +1,530 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Models &#8212; NuPIC 0.7.0.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.7.0.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Metrics" href="metrics.html" />
+    <link rel="prev" title="Online Prediction Framework" href="index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="models">
+<h1>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="model">
+<h2>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.frameworks.opf.model.Model">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>inferenceType</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the base class that all OPF Model implementations should
+subclass.
+It includes a number of virtual methods, to be overridden by subclasses,
+as well as some shared functionality for saving/loading models</p>
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.disableInference">
+<code class="descname">disableInference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.disableInference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn Inference off for the current model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.disableLearning">
+<code class="descname">disableLearning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.disableLearning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn Learning off for the current model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.enableInference">
+<code class="descname">enableInference</code><span class="sig-paren">(</span><em>inferenceArgs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.enableInference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable inference for this model.
+&#64;param inferenceArgs (dict)</p>
+<blockquote>
+<div>A dictionary of arguments required for inference. These depend on
+the InferenceType of the current model</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.enableLearning">
+<code class="descname">enableLearning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.enableLearning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn Learning on for the current model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.finishLearning">
+<code class="descname">finishLearning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.finishLearning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Place the model in a permanent &#8220;finished learning&#8221; mode.
+In such a mode the model will not be able to learn from subsequent input
+records.</p>
+<p><strong>NOTE:</strong> Upon completion of this command, learning may not be resumed on
+the given instance of the model (e.g., the implementation may optimize
+itself by pruning data structures that are necessary for learning).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.getFieldInfo">
+<code class="descname">getFieldInfo</code><span class="sig-paren">(</span><em>includeClassifierOnlyField=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.getFieldInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the sequence of FieldMetaInfo objects specifying the format of
+Model&#8217;s output.
+This may be different than the list of FieldMetaInfo objects supplied at
+initialization (e.g., due to the transcoding of some input fields into
+meta-fields, such as datetime -&gt; dayOfWeek, timeOfDay, etc.).
+&#64;param includeClassifierOnlyField (bool)</p>
+<blockquote>
+<div>If True, any field which is only sent to the classifier (i.e. not
+sent in to the bottom of the network) is also included</div></blockquote>
+<dl class="docutils">
+<dt>&#64;returns (list&lt;nupic.data.fieldmeta.FieldMetaInfo&gt;)</dt>
+<dd>List of FieldMetaInfo objects.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.getInferenceArgs">
+<code class="descname">getInferenceArgs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.getInferenceArgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the dict of arguments for the current inference mode.
+&#64;returns (dict) The arguments of the inference mode</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.getInferenceType">
+<code class="descname">getInferenceType</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.getInferenceType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the InferenceType of this model.
+This is immutable.
+&#64;returns (nupic.frameworks.opf.opfutils.InferenceType) An inference type</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="nupic.frameworks.opf.model.Model.getProtoType">
+<em class="property">static </em><code class="descname">getProtoType</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.getProtoType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the pycapnp proto type that the class uses for serialization.</p>
+<p>This is used to convert the proto into the proper type before passing it
+into the read or write method of the subclass.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.getRuntimeStats">
+<code class="descname">getRuntimeStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.getRuntimeStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get runtime statistics specific to this model,
+i.e. activeCellOverlapAvg.
+&#64;returns (dict) A {statistic names: stats} dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.isInferenceEnabled">
+<code class="descname">isInferenceEnabled</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.isInferenceEnabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the inference state of the current model.
+&#64;returns (bool) The inference state</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.isLearningEnabled">
+<code class="descname">isLearningEnabled</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.isLearningEnabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Learning state of the current model.
+&#64;returns (bool) The learning state</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.frameworks.opf.model.Model.load">
+<em class="property">classmethod </em><code class="descname">load</code><span class="sig-paren">(</span><em>savedModelDir</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load saved model.
+&#64;param savedModelDir (string)</p>
+<blockquote>
+<div>Directory of where the experiment is to be or was saved</div></blockquote>
+<p>&#64;returns (Model) The loaded model instance</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.frameworks.opf.model.Model.read">
+<em class="property">classmethod </em><code class="descname">read</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read state from proto object.</p>
+<p>The type of proto is determined by getProtoType().</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.frameworks.opf.model.Model.readFromCheckpoint">
+<em class="property">classmethod </em><code class="descname">readFromCheckpoint</code><span class="sig-paren">(</span><em>checkpointDir</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.readFromCheckpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deerializes model from checkpointDir using capnproto</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.resetSequenceStates">
+<code class="descname">resetSequenceStates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.resetSequenceStates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signal that the input record is the start of a new sequence.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>inputRecord</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run one iteration of this model.
+&#64;param inputRecord (object)</p>
+<blockquote>
+<div>A record object formatted according to
+nupic.data.record_stream.RecordStreamIface.getNextRecord() or
+nupic.data.record_stream.RecordStreamIface.getNextRecordDict()
+result format.</div></blockquote>
+<dl class="docutils">
+<dt>&#64;returns (nupic.frameworks.opf.opfutils.ModelResult)</dt>
+<dd>An ModelResult namedtuple. The contents of ModelResult.inferences
+depends on the the specific inference type of this model, which
+can be queried by getInferenceType()</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>saveModelDir</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the model in the given directory.
+&#64;param saveModelDir (string)</p>
+<blockquote>
+<div>Absolute directory path for saving the model. This directory should
+only be used to store a saved model. If the directory does not exist,
+it will be created automatically and populated with model data. A
+pre-existing directory will only be accepted if it contains previously
+saved model data. If such a directory is given, the full contents of
+the directory will be deleted and replaced with current model data.</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.setFieldStatistics">
+<code class="descname">setFieldStatistics</code><span class="sig-paren">(</span><em>fieldStats</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.setFieldStatistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Propagate field statistics to the model in case some of its machinery
+needs it.
+&#64;param fieldStats (dict)</p>
+<blockquote>
+<div>A dict of dicts with first key being the fieldname and the second
+key is min,max or other supported statistics</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write state to proto object.</p>
+<p>The type of proto is determined by getProtoType().</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.model.Model.writeToCheckpoint">
+<code class="descname">writeToCheckpoint</code><span class="sig-paren">(</span><em>checkpointDir</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.model.Model.writeToCheckpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serializes model using capnproto and writes data to checkpointDir</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="clamodel">
+<h2>CLAModel<a class="headerlink" href="#clamodel" title="Permalink to this headline">¶</a></h2>
+<p>This class is poorly named.</p>
+<dl class="class">
+<dt id="nupic.frameworks.opf.clamodel.CLAModel">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.clamodel.</code><code class="descname">CLAModel</code><span class="sig-paren">(</span><em>sensorParams={}</em>, <em>inferenceType='TemporalNextStep'</em>, <em>predictedField=None</em>, <em>spEnable=True</em>, <em>spParams={}</em>, <em>trainSPNetOnlyIfRequested=False</em>, <em>tmEnable=True</em>, <em>tmParams={}</em>, <em>clEnable=True</em>, <em>clParams={}</em>, <em>anomalyParams={}</em>, <em>minLikelihoodThreshold=0.0001</em>, <em>maxPredictionsPerStep=8</em>, <em>network=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.clamodel.CLAModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.model.Model" title="nupic.frameworks.opf.model.Model"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.model.Model</span></code></a></p>
+<dl class="method">
+<dt id="nupic.frameworks.opf.clamodel.CLAModel.disableLearning">
+<code class="descname">disableLearning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.clamodel.CLAModel.disableLearning" title="Permalink to this definition">¶</a></dt>
+<dd><p>[override] Turn Learning off for the current model</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.clamodel.CLAModel.enableLearning">
+<code class="descname">enableLearning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.clamodel.CLAModel.enableLearning" title="Permalink to this definition">¶</a></dt>
+<dd><p>[override] Turn Learning on for the current model</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.clamodel.CLAModel.finishLearning">
+<code class="descname">finishLearning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.clamodel.CLAModel.finishLearning" title="Permalink to this definition">¶</a></dt>
+<dd><p>[virtual method override] Places the model in a permanent &#8220;finished
+learning&#8221; mode where it will not be able to learn from subsequent input
+records.</p>
+<p>NOTE: Upon completion of this command, learning may not be resumed on
+the given instance of the model (e.g., the implementation may optimize
+itself by pruning data structures that are necessary for learning)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.clamodel.CLAModel.getFieldInfo">
+<code class="descname">getFieldInfo</code><span class="sig-paren">(</span><em>includeClassifierOnlyField=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.clamodel.CLAModel.getFieldInfo" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>[virtual method override]</dt>
+<dd>Returns the sequence of FieldMetaInfo objects specifying this
+Model&#8217;s output; note that this may be different than the list of
+FieldMetaInfo objects supplied at initialization (e.g., due to the
+transcoding of some input fields into meta-fields, such as datetime
+-&gt; dayOfWeek, timeOfDay, etc.)</dd>
+</dl>
+<p>Returns:    List of FieldMetaInfo objects (see description above)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.clamodel.CLAModel.getRuntimeStats">
+<code class="descname">getRuntimeStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.clamodel.CLAModel.getRuntimeStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>[virtual method override] get runtime statistics specific to this
+model, i.e. activeCellOverlapAvg</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>return:</dt>
+<dd>a dict where keys are statistic names and values are the stats</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.clamodel.CLAModel.resetSequenceStates">
+<code class="descname">resetSequenceStates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.clamodel.CLAModel.resetSequenceStates" title="Permalink to this definition">¶</a></dt>
+<dd><p>[virtual method override] Resets the model&#8217;s sequence states. Normally
+called to force the delineation of a sequence, such as between OPF tasks.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.clamodel.CLAModel.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>inputRecord</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.clamodel.CLAModel.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>run one iteration of this model.
+args:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>inputRecord is a record object formatted according to</dt>
+<dd>nupic.data.RecordStream.getNextRecordDict() result format.</dd>
+</dl>
+</div></blockquote>
+<dl class="docutils">
+<dt>return:</dt>
+<dd>An ModelResult class (see opfutils.py) The contents of
+ModelResult.inferences depends on the the specific inference
+type of this model, which can be queried by getInferenceType()</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="twogrammodel">
+<h2>TwoGramModel<a class="headerlink" href="#twogrammodel" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.frameworks.opf.two_gram_model.TwoGramModel">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.two_gram_model.</code><code class="descname">TwoGramModel</code><span class="sig-paren">(</span><em>inferenceType='TemporalNextStep'</em>, <em>encoderParams=()</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.two_gram_model.TwoGramModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.model.Model" title="nupic.frameworks.opf.model.Model"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.model.Model</span></code></a></p>
+<p>Two-gram benchmark model.</p>
+<dl class="method">
+<dt id="nupic.frameworks.opf.two_gram_model.TwoGramModel.finishLearning">
+<code class="descname">finishLearning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.two_gram_model.TwoGramModel.finishLearning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Places the model in a permanent &#8220;finished learning&#8221; mode.</p>
+<p>Once called, the model will not be able to learn from subsequent input
+records. Learning may not be resumed on a given instance of the model once
+this is called as the implementation may optimize itself by pruning data
+structures that are necessary for learning.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.two_gram_model.TwoGramModel.getFieldInfo">
+<code class="descname">getFieldInfo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.two_gram_model.TwoGramModel.getFieldInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the metadata specifying the format of the model&#8217;s output.</p>
+<p>The result may be different than the list of
+nupic.data.fieldmeta.FieldMetaInfo objects supplied at initialization due
+to the transcoding of some input fields into meta- fields, such as
+datetime -&gt; dayOfWeek, timeOfDay, etc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.two_gram_model.TwoGramModel.getRuntimeStats">
+<code class="descname">getRuntimeStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.two_gram_model.TwoGramModel.getRuntimeStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the runtime statistics specific to the model.</p>
+<p>I.E. activeCellOverlapAvg</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>A dict mapping statistic names to values.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.two_gram_model.TwoGramModel.resetSequenceStates">
+<code class="descname">resetSequenceStates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.two_gram_model.TwoGramModel.resetSequenceStates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called to indicate the start of a new sequence.</p>
+<p>The next call to run should not perform learning.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.two_gram_model.TwoGramModel.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>inputRecord</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.two_gram_model.TwoGramModel.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run one iteration of this model.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>inputRecord: A record object formatted according to</dt>
+<dd>nupic.data.FileSource.getNext() result format.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A ModelResult named tuple (see opfutils.py). The contents of
+ModelResult.inferences depends on the specific inference type of this
+model, which can be queried by getInferenceType().
+TODO: Implement getInferenceType()?</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.two_gram_model.TwoGramModel.setFieldStatistics">
+<code class="descname">setFieldStatistics</code><span class="sig-paren">(</span><em>fieldStats</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.two_gram_model.TwoGramModel.setFieldStatistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is used for the data source to communicate to the 
+model any statistics that it knows about the fields 
+Since the two-gram has no use for this information, this is a no-op</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="modelfactory">
+<h2>ModelFactory<a class="headerlink" href="#modelfactory" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.frameworks.opf.modelfactory.ModelFactory">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.modelfactory.</code><code class="descname">ModelFactory</code><a class="headerlink" href="#nupic.frameworks.opf.modelfactory.ModelFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Static factory class that produces a Model based on a description dict.
+Eventually this will be the source for all Model creation, CLA and otherwise.
+We may also implement building the description dict from a database or a
+description.py file. For now, this is a very skeletal implementation.</p>
+<dl class="staticmethod">
+<dt id="nupic.frameworks.opf.modelfactory.ModelFactory.create">
+<em class="property">static </em><code class="descname">create</code><span class="sig-paren">(</span><em>modelConfig</em>, <em>logLevel=40</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.modelfactory.ModelFactory.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new model instance, given a description dictionary.
+&#64;param modelConfig (dict)</p>
+<blockquote>
+<div>A dictionary describing the current model (TODO: schema)</div></blockquote>
+<p>&#64;param logLevel (int) The level of logging output that should be generated
+&#64;exception (Exception) Unsupported model type
+&#64;returns (nupic.frameworks.opf.model.Model) A model.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="nupic.frameworks.opf.modelfactory.ModelFactory.loadFromCheckpoint">
+<em class="property">static </em><code class="descname">loadFromCheckpoint</code><span class="sig-paren">(</span><em>savedModelDir</em>, <em>newSerialization=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.modelfactory.ModelFactory.loadFromCheckpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load saved model.
+&#64;param savedModelDir (string)</p>
+<blockquote>
+<div>Directory of where the experiment is to be or was saved</div></blockquote>
+<p>&#64;returns (nupic.frameworks.opf.model.Model) The loaded model instance.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/index.html">Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Online Prediction Framework</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#model">Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#clamodel">CLAModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#twogrammodel">TwoGramModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#modelfactory">ModelFactory</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="metrics.html">Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../network/index.html">Network API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data/index.html">Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/opf/models.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

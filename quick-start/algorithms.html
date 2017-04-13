@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Algorithms API &#8212; NuPIC 0.6.1.dev0
+    <title>Algorithms API &#8212; NuPIC 0.7.0.dev0
  documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.6.1.dev0',
+        VERSION:     '0.7.0.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -498,7 +498,7 @@ a non biological method of classification. This requires that we add a
 passed into the system.</p>
 <div class="section" id="creating-an-sdr-classifier">
 <h3>Creating an SDR Classifier<a class="headerlink" href="#creating-an-sdr-classifier" title="Permalink to this headline">¶</a></h3>
-<p>We will use the <code class="xref py py-class docutils literal"><span class="pre">SDRClassifierFactory</span></code> for this and use the default
+<p>We will use the <a class="reference internal" href="../api/algorithms/classifiers.html#nupic.algorithms.sdr_classifier_factory.SDRClassifierFactory" title="nupic.algorithms.sdr_classifier_factory.SDRClassifierFactory"><code class="xref py py-class docutils literal"><span class="pre">SDRClassifierFactory</span></code></a> for this and use the default
 factory settings.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nupic.algorithms.sdr_classifier_factory</span> <span class="k">import</span> <span class="n">SDRClassifierFactory</span>
 
@@ -577,13 +577,20 @@ print the best prediction and its associated probability to the console:</p>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#choose-your-api">Choose Your API</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="opf.html">Online Prediction Framework (OPF)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="network.html">Network API</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Algorithms API</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Algorithms API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#encoding-data">Encoding Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spatial-pooling">Spatial Pooling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#temporal-memory">Temporal Memory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#getting-predictions">Getting Predictions</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/index.html">Guides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
 </ul>
 
 
