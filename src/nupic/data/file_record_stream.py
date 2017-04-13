@@ -22,43 +22,55 @@
 """
 CSV file based implementation of a record stream
 
-FileRecordStream is class that can read and write .csv files that contain
-records. The file has 3 header lines that contain, for each field, the name
-(line 1), type (line 2), and a special indicator (line 3). The special indicator
-can indicate that the field specifies a reset, is a sequence ID, or is a
-timestamp for the record.
+:class:`~.file_record_stream.FileRecordStream` is class that can read and write
+``.csv`` files that contain records. The file has 3 header lines that contain,
+for each field, the name (line 1), type (line 2), and a special indicator
+(line 3). The special indicator can indicate that the field specifies a reset,
+is a sequence ID, or is a timestamp for the record.
+
+You can see an example of a NuPIC data file formatted for
+:class:`~.file_record_stream.FileRecordStream`
+`in the quick start <../../quick-start/example-data.html>`_.
 
 The header lines look like:
 
-f1,f2,f3,....fN
-int,string,datetime,bool,...
-R,S,T,,,,....
+::
+
+  f1,f2,f3,....fN
+  int,string,datetime,bool,...
+  R,S,T,,,,....
 
 The data lines are just comma separated values that match the types in the
 second header line. The supported types are: int, float, string, bool, datetime
 
-The format for datetime fields is yyyy-mm-dd hh:mm:ss.us
+The format for datetime fields is ``yyyy-mm-dd hh:mm:ss.us``
 The 'us' component is microseconds.
 
 When reading a file the FileRecordStream will automatically read the header line
 and will figure out the type of each field and what are the timestamp, reset
 and sequenceId fields (if any).
 
-The FileRecordStream class supports the context manager ('with' statement )
-protocol. That means you con do:
+:class:`~.file_record_stream.FileRecordStream` supports the context manager
+(``with`` statement) protocol. That means you con do:
 
-with FileRecordStream(filename) as f:
-  ...
-  ...
+.. code-block:: python
 
-When the control exits the 'with' block the file will be closed automatically.
-You may still call the .close() method at any point (even multiple times).
+    with FileRecordStream(filename) as f:
+      ...
+      ...
 
-The FileRecordStream also supports the iteration protocol so you may read its
-contents using a for loop:
+When the control exits the ``with`` block the file will be closed automatically.
+You may still call the :meth:`~.file_record_stream.FileRecordStream.close`
+method at any point (even multiple times).
+
+:class:`~.file_record_stream.FileRecordStream` also supports the iteration
+protocol so you may read its contents using a for loop:
+
+.. code-block:: python
 
   for r in f:
     print r
+
 """
 
 import os
@@ -76,7 +88,55 @@ from nupic.data.utils import (intOrNone, floatOrNone, parseBool, parseTimestamp,
 
 
 class FileRecordStream(RecordStreamIface):
-  """ CSV file based RecordStream implementation
+  """
+  CSV file based RecordStream implementation
+
+  Each field is a 3-tuple (``name``, ``type``, ``special`` or
+  :class:`~.fieldmeta.FieldMetaSpecial`.none)
+
+  The name is the name of the field. The type is one of the constants in
+  :class:`~.fieldmeta.FieldMetaType`. The special is one of the
+  :class:`~.fieldmeta.FieldMetaSpecial` values that designate their field as the
+  sequenceId, reset, timestamp, or category. With exception of multiple
+  categories, there can be at most one of each. There may be multiple fields of
+  type datetime, but no more than one of them may be the timestamp field
+  (:class:`~.fieldmeta.FieldMetaSpecial`.timestamp). The sequence id
+  field must be either a string or an int. The reset field must be an int (and
+  must contain 0 or 1).
+
+  The category field must be an int or space-separated list of ints, where
+  the former represents single-label classification and the latter is for
+  multi-label classification (e.g. "1 3 4" designates a record for labels 1,
+  3, and 4). The number of categories is allowed to vary record to record;
+  sensor regions represent non-categories with -1, thus the category values
+  must be >= 0.
+
+  The FileRecordStream iterates over the field names, types and specials and
+  stores the information.
+
+  :param streamID:
+      CSV file name, input or output
+  :param write:
+      True or False, open for writing if True
+  :param fields:
+      a list of nupic.data.fieldmeta.FieldMetaInfo field descriptors, only
+      applicable when write==True
+  :param missingValues:
+      what missing values should be replaced with?
+  :param bookmark:
+      a reference to the previous reader, if passed in, the records will be
+      returned starting from the point where bookmark was requested. Either
+      bookmark or firstRecord can be specified, not both. If bookmark is used,
+      then firstRecord MUST be None.
+  :param includeMS:
+      If false, the microseconds portion is not included in the
+      generated output file timestamp fields. This makes it compatible
+      with reading in from Excel.
+  :param firstRecord:
+      0-based index of the first record to start reading from. Either bookmark
+      or firstRecord can be specified, not both. If bookmark is used, then
+      firstRecord MUST be None.
+
   """
 
   # Private: number of header rows (field names, types, special)
@@ -91,51 +151,6 @@ class FileRecordStream(RecordStreamIface):
 
   def __init__(self, streamID, write=False, fields=None, missingValues=None,
                bookmark=None, includeMS=True, firstRecord=None):
-    """
-    streamID:
-        CSV file name, input or output
-    write:
-        True or False, open for writing if True
-    fields:
-        a list of nupic.data.fieldmeta.FieldMetaInfo field descriptors, only
-        applicable when write==True
-    missingValues:
-        what missing values should be replaced with?
-    bookmark:
-        a reference to the previous reader, if passed in, the records will be
-        returned starting from the point where bookmark was requested. Either
-        bookmark or firstRecord can be specified, not both. If bookmark is used,
-        then firstRecord MUST be None.
-    includeMS:
-        If false, the microseconds portion is not included in the
-        generated output file timestamp fields. This makes it compatible
-        with reading in from Excel.
-    firstRecord:
-        0-based index of the first record to start reading from. Either bookmark
-        or firstRecord can be specified, not both. If bookmark is used, then
-        firstRecord MUST be None.
-
-    Each field is a 3-tuple (name, type, special or FieldMetaSpecial.none)
-
-    The name is the name of the field. The type is one of the constants in
-    `FieldMetaType`. The special is one of the `FieldMetaSpecial` values
-    that designate their field as the sequenceId, reset, timestamp, or category.
-    With exception of multiple categories, there can be at most one of each.
-    There may be multiple fields of type datetime, but no more than one of them
-    may be the timestamp field (FieldMetaSpecial.timestamp). The sequence id
-    field must be either a string or an int. The reset field must be an int (and
-    must contain 0 or 1).
-
-    The category field must be an int or space-separated list of ints, where
-    the former represents single-label classification and the latter is for
-    multi-label classification (e.g. "1 3 4" designates a record for labels 1,
-    3, and 4). The number of categories is allowed to vary record to record;
-    sensor regions represent non-categories with -1, thus the category values
-    must be >= 0.
-
-    The FileRecordStream iterates over the field names, types and specials and
-    stores the information.
-    """
     super(FileRecordStream, self).__init__()
 
     # Only bookmark or firstRow can be specified, not both
@@ -296,13 +311,17 @@ class FileRecordStream(RecordStreamIface):
 
 
   def close(self):
+    """
+    Closes the stream.
+    """
     if self._file is not None:
       self._file.close()
       self._file = None
 
 
   def rewind(self):
-    """Put us back at the beginning of the file again)
+    """
+    Put us back at the beginning of the file again.
     """
 
     # Superclass rewind
@@ -324,9 +343,10 @@ class FileRecordStream(RecordStreamIface):
   def getNextRecord(self, useCache=True):
     """ Returns next available data record from the file.
 
-    retval: a data row (a list or tuple) if available; None, if no more records
-             in the table (End of Stream - EOS); empty sequence (list or tuple)
-             when timing out while waiting for the next record.
+    :param useCache: NOT USED
+    :returns: a data row (a list or tuple) if available; None, if no more
+              records in the table (End of Stream - EOS); empty sequence (list
+              or tuple) when timing out while waiting for the next record.
     """
     assert self._file is not None
     assert self._mode == self._FILE_READ_MODE
@@ -369,24 +389,10 @@ class FileRecordStream(RecordStreamIface):
 
 
   def getRecordsRange(self, bookmark=None, range=None):
-    """ Returns a range of records, starting from the bookmark. If 'bookmark'
-    is None, then records read from the first available. If 'range' is
-    None, all available records will be returned (caution: this could be
-    a lot of records and require a lot of memory).
-    """
-
     raise Exception('getRecordsRange() is not supported for the file storage')
 
 
   def getLastRecords(self, numRecords):
-    """ Returns a tuple (successCode, recordsArray), where
-        successCode - if the stream had enough records to return, True/False
-        recordsArray - an array of last numRecords records available when
-                       the call was made. Records appended while in the
-                       getLastRecords will be not returned until the next
-                       call to either getNextRecord() or getLastRecords()
-    """
-
     raise Exception('getLastRecords() is not supported for the file storage')
 
 
@@ -395,15 +401,12 @@ class FileRecordStream(RecordStreamIface):
 
 
   def appendRecord(self, record, inputBookmark=None):
-    """ Saves the record in the underlying csv file.
-
-        record: a list of Python objects that will be string-ified
-
-        Returns: nothing
     """
+    Saves the record in the underlying csv file.
 
-    # input bookmark is not applicable in case of a file storage
-    inputBookmark = inputBookmark
+    :param record: a list of Python objects that will be string-ified
+    :param inputBookmark: NOT USED
+    """
 
     assert self._file is not None
     assert self._mode == self._FILE_WRITE_MODE
@@ -430,15 +433,14 @@ class FileRecordStream(RecordStreamIface):
 
 
   def appendRecords(self, records, inputRef=None, progressCB=None):
-    """ Saves multiple records in the underlying storage.
+    """
+    Saves multiple records in the underlying storage.
 
-        Params: records - array of records as in 'appendRecord'
-                inputRef - reference to the corresponding input (not applicable
-                  in case of a file storage)
-                progressCB - callback to report progress
-
-        Returns: nothing
-
+    :param records: array of records as in
+                    :meth:`~.FileRecordStream.appendRecord`
+    :param inputRef: reference to the corresponding input (not applicable
+                     in case of a file storage)
+    :param progressCB: (function) callback to report progress
     """
 
     # input ref is not applicable in case of a file storage
@@ -451,9 +453,12 @@ class FileRecordStream(RecordStreamIface):
 
 
   def getBookmark(self):
-    """ Returns an anchor to the current position in the data. Passing this
-    anchor to a constructor makes the current position to be the first
-    returned record.
+    """
+    Gets a bookmark or anchor to the current position.
+
+    :returns: an anchor to the current position in the data. Passing this
+              anchor to a constructor makes the current position to be the first
+              returned record.
     """
 
     if self._write and self._recordCount==0:
@@ -465,13 +470,23 @@ class FileRecordStream(RecordStreamIface):
 
 
   def recordsExistAfter(self, bookmark):
-    """Returns True iff there are records left after the  bookmark."""
+    """
+    Returns whether there are more records from current position. ``bookmark``
+    is not used in this implementation.
+
+    :param bookmark: NOT USED
+    :return: True if there are records left after current position.
+    """
     return (self.getDataRowCount() - self.getNextRecordIdx()) > 0
 
 
   def seekFromEnd(self, numRecords):
-    """Seeks to numRecords from the end and returns a bookmark to the new
+    """
+    Seeks to ``numRecords`` from the end and returns a bookmark to the new
     position.
+
+    :param numRecords: how far to seek from end of file.
+    :return: bookmark to desired location.
     """
     self._file.seek(self._getTotalLineCount() - numRecords)
     return self.getBookmark()
@@ -479,29 +494,37 @@ class FileRecordStream(RecordStreamIface):
 
   def setAutoRewind(self, autoRewind):
     """
-    Controls whether getNext() should automatically rewind the source when EOF
-    is reached.
+    Controls whether :meth:`~.FileRecordStream.getNextRecord` should
+    automatically rewind the source when EOF is reached.
 
-    autoRewind: True = getNext() will automatically rewind the source on EOF;
-                False = getNext() will not automatically rewind the source
-                on EOF
+    :param autoRewind: (bool)
+
+        - if True, :meth:`~.FileRecordStream.getNextRecord` will automatically rewind
+          the source on EOF.
+        - if False, :meth:`~.FileRecordStream.getNextRecord` will not automatically
+          rewind the source on EOF.
     """
     self.rewindAtEOF = autoRewind
 
 
   def getStats(self):
-    """ Parse the file using dedicated reader and collect fields stats. Never
-    called if user of FileRecordStream does not invoke getStats method.
+    """
+    Parse the file using dedicated reader and collect fields stats. Never
+    called if user of :class:`~.FileRecordStream` does not invoke
+    :meth:`~.FileRecordStream.getStats` method.
 
-    Returns: a dictionary of stats. In the current implementation, min and max
-             fields are supported. Example of the return dictionary is:
+    :returns:
+          a dictionary of stats. In the current implementation, min and max
+          fields are supported. Example of the return dictionary is:
+
+          .. code-block:: python
 
              {
                'min' : [f1_min, f2_min, None, None, fn_min],
                'max' : [f1_max, f2_max, None, None, fn_max]
              }
 
-             (where fx_min/fx_max are set for scalar fields, or None if not)
+          (where fx_min/fx_max are set for scalar fields, or None if not)
 
     """
 
@@ -559,43 +582,43 @@ class FileRecordStream(RecordStreamIface):
 
 
   def getError(self):
-    """ Returns errors saved in the stream.
     """
-    # CSV file version does not provide storage for the error information
+    Not implemented. CSV file version does not provide storage for the error
+    information
+    """
     return None
 
 
   def setError(self, error):
-    """ Saves specified error in the stream.
     """
-    # CSV file version does not provide storage for the error information
+    Not implemented. CSV file version does not provide storage for the error
+    information
+    """
     return
 
 
   def isCompleted(self):
-    """ Returns True if all records are already in the stream or False
-    if more records is expected.
-    """
-    # CSV file is always considered completed
+    """ Not implemented. CSV file is always considered completed."""
     return True
 
 
   def setCompleted(self, completed=True):
-    """ Marks the stream completed (True or False)
+    """ Not implemented: CSV file is always considered completed, nothing to do.
     """
-    # CSV file is always considered completed, nothing to do
     return
 
 
   def getFieldNames(self):
-    """ Returns an array of field names associated with the data.
+    """
+    :returns: (list) field names associated with the data.
     """
     return [f.name for f in self._fields]
 
 
   def getFields(self):
-    """ Returns a sequence of nupic.data.fieldmeta.FieldMetaInfo
-    name/type/special tuples for each field in the stream.
+    """
+    :returns: a sequence of :class:`~.FieldMetaInfo`
+              ``name``/``type``/``special`` tuples for each field in the stream.
     """
     if self._fields is None:
       return None
@@ -684,15 +707,16 @@ class FileRecordStream(RecordStreamIface):
 
 
   def getNextRecordIdx(self):
-    """Returns the index of the record that will be read next from
-    getNextRecord()
+    """
+    :returns: (int) the index of the record that will be read next from
+              :meth:`~.FileRecordStream.getNextRecord`.
     """
     return self._recordCount
 
 
   def getDataRowCount(self):
     """
-    Returns:  count of data rows in dataset (excluding header lines)
+    :returns: (int) count of data rows in dataset (excluding header lines)
     """
     numLines = self._getTotalLineCount()
 
@@ -710,11 +734,13 @@ class FileRecordStream(RecordStreamIface):
 
 
   def setTimeout(self, timeout):
-    """ Set the read timeout """
     pass
 
 
   def flush(self):
+    """
+    Flushes the file.
+    """
     if self._file is not None:
       self._file.flush()
 
