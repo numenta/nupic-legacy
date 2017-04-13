@@ -17,6 +17,7 @@ Contents
     quick-start/index
     guides/index
     api/index
+    contributing/index
 
 Other Resources
 ===============
