@@ -407,7 +407,7 @@ class SDRClassifierRegion(PyRegion):
       if len(categories) == 0:
         if "bucketIdxIn" not in inputs:
           raise KeyError("Network link missing: bucketIdxOut -> bucketIdxIn")
-        if "actValue" not in inputs:
+        if "actValueIn" not in inputs:
           raise KeyError("Network link missing: actValueOut -> actValueIn")
 
         classificationIn = {"bucketIdx": int(inputs["bucketIdxIn"]),
