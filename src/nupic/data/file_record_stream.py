@@ -22,11 +22,11 @@
 """
 CSV file based implementation of a record stream
 
-:class:`~.file_record_stream.FileRecordStream` is class that can read and write
-``.csv`` files that contain records. The file has 3 header lines that contain,
-for each field, the name (line 1), type (line 2), and a special indicator
-(line 3). The special indicator can indicate that the field specifies a reset,
-is a sequence ID, or is a timestamp for the record.
+:class:`~.file_record_stream.FileRecordStream` is a class that can read and
+write ``.csv`` files that contain records. The file has 3 header lines that
+contain, for each field, the name (line 1), type (line 2), and a special
+indicator (line 3). The special indicator can indicate that the field specifies
+a reset, is a sequence ID, or is a timestamp for the record.
 
 You can see an example of a NuPIC data file formatted for
 :class:`~.file_record_stream.FileRecordStream`
@@ -51,7 +51,7 @@ and will figure out the type of each field and what are the timestamp, reset
 and sequenceId fields (if any).
 
 :class:`~.file_record_stream.FileRecordStream` supports the context manager
-(``with`` statement) protocol. That means you con do:
+(``with`` statement) protocol. That means you can do:
 
 .. code-block:: python
 
@@ -343,7 +343,6 @@ class FileRecordStream(RecordStreamIface):
   def getNextRecord(self, useCache=True):
     """ Returns next available data record from the file.
 
-    :param useCache: NOT USED
     :returns: a data row (a list or tuple) if available; None, if no more
               records in the table (End of Stream - EOS); empty sequence (list
               or tuple) when timing out while waiting for the next record.
@@ -405,7 +404,6 @@ class FileRecordStream(RecordStreamIface):
     Saves the record in the underlying csv file.
 
     :param record: a list of Python objects that will be string-ified
-    :param inputBookmark: NOT USED
     """
 
     assert self._file is not None
@@ -474,7 +472,6 @@ class FileRecordStream(RecordStreamIface):
     Returns whether there are more records from current position. ``bookmark``
     is not used in this implementation.
 
-    :param bookmark: NOT USED
     :return: True if there are records left after current position.
     """
     return (self.getDataRowCount() - self.getNextRecordIdx()) > 0
