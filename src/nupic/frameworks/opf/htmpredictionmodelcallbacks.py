@@ -30,74 +30,74 @@ from htmpredictionmodel import HTMPredictionModel
 
 
 
-def smtpModelControlEnableSPLearningCb(smtpModel):
+def htmPredictionModelControlEnableSPLearningCb(htmPredictionModel):
   """ Enables learning in the HTMPredictionModel's Spatial Pooler
 
-  See also smtpModelControlDisableSPLearningCb.
+  See also htmPredictionModelControlDisableSPLearningCb.
 
-  smtpModel:  pointer to a HTMPredictionModel instance
+  htmPredictionModel:  pointer to a HTMPredictionModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(smtpModel, HTMPredictionModel)
+  assert isinstance(htmPredictionModel, HTMPredictionModel)
 
-  smtpModel._getSPRegion().setParameter('learningMode', True)
+  htmPredictionModel._getSPRegion().setParameter('learningMode', True)
   return
 
 
 
-def smtpModelControlDisableSPLearningCb(smtpModel):
+def htmPredictionModelControlDisableSPLearningCb(htmPredictionModel):
   """ Disables learning in the HTMPredictionModel's Spatial Pooler, while
   retaining the ability to re-enable SP learning in the future.
 
-  See also: smtpModelControlEnableSPLearningCb.
+  See also: htmPredictionModelControlEnableSPLearningCb.
   See also: modelcallbacks.modelControlFinishLearningCb.
 
-  smtpModel:  pointer to a HTMPredictionModel instance
+  htmPredictionModel:  pointer to a HTMPredictionModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(smtpModel, HTMPredictionModel)
+  assert isinstance(htmPredictionModel, HTMPredictionModel)
 
-  smtpModel._getSPRegion().setParameter('learningMode', False)
+  htmPredictionModel._getSPRegion().setParameter('learningMode', False)
   return
 
 
 
-def smtpModelControlEnableTPLearningCb(smtpModel):
+def htmPredictionModelControlEnableTPLearningCb(htmPredictionModel):
   """ Enables learning in the HTMPredictionModel's Temporal Pooler
 
-  See also smtpModelControlDisableTPLearningCb.
+  See also htmPredictionModelControlDisableTPLearningCb.
 
-  smtpModel:  pointer to a HTMPredictionModel instance
+  htmPredictionModel:  pointer to a HTMPredictionModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(smtpModel, HTMPredictionModel)
+  assert isinstance(htmPredictionModel, HTMPredictionModel)
 
-  smtpModel._getTPRegion().setParameter('learningMode', True)
+  htmPredictionModel._getTPRegion().setParameter('learningMode', True)
   return
 
 
 
-def smtpModelControlDisableTPLearningCb(smtpModel):
+def htmPredictionModelControlDisableTPLearningCb(htmPredictionModel):
   """ Disables learning in the HTMPredictionModel's Temporal Pooler, while
   retaining the ability to re-enable TP learning in the future.
 
-  See also: smtpModelControlEnableTPLearningCb.
+  See also: htmPredictionModelControlEnableTPLearningCb.
   See also: modelcallbacks.modelControlFinishLearningCb.
 
-  smtpModel:  pointer to a HTMPredictionModel instance
+  htmPredictionModel:  pointer to a HTMPredictionModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(smtpModel, HTMPredictionModel)
+  assert isinstance(htmPredictionModel, HTMPredictionModel)
 
-  smtpModel._getTPRegion().setParameter('learningMode', False)
+  htmPredictionModel._getTPRegion().setParameter('learningMode', False)
   return
 
 
@@ -115,14 +115,14 @@ class HTMPredictionModelPickleSPInitArgs(object):
     return
 
 
-  def __call__(self, smtpModel):
+  def __call__(self, htmPredictionModel):
 
     import pickle
 
     # Get the SP args dictionary
-    assert isinstance(smtpModel, HTMPredictionModel)
+    assert isinstance(htmPredictionModel, HTMPredictionModel)
 
-    spRegion = smtpModel._getSPRegion().getSelf()
+    spRegion = htmPredictionModel._getSPRegion().getSelf()
 
     sfdr = spRegion._sfdr
 
@@ -155,14 +155,14 @@ class HTMPredictionModelPickleTPInitArgs(object):
     return
 
 
-  def __call__(self, smtpModel):
+  def __call__(self, htmPredictionModel):
 
     import pickle
 
     # Get the TP args dictionary
-    assert isinstance(smtpModel, HTMPredictionModel)
+    assert isinstance(htmPredictionModel, HTMPredictionModel)
 
-    tpRegion = smtpModel._getTPRegion().getSelf()
+    tpRegion = htmPredictionModel._getTPRegion().getSelf()
 
     tfdr = tpRegion._tfdr
 
