@@ -1,5 +1,5 @@
 Field Meta
-==========
+^^^^^^^^^^
 
 .. automodule:: nupic.data.fieldmeta
 
