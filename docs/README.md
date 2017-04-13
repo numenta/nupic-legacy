@@ -14,6 +14,7 @@ sphinx-autobuild  ${NUPIC}/docs/source  ${NUPIC}/docs/_build_html  \
 List of NuPIC packages and their documentation status:
 * `TODO`: Package doc needs to be reviewed and potentially converted to RST
 * `OK`: Package RST doc reviewed and approved.
+* `DEFER`: Would be nice to document, but not necessary for 1.0
 
 ```
 nupic
@@ -24,10 +25,9 @@ nupic
 │   ├── sdr_classifier.py [OK]
 │   └── sdr_classifier_factory.py [OK]
 ├── data
-│   ├── CategoryFilter.py [TODO]
-│   ├── aggregator.py [TODO]
-│   ├── dictutils.py [TODO]
-│   ├── fieldmeta.py [TODO]
+│   ├── aggregator.py [DEFER]
+│   ├── dictutils.py [DEFER]
+│   ├── fieldmeta.py [OK]
 │   ├── file_record_stream.py [TODO]
 │   ├── filters.py [TODO]
 │   ├── functionsource.py [TODO]

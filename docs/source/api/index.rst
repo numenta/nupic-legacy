@@ -29,4 +29,5 @@ together your own system with encoders and classifiers.
     opf/index
     network/index
     algorithms/index
+    data/index
     io
