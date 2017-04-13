@@ -403,7 +403,7 @@ class SDRClassifierRegion(PyRegion):
                                     infer=False)
 
       # If the input does not belong to a category, i.e. len(categories) == 0,
-      # then look for bucketIdx and ActValueIn.
+      # then look for bucketIdx and actValueIn.
       if len(categories) == 0:
         if "bucketIdxIn" not in inputs:
           raise KeyError("Network link missing: bucketIdxOut -> bucketIdxIn")

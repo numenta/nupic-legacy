@@ -383,8 +383,8 @@ class RecordSensor(PyRegion):
       if self.predictedFieldIdx > 0:
         fields = self.dataSource.getFieldNames()
         if self.predictedFieldIdx >= len(fields):
-          raise ValueError("predictedFieldIdx (%s) must be strictly inferior "
-                           "to the number of fields (%s). Fields: %s."
+          raise ValueError("predictedFieldIdx (%s) must be strictly less than "
+                           "the number of fields (%s). Fields: %s."
                            % (self.predictedFieldIdx, len(fields), fields))
         predictedField = fields[self.predictedFieldIdx]
         encoders = [e for e in self.encoder.encoders if e[0] == predictedField]
