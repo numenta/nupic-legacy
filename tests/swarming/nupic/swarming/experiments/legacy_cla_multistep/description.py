@@ -34,7 +34,7 @@ from nupic.frameworks.opf.exp_description_helpers import (
   applyValueGettersToContainer
   )
 
-from nupic.frameworks.opf.htmpredictionmodelcallbacks import *
+from nupic.frameworks.opf.htm_prediction_model_callbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)

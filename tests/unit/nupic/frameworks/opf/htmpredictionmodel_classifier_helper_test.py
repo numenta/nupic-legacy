@@ -31,7 +31,7 @@ from nupic.support.unittesthelpers.testcasebase import (unittest,
                                                         TestOptionParser)
 
 from nupic.frameworks.opf.htm_prediction_model import HTMPredictionModel
-from nupic.frameworks.opf.htmpredictionmodel_classifier_helper import \
+from nupic.frameworks.opf.htm_prediction_model_classifier_helper import \
   HTMPredictionModelClassifierHelper, _CLAClassificationRecord, Configuration
 
 from nupic.frameworks.opf.opfutils import InferenceType

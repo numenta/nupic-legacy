@@ -38,7 +38,7 @@ import datetime
 import json
 import web
 
-from nupic.frameworks.opf.modelfactory import ModelFactory
+from nupic.frameworks.opf.model_factory import ModelFactory
 
 
 

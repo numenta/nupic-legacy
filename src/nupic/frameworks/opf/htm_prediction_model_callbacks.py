@@ -52,7 +52,7 @@ def htmPredictionModelControlDisableSPLearningCb(htmPredictionModel):
   retaining the ability to re-enable SP learning in the future.
 
   See also: htmPredictionModelControlEnableSPLearningCb.
-  See also: modelcallbacks.modelControlFinishLearningCb.
+  See also: model_callbacks.modelControlFinishLearningCb.
 
   htmPredictionModel:  pointer to a HTMPredictionModel instance
 
@@ -88,7 +88,7 @@ def htmPredictionModelControlDisableTPLearningCb(htmPredictionModel):
   retaining the ability to re-enable TP learning in the future.
 
   See also: htmPredictionModelControlEnableTPLearningCb.
-  See also: modelcallbacks.modelControlFinishLearningCb.
+  See also: model_callbacks.modelControlFinishLearningCb.
 
   htmPredictionModel:  pointer to a HTMPredictionModel instance
 

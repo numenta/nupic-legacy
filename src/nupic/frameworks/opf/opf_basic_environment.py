@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 
 """
-This script provides a file-based implementation of the opfenvironment
+This script provides a file-based implementation of the opf_environment
 interfaces (OPF).
 
 This "basic" implementation of the interface (need a better name
@@ -29,7 +29,7 @@ that would use databases.
 
 This implementation is used by research tools, such as run_opf_experiment.
 
-The opfenvironment interfaces encapsulate external specifics, such as
+The opf_environment interfaces encapsulate external specifics, such as
 data source (e.g., .csv file or database, etc.), prediction sink (.csv file or
 databse, etc.), report and serialization destination,  etc.
 """
@@ -45,7 +45,7 @@ import shutil
 import StringIO
 
 import opfutils
-import opfenvironment as opfenv
+import opf_environment as opfenv
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data.stream_reader import StreamReader
 from nupic.data.fieldmeta import (FieldMetaInfo,

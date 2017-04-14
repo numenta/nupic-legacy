@@ -28,8 +28,8 @@ import random
 import sys
 import time
 
-from nupic.frameworks.opf.modelfactory import ModelFactory
-from nupic.frameworks.opf import opfhelpers
+from nupic.frameworks.opf.model_factory import ModelFactory
+from nupic.frameworks.opf import opf_helpers
 from nupic.frameworks.opf.opfutils import ModelResult
 from nupic.swarming import utils
 from nupic.swarming.ModelRunner import OPFModelRunner
@@ -183,7 +183,7 @@ class OPFDummyModelRunner(OPFModelRunner):
                                   endIdx'. When present, if we are running the
                                   firstIdx'th model up to but not including the
                                   endIdx'th model, then do a delay of 10 sec.
-                                  while running the model. This causes the 
+                                  while running the model. This causes the
                                   worker to run slower and for some other worker
                                   to think the model should be orphaned.
 
@@ -448,7 +448,7 @@ class OPFDummyModelRunner(OPFModelRunner):
       (beg,end) = self._delayModelRange
       if self._modelID in modelIDs[int(beg):int(end)]:
         time.sleep(10)
-        
+
       # DEBUG!!!! infinite wait if we have 50 models
       #if len(modelIDs) >= 50:
       #  jobCancel = self._jobsDAO.jobGetFields(self._jobID, ['cancel'])[0]
@@ -560,9 +560,9 @@ class OPFDummyModelRunner(OPFModelRunner):
   def __createModel(self, expDir):
     # -----------------------------------------------------------------------
     # Load the experiment's description.py module
-    descriptionPyModule = opfhelpers.loadExperimentDescriptionScriptFromDir(
+    descriptionPyModule = opf_helpers.loadExperimentDescriptionScriptFromDir(
       expDir)
-    expIface = opfhelpers.getExperimentDescriptionInterfaceFromModule(
+    expIface = opf_helpers.getExperimentDescriptionInterfaceFromModule(
       descriptionPyModule)
 
 

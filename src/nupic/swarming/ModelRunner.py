@@ -34,9 +34,9 @@ from nupic.swarming.hypersearch import regression
 from nupic.swarming.hypersearch.errorcodes import ErrorCodes
 
 from nupic.database.ClientJobsDAO import ClientJobsDAO
-from nupic.frameworks.opf import opfhelpers
-from nupic.frameworks.opf.modelfactory import ModelFactory
-from nupic.frameworks.opf.opfbasicenvironment import BasicPredictionLogger
+from nupic.frameworks.opf import opf_helpers
+from nupic.frameworks.opf.model_factory import ModelFactory
+from nupic.frameworks.opf.opf_basic_environment import BasicPredictionLogger
 from nupic.frameworks.opf.opfutils import matchPatterns
 from nupic.frameworks.opf.periodic import (PeriodicActivityMgr,
                                            PeriodicActivityRequest)
@@ -94,7 +94,7 @@ class OPFModelRunner(object):
     modelCheckpointGUID:
                         A persistent, globally-unique identifier for
                         constructing the model checkpoint key. If None, then
-                        don't bother creating a model checkpoint. 
+                        don't bother creating a model checkpoint.
     logLevel:           override logging level to this value, if not None
     predictionCacheMaxRecords:
                         Maximum number of records for the prediction output cache.
@@ -217,9 +217,9 @@ class OPFModelRunner(object):
     """
     # -----------------------------------------------------------------------
     # Load the experiment's description.py module
-    descriptionPyModule = opfhelpers.loadExperimentDescriptionScriptFromDir(
+    descriptionPyModule = opf_helpers.loadExperimentDescriptionScriptFromDir(
       self._experimentDir)
-    expIface = opfhelpers.getExperimentDescriptionInterfaceFromModule(
+    expIface = opf_helpers.getExperimentDescriptionInterfaceFromModule(
       descriptionPyModule)
     expIface.normalizeStreamSources()
 

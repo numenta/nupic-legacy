@@ -38,7 +38,7 @@ from nupic.swarming.hypersearch.errorcodes import ErrorCodes
 from nupic.swarming.hypersearch.SwarmTerminator import SwarmTerminator
 from nupic.swarming.hypersearch.HsState import HsState, HsSearchType
 
-from nupic.frameworks.opf import opfhelpers
+from nupic.frameworks.opf import opf_helpers
 from nupic.swarming.experimentutils import InferenceType
 from nupic.swarming.utils import sortedJSONDumpS, rApply, rCopy
 from nupic.swarming.utils import clippedObj
@@ -1018,7 +1018,7 @@ class HypersearchV2(object):
       self._baseDescriptionHash = hashlib.md5(self._baseDescription).digest()
 
       # Read the model config to figure out the inference type
-      modelDescription, _ = opfhelpers.loadExperiment(self._basePath)
+      modelDescription, _ = opf_helpers.loadExperiment(self._basePath)
 
       # Read info from permutations file. This sets up the following member
       # variables:

@@ -26,5 +26,5 @@ TwoGramModel
 ModelFactory
 ^^^^^^^^^^^^
 
-.. autoclass:: nupic.frameworks.opf.modelfactory.ModelFactory
+.. autoclass:: nupic.frameworks.opf.model_factory.ModelFactory
    :members:

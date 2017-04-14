@@ -28,7 +28,7 @@ import unittest2 as unittest
 from pkg_resources import resource_filename
 
 
-from nupic.frameworks.opf.opfhelpers import (
+from nupic.frameworks.opf.opf_helpers import (
   loadExperimentDescriptionScriptFromDir,
   getExperimentDescriptionInterfaceFromModule
 )

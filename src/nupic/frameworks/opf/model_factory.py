@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-""" @file modelfactory.py
+""" @file model_factory.py
 
  Model factory.
 """

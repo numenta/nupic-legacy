@@ -23,7 +23,7 @@
 
 import unittest
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
-from nupic.frameworks.opf.modelfactory import ModelFactory
+from nupic.frameworks.opf.model_factory import ModelFactory
 from nupic.frameworks.opf.htm_prediction_model import HTMPredictionModel
 from nupic.frameworks.opf.common_models.cluster_params import (
   getScalarMetricWithTimeOfDayAnomalyParams)
