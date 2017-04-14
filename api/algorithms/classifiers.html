@@ -647,35 +647,31 @@ classifier while ommitting the training vectors in the same partition.</li>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>4-tuple with these keys:</p>
-<ul>
+<ul class="simple">
 <li><dl class="first docutils">
 <dt><code class="docutils literal"><span class="pre">winner</span></code>: The category with the greatest number of nearest neighbors</dt>
-<dd><p class="first last">within the kth nearest neighbors. If the inferenceResult contains no
+<dd>within the kth nearest neighbors. If the inferenceResult contains no
 neighbors, the value of winner is None. This can happen, for example,
 in cases of exact matching, if there are no stored vectors, or if
-minSparsity is not met.</p>
-</dd>
+minSparsity is not met.</dd>
 </dl>
 </li>
 <li><dl class="first docutils">
 <dt><code class="docutils literal"><span class="pre">inferenceResult</span></code>: A list of length numCategories, each entry contains</dt>
-<dd><p class="first last">the number of neighbors within the top k neighbors that are in that
-category.</p>
-</dd>
+<dd>the number of neighbors within the top k neighbors that are in that
+category.</dd>
 </dl>
 </li>
 <li><dl class="first docutils">
 <dt><code class="docutils literal"><span class="pre">dist</span></code>: A list of length numPrototypes. Each entry is the distance</dt>
-<dd><p class="first last">from the unknown to that prototype. All distances are between 0.0 and
-1.0.</p>
-</dd>
+<dd>from the unknown to that prototype. All distances are between 0.0 and
+1.0.</dd>
 </dl>
 </li>
 <li><dl class="first docutils">
 <dt><code class="docutils literal"><span class="pre">categoryDist</span></code>: A list of length numCategories. Each entry is the</dt>
-<dd><p class="first last">distance from the unknown to the nearest prototype of
-that category. All distances are between 0 and 1.0.</p>
-</dd>
+<dd>distance from the unknown to the nearest prototype of
+that category. All distances are between 0 and 1.0.</dd>
 </dl>
 </li>
 </ul>
