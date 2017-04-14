@@ -188,13 +188,12 @@ class SensorInput(object):
   """
   Represents the mapping of a given inputRecord by the sensor region's encoder.
 
-  :param dataRow: A data row that is the sensor's "sourceOut" mapping of the
-                  supplied inputRecord. The data row is a sequence of field
-                  values that correspond to the schema returned by the
-                  getDecodedFieldMetaInfo() method of the ModelIface-based
-                  instance that returned this mapping.  See
-                  ModelIface.getDecodedFieldMetaInfo() docstring for additional
-                  details.
+  This represents the input record, as it appears right before it is encoded.
+  This may differ from the raw input in that certain input fields (such as
+  DateTime fields) may be split into multiple encoded fields.
+
+  :param dataRow: A data row that is the sensor's ``sourceOut`` mapping of the
+                  supplied inputRecord.
 
   :param dataEncodings: A list of the corresponding bit-array encodings of each
                   value in "dataRow"
@@ -203,12 +202,8 @@ class SensorInput(object):
                   sensor's compute logic on the supplied inputRecord; provided
                   for analysis and diagnostics.
 
-  :param dataDict:
-  :param category:
-
-  HELP: This ``dataRow`` description above is wrong because there is no
-        getDecodedFieldMetaInfo() method anymore. I aso need someone to doc
-        ``dataDict`` and ``category``. -- Matt
+  :param dataDict: The raw encoded input to the sensor
+  :param category: the categoryOut on the sensor region
 
   """
 
@@ -309,10 +304,8 @@ class ModelResult(object):
   :param rawInput: (object) The input record, as input by the user. This is a
          dictionary-like object which has attributes whose names are the same as
          the input field names
-  :param sensorInput: A :class:`~.SensorInput` object that represents the input
-         record, as it appears right before it is encoded. This may differ from
-         the raw input in that certain input fields (such as DateTime fields)
-         may be split into multiple encoded fields
+  :param sensorInput: (:class:`~.SensorInput`) object that represents the input
+         record
   :param inferences: (dict) Each key is a :class:`~.InferenceType` constant
          which corresponds to the type of prediction being made. Each value is
          a an element that corresponds to the actual prediction by the model,
