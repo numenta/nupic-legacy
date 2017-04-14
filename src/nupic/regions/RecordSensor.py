@@ -108,6 +108,25 @@ class RecordSensor(PyRegion):
       singleNodeOnly=True,
       description="Sensor that reads data records and encodes them for an HTM",
       outputs=dict(
+        actValueOut=dict(
+          description="Actual value of the field to predict. The index of the "
+                      "field to predict must be specified via the parameter "
+                      "predictedFieldIdx. If this parameter is not set, then "
+                      "actValueOut won't be populated.",
+          dataType="Real32",
+          count=0,
+          regionLevel=True,
+          isDefaultOutput=False),
+        bucketIdxOut=dict(
+          description="Active index of the encoder bucket for the "
+                      "actual value of the field to predict. The index of the "
+                      "field to predict must be specified via the parameter "
+                      "predictedFieldIdx. If this parameter is not set, then "
+                      "actValueOut won't be populated.",
+          dataType="UInt64",
+          count=0,
+          regionLevel=True,
+          isDefaultOutput=False),
         dataOut=dict(
           description="Encoded data",
           dataType="Real32",  # inefficient for bits, but that's what we use now
@@ -139,15 +158,15 @@ class RecordSensor(PyRegion):
           regionLevel=True,
           isDefaultOutput=False),
         spatialTopDownOut=dict(
-          description="""The top-down output signal, generated from
-                        feedback from SP""",
+          description="The top-down output signal, generated from "
+                      "feedback from SP",
           dataType='Real32',
           count=0,
           regionLevel=True,
           isDefaultOutput=False),
         temporalTopDownOut=dict(
-          description="""The top-down output signal, generated from
-                        feedback from TP through SP""",
+          description="The top-down output signal, generated from "
+                      "feedback from TP through SP",
           dataType='Real32',
           count=0,
           regionLevel=True,
@@ -155,8 +174,8 @@ class RecordSensor(PyRegion):
       ),
       inputs=dict(
         spatialTopDownIn=dict(
-          description="""The top-down input signal, generated from
-                        feedback from SP""",
+          description="The top-down input signal, generated from "
+                      "feedback from SP",
           dataType='Real32',
           count=0,
           required=False,
@@ -164,8 +183,8 @@ class RecordSensor(PyRegion):
           isDefaultInput=False,
           requireSplitterMap=False),
         temporalTopDownIn=dict(
-          description="""The top-down input signal, generated from
-                        feedback from TP through SP""",
+          description="The top-down input signal, generated from "
+                      "feedback from TP through SP",
           dataType='Real32',
           count=0,
           required=False,
@@ -181,19 +200,30 @@ class RecordSensor(PyRegion):
           count=1,
           constraints=""),
         numCategories=dict(
-          description=("Total number of categories to expect from the "
-                       "FileRecordStream"),
+          description="Total number of categories to expect from the "
+                      "FileRecordStream",
           dataType="UInt32",
           accessMode="ReadWrite",
           count=1,
           constraints=""),
-        topDownMode=dict(
-          description='1 if the node should do top down compute on the next '
-                      'call to compute into topDownOut (default 0).',
-          accessMode='ReadWrite',
-          dataType='UInt32',
+        predictedFieldIdx=dict(
+          description="Index of the field to be predicted. Needs to be "
+                      "consistent with the data source indexing. "
+                      "Default value is < 0 which means that no particular "
+                      "field is selected. This will result in the outputs "
+                      "actValueOut and bucketIdxOut not being populated.",
+          dataType="UInt32",
+          accessMode="ReadWrite",
           count=1,
-          constraints='bool'),
+          defaultValue=-1,
+          constraints=""),
+        topDownMode=dict(
+          description="1 if the node should do top down compute on the next "
+                      "call to compute into topDownOut (default 0).",
+          accessMode="ReadWrite",
+          dataType="UInt32",
+          count=1,
+          constraints="bool"),
       ),
       commands=dict())
 
@@ -215,6 +245,11 @@ class RecordSensor(PyRegion):
     self.verbosity = verbosity
     self.numCategories = numCategories
     self._iterNum = 0
+
+    # Optional index of the field for which we want to populate bucketIdxOut
+    # and actValueOut. If predictedFieldIdx < 0, then bucketIdxOut and
+    # actValueOut won't be populated.
+    self.predictedFieldIdx = -1
 
     # lastRecord is the last record returned. Used for debugging only
     self.lastRecord = None
@@ -344,6 +379,28 @@ class RecordSensor(PyRegion):
       # Encode the processed records; populate outputs["dataOut"] in place
       self.encoder.encodeIntoArray(data, outputs["dataOut"])
 
+      # If there is a field to predict, set bucketIdxOut and actValueOut.
+      if self.predictedFieldIdx > 0:
+        fields = self.dataSource.getFieldNames()
+        if self.predictedFieldIdx >= len(fields):
+          raise ValueError("predictedFieldIdx (%s) must be strictly less than "
+                           "the number of fields (%s). Fields: %s."
+                           % (self.predictedFieldIdx, len(fields), fields))
+        predictedField = fields[self.predictedFieldIdx]
+        encoders = [e for e in self.encoder.encoders if e[0] == predictedField]
+        if len(encoders) == 0:
+          raise ValueError("There is no encoder for set for the predicted "
+                           "field: %s" % predictedField)
+        elif len(encoders) > 1:
+          raise ValueError("There cant' be more than 1 encoder for the "
+                           "predicted field: %s" % predictedField)
+        else:
+          encoder = encoders[0][1]
+
+        actualValue = data[predictedField]
+        outputs["bucketIdxOut"][:] = encoder.getBucketIndices(actualValue)
+        outputs["actValueOut"][:] = actualValue
+
       # Write out the scalar values obtained from they data source.
       outputs["sourceOut"][:] = self.encoder.getScalars(data)
       self._outputValues["sourceOut"] = self.encoder.getEncodedValues(data)
@@ -430,7 +487,7 @@ class RecordSensor(PyRegion):
       temporalTopDownOut = self.encoder.topDownCompute(temporalTopDownIn)
 
       # -----------------------------------------------------------------------
-      # Split topDownOutput into seperate outputs
+      # Split topDownOutput into separate outputs
 
       values = [elem.value for elem in temporalTopDownOut]
       scalars = [elem.scalar for elem in temporalTopDownOut]
@@ -510,6 +567,12 @@ class RecordSensor(PyRegion):
                         "but the encoder has not been set")
       return len(self.encoder.getDescription())
 
+    elif name == "bucketIdxOut":
+      return 1
+
+    elif name == "actValueOut":
+      return 1
+
     elif name == "categoryOut":
       return self.numCategories
 
@@ -531,7 +594,8 @@ class RecordSensor(PyRegion):
     """
     if parameterName == 'topDownMode':
       self.topDownMode = parameterValue
-
+    elif parameterName == 'predictedFieldIdx':
+      self.predictedFieldIdx = parameterValue
     else:
       raise Exception('Unknown parameter: ' + parameterName)
 

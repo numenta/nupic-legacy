@@ -73,6 +73,27 @@ class SDRClassifierRegion(PyRegion):
       singleNodeOnly=True,
 
       inputs=dict(
+        actValueIn=dict(
+          description="Actual value of the field to predict. Only taken "
+                      "into account if the input has no category field.",
+          dataType="Real32",
+          count=0,
+          required=False,
+          regionLevel=False,
+          isDefaultInput=False,
+          requireSplitterMap=False),
+
+        bucketIdxIn=dict(
+          description="Active index of the encoder bucket for the "
+                      "actual value of the field to predict. Only taken "
+                      "into account if the input has no category field.",
+          dataType="UInt64",
+          count=0,
+          required=False,
+          regionLevel=False,
+          isDefaultInput=False,
+          requireSplitterMap=False),
+
         categoryIn=dict(
           description='Vector of categories of the input sample',
           dataType='Real32',
@@ -163,7 +184,7 @@ class SDRClassifierRegion(PyRegion):
           count=1,
           constraints='',
           # arbitrarily large value
-          defaultValue=100,
+          defaultValue=2000,
           accessMode='Create'),
 
         steps=dict(
@@ -375,6 +396,22 @@ class SDRClassifierRegion(PyRegion):
         classificationIn = {"bucketIdx": int(category),
                             "actValue": int(category)}
 
+        self._sdrClassifier.compute(recordNum=self.recordNum,
+                                    patternNZ=patternNZ,
+                                    classification=classificationIn,
+                                    learn=self.learningMode,
+                                    infer=False)
+
+      # If the input does not belong to a category, i.e. len(categories) == 0,
+      # then look for bucketIdx and actValueIn.
+      if len(categories) == 0:
+        if "bucketIdxIn" not in inputs:
+          raise KeyError("Network link missing: bucketIdxOut -> bucketIdxIn")
+        if "actValueIn" not in inputs:
+          raise KeyError("Network link missing: actValueOut -> actValueIn")
+
+        classificationIn = {"bucketIdx": int(inputs["bucketIdxIn"]),
+                            "actValue": float(inputs["actValueIn"])}
         self._sdrClassifier.compute(recordNum=self.recordNum,
                                     patternNZ=patternNZ,
                                     classification=classificationIn,
