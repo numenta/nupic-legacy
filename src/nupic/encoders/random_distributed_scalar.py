@@ -65,6 +65,8 @@ class RandomDistributedScalarEncoder(Encoder):
 
   Properties 1 and 2 lead to the following overlap rules for buckets i and j:
 
+  .. code-block:: python
+
       If abs(i-j) < w then:
         overlap(i,j) = w - abs(i-j)
       else:
@@ -74,48 +76,47 @@ class RandomDistributedScalarEncoder(Encoder):
   the object. Specifically, as new buckets are created and the min/max range
   is extended, the representation for previously in-range sscalars and
   previously created buckets must not change.
+
+  :param resolution: A floating point positive number denoting the resolution
+                  of the output representation. Numbers within
+                  [offset-resolution/2, offset+resolution/2] will fall into
+                  the same bucket and thus have an identical representation.
+                  Adjacent buckets will differ in one bit. resolution is a
+                  required parameter.
+
+  :param w: Number of bits to set in output. w must be odd to avoid centering
+                  problems.  w must be large enough that spatial pooler
+                  columns will have a sufficiently large overlap to avoid
+                  false matches. A value of w=21 is typical.
+
+  :param n: Number of bits in the representation (must be > w). n must be
+                  large enough such that there is enough room to select
+                  new representations as the range grows. With w=21 a value
+                  of n=400 is typical. The class enforces n > 6*w.
+
+  :param name: An optional string which will become part of the description.
+
+  :param offset: A floating point offset used to map scalar inputs to bucket
+                  indices. The middle bucket will correspond to numbers in the
+                  range [offset - resolution/2, offset + resolution/2). If set
+                  to None, the very first input that is encoded will be used
+                  to determine the offset.
+
+  :param seed: The seed used for numpy's random number generator. If set to -1
+                  the generator will be initialized without a fixed seed.
+
+  :param verbosity: An integer controlling the level of debugging output. A
+                  value of 0 implies no output. verbosity=1 may lead to
+                  one-time printouts during construction, serialization or
+                  deserialization. verbosity=2 may lead to some output per
+                  encode operation. verbosity>2 may lead to significantly
+                  more output.
+
   """
 
 
   def __init__(self, resolution, w=21, n=400, name=None, offset=None,
                seed=42, verbosity=0):
-    """Constructor
-
-    @param resolution A floating point positive number denoting the resolution
-                    of the output representation. Numbers within
-                    [offset-resolution/2, offset+resolution/2] will fall into
-                    the same bucket and thus have an identical representation.
-                    Adjacent buckets will differ in one bit. resolution is a
-                    required parameter.
-
-    @param w Number of bits to set in output. w must be odd to avoid centering
-                    problems.  w must be large enough that spatial pooler
-                    columns will have a sufficiently large overlap to avoid
-                    false matches. A value of w=21 is typical.
-
-    @param n Number of bits in the representation (must be > w). n must be
-                    large enough such that there is enough room to select
-                    new representations as the range grows. With w=21 a value
-                    of n=400 is typical. The class enforces n > 6*w.
-
-    @param name An optional string which will become part of the description.
-
-    @param offset A floating point offset used to map scalar inputs to bucket
-                    indices. The middle bucket will correspond to numbers in the
-                    range [offset - resolution/2, offset + resolution/2). If set
-                    to None, the very first input that is encoded will be used
-                    to determine the offset.
-
-    @param seed The seed used for numpy's random number generator. If set to -1
-                    the generator will be initialized without a fixed seed.
-
-    @param verbosity An integer controlling the level of debugging output. A
-                    value of 0 implies no output. verbosity=1 may lead to
-                    one-time printouts during construction, serialization or
-                    deserialization. verbosity=2 may lead to some output per
-                    encode operation. verbosity>2 may lead to significantly
-                    more output.
-    """
     # Validate inputs
     if (w <= 0) or (w%2 == 0):
       raise ValueError("w must be an odd positive integer")
@@ -218,7 +219,7 @@ class RandomDistributedScalarEncoder(Encoder):
     index does not exist, it is created. If the index falls outside our range
     we clip it.
 
-    @param index The bucket index to get non-zero bits for.
+    :param index The bucket index to get non-zero bits for.
     @returns numpy array of indices of non-zero bits for specified index.
     """
     if index < 0:

@@ -11,21 +11,27 @@ Scalar Encoder
 ^^^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.scalar.ScalarEncoder
-   :members:
    :show-inheritance:
+
+Adaptive Scalar Encoder
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: nupic.encoders.adaptivescalar.AdaptiveScalarEncoder
+   :show-inheritance:
+
 
 Random Distributed Scalar Encoder
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder
-  :members:
+  :members: mapBucketIndexToNonZeroBits
   :show-inheritance:
 
 DateEncoder
 ^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.date.DateEncoder
-   :members:
+   :members: getScalars
    :show-inheritance:
 
 CoordinateEncoder

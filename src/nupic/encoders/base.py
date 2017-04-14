@@ -50,7 +50,8 @@ def _isSequence(obj):
 
 
 class Encoder(object):
-  """An encoder converts a value to a sparse distributed representation.
+  """
+  An encoder converts a value to a sparse distributed representation.
 
   This is the base class for encoders that are compatible with the OPF. The OPF
   requires that values can be represented as a scalar value for use in places
@@ -93,12 +94,13 @@ class Encoder(object):
   def encodeIntoArray(self, inputData, output):
     """
     Encodes inputData and puts the encoded value into the numpy output array,
-    which is a 1-D array of length returned by getWidth().
+    which is a 1-D array of length returned by :meth:`~.getWidth`.
 
     Note: The numpy output array is reused, so clear it before updating it.
 
     :param inputData: Data to encode. This should be validated by the encoder.
-    :param output: numpy 1-D array of same length returned by getWidth()
+    :param output: numpy 1-D array of same length returned by
+           :meth:`~.getWidth`.
     """
     raise NotImplementedError()
 
@@ -106,7 +108,7 @@ class Encoder(object):
   def setLearning(self, learningEnabled):
     """Set whether learning is enabled.
 
-    :param learningEnabled: whether learning should be enabled
+    :param learningEnabled: (bool) whether learning should be enabled
     """
     # TODO: (#1943) Make sure subclasses don't rely on this and remove it.
     # Default behavior should be a noop.
@@ -120,7 +122,7 @@ class Encoder(object):
     max for the underlying encoders if this information is available.
 
     :param fieldName: name of the field this encoder is encoding, provided by
-          multiencoder
+          :class:`~.nupic.encoders.multi.MultiEncoder`.
 
     :param fieldStatistics: dictionary of dictionaries with the first level being
           the fieldname and the second index the statistic ie:
@@ -130,12 +132,12 @@ class Encoder(object):
 
 
   def encode(self, inputData):
-    """Convenience wrapper for encodeIntoArray.
+    """Convenience wrapper for :meth:`.encodeIntoArray`.
 
     This may be less efficient because it allocates a new numpy array every
     call.
 
-    :param inputData: undocumented
+    :param inputData: input data to be encoded
     :return: a numpy array with the encoded representation of inputData
     """
     output = numpy.zeros((self.getWidth(),), dtype=defaultDtype)
@@ -255,7 +257,7 @@ class Encoder(object):
     """
     Returns a numpy array containing the sub-field scalar value(s) for
     each sub-field of the inputData. To get the associated field names for each of
-    the scalar values, call getScalarNames().
+    the scalar values, call :meth:`~.getScalarNames()`.
 
     For a simple scalar encoder, the scalar value is simply the input unmodified.
     For category encoders, it is the scalar representing the category string
@@ -264,7 +266,7 @@ class Encoder(object):
 
     The intent of the scalar representation of a sub-field is to provide a
     baseline for measuring error differences. You can compare the scalar value
-    of the inputData with the scalar value returned from topDownCompute() on a
+    of the inputData with the scalar value returned from :meth:`.topDownCompute` on a
     top-down representation to evaluate prediction accuracy, for example.
 
     :param inputData: The data from the source. This is typically a object with
@@ -286,7 +288,7 @@ class Encoder(object):
 
   def getEncodedValues(self, inputData):
     """
-    Returns the input in the same format as is returned by topDownCompute().
+    Returns the input in the same format as is returned by :meth:`.topDownCompute`.
     For most encoder types, this is the same as the input data.
     For instance, for scalar and category types, this corresponds to the numeric
     and string values, respectively, from the inputs. For datetime encoders, this
@@ -298,7 +300,7 @@ class Encoder(object):
     :param inputData: The input data in the format it is received from the data source
 
     :return: A list of values, in the same format and in the same order as they
-    are returned by topDownCompute.
+    are returned by :meth:`.topDownCompute`.
     """
 
     retVals = []
@@ -494,7 +496,7 @@ class Encoder(object):
     in many cases might be a union of one or more inputs.
 
     If instead, you want to figure the *most likely* single input scalar value
-    that would have generated a specific encoded output, use the topDownCompute()
+    that would have generated a specific encoded output, use the :meth:`.topDownCompute`
     method.
 
     If you want to pretty print the return value from this method, use the
@@ -727,7 +729,7 @@ class Encoder(object):
     Compute closeness scores between the expected scalar value(s) and actual
     scalar value(s). The expected scalar values are typically those obtained
     from the getScalars() method. The actual scalar values are typically those
-    returned from the topDownCompute() method.
+    returned from :meth:`.topDownCompute`.
 
     This method returns one closeness score for each value in expValues (or
     actValues which must be the same length). The closeness score ranges from
@@ -744,7 +746,7 @@ class Encoder(object):
     :param expValues: Array of expected scalar values, typically obtained from
                      getScalars()
     :param actValues: Array of actual values, typically obtained from
-                     topDownCompute()
+                     :meth:`.topDownCompute`
 
     :return: Array of closeness scores, one per item in expValues (or
              actValues).
