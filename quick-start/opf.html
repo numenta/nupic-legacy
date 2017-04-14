@@ -121,7 +121,7 @@ using the <a class="reference internal" href="../api/opf/models.html#nupic.frame
 <span class="n">model</span><span class="o">.</span><span class="n">enableInference</span><span class="p">({</span><span class="s1">&#39;predictedField&#39;</span><span class="p">:</span> <span class="s1">&#39;consumption&#39;</span><span class="p">})</span>
 </pre></div>
 </div>
-<p>The resulting <code class="docutils literal"><span class="pre">model</span></code> will be an instance of <a class="reference internal" href="../api/opf/models.html#nupic.frameworks.opf.clamodel.CLAModel" title="nupic.frameworks.opf.clamodel.CLAModel"><code class="xref py py-class docutils literal"><span class="pre">CLAModel</span></code></a>.</p>
+<p>The resulting <code class="docutils literal"><span class="pre">model</span></code> will be an instance of <code class="xref py py-class docutils literal"><span class="pre">HTMPredictionModel</span></code>.</p>
 </div>
 <div class="section" id="feed-the-model-data">
 <h2>Feed the Model Data<a class="headerlink" href="#feed-the-model-data" title="Permalink to this headline">¶</a></h2>
@@ -154,7 +154,7 @@ the <a class="reference internal" href="../api/algorithms/encoders.html#nupic.en
 different aspects of time using the <a class="reference internal" href="../api/algorithms/encoders.html#nupic.encoders.date.DateEncoder" title="nupic.encoders.date.DateEncoder"><code class="xref py py-class docutils literal"><span class="pre">DateEncoder</span></code></a>. The encoder called
 <code class="docutils literal"><span class="pre">timestamp_timeOfDay</span></code> encodes the time of day, while the <code class="docutils literal"><span class="pre">timestamp_weekend</span></code>
 encoder will output different representations for weekends vs weekdays. The
-<a class="reference internal" href="../api/opf/models.html#nupic.frameworks.opf.clamodel.CLAModel" title="nupic.frameworks.opf.clamodel.CLAModel"><code class="xref py py-class docutils literal"><span class="pre">CLAModel</span></code></a> will combine these encodings using the
+<code class="xref py py-class docutils literal"><span class="pre">HTMPredictionModel</span></code> will combine these encodings using the
 <a class="reference internal" href="../api/algorithms/encoders.html#nupic.encoders.multi.MultiEncoder" title="nupic.encoders.multi.MultiEncoder"><code class="xref py py-class docutils literal"><span class="pre">MultiEncoder</span></code></a>.</p>
 <blockquote>
 <div>For details about encoding and how these encoders work, see the

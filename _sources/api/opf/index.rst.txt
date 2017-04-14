@@ -3,7 +3,7 @@ Online Prediction Framework
 
 The OPF is a Python-only convenience library that uses the
 `Network API <../api/network.html>`_ to construct commonly used models. The primary
-classes it exposes to users are the :class:`.SPTMModel` and
+classes it exposes to users are the :class:`.HTMPredictionModel` and
 the :class:`.ModelFactory`.
 
 Online Prediction Framework (OPF) is a framework for working with and deriving
