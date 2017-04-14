@@ -51,16 +51,11 @@ def getAllDirectoriesWithFile(path, filename, excludeDirs):
       if d in excludeDirs:
         dirnames.remove(d)
         print "EXCLUDING %s..." % (os.path.join(dirpath, d))
-        
-      # If this directory is UNDER_DEVELOPMENT, exclude it
-      elif 'UNDER_DEVELOPMENT' in os.listdir(os.path.join(dirpath, d)):
-        dirnames.remove(d)
-        print "EXCLUDING %s..." % (os.path.join(dirpath, d))
 
     for f in filenames:
       if f==filename:
         directoryList.append(dirpath)
-  
+
   return directoryList
 
 
@@ -83,13 +78,13 @@ def runReducedExperiment(path, reduced=True):
   """
 
   initExperimentPrng()
-  
+
   # Load experiment
   if reduced:
     args = [path, '--testMode']
   else:
     args = [path]
-    
+
   runExperiment(args)
 
 
@@ -105,9 +100,6 @@ class OPFExperimentsTest(unittest.TestCase):
     failedExperiments = []
     successExperiments = []
     for expDirPath in expDirPathList:
-      if os.path.exists(os.path.join(expDirPath, "UNDER_DEVELOPMENT")):
-        print "Skipping experiment: %s -- under development" % expDirPath
-        continue
       print "Running experiment: %s" % expDirPath
       try:
         if RUN_ALL_ITERATIONS:
