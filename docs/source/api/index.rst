@@ -12,7 +12,6 @@ allows users to find the best model parameters for a particular data set using a
 particle swarm optimization algorithm. This API is not always needed, however.
 You can always use existing model parameters and tweak them to your needs.
 
-
 The `Network API <network/>`_ allows users to create a network structure with
 each node performing a different task, making for a very flexible experiment
 framework and a future foundation for hierarchy.
@@ -30,4 +29,4 @@ together your own system with encoders and classifiers.
     opf/index
     network/index
     algorithms/index
-    io
+    data/index

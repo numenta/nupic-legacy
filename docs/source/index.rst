@@ -17,6 +17,7 @@ Contents
     quick-start/index
     guides/index
     api/index
+    contributing/index
 
 Other Resources
 ===============
@@ -31,3 +32,5 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+This documentation was built on |buildDate|.

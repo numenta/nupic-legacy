@@ -2,7 +2,7 @@
 
 ## Usage
 * Install `nupic` in dev mode: `python setup.py develop --user`
-* Install dev dependencies: `pip install -r requirements-dev.txt --user` 
+* Install dev dependencies: `pip install -r requirements-dev.txt --user`
 * Build the docs by running: `make html`
 * Or instead, to build the docs and watch for changes in the code and `.rst` files, run:
 ```
@@ -13,24 +13,21 @@ sphinx-autobuild  ${NUPIC}/docs/source  ${NUPIC}/docs/_build_html  \
 ## Documentation status
 List of NuPIC packages and their documentation status:
 * `TODO`: Package doc needs to be reviewed and potentially converted to RST
-* `OK`: Package RST doc reviewed and approved. 
+* `OK`: Package RST doc reviewed and approved.
+* `DEFER`: Would be nice to document, but not necessary for 1.0
 
 ```
 nupic
 ├── algorithms
-│   ├── CLAClassifier.py [TODO]
-│   ├── KNNClassifier.py [TODO]
-│   ├── anomaly.py [TODO]
-│   ├── anomaly_likelihood.py [TODO]
-│   ├── cla_classifier_diff.py [TODO]
-│   ├── cla_classifier_factory.py [TODO]
-│   ├── sdr_classifier.py [TODO]
-│   └── sdr_classifier_factory.py [TODO]
+│   ├── KNNClassifier.py [OK]
+│   ├── anomaly.py [OK]
+│   ├── anomaly_likelihood.py [OK]
+│   ├── sdr_classifier.py [OK]
+│   └── sdr_classifier_factory.py [OK]
 ├── data
-│   ├── CategoryFilter.py [TODO]
-│   ├── aggregator.py [TODO]
-│   ├── dictutils.py [TODO]
-│   ├── fieldmeta.py [TODO]
+│   ├── aggregator.py [DEFER]
+│   ├── dictutils.py [DEFER]
+│   ├── fieldmeta.py [OK]
 │   ├── file_record_stream.py [TODO]
 │   ├── filters.py [TODO]
 │   ├── functionsource.py [TODO]
