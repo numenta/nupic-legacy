@@ -151,6 +151,17 @@ class InferenceType(Enum("TemporalNextStep",
                          "NontemporalAnomaly",
                          "TemporalMultiStep",
                          "NontemporalMultiStep")):
+  """
+  Enum: one of the following:
+
+  - ``TemporalNextStep``
+  - ``TemporalClassification``
+  - ``NontemporalClassification``
+  - ``TemporalAnomaly``
+  - ``NontemporalAnomaly``
+  - ``TemporalMultiStep``
+  - ``NontemporalMultiStep``
+  """
 
 
   __temporalInferenceTypes = None
@@ -172,26 +183,29 @@ class InferenceType(Enum("TemporalNextStep",
 
 
 
-# SensorInput - represents the mapping of a given inputRecord by the
-#   sensor region's encoder.
-#
-# dataRow:        A data row that is the sensor's "sourceOut" mapping of the
-#                 supplied inputRecord. The data row is a sequence of field
-#                 values that correspond to the schema returned by the
-#                 getDecodedFieldMetaInfo() method of the ModelIface-based
-#                 instance that returned this mapping.  See
-#                 ModelIface.getDecodedFieldMetaInfo() docstring for additional
-#                 details.
-#
-# dataEncodings:  A list of the corresponding bit-array encodings of each value
-#                 in "dataRow"
-#
-# sequenceReset:  The sensor's "resetOut" signal (0 or 1) emitted by the
-#                 sensor's compute logic on the supplied inputRecord; provided
-#                 for analysis and diagnostics.
-# TODO: document category
 
 class SensorInput(object):
+  """
+  Represents the mapping of a given inputRecord by the sensor region's encoder.
+
+  This represents the input record, as it appears right before it is encoded.
+  This may differ from the raw input in that certain input fields (such as
+  DateTime fields) may be split into multiple encoded fields.
+
+  :param dataRow: A data row that is the sensor's ``sourceOut`` mapping of the
+                  supplied inputRecord.
+
+  :param dataEncodings: A list of the corresponding bit-array encodings of each
+                  value in "dataRow"
+
+  :param sequenceReset:  The sensor's "resetOut" signal (0 or 1) emitted by the
+                  sensor's compute logic on the supplied inputRecord; provided
+                  for analysis and diagnostics.
+
+  :param dataDict: The raw encoded input to the sensor
+  :param category: the categoryOut on the sensor region
+
+  """
 
   __slots__ = ("dataRow", "dataDict", "dataEncodings", "sequenceReset", "category")
 
@@ -210,7 +224,7 @@ class SensorInput(object):
           "\tdataEncodings={2}\n"\
           "\tsequenceReset={3}\n"\
           "\tcategory={4}\n"\
-          ")".format(self.dataRow, 
+          ")".format(self.dataRow,
                      self.dataDict,
                      self.dataEncodings,
                      self.sequenceReset,
@@ -265,7 +279,7 @@ class ClassifierInput(object):
 #
 # predictionEncodings: A sequence of numpy arrays, where each element is the
 #                      binary representation of the corresponding predicted field
-#                      in "predictionRow". 
+#                      in "predictionRow".
 #
 # classification: The classification category of this input.
 #
@@ -277,32 +291,34 @@ PredictionElement = namedtuple("PredictionElement",
 
 
 
-# ModelResult - A structure that contains the input to a model and the resulting
-# predictions as well as any related information related to the predictions.
-#
-# predictionNumber: The prediction number. This should start at 0 and increase
-#                   with each new ModelResult.
-#
-# rawInput: The input record, as input by the user. This is a dictionary-like
-#           object which has attributes whose names are the same as the input
-#            field names
-#
-# sensorInput: A SensorInput object that represents the input record, as it
-#              appears right before it is encoded. This may differ from the raw
-#              input in that certain input fields (such as DateTime fields) may
-#              be split into multiple encoded fields
-#
-# inferences: A dictionary of inferences. Each key is a InferenceType constant
-#              which corresponds to the type of prediction being made. Each value
-#              is a ___ element that corresponds to the actual prediction by the
-#              model, including auxillary information; TODO: fix description.
-#
-# metrics:    The metrics corresponding to the most-recent prediction/ground
-#             truth pair
 
 class ModelResult(object):
+  """
+  A structure that contains the input to a model and the resulting predictions
+  as well as any related information related to the predictions.
 
-  __slots__= ("predictionNumber", "rawInput", "sensorInput", "inferences", 
+  All params below are accesses as properties of the ModelResult object.
+
+  :param predictionNumber: (int) This should start at 0 and increase with each
+         new ModelResult.
+  :param rawInput: (object) The input record, as input by the user. This is a
+         dictionary-like object which has attributes whose names are the same as
+         the input field names
+  :param sensorInput: (:class:`~.SensorInput`) object that represents the input
+         record
+  :param inferences: (dict) Each key is a :class:`~.InferenceType` constant
+         which corresponds to the type of prediction being made. Each value is
+         a an element that corresponds to the actual prediction by the model,
+         including auxillary information.
+  :param metrics: The metrics corresponding to the most-recent prediction/ground
+         truth pair
+  :param predictedFieldIdx: predicted field index
+  :param predictedFieldName: predicted field name
+  :param classifierInput: input from classifier
+
+  """
+
+  __slots__= ("predictionNumber", "rawInput", "sensorInput", "inferences",
               "metrics", "predictedFieldIdx", "predictedFieldName", "classifierInput")
 
   def __init__(self,

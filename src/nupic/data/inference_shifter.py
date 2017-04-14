@@ -28,7 +28,11 @@ from nupic.frameworks.opf.opfutils import InferenceElement, ModelResult
 
 
 class InferenceShifter(object):
-  """Shifts time for ModelResult objects."""
+  """
+  Shifts time for :class:`~.nupic.frameworks.opf.opfutils.ModelResult` objects.
+  This is useful for plotting results with the predictions at the same time step
+  as the input data.
+  """
 
   def __init__(self):
     self._inferenceBuffer = None
@@ -41,10 +45,10 @@ class InferenceShifter(object):
     iteration was learn-only, then we would not have a T(i) prediction in our
     FIFO and would not be able to emit a meaningful input/prediction pair.
 
-    Args:
-      modelResult: A ModelResult instance to shift.
-    Returns:
-      A ModelResult instance.
+    :param modelResult: A :class:`~.nupic.frameworks.opf.opfutils.ModelResult`
+                        instance to shift.
+    :return: A :class:`~.nupic.frameworks.opf.opfutils.ModelResult` instance that
+             has been shifted
     """
     inferencesToWrite = {}
 
