@@ -34,7 +34,7 @@ from nupic.frameworks.opf.htm_prediction_model import HTMPredictionModel
 from nupic.frameworks.opf.htm_prediction_model_classifier_helper import \
   HTMPredictionModelClassifierHelper, _CLAClassificationRecord, Configuration
 
-from nupic.frameworks.opf.opfutils import InferenceType
+from nupic.frameworks.opf.opf_utils import InferenceType
 
 from nupic.frameworks.opf.exceptions import HTMPredictionModelInvalidRangeError
 

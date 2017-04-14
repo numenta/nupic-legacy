@@ -43,11 +43,11 @@ from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
 from nupic.encoders import MultiEncoder, DeltaEncoder
 from nupic.engine import Network
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                      InferenceElement,
-                      SensorInput,
-                      ClassifierInput,
-                      initLogger)
+from nupic.frameworks.opf.opf_utils import (InferenceType,
+                                            InferenceElement,
+                                            SensorInput,
+                                            ClassifierInput,
+                                            initLogger)
 
 try:
   import capnp
@@ -356,7 +356,7 @@ class HTMPredictionModel(Model):
                     nupic.data.RecordStream.getNextRecordDict() result format.
 
             return:
-                An ModelResult class (see opfutils.py) The contents of
+                An ModelResult class (see opf_utils.py) The contents of
                 ModelResult.inferences depends on the the specific inference
                 type of this model, which can be queried by getInferenceType()
     """

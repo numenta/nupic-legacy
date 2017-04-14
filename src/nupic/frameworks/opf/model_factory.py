@@ -26,7 +26,7 @@
 
 import logging
 
-import nupic.frameworks.opf.opfutils as opfutils
+import nupic.frameworks.opf.opf_utils as opf_utils
 
 # Import models
 from htm_prediction_model import HTMPredictionModel
@@ -49,7 +49,7 @@ class ModelFactory(object):
     @returns (Logger) A Logger object.
     """
     if cls.__logger is None:
-      cls.__logger = opfutils.initLogger(cls)
+      cls.__logger = opf_utils.initLogger(cls)
     return cls.__logger
 
 

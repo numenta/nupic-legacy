@@ -21,7 +21,7 @@
 
 # This file contains utility functions that are may be imported
 # by clients of the framework. Functions that are used only by
-# the prediction framework should be in opfutils.py
+# the prediction framework should be in opf_utils.py
 #
 # TODO: Rename as helpers.py once we're ready to replace the legacy
 #       helpers.py

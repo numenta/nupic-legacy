@@ -30,7 +30,7 @@ import time
 
 from nupic.frameworks.opf.model_factory import ModelFactory
 from nupic.frameworks.opf import opf_helpers
-from nupic.frameworks.opf.opfutils import ModelResult
+from nupic.frameworks.opf.opf_utils import ModelResult
 from nupic.swarming import utils
 from nupic.swarming.ModelRunner import OPFModelRunner
 

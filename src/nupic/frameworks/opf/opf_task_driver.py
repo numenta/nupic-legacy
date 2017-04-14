@@ -297,7 +297,7 @@ class OPFTaskDriver(object):
     inputRecord:  record object formatted according to
                   nupic.data.FileSource.getNext() result format.
 
-    Returns:      An opfutils.ModelResult object
+    Returns:      An opf_utils.ModelResult object
     """
     assert inputRecord, "Invalid inputRecord: %r" % inputRecord
 
@@ -377,7 +377,7 @@ class _PhaseManager(object):
     inputRecord:  record object formatted according to
                   nupic.data.FileSource.getNext() result format.
 
-    Returns:      An opfutils.ModelResult object with the inputs and inferences
+    Returns:      An opf_utils.ModelResult object with the inputs and inferences
                   after the current record is processed by the model
     """
 

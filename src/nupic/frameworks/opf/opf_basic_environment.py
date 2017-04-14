@@ -44,7 +44,7 @@ import os
 import shutil
 import StringIO
 
-import opfutils
+import opf_utils
 import opf_environment as opfenv
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data.stream_reader import StreamReader
@@ -52,7 +52,7 @@ from nupic.data.fieldmeta import (FieldMetaInfo,
                                   FieldMetaType,
                                   FieldMetaSpecial)
 from nupic.data.inference_shifter import InferenceShifter
-from opfutils import InferenceType, InferenceElement
+from opf_utils import InferenceType, InferenceElement
 
 
 
@@ -322,7 +322,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
 
 
     inferenceType:
-                  An constant from opfutils.InferenceType for the
+                  An constant from opf_utils.InferenceType for the
                   requested prediction writer
 
     fields:       a non-empty sequence of nupic.data.fieldmeta.FieldMetaInfo
@@ -342,7 +342,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
 
     self.__experimentDir = experimentDir
 
-    # opfutils.InferenceType kind value
+    # opf_utils.InferenceType kind value
     self.__inferenceType = inferenceType
 
     # A tuple of nupic.data.fieldmeta.FieldMetaInfo
@@ -436,7 +436,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
 
     # Consctruct the prediction dataset file path
     filename = (self.__label + "." +
-               opfutils.InferenceType.getLabel(self.__inferenceType) +
+                opf_utils.InferenceType.getLabel(self.__inferenceType) +
                ".predictionLog.csv")
     self.__datasetPath = os.path.join(inferenceDir, filename)
 
@@ -564,7 +564,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
     """ [virtual method override] Emits a single prediction as input versus
     predicted.
 
-    modelResult:    An opfutils.ModelResult object that contains the model input
+    modelResult:    An opf_utils.ModelResult object that contains the model input
                     and output for the current timestep.
     """
 
@@ -741,7 +741,7 @@ class NonTemporalPredictionLogAdapter(object):
   def update(self, modelResult):
     """ Emit a input/prediction pair, if possible.
 
-    modelResult:    An opfutils.ModelResult object that contains the model input
+    modelResult:    An opf_utils.ModelResult object that contains the model input
                     and output for the current timestep.
     """
     self.__writer.append(modelResult)
@@ -783,7 +783,7 @@ class TemporalPredictionLogAdapter(object):
     FIFO and would not be able to emit a meaningful input/prediction
     pair.
 
-    modelResult:    An opfutils.ModelResult object that contains the model input
+    modelResult:    An opf_utils.ModelResult object that contains the model input
                     and output for the current timestep.
     """
     self.__writer.append(self.__inferenceShifter.shift(modelResult))
@@ -860,7 +860,7 @@ class BasicPredictionLogger(opfenv.PredictionLoggerIface):
     """ Emits a set of inputs data, inferences, and metrics from a model
     resulting from a single record.
 
-    modelResult:    An opfutils.ModelResult object that contains the model input
+    modelResult:    An opf_utils.ModelResult object that contains the model input
                     and output for the current timestep.
     """
 
@@ -871,7 +871,7 @@ class BasicPredictionLogger(opfenv.PredictionLoggerIface):
   def writeRecords(self, modelResults, progressCB=None):
     """ Same as writeRecord above, but emits multiple rows in one shot.
 
-    modelResults:  a list of opfutils.ModelResult objects, Each dictionary
+    modelResults:  a list of opf_utils.ModelResult objects, Each dictionary
                     represents one record.
 
     progressCB: an optional callback method that will be called after each

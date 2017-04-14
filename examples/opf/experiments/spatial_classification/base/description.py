@@ -34,8 +34,8 @@ from nupic.frameworks.opf.exp_description_helpers import (
 
 from nupic.frameworks.opf.htm_prediction_model_callbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                                           InferenceElement)
+from nupic.frameworks.opf.opf_utils import (InferenceType,
+                                            InferenceElement)
 from nupic.support import aggregationDivide
 
 from nupic.frameworks.opf.opf_task_driver import (

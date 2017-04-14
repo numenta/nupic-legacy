@@ -26,7 +26,7 @@ import unittest2 as unittest
 
 from nupic.frameworks.opf.htm_prediction_model import HTMPredictionModel
 from nupic.frameworks.opf.model_factory import ModelFactory
-from nupic.frameworks.opf.opfutils import ModelResult
+from nupic.frameworks.opf.opf_utils import ModelResult
 
 
 

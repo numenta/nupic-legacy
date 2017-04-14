@@ -37,7 +37,7 @@ from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.frameworks.opf import opf_helpers
 from nupic.frameworks.opf.model_factory import ModelFactory
 from nupic.frameworks.opf.opf_basic_environment import BasicPredictionLogger
-from nupic.frameworks.opf.opfutils import matchPatterns
+from nupic.frameworks.opf.opf_utils import matchPatterns
 from nupic.frameworks.opf.periodic import (PeriodicActivityMgr,
                                            PeriodicActivityRequest)
 from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
@@ -766,7 +766,7 @@ class OPFModelRunner(object):
 
     Parameters:
     -----------------------------------------------------------------------
-    result:      A opfutils.ModelResult object, which contains the input and
+    result:      A opf_utils.ModelResult object, which contains the input and
                   output for this iteration
     """
     self.__predictionCache.append(result)
