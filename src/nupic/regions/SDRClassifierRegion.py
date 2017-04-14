@@ -256,11 +256,11 @@ class SDRClassifierRegion(PyRegion):
     self.maxCategoryCount = maxCategoryCount
     self.recordNum = 0
 
-    # Flag to know if the compute() function is ever called. This is to 
+    # Flag to know if the compute() function is ever called. This is to
     # prevent backward compatibilities issues with the customCompute() method
-    # being called at the same time as the compute() method. Only compute() 
-    # should be called via network.run(). This flag will be removed once we 
-    # get to cleaning up the clamodel.py file.
+    # being called at the same time as the compute() method. Only compute()
+    # should be called via network.run(). This flag will be removed once we
+    # get to cleaning up the htmpredictionmodel.py file.
     self._computeFlag = False
 
 
@@ -359,13 +359,13 @@ class SDRClassifierRegion(PyRegion):
     @param outputs -- outputs of the classifier region
     """
 
-    # This flag helps to prevent double-computation, in case the deprecated 
-    # customCompute() method is being called in addition to compute() called 
+    # This flag helps to prevent double-computation, in case the deprecated
+    # customCompute() method is being called in addition to compute() called
     # when network.run() is called
     self._computeFlag = True
 
-    # An input can potentially belong to multiple categories. 
-    # If a category value is < 0, it means that the input does not belong to 
+    # An input can potentially belong to multiple categories.
+    # If a category value is < 0, it means that the input does not belong to
     # that category.
     categories = [category for category in inputs["categoryIn"]
                   if category >= 0]
@@ -373,7 +373,7 @@ class SDRClassifierRegion(PyRegion):
     patternNZ = inputs["bottomUpIn"].nonzero()[0]
 
     # ==========================================================================
-    # Allow to train on multiple input categories. 
+    # Allow to train on multiple input categories.
     # Do inference first, and then train on all input categories.
 
     # --------------------------------------------------------------------------
@@ -446,11 +446,11 @@ class SDRClassifierRegion(PyRegion):
 
   def customCompute(self, recordNum, patternNZ, classification):
     """
-    Just return the inference value from one input sample. The actual 
-    learning happens in compute() -- if, and only if learning is enabled -- 
+    Just return the inference value from one input sample. The actual
+    learning happens in compute() -- if, and only if learning is enabled --
     which is called when you run the network.
-    
-    WARNING: The method customCompute() is here to maintain backward 
+
+    WARNING: The method customCompute() is here to maintain backward
     compatibility. This method is deprecated, and will be removed.
     Use network.run() instead, which will call the compute() method.
 
@@ -473,13 +473,13 @@ class SDRClassifierRegion(PyRegion):
                     4 : [0.2, 0.4, 0.3, 0.5]}
     """
 
-    # If the compute flag has not been initialized (for example if we 
+    # If the compute flag has not been initialized (for example if we
     # restored a model from an old checkpoint) initialize it to False.
     if not hasattr(self, "_computeFlag"):
       self._computeFlag = False
 
     if self._computeFlag:
-      # Will raise an exception if the deprecated method customCompute() is 
+      # Will raise an exception if the deprecated method customCompute() is
       # being used at the same time as the compute function.
       warnings.simplefilter('error', DeprecationWarning)
       warnings.warn("The customCompute() method should not be "

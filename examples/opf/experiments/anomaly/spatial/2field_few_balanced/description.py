@@ -34,7 +34,7 @@ from nupic.frameworks.opf.expdescriptionhelpers import (
   applyValueGettersToContainer,
   DeferredDictLookup)
 
-from nupic.frameworks.opf.clamodelcallbacks import *
+from nupic.frameworks.opf.htmpredictionmodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
@@ -87,7 +87,7 @@ from nupic.frameworks.opf.opftaskdriver import (
 #      applyValueGettersToContainer(config)
 config = {
     # Type of model that the rest of these parameters apply to.
-    'model': "CLA",
+    'model': "HTMPrediction",
 
     # Version that specifies the format of the config.
     'version': 1,
@@ -394,8 +394,8 @@ tasks = [
       'callbacks' : {
         # Callbacks to be called at the beginning of a task, before model iterations.
         # Signature: callback(<reference to OPFExperiment>); returns nothing
-#        'setup' : [claModelControlEnableSPLearningCb, claModelControlEnableTPLearningCb],
-#        'setup' : [claModelControlDisableTPLearningCb],
+#        'setup' : [htmPredictionModelControlEnableSPLearningCb, htmPredictionModelControlEnableTPLearningCb],
+#        'setup' : [htmPredictionModelControlDisableTPLearningCb],
         'setup' : [],
 
         # Callbacks to be called after every learning/inference iteration

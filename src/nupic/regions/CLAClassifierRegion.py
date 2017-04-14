@@ -47,7 +47,7 @@ class CLAClassifierRegion(PyRegion):
   sensor and encoders (the "classification") describing the input to the system
   at that time step.
 
-  When learning, for every bit in activation pattern, it records a history of 
+  When learning, for every bit in activation pattern, it records a history of
   the classification each time that bit was active. The history is bounded by a
   maximum allowed age so that old entries are thrown away.
 
@@ -161,7 +161,7 @@ class CLAClassifierRegion(PyRegion):
           required=True,
           count=1,
           constraints='',
-          # arbitrarily large value for backward compatibility 
+          # arbitrarily large value for backward compatibility
           defaultValue=1000,
           accessMode='Create'),
 
@@ -240,11 +240,11 @@ class CLAClassifierRegion(PyRegion):
     self.recordNum = 0
     self._initEphemerals()
 
-    # Flag to know if the compute() function is ever called. This is to 
+    # Flag to know if the compute() function is ever called. This is to
     # prevent backward compatibilities issues with the customCompute() method
-    # being called at the same time as the compute() method. Only compute() 
-    # should be called via network.run(). This flag will be removed once we 
-    # get to cleaning up the clamodel.py file.
+    # being called at the same time as the compute() method. Only compute()
+    # should be called via network.run(). This flag will be removed once we
+    # get to cleaning up the htmpredictionmodel.py file.
     self._computeFlag = False
 
 
@@ -345,13 +345,13 @@ class CLAClassifierRegion(PyRegion):
 
     """
 
-    # This flag helps to prevent double-computation, in case the deprecated 
-    # customCompute() method is being called in addition to compute() called 
+    # This flag helps to prevent double-computation, in case the deprecated
+    # customCompute() method is being called in addition to compute() called
     # when network.run() is called
     self._computeFlag = True
 
-    # An input can potentially belong to multiple categories. 
-    # If a category value is < 0, it means that the input does not belong to 
+    # An input can potentially belong to multiple categories.
+    # If a category value is < 0, it means that the input does not belong to
     # that category.
     categories = [category for category in inputs["categoryIn"]
                   if category >= 0]
@@ -360,13 +360,13 @@ class CLAClassifierRegion(PyRegion):
     patternNZ = activeCells.nonzero()[0]
 
     # ==========================================================================
-    # Allow to train on multiple input categories. 
+    # Allow to train on multiple input categories.
     # Do inference first, and then train on all input categories.
 
     # --------------------------------------------------------------------------
     #   1. Call classifier. Don't train. Just inference. Train after.
 
-    # Dummy classification input, because this param is required. Learning is 
+    # Dummy classification input, because this param is required. Learning is
     # off, so the classifier is not learning this input. Inference only here.
     classificationIn = {"actValue": 0, "bucketIdx": 0}
     clResults = self._claClassifier.compute(recordNum=self.recordNum,
@@ -396,7 +396,7 @@ class CLAClassifierRegion(PyRegion):
       # Flatten the rest of the output. For example:
       #   Original dict  {1 : [0.1, 0.3, 0.2, 0.7]
       #                   4 : [0.2, 0.4, 0.3, 0.5]}
-      #   becomes: [0.1, 0.3, 0.2, 0.7, 0.2, 0.4, 0.3, 0.5] 
+      #   becomes: [0.1, 0.3, 0.2, 0.7, 0.2, 0.4, 0.3, 0.5]
       stepProbabilities = clResults[step]
       for categoryIndex in xrange(self.maxCategoryCount):
         flatIndex = categoryIndex + stepIndex * self.maxCategoryCount
@@ -410,11 +410,11 @@ class CLAClassifierRegion(PyRegion):
 
   def customCompute(self, recordNum, patternNZ, classification):
     """
-    Just return the inference value from one input sample. The actual 
-    learning happens in compute() -- if, and only if learning is enabled -- 
+    Just return the inference value from one input sample. The actual
+    learning happens in compute() -- if, and only if learning is enabled --
     which is called when you run the network.
-    
-    WARNING: The method customCompute() is here to maintain backward 
+
+    WARNING: The method customCompute() is here to maintain backward
     compatibility. This method is deprecated, and will be removed.
     Use network.run() instead, which will call the compute() method.
 
@@ -437,13 +437,13 @@ class CLAClassifierRegion(PyRegion):
                     4 : [0.2, 0.4, 0.3, 0.5]}
     """
 
-    # If the compute flag has not been initialized (for example if we 
+    # If the compute flag has not been initialized (for example if we
     # restored a model from an old checkpoint) initialize it to False.
     if not hasattr(self, "_computeFlag"):
       self._computeFlag = False
 
     if self._computeFlag:
-      # Will raise an exception if the deprecated method customCompute() is 
+      # Will raise an exception if the deprecated method customCompute() is
       # being used at the same time as the compute function.
       warnings.simplefilter('error', DeprecationWarning)
       warnings.warn("The customCompute() method should not be "
@@ -473,7 +473,7 @@ class CLAClassifierRegion(PyRegion):
 
     # Check if classifier has a 'maxCategoryCount' attribute
     if not hasattr(self, "maxCategoryCount"):
-      # Large default value for backward compatibility 
+      # Large default value for backward compatibility
       self.maxCategoryCount = 1000
 
     if outputName == "categoriesOut":

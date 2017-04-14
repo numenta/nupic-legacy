@@ -3,7 +3,7 @@
 using import "/nupic/proto/NetworkProto.capnp".NetworkProto;
 
 # Next ID: 5
-struct CLAModelProto {
+struct HTMPredictionModelProto {
   inferenceType @0 :InferenceType;
   numRunCalls @1 :UInt32;
   minLikelihoodThreshold @2 :Float32;

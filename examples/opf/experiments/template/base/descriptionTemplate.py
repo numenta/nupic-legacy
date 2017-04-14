@@ -91,7 +91,7 @@ from nupic.frameworks.opf.opftaskdriver import (
 config = {
 
   # Type of model that the rest of these parameters apply to
-  'model' : "CLA",
+  'model' : "HTMPrediction",
 
 
   ##############################################################################
@@ -451,7 +451,7 @@ tasks = [
       'callbacks' : {
         # Callbacks to be called at the beginning of a task, before model iterations.
         # Signature: callback(<reference to OPFExperiment>); returns nothing
-        'setup' : [claModelControlEnableSPLearningCb, claModelControlEnableTPLearningCb],
+        'setup' : [htmPredictionModelControlEnableSPLearningCb, htmPredictionModelControlEnableTPLearningCb],
 
         # Callbacks to be called after every learning/inference iteration
         # Signature: callback(<reference to OPFExperiment>); returns nothing

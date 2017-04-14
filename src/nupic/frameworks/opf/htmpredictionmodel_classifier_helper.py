@@ -3,8 +3,8 @@ import copy
 import numpy
 
 from nupic.support.configuration import Configuration
-from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError,
-                                             CLAModelInvalidArgument)
+from nupic.frameworks.opf.exceptions import (HTMPredictionModelInvalidRangeError,
+                                             HTMPredictionModelInvalidArgument)
 
 
 class _CLAClassificationRecord(object):
@@ -38,7 +38,7 @@ class _CLAClassificationRecord(object):
 
 
 
-class CLAModelClassifierHelper(object):
+class HTMPredictionModelClassifierHelper(object):
   """
   This class implements a record classifier used to classify prediction
   records. It currently depends on the KNN classifier within the parent model.
@@ -59,12 +59,12 @@ class CLAModelClassifierHelper(object):
 
   __VERSION__ = 3
 
-  def __init__(self, clamodel, anomalyParams={}):
+  def __init__(self, htmpredictionmodel, anomalyParams={}):
     if anomalyParams is None:
       anomalyParams = {}
-    self.clamodel = clamodel
+    self.htmpredictionmodel = htmpredictionmodel
 
-    self._version = CLAModelClassifierHelper.__VERSION__
+    self._version = HTMPredictionModelClassifierHelper.__VERSION__
 
     self._classificationMaxDist = 0.1
 
@@ -97,7 +97,7 @@ class CLAModelClassifierHelper(object):
       self._vectorType = anomalyParams['anomalyVectorType']
 
     self._activeColumnCount = \
-      self.clamodel._getSPRegion().getSelf().getParameter('numActiveColumnsPerInhArea')
+      self.htmpredictionmodel._getSPRegion().getSelf().getParameter('numActiveColumnsPerInhArea')
 
     # Storage for last run
     self._anomalyVectorLength = None
@@ -132,8 +132,8 @@ class CLAModelClassifierHelper(object):
       end = self.saved_states[-1].ROWID
 
     if end <= start:
-      raise CLAModelInvalidRangeError("Invalid supplied range for 'getLabels'.",
-        debugInfo={
+      raise HTMPredictionModelInvalidRangeError("Invalid supplied range for 'getLabels'.",
+                                                debugInfo={
           'requestRange': {
             'startRecordID': start,
             'endRecordID': end
@@ -146,7 +146,7 @@ class CLAModelClassifierHelper(object):
       'recordLabels': []
     }
 
-    classifier = self.clamodel._getAnomalyClassifier()
+    classifier = self.htmpredictionmodel._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     ROWIDX = numpy.array(
@@ -171,7 +171,7 @@ class CLAModelClassifierHelper(object):
     internal cache of this classifier.
     """
     if len(self.saved_states) == 0:
-      raise CLAModelInvalidRangeError("Invalid supplied range for 'addLabel'. "
+      raise HTMPredictionModelInvalidRangeError("Invalid supplied range for 'addLabel'. "
         "Model has no saved records.")
 
     startID = self.saved_states[0].ROWID
@@ -180,8 +180,8 @@ class CLAModelClassifierHelper(object):
     clippedEnd = max(0, min( len( self.saved_states) , end - startID))
 
     if clippedEnd <= clippedStart:
-      raise CLAModelInvalidRangeError("Invalid supplied range for 'addLabel'.",
-        debugInfo={
+      raise HTMPredictionModelInvalidRangeError("Invalid supplied range for 'addLabel'.",
+                                                debugInfo={
           'requestRange': {
             'startRecordID': start,
             'endRecordID': end
@@ -222,7 +222,7 @@ class CLAModelClassifierHelper(object):
     """
 
     if len(self.saved_states) == 0:
-      raise CLAModelInvalidRangeError("Invalid supplied range for "
+      raise HTMPredictionModelInvalidRangeError("Invalid supplied range for "
         "'removeLabels'. Model has no saved records.")
 
     startID = self.saved_states[0].ROWID
@@ -232,7 +232,7 @@ class CLAModelClassifierHelper(object):
       max(0, min( len( self.saved_states) , end - startID))
 
     if clippedEnd <= clippedStart:
-      raise CLAModelInvalidRangeError("Invalid supplied range for "
+      raise HTMPredictionModelInvalidRangeError("Invalid supplied range for "
         "'removeLabels'.", debugInfo={
           'requestRange': {
             'startRecordID': start,
@@ -280,8 +280,8 @@ class CLAModelClassifierHelper(object):
         self._deleteRecordsFromKNN([state])
       return
 
-    label = CLAModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL
-    autoLabel = label + CLAModelClassifierHelper.AUTO_TAG
+    label = HTMPredictionModelClassifierHelper.AUTO_THRESHOLD_CLASSIFIED_LABEL
+    autoLabel = label + HTMPredictionModelClassifierHelper.AUTO_TAG
 
     # Update the label based on classifications
     newCategory = self._recomputeRecordFromKNN(state)
@@ -325,7 +325,7 @@ class CLAModelClassifierHelper(object):
     """
     This method will add the record to the KNN classifier.
     """
-    classifier = self.clamodel._getAnomalyClassifier()
+    classifier = self.htmpredictionmodel._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     prototype_idx = classifier.getSelf().getParameter('categoryRecencyList')
@@ -350,7 +350,7 @@ class CLAModelClassifierHelper(object):
     ------------
     recordsToDelete - list of records to delete from the classififier
     """
-    classifier = self.clamodel._getAnomalyClassifier()
+    classifier = self.htmpredictionmodel._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     prototype_idx = classifier.getSelf().getParameter('categoryRecencyList')
@@ -373,7 +373,7 @@ class CLAModelClassifierHelper(object):
     end - integer representing the ROWID of the end of the deletion range,
       if None, it will default to end.
     """
-    classifier = self.clamodel._getAnomalyClassifier()
+    classifier = self.htmpredictionmodel._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     prototype_idx = numpy.array(
@@ -405,7 +405,7 @@ class CLAModelClassifierHelper(object):
                "categoryProbabilitiesOut":numpy.zeros((1,))}
 
     # Run inference only to capture state before learning
-    classifier = self.clamodel._getAnomalyClassifier()
+    classifier = self.htmpredictionmodel._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     # Only use points before record to classify and after the wait period.
@@ -438,13 +438,13 @@ class CLAModelClassifierHelper(object):
 
   def _constructClassificationRecord(self):
     """
-    Construct a _CLAClassificationRecord based on the current state of the
-    clamodel of this classifier.
+    Construct a _HTMClassificationRecord based on the current state of the
+    htmpredictionmodel of this classifier.
 
     ***This will look into the internals of the model and may depend on the
     SP, TP, and KNNClassifier***
     """
-    model = self.clamodel
+    model = self.htmpredictionmodel
     sp = model._getSPRegion()
     tp = model._getTPRegion()
     tpImp = tp.getSelf()._tfdr
@@ -522,11 +522,11 @@ class CLAModelClassifierHelper(object):
     Sets the autoDetectWaitRecords.
     """
     if not isinstance(waitRecords, int):
-      raise CLAModelInvalidArgument("Invalid argument type \'%s\'. WaitRecord "
+      raise HTMPredictionModelInvalidArgument("Invalid argument type \'%s\'. WaitRecord "
         "must be a number." % (type(waitRecords)))
 
     if len(self.saved_states) > 0 and waitRecords < self.saved_states[0].ROWID:
-      raise CLAModelInvalidArgument("Invalid value. autoDetectWaitRecord value "
+      raise HTMPredictionModelInvalidArgument("Invalid value. autoDetectWaitRecord value "
         "must be valid record within output stream. Current minimum ROWID in "
         "output stream is %d." % (self.saved_states[0].ROWID))
 
@@ -550,7 +550,7 @@ class CLAModelClassifierHelper(object):
     TODO: Ensure previously classified points outside of classifier are valid.
     """
     if not (isinstance(threshold, float) or isinstance(threshold, int)):
-      raise CLAModelInvalidArgument("Invalid argument type \'%s\'. threshold "
+      raise HTMPredictionModelInvalidArgument("Invalid argument type \'%s\'. threshold "
         "must be a number." % (type(threshold)))
 
     self._autoDetectThreshold = threshold
@@ -641,5 +641,5 @@ class CLAModelClassifierHelper(object):
     for attr, value in state.iteritems():
       setattr(self, attr, value)
 
-    self._version = CLAModelClassifierHelper.__VERSION__
+    self._version = HTMPredictionModelClassifierHelper.__VERSION__
 

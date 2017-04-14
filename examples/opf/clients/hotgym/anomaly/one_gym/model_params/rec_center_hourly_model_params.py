@@ -9,7 +9,7 @@ MODEL_PARAMS = \
                        'seconds': 0,
                        'weeks': 0,
                        'years': 0},
-  'model': 'CLA',
+  'model': 'HTMPrediction',
   'modelParams': { 'anomalyParams': { u'anomalyCacheRecords': None,
                                       u'autoDetectThreshold': None,
                                       u'autoDetectWaitRecords': None},

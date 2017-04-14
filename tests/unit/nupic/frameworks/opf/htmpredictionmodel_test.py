@@ -19,59 +19,59 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Unit tests for the clamodel module."""
+"""Unit tests for the htmpredictionmodel module."""
 
 import datetime
 import unittest2 as unittest
 
-from nupic.frameworks.opf.clamodel import CLAModel
+from nupic.frameworks.opf.htmpredictionmodel import HTMPredictionModel
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf.opfutils import ModelResult
 
 
 
-class CLAModelTest(unittest.TestCase):
-  """CLAModel unit tests."""
+class HTMPredictionModelTest(unittest.TestCase):
+  """HTMPredictionModel unit tests."""
 
 
   def testRemoveUnlikelyPredictionsEmpty(self):
-    result = CLAModel._removeUnlikelyPredictions({}, 0.01, 3)
+    result = HTMPredictionModel._removeUnlikelyPredictions({}, 0.01, 3)
     self.assertDictEqual(result, {})
 
 
   def testRemoveUnlikelyPredictionsSingleValues(self):
-    result = CLAModel._removeUnlikelyPredictions({1: 0.1}, 0.01, 3)
+    result = HTMPredictionModel._removeUnlikelyPredictions({1: 0.1}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.1})
-    result = CLAModel._removeUnlikelyPredictions({1: 0.001}, 0.01, 3)
+    result = HTMPredictionModel._removeUnlikelyPredictions({1: 0.001}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.001})
 
 
   def testRemoveUnlikelyPredictionsLikelihoodThresholds(self):
-    result = CLAModel._removeUnlikelyPredictions({1: 0.1, 2: 0.001}, 0.01, 3)
+    result = HTMPredictionModel._removeUnlikelyPredictions({1: 0.1, 2: 0.001}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.1})
-    result = CLAModel._removeUnlikelyPredictions({1: 0.001, 2: 0.002}, 0.01, 3)
+    result = HTMPredictionModel._removeUnlikelyPredictions({1: 0.001, 2: 0.002}, 0.01, 3)
     self.assertDictEqual(result, {2: 0.002})
-    result = CLAModel._removeUnlikelyPredictions({1: 0.002, 2: 0.001}, 0.01, 3)
+    result = HTMPredictionModel._removeUnlikelyPredictions({1: 0.002, 2: 0.001}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.002})
 
 
   def testRemoveUnlikelyPredictionsMaxPredictions(self):
-    result = CLAModel._removeUnlikelyPredictions({1: 0.1, 2: 0.2, 3: 0.3},
-                                                 0.01, 3)
+    result = HTMPredictionModel._removeUnlikelyPredictions({1: 0.1, 2: 0.2, 3: 0.3},
+                                                           0.01, 3)
     self.assertDictEqual(result, {1: 0.1, 2: 0.2, 3: 0.3})
-    result = CLAModel._removeUnlikelyPredictions(
+    result = HTMPredictionModel._removeUnlikelyPredictions(
         {1: 0.1, 2: 0.2, 3: 0.3, 4: 0.4}, 0.01, 3)
     self.assertDictEqual(result, {2: 0.2, 3: 0.3, 4: 0.4})
 
 
   def testRemoveUnlikelyPredictionsComplex(self):
-    result = CLAModel._removeUnlikelyPredictions(
+    result = HTMPredictionModel._removeUnlikelyPredictions(
         {1: 0.1, 2: 0.2, 3: 0.3, 4: 0.004}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.1, 2: 0.2, 3: 0.3})
-    result = CLAModel._removeUnlikelyPredictions(
+    result = HTMPredictionModel._removeUnlikelyPredictions(
         {1: 0.1, 2: 0.2, 3: 0.3, 4: 0.4, 5: 0.005}, 0.01, 3)
     self.assertDictEqual(result, {2: 0.2, 3: 0.3, 4: 0.4})
-    result = CLAModel._removeUnlikelyPredictions(
+    result = HTMPredictionModel._removeUnlikelyPredictions(
         {1: 0.1, 2: 0.2, 3: 0.3, 4: 0.004, 5: 0.005}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.1, 2: 0.2, 3: 0.3})
 
@@ -92,7 +92,7 @@ class CLAModelTest(unittest.TestCase):
                             u'seconds': 0,
                             u'weeks': 0,
                             u'years': 0},
-       u'model': u'CLA',
+       u'model': u'HTMPrediction',
        u'modelParams': {u'anomalyParams': {u'anomalyCacheRecords': None,
                                            u'autoDetectThreshold': None,
                                            u'autoDetectWaitRecords': 5030},

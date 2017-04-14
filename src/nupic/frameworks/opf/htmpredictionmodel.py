@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-""" @file clamodel.py
+""" @file htmpredictionmodel.py
 
 Encapsulation of CLAnetwork that implements the ModelBase.
 
@@ -54,7 +54,7 @@ try:
 except ImportError:
   capnp = None
 if capnp:
-  from nupic.frameworks.opf.CLAModelProto_capnp import CLAModelProto
+  from nupic.frameworks.opf.HTMPredictionModelProto_capnp import HTMPredictionModelProto
 
 
 DEFAULT_LIKELIHOOD_THRESHOLD = 0.0001
@@ -82,7 +82,7 @@ def requireAnomalyModel(func):
 
 class NetworkInfo(object):
   """ Data type used as return value type by
-  CLAModel.__createCLANetwork()
+  HTMPredictionModel.__createCLANetwork()
   """
 
   def __init__(self, net, statsCollectors):
@@ -101,7 +101,7 @@ class NetworkInfo(object):
 
 
 
-class CLAModel(Model):
+class HTMPredictionModel(Model):
 
   __supportedInferenceKindSet = set((InferenceType.TemporalNextStep,
                                      InferenceType.TemporalClassification,
@@ -111,7 +111,7 @@ class CLAModel(Model):
                                      InferenceType.TemporalMultiStep,
                                      InferenceType.NontemporalMultiStep))
 
-  __myClassName = "CLAModel"
+  __myClassName = "HTMPredictionModel"
 
 
   def __init__(self,
@@ -131,7 +131,7 @@ class CLAModel(Model):
       minLikelihoodThreshold=DEFAULT_LIKELIHOOD_THRESHOLD,
       maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP,
       network=None):
-    """CLAModel constructor.
+    """HTMPredictionModel constructor.
 
     Args:
       inferenceType: A value from the InferenceType enum class.
@@ -161,7 +161,7 @@ class CLAModel(Model):
                        .format(self.__class__, inferenceType))
 
     # Call super class constructor
-    super(CLAModel, self).__init__(inferenceType)
+    super(HTMPredictionModel, self).__init__(inferenceType)
 
     # self.__restoringFromState is set to True by our __setstate__ method
     # and back to False at completion of our _deSerializeExtraData() method.
@@ -236,7 +236,7 @@ class CLAModel(Model):
     if paramName == '__numRunCalls':
       return self.__numRunCalls
     else:
-      raise RuntimeError("'%s' parameter is not exposed by clamodel." % \
+      raise RuntimeError("'%s' parameter is not exposed by htmpredictionmodel." % \
         (paramName))
 
 
@@ -249,7 +249,7 @@ class CLAModel(Model):
       # Reset TP's sequence states
       self._getTPRegion().executeCommand(['resetSequenceStates'])
 
-      self.__logger.debug("CLAModel.resetSequenceStates(): reset temporal "
+      self.__logger.debug("HTMPredictionModel.resetSequenceStates(): reset temporal "
                          "pooler's sequence states")
 
       return
@@ -270,13 +270,13 @@ class CLAModel(Model):
       # Finish SP learning
       self._getSPRegion().executeCommand(['finishLearning'])
       self.__logger.debug(
-        "CLAModel.finishLearning(): finished SP learning")
+        "HTMPredictionModel.finishLearning(): finished SP learning")
 
     if self._hasTP:
       # Finish temporal network's TP learning
       self._getTPRegion().executeCommand(['finishLearning'])
       self.__logger.debug(
-        "CLAModel.finishLearning(): finished TP learning")
+        "HTMPredictionModel.finishLearning(): finished TP learning")
 
     self.__spLearningEnabled = self.__tpLearningEnabled = False
     self.__finishedLearning = True
@@ -294,13 +294,13 @@ class CLAModel(Model):
 
   def enableLearning(self):
     """[override] Turn Learning on for the current model """
-    super(CLAModel, self).enableLearning()
+    super(HTMPredictionModel, self).enableLearning()
     self.setEncoderLearning(True)
 
 
   def disableLearning(self):
     """[override] Turn Learning off for the current model """
-    super(CLAModel, self).disableLearning()
+    super(HTMPredictionModel, self).disableLearning()
     self.setEncoderLearning(False)
 
 
@@ -363,12 +363,12 @@ class CLAModel(Model):
     assert not self.__restoringFromState
     assert inputRecord
 
-    results = super(CLAModel, self).run(inputRecord)
+    results = super(HTMPredictionModel, self).run(inputRecord)
 
     self.__numRunCalls += 1
 
     if self.__logger.isEnabledFor(logging.DEBUG):
-      self.__logger.debug("CLAModel.run() inputRecord=%s", (inputRecord))
+      self.__logger.debug("HTMPredictionModel.run() inputRecord=%s", (inputRecord))
 
     results.inferences = {}
     self._input = inputRecord
@@ -829,7 +829,7 @@ class CLAModel(Model):
 
       # Remove entries with 0 likelihood or likelihood less than
       # minLikelihoodThreshold, but don't leave an empty dict.
-      likelihoodsDict = CLAModel._removeUnlikelyPredictions(
+      likelihoodsDict = HTMPredictionModel._removeUnlikelyPredictions(
           likelihoodsDict, minLikelihoodThreshold, maxPredictionsPerStep)
 
       # calculate likelihood for each bucket
@@ -1060,7 +1060,7 @@ class CLAModel(Model):
                          tmParams, clEnable, clParams, anomalyParams):
     """ Create a CLA network and return it.
 
-    description:  CLA Model description dictionary (TODO: define schema)
+    description:  HTMPredictionModel description dictionary (TODO: define schema)
     Returns:      NetworkInfo instance;
     """
 
@@ -1234,9 +1234,9 @@ class CLAModel(Model):
       self._Model__inferenceEnabled = True
 
       # Remove obsolete members
-      self.__dict__.pop("_CLAModel__encoderNetInfo", None)
-      self.__dict__.pop("_CLAModel__nonTemporalNetInfo", None)
-      self.__dict__.pop("_CLAModel__temporalNetInfo", None)
+      self.__dict__.pop("_HTMPredictionModel__encoderNetInfo", None)
+      self.__dict__.pop("_HTMPredictionModel__nonTemporalNetInfo", None)
+      self.__dict__.pop("_HTMPredictionModel__temporalNetInfo", None)
 
 
     # -----------------------------------------------------------------------
@@ -1255,9 +1255,9 @@ class CLAModel(Model):
         self._hasTP = True
 
       # Remove obsolete members
-      self.__dict__.pop("_CLAModel__encoderNetInfo", None)
-      self.__dict__.pop("_CLAModel__nonTemporalNetInfo", None)
-      self.__dict__.pop("_CLAModel__temporalNetInfo", None)
+      self.__dict__.pop("_HTMPredictionModel__encoderNetInfo", None)
+      self.__dict__.pop("_HTMPredictionModel__nonTemporalNetInfo", None)
+      self.__dict__.pop("_HTMPredictionModel__temporalNetInfo", None)
 
 
     # This gets filled in during the first infer because it can only be
@@ -1278,7 +1278,7 @@ class CLAModel(Model):
 
   @staticmethod
   def getProtoType():
-    return CLAModelProto
+    return HTMPredictionModelProto
 
 
   def write(self, proto):
@@ -1382,7 +1382,7 @@ class CLAModel(Model):
 
 
     # Used for backwards compatibility for anomaly classification models.
-    # Previous versions used the CLAModelClassifierHelper class for utilizing
+    # Previous versions used the HTMPredictionModelClassifierHelper class for utilizing
     # the KNN classifier. Current version uses KNNAnomalyClassifierRegion to
     # encapsulate all the classifier functionality.
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
@@ -1514,7 +1514,7 @@ class CLAModel(Model):
     skipCheck:    Pass True to skip test for presence of the demangled member
                   in our instance.
 
-    Returns:      The demangled member name (e.g., "_CLAModel__logger")
+    Returns:      The demangled member name (e.g., "_HTMPredictionModel__logger")
     """
 
     assert privateMemberName.startswith("__"), \

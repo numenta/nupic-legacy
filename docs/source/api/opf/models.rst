@@ -8,14 +8,13 @@ Model
    :members:
 
 
-CLAModel
+HTMPredictionModel
 ^^^^^^^^
 
-This class is poorly named.
-
-.. autoclass:: nupic.frameworks.opf.clamodel.CLAModel
-  :members:
-  :show-inheritance:
+.. autoclass:: nupic.frameworks.opf.htmpredictionmodel.HTMPredictionModel
+   :members:
+   :show-inheritance:
+=======
 
 TwoGramModel
 ^^^^^^^^^^^^
