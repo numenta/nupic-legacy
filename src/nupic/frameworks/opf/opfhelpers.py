@@ -29,7 +29,7 @@
 import imp
 import os
 
-import expdescriptionapi
+import exp_description_api
 
 
 def loadExperiment(path):
@@ -65,11 +65,11 @@ def getExperimentDescriptionInterfaceFromModule(module):
   """
   module:     imported description.py module
 
-  Returns:        An expdescriptionapi.DescriptionIface-based instance that
+  Returns:        An exp_description_api.DescriptionIface-based instance that
                   represents the experiment description
   """
   result = module.descriptionInterface
-  assert isinstance(result, expdescriptionapi.DescriptionIface), \
+  assert isinstance(result, exp_description_api.DescriptionIface), \
          "expected DescriptionIface-based instance, but got %s" % type(result)
 
   return result
@@ -96,7 +96,7 @@ def _loadDescriptionFile(descriptionPyPath):
     raise RuntimeError("Experiment description file %s does not define %s" % \
                        (descriptionPyPath, "descriptionInterface"))
 
-  if not isinstance(mod.descriptionInterface, expdescriptionapi.DescriptionIface):
+  if not isinstance(mod.descriptionInterface, exp_description_api.DescriptionIface):
     raise RuntimeError(("Experiment description file %s defines %s but it " + \
                         "is not DescriptionIface-based") % \
                             (descriptionPyPath, name))

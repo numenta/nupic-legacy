@@ -41,7 +41,7 @@ from nupic.support.unittesthelpers.testcasebase import (
 from nupic.swarming import HypersearchWorker
 from nupic.swarming.permutationhelpers import PermuteChoices
 from nupic.swarming.utils import generatePersistentJobGUID, rCopy
-from nupic.frameworks.opf.expdescriptionapi import OpfEnvironment
+from nupic.frameworks.opf.exp_description_api import OpfEnvironment
 from nupic.swarming.exp_generator import ExpGenerator
 from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)

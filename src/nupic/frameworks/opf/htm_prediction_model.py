@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-""" @file htmpredictionmodel.py
+""" @file htm_prediction_model.py
 
 Encapsulation of CLAnetwork that implements the ModelBase.
 
@@ -236,7 +236,7 @@ class HTMPredictionModel(Model):
     if paramName == '__numRunCalls':
       return self.__numRunCalls
     else:
-      raise RuntimeError("'%s' parameter is not exposed by htmpredictionmodel." % \
+      raise RuntimeError("'%s' parameter is not exposed by htm_prediction_model." % \
         (paramName))
 
 

@@ -11,7 +11,7 @@ Model
 HTMPredictionModel
 ^^^^^^^^
 
-.. autoclass:: nupic.frameworks.opf.htmpredictionmodel.HTMPredictionModel
+.. autoclass:: nupic.frameworks.opf.htm_prediction_model.HTMPredictionModel
    :members:
    :show-inheritance:
 =======

@@ -24,9 +24,9 @@ Template file used by the OPF Experiment Generator to generate the actual
 description.py file by replacing $XXXXXXXX tokens with desired values.
 """
 
-from nupic.frameworks.opf.expdescriptionapi import ExperimentDescriptionAPI
+from nupic.frameworks.opf.exp_description_api import ExperimentDescriptionAPI
 
-from nupic.frameworks.opf.expdescriptionhelpers import (
+from nupic.frameworks.opf.exp_description_helpers import (
   updateConfigFromSubConfig,
   applyValueGettersToContainer,
   DeferredDictLookup)

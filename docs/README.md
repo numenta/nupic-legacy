@@ -92,8 +92,8 @@ nupic
 │   │   ├── common_models
 │   │   │   └── cluster_params.py [TODO]
 │   │   ├── exceptions.py [TODO]
-│   │   ├── expdescriptionapi.py [TODO]
-│   │   ├── expdescriptionhelpers.py [TODO]
+│   │   ├── exp_description_api.py [TODO]
+│   │   ├── exp_description_helpers.py [TODO]
 │   │   ├── experiment_runner.py [TODO]
 │   │   ├── jsonschema
 │   │   ├── metrics.py [TODO]
