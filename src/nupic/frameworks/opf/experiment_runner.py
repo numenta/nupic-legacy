@@ -39,7 +39,7 @@ from nupic.data import jsonhelpers
 from nupic.frameworks.opf import opf_basic_environment, opf_helpers
 from nupic.frameworks.opf.exp_description_api import OpfEnvironment
 from nupic.frameworks.opf.model_factory import ModelFactory
-from nupic.frameworks.opf.opftaskdriver import OPFTaskDriver
+from nupic.frameworks.opf.opf_task_driver import OPFTaskDriver
 from nupic.frameworks.opf.opfutils import (InferenceElement, matchPatterns,
                                            validateOpfJsonValue)
 from nupic.support import initLogging

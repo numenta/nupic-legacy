@@ -44,8 +44,8 @@ import types
 from pkg_resources import resource_filename
 
 from nupic.frameworks.opf.opfutils import validateOpfJsonValue
-from nupic.frameworks.opf.opftaskdriver import (IterationPhaseSpecInferOnly,
-                                                IterationPhaseSpecLearnAndInfer)
+from nupic.frameworks.opf.opf_task_driver import (IterationPhaseSpecInferOnly,
+                                                  IterationPhaseSpecLearnAndInfer)
 from nupic.support.enum import Enum
 
 

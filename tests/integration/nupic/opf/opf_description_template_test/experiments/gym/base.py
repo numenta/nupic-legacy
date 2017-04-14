@@ -37,7 +37,7 @@ from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
 from nupic.support import aggregationDivide
 
-from nupic.frameworks.opf.opftaskdriver import (
+from nupic.frameworks.opf.opf_task_driver import (
                                             IterationPhaseSpecLearnOnly,
                                             IterationPhaseSpecInferOnly,
                                             IterationPhaseSpecLearnAndInfer)
@@ -373,7 +373,7 @@ control = dict(
       # Task Control parameters for OPFTaskDriver (per opfTaskControlSchema.json)
       'taskControl' : {
 
-        # Iteration cycle list consisting of opftaskdriver.IterationPhaseSpecXXXXX
+        # Iteration cycle list consisting of opf_task_driver.IterationPhaseSpecXXXXX
         # instances.
         'iterationCycle' : [
           #IterationPhaseSpecLearnOnly(1000),

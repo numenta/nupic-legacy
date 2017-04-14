@@ -39,7 +39,7 @@ from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.swarming.experimentutils import (InferenceType, InferenceElement)
 from nupic.support import aggregationDivide
 
-from nupic.frameworks.opf.opftaskdriver import (
+from nupic.frameworks.opf.opf_task_driver import (
                                             IterationPhaseSpecLearnOnly,
                                             IterationPhaseSpecInferOnly,
                                             IterationPhaseSpecLearnAndInfer)
