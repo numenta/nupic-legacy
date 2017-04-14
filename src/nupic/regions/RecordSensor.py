@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 import numpy
 from nupic.bindings.regions.PyRegion import PyRegion
-from nupic.data.fieldmeta import FieldMetaType
+from nupic.data.field_meta import FieldMetaType
 from nupic.encoders.multi import MultiEncoder
 
 try:
@@ -56,7 +56,7 @@ class RecordSensor(PyRegion):
   correspond to entries in the dictionary or attributes of the object. For
   example, a DataSource might return:
 
-    dict(date="02-01-2010 23:12:23", amount=4.95, country="US", 
+    dict(date="02-01-2010 23:12:23", amount=4.95, country="US",
          _reset=0, _sequenceId=0)
 
   or an object with attributes "date", "amount" and "country".
@@ -325,7 +325,7 @@ class RecordSensor(PyRegion):
 
     @param data: The data that will be processed by the filter.
     @type data: dict
-    @return: a tuple with the data processed by the filter and a boolean to 
+    @return: a tuple with the data processed by the filter and a boolean to
       know whether or not the filter needs mode data.
     """
 
@@ -339,7 +339,7 @@ class RecordSensor(PyRegion):
       for f in self.preEncodingFilters:
         # if filter needs more data, it returns False
         filterHasEnoughData = f.process(data)
-        allFiltersHaveEnoughData = (allFiltersHaveEnoughData 
+        allFiltersHaveEnoughData = (allFiltersHaveEnoughData
                                     and filterHasEnoughData)
         actualReset = actualReset or data['_reset']
         data['_reset'] = originalReset
@@ -481,7 +481,7 @@ class RecordSensor(PyRegion):
       # ========================================================================
 
       ## TODO: Add temporal top-down loop
-      # We get the temporal pooler's topDownOut passed through the spatial 
+      # We get the temporal pooler's topDownOut passed through the spatial
       # pooler as temporalTopDownIn
       temporalTopDownIn = inputs['temporalTopDownIn']
       temporalTopDownOut = self.encoder.topDownCompute(temporalTopDownIn)
@@ -509,8 +509,8 @@ class RecordSensor(PyRegion):
     @param spatialOutput: The results of topDownCompute() for the spatial input.
     @param temporalOutput: The results of topDownCompute() for the temporal
       input.
-    @param output: The main dictionary of outputs passed to compute(). It is 
-      expected to have keys 'spatialTopDownOut' and 'temporalTopDownOut' that 
+    @param output: The main dictionary of outputs passed to compute(). It is
+      expected to have keys 'spatialTopDownOut' and 'temporalTopDownOut' that
       are mapped to numpy arrays.
     """
     encoders = self.encoder.getEncoderList()

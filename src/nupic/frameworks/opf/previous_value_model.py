@@ -23,7 +23,7 @@
 
 import itertools
 
-from nupic.data import fieldmeta
+from nupic.data import field_meta
 from nupic.frameworks.opf import model
 from nupic.frameworks.opf import opf_utils
 from opf_utils import InferenceType
@@ -120,10 +120,10 @@ class PreviousValueModel(model.Model):
     to the transcoding of some input fields into meta- fields, such as
     datetime -> dayOfWeek, timeOfDay, etc.
     """
-    return tuple(fieldmeta.FieldMetaInfo(*args) for args in
+    return tuple(field_meta.FieldMetaInfo(*args) for args in
                  itertools.izip(
                      self._fieldNames, self._fieldTypes,
-                     itertools.repeat(fieldmeta.FieldMetaSpecial.none)))
+                     itertools.repeat(field_meta.FieldMetaSpecial.none)))
 
   def getRuntimeStats(self):
     """Get the runtime statistics specific to the model.

@@ -32,7 +32,7 @@ import nupic.frameworks.opf.opf_utils as opf_utils
 from htm_prediction_model import HTMPredictionModel
 from model import Model
 from two_gram_model import TwoGramModel
-from previousvaluemodel import PreviousValueModel
+from previous_value_model import PreviousValueModel
 
 class ModelFactory(object):
   """ Static factory class that produces a Model based on a description dict.

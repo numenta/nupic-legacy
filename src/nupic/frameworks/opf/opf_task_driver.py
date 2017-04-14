@@ -55,7 +55,7 @@ from collections import defaultdict
 import itertools
 import logging
 
-from predictionmetricsmanager import (
+from prediction_metrics_manager import (
   MetricsManager,
   )
 

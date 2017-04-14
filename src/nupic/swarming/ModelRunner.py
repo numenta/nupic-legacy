@@ -40,7 +40,7 @@ from nupic.frameworks.opf.opf_basic_environment import BasicPredictionLogger
 from nupic.frameworks.opf.opf_utils import matchPatterns
 from nupic.frameworks.opf.periodic import (PeriodicActivityMgr,
                                            PeriodicActivityRequest)
-from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
+from nupic.frameworks.opf.prediction_metrics_manager import MetricsManager
 from nupic.support.configuration import Configuration
 from nupic.swarming.experimentutils import InferenceElement
 from nupic.swarming import utils

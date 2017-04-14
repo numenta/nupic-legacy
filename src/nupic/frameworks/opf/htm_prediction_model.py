@@ -39,7 +39,7 @@ import numpy
 
 from nupic.frameworks.opf.model import Model
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
+from nupic.data.field_meta import FieldMetaSpecial, FieldMetaInfo
 from nupic.encoders import MultiEncoder, DeltaEncoder
 from nupic.engine import Network
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath

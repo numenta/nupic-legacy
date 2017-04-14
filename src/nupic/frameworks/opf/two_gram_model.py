@@ -25,7 +25,7 @@ import collections
 import itertools
 
 from nupic import encoders
-from nupic.data import fieldmeta
+from nupic.data import field_meta
 from nupic.frameworks.opf import model
 from nupic.frameworks.opf import opf_utils
 from opf_utils import InferenceType
@@ -146,10 +146,10 @@ class TwoGramModel(model.Model):
     fieldTypes = self._encoder.getDecoderOutputFieldTypes()
     assert len(self._fieldNames) == len(fieldTypes)
 
-    return tuple(fieldmeta.FieldMetaInfo(*args) for args in
+    return tuple(field_meta.FieldMetaInfo(*args) for args in
                  itertools.izip(
                      self._fieldNames, fieldTypes,
-                     itertools.repeat(fieldmeta.FieldMetaSpecial.none)))
+                     itertools.repeat(field_meta.FieldMetaSpecial.none)))
 
   def getRuntimeStats(self):
     """Get the runtime statistics specific to the model.

@@ -29,7 +29,7 @@ from pkg_resources import resource_filename
 
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.model_factory import ModelFactory
-from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
+from nupic.frameworks.opf.prediction_metrics_manager import MetricsManager
 
 import model_params
 

@@ -106,8 +106,8 @@ nupic
 │   │   ├── opf_task_driver.py [TODO]
 │   │   ├── opf_utils.py [TODO]
 │   │   ├── periodic.py [TODO]
-│   │   ├── predictionmetricsmanager.py [TODO]
-│   │   ├── previousvaluemodel.py [TODO]
+│   │   ├── prediction_metrics_manager.py [TODO]
+│   │   ├── previous_value_model.py [TODO]
 │   │   ├── safe_interpreter.py [TODO]
 │   │   └── two_gram_model.py [TODO]
 │   └── viz
