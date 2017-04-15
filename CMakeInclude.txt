@@ -1,0 +1,201 @@
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+
+# Include directories with headers
+# Allows us to find includes for external libraries and enables
+# #include <nta/common/...>
+include_directories(${PYTHON_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/external/common/include)
+include_directories(${CMAKE_SOURCE_DIR}/external/${nta_platform}/include)
+include_directories(${CMAKE_SOURCE_DIR}/external/${nta_platform}/lib)
+include_directories(${CMAKE_SOURCE_DIR}/external/${nta_platform}/lib/python2.6/site-packages/numpy/core/include)
+
+#
+# All executables and plugins are linked with these flags
+#
+set(NTA_LINKFLAGS "${nta_platform_ldflags}")
+
+#
+# Compiler flags
+#
+
+# NTA_INTERNAL tells us that the code is being built under the build system
+# and not as a separate program. Used for cppvision example
+set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} -fvisibility=hidden -DNTA_INTERNAL")
+
+#
+# Optimization can be set at configure time
+#
+if($(NTA_OPTIMIZATION_ENABLED))
+  # -fno-strict-aliasing because of GCC 4.1 compiler warnings
+  # -ftree-vectorize conflicts with -no-tree-aliasing on leopard, so removed
+  set(NTA_CXX_OPTFLAGS "-O3 -fno-strict-aliasing -falign-loops=16")
+  set(NTA_PYTHON_BINDINGS_OPTFLAGS "-O1")
+else()
+  set(NTA_CXX_OPTFLAGS "-O0 -fno-inline")
+  set(NTA_PYTHON_BINDINGS_OPTFLAGS "-O0 -fno-inline")
+endif()
+
+#
+# Compiling with debugging symbols can be set at configure time
+#
+if($(NTA_DEBUGSYMBOLS_ENABLED))
+  set(NTA_CXXFLAGS_BASE ${NTA_CXXFLAGS_BASE} " ${nta_platform_debug_flag}")
+endif()
+
+#
+# NTA_ASSERTIONS_ON can be set at configure time
+#
+if($(NTA_ASSERTIONS_ENABLED))
+  set(NTA_CXXFLAGS_BASE ${NTA_CXXFLAGS_BASE} " -DNTA_ASSERTIONS_ON")
+else()
+  set(NTA_CXXFLAGS_BASE ${NTA_CXXFLAGS_BASE} " -DNDEBUG")
+endif()
+
+#
+# Gprof profiling may be turned on or off.
+#
+if($(NTA_PROFILING_ENABLED))
+  set(NTA_CXXFLAGS_BASE ${NTA_CXXFLAGS_BASE} " -pg")
+  set(NTA_LINKFLAGS ${NTA_LINKFLAGS} " -pg")
+endif()
+
+
+################################################################
+set(NTA_CXXFLAGS_BASE ${NTA_CXXFLAGS_BASE} " ${nta_platform_cxxflags} -DNTA_PLATFORM_${nta_platform} -Wall -DBOOST_NO_WREGEX -DNTA_INSTRUMENT_ON")
+################################################################
+
+################################################################
+# External libraries needed by libfoundation
+################################################################
+if(UNIX)
+  set(library_extension ".a")
+elseif(WIN32)
+  set(library_extension ".lib")
+endif()
+set(NTA_STANDARD_LIBS 
+  ${CMAKE_SOURCE_DIR}/external/${nta_platform}/lib/libyaml${library_extension}
+  ${CMAKE_SOURCE_DIR}/external/${nta_platform}/lib/libaprutil-1${library_extension}
+  ${CMAKE_SOURCE_DIR}/external/${nta_platform}/lib/libapr-1${library_extension}
+  ${CMAKE_SOURCE_DIR}/external/${nta_platform}/lib/libz${library_extension}
+  ${nta_platform_libs}
+)
+
+############################################################
+# Python installation path
+# Most python installations put python modules into
+# <prefix>/lib/site-packages, but some (e.g. SLES/64-bit)
+# put them into <prefix>/lib64/site-packages. The
+# standard automake macros reproduce whatever the local
+# convention is. But in a self-contained NuPIC release,
+# there is a single directory "lib".
+# So we override the ${pythonsubdir} to install correctly
+# for NuPIC.
+# Note that PYTHON_LIB (defined in configure.ac)
+# points to the system installation and does follow
+# the local lib/lib64 convention.
+################################################################
+set(pythonsubdir "lib/python${PYTHON_VERSION}/site-packages")
+
+##############################################################
+# Python compile flags
+# Flags necessary for Python support.
+# NTA_PYEMBEDFLAGS is for linking an executable with embedded interpreter
+# NTA_PYMODULEFLAGS is for linking a python module
+# Variables ending in _LDFLAGS mess up automake
+##############################################################
+if($(NTA_PYTHON_SUPPORT))
+  set(NTA_PYEMBEDFLAGS "${nta_platform_pyembed}")
+
+  set(NTA_PYMODULEFLAGS "-module -avoid-version ${nta_platform_pyldflags}")
+
+  set(NTA_PYTHON_CXXFLAGS "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -DNTAPY_INCLUDE="<python${PYTHON_VERSION}/" -DNTAPY_PACKAGES="\"${pythonsubdir}\""")
+
+  # Minimal functional subset. Assumes Python 2.4. Equivalent to Windows flags.
+  # NTA_PYTHON_CXXFLAGS = -DNTA_PYTHON_SUPPORT
+endif()
+
+##############################################################
+# NTA_CXXFLAGS are used everywhere
+# NTA_CXXFLAGS_PYTHON_BINDINGS is the same as NTA_CXXFLAGS but without
+# warnings=errors and without optimization.
+# We compile without optimization because it greatly speeds up
+# the build, and performance isn't too important for wrapper
+# functions.
+##############################################################
+set(NTA_CXXFLAGS "${NTA_CXXFLAGS_BASE} ${NTA_CXX_OPTFLAGS} -fpermissive")
+
+# -falign-functions is necessary to avoid a compiler problem on
+# darwin. If you build without -falign-functions, exceptions
+# thrown in a pynode result in an abort() instead of propagation
+# up the call stack.
+set(NTA_CXXFLAGS_PYTHON_BINDINGS "${NTA_CXXFLAGS_BASE} ${NTA_PYTHON_BINDINGS_OPTFLAGS} -falign-functions")
+
+
+##############################################################
+# Special rules for use with swig.
+##############################################################
+if($(NTA_PYTHON_SUPPORT))
+
+  set(CMAKE_SWIG_FLAGS "-features autodoc=0,directors=0 -noproxyimport -keyword -modern -modernargs -noproxydel -fvirtual -fastunpack -nofastproxy -fastquery -outputtuple
+castmode -w511 -w302 -w362 -w312 -w389 -DNTA_PLATFORM_${nta_platform} ${NTA_PYTHON_CXXFLAGS} ${NUPIC_VERSION_FLAGS}")
+
+  ##############################################################
+  ## Rule to build a C++ source file from a Python-targeted swig interface file.
+  ## Auto-generates dependencies for the swig interface file.
+  ##
+  ## This rule is modeled on the rules generated by Automake and inserted
+  ## into the Makefile.in of a typical library directory.
+  ## If those change dramatically (due to an upgrade of Automake use of a
+  ## different build system), then these lines must change as well.
+  ## They can be made to perform in one of three ways:
+  ## 1) Fast dependencies (lines 1-3): the meat of depcomp is sprayed directly
+  ##    into the Makefile so we don_t have to run an extra script.
+  ##    Similar in intent to method 2.
+  ## 2) depcomp (lines 4-5,6): Run depcomp over our compile line (on line 6)
+  ##    as swig supports gcc-style (not gcc3-style) dependency flags.
+  ## 3) No dependencies (line 6): Just run our compile line.
+  ##
+  ## This has only been tested with fast dependencies. If you have
+  ## problems with other dependency policies, fix them here.
+  ## If the compile line for generating C++ source from swig needs to
+  ## be changed, change it in the definition of PYSWIGCOMPILE (above).
+  ## If the compile line below must be changed, it must be changed in
+  ## _both_ line 2 and line 6.
+  ##
+  ## To generate rules for other languages, it is ok to duplicate the lines
+  ## below, tweak them as necessary (esp. the dependency extension and
+  ## the compile lines (2 and 6)), and refer those docs back to this comment.
+  ##
+  ## An example use of this in a Makefile.am might be:
+  ## BUILT_SOURCES += foundation_py.cpp
+  ## pkgpython_PYTHON += foundation.py
+  ## _foundation_la_SOURCES = foundation_py.cpp foundation_py.i
+  ## include "./${DEPDIR}/foundation_py.Pswig"
+  ##
+  ## ... where foundation_py.i exists and is a swig interface file for
+  ##     binding C++ in Python, and where there are additional entries in the
+  ##     Makefile.am pertaining to the creation of the Python extension module
+  ##     _foundation. See nta/foundation/Makefile.am for a detailed example.
+  ##############################################################
+
+endif()
