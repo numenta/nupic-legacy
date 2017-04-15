@@ -22,7 +22,6 @@
 """A simple client to read CPU usage and predict it in real time."""
 
 from collections import deque
-import time
 
 import psutil
 import matplotlib.pyplot as plt
@@ -61,8 +60,7 @@ def runCPU():
   actline.axes.set_ylim(0, 100)
   predline.axes.set_ylim(0, 100)
 
-  while True:
-    s = time.time()
+  while plt.fignum_exists(fig.number):
 
     # Get the CPU usage.
     cpu = psutil.cpu_percent()
