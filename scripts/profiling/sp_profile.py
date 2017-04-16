@@ -20,9 +20,16 @@
 # ----------------------------------------------------------------------
 
 ## run python -m cProfile --sort cumtime $NUPIC/scripts/profiling/sp_profile.py [nColumns nEpochs]
+# example results (not averaged, on local machine):
+# input size N=10000, columns=2048, epochs=150 
+# PySP | 1D (colDim=(2048,))   | 0.441 s/call (compute)
+# PySP | 2D (colDim=(2048,1))  | 0.295 s/call (compute)
+# CppSP| 1D		       | 0.108 s/call (algorithms.py/compute)
+# CppSP| 2D		       | 0.040 s/call --- 2.5x FASTER! should be same(or worse) as 1D, FIXME
 
 import sys
 import numpy
+import itertools
 # chose desired SP implementation to compare:
 from nupic.research.spatial_pooler import SpatialPooler as PySP
 from nupic.bindings.algorithms import SpatialPooler as CppSP
@@ -39,8 +46,8 @@ def profileSP(spClass, spDim, nRuns):
   @param nRuns number of calls of the profiled code (epochs)
   """
   # you can change dimensionality here, eg to 2D
-  inDim = [10000, 1, 1]
-  colDim = [spDim, 1, 1]
+  inDim = (10000,1) # a rather large input
+  colDim = (spDim,1) # 1D vs 2D just toggle here (spDim,) vs (spDim,1), and do the same change in inDim ^^^
 
 
   # create SP instance to measure
@@ -64,25 +71,23 @@ def profileSP(spClass, spDim, nRuns):
         spVerbosity=0)
 
 
-  # generate input data
-  dataDim = inDim
-  dataDim.append(nRuns)
-  data = numpy.random.randint(0, 2, dataDim).astype('float32')
+  # helper vars
+  dataSize = list(inDim)[0]
+  activeArray = numpy.zeros(colDim)
 
   for i in xrange(nRuns):
     # new data every time, this is the worst case performance
     # real performance would be better, as the input data would not be completely random
-    d = data[:,:,:,i]
-    activeArray = numpy.zeros(colDim)
+    data = numpy.random.randint(0, 2, dataSize).astype('uint32')
 
     # the actual function to profile!
-    sp.compute(d, True, activeArray)
+    sp.compute(data, True, activeArray)
 
 
 
 if __name__ == "__main__":
   columns=2048
-  epochs=10000
+  epochs=150
   # read params from command line
   if len(sys.argv) == 3: # 2 args + name
     columns=int(sys.argv[1])
