@@ -699,18 +699,19 @@ class ScalarEncoder(Encoder):
     return numpy.array([closeness])
 
 
-  def dump(self):
-    print "ScalarEncoder:"
-    print "  min: %f" % self.minval
-    print "  max: %f" % self.maxval
-    print "  w:   %d" % self.w
-    print "  n:   %d" % self.n
-    print "  resolution: %f" % self.resolution
-    print "  radius:     %f" % self.radius
-    print "  periodic: %s" % self.periodic
-    print "  nInternal: %d" % self.nInternal
-    print "  rangeInternal: %f" % self.rangeInternal
-    print "  padding: %d" % self.padding
+  def __str__(self):
+    string = "ScalarEncoder:"
+    string += "  min: {minval}".format(minval = self.minval)
+    string += "  max: {maxval}".format(maxval = self.maxval)
+    string += "  w:   {w}".format(w = self.w)
+    string += "  n:   {n}".format(n = self.n)
+    string += "  resolution: {resolution}".format(resolution = self.resolution)
+    string += "  radius:     {radius}".format(radius = self.radius)
+    string += "  periodic: {periodic}".format(periodic = self.periodic)
+    string += "  nInternal: {nInternal}".format(nInternal = self.nInternal)
+    string += "  rangeInternal: {rangeInternal}".format(rangeInternal = self.rangeInternal)
+    string += "  padding: {padding}".format(padding = self.padding)
+    return string
 
 
   @classmethod
