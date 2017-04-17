@@ -118,6 +118,15 @@ class KNNClassifierRegion(PyRegion):
           regionLevel=True,
           isDefaultOutput=True),
 
+          prototypeScoresOut=dict(
+          description='A vector representing the distance from the input to '
+                      'each prototype using whatever distance measure the KNN '
+                      'classifier is configured to use.',
+          dataType='Real32',
+          count=0,
+          regionLevel=True,
+          isDefaultOutput=True),
+
         ),
 
         parameters=dict(
@@ -902,6 +911,7 @@ class KNNClassifierRegion(PyRegion):
     if self.inferenceMode:
       categoriesOut = outputs['categoriesOut']
       probabilitiesOut = outputs['categoryProbabilitiesOut']
+      protoScoresOut = outputs["prototypeScoresOut"]
 
       # If we are sphering, then apply normalization
       if self._doSphering:
@@ -965,6 +975,10 @@ class KNNClassifierRegion(PyRegion):
 
       probabilitiesOut.fill(0)
       probabilitiesOut[0:nout] = probabilities[0:nout]
+
+      if protoScoresOut.shape != protoScores.shape:
+        protoScoresOut.resize(protoScores.shape)
+      protoScoresOut[:] = protoScores
 
       if self.verbosity >= 1:
         print "KNNRegion: categoriesOut: ", categoriesOut[0:nout]
