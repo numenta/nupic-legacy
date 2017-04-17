@@ -820,7 +820,7 @@ class _HyperSearchRunner(object):
 
     try:
       results = json.loads(jobInfo.results)
-    except Exception, e:
+    except (Exception, TypeError), e:
       print "json.loads(jobInfo.results) raised an exception.  " \
             "Here is some info to help with debugging:"
       print "jobInfo: ", jobInfo
