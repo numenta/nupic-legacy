@@ -168,7 +168,7 @@ def createSpatialPooler(network, name, inputWidth):
 
 
 def createTemporalMemory(network, name):
-  temporalMemoryRegion = network.addRegion(name, "py.TPRegion",
+  temporalMemoryRegion = network.addRegion(name, "py.TMRegion",
                                            json.dumps(TP_PARAMS))
   # Enable topDownMode to get the predicted columns output
   temporalMemoryRegion.setParameter("topDownMode", True)

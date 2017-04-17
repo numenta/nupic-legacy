@@ -31,7 +31,7 @@ from nupic.engine import Network
 from nupic.encoders import MultiEncoder, ScalarEncoder, DateEncoder
 from nupic.regions.RecordSensor import RecordSensor
 from nupic.regions.SPRegion import SPRegion
-from nupic.regions.TPRegion import TPRegion
+from nupic.regions.TMRegion import TMRegion
 
 try:
   import capnp
@@ -65,7 +65,7 @@ SP_PARAMS = {
     "boostStrength": 0.0,
 }
 
-# Config field for TPRegion
+# Config field for TMRegion
 TP_PARAMS = {
     "verbosity": _VERBOSITY,
     "columnCount": 2048,
@@ -109,7 +109,7 @@ def createNetwork(dataSource, enableTP=False, temporalImp="py"):
 
   The network has a sensor region reading data from `dataSource` and passing
   the encoded representation to an SPRegion. The SPRegion output is passed to
-  a TPRegion.
+  a TMRegion.
 
   :param dataSource: a RecordStream instance to get data from
   :returns: a Network instance ready to run
@@ -141,9 +141,9 @@ def createNetwork(dataSource, enableTP=False, temporalImp="py"):
                srcOutput="temporalTopDownOut", destInput="temporalTopDownIn")
 
   if enableTP:
-    # Add the TPRegion on top of the SPRegion
+    # Add the TMRegion on top of the SPRegion
     TP_PARAMS["temporalImp"] = temporalImp
-    network.addRegion("temporalPoolerRegion", "py.TPRegion",
+    network.addRegion("temporalPoolerRegion", "py.TMRegion",
                       json.dumps(TP_PARAMS))
 
     network.link("spatialPoolerRegion", "temporalPoolerRegion", "UniformLink", "")

@@ -62,7 +62,7 @@ def _buildArgs(f, self=None, kwargs={}):
   Return a list of 3-tuples with (name, description, defaultValue) for each
     argument to the function.
 
-  Assigns all arguments to the function as instance variables of TPRegion.
+  Assigns all arguments to the function as instance variables of TMRegion.
   If the argument was not provided, uses the default value.
 
   Pops any values from kwargs that go to the function.
@@ -76,7 +76,7 @@ def _buildArgs(f, self=None, kwargs={}):
   #  __init__'s signature will be just (self, *args, **kw), but
   #  _original_init is created with the original signature
   #init = getattr(self, '_original_init', self.__init__)
-  init = TPRegion.__init__
+  init = TMRegion.__init__
   ourArgNames = [t[0] for t in getArgumentDescriptions(init)]
   # Also remove a few other names that aren't in our constructor but are
   #  computed automatically (e.g. numberOfCols for the TP)
@@ -278,10 +278,10 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
 
 
 
-class TPRegion(PyRegion):
+class TMRegion(PyRegion):
 
   """
-  TPRegion is designed to implement the temporal pooler compute for a given
+  TMRegion is designed to implement the temporal pooler compute for a given
   CLA level.
 
   Uses a subclass of TP to do most of the work. The specific TP implementation
@@ -294,15 +294,15 @@ class TPRegion(PyRegion):
   arguments in __init__, and the rest are passed to the appropriate underlying
   class. The RegionSpec is mostly built automatically from these parameters.
 
-  If you add a parameter to a TP class, it will be exposed through TPRegion
-  automatically as if it were in TPRegion.__init__, with the right default
+  If you add a parameter to a TP class, it will be exposed through TMRegion
+  automatically as if it were in TMRegion.__init__, with the right default
   value. Add an entry in the __init__ docstring for it too, and that will be
-  brought into the RegionSpec. TPRegion will maintain the parameter as its own
+  brought into the RegionSpec. TMRegion will maintain the parameter as its own
   instance variable and also pass it to the temporal pooler instance. If the
-  parameter is changed, TPRegion will propagate the change.
+  parameter is changed, TMRegion will propagate the change.
 
   If you want to do something different with the parameter, add it as an
-  argument into TPRegion.__init__, which will override all the default handling.
+  argument into TMRegion.__init__, which will override all the default handling.
 
   """
 
@@ -313,7 +313,7 @@ class TPRegion(PyRegion):
                cellsPerColumn, # Number of cells per column, required
 
                # Constructor arguments are picked up automatically. There is no
-               # need to add them anywhere in TPRegion, unless you need to do
+               # need to add them anywhere in TMRegion, unless you need to do
                # something special with them. See docstring above.
 
                orColumnOutputs=False,
@@ -329,7 +329,7 @@ class TPRegion(PyRegion):
 
     # Make a list of automatic temporal arg names for later use
     # Pull out the temporal arguments automatically
-    # These calls whittle down kwargs and create instance variables of TPRegion
+    # These calls whittle down kwargs and create instance variables of TMRegion
     tArgTuples = _buildArgs(TemporalClass.__init__, self, kwargs)
 
     self._temporalArgNames = [t[0] for t in tArgTuples]
@@ -355,7 +355,7 @@ class TPRegion(PyRegion):
     self.breakPdb = False
     self.breakKomodo = False
 
-    # TPRegion only, or special handling
+    # TMRegion only, or special handling
     self.orColumnOutputs = orColumnOutputs
     self.temporalImp = temporalImp
 
@@ -444,7 +444,7 @@ class TPRegion(PyRegion):
   #############################################################################
   def compute(self, inputs, outputs):
     """
-    Run one iteration of TPRegion's compute, profiling it if requested.
+    Run one iteration of TMRegion's compute, profiling it if requested.
 
     The guts of the compute are contained in the _compute() call so that
     we can profile it if requested.
@@ -481,7 +481,7 @@ class TPRegion(PyRegion):
 
   def _compute(self, inputs, outputs):
     """
-    Run one iteration of TPRegion's compute
+    Run one iteration of TMRegion's compute
     """
 
     #if self.topDownMode and (not 'topDownIn' in inputs):
@@ -567,12 +567,12 @@ class TPRegion(PyRegion):
   #############################################################################
   @classmethod
   def getBaseSpec(cls):
-    """Return the base Spec for TPRegion.
+    """Return the base Spec for TMRegion.
 
     Doesn't include the spatial, temporal and other parameters
     """
     spec = dict(
-      description=TPRegion.__doc__,
+      description=TMRegion.__doc__,
       singleNodeOnly=True,
       inputs=dict(
         bottomUpIn=dict(
@@ -683,7 +683,7 @@ class TPRegion(PyRegion):
 
   @classmethod
   def getSpec(cls):
-    """Return the Spec for TPRegion.
+    """Return the Spec for TMRegion.
 
     The parameters collection is constructed based on the parameters specified
     by the variosu components (spatialSpec, temporalSpec and otherSpec)
@@ -751,7 +751,7 @@ class TPRegion(PyRegion):
     """ Resets the region's sequence states
     """
     #print "#############"
-    #print "############# TPRegion: got resetSequenceStates() call"
+    #print "############# TMRegion: got resetSequenceStates() call"
     #print "#############"
 
     self._tfdr.reset()

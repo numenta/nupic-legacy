@@ -135,7 +135,7 @@ nupic
 │   ├── SPRegion.py [TODO]
 │   ├── SVMClassifierNode.py [TODO]
 │   ├── Spec.py [TODO]
-│   ├── TPRegion.py [TODO]
+│   ├── TMRegion.py [TODO]
 │   ├── TestRegion.py [TODO]
 │   └─── UnimportableNode.py [TODO]
 ├── research

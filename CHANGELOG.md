@@ -125,7 +125,7 @@
 * Updated SDR classifier internals
 * calculate raw anomly score in KNNAnomalyClassifier
 * removes anomaly.py dependency in network_api_demo.py
-* changes how TPRegion computes prevPredictdColumns and updates clamodel
+* changes how TMRegion computes prevPredictdColumns and updates clamodel
 * Install pip from local copy, other simplifications
 * Fixup PYTHONPATH to properly include previously-defined PYTHONPATH
 * adds pseudocode to core functions

@@ -15,7 +15,7 @@ Regions:
       - 1
     label: R1
   - name: TP
-    nodeType: py.TPRegion
+    nodeType: py.TMRegion
     dimensions:
       - 1
     phases:

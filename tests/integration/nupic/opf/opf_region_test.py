@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 
 """
-This test ensures that SPRegion and TPRegion are working as expected. It runs a
+This test ensures that SPRegion and TMRegion are working as expected. It runs a
 number of tests:
 
 1: testSaveAndReload -- tests that a saved and reloaded network behaves the same
@@ -57,7 +57,7 @@ from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 from nupic.bindings.algorithms import SpatialPooler
 from nupic.research.TP10X2 import TP10X2
 from nupic.regions.SPRegion import SPRegion
-from nupic.regions.TPRegion import TPRegion
+from nupic.regions.TMRegion import TMRegion
 
 _VERBOSITY = 0         # how chatty the unit tests should be
 _SEED = 35             # the random seed used throughout
@@ -85,7 +85,7 @@ def _initConfigDicts():
     )
   
   # ============================================================================
-  # Config field for TPRegion
+  # Config field for TMRegion
   global g_tpRegionConfig  # pylint: disable=W0603
   g_tpRegionConfig = dict(
     verbosity = _VERBOSITY,
@@ -139,7 +139,7 @@ def _createEncoder():
 def _createOPFNetwork(addSP = True, addTP = False):
   """Create a 'new-style' network ala OPF and return it.
   If addSP is true, an SPRegion will be added named 'level1SP'.
-  If addTP is true, a TPRegion will be added named 'level1TP'
+  If addTP is true, a TMRegion will be added named 'level1TP'
   """
 
   # ==========================================================================
@@ -178,9 +178,9 @@ def _createOPFNetwork(addSP = True, addTP = False):
   if addTP and addSP:
     # Add the TP on top of SP if requested
     # The input width of the TP is set to the column count of the SP
-    print "Adding TPRegion on top of SP"
+    print "Adding TMRegion on top of SP"
     g_tpRegionConfig['inputWidth'] = g_spRegionConfig['columnCount']
-    n.addRegion("level1TP", "py.TPRegion", json.dumps(g_tpRegionConfig))
+    n.addRegion("level1TP", "py.TMRegion", json.dumps(g_tpRegionConfig))
     n.link("level1SP", "level1TP", "UniformLink", "")
     n.link("level1TP", "level1SP", "UniformLink", "",
            srcOutput="topDownOut", destInput="topDownIn")
@@ -188,11 +188,11 @@ def _createOPFNetwork(addSP = True, addTP = False):
            srcOutput="resetOut", destInput="resetIn")
 
   elif addTP:
-    # Add a lone TPRegion if requested
+    # Add a lone TMRegion if requested
     # The input width of the TP is set to the encoder width
-    print "Adding TPRegion"
+    print "Adding TMRegion"
     g_tpRegionConfig['inputWidth'] = encoder.getWidth()
-    n.addRegion("level1TP", "py.TPRegion", json.dumps(g_tpRegionConfig))
+    n.addRegion("level1TP", "py.TMRegion", json.dumps(g_tpRegionConfig))
 
     n.link("sensor", "level1TP", "UniformLink", "")
     n.link("sensor", "level1TP", "UniformLink", "",
@@ -327,7 +327,7 @@ class OPFRegionTest(TestCaseBase):
     network.run(1)
 
     spRegions = network.getRegionsByType(SPRegion)
-    tpRegions = network.getRegionsByType(TPRegion)
+    tpRegions = network.getRegionsByType(TMRegion)
 
     self.assertEqual(len(spRegions), 1)
     self.assertEqual(len(tpRegions), 1)

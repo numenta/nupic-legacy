@@ -1130,8 +1130,8 @@ class HTMPredictionModel(Model):
         assert tmParams['columnCount'] == prevRegionWidth
         tmParams['inputWidth'] = tmParams['columnCount']
 
-      self.__logger.debug("Adding TPRegion; tmParams: %r" % tmParams)
-      n.addRegion("TP", "py.TPRegion", json.dumps(tmParams))
+      self.__logger.debug("Adding TMRegion; tmParams: %r" % tmParams)
+      n.addRegion("TP", "py.TMRegion", json.dumps(tmParams))
 
       # Link TP region
       n.link(prevRegion, "TP", "UniformLink", "")
