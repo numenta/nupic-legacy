@@ -137,7 +137,7 @@ if __name__ == "__main__":
     name="nupic",
     version=getVersion(),
     install_requires=requirements,
-    package_dir = {"": "src"},
+    package_dir = {"": "src", "src": "src/nupic"},
     packages=find_packages("src"),
     namespace_packages = ["nupic"],
     package_data={
