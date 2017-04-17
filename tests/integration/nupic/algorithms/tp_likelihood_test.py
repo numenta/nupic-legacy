@@ -89,7 +89,7 @@ def _buildLikelihoodTrainingSet(numOnes=5, relativeFrequencies=None):
   return (trainingSequences, relativeFrequencies, allPatterns)
 
 def _createTPs(numCols, cellsPerColumn=4, checkSynapseConsistency=True):
-  """Create TP and TP10X instances with identical parameters. """
+  """Create TP and BacktrackingTMCPP instances with identical parameters. """
 
   # Keep these fixed for both TP's:
   minThreshold = 4

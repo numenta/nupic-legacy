@@ -115,7 +115,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     self.checkSynapseConsistency = checkSynapseConsistency
 
     # If set to False, Cells4 will *not* be treated as an ephemeral member
-    # and full TP10X pickling is possible. This is useful for testing
+    # and full BacktrackingTMCPP pickling is possible. This is useful for testing
     # pickle/unpickle without saving Cells4 to an external file
     self.makeCells4Ephemeral = True
 
