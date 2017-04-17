@@ -48,7 +48,7 @@ There should be four segments a-b
 import numpy
 import unittest2 as unittest
 
-from nupic.research.TP import TP
+from nupic.research.BacktrackingTM import TP
 from nupic.research.TP10X2 import TP10X2
 from nupic.support.unittesthelpers import testcasebase
 

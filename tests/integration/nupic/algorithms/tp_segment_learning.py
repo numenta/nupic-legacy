@@ -56,7 +56,7 @@ right half. Both should be learned well.
 import numpy
 import unittest2 as unittest
 
-from nupic.research.TP import TP
+from nupic.research.BacktrackingTM import TP
 from nupic.research.TP10X2 import TP10X2
 from nupic.research import fdrutilities as fdrutils
 from nupic.support.unittesthelpers import testcasebase

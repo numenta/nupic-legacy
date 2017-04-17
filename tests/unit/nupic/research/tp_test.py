@@ -34,7 +34,7 @@ import numpy
 from pkg_resources import resource_filename
 
 from nupic.research import fdrutilities
-from nupic.research.TP import TP
+from nupic.research.BacktrackingTM import TP
 
 COL_SET = set(range(500))
 

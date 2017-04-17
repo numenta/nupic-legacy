@@ -318,9 +318,9 @@ if __name__ == "__main__":
       name="tm_py")
 
   if "tp_py" in args.implementations:
-    import nupic.research.TP
+    import nupic.research.BacktrackingTM
     benchmark.addContestant(
-      nupic.research.TP.TP,
+      nupic.research.BacktrackingTM.TP,
       paramsFn=tmParamsFn,
       computeFn=tpComputeFn,
       name="tp_py")

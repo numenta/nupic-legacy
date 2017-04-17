@@ -28,7 +28,7 @@ import numpy
 
 from nupic.bindings.math import Random
 from nupic.research import fdrutilities as fdrutils
-from nupic.research.TP import TP
+from nupic.research.BacktrackingTM import TP
 from nupic.research.TP10X2 import TP10X2
 
 VERBOSITY = 0  # how chatty the unit tests should be

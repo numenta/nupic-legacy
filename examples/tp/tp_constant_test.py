@@ -28,7 +28,7 @@ import numpy as np
 import unittest2 as unittest
 
 from nupic.research import fdrutilities as fdrutils
-from nupic.research.TP import TP
+from nupic.research.BacktrackingTM import TP
 from nupic.research.TP10X2 import TP10X2
 from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
                                                         TestOptionParser)
@@ -54,7 +54,7 @@ def _getSimplePatterns(numOnes, numPatterns):
   return p
 
 def _createTps(numCols):
-  """Create two instances of temporal poolers (TP.py and TP10X2.py) with
+  """Create two instances of temporal poolers (BacktrackingTM.py and TP10X2.py) with
   identical parameter settings."""
 
   # Keep these fixed:

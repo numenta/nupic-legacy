@@ -27,7 +27,7 @@ for use with tests.
 import numpy
 
 from nupic.math import GetNTAReal
-from nupic.research.TP import TP
+from nupic.research.BacktrackingTM import TP
 from nupic.research.TP10X2 import TP10X2
 from nupic.research.connections import Connections
 

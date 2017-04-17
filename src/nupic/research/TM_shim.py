@@ -63,7 +63,7 @@ class TMShimMixin(object):
                outputType="normal",
                seed=42):
     """
-    Translate parameters and initialize member variables specific to `TP.py`.
+    Translate parameters and initialize member variables specific to `BacktrackingTM.py`.
     """
     super(TMShimMixin, self).__init__(
       columnDimensions=(numberOfCols,),
@@ -85,7 +85,7 @@ class TMShimMixin(object):
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """
-    (From `TP.py`)
+    (From `BacktrackingTM.py`)
     Handle one compute, possibly learning.
 
     @param bottomUpInput     The bottom-up input, typically from a spatial pooler
@@ -112,7 +112,7 @@ class TMShimMixin(object):
 
   def topDownCompute(self, topDownIn=None):
     """
-    (From `TP.py`)
+    (From `BacktrackingTM.py`)
     Top-down compute - generate expected input given output of the TP
 
     @param topDownIn top down input from the level above us
@@ -182,7 +182,7 @@ class MonitoredTMShim(MonitoredTemporalMemory):
                outputType="normal",
                seed=42):
     """
-    Translate parameters and initialize member variables specific to `TP.py`.
+    Translate parameters and initialize member variables specific to `BacktrackingTM.py`.
     """
     super(MonitoredTMShim, self).__init__(
       columnDimensions=(numberOfCols,),
@@ -204,7 +204,7 @@ class MonitoredTMShim(MonitoredTemporalMemory):
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """
-    (From `TP.py`)
+    (From `BacktrackingTM.py`)
     Handle one compute, possibly learning.
 
     @param bottomUpInput     The bottom-up input, typically from a spatial pooler
@@ -229,7 +229,7 @@ class MonitoredTMShim(MonitoredTemporalMemory):
 
   def topDownCompute(self, topDownIn=None):
     """
-    (From `TP.py`)
+    (From `BacktrackingTM.py`)
     Top-down compute - generate expected input given output of the TP
 
     @param topDownIn top down input from the level above us

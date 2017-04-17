@@ -441,7 +441,7 @@ import pickle
 import cPickle
 import pprint
 
-from nupic.research.TP import TP
+from nupic.research.BacktrackingTM import TP
 from nupic.research.TP10X2 import TP10X2
 from nupic.research import fdrutilities as fdrutils
 

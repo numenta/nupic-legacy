@@ -23,7 +23,7 @@ import os
 import numpy
 
 from nupic.algorithms import anomaly
-from nupic.research import TP
+from nupic.research import BacktrackingTM
 from nupic.research import TP10X2
 from nupic.research import TM_shim
 from nupic.support import getArgumentDescriptions
@@ -38,7 +38,7 @@ def _getTPClass(temporalImp):
   """
 
   if temporalImp == 'py':
-    return TP.TP
+    return BacktrackingTM.TP
   elif temporalImp == 'cpp':
     return TP10X2.TP10X2
   elif temporalImp == 'tm_py':

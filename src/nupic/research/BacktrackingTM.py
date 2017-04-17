@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-""" @file TP.py
+""" @file BacktrackingTM.py
 
 Temporal pooler implementation.
 
