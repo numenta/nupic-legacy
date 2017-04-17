@@ -25,7 +25,7 @@ Segment Learning Tests
 
 Multi-attribute sequence tests.
 
-SL1) Train the TP repeatedly using a single sequence plus noise. The sequence
+SL1) Train the TM repeatedly using a single sequence plus noise. The sequence
 can be relatively short, say 5 patterns. Add random noise each time a pattern is
 presented. The noise should be different for each presentation and can be equal
 to the number of on bits in the pattern.
@@ -35,7 +35,7 @@ bits and no two patterns share columns. The patterns that belong to the sequence
 will be in the left half of the input vector. The noise bits will be in the
 right half of the input vector.
 
-After several iterations of each sequence, the TP should should achieve perfect
+After several iterations of each sequence, the TM should should achieve perfect
 inference on the true sequence. There should be resets between each presentation
 of the sequence. Check predictions in the sequence part only (it's ok to predict
 random bits in the right half of the column space), and test with clean
@@ -93,7 +93,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
 
   def _setVerbosity(self, verbosity, tp, tpPy):
-    """Set verbosity level on the TP"""
+    """Set verbosity level on the TM"""
     tp.cells4.setVerbosity(verbosity)
     tp.verbosity = verbosity
     tpPy.verbosity = verbosity
@@ -308,7 +308,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
                                   testSequences,
                                   doResets = True):
 
-    """Train the given TP once on the entire training set. on the Test a single
+    """Train the given TM once on the entire training set. on the Test a single
     set of sequences once and check that individual predictions reflect the true
     relative frequencies. Return a success code. Success code is 1 for pass, 0
     for fail."""

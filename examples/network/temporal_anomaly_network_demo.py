@@ -81,7 +81,7 @@ def createTemporalAnomaly(recordParams, spatialParams=_SP_PARAMS,
                           verbosity=_VERBOSITY):
 
 
-  """Generates a Network with connected RecordSensor, SP, TP.
+  """Generates a Network with connected RecordSensor, SP, TM.
 
   This function takes care of generating regions and the canonical links.
   The network has a sensor region reading data from a specified input and

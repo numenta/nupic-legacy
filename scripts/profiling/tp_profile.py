@@ -23,23 +23,23 @@
 
 import sys
 import numpy
-# chose desired TP implementation to compare:
+# chose desired TM implementation to compare:
 from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP as CppTP
 from nupic.research.BacktrackingTM import BacktrackingTM as PyTP
 
 
 def profileTP(tpClass, tpDim, nRuns):
   """
-  profiling performance of TemporalPooler (TP)
+  profiling performance of TemporalPooler (TM)
   using the python cProfile module and ordered by cumulative time, 
   see how to run on command-line above.
 
-  @param tpClass implementation of TP (cpp, py, ..)
-  @param tpDim number of columns in TP
+  @param tpClass implementation of TM (cpp, py, ..)
+  @param tpDim number of columns in TM
   @param nRuns number of calls of the profiled code (epochs)
   """
 
-  # create TP instance to measure
+  # create TM instance to measure
   tp = tpClass(numberOfCols=tpDim)
 
   # generate input data

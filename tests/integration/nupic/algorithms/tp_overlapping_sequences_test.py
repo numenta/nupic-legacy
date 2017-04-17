@@ -31,7 +31,7 @@ repeats of the training data.
 Test 2 - Test with slow learning, make sure PAM allows us to train with fewer
 repeats of the training data.
 
-Test 3 - Test with slow learning, some overlap in the patterns, and TP
+Test 3 - Test with slow learning, some overlap in the patterns, and TM
 thresholds of 80% of newSynapseCount
 
 Test 4 - Test with "Forbes-like" data. A bunch of sequences of lengths between 2
@@ -56,8 +56,8 @@ SEED = 35             # the random seed used throughout
 # Whether to only run the short tests.
 SHORT = True
 
-# If set to 0 the CPP TP will not be tested
-INCLUDE_CPP_TP = 1    # Also test with CPP TP
+# If set to 0 the CPP TM will not be tested
+INCLUDE_CPP_TP = 1    # Also test with CPP TM
 
 
 
@@ -124,7 +124,7 @@ def buildOverlappedSequences( numSequences = 2,
   seqLen:               Overall length of each sequence
   sharedElements:       Which element indices of each sequence are shared. These
                           will be in the range between 0 and seqLen-1
-  numOnBitsPerPattern:  Number of ON bits in each TP input pattern
+  numOnBitsPerPattern:  Number of ON bits in each TM input pattern
   patternOverlap:       Max number of bits of overlap between any 2 patterns
   retval:               (numCols, trainingSequences)
                           numCols - width of the patterns
@@ -191,7 +191,7 @@ def buildSequencePool(numSequences = 10,
   seqLen:               List of possible sequence lengths
   numPatterns:          How many possible patterns there are to use within
                           sequences
-  numOnBitsPerPattern:  Number of ON bits in each TP input pattern
+  numOnBitsPerPattern:  Number of ON bits in each TM input pattern
   patternOverlap:       Max number of bits of overlap between any 2 patterns
   retval:               (numCols, trainingSequences)
                           numCols - width of the patterns
@@ -249,12 +249,12 @@ def createTPs(includeCPP = True,
               **kwargs
               ):
 
-  """Create one or more TP instances, placing each into a dict keyed by
+  """Create one or more TM instances, placing each into a dict keyed by
   name.
 
   Parameters:
   ------------------------------------------------------------------
-  retval:   tps - dict of TP instances
+  retval:   tps - dict of TM instances
   """
 
   # Keep these fixed:
@@ -312,12 +312,12 @@ def createTPs(includeCPP = True,
 
 def assertNoTPDiffs(tps):
   """
-  Check for diffs among the TP instances in the passed in tps dict and
+  Check for diffs among the TM instances in the passed in tps dict and
   raise an assert if any are detected
 
   Parameters:
   ---------------------------------------------------------------------
-  tps:                  dict of TP instances
+  tps:                  dict of TM instances
   """
 
   if len(tps) == 1:
@@ -343,20 +343,20 @@ def evalSequences(tps,
 
   Parameters:
   ---------------------------------------------------------------------
-  tps:                  dict of TP instances
+  tps:                  dict of TM instances
   trainingSequences:    list of training sequences. Each sequence is a list
-                        of TP input patterns
+                        of TM input patterns
   testSequences:        list of test sequences. If None, we will test against
                         the trainingSequences
-  nTrainRepetitions:    Number of times to run the training set through the TP
-  doResets:             If true, send a reset to the TP between each sequence
+  nTrainRepetitions:    Number of times to run the training set through the TM
+  doResets:             If true, send a reset to the TM between each sequence
   """
 
   # If no test sequence is specified, use the first training sequence
   if testSequences == None:
     testSequences = trainingSequences
 
-  # First TP instance is used by default for verbose printing of input values,
+  # First TM instance is used by default for verbose printing of input values,
   #  etc.
   firstTP = tps.values()[0]
 
@@ -563,7 +563,7 @@ def evalSequences(tps,
     print "\n##############################################################"
     print "####################### Inference Done #######################"
 
-  # Get the overall stats for each TP and return them
+  # Get the overall stats for each TM and return them
   tpStats = dict()
   for (name,tp) in tps.iteritems():
     tpStats[name] = stats = tp.getStats()
@@ -585,7 +585,7 @@ def evalSequences(tps,
 
 def _testConfig(baseParams, expMissingMin=0, expMissingMax=0, **mods):
   """
-  Build up a set of sequences, create the TP(s), train them, test them,
+  Build up a set of sequences, create the TM(s), train them, test them,
   and check that we got the expected number of missing predictions during
   inference.
 
@@ -662,7 +662,7 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
         sharedElements = [2,3],
         numOnBitsPerPattern = numOnBitsPerPattern,
 
-        # TP construction
+        # TM construction
         includeCPP = INCLUDE_CPP_TP,
         numCols = None,   # filled in based on generated sequences
         activationThreshold = numOnBitsPerPattern,
@@ -712,7 +712,7 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
         sharedElements = [2,3],
         numOnBitsPerPattern = numOnBitsPerPattern,
 
-        # TP construction
+        # TM construction
         includeCPP = INCLUDE_CPP_TP,
         numCols = None,   # filled in based on generated sequences
         activationThreshold = numOnBitsPerPattern,
@@ -747,7 +747,7 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
 
   def testSlowLearningWithOverlap(self):
     """
-    Test with slow learning, some overlap in the patterns, and TP thresholds
+    Test with slow learning, some overlap in the patterns, and TM thresholds
     of 80% of newSynapseCount
 
     Make sure PAM allows us to train with fewer repeats of the training data.
@@ -769,7 +769,7 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
                     numOnBitsPerPattern = numOnBitsPerPattern,
                     patternOverlap = 2,
 
-                    # TP construction
+                    # TM construction
                     includeCPP = INCLUDE_CPP_TP,
                     numCols = None,   # filled in based on generated sequences
                     activationThreshold = int(0.8 * numOnBitsPerPattern),
@@ -827,7 +827,7 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
         numOnBitsPerPattern = numOnBitsPerPattern,
         patternOverlap = 1,
 
-        # TP construction
+        # TM construction
         includeCPP = INCLUDE_CPP_TP,
         numCols = None,   # filled in based on generated sequences
         activationThreshold = int(0.8 * numOnBitsPerPattern),

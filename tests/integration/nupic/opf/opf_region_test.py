@@ -36,7 +36,7 @@ Test N: test that combined learning and inference is working
 
 Test N: test that all the parameters of an SP region work properly
 
-Test N: test that all the parameters of a TP region work properly
+Test N: test that all the parameters of a TM region work properly
 
 """
 
@@ -176,8 +176,8 @@ def _createOPFNetwork(addSP = True, addTP = False):
 
   # ==========================================================================
   if addTP and addSP:
-    # Add the TP on top of SP if requested
-    # The input width of the TP is set to the column count of the SP
+    # Add the TM on top of SP if requested
+    # The input width of the TM is set to the column count of the SP
     print "Adding TMRegion on top of SP"
     g_tpRegionConfig['inputWidth'] = g_spRegionConfig['columnCount']
     n.addRegion("level1TP", "py.TMRegion", json.dumps(g_tpRegionConfig))
@@ -189,7 +189,7 @@ def _createOPFNetwork(addSP = True, addTP = False):
 
   elif addTP:
     # Add a lone TMRegion if requested
-    # The input width of the TP is set to the encoder width
+    # The input width of the TM is set to the encoder width
     print "Adding TMRegion"
     g_tpRegionConfig['inputWidth'] = encoder.getWidth()
     n.addRegion("level1TP", "py.TMRegion", json.dumps(g_tpRegionConfig))

@@ -608,13 +608,13 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
 
     self.helper._activeColumnCount = 5
 
-    # Test TP Cell vector
+    # Test TM Cell vector
     self.helper.classificationVectorType = 1
     vector = self.helper.constructClassificationRecord(inputs)
     self.assertEqual(vector.anomalyVector,
         tpVals['output']['lrnActive'].nonzero()[0].tolist())
 
-    # Test SP and TP Column Error vector
+    # Test SP and TM Column Error vector
     self.helper.classificationVectorType = 2
     self.helper._prevPredictedColumns = numpy.array(
         [1, 0, 0, 0, 1]).nonzero()[0]

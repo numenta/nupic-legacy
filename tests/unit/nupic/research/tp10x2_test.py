@@ -27,7 +27,7 @@ from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
 
 import tp_test
 
-# Run the Python TP test against the BacktrackingTMCPP.
+# Run the Python TM test against the BacktrackingTMCPP.
 tp_test.BacktrackingTM = BacktrackingTMCPP
 TPTest = tp_test.TPTest
 

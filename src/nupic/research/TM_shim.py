@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 
 """
-A shim for the TP class that transparently implements TemporalMemory,
+A shim for the TM class that transparently implements TemporalMemory,
 for use with OPF.
 """
 
@@ -40,7 +40,7 @@ class MonitoredTemporalMemory(TemporalMemoryMonitorMixin,
 
 class TMShimMixin(object):
   """
-  TP => Temporal Memory shim class.
+  TM => Temporal Memory shim class.
   """
   def __init__(self,
                numberOfCols=500,
@@ -113,11 +113,11 @@ class TMShimMixin(object):
   def topDownCompute(self, topDownIn=None):
     """
     (From `BacktrackingTM.py`)
-    Top-down compute - generate expected input given output of the TP
+    Top-down compute - generate expected input given output of the TM
 
     @param topDownIn top down input from the level above us
 
-    @returns best estimate of the TP input that would have generated bottomUpOut.
+    @returns best estimate of the TM input that would have generated bottomUpOut.
     """
     output = numpy.zeros(self.numberOfColumns())
     columns = [self.columnForCell(idx) for idx in self.getPredictiveCells()]
@@ -155,7 +155,7 @@ class TMCPPShim(TMShimMixin, TemporalMemoryCPP):
 
 class MonitoredTMShim(MonitoredTemporalMemory):
   """
-  TP => Monitored Temporal Memory shim class.
+  TM => Monitored Temporal Memory shim class.
 
   TODO: This class is not very DRY. This whole file needs to be replaced by a
   pure TemporalMemory region
@@ -230,11 +230,11 @@ class MonitoredTMShim(MonitoredTemporalMemory):
   def topDownCompute(self, topDownIn=None):
     """
     (From `BacktrackingTM.py`)
-    Top-down compute - generate expected input given output of the TP
+    Top-down compute - generate expected input given output of the TM
 
     @param topDownIn top down input from the level above us
 
-    @returns best estimate of the TP input that would have generated bottomUpOut.
+    @returns best estimate of the TM input that would have generated bottomUpOut.
     """
     output = numpy.zeros(self.numberOfColumns())
     columns = [self.columnForCell(idx) for idx in self.getPredictiveCells()]

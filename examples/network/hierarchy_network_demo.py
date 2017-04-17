@@ -186,7 +186,7 @@ def createTemporalMemory(network, name):
 
 def createNetwork(dataSource):
   """Creates and returns a new Network with a sensor region reading data from
-  'dataSource'. There are two hierarchical levels, each with one SP and one TP.
+  'dataSource'. There are two hierarchical levels, each with one SP and one TM.
   @param dataSource - A RecordStream containing the input data
   @returns a Network ready to run
   """
@@ -203,10 +203,10 @@ def createNetwork(dataSource):
   linkParams = ""
   network.link(_RECORD_SENSOR, _L1_SPATIAL_POOLER, linkType, linkParams)
 
-  # Create and add a TP region
+  # Create and add a TM region
   l1temporalMemory = createTemporalMemory(network, _L1_TEMPORAL_MEMORY)
 
-  # Link SP region to TP region in the feedforward direction
+  # Link SP region to TM region in the feedforward direction
   network.link(_L1_SPATIAL_POOLER, _L1_TEMPORAL_MEMORY, linkType, linkParams)
 
   # Add a classifier

@@ -79,9 +79,9 @@ def _buildArgs(f, self=None, kwargs={}):
   init = TMRegion.__init__
   ourArgNames = [t[0] for t in getArgumentDescriptions(init)]
   # Also remove a few other names that aren't in our constructor but are
-  #  computed automatically (e.g. numberOfCols for the TP)
+  #  computed automatically (e.g. numberOfCols for the TM)
   ourArgNames += [
-    'numberOfCols',    # TP
+    'numberOfCols',    # TM
   ]
   for argTuple in argTuples[:]:
     if argTuple[0] in ourArgNames:
@@ -284,7 +284,7 @@ class TMRegion(PyRegion):
   TMRegion is designed to implement the temporal pooler compute for a given
   CLA level.
 
-  Uses a subclass of TP to do most of the work. The specific TP implementation
+  Uses a subclass of TM to do most of the work. The specific TM implementation
   is specified using the temporalImp parameter.
 
   Automatic parameter handling:
@@ -294,7 +294,7 @@ class TMRegion(PyRegion):
   arguments in __init__, and the rest are passed to the appropriate underlying
   class. The RegionSpec is mostly built automatically from these parameters.
 
-  If you add a parameter to a TP class, it will be exposed through TMRegion
+  If you add a parameter to a TM class, it will be exposed through TMRegion
   automatically as if it were in TMRegion.__init__, with the right default
   value. Add an entry in the __init__ docstring for it too, and that will be
   brought into the RegionSpec. TMRegion will maintain the parameter as its own
@@ -522,7 +522,7 @@ class TMRegion(PyRegion):
       tpOutput= tpOutput.reshape(self.columnCount,
                                      self.cellsPerColumn).max(axis=1)
 
-    # Direct logging of non-zero TP outputs
+    # Direct logging of non-zero TM outputs
     if self._fpLogTPOutput:
       output = tpOutput.reshape(-1)
       outputNZ = tpOutput.nonzero()[0]

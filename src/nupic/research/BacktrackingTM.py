@@ -41,7 +41,7 @@ from nupic.support.consoleprinter import ConsolePrinterMixin
 # Default verbosity while running unit tests
 VERBOSITY = 0
 
-# The current TP version used to track the checkpoint state.
+# The current TM version used to track the checkpoint state.
 TP_VERSION = 1
 
 # The numpy equivalent to the floating point type used by NTA
@@ -90,7 +90,7 @@ class BacktrackingTM(ConsolePrinterMixin):
                outputType='normal',
               ):
     """
-    Construct the TP
+    Construct the TM
 
     @param pamLength Number of time steps to remain in "Pay Attention Mode" after
                   we detect we've reached the end of a learned sequence. Setting
@@ -111,13 +111,13 @@ class BacktrackingTM(ConsolePrinterMixin):
                   only do the global decay loop every maxAge iterations. The
                   default (maxAge=1) reverts to the behavior where global decay
                   is applied every iteration to every segment. Using maxAge > 1
-                  can significantly speed up the TP when global decay is used.
+                  can significantly speed up the TM when global decay is used.
 
     @param maxSeqLength If not 0, we will never learn more than maxSeqLength inputs
                   in a row without starting over at start cells. This sets an
                   upper bound on the length of learned sequences and thus is
                   another means (besides maxAge and globalDecay) by which to
-                  limit how much the TP tries to learn.
+                  limit how much the TM tries to learn.
 
     @param maxSegmentsPerCell The maximum number of segments allowed on a cell. This
                   is used to turn on "fixed size CLA" mode. When in effect,
@@ -261,7 +261,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     self.pamCounter = self.pamLength
 
 
-    ## If True, the TP will compute a signature for each sequence
+    ## If True, the TM will compute a signature for each sequence
     self.collectSequenceStats = False
 
     ## This gets set when we receive a reset and cleared on the first compute
@@ -396,7 +396,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     self.setRandomState(state['_random'])
     del state['_random']
     self.__dict__.update(state)
-    # Check the version of the checkpointed TP and update it to the current
+    # Check the version of the checkpointed TM and update it to the current
     # version if necessary.
     if not hasattr(self, 'version'):
       self._initEphemerals()
@@ -874,7 +874,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printParameters(self):
     """
-    Print the parameter settings for the TP.
+    Print the parameter settings for the TM.
     """
     print "numberOfCols=", self.numberOfCols
     print "cellsPerColumn=", self.cellsPerColumn
@@ -1237,7 +1237,7 @@ class BacktrackingTM(ConsolePrinterMixin):
                                        dtype='float32')
 
       # Turn on the most confident cell in each column. Note here that
-      #  Columns refers to TP columns, even though each TP column is a row
+      #  Columns refers to TM columns, even though each TM column is a row
       #  in the numpy array.
       numCols = self.currentOutput.shape[0]
       self.currentOutput[(xrange(numCols), mostActiveCellPerCol)] = 1
@@ -1263,7 +1263,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def getActiveState(self):
     """ Return the current active state. This is called by the node to
-    obtain the sequence output of the TP.
+    obtain the sequence output of the TM.
     """
     # TODO: This operation can be sped up by making  activeState of
     #         type 'float32' up front.
@@ -1288,16 +1288,16 @@ class BacktrackingTM(ConsolePrinterMixin):
   def predict(self, nSteps):
     """
     This function gives the future predictions for <nSteps> timesteps starting
-    from the current TP state. The TP is returned to its original state at the
+    from the current TM state. The TM is returned to its original state at the
     end before returning.
 
-    -# We save the TP state.
+    -# We save the TM state.
     -# Loop for nSteps
       -# Turn-on with lateral support from the current active cells
       -# Set the predicted cells as the next step's active cells. This step
          in learn and infer methods use input here to correct the predictions.
          We don't use any input here.
-    -# Revert back the TP state to the time before prediction
+    -# Revert back the TM state to the time before prediction
 
     @param nSteps The number of future time steps to be predicted
     @returns      all the future predictions - a numpy array of type "float32" and
@@ -1305,7 +1305,7 @@ class BacktrackingTM(ConsolePrinterMixin):
                   The ith row gives the tp prediction for each column at
                   a future timestep (t+i+1).
     """
-    # Save the TP dynamic state, we will use to revert back in the end
+    # Save the TM dynamic state, we will use to revert back in the end
     pristineTPDynamicState = self._getTPDynamicState()
 
     assert (nSteps>0)
@@ -1350,11 +1350,11 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def _getTPDynamicStateVariableNames(self):
     """
-    Any newly added dynamic states in the TP should be added to this list.
+    Any newly added dynamic states in the TM should be added to this list.
 
     Parameters:
     --------------------------------------------
-    retval:       The list of names of TP dynamic state variables.
+    retval:       The list of names of TM dynamic state variables.
     """
     return ["infActiveState",
             "infPredictedState",
@@ -2391,7 +2391,7 @@ class BacktrackingTM(ConsolePrinterMixin):
                                 predictedState,
                                 self.colConfidence['t-1'])
 
-    # Finally return the TP output
+    # Finally return the TM output
     output = self.computeOutput()
 
     # Print diagnostic information based on the current verbosity level
@@ -2448,11 +2448,11 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def topDownCompute(self, topDownIn=None):
     """
-    Top-down compute - generate expected input given output of the TP
+    Top-down compute - generate expected input given output of the TM
 
     @param topDownIn top down input from the level above us
 
-    @returns best estimate of the TP input that would have generated bottomUpOut.
+    @returns best estimate of the TM input that would have generated bottomUpOut.
     """
     # For now, we will assume there is no one above us and that bottomUpOut is
     # simply the output that corresponds to our currently stored column
@@ -2604,18 +2604,18 @@ class BacktrackingTM(ConsolePrinterMixin):
 
     This function produces goodness-of-match scores for a set of input patterns,
     by checking for their presence in the current and predicted output of the
-    TP. Returns a global count of the number of extra and missing bits, the
+    TM. Returns a global count of the number of extra and missing bits, the
     confidence scores for each input pattern, and (if requested) the
-    bits in each input pattern that were not present in the TP's prediction.
+    bits in each input pattern that were not present in the TM's prediction.
 
     @param patternNZs a list of input patterns that we want to check for. Each
                       element is a list of the non-zeros in that pattern.
-    @param output     The output of the TP. If not specified, then use the
-                      TP's current output. This can be specified if you are
+    @param output     The output of the TM. If not specified, then use the
+                      TM's current output. This can be specified if you are
                       trying to check the prediction metric for an output from
                       the past.
     @param colConfidence The column confidences. If not specified, then use the
-                         TP's current self.colConfidence. This can be specified if you
+                         TM's current self.colConfidence. This can be specified if you
                          are trying to check the prediction metrics for an output
                          from the past.
     @param details    if True, also include details of missing bits per pattern.
@@ -3159,7 +3159,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def getSegmentInfo(self, collectActiveData = False):
     """Returns information about the distribution of segments, synapses and
-    permanence values in the current TP. If requested, also returns information
+    permanence values in the current TM. If requested, also returns information
     regarding the number of currently active segments and synapses.
 
     @returns tuple described below:
@@ -3489,7 +3489,7 @@ class Segment(object):
   def updateSynapses(self, synapses, delta):
     """Update a set of synapses in the segment.
 
-    @param tp       The owner TP
+    @param tp       The owner TM
     @param synapses List of synapse indices to update
     @param delta    How much to add to each permanence
 

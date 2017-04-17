@@ -84,7 +84,7 @@ def _buildArgs(f, self=None, kwargs={}):
   init = SPRegion.__init__
   ourArgNames = [t[0] for t in getArgumentDescriptions(init)]
   # Also remove a few other names that aren't in our constructor but are
-  #  computed automatically (e.g. numberOfCols for the TP)
+  #  computed automatically (e.g. numberOfCols for the TM)
   # TODO: where does numberOfCols come into SPRegion?
   ourArgNames += [
     'numberOfCols',

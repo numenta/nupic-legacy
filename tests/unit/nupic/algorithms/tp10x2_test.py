@@ -46,7 +46,7 @@ def checkCell0(tp):
 
 
 def setVerbosity(verbosity, tp, tpPy):
-  """Set verbosity levels of the TP's"""
+  """Set verbosity levels of the TM's"""
   tp.cells4.setVerbosity(verbosity)
   tp.verbosity = verbosity
   tpPy.verbosity = verbosity
@@ -58,7 +58,7 @@ class BacktrackingTMCPP2Test(unittest.TestCase):
 
   def basicTest(self):
     """Basic test (creation, pickling, basic run of learning and inference)"""
-    # Create TP object
+    # Create TM object
     tp = BacktrackingTMCPP(numberOfCols=10, cellsPerColumn=3, initialPerm=.2,
                            connectedPerm= 0.8, minThreshold=2, newSynapseCount=5,
                            permanenceInc=.1, permanenceDec= .05, permanenceMax=1,
@@ -102,7 +102,7 @@ class BacktrackingTMCPP2Test(unittest.TestCase):
   def basicTest2(self, tp, numPatterns=100, numRepetitions=3, activity=15,
                  testTrimming=False, testRebuild=False):
     """Basic test (basic run of learning and inference)"""
-    # Create PY TP object that mirrors the one sent in.
+    # Create PY TM object that mirrors the one sent in.
     tpPy = BacktrackingTM(numberOfCols=tp.numberOfCols, cellsPerColumn=tp.cellsPerColumn,
                           initialPerm=tp.initialPerm, connectedPerm=tp.connectedPerm,
                           minThreshold=tp.minThreshold, newSynapseCount=tp.newSynapseCount,
@@ -169,7 +169,7 @@ class BacktrackingTMCPP2Test(unittest.TestCase):
           print "Num segments in PY and C++", tpPy.getNumSegments(), \
               tp.getNumSegments()
 
-        # Check if the two TP's are identical or not. This check is slow so
+        # Check if the two TM's are identical or not. This check is slow so
         # we do it every other iteration. Make it every iteration for debugging
         # as needed.
         self.assertTrue(fdrutils.tpDiff2(tp, tpPy, verbosity, False))
@@ -184,7 +184,7 @@ class BacktrackingTMCPP2Test(unittest.TestCase):
     # TODO: Need to check - currently failing this
     #checkCell0(tpPy)
 
-    # Remove unconnected synapses and check TP's again
+    # Remove unconnected synapses and check TM's again
 
     # Test rebuild out synapses
     print "Rebuilding outSynapses"

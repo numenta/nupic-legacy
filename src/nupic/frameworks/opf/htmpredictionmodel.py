@@ -177,11 +177,11 @@ class HTMPredictionModel(Model):
     self._maxPredictionsPerStep = maxPredictionsPerStep
 
     # set up learning parameters (note: these may be replaced via
-    # enable/disable//SP/TP//Learning methods)
+    # enable/disable//SP/TM//Learning methods)
     self.__spLearningEnabled = bool(spEnable)
     self.__tpLearningEnabled = bool(tmEnable)
 
-    # Explicitly exclude the TP if this type of inference doesn't require it
+    # Explicitly exclude the TM if this type of inference doesn't require it
     if not InferenceType.isTemporal(self.getInferenceType()) \
        or self.getInferenceType() == InferenceType.NontemporalMultiStep:
       tmEnable = False
@@ -246,7 +246,7 @@ class HTMPredictionModel(Model):
     """
 
     if self._hasTP:
-      # Reset TP's sequence states
+      # Reset TM's sequence states
       self._getTPRegion().executeCommand(['resetSequenceStates'])
 
       self.__logger.debug("HTMPredictionModel.resetSequenceStates(): reset temporal "
@@ -273,7 +273,7 @@ class HTMPredictionModel(Model):
         "HTMPredictionModel.finishLearning(): finished SP learning")
 
     if self._hasTP:
-      # Finish temporal network's TP learning
+      # Finish temporal network's TM learning
       self._getTPRegion().executeCommand(['finishLearning'])
       self.__logger.debug(
         "HTMPredictionModel.finishLearning(): finished TP learning")
@@ -667,7 +667,7 @@ class HTMPredictionModel(Model):
     """ Handle the CLA Classifier compute logic when implementing multi-step
     prediction. This is where the patternNZ is associated with one of the
     other fields from the dataset 0 to N steps in the future. This method is
-    used by each type of network (encoder only, SP only, SP +TP) to handle the
+    used by each type of network (encoder only, SP only, SP +TM) to handle the
     compute logic through the CLA Classifier. It fills in the inference dict with
     the results of the compute.
 
@@ -1008,7 +1008,7 @@ class HTMPredictionModel(Model):
 
   def _getTPRegion(self):
     """
-    Returns reference to the network's TP region
+    Returns reference to the network's TM region
     """
     return self._netInfo.net.regions.get('TP', None)
 
@@ -1082,8 +1082,8 @@ class HTMPredictionModel(Model):
           enabledEncoders.pop(name)
 
     # Disabled encoders are encoders that are fed to CLAClassifierRegion but not
-    # SP or TP Regions. This is to handle the case where the predicted field
-    # is not fed through the SP/TP. We typically just have one of these now.
+    # SP or TM Regions. This is to handle the case where the predicted field
+    # is not fed through the SP/TM. We typically just have one of these now.
     disabledEncoders = copy.deepcopy(sensorParams['encoders'])
     for name, params in disabledEncoders.items():
       if params is None:
@@ -1133,7 +1133,7 @@ class HTMPredictionModel(Model):
       self.__logger.debug("Adding TMRegion; tmParams: %r" % tmParams)
       n.addRegion("TP", "py.TMRegion", json.dumps(tmParams))
 
-      # Link TP region
+      # Link TM region
       n.link(prevRegion, "TP", "UniformLink", "")
       if prevRegion != "sensor":
         n.link("TP", prevRegion, "UniformLink", "", srcOutput="topDownOut",
@@ -1412,7 +1412,7 @@ class HTMPredictionModel(Model):
             self._classifier_helper.saved_categories)
         self._getAnomalyClassifier().getSelf()._knnclassifier = knnRegion
 
-        # Set TP to output neccessary information
+        # Set TM to output neccessary information
         self._getTPRegion().setParameter('anomalyMode', True)
 
         # Remove old classifier_helper
@@ -1439,7 +1439,7 @@ class HTMPredictionModel(Model):
     network - network to add the AnomalyClassifier region
     params - parameters to pass to the region
     spEnable - True if network has an SP region
-    tmEnable - True if network has a TP region; Currently requires True
+    tmEnable - True if network has a TM region; Currently requires True
     """
 
     allParams = copy.deepcopy(params)
@@ -1475,7 +1475,7 @@ class HTMPredictionModel(Model):
       network.link("sensor", "AnomalyClassifier", "UniformLink", "",
           srcOutput="dataOut", destInput="spBottomUpOut")
 
-    # Attach link to TP
+    # Attach link to TM
     if tmEnable:
       network.link("TP", "AnomalyClassifier", "UniformLink", "",
               srcOutput="topDownOut", destInput="tpTopDownOut")

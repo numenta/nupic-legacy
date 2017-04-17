@@ -43,7 +43,7 @@ class HTMPredictionModelClassifierHelper(object):
   This class implements a record classifier used to classify prediction
   records. It currently depends on the KNN classifier within the parent model.
 
-  Currently it is classifying based on SP / TP properties and has a sliding
+  Currently it is classifying based on SP / TM properties and has a sliding
   window of 1000 records.
 
   The model should call the compute() method for each iteration that will be
@@ -442,7 +442,7 @@ class HTMPredictionModelClassifierHelper(object):
     htmpredictionmodel of this classifier.
 
     ***This will look into the internals of the model and may depend on the
-    SP, TP, and KNNClassifier***
+    SP, TM, and KNNClassifier***
     """
     model = self.htmpredictionmodel
     sp = model._getSPRegion()
@@ -460,14 +460,14 @@ class HTMPredictionModelClassifierHelper(object):
     classificationVector = numpy.array([])
 
     if self._vectorType == 'tpc':
-      # Classification Vector: [---TP Cells---]
+      # Classification Vector: [---TM Cells---]
       classificationVector = numpy.zeros(tpSize)
       activeCellMatrix = tpImp.getLearnActiveStateT().reshape(tpSize, 1)
       activeCellIdx = numpy.where(activeCellMatrix > 0)[0]
       if activeCellIdx.shape[0] > 0:
         classificationVector[numpy.array(activeCellIdx, dtype=numpy.uint16)] = 1
     elif self._vectorType == 'sp_tpe':
-      # Classification Vecotr: [---SP---|---(TP-SP)----]
+      # Classification Vecotr: [---SP---|---(TM-SP)----]
       classificationVector = numpy.zeros(spSize+spSize)
       if activeColumns.shape[0] > 0:
         classificationVector[activeColumns] = 1.0

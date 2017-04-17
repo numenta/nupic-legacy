@@ -103,9 +103,9 @@ for i in range(10):
     print("winner cells " + str(tm.getWinnerCells()))
     print("# of active segments " + str(tm.connections.numSegments()))
 
-  # The reset command tells the TP that a sequence just ended and essentially
+  # The reset command tells the TM that a sequence just ended and essentially
   # zeros out all the states. It is not strictly necessary but it's a bit
-  # messier without resets, and the TP learns quicker with resets.
+  # messier without resets, and the TM learns quicker with resets.
   tm.reset()
 
 

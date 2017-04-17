@@ -25,7 +25,7 @@ This file performs a variety of tests on the reference temporal pooler code.
 basic_test
 ==========
 
-Tests creation and serialization of the TP class. Sets parameters and ensures
+Tests creation and serialization of the TM class. Sets parameters and ensures
 they are the same after a serialization and de-serialization step. Runs learning
 and inference on a small number of random patterns and ensures it doesn't crash.
 
@@ -65,7 +65,7 @@ in each pattern should be between 21 and 25 columns. The sequences are
 constructed so that consecutive patterns within a sequence don't share any
 columns.
 
-Training: The TP is trained with P passes of the M sequences. There
+Training: The TM is trained with P passes of the M sequences. There
 should be a reset between sequences. The total number of iterations during
 training is P*N*M.
 
@@ -102,7 +102,7 @@ B7) Like B1 but with slower learning. Set the following parameters differently:
     connectedPerm = 0.7
     permanenceInc = 0.2
 
-Now we train the TP with the B1 sequence 4 times (P=4). This will increment
+Now we train the TM with the B1 sequence 4 times (P=4). This will increment
 the permanences to be above 0.8 and at that point the inference will be correct.
 This test will ensure the basic match function and segment activation rules are
 working correctly.
@@ -239,7 +239,7 @@ for the tests, constraints should be something like:
           AND
 sum(Input) > newSynapseCount*1.5
 
-Training: The TP is trained with P passes of the M sequences. There
+Training: The TM is trained with P passes of the M sequences. There
 should be a reset between sequences. The total number of iterations during
 training is P*N*M.
 
@@ -250,14 +250,14 @@ perfect prediction consists of getting every column correct in the prediction,
 with no extra columns. We report the number of columns that are incorrect and
 report a failure if more than 2 columns are incorrectly predicted.
 
-P1) Train the TP two times (P=2) on a single long sequence consisting of random
+P1) Train the TM two times (P=2) on a single long sequence consisting of random
 patterns (N=20, M=1). There should be no overlapping columns between successive
-patterns. During inference, the TP should be able reliably predict the pattern
+patterns. During inference, the TM should be able reliably predict the pattern
 two time steps in advance. numCols should be about 350 to meet the above
 constraints and also to maintain consistency with test P2.
 
-P2) Increase TP rate to 3 time steps in advance (P=3). At each step during
-inference, the TP should be able to reliably predict the pattern coming up at
+P2) Increase TM rate to 3 time steps in advance (P=3). At each step during
+inference, the TM should be able to reliably predict the pattern coming up at
 t+1, t+2, and t+3..
 
 P3) Set segUpdateValidDuration to 2 and set P=3. This should behave almost
@@ -283,10 +283,10 @@ Orphan Decay Tests
 HiLo Tests
 ==========
 
-A high order sequence memory like the TP can memorize very long sequences. In
+A high order sequence memory like the TM can memorize very long sequences. In
 many applications though you don't want to memorize. You see a long sequence of
 patterns but there are actually lower order repeating sequences embedded within
-it.  A simplistic example is words in a sentence. Words such as You'd like the TP to learn those sequences.
+it.  A simplistic example is words in a sentence. Words such as You'd like the TM to learn those sequences.
 
 Tests should capture number of synapses learned and compare against
 theoretically optimal numbers to pass/fail.
@@ -298,7 +298,7 @@ consecutive set of 5 bits on, so the vector will be 115 bits long. No pattern
 shares any columns with the others. These sequences are easy to visualize and is
 very useful for debugging.
 
-TP parameters should be the same as B7 except that permanenceDec should be 0.05:
+TM parameters should be the same as B7 except that permanenceDec should be 0.05:
 
     activationThreshold = newSynapseCount
     minThreshold = activationThreshold
@@ -322,7 +322,7 @@ since you could also be starting in the middle of the DABC sequence. All this is
 actually happening in the code, but verified by visual inspection only.
 
 HL1) Noise + sequence + noise + sequence repeatedly without resets until it has
-learned that sequence. Train the TP repeatedly with N random sequences that all
+learned that sequence. Train the TM repeatedly with N random sequences that all
 share a single subsequence. Each random sequence can be 10 patterns long,
 sharing a subsequence that is 5 patterns long. There should be no resets
 between presentations.  Inference should then be on that 5 long shared subsequence.
@@ -334,7 +334,7 @@ K L M D E F N O P Q
 R S T D E F U V W X
 Y Z 1 D E F 2 3 4 5
 
-TP parameters should be the same as HL0.
+TM parameters should be the same as HL0.
 
 HL2) Like HL1, but after A B C has learned, try to learn D A B C . It should learn
 ABC is separate from DABC.
@@ -373,12 +373,12 @@ Segment Learning Tests [UNIMPLEMENTED]
 
 Multi-attribute sequence tests.
 
-SL1) Train the TP repeatedly using a single (multiple) sequence plus noise. The
+SL1) Train the TM repeatedly using a single (multiple) sequence plus noise. The
 sequence can be relatively short, say 20 patterns. No two consecutive patterns
 in the sequence should share columns. Add random noise each time a pattern is
 presented. The noise should be different for each presentation and can be equal
 to the number of on bits in the pattern. After N iterations of the noisy
-sequences, the TP should should achieve perfect inference on the true sequence.
+sequences, the TM should should achieve perfect inference on the true sequence.
 There should be resets between each presentation of the sequence.
 
 Check predictions in the sequence only. And test with clean sequences.
@@ -425,7 +425,7 @@ Online Learning Tests [UNIMPLEMENTED]
 =====================
 
 These tests will verify that the temporal pooler continues to work even if
-sequence statistics (and the actual sequences) change slowly over time. The TP
+sequence statistics (and the actual sequences) change slowly over time. The TM
 should adapt to the changes and learn to recognize newer sequences (and forget
 the older sequences?).
 
@@ -749,7 +749,7 @@ def basicTest():
 
   global TPClass, SEED, VERBOSITY, checkSynapseConsistency
   #--------------------------------------------------------------------------------
-  # Create TP object
+  # Create TM object
   numberOfCols =10
   cellsPerColumn =3
   initialPerm =.2
@@ -828,7 +828,7 @@ def findAcceptablePatterns(tp, t, whichSequence, trainingSequences, nAcceptable 
     """
     Tries to infer the set of acceptable patterns for prediction at the given
     time step and for the give sequence. Acceptable patterns are: the current one,
-    plus a certain number of patterns after timeStep, in the sequence that the TP
+    plus a certain number of patterns after timeStep, in the sequence that the TM
     is currently tracking. Any other pattern is not acceptable.
 
     TODO:
@@ -838,7 +838,7 @@ def findAcceptablePatterns(tp, t, whichSequence, trainingSequences, nAcceptable 
 
     Parameters:
     ==========
-    tp                       the whole TP, so that we can look at its parameters
+    tp                       the whole TM, so that we can look at its parameters
     t                        the current time step
     whichSequence            the sequence we are currently tracking
     trainingSequences        all the training sequences
@@ -846,7 +846,7 @@ def findAcceptablePatterns(tp, t, whichSequence, trainingSequences, nAcceptable 
                              we are willing to consider acceptable. In the case of
                              pooling, it is less than or equal to the min of the
                              number of training reps and the segUpdateValidDuration
-                             parameter of the TP, depending on the test case.
+                             parameter of the TM, depending on the test case.
                              The default value is 1, because by default, the pattern
                              after the current one should always be predictable.
 
@@ -859,7 +859,7 @@ def findAcceptablePatterns(tp, t, whichSequence, trainingSequences, nAcceptable 
     # Determine how many steps forward we want to see in the prediction
     upTo = t + 2 # always predict current and next
 
-    # If the TP is pooling, more steps can be predicted
+    # If the TM is pooling, more steps can be predicted
     if tp.doPooling:
         upTo += min(tp.segUpdateValidDuration, nAcceptable)
 

@@ -35,10 +35,10 @@ Test: after presenting A-B-C-D, prediction scores should reflect the transition
 probabilities for E, F and G, i.e. Run the test for several different
 probability combinations.
 
-LI2) Given a TP trained with LI1, compute the prediction score across a
+LI2) Given a TM trained with LI1, compute the prediction score across a
 list of sequences.
 
-LI3) Given the following sequence and a one cell per column TP:
+LI3) Given the following sequence and a one cell per column TM:
 
 Seq1: a-b-b-c-d
 
@@ -89,9 +89,9 @@ def _buildLikelihoodTrainingSet(numOnes=5, relativeFrequencies=None):
   return (trainingSequences, relativeFrequencies, allPatterns)
 
 def _createTPs(numCols, cellsPerColumn=4, checkSynapseConsistency=True):
-  """Create TP and BacktrackingTMCPP instances with identical parameters. """
+  """Create TM and BacktrackingTMCPP instances with identical parameters. """
 
-  # Keep these fixed for both TP's:
+  # Keep these fixed for both TM's:
   minThreshold = 4
   activationThreshold = 4
   newSynapseCount = 5
@@ -130,7 +130,7 @@ def _createTPs(numCols, cellsPerColumn=4, checkSynapseConsistency=True):
 
 
 def _computeTPMetric(tp=None, sequences=None, useResets=True, verbosity=1):
-  """Given a trained TP and a list of sequences, compute the temporal pooler
+  """Given a trained TM and a list of sequences, compute the temporal pooler
   performance metric on those sequences.
 
   Parameters:
@@ -138,7 +138,7 @@ def _computeTPMetric(tp=None, sequences=None, useResets=True, verbosity=1):
   tp:               A trained temporal pooler.
   sequences:        A list of sequences. Each sequence is a list of numpy
                     vectors.
-  useResets:        If True, the TP's reset method will be called before the
+  useResets:        If True, the TM's reset method will be called before the
                     the start of each new sequence.
   verbosity:        An integer controlling the level of printouts. The higher
                     the number the more debug printouts.
@@ -170,7 +170,7 @@ def _computeTPMetric(tp=None, sequences=None, useResets=True, verbosity=1):
         print "pattern", inputPattern
 
 
-      # Feed this input to the TP and get the stats
+      # Feed this input to the TM and get the stats
       y = tp.infer(inputPattern)
 
       if verbosity > 2:
@@ -228,7 +228,7 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
                     relativeFrequencies=None):
     """Test a single set of sequences once and check that individual
     predictions reflect the true relative frequencies. Return a success code
-    as well as the trained TP. Success code is 1 for pass, 0 for fail.
+    as well as the trained TM. Success code is 1 for pass, 0 for fail.
 
 
     The trainingSet is a set of 3 sequences that share the same first 4
@@ -347,7 +347,7 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
     patternConfidenceScores = numpy.array([x[1] for x in predictionScore2])
     # Normalize so that the sum is 1.0. This makes us independent of any
     #  potential scaling differences in the column confidence calculations of
-    #  various TP implementations.
+    #  various TM implementations.
     patternConfidenceScores /= patternConfidenceScores.sum()
 
     msg = ('Prediction failed with predictionScore: %s. Expected %s but got %s.'
@@ -370,7 +370,7 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
     cppTp, pyTp = _createTPs(numCols=trainingSet[0][0][0].size,
                               checkSynapseConsistency=checkSynapseConsistency)
 
-    # Test both TP's. Currently the CPP TP has faster confidence estimation
+    # Test both TM's. Currently the CPP TM has faster confidence estimation
     self._testSequence(trainingSet, nSequencePresentations=200, tp=cppTp,
                        relativeFrequencies=relativeFrequencies)
 
@@ -387,7 +387,7 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
     cppTp, pyTp = _createTPs(numCols=trainingSet[0][0][0].size,
                             checkSynapseConsistency=checkSynapseConsistency)
 
-    # Test both TP's
+    # Test both TM's
     for tp in [cppTp, pyTp]:
       self._testSequence(trainingSet, nSequencePresentations=500, tp=tp,
                          relativeFrequencies=relativeFrequencies)

@@ -43,7 +43,7 @@ VERBOSITY = 0
 
 
 class TPTest(unittest.TestCase):
-  """Unit tests for the TP class."""
+  """Unit tests for the TM class."""
 
 
   def setUp(self):
@@ -69,7 +69,7 @@ class TPTest(unittest.TestCase):
       else:
         tp1.compute(bottomUpInput, True, True)
 
-    # Serialize and deserialized the TP.
+    # Serialize and deserialized the TM.
     checkpointPath = os.path.join(self._tmpDir, 'a')
     tp1.saveToFile(checkpointPath)
     tp2 = pickle.loads(pickle.dumps(tp1))
@@ -104,7 +104,7 @@ class TPTest(unittest.TestCase):
       else:
         tp1.compute(bottomUpInput, True, True)
 
-    # Serialize and deserialized the TP.
+    # Serialize and deserialized the TM.
     checkpointPath = os.path.join(self._tmpDir, 'a')
     tp1.saveToFile(checkpointPath)
     tp2 = pickle.loads(pickle.dumps(tp1))
@@ -184,10 +184,10 @@ class TPTest(unittest.TestCase):
 
 
   def assertTPsEqual(self, tp1, tp2):
-    """Asserts that two TP instances are the same.
+    """Asserts that two TM instances are the same.
 
     This is temporarily disabled since it does not work with the C++
-    implementation of the TP.
+    implementation of the TM.
     """
     self.assertEqual(tp1, tp2, tp1.diff(tp2))
     self.assertTrue(fdrutilities.tpDiff2(tp1, tp2, 1, False))

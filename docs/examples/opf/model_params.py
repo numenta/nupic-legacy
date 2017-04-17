@@ -80,7 +80,7 @@ MODEL_PARAMS = {
             'globalInhibition': 1,
 
             # Number of cell columns in the cortical region (same number for
-            # SP and TP)
+            # SP and TM)
             # (see also tpNCellsPerCol)
             'columnCount': 2048,
 
@@ -121,13 +121,13 @@ MODEL_PARAMS = {
         'tmEnable' : True,
 
         'tmParams': {
-            # TP diagnostic output verbosity control;
+            # TM diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
             # (see verbosity in nupic/trunk/py/nupic/research/BacktrackingTM.py and BacktrackingTMCPP.py)
             'verbosity': 0,
 
             # Number of cell columns in the cortical region (same number for
-            # SP and TP)
+            # SP and TM)
             # (see also tpNCellsPerCol)
             'columnCount': 2048,
 
@@ -152,7 +152,7 @@ MODEL_PARAMS = {
             #  > 0 for fixed-size CLA
             # -1 for non-fixed-size CLA
             #
-            # TODO: for Ron: once the appropriate value is placed in TP
+            # TODO: for Ron: once the appropriate value is placed in TM
             # constructor, see if we should eliminate this parameter from
             # description.py.
             'maxSynapsesPerSegment': 32,
@@ -161,7 +161,7 @@ MODEL_PARAMS = {
             #  > 0 for fixed-size CLA
             # -1 for non-fixed-size CLA
             #
-            # TODO: for Ron: once the appropriate value is placed in TP
+            # TODO: for Ron: once the appropriate value is placed in TM
             # constructor, see if we should eliminate this parameter from
             # description.py.
             'maxSegmentsPerCell': 128,
@@ -196,7 +196,7 @@ MODEL_PARAMS = {
 
             'outputType': 'normal',
 
-            # "Pay Attention Mode" length. This tells the TP how many new
+            # "Pay Attention Mode" length. This tells the TM how many new
             # elements to append to the end of a learned sequence at a time.
             # Smaller values are better for datasets with short sequences,
             # higher values are better for datasets with long sequences.

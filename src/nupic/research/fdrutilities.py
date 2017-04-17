@@ -323,7 +323,7 @@ def generateL2Sequences(nL1Patterns=10, l1Hubs=[2,6], l1SeqLength=[5,6,7],
   """
   Generate the simulated output from a spatial pooler that's sitting
   on top of another spatial pooler / temporal pooler pair.  The average on-time
-  of the outputs from the simulated TP is given by the l1Pooling argument.
+  of the outputs from the simulated TM is given by the l1Pooling argument.
 
   In this routine, L1 refers to the first spatial and temporal pooler and L2
   refers to the spatial pooler above that.
@@ -341,7 +341,7 @@ def generateL2Sequences(nL1Patterns=10, l1Hubs=[2,6], l1SeqLength=[5,6,7],
   perfectStability:     If true, then the input patterns represented by the
                         sequences generated will have perfect stability over
                         l1Pooling time steps. This is the best case ideal input
-                        to a TP. In actual situations, with an actual SP
+                        to a TM. In actual situations, with an actual SP
                         providing input, the stability will always be less than
                         this.
   spHystereisFactor:    The hysteresisFactor to use in the L2 spatial pooler.
@@ -440,10 +440,10 @@ def vectorsFromSeqList(seqList, patternMatrix):
 
 ###############################################################################
 # The following three functions are used in tests to compare two different
-# TP instances.
+# TM instances.
 
 def sameTPParams(tp1, tp2):
-  """Given two TP instances, see if any parameters are different."""
+  """Given two TM instances, see if any parameters are different."""
   result = True
   for param in ["numberOfCols", "cellsPerColumn", "initialPerm", "connectedPerm",
                 "minThreshold", "newSynapseCount", "permanenceInc", "permanenceDec",
@@ -498,12 +498,12 @@ def sameSegment(seg1, seg2):
 
 def tpDiff(tp1, tp2, verbosity = 0, relaxSegmentTests =True):
   """
-  Given two TP instances, list the difference between them and returns False
+  Given two TM instances, list the difference between them and returns False
   if there is a difference. This function checks the major parameters. If this
   passes (and checkLearn is true) it checks the number of segments on
   each cell. If this passes, checks each synapse on each segment.
   When comparing C++ and Py, the segments are usually in different orders in the
-  cells. tpDiff ignores segment order when comparing TP's.
+  cells. tpDiff ignores segment order when comparing TM's.
 
   """
 
@@ -581,12 +581,12 @@ def tpDiff(tp1, tp2, verbosity = 0, relaxSegmentTests =True):
 def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
             checkLearn = True, checkStates = True):
   """
-  Given two TP instances, list the difference between them and returns False
+  Given two TM instances, list the difference between them and returns False
   if there is a difference. This function checks the major parameters. If this
   passes (and checkLearn is true) it checks the number of segments on each cell.
   If this passes, checks each synapse on each segment.
   When comparing C++ and Py, the segments are usually in different orders in the
-  cells. tpDiff ignores segment order when comparing TP's.
+  cells. tpDiff ignores segment order when comparing TM's.
 
   If checkLearn is True, will check learn states as well as all the segments
 
@@ -1310,13 +1310,13 @@ def checkMatch(input, prediction, sparse=True, verbosity=0):
 
 def predictionExtent(inputs, resets, outputs, minOverlapPct=100.0):
   """
-  Computes the predictive ability of a temporal pooler (TP). This routine returns
+  Computes the predictive ability of a temporal pooler (TM). This routine returns
   a value which is the average number of time steps of prediction provided
-  by the TP. It accepts as input the inputs, outputs, and resets provided to
-  the TP as well as a 'minOverlapPct' used to evalulate whether or not a
+  by the TM. It accepts as input the inputs, outputs, and resets provided to
+  the TM as well as a 'minOverlapPct' used to evalulate whether or not a
   prediction is a good enough match to the actual input.
 
-  The 'outputs' are the pooling outputs of the TP. This routine treats each output
+  The 'outputs' are the pooling outputs of the TM. This routine treats each output
   as a "manifold" that includes the active columns that should be present in the
   next N inputs. It then looks at each successive input and sees if it's active
   columns are within the manifold. For each output sample, it computes how
@@ -1326,11 +1326,11 @@ def predictionExtent(inputs, resets, outputs, minOverlapPct=100.0):
 
   Parameters:
   -----------------------------------------------
-  inputs:          The inputs to the TP. Row 0 contains the inputs from time
+  inputs:          The inputs to the TM. Row 0 contains the inputs from time
                    step 0, row 1 from time step 1, etc.
-  resets:          The reset input to the TP. Element 0 contains the reset from
+  resets:          The reset input to the TM. Element 0 contains the reset from
                    time step 0, element 1 from time step 1, etc.
-  outputs:         The pooling outputs from the TP. Row 0 contains the outputs
+  outputs:         The pooling outputs from the TM. Row 0 contains the outputs
                    from time step 0, row 1 from time step 1, etc.
   minOverlapPct:   How much each input's columns must overlap with the pooling
                    output's columns to be considered a valid prediction.

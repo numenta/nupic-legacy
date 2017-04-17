@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 
 """
-A shim for the TemporalMemory class that transparently implements TP,
+A shim for the TemporalMemory class that transparently implements TM,
 for use with tests.
 """
 
@@ -40,7 +40,7 @@ dtype = GetNTAReal()
 
 class TemporalMemoryShim(TPClass):
   """
-  Temporal Memory => TP shim class.
+  Temporal Memory => TM shim class.
   """
   def __init__(self,
                columnDimensions=(2048,),

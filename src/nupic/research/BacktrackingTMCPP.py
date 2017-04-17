@@ -69,7 +69,7 @@ class BacktrackingTMCPP(BacktrackingTM):
   """
 
 
-  # We use the same keyword arguments as TP()
+  # We use the same keyword arguments as TM()
   def __init__(self,
                numberOfCols = 500,
                cellsPerColumn = 10,
@@ -285,7 +285,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     slows things down, but you can override this by passing in True for
     computeInfOutput
     """
-    # The C++ TP takes 32 bit floats as input. uint32 works as well since the
+    # The C++ TM takes 32 bit floats as input. uint32 works as well since the
     # code only checks whether elements are non-zero
     assert (bottomUpInput.dtype == numpy.dtype('float32')) or \
            (bottomUpInput.dtype == numpy.dtype('uint32')) or \
@@ -330,7 +330,7 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
 
-    # Finally return the TP output
+    # Finally return the TM output
     output = self.computeOutput()
 
     # Print diagnostic information based on the current verbosity level
@@ -640,7 +640,7 @@ class BacktrackingTMCPP(BacktrackingTM):
 
   def getSegmentInfo(self, collectActiveData = False):
     """Returns information about the distribution of segments, synapses and
-    permanence values in the current TP. If requested, also returns information
+    permanence values in the current TM. If requested, also returns information
     regarding the number of currently active segments and synapses.
 
     The method returns the following tuple:

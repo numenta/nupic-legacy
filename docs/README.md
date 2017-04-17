@@ -139,7 +139,7 @@ nupic
 │   ├── TestRegion.py [TODO]
 │   └─── UnimportableNode.py [TODO]
 ├── research
-│   ├── TP.py [TODO]
+│   ├── BacktrackingTM.py [TODO]
 │   ├── BacktrackingTMCPP.py [TODO]
 │   ├── TP_shim.py [TODO]
 │   ├── connections.py [TODO]
