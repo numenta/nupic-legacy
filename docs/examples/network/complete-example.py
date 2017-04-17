@@ -1,0 +1,167 @@
+import json
+import os
+import yaml
+
+from nupic.engine import Network
+from nupic.encoders import MultiEncoder
+from nupic.data.file_record_stream import FileRecordStream
+
+_NUM_RECORDS = 3000
+_EXAMPLE_DIR = os.path.dirname(os.path.abspath(__file__))
+_INPUT_FILE_PATH = os.path.join(_EXAMPLE_DIR, os.pardir, "data", "gymdata.csv")
+_PARAMS_PATH = os.path.join(_EXAMPLE_DIR, os.pardir, "params", "model.yaml")
+
+
+
+def createDataOutLink(network, sensorRegionName, regionName):
+  """Link sensor region to other region so that it can pass it data."""
+  network.link(sensorRegionName, regionName, "UniformLink", "",
+               srcOutput="dataOut", destInput="bottomUpIn")
+
+
+
+def createFeedForwardLink(network, regionName1, regionName2):
+  """Create a feed-forward link between 2 regions: regionName1 -> regionName2"""
+  network.link(regionName1, regionName2, "UniformLink", "",
+               srcOutput="bottomUpOut", destInput="bottomUpIn")
+
+
+
+def createResetLink(network, sensorRegionName, regionName):
+  """Create a reset link from a sensor region: sensorRegionName -> regionName"""
+  network.link(sensorRegionName, regionName, "UniformLink", "",
+               srcOutput="resetOut", destInput="resetIn")
+
+
+
+def createSensorToClassifierLinks(network, sensorRegionName,
+                                  classifierRegionName):
+  """Create required links from a sensor region to a classifier region."""
+  network.link(sensorRegionName, classifierRegionName, "UniformLink", "",
+               srcOutput="bucketIdxOut", destInput="bucketIdxIn")
+  network.link(sensorRegionName, classifierRegionName, "UniformLink", "",
+               srcOutput="actValueOut", destInput="actValueIn")
+  network.link(sensorRegionName, classifierRegionName, "UniformLink", "",
+               srcOutput="categoryOut", destInput="categoryIn")
+
+
+
+def createEncoder(encoderParams):
+  """Create a multi-encoder from params."""
+  encoder = MultiEncoder()
+  encoder.addMultipleEncoders(encoderParams)
+  return encoder
+
+
+
+def createNetwork(dataSource):
+  """Create and initialize a network."""
+  with open(_PARAMS_PATH, "r") as f:
+    model_params = yaml.safe_load(f)["modelParams"]
+
+  # Create a network that will hold the regions.
+  network = Network()
+
+  # Add a sensor region, set its encoder and data source.
+  network.addRegion("sensor", "py.RecordSensor", json.dumps({"verbosity": 0}))
+  sensorRegion = network.regions["sensor"].getSelf()
+  sensorRegion.encoder = createEncoder(model_params["sensorParams"]["encoders"])
+  sensorRegion.dataSource = dataSource
+
+  # Make sure the SP input width matches the sensor region output width.
+  model_params["spParams"]["inputWidth"] = sensorRegion.encoder.getWidth()
+
+  # Add the SP and TM regions.
+  network.addRegion("SP", "py.SPRegion", json.dumps(model_params["spParams"]))
+  network.addRegion("TM", "py.TPRegion", json.dumps(model_params["tmParams"]))
+
+  # Add the classifier.
+  clParams = model_params["clParams"]
+  clName = clParams.pop("regionName")
+  network.addRegion("classifier", "py." + clName, json.dumps(clParams))
+
+  # Add all links
+  createSensorToClassifierLinks(network, "sensor", "classifier")
+
+  # Link the sensor region to the SP region so that it can pass it data.
+  createDataOutLink(network, "sensor", "SP")
+
+  # Create feed-forward links between regions.
+  createFeedForwardLink(network, "SP", "TM")
+  createFeedForwardLink(network, "TM", "classifier")
+
+  # Propagate reset signals to SP and TM regions.
+  # Optional if you know that your sensor regions does not send resets.
+  createResetLink(network, "sensor", "SP")
+  createResetLink(network, "sensor", "TM")
+
+  # Make sure all objects are initialized.
+  network.initialize()
+
+  return network
+
+
+
+def getPredictionResults(network, clRegionName):
+  """Get prediction results for all prediction steps."""
+  classifierRegion = network.regions[clRegionName]
+  actualValues = classifierRegion.getOutputData("actualValues")
+  probabilities = classifierRegion.getOutputData("probabilities")
+  steps = classifierRegion.getSelf().stepsList
+  N = classifierRegion.getSelf().maxCategoryCount
+  results = {step: {} for step in steps}
+  for i in range(len(steps)):
+    # stepProbabilities: probabilities for this prediction step only.
+    stepProbabilities = probabilities[i * N:(i + 1) * N - 1]
+    mostLikelyCategoryIdx = stepProbabilities.argmax()
+    predictedValue = actualValues[mostLikelyCategoryIdx]
+    predictionConfidence = stepProbabilities[mostLikelyCategoryIdx]
+    results[steps[i]]["predictedValue"] = predictedValue
+    results[steps[i]]["predictionConfidence"] = predictionConfidence
+  return results
+
+
+
+def runHotgym():
+  """Run the Hot Gym example."""
+
+  # Create a data source for the network.
+  dataSource = FileRecordStream(streamID=_INPUT_FILE_PATH)
+  numRecords = min(_NUM_RECORDS, dataSource.getDataRowCount())
+  network = createNetwork(dataSource)
+
+  # Set predicted field index. It needs to be the same index as the data source.
+  predictedIdx = dataSource.getFieldNames().index("consumption")
+  network.regions["sensor"].setParameter("predictedFieldIdx", predictedIdx)
+
+  # Enable learning for all regions.
+  network.regions["SP"].setParameter("learningMode", 1)
+  network.regions["TM"].setParameter("learningMode", 1)
+  network.regions["classifier"].setParameter("learningMode", 1)
+
+  # Enable inference for all regions.
+  network.regions["SP"].setParameter("inferenceMode", 1)
+  network.regions["TM"].setParameter("inferenceMode", 1)
+  network.regions["classifier"].setParameter("inferenceMode", 1)
+
+  N = 1  # Run the network, N iterations at a time.
+  for iteration in range(0, numRecords, N):
+    network.run(N)
+
+    # Get prediction results.
+    results = getPredictionResults(network, "classifier")
+    oneStep = results[1]["predictedValue"]
+    oneStepConfidence = results[1]["predictionConfidence"]
+    fiveStep = results[5]["predictedValue"]
+    fiveStepConfidence = results[5]["predictionConfidence"]
+
+    print("1-step: {:16} ({:4.4}%)\t"
+          "5-step: {:16} ({:4.4}%)".format(oneStep,
+                                           oneStepConfidence * 100,
+                                           fiveStep,
+                                           fiveStepConfidence * 100))
+
+
+
+if __name__ == "__main__":
+  runHotGym()
