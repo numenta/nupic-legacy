@@ -29,7 +29,7 @@ import unittest2 as unittest
 
 from nupic.research import fdrutilities as fdrutils
 from nupic.research.BacktrackingTM import BacktrackingTM
-from nupic.research.TP10X2 import TP10X2
+from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
 from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
                                                         TestOptionParser)
 
@@ -54,7 +54,7 @@ def _getSimplePatterns(numOnes, numPatterns):
   return p
 
 def _createTps(numCols):
-  """Create two instances of temporal poolers (BacktrackingTM.py and TP10X2.py) with
+  """Create two instances of temporal poolers (BacktrackingTM.py and BacktrackingTMCPP.py) with
   identical parameter settings."""
 
   # Keep these fixed:
@@ -68,15 +68,15 @@ def _createTps(numCols):
   globalDecay = 0
   cellsPerColumn = 1
 
-  cppTp = TP10X2(numberOfCols=numCols, cellsPerColumn=cellsPerColumn,
-                  initialPerm=initialPerm, connectedPerm=connectedPerm,
-                  minThreshold=minThreshold, newSynapseCount=newSynapseCount,
-                  permanenceInc=permanenceInc, permanenceDec=permanenceDec,
-                  activationThreshold=activationThreshold,
-                  globalDecay=globalDecay, burnIn=1,
-                  seed=SEED, verbosity=VERBOSITY,
-                  checkSynapseConsistency=True,
-                  pamLength=1000)
+  cppTp = BacktrackingTMCPP(numberOfCols=numCols, cellsPerColumn=cellsPerColumn,
+                            initialPerm=initialPerm, connectedPerm=connectedPerm,
+                            minThreshold=minThreshold, newSynapseCount=newSynapseCount,
+                            permanenceInc=permanenceInc, permanenceDec=permanenceDec,
+                            activationThreshold=activationThreshold,
+                            globalDecay=globalDecay, burnIn=1,
+                            seed=SEED, verbosity=VERBOSITY,
+                            checkSynapseConsistency=True,
+                            pamLength=1000)
 
   # Ensure we are copying over learning states for TPDiff
   cppTp.retrieveLearningStates = True

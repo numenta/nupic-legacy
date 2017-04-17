@@ -24,7 +24,7 @@ import numpy
 
 from nupic.algorithms import anomaly
 from nupic.research import BacktrackingTM
-from nupic.research import TP10X2
+from nupic.research import BacktrackingTMCPP
 from nupic.research import TM_shim
 from nupic.support import getArgumentDescriptions
 from nupic.bindings.regions.PyRegion import PyRegion
@@ -40,7 +40,7 @@ def _getTPClass(temporalImp):
   if temporalImp == 'py':
     return BacktrackingTM.BacktrackingTM
   elif temporalImp == 'cpp':
-    return TP10X2.TP10X2
+    return BacktrackingTMCPP.BacktrackingTMCPP
   elif temporalImp == 'tm_py':
     return TM_shim.TMShim
   elif temporalImp == 'tm_cpp':

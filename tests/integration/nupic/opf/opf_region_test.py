@@ -55,7 +55,7 @@ from nupic.encoders import MultiEncoder
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 
 from nupic.bindings.algorithms import SpatialPooler
-from nupic.research.TP10X2 import TP10X2
+from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
 from nupic.regions.SPRegion import SPRegion
 from nupic.regions.TMRegion import TMRegion
 
@@ -339,7 +339,7 @@ class OPFRegionTest(TestCaseBase):
     tp = tpRegion.getSelf().getAlgorithmInstance()
 
     self.assertEqual(type(sp), SpatialPooler)
-    self.assertEqual(type(tp), TP10X2)
+    self.assertEqual(type(tp), BacktrackingTMCPP)
 
 
 

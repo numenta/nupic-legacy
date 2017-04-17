@@ -143,7 +143,7 @@ class HTMPredictionModelPickleSPInitArgs(object):
 
 
 class HTMPredictionModelPickleTPInitArgs(object):
-  """ Saves TP10X2 initialization args
+  """ Saves BacktrackingTMCPP initialization args
   """
   def __init__(self, filePath):
     """

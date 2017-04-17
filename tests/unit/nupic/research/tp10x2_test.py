@@ -23,12 +23,12 @@
 
 import unittest2 as unittest
 
-from nupic.research.TP10X2 import TP10X2
+from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
 
 import tp_test
 
-# Run the Python TP test against the TP10X2.
-tp_test.BacktrackingTM = TP10X2
+# Run the Python TP test against the BacktrackingTMCPP.
+tp_test.BacktrackingTM = BacktrackingTMCPP
 TPTest = tp_test.TPTest
 
 

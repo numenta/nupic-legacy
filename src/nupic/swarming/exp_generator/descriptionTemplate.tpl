@@ -276,7 +276,7 @@ config = {
 
   # TP diagnostic output verbosity control;
   # 0: silent; [1..6]: increasing levels of verbosity
-  # (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)
+  # (see verbosity in nupic/trunk/py/nupic/research/TP.py and BacktrackingTMCPP.py)
   #
   'tpVerbosity' : 0,
 

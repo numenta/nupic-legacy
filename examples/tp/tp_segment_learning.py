@@ -57,7 +57,7 @@ import numpy
 import unittest2 as unittest
 
 from nupic.research.BacktrackingTM import BacktrackingTM
-from nupic.research.TP10X2 import TP10X2
+from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
 from nupic.research import fdrutilities as fdrutils
 from nupic.support.unittesthelpers import testcasebase
 
@@ -129,22 +129,22 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     if g_testCPPTP:
       if g_options.verbosity > 1:
-        print "Creating TP10X2 instance"
+        print "Creating BacktrackingTMCPP instance"
 
-      cppTP = TP10X2(numberOfCols = numCols, cellsPerColumn = 4,
-                     initialPerm = initialPerm, connectedPerm = connectedPerm,
-                     minThreshold = minThreshold,
-                     newSynapseCount = newSynapseCount,
-                     permanenceInc = permanenceInc,
-                     permanenceDec = permanenceDec,
-                     activationThreshold = activationThreshold,
-                     globalDecay = globalDecay, maxAge=maxAge, burnIn = 1,
-                     seed=g_options.seed, verbosity=g_options.verbosity,
-                     checkSynapseConsistency = checkSynapseConsistency,
-                     pamLength = 1000,
-                     maxSegmentsPerCell = maxSegmentsPerCell,
-                     maxSynapsesPerSegment = maxSynapsesPerSegment,
-                     )
+      cppTP = BacktrackingTMCPP(numberOfCols = numCols, cellsPerColumn = 4,
+                                initialPerm = initialPerm, connectedPerm = connectedPerm,
+                                minThreshold = minThreshold,
+                                newSynapseCount = newSynapseCount,
+                                permanenceInc = permanenceInc,
+                                permanenceDec = permanenceDec,
+                                activationThreshold = activationThreshold,
+                                globalDecay = globalDecay, maxAge=maxAge, burnIn = 1,
+                                seed=g_options.seed, verbosity=g_options.verbosity,
+                                checkSynapseConsistency = checkSynapseConsistency,
+                                pamLength = 1000,
+                                maxSegmentsPerCell = maxSegmentsPerCell,
+                                maxSynapsesPerSegment = maxSynapsesPerSegment,
+                                )
       # Ensure we are copying over learning states for TPDiff
       cppTP.retrieveLearningStates = True
 

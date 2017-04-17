@@ -442,7 +442,7 @@ import cPickle
 import pprint
 
 from nupic.research.BacktrackingTM import BacktrackingTM
-from nupic.research.TP10X2 import TP10X2
+from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
 from nupic.research import fdrutilities as fdrutils
 
 #---------------------------------------------------------------------------------
@@ -2320,5 +2320,5 @@ if __name__=="__main__":
 
   if TEST_CPP_TP:
     print 'Testing C++ TP'
-    TPClass = TP10X2
+    TPClass = BacktrackingTMCPP
     runTests(testLength)

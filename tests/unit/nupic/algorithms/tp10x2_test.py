@@ -29,7 +29,7 @@ import numpy
 from nupic.bindings.math import Random
 from nupic.research import fdrutilities as fdrutils
 from nupic.research.BacktrackingTM import BacktrackingTM
-from nupic.research.TP10X2 import TP10X2
+from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
 
 VERBOSITY = 0  # how chatty the unit tests should be
 INFERENCE_VERBOSITY = 0  # Chattiness during inference test
@@ -53,17 +53,17 @@ def setVerbosity(verbosity, tp, tpPy):
 
 
 
-class TP10X2Test(unittest.TestCase):
+class BacktrackingTMCPP2Test(unittest.TestCase):
 
 
   def basicTest(self):
     """Basic test (creation, pickling, basic run of learning and inference)"""
     # Create TP object
-    tp = TP10X2(numberOfCols=10, cellsPerColumn=3, initialPerm=.2,
-                connectedPerm= 0.8, minThreshold=2, newSynapseCount=5,
-                permanenceInc=.1, permanenceDec= .05, permanenceMax=1,
-                globalDecay=.05, activationThreshold=4, doPooling=False,
-                segUpdateValidDuration=5, seed=SEED, verbosity=VERBOSITY)
+    tp = BacktrackingTMCPP(numberOfCols=10, cellsPerColumn=3, initialPerm=.2,
+                           connectedPerm= 0.8, minThreshold=2, newSynapseCount=5,
+                           permanenceInc=.1, permanenceDec= .05, permanenceMax=1,
+                           globalDecay=.05, activationThreshold=4, doPooling=False,
+                           segUpdateValidDuration=5, seed=SEED, verbosity=VERBOSITY)
     tp.retrieveLearningStates = True
 
     # Save and reload
@@ -249,109 +249,109 @@ class TP10X2Test(unittest.TestCase):
 
     if short:
       print "\nTesting with fixed resource CLA - test max segment and synapses"
-      tp = TP10X2(numberOfCols=30, cellsPerColumn=5,
-             initialPerm=.5, connectedPerm= 0.5, permanenceMax=1,
-             minThreshold=8, newSynapseCount=10,
-             permanenceInc=0.1, permanenceDec=0.01,
-             globalDecay=.0, activationThreshold=8,
-             doPooling=False, segUpdateValidDuration=5,
-             seed=SEED, verbosity=VERBOSITY,
-             maxAge=0,
-             maxSegmentsPerCell=2, maxSynapsesPerSegment=10,
-             checkSynapseConsistency=True)
+      tp = BacktrackingTMCPP(numberOfCols=30, cellsPerColumn=5,
+                             initialPerm=.5, connectedPerm= 0.5, permanenceMax=1,
+                             minThreshold=8, newSynapseCount=10,
+                             permanenceInc=0.1, permanenceDec=0.01,
+                             globalDecay=.0, activationThreshold=8,
+                             doPooling=False, segUpdateValidDuration=5,
+                             seed=SEED, verbosity=VERBOSITY,
+                             maxAge=0,
+                             maxSegmentsPerCell=2, maxSynapsesPerSegment=10,
+                             checkSynapseConsistency=True)
       tp.cells4.setCellSegmentOrder(True)
       self.basicTest2(tp, numPatterns=15, numRepetitions=1)
 
     if not short:
       print "\nTesting with fixed resource CLA - test max segment and synapses"
-      tp = TP10X2(numberOfCols=30, cellsPerColumn=5,
-             initialPerm = .5, connectedPerm= 0.5, permanenceMax = 1,
-             minThreshold = 8, newSynapseCount = 10,
-             permanenceInc = .1, permanenceDec= .01,
-             globalDecay = .0, activationThreshold = 8,
-             doPooling = False, segUpdateValidDuration = 5,
-             seed=SEED, verbosity = VERBOSITY,
-             maxAge = 0,
-             maxSegmentsPerCell = 2, maxSynapsesPerSegment = 10,
-             checkSynapseConsistency = True)
+      tp = BacktrackingTMCPP(numberOfCols=30, cellsPerColumn=5,
+                             initialPerm = .5, connectedPerm= 0.5, permanenceMax = 1,
+                             minThreshold = 8, newSynapseCount = 10,
+                             permanenceInc = .1, permanenceDec= .01,
+                             globalDecay = .0, activationThreshold = 8,
+                             doPooling = False, segUpdateValidDuration = 5,
+                             seed=SEED, verbosity = VERBOSITY,
+                             maxAge = 0,
+                             maxSegmentsPerCell = 2, maxSynapsesPerSegment = 10,
+                             checkSynapseConsistency = True)
       tp.cells4.setCellSegmentOrder(1)
       self.basicTest2(tp, numPatterns=30, numRepetitions=2)
 
       print "\nTesting with permanenceInc = 0 and Dec = 0"
-      tp = TP10X2(numberOfCols=30, cellsPerColumn=5,
-              initialPerm = .5, connectedPerm= 0.5,
-              minThreshold = 3, newSynapseCount = 3,
-              permanenceInc = 0.0, permanenceDec= 0.00,
-              permanenceMax = 1,
-              globalDecay = .0, activationThreshold = 3,
-              doPooling = False, segUpdateValidDuration = 5,
-              seed=SEED, verbosity = VERBOSITY,
-              checkSynapseConsistency = False)
+      tp = BacktrackingTMCPP(numberOfCols=30, cellsPerColumn=5,
+                             initialPerm = .5, connectedPerm= 0.5,
+                             minThreshold = 3, newSynapseCount = 3,
+                             permanenceInc = 0.0, permanenceDec= 0.00,
+                             permanenceMax = 1,
+                             globalDecay = .0, activationThreshold = 3,
+                             doPooling = False, segUpdateValidDuration = 5,
+                             seed=SEED, verbosity = VERBOSITY,
+                             checkSynapseConsistency = False)
       tp.printParameters()
       self.basicTest2(tp, numPatterns = 30, numRepetitions = 3)
 
       print "Testing with permanenceInc = 0 and Dec = 0 and 1 cell per column"
-      tp = TP10X2(numberOfCols=30, cellsPerColumn=1,
-              initialPerm = .5, connectedPerm= 0.5,
-              minThreshold = 3, newSynapseCount = 3,
-              permanenceInc = 0.0, permanenceDec= 0.0,
-              permanenceMax = 1,
-              globalDecay = .0, activationThreshold = 3,
-              doPooling = False, segUpdateValidDuration = 5,
-              seed=SEED, verbosity = VERBOSITY,
-              checkSynapseConsistency = False)
+      tp = BacktrackingTMCPP(numberOfCols=30, cellsPerColumn=1,
+                             initialPerm = .5, connectedPerm= 0.5,
+                             minThreshold = 3, newSynapseCount = 3,
+                             permanenceInc = 0.0, permanenceDec= 0.0,
+                             permanenceMax = 1,
+                             globalDecay = .0, activationThreshold = 3,
+                             doPooling = False, segUpdateValidDuration = 5,
+                             seed=SEED, verbosity = VERBOSITY,
+                             checkSynapseConsistency = False)
       self.basicTest2(tp)
 
       print "Testing with permanenceInc = 0.1 and Dec = .0"
-      tp = TP10X2(numberOfCols=30, cellsPerColumn=5,
-             initialPerm = .5, connectedPerm= 0.5,
-             minThreshold = 3, newSynapseCount = 3,
-             permanenceInc = .1, permanenceDec= .0,
-             permanenceMax = 1,
-             globalDecay = .0, activationThreshold = 3,
-             doPooling = False, segUpdateValidDuration = 5,
-             seed=SEED, verbosity = VERBOSITY,
-             checkSynapseConsistency = False)
+      tp = BacktrackingTMCPP(numberOfCols=30, cellsPerColumn=5,
+                             initialPerm = .5, connectedPerm= 0.5,
+                             minThreshold = 3, newSynapseCount = 3,
+                             permanenceInc = .1, permanenceDec= .0,
+                             permanenceMax = 1,
+                             globalDecay = .0, activationThreshold = 3,
+                             doPooling = False, segUpdateValidDuration = 5,
+                             seed=SEED, verbosity = VERBOSITY,
+                             checkSynapseConsistency = False)
       self.basicTest2(tp)
 
       print ("Testing with permanenceInc = 0.1, Dec = .01 and higher synapse "
              "count")
-      tp = TP10X2(numberOfCols=30, cellsPerColumn=2,
-             initialPerm = .5, connectedPerm= 0.5,
-             minThreshold = 3, newSynapseCount = 5,
-             permanenceInc = .1, permanenceDec= .01,
-             permanenceMax = 1,
-             globalDecay = .0, activationThreshold = 3,
-             doPooling = False, segUpdateValidDuration = 5,
-             seed=SEED, verbosity = VERBOSITY,
-             checkSynapseConsistency = True)
+      tp = BacktrackingTMCPP(numberOfCols=30, cellsPerColumn=2,
+                             initialPerm = .5, connectedPerm= 0.5,
+                             minThreshold = 3, newSynapseCount = 5,
+                             permanenceInc = .1, permanenceDec= .01,
+                             permanenceMax = 1,
+                             globalDecay = .0, activationThreshold = 3,
+                             doPooling = False, segUpdateValidDuration = 5,
+                             seed=SEED, verbosity = VERBOSITY,
+                             checkSynapseConsistency = True)
       self.basicTest2(tp, numPatterns=10, numRepetitions=2)
 
       print "Testing age based global decay"
-      tp = TP10X2(numberOfCols=30, cellsPerColumn=5,
-              initialPerm = .4, connectedPerm= 0.5,
-              minThreshold = 3, newSynapseCount = 3,
-              permanenceInc = 0.1, permanenceDec= 0.1,
-              permanenceMax = 1,
-              globalDecay = .25, activationThreshold = 3,
-              doPooling = False, segUpdateValidDuration = 5,
-              pamLength = 2, maxAge = 20,
-              seed=SEED, verbosity = VERBOSITY,
-              checkSynapseConsistency = True)
+      tp = BacktrackingTMCPP(numberOfCols=30, cellsPerColumn=5,
+                             initialPerm = .4, connectedPerm= 0.5,
+                             minThreshold = 3, newSynapseCount = 3,
+                             permanenceInc = 0.1, permanenceDec= 0.1,
+                             permanenceMax = 1,
+                             globalDecay = .25, activationThreshold = 3,
+                             doPooling = False, segUpdateValidDuration = 5,
+                             pamLength = 2, maxAge = 20,
+                             seed=SEED, verbosity = VERBOSITY,
+                             checkSynapseConsistency = True)
       tp.cells4.setCellSegmentOrder(1)
       self.basicTest2(tp)
 
       print "\nTesting with fixed size CLA, max segments per cell"
-      tp = TP10X2(numberOfCols=30, cellsPerColumn=5,
-             initialPerm = .5, connectedPerm= 0.5, permanenceMax = 1,
-             minThreshold = 8, newSynapseCount = 10,
-             permanenceInc = .1, permanenceDec= .01,
-             globalDecay = .0, activationThreshold = 8,
-             doPooling = False, segUpdateValidDuration = 5,
-             seed=SEED, verbosity = VERBOSITY,
-             maxAge = 0,
-             maxSegmentsPerCell = 2, maxSynapsesPerSegment = 100,
-             checkSynapseConsistency = True)
+      tp = BacktrackingTMCPP(numberOfCols=30, cellsPerColumn=5,
+                             initialPerm = .5, connectedPerm= 0.5, permanenceMax = 1,
+                             minThreshold = 8, newSynapseCount = 10,
+                             permanenceInc = .1, permanenceDec= .01,
+                             globalDecay = .0, activationThreshold = 8,
+                             doPooling = False, segUpdateValidDuration = 5,
+                             seed=SEED, verbosity = VERBOSITY,
+                             maxAge = 0,
+                             maxSegmentsPerCell = 2, maxSynapsesPerSegment = 100,
+                             checkSynapseConsistency = True)
       tp.cells4.setCellSegmentOrder(1)
       self.basicTest2(tp, numPatterns=30, numRepetitions=2)
 

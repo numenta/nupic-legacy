@@ -486,14 +486,14 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def saveToFile(self, filePath):
     """
-    Implemented in TP10X2.TP10X2.saveToFile
+    Implemented in BacktrackingTMCPP.BacktrackingTMCPP.saveToFile
     """
     pass
 
 
   def loadFromFile(self, filePath):
     """
-    Implemented in TP10X2.TP10X2.loadFromFile
+    Implemented in BacktrackingTMCPP.BacktrackingTMCPP.loadFromFile
     """
     pass
 

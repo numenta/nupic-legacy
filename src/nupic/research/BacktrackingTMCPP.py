@@ -60,7 +60,7 @@ def _extractCallingMethodArgs():
 
 
 
-class TP10X2(BacktrackingTM):
+class BacktrackingTMCPP(BacktrackingTM):
   """Class implementing the temporal pooler algorithm as described in the
   published Cortical Learning Algorithm documentation.  The implementation here
   attempts to closely match the pseudocode in the documentation. This
@@ -154,7 +154,7 @@ class TP10X2(BacktrackingTM):
     """
     Set the state of ourself from a serialized state.
     """
-    super(TP10X2, self).__setstate__(state)
+    super(BacktrackingTMCPP, self).__setstate__(state)
     if self.makeCells4Ephemeral:
       self.cells4 = Cells4(self.numberOfCols,
                  self.cellsPerColumn,
