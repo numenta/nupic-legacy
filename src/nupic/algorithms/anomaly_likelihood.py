@@ -463,11 +463,11 @@ def estimateAnomalyLikelihoods(anomalyScores,
   else:
     distributionParams = estimateNormal(dataValues[skipRecords:])
 
-    # HACK ALERT! The CLA model currently does not handle constant metric values
-    # very well (time of day encoder changes sometimes lead to unstable SDR's
-    # even though the metric is constant). Until this is resolved, we explicitly
-    # detect and handle completely flat metric values by reporting them as not
-    # anomalous.
+    # HACK ALERT! The HTMPredictionModel currently does not handle constant
+    # metric values very well (time of day encoder changes sometimes lead to
+    # unstable SDR's even though the metric is constant). Until this is
+    # resolved, we explicitly detect and handle completely flat metric values by
+    # reporting them as not anomalous.
     s = [r[1] for r in aggRecordList]
     # Only do this if the values are numeric
     if all([isinstance(r[1], numbers.Number) for r in aggRecordList]):

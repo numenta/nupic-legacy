@@ -20,89 +20,89 @@
 # ----------------------------------------------------------------------
 
 
-# CLAModel-specific experiment task callbacks that may be used
+# HTMPredictionModel-specific experiment task callbacks that may be used
 # in setup, postIter, and finish callback lists
 
 import os
 
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
-from clamodel import CLAModel
+from htmpredictionmodel import HTMPredictionModel
 
 
 
-def claModelControlEnableSPLearningCb(claModel):
-  """ Enables learning in the CLA model's Spatial Pooler
+def htmPredictionModelControlEnableSPLearningCb(htmPredictionModel):
+  """ Enables learning in the HTMPredictionModel's Spatial Pooler
 
-  See also claModelControlDisableSPLearningCb.
+  See also htmPredictionModelControlDisableSPLearningCb.
 
-  claModel:  pointer to a CLAModel instance
+  htmPredictionModel:  pointer to a HTMPredictionModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(claModel, CLAModel)
+  assert isinstance(htmPredictionModel, HTMPredictionModel)
 
-  claModel._getSPRegion().setParameter('learningMode', True)
+  htmPredictionModel._getSPRegion().setParameter('learningMode', True)
   return
 
 
 
-def claModelControlDisableSPLearningCb(claModel):
-  """ Disables learning in the CLA model's Spatial Pooler, while retaining
-  the ability to re-enable SP learning in the future.
+def htmPredictionModelControlDisableSPLearningCb(htmPredictionModel):
+  """ Disables learning in the HTMPredictionModel's Spatial Pooler, while
+  retaining the ability to re-enable SP learning in the future.
 
-  See also: claModelControlEnableSPLearningCb.
+  See also: htmPredictionModelControlEnableSPLearningCb.
   See also: modelcallbacks.modelControlFinishLearningCb.
 
-  claModel:  pointer to a CLAModel instance
+  htmPredictionModel:  pointer to a HTMPredictionModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(claModel, CLAModel)
+  assert isinstance(htmPredictionModel, HTMPredictionModel)
 
-  claModel._getSPRegion().setParameter('learningMode', False)
+  htmPredictionModel._getSPRegion().setParameter('learningMode', False)
   return
 
 
 
-def claModelControlEnableTPLearningCb(claModel):
-  """ Enables learning in the CLA model's Temporal Pooler
+def htmPredictionModelControlEnableTPLearningCb(htmPredictionModel):
+  """ Enables learning in the HTMPredictionModel's Temporal Pooler
 
-  See also claModelControlDisableTPLearningCb.
+  See also htmPredictionModelControlDisableTPLearningCb.
 
-  claModel:  pointer to a CLAModel instance
+  htmPredictionModel:  pointer to a HTMPredictionModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(claModel, CLAModel)
+  assert isinstance(htmPredictionModel, HTMPredictionModel)
 
-  claModel._getTPRegion().setParameter('learningMode', True)
+  htmPredictionModel._getTPRegion().setParameter('learningMode', True)
   return
 
 
 
-def claModelControlDisableTPLearningCb(claModel):
-  """ Disables learning in the CLA model's Temporal Pooler, while retaining
-  the ability to re-enable TP learning in the future.
+def htmPredictionModelControlDisableTPLearningCb(htmPredictionModel):
+  """ Disables learning in the HTMPredictionModel's Temporal Pooler, while
+  retaining the ability to re-enable TP learning in the future.
 
-  See also: claModelControlEnableTPLearningCb.
+  See also: htmPredictionModelControlEnableTPLearningCb.
   See also: modelcallbacks.modelControlFinishLearningCb.
 
-  claModel:  pointer to a CLAModel instance
+  htmPredictionModel:  pointer to a HTMPredictionModel instance
 
   Returns: nothing
   """
 
-  assert isinstance(claModel, CLAModel)
+  assert isinstance(htmPredictionModel, HTMPredictionModel)
 
-  claModel._getTPRegion().setParameter('learningMode', False)
+  htmPredictionModel._getTPRegion().setParameter('learningMode', False)
   return
 
 
 
-class CLAModelPickleSPInitArgs(object):
+class HTMPredictionModelPickleSPInitArgs(object):
   """ Saves SP initialization args
   """
   def __init__(self, filePath):
@@ -115,14 +115,14 @@ class CLAModelPickleSPInitArgs(object):
     return
 
 
-  def __call__(self, claModel):
+  def __call__(self, htmPredictionModel):
 
     import pickle
 
     # Get the SP args dictionary
-    assert isinstance(claModel, CLAModel)
+    assert isinstance(htmPredictionModel, HTMPredictionModel)
 
-    spRegion = claModel._getSPRegion().getSelf()
+    spRegion = htmPredictionModel._getSPRegion().getSelf()
 
     sfdr = spRegion._sfdr
 
@@ -142,7 +142,7 @@ class CLAModelPickleSPInitArgs(object):
 
 
 
-class CLAModelPickleTPInitArgs(object):
+class HTMPredictionModelPickleTPInitArgs(object):
   """ Saves TP10X2 initialization args
   """
   def __init__(self, filePath):
@@ -155,14 +155,14 @@ class CLAModelPickleTPInitArgs(object):
     return
 
 
-  def __call__(self, claModel):
+  def __call__(self, htmPredictionModel):
 
     import pickle
 
     # Get the TP args dictionary
-    assert isinstance(claModel, CLAModel)
+    assert isinstance(htmPredictionModel, HTMPredictionModel)
 
-    tpRegion = claModel._getTPRegion().getSelf()
+    tpRegion = htmPredictionModel._getTPRegion().getSelf()
 
     tfdr = tpRegion._tfdr
 

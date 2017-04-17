@@ -1,7 +1,7 @@
 
 
 
-class CLAModelException(Exception):
+class HTMPredictionModelException(Exception):
   """ base exception class for cla model exceptions """
   def __init__(self, errorString, debugInfo=None):
     """
@@ -11,14 +11,14 @@ class CLAModelException(Exception):
     debugInfo:      An optional sequence of debug information; must be
                      convertible to JSON; pass None to ignore
     """
-    super(CLAModelException, self).__init__(errorString, debugInfo)
+    super(HTMPredictionModelException, self).__init__(errorString, debugInfo)
     self.errorString = errorString
     self.debugInfo = debugInfo
     return
 
 
 
-class CLAModelInvalidArgument(CLAModelException):
+class HTMPredictionModelInvalidArgument(HTMPredictionModelException):
   """
   Raised when a supplied value to a method is invalid.
   """
@@ -26,7 +26,7 @@ class CLAModelInvalidArgument(CLAModelException):
 
 
 
-class CLAModelInvalidRangeError(CLAModelException):
+class HTMPredictionModelInvalidRangeError(HTMPredictionModelException):
   """
   Raised when supplied ranges to a method are invalid.
   """

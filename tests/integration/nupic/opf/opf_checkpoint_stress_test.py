@@ -39,7 +39,7 @@ from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 # used because it uses the most components.  Some of the parameters, such
 # as columnCount were reduced to make the test run faster.
 MODEL_PARAMS = {
-    'model': "CLA",
+    'model': "HTMPrediction",
     'version': 1,
     'aggregationInfo': {  'days': 0,
         'fields': [(u'c1', 'sum'), (u'c0', 'first')],
