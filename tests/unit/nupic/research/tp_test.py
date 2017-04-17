@@ -75,7 +75,7 @@ class TPTest(unittest.TestCase):
     tp2 = pickle.loads(pickle.dumps(tp1))
     tp2.loadFromFile(checkpointPath)
 
-    # Check that the TPs are the same.
+    # Check that the TMs are the same.
     self.assertTPsEqual(tp1, tp2)
 
     # Feed some data into the models.
@@ -110,7 +110,7 @@ class TPTest(unittest.TestCase):
     tp2 = pickle.loads(pickle.dumps(tp1))
     tp2.loadFromFile(checkpointPath)
 
-    # Check that the TPs are the same.
+    # Check that the TMs are the same.
     self.assertTPsEqual(tp1, tp2)
 
     # Feed some data into the models.

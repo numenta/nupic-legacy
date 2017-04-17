@@ -254,7 +254,7 @@ def createTPs(includeCPP = True,
 
   Parameters:
   ------------------------------------------------------------------
-  retval:   tps - dict of TM instances
+  retval:   tms - dict of TM instances
   """
 
   # Keep these fixed:
@@ -312,12 +312,12 @@ def createTPs(includeCPP = True,
 
 def assertNoTPDiffs(tps):
   """
-  Check for diffs among the TM instances in the passed in tps dict and
+  Check for diffs among the TM instances in the passed in tms dict and
   raise an assert if any are detected
 
   Parameters:
   ---------------------------------------------------------------------
-  tps:                  dict of TM instances
+  tms:                  dict of TM instances
   """
 
   if len(tps) == 1:
@@ -338,12 +338,12 @@ def evalSequences(tps,
                   doResets = True,
                   **kwargs):
 
-  """Train the TPs on the entire training set for nTrainRepetitions in a row.
+  """Train the TMs on the entire training set for nTrainRepetitions in a row.
   Then run the test set through inference once and return the inference stats.
 
   Parameters:
   ---------------------------------------------------------------------
-  tps:                  dict of TM instances
+  tms:                  dict of TM instances
   trainingSequences:    list of training sequences. Each sequence is a list
                         of TM input patterns
   testSequences:        list of test sequences. If None, we will test against
@@ -441,7 +441,7 @@ def evalSequences(tps,
 
     # --------------------------------------------------------------------
     # Done training all sequences in this round, print the total number of
-    #  missing, extra columns and make sure it's the same among the TPs
+    #  missing, extra columns and make sure it's the same among the TMs
     if VERBOSITY >= 2:
       print
     prevResult = None
@@ -492,7 +492,7 @@ def evalSequences(tps,
     print "\n##############################################################"
     print "########################## Inference #########################"
 
-  # Reset stats in all TPs
+  # Reset stats in all TMs
   for tp in tps.itervalues():
     tp.resetStats()
 
@@ -549,7 +549,7 @@ def evalSequences(tps,
           print
 
     # Done with this sequence
-    # Debug print of all stats of the TPs
+    # Debug print of all stats of the TMs
     if VERBOSITY >= 4:
       print
       for (name,tp) in tps.iteritems():
@@ -592,7 +592,7 @@ def _testConfig(baseParams, expMissingMin=0, expMissingMax=0, **mods):
   Parameters:
   -----------------------------------------------------------------------
   baseParams:     dict of all of the parameters for building sequences,
-                      creating the TPs, and training and testing them. This
+                      creating the TMs, and training and testing them. This
                       gets updated from 'mods' before we use it.
 
   expMissingMin:   Minimum number of expected missing predictions during testing.
@@ -612,7 +612,7 @@ def _testConfig(baseParams, expMissingMin=0, expMissingMax=0, **mods):
   (numCols, trainingSequences) = func(**params)
 
   # --------------------------------------------------------------------
-  # Create the TPs
+  # Create the TMs
   if params['numCols'] is None:
     params['numCols'] = numCols
   tps = createTPs(**params)
