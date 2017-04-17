@@ -28,7 +28,7 @@ import numpy
 
 from nupic.bindings.math import Random
 from nupic.research import fdrutilities as fdrutils
-from nupic.research.BacktrackingTM import TP
+from nupic.research.BacktrackingTM import BacktrackingTM
 from nupic.research.TP10X2 import TP10X2
 
 VERBOSITY = 0  # how chatty the unit tests should be
@@ -103,19 +103,19 @@ class TP10X2Test(unittest.TestCase):
                  testTrimming=False, testRebuild=False):
     """Basic test (basic run of learning and inference)"""
     # Create PY TP object that mirrors the one sent in.
-    tpPy = TP(numberOfCols=tp.numberOfCols, cellsPerColumn=tp.cellsPerColumn,
-              initialPerm=tp.initialPerm, connectedPerm=tp.connectedPerm,
-              minThreshold=tp.minThreshold, newSynapseCount=tp.newSynapseCount,
-              permanenceInc=tp.permanenceInc, permanenceDec=tp.permanenceDec,
-              permanenceMax=tp.permanenceMax, globalDecay=tp.globalDecay,
-              activationThreshold=tp.activationThreshold,
-              doPooling=tp.doPooling,
-              segUpdateValidDuration=tp.segUpdateValidDuration,
-              pamLength=tp.pamLength, maxAge=tp.maxAge,
-              maxSeqLength=tp.maxSeqLength,
-              maxSegmentsPerCell=tp.maxSegmentsPerCell,
-              maxSynapsesPerSegment=tp.maxSynapsesPerSegment,
-              seed=tp.seed, verbosity=tp.verbosity)
+    tpPy = BacktrackingTM(numberOfCols=tp.numberOfCols, cellsPerColumn=tp.cellsPerColumn,
+                          initialPerm=tp.initialPerm, connectedPerm=tp.connectedPerm,
+                          minThreshold=tp.minThreshold, newSynapseCount=tp.newSynapseCount,
+                          permanenceInc=tp.permanenceInc, permanenceDec=tp.permanenceDec,
+                          permanenceMax=tp.permanenceMax, globalDecay=tp.globalDecay,
+                          activationThreshold=tp.activationThreshold,
+                          doPooling=tp.doPooling,
+                          segUpdateValidDuration=tp.segUpdateValidDuration,
+                          pamLength=tp.pamLength, maxAge=tp.maxAge,
+                          maxSeqLength=tp.maxSeqLength,
+                          maxSegmentsPerCell=tp.maxSegmentsPerCell,
+                          maxSynapsesPerSegment=tp.maxSynapsesPerSegment,
+                          seed=tp.seed, verbosity=tp.verbosity)
 
     # Ensure we are copying over learning states for TPDiff
     tp.retrieveLearningStates = True

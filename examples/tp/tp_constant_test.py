@@ -28,7 +28,7 @@ import numpy as np
 import unittest2 as unittest
 
 from nupic.research import fdrutilities as fdrutils
-from nupic.research.BacktrackingTM import TP
+from nupic.research.BacktrackingTM import BacktrackingTM
 from nupic.research.TP10X2 import TP10X2
 from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
                                                         TestOptionParser)
@@ -81,14 +81,14 @@ def _createTps(numCols):
   # Ensure we are copying over learning states for TPDiff
   cppTp.retrieveLearningStates = True
 
-  pyTp = TP(numberOfCols=numCols, cellsPerColumn=cellsPerColumn,
-             initialPerm=initialPerm, connectedPerm=connectedPerm,
-             minThreshold=minThreshold, newSynapseCount=newSynapseCount,
-             permanenceInc=permanenceInc, permanenceDec=permanenceDec,
-             activationThreshold=activationThreshold,
-             globalDecay=globalDecay, burnIn=1,
-             seed=SEED, verbosity=VERBOSITY,
-             pamLength=1000)
+  pyTp = BacktrackingTM(numberOfCols=numCols, cellsPerColumn=cellsPerColumn,
+                        initialPerm=initialPerm, connectedPerm=connectedPerm,
+                        minThreshold=minThreshold, newSynapseCount=newSynapseCount,
+                        permanenceInc=permanenceInc, permanenceDec=permanenceDec,
+                        activationThreshold=activationThreshold,
+                        globalDecay=globalDecay, burnIn=1,
+                        seed=SEED, verbosity=VERBOSITY,
+                        pamLength=1000)
 
   return cppTp, pyTp
 

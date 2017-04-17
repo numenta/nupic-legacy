@@ -34,7 +34,7 @@ import numpy
 from pkg_resources import resource_filename
 
 from nupic.research import fdrutilities
-from nupic.research.BacktrackingTM import TP
+from nupic.research.BacktrackingTM import BacktrackingTM
 
 COL_SET = set(range(500))
 
@@ -55,12 +55,12 @@ class TPTest(unittest.TestCase):
 
   
   def testInitDefaultTP(self):
-    self.assertTrue(isinstance(TP(), TP))
+    self.assertTrue(isinstance(BacktrackingTM(), BacktrackingTM))
 
 
   def testCheckpointLearned(self):
     # Create a model and give it some inputs to learn.
-    tp1 = TP(numberOfCols=100, cellsPerColumn=12, verbosity=VERBOSITY)
+    tp1 = BacktrackingTM(numberOfCols=100, cellsPerColumn=12, verbosity=VERBOSITY)
     sequences = [self.generateSequence() for _ in xrange(5)]
     train = list(itertools.chain.from_iterable(sequences[:3]))
     for bottomUpInput in train:
@@ -94,7 +94,7 @@ class TPTest(unittest.TestCase):
 
   def testCheckpointMiddleOfSequence(self):
     # Create a model and give it some inputs to learn.
-    tp1 = TP(numberOfCols=100, cellsPerColumn=12, verbosity=VERBOSITY)
+    tp1 = BacktrackingTM(numberOfCols=100, cellsPerColumn=12, verbosity=VERBOSITY)
     sequences = [self.generateSequence() for _ in xrange(5)]
     train = list(itertools.chain.from_iterable(sequences[:3] +
                                                [sequences[3][:5]]))
@@ -130,10 +130,10 @@ class TPTest(unittest.TestCase):
 
   def testCheckpointMiddleOfSequence2(self):
     """More complex test of checkpointing in the middle of a sequence."""
-    tp1 = TP(2048, 32, 0.21, 0.5, 11, 20, 0.1, 0.1, 1.0, 0.0, 14, False, 5, 2,
-             False, 1960, 0, False, 3, 10, 5, 0, 32, 128, 32, 'normal')
-    tp2 = TP(2048, 32, 0.21, 0.5, 11, 20, 0.1, 0.1, 1.0, 0.0, 14, False, 5, 2,
-             False, 1960, 0, False, 3, 10, 5, 0, 32, 128, 32, 'normal')
+    tp1 = BacktrackingTM(2048, 32, 0.21, 0.5, 11, 20, 0.1, 0.1, 1.0, 0.0, 14, False, 5, 2,
+                         False, 1960, 0, False, 3, 10, 5, 0, 32, 128, 32, 'normal')
+    tp2 = BacktrackingTM(2048, 32, 0.21, 0.5, 11, 20, 0.1, 0.1, 1.0, 0.0, 14, False, 5, 2,
+                         False, 1960, 0, False, 3, 10, 5, 0, 32, 128, 32, 'normal')
 
     with open(resource_filename(__name__, 'data/tp_input.csv'), 'r') as fin:
       reader = csv.reader(fin)

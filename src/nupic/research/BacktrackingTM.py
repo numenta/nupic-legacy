@@ -49,7 +49,7 @@ dtype = GetNTAReal()
 
 
 
-class TP(ConsolePrinterMixin):
+class BacktrackingTM(ConsolePrinterMixin):
   """
   Class implementing the temporal pooler algorithm as described in the
   published Cortical Learning Algorithm documentation.  The implementation here
@@ -420,7 +420,7 @@ class TP(ConsolePrinterMixin):
       we'll just return what it gives us.
     """
     try:
-      return super(TP, self).__getattr__(name)
+      return super(BacktrackingTM, self).__getattr__(name)
     except AttributeError:
       raise AttributeError("'TP' object has no attribute '%s'" % name)
 
@@ -2939,7 +2939,7 @@ class TP(ConsolePrinterMixin):
     #   that we will need to update.
     # - pairs represent source (colIdx, cellIdx) of new synapses to create on
     #   the segment
-    update = TP.SegmentUpdate(c, i, s, activeSynapses)
+    update = BacktrackingTM.SegmentUpdate(c, i, s, activeSynapses)
 
     return update
 
@@ -3521,4 +3521,4 @@ class Segment(object):
 # This is necessary for unpickling objects that have instances of the nested
 # class since the loading process looks for the class at the top level of the
 # module.
-SegmentUpdate = TP.SegmentUpdate
+SegmentUpdate = BacktrackingTM.SegmentUpdate

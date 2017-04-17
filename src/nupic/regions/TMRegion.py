@@ -38,7 +38,7 @@ def _getTPClass(temporalImp):
   """
 
   if temporalImp == 'py':
-    return BacktrackingTM.TP
+    return BacktrackingTM.BacktrackingTM
   elif temporalImp == 'cpp':
     return TP10X2.TP10X2
   elif temporalImp == 'tm_py':

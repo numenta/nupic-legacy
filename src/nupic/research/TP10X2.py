@@ -23,7 +23,7 @@ import numpy
 from numpy import *
 
 import nupic.math
-from nupic.research.BacktrackingTM import TP
+from nupic.research.BacktrackingTM import BacktrackingTM
 
 from nupic.bindings.algorithms import Cells4
 
@@ -60,7 +60,7 @@ def _extractCallingMethodArgs():
 
 
 
-class TP10X2(TP):
+class TP10X2(BacktrackingTM):
   """Class implementing the temporal pooler algorithm as described in the
   published Cortical Learning Algorithm documentation.  The implementation here
   attempts to closely match the pseudocode in the documentation. This
@@ -121,33 +121,33 @@ class TP10X2(TP):
 
     #---------------------------------------------------------------------------------
     # Init the base class
-    TP.__init__(self,
-               numberOfCols = numberOfCols,
-               cellsPerColumn = cellsPerColumn,
-               initialPerm = initialPerm,
-               connectedPerm = connectedPerm,
-               minThreshold = minThreshold,
-               newSynapseCount = newSynapseCount,
-               permanenceInc = permanenceInc,
-               permanenceDec = permanenceDec,
-               permanenceMax = permanenceMax, # never exceed this value
+    BacktrackingTM.__init__(self,
+                            numberOfCols = numberOfCols,
+                            cellsPerColumn = cellsPerColumn,
+                            initialPerm = initialPerm,
+                            connectedPerm = connectedPerm,
+                            minThreshold = minThreshold,
+                            newSynapseCount = newSynapseCount,
+                            permanenceInc = permanenceInc,
+                            permanenceDec = permanenceDec,
+                            permanenceMax = permanenceMax,  # never exceed this value
                globalDecay = globalDecay,
-               activationThreshold = activationThreshold,
-               doPooling = doPooling,
-               segUpdateValidDuration = segUpdateValidDuration,
-               burnIn = burnIn,
-               collectStats = collectStats,
-               seed = seed,
-               verbosity = verbosity,
-               pamLength = pamLength,
-               maxInfBacktrack = maxInfBacktrack,
-               maxLrnBacktrack = maxLrnBacktrack,
-               maxAge = maxAge,
-               maxSeqLength = maxSeqLength,
-               maxSegmentsPerCell = maxSegmentsPerCell,
-               maxSynapsesPerSegment = maxSynapsesPerSegment,
-               outputType = outputType,
-               )
+                            activationThreshold = activationThreshold,
+                            doPooling = doPooling,
+                            segUpdateValidDuration = segUpdateValidDuration,
+                            burnIn = burnIn,
+                            collectStats = collectStats,
+                            seed = seed,
+                            verbosity = verbosity,
+                            pamLength = pamLength,
+                            maxInfBacktrack = maxInfBacktrack,
+                            maxLrnBacktrack = maxLrnBacktrack,
+                            maxAge = maxAge,
+                            maxSeqLength = maxSeqLength,
+                            maxSegmentsPerCell = maxSegmentsPerCell,
+                            maxSynapsesPerSegment = maxSynapsesPerSegment,
+                            outputType = outputType,
+                            )
 
 
   def __setstate__(self, state):
@@ -190,7 +190,7 @@ class TP10X2(TP):
     """
     List of our member variables that we don't need to be saved
     """
-    e = TP._getEphemeralMembers(self)
+    e = BacktrackingTM._getEphemeralMembers(self)
     if self.makeCells4Ephemeral:
       e.extend(['cells4'])
     return e
@@ -200,7 +200,7 @@ class TP10X2(TP):
     """
     Initialize all ephemeral members after being restored to a pickled state.
     """
-    TP._initEphemerals(self)
+    BacktrackingTM._initEphemerals(self)
     #---------------------------------------------------------------------------------
     # cells4 specific initialization
 
@@ -273,7 +273,7 @@ class TP10X2(TP):
     """
 
     try:
-      return super(TP, self).__getattr__(name)
+      return super(BacktrackingTM, self).__getattr__(name)
     except AttributeError:
       raise AttributeError("'TP' object has no attribute '%s'" % name)
 
@@ -403,7 +403,7 @@ class TP10X2(TP):
       print "TP Reset"
     self._setStatePointers()
     self.cells4.reset()
-    TP.reset(self)
+    BacktrackingTM.reset(self)
 
 
   def finishLearning(self):

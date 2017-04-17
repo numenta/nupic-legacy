@@ -48,7 +48,7 @@ There should be four segments a-b
 import numpy
 import unittest2 as unittest
 
-from nupic.research.BacktrackingTM import TP
+from nupic.research.BacktrackingTM import BacktrackingTM
 from nupic.research.TP10X2 import TP10X2
 from nupic.support.unittesthelpers import testcasebase
 
@@ -117,14 +117,14 @@ def _createTPs(numCols, cellsPerColumn=4, checkSynapseConsistency=True):
   if VERBOSITY > 1:
     print "Creating PY TP instance"
 
-  pyTp = TP(numberOfCols=numCols, cellsPerColumn=cellsPerColumn,
-            initialPerm=initialPerm, connectedPerm=connectedPerm,
-            minThreshold=minThreshold, newSynapseCount=newSynapseCount,
-            permanenceInc=permanenceInc, permanenceDec=permanenceDec,
-            activationThreshold=activationThreshold,
-            globalDecay=globalDecay, burnIn=1,
-            seed=SEED, verbosity=VERBOSITY,
-            pamLength=1000)
+  pyTp = BacktrackingTM(numberOfCols=numCols, cellsPerColumn=cellsPerColumn,
+                        initialPerm=initialPerm, connectedPerm=connectedPerm,
+                        minThreshold=minThreshold, newSynapseCount=newSynapseCount,
+                        permanenceInc=permanenceInc, permanenceDec=permanenceDec,
+                        activationThreshold=activationThreshold,
+                        globalDecay=globalDecay, burnIn=1,
+                        seed=SEED, verbosity=VERBOSITY,
+                        pamLength=1000)
 
   return cppTp, pyTp
 

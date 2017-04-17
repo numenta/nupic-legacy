@@ -46,7 +46,7 @@ import pprint
 import random
 import unittest2 as unittest
 
-from nupic.research.BacktrackingTM import TP
+from nupic.research.BacktrackingTM import BacktrackingTM
 from nupic.research.TP10X2 import TP10X2
 from nupic.research import fdrutilities as fdrutils
 from nupic.support.unittesthelpers import testcasebase
@@ -290,18 +290,18 @@ def createTPs(includeCPP = True,
     if VERBOSITY >= 2:
       print "Creating PY TP instance"
 
-    py_tp = TP(numberOfCols = numCols, cellsPerColumn = cellsPerCol,
-               initialPerm = initialPerm, connectedPerm = connectedPerm,
-               minThreshold = minThreshold, newSynapseCount = newSynapseCount,
-               permanenceInc = permanenceInc, permanenceDec = permanenceDec,
-               activationThreshold = activationThreshold,
-               globalDecay = globalDecay, burnIn = 1,
-               seed=SEED, verbosity=VERBOSITY,
-               collectStats = True,
-               pamLength = pamLength,
-               maxInfBacktrack = maxInfBacktrack,
-               maxLrnBacktrack = maxLrnBacktrack,
-               )
+    py_tp = BacktrackingTM(numberOfCols = numCols, cellsPerColumn = cellsPerCol,
+                           initialPerm = initialPerm, connectedPerm = connectedPerm,
+                           minThreshold = minThreshold, newSynapseCount = newSynapseCount,
+                           permanenceInc = permanenceInc, permanenceDec = permanenceDec,
+                           activationThreshold = activationThreshold,
+                           globalDecay = globalDecay, burnIn = 1,
+                           seed=SEED, verbosity=VERBOSITY,
+                           collectStats = True,
+                           pamLength = pamLength,
+                           maxInfBacktrack = maxInfBacktrack,
+                           maxLrnBacktrack = maxLrnBacktrack,
+                           )
 
 
     tps['PY '] = py_tp

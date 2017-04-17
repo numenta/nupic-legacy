@@ -56,7 +56,7 @@ right half. Both should be learned well.
 import numpy
 import unittest2 as unittest
 
-from nupic.research.BacktrackingTM import TP
+from nupic.research.BacktrackingTM import BacktrackingTM
 from nupic.research.TP10X2 import TP10X2
 from nupic.research import fdrutilities as fdrutils
 from nupic.support.unittesthelpers import testcasebase
@@ -153,17 +153,17 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     if g_options.verbosity > 1:
       print "Creating PY TP instance"
-    pyTP = TP(numberOfCols = numCols, cellsPerColumn = 4,
-               initialPerm = initialPerm, connectedPerm = connectedPerm,
-               minThreshold = minThreshold, newSynapseCount = newSynapseCount,
-               permanenceInc = permanenceInc, permanenceDec = permanenceDec,
-               activationThreshold = activationThreshold,
-               globalDecay = globalDecay, maxAge=maxAge, burnIn = 1,
-               seed=g_options.seed, verbosity=g_options.verbosity,
-               pamLength = 1000,
-               maxSegmentsPerCell = maxSegmentsPerCell,
-               maxSynapsesPerSegment = maxSynapsesPerSegment,
-               )
+    pyTP = BacktrackingTM(numberOfCols = numCols, cellsPerColumn = 4,
+                          initialPerm = initialPerm, connectedPerm = connectedPerm,
+                          minThreshold = minThreshold, newSynapseCount = newSynapseCount,
+                          permanenceInc = permanenceInc, permanenceDec = permanenceDec,
+                          activationThreshold = activationThreshold,
+                          globalDecay = globalDecay, maxAge=maxAge, burnIn = 1,
+                          seed=g_options.seed, verbosity=g_options.verbosity,
+                          pamLength = 1000,
+                          maxSegmentsPerCell = maxSegmentsPerCell,
+                          maxSynapsesPerSegment = maxSynapsesPerSegment,
+                          )
 
     return cppTP, pyTP
 

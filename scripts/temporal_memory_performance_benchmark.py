@@ -320,7 +320,7 @@ if __name__ == "__main__":
   if "tp_py" in args.implementations:
     import nupic.research.BacktrackingTM
     benchmark.addContestant(
-      nupic.research.BacktrackingTM.TP,
+      nupic.research.BacktrackingTM.BacktrackingTM,
       paramsFn=tmParamsFn,
       computeFn=tpComputeFn,
       name="tp_py")

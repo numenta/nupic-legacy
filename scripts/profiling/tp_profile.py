@@ -25,7 +25,7 @@ import sys
 import numpy
 # chose desired TP implementation to compare:
 from nupic.research.TP10X2 import TP10X2 as CppTP 
-from nupic.research.BacktrackingTM import TP as PyTP
+from nupic.research.BacktrackingTM import BacktrackingTM as PyTP
 
 
 def profileTP(tpClass, tpDim, nRuns):
