@@ -25,7 +25,7 @@ import numpy
 from nupic.algorithms import anomaly
 from nupic.research import TP
 from nupic.research import TP10X2
-from nupic.research import TP_shim
+from nupic.research import TM_shim
 from nupic.support import getArgumentDescriptions
 from nupic.bindings.regions.PyRegion import PyRegion
 
@@ -42,13 +42,13 @@ def _getTPClass(temporalImp):
   elif temporalImp == 'cpp':
     return TP10X2.TP10X2
   elif temporalImp == 'tm_py':
-    return TP_shim.TPShim
+    return TM_shim.TMShim
   elif temporalImp == 'tm_cpp':
-    return TP_shim.TPCPPShim
+    return TM_shim.TMCPPShim
   elif temporalImp == 'tm_py_fast':
-    return TP_shim.FastTPShim
+    return TM_shim.FastTMShim
   elif temporalImp == 'monitored_tm_py':
-    return TP_shim.MonitoredTPShim
+    return TM_shim.MonitoredTMShim
   else:
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
               "'cpp', 'tm_py', 'monitored_tm_py'" % (temporalImp))

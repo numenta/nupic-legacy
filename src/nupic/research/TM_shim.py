@@ -38,7 +38,7 @@ class MonitoredTemporalMemory(TemporalMemoryMonitorMixin,
 
 
 
-class TPShimMixin(object):
+class TMShimMixin(object):
   """
   TP => Temporal Memory shim class.
   """
@@ -65,7 +65,7 @@ class TPShimMixin(object):
     """
     Translate parameters and initialize member variables specific to `TP.py`.
     """
-    super(TPShimMixin, self).__init__(
+    super(TMShimMixin, self).__init__(
       columnDimensions=(numberOfCols,),
       cellsPerColumn=cellsPerColumn,
       activationThreshold=activationThreshold,
@@ -95,8 +95,8 @@ class TPShimMixin(object):
                              If true, compute the inference output
                              If false, do not compute the inference output
     """
-    super(TPShimMixin, self).compute(set(bottomUpInput.nonzero()[0]),
-                                            learn=enableLearn)
+    super(TMShimMixin, self).compute(set(bottomUpInput.nonzero()[0]),
+                                     learn=enableLearn)
     numberOfCells = self.numberOfCells()
 
     activeState = numpy.zeros(numberOfCells)
@@ -143,17 +143,17 @@ class TPShimMixin(object):
 
 
 
-class TPShim(TPShimMixin, TemporalMemory):
+class TMShim(TMShimMixin, TemporalMemory):
   pass
 
 
 
-class TPCPPShim(TPShimMixin, TemporalMemoryCPP):
+class TMCPPShim(TMShimMixin, TemporalMemoryCPP):
   pass
 
 
 
-class MonitoredTPShim(MonitoredTemporalMemory):
+class MonitoredTMShim(MonitoredTemporalMemory):
   """
   TP => Monitored Temporal Memory shim class.
 
@@ -184,7 +184,7 @@ class MonitoredTPShim(MonitoredTemporalMemory):
     """
     Translate parameters and initialize member variables specific to `TP.py`.
     """
-    super(MonitoredTPShim, self).__init__(
+    super(MonitoredTMShim, self).__init__(
       columnDimensions=(numberOfCols,),
       cellsPerColumn=cellsPerColumn,
       activationThreshold=activationThreshold,
@@ -214,8 +214,8 @@ class MonitoredTPShim(MonitoredTemporalMemory):
                              If true, compute the inference output
                              If false, do not compute the inference output
     """
-    super(MonitoredTPShim, self).compute(set(bottomUpInput.nonzero()[0]),
-                                             learn=enableLearn)
+    super(MonitoredTMShim, self).compute(set(bottomUpInput.nonzero()[0]),
+                                         learn=enableLearn)
     numberOfCells = self.numberOfCells()
 
     activeState = numpy.zeros(numberOfCells)

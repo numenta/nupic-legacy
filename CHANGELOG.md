@@ -250,8 +250,8 @@
 * Change temporalImp to tm_py for both networks and add comment about it being a temporary value until C++ TM is implemented
 * Refactored to remove common code between network_checkpoint_test.py and temporal_memory_compatibility_test.py
 * Use named constants from nupic.data.fieldmeta in aggregator module instead of naked constants.
-* Fix AttributeError: 'TPShim' object has no attribute 'topDownCompute'
-* Support more parameters in TPShim
+* Fix AttributeError: 'TMShim' object has no attribute 'topDownCompute'
+* Support more parameters in TMShim
 * Serialize remaining fields in CLAModel using capnproto
 * Enforce pyproj==1.9.3 in requirements.txt
 * Use FastCLAClassifier read class method instead of instance method
@@ -394,7 +394,7 @@
 * Merge remote-tracking branch 'upstream/master'
 * Rename testconsoleprinter_output.txt so as to not be picked up by py.test as a test during discovery
 * likelihood test: fix raw-value must be int
-* Fix broken TPShim
+* Fix broken TMShim
 * Revert "Fix TP Shim"
 * Anomaly serialization verify complex anomaly instance
 * Likelihood pickle serialization test
