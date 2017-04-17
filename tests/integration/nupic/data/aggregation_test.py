@@ -126,7 +126,7 @@ class DataOutputMyFile(object):
 
 
   def appendRecord(self, record, inputRef):
-    if self._file == None:
+    if self._file is None:
       print 'No File'
     self._file.appendRecord(record)
 

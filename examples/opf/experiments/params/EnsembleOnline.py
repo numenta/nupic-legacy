@@ -155,12 +155,12 @@ def getFieldPermutations(config, predictedField):
   encoders=config['modelParams']['sensorParams']['encoders']
   encoderList=[]
   for encoder in encoders:
-    if encoder==None:
+    if encoder is None:
       continue
     if encoder['name']==predictedField:
       encoderList.append([encoder])
       for e in encoders:
-        if e==None:
+        if e is None:
           continue
         if e['name'] != predictedField:
           encoderList.append([encoder, e])

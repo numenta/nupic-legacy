@@ -370,10 +370,10 @@ class RecordStreamIface(object):
     value will be None.
     """
     stats = self.getStats()
-    if stats == None:
+    if stats is None:
       return None
     minValues = stats.get('min', None)
-    if minValues == None:
+    if minValues is None:
       return None
     index = self.getFieldNames().index(fieldName)
     return minValues[index]
@@ -387,10 +387,10 @@ class RecordStreamIface(object):
     value will be None.
     """
     stats = self.getStats()
-    if stats == None:
+    if stats is None:
       return None
     maxValues = stats.get('max', None)
-    if maxValues == None:
+    if maxValues is None:
       return None
     index = self.getFieldNames().index(fieldName)
     return maxValues[index]

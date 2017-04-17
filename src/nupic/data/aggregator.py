@@ -77,7 +77,7 @@ def initFilter(input, filterInfo = None):
   filterList = []
   for i, fieldName in enumerate(input.getFieldNames()):
     fieldFilter = filterInfo.get(fieldName, None)
-    if fieldFilter == None:
+    if fieldFilter is None:
       continue
 
     var = dict()
@@ -95,10 +95,10 @@ def initFilter(input, filterInfo = None):
 
     elif fieldFilter['type'] == 'number':
 
-      if min != None and max != None:
+      if min is not None and max is not None:
         fp = lambda x: (x['value'] != SENTINEL_VALUE_FOR_MISSING_DATA and \
                         x['value'] >= x['min'] and x['value'] <= x['max'])
-      elif min != None:
+      elif min is not None:
         fp = lambda x: (x['value'] != SENTINEL_VALUE_FOR_MISSING_DATA and \
                         x['value'] >= x['min'])
       else:
@@ -155,7 +155,7 @@ def _aggr_sum(inList):
   the mean value
   """
   aggrMean = _aggr_mean(inList)
-  if aggrMean == None:
+  if aggrMean is None:
     return None
 
   aggrSum = 0
@@ -571,7 +571,7 @@ class Aggregator(object):
       #print self._inIdx, record
 
       # Apply the filter, ignore the record if any field is unacceptable
-      if self._filter != None and not self._filter[0](self._filter[1], record):
+      if self._filter is not None and not self._filter[0](self._filter[1], record):
         return (None, None)
 
       # If no aggregation info just return as-is
@@ -592,7 +592,7 @@ class Aggregator(object):
       #
       t = record[self._timeFieldIdx]
 
-      if self._firstSequenceStartTime == None:
+      if self._firstSequenceStartTime is None:
         self._firstSequenceStartTime = t
 
       # Create initial startTime and endTime if needed

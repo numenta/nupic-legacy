@@ -977,7 +977,7 @@ def testSequence(trainingSequences,
                  )
 
   trainingSequences = trainingSequences[0]
-  if testSequences == None: testSequences = trainingSequences
+  if testSequences is None: testSequences = trainingSequences
   inferAcceptablePatterns = acceptablePatterns == []
 
   #--------------------------------------------------------------------------------

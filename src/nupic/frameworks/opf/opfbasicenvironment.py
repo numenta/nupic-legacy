@@ -286,7 +286,7 @@ class BasicDatasetReader(DatasetReaderIface):
 
   def next(self):
     row = self._reader.getNextRecordDict()
-    if row == None:
+    if row is None:
       raise StopIteration
 
     return row

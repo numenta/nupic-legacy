@@ -155,7 +155,7 @@ class WeatherJoiner(object):
         Check to see if this was a blank row in the data files, put in
         placeholder values if it was
         '''
-        if recordsDict == None:
+        if recordsDict is None:
           missingRecords += 1
           # Specifies the missing data placeholder
           line.extend([9999] * len(self.weatherTypes))

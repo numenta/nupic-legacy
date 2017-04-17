@@ -1136,7 +1136,7 @@ class MetricTwoGram(AggregateMetric):
     # Get the prediction based on the previously known ground truth
     # If no previous, just default to "" or 0, depending on the groundTruth
     #  data type.
-    if prevGTKey == None:
+    if prevGTKey is None:
       if isinstance(actualGroundTruth,str):
         pred = ""
       else:

@@ -1228,7 +1228,7 @@ class HypersearchV2(object):
     # Get min number of particles per swarm from either permutations file or
     # config.
     self._minParticlesPerSwarm = vars.get('minParticlesPerSwarm')
-    if self._minParticlesPerSwarm  == None:
+    if self._minParticlesPerSwarm  is None:
       self._minParticlesPerSwarm = Configuration.get(
                                       'nupic.hypersearch.minParticlesPerSwarm')
     self._minParticlesPerSwarm = int(self._minParticlesPerSwarm)

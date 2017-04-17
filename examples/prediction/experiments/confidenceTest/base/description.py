@@ -104,12 +104,12 @@ updateConfigFromSubConfig(config)
 if config['dataSetPackage'] is not None:
   assert (config['filenameTrain'] == 'confidence/confidence1.csv')
   assert (config['filenameTest'] == 'confidence/confidence1.csv')
-  assert (config['filenameCategory'] == None)
-  assert (config['dataGenScript'] == None)
-  assert (config['dataDesc'] == None)
-  assert (config['dataGenNumCategories'] == None)
-  assert (config['dataGenNumTraining'] == None)
-  assert (config['dataGenNumTesting'] == None)
+  assert (config['filenameCategory'] is None)
+  assert (config['dataGenScript'] is None)
+  assert (config['dataDesc'] is None)
+  assert (config['dataGenNumCategories'] is None)
+  assert (config['dataGenNumTraining'] is None)
+  assert (config['dataGenNumTesting'] is None)
   
   if config['dataSetPackage'] == 'firstOrder':
     config['filenameTrain'] = 'extra/firstOrder/fo_1000_10_train_resets.csv'

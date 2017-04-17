@@ -318,7 +318,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     else:
       auxVector = numpy.array([])
 
-    if self._auxInputLen == None:
+    if self._auxInputLen is None:
       self._auxInputLen = len(auxVector)
 
     # Initialize data structures the first time

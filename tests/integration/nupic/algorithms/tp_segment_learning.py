@@ -314,7 +314,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
     for fail."""
 
     # If no test sequence is specified, use the first training sequence
-    if testSequences == None:
+    if testSequences is None:
       testSequences = trainingSequences
 
     cppTP, pyTP = tps[0], tps[1]

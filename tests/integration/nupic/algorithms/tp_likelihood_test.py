@@ -274,7 +274,7 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
     allTrainingPatterns = trainingSet[2]
 
     trainingCummulativeFrequencies = numpy.cumsum(trainingFrequencies)
-    if testSequences == None:
+    if testSequences is None:
       testSequences = trainingSequences
 
     # Learn

@@ -361,7 +361,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
 
   @classmethod
   def setTrainFraction(cls, x):
-    if x == None:
+    if x is None:
       cls.__trainFraction==1.0
     elif x > 1.0 or x < 0.0:
       raise Exception("Invalid training fraction")
@@ -1111,7 +1111,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     if self.__maxPermutations > 0:
       maxPermutations = "--maxPermutations=%d" % self.__maxPermutations
       runString.append(maxPermutations)
-    if self.__timeout != None:
+    if self.__timeout is not None:
       timeout = "--timeout=%d" % self.__timeout
       runString.append(timeout)
     if self.__doEnsemble:
@@ -1147,7 +1147,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     if self.__maxPermutations > 0:
       maxPermutations = "--maxPermutations=%d" % self.__maxPermutations
       runString.append(maxPermutations)
-    if self.__timeout != None:
+    if self.__timeout is not None:
       timeout = "--timeout=%d" % self.__timeout
       runString.append(timeout)
     if self.__doEnsemble:
@@ -1181,7 +1181,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     if self.__maxPermutations > 0:
       maxPermutations = "--maxPermutations=%d" % self.__maxPermutations
       runString.append(maxPermutations)
-    if self.__timeout != None:
+    if self.__timeout is not None:
       timeout = "--timeout=%d" % self.__timeout
       runString.append(timeout)
     if self.__doEnsemble:

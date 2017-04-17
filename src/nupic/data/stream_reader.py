@@ -169,7 +169,7 @@ class StreamReader(RecordStreamIface):
     # Column names must be provided in the streamdef json
     # Special case is ['*'], meaning all available names from the record stream
     self._streamFieldNames = sourceDict.get('columns', None)
-    if self._streamFieldNames != None and self._streamFieldNames[0] == '*':
+    if self._streamFieldNames is not None and self._streamFieldNames[0] == '*':
       self._needFieldsFiltering = False
     else:
       self._needFieldsFiltering = True

@@ -66,7 +66,7 @@ class DeltaEncoder(AdaptiveScalarEncoder):
       output[0:self.n] = 0
     else:
       #make the first delta zero so that the delta ranges are not messed up.
-      if self._prevAbsolute==None:
+      if self._prevAbsolute is None:
         self._prevAbsolute= input
       delta = input - self._prevAbsolute
       self._adaptiveScalarEnc.encodeIntoArray(delta, output, learn)
@@ -96,11 +96,11 @@ class DeltaEncoder(AdaptiveScalarEncoder):
     """[ScalarEncoder class method override]"""
 
     #Decode to delta scalar
-    if self._prevAbsolute==None or self._prevDelta==None:
+    if self._prevAbsolute is None or self._prevDelta is None:
       return [EncoderResult(value=0, scalar=0,
                              encoding=numpy.zeros(self.n))]
     ret = self._adaptiveScalarEnc.topDownCompute(encoded)
-    if self._prevAbsolute != None:
+    if self._prevAbsolute is not None:
       ret = [EncoderResult(value=ret[0].value+self._prevAbsolute,
                           scalar=ret[0].scalar+self._prevAbsolute,
                           encoding=ret[0].encoding)]
