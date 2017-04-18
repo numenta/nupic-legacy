@@ -15,8 +15,8 @@ _PARAMS_PATH = os.path.join(_EXAMPLE_DIR, os.pardir, "params", "model.yaml")
 
 def createModel():
   with open(_PARAMS_PATH, "r") as f:
-    model_params = yaml.safe_load(f)
-  return ModelFactory.create(model_params)
+    modelParams = yaml.safe_load(f)
+  return ModelFactory.create(modelParams)
 
 
 
