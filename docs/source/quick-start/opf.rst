@@ -44,7 +44,7 @@ The raw input data file is described `here <example-data.html>`_ in detail.
 Our `model parameters <example-model-params.html>`_ define how this data will be
 encoded in the ``encoders`` section:
 
-.. literalinclude:: ../../examples/opf/example-model-param-encoders.py
+.. literalinclude:: ../../examples/opf/example-model-param-encoders.yaml
 
 Notice that three semantic values are being encoded into the input space. The
 first is the scalar energy ``consumption`` value, which is being encoded with
