@@ -19,19 +19,16 @@ def createDataOutLink(network, sensorRegionName, regionName):
                srcOutput="dataOut", destInput="bottomUpIn")
 
 
-
 def createFeedForwardLink(network, regionName1, regionName2):
   """Create a feed-forward link between 2 regions: regionName1 -> regionName2"""
   network.link(regionName1, regionName2, "UniformLink", "",
                srcOutput="bottomUpOut", destInput="bottomUpIn")
 
 
-
 def createResetLink(network, sensorRegionName, regionName):
   """Create a reset link from a sensor region: sensorRegionName -> regionName"""
   network.link(sensorRegionName, regionName, "UniformLink", "",
                srcOutput="resetOut", destInput="resetIn")
-
 
 
 def createSensorToClassifierLinks(network, sensorRegionName,
@@ -45,7 +42,6 @@ def createSensorToClassifierLinks(network, sensorRegionName,
                srcOutput="categoryOut", destInput="categoryIn")
 
 
-
 def createEncoder(encoderParams):
   """Create a multi-encoder from params."""
   encoder = MultiEncoder()
@@ -53,45 +49,39 @@ def createEncoder(encoderParams):
   return encoder
 
 
-
 def createNetwork(dataSource):
   """Create and initialize a network."""
   with open(_PARAMS_PATH, "r") as f:
-    model_params = yaml.safe_load(f)["modelParams"]
+    modelParams = yaml.safe_load(f)["modelParams"]
 
   # Create a network that will hold the regions.
   network = Network()
 
-  # Add a sensor region, set its encoder and data source.
-  network.addRegion("sensor", "py.RecordSensor", json.dumps({"verbosity": 0}))
+  # Add a sensor region.
+  network.addRegion("sensor", "py.RecordSensor", '{}')
+
+  # Set the encoder and data source of the sensor region.
   sensorRegion = network.regions["sensor"].getSelf()
-  sensorRegion.encoder = createEncoder(model_params["sensorParams"]["encoders"])
+  sensorRegion.encoder = createEncoder(modelParams["sensorParams"]["encoders"])
   sensorRegion.dataSource = dataSource
 
   # Make sure the SP input width matches the sensor region output width.
-  model_params["spParams"]["inputWidth"] = sensorRegion.encoder.getWidth()
+  modelParams["spParams"]["inputWidth"] = sensorRegion.encoder.getWidth()
 
-  # Add the SP and TM regions.
-  network.addRegion("SP", "py.SPRegion", json.dumps(model_params["spParams"]))
-  network.addRegion("TM", "py.TPRegion", json.dumps(model_params["tmParams"]))
+  # Add SP and TM regions.
+  network.addRegion("SP", "py.SPRegion", json.dumps(modelParams["spParams"]))
+  network.addRegion("TM", "py.TPRegion", json.dumps(modelParams["tmParams"]))
 
-  # Add the classifier.
-  clParams = model_params["clParams"]
-  clName = clParams.pop("regionName")
-  network.addRegion("classifier", "py." + clName, json.dumps(clParams))
+  # Add a classifier region.
+  clName = "py.%s" % modelParams["clParams"].pop("regionName")
+  network.addRegion("classifier", clName, json.dumps(modelParams["clParams"]))
 
   # Add all links
   createSensorToClassifierLinks(network, "sensor", "classifier")
-
-  # Link the sensor region to the SP region so that it can pass it data.
   createDataOutLink(network, "sensor", "SP")
-
-  # Create feed-forward links between regions.
   createFeedForwardLink(network, "SP", "TM")
   createFeedForwardLink(network, "TM", "classifier")
-
-  # Propagate reset signals to SP and TM regions.
-  # Optional if you know that your sensor regions does not send resets.
+  # Reset links are optional, since the sensor region does not send resets.
   createResetLink(network, "sensor", "SP")
   createResetLink(network, "sensor", "TM")
 
@@ -99,7 +89,6 @@ def createNetwork(dataSource):
   network.initialize()
 
   return network
-
 
 
 def getPredictionResults(network, clRegionName):
@@ -119,7 +108,6 @@ def getPredictionResults(network, clRegionName):
     results[steps[i]]["predictedValue"] = predictedValue
     results[steps[i]]["predictionConfidence"] = predictionConfidence
   return results
-
 
 
 def runHotgym():
@@ -162,6 +150,5 @@ def runHotgym():
                                            fiveStepConfidence * 100))
 
 
-
 if __name__ == "__main__":
-  runHotGym()
+  runHotgym()
