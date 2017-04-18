@@ -635,16 +635,16 @@ class CLAClassifierHelperTest(unittest.TestCase):
     }
     self.helper.htmpredictionmodel.getParameter.side_effect = modelParams.get
     sp = self.helper.htmpredictionmodel._getSPRegion()
-    tp = self.helper.htmpredictionmodel._getTPRegion()
-    tpImp = tp.getSelf()._tfdr
+    tm = self.helper.htmpredictionmodel._getTPRegion()
+    tpImp = tm.getSelf()._tfdr
 
     sp.getParameter.side_effect = spVals['params'].get
     sp.getOutputData.side_effect = spVals['output'].get
 
     self.helper._activeColumnCount = 5
 
-    tp.getParameter.side_effect = tpVals['params'].get
-    tp.getOutputData.side_effect = tpVals['output'].get
+    tm.getParameter.side_effect = tpVals['params'].get
+    tm.getOutputData.side_effect = tpVals['output'].get
 
     tpImp.getLearnActiveStateT.return_value = tpVals['output']['lrnActive']
 

@@ -68,7 +68,7 @@ SP_PARAMS = {"spVerbosity": _VERBOSITY,
              "boostStrength": 0.0}
 
 # Parameter dict for TPRegion
-TP_PARAMS = {"verbosity": _VERBOSITY,
+TM_PARAMS = {"verbosity": _VERBOSITY,
              "temporalImp": "cpp",
              "seed": _SEED,
 
@@ -169,7 +169,7 @@ def createSpatialPooler(network, name, inputWidth):
 
 def createTemporalMemory(network, name):
   temporalMemoryRegion = network.addRegion(name, "py.TMRegion",
-                                           json.dumps(TP_PARAMS))
+                                           json.dumps(TM_PARAMS))
   # Enable topDownMode to get the predicted columns output
   temporalMemoryRegion.setParameter("topDownMode", True)
   # Make sure learning is enabled (this is the default)
@@ -254,7 +254,7 @@ def createNetwork(dataSource):
 def runClassifier(classifier, sensorRegion, tpRegion, recordNumber):
   """Calls classifier manually, not using network"""
 
-  # Obtain input, its encoding, and the tp output for classification
+  # Obtain input, its encoding, and the tm output for classification
   actualInput = float(sensorRegion.getOutputData("sourceOut")[0])
   scalarEncoder = sensorRegion.getSelf().encoder.encoders[0][1]
   bucketIndex = scalarEncoder.getBucketIndices(actualInput)[0]

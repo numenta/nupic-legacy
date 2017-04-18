@@ -26,7 +26,7 @@ how to create a TM instance, train it with vectors, get predictions, and
 inspect the state.
 
 The code here runs a very simple version of sequence learning, with one
-cell per column. The TP is trained with the simple sequence A->B->C->D->E
+cell per column. The TM is trained with the simple sequence A->B->C->D->E
 
 HOMEWORK: once you have understood exactly what is going on here, try changing
 cellsPerColumn to 4. What is the difference between once cell per column and 4
@@ -72,7 +72,7 @@ tm = TM(columnDimensions = (50,),
         )
 
 
-# Step 2: create input vectors to feed to the temporal pooler. Each input vector
+# Step 2: create input vectors to feed to the temporal memory. Each input vector
 # must be numberOfCols wide. Here we create a simple sequence of 5 vectors
 # representing the sequence A -> B -> C -> D -> E
 x = numpy.zeros((5, tm.numberOfColumns()), dtype="uint32")

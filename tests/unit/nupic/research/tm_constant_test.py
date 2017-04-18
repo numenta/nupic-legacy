@@ -58,9 +58,9 @@ def _getSimplePatterns(numOnes, numPatterns):
   return p
 
 
-def _createTps(numCols):
-  """Create two instances of temporal poolers (BacktrackingTM.py and BacktrackingTMCPP.py) with
-  identical parameter settings."""
+def _createTms(numCols):
+  """Create two instances of temporal poolers (BacktrackingTM.py 
+  and BacktrackingTMCPP.py) with identical parameter settings."""
 
   # Keep these fixed:
   minThreshold = 4
@@ -73,39 +73,47 @@ def _createTps(numCols):
   globalDecay = 0
   cellsPerColumn = 1
 
-  cppTp = BacktrackingTMCPP(numberOfCols=numCols, cellsPerColumn=cellsPerColumn,
-                            initialPerm=initialPerm, connectedPerm=connectedPerm,
-                            minThreshold=minThreshold, newSynapseCount=newSynapseCount,
-                            permanenceInc=permanenceInc, permanenceDec=permanenceDec,
+  cppTm = BacktrackingTMCPP(numberOfCols=numCols,
+                            cellsPerColumn=cellsPerColumn,
+                            initialPerm=initialPerm,
+                            connectedPerm=connectedPerm,
+                            minThreshold=minThreshold,
+                            newSynapseCount=newSynapseCount,
+                            permanenceInc=permanenceInc,
+                            permanenceDec=permanenceDec,
                             activationThreshold=activationThreshold,
                             globalDecay=globalDecay, burnIn=1,
                             seed=_SEED, verbosity=VERBOSITY,
                             checkSynapseConsistency=True,
                             pamLength=1000)
 
-  # Ensure we are copying over learning states for TPDiff
-  cppTp.retrieveLearningStates = True
+  # Ensure we are copying over learning states for TMDiff
+  cppTm.retrieveLearningStates = True
 
-  pyTp = BacktrackingTM(numberOfCols=numCols, cellsPerColumn=cellsPerColumn,
-                        initialPerm=initialPerm, connectedPerm=connectedPerm,
-                        minThreshold=minThreshold, newSynapseCount=newSynapseCount,
-                        permanenceInc=permanenceInc, permanenceDec=permanenceDec,
+  pyTm = BacktrackingTM(numberOfCols=numCols,
+                        cellsPerColumn=cellsPerColumn,
+                        initialPerm=initialPerm,
+                        connectedPerm=connectedPerm,
+                        minThreshold=minThreshold,
+                        newSynapseCount=newSynapseCount,
+                        permanenceInc=permanenceInc,
+                        permanenceDec=permanenceDec,
                         activationThreshold=activationThreshold,
                         globalDecay=globalDecay, burnIn=1,
                         seed=_SEED, verbosity=VERBOSITY,
                         pamLength=1000)
 
-  return cppTp, pyTp
+  return cppTm, pyTm
 
 
-class TPConstantTest(unittest.TestCase):
+class TMConstantTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.cppTp, self.pyTp = _createTps(100)
+    self.cppTm, self.pyTm = _createTms(100)
 
 
-  def _basicTest(self, tp=None):
+  def _basicTest(self, tm=None):
     """Test creation, pickling, and basic run of learning and inference."""
 
     trainingSet = _getSimplePatterns(10, 10)
@@ -114,47 +122,47 @@ class TPConstantTest(unittest.TestCase):
     for _ in range(2):
       for seq in trainingSet[0:5]:
         for _ in range(10):
-          tp.learn(seq)
-        tp.reset()
+          tm.learn(seq)
+        tm.reset()
 
     print "Learning completed"
 
     # Infer
     print "Running inference"
 
-    tp.collectStats = True
+    tm.collectStats = True
     for seq in trainingSet[0:5]:
-      tp.reset()
-      tp.resetStats()
+      tm.reset()
+      tm.resetStats()
       for _ in range(10):
-        tp.infer(seq)
+        tm.infer(seq)
         if VERBOSITY > 1 :
           print
           _printOneTrainingVector(seq)
-          tp.printStates(False, False)
+          tm.printStates(False, False)
           print
           print
       if VERBOSITY > 1:
-        print tp.getStats()
+        print tm.getStats()
 
       # Ensure our predictions are accurate for each sequence
-      self.assertGreater(tp.getStats()['predictionScoreAvg2'], 0.8)
-      print ("tp.getStats()['predictionScoreAvg2'] = ",
-             tp.getStats()['predictionScoreAvg2'])
+      self.assertGreater(tm.getStats()['predictionScoreAvg2'], 0.8)
+      print ("tm.getStats()['predictionScoreAvg2'] = ",
+             tm.getStats()['predictionScoreAvg2'])
 
-    print "TPConstant basicTest ok"
-
-
-  def testCppTpBasic(self):
-    self._basicTest(self.cppTp)
+    print "TMConstant basicTest ok"
 
 
-  def testPyTpBasic(self):
-    self._basicTest(self.pyTp)
+  def testCppTmBasic(self):
+    self._basicTest(self.cppTm)
 
 
-  def testIdenticalTps(self):
-    self.assertTrue(fdrutils.tpDiff2(self.cppTp, self.pyTp))
+  def testPyTmBasic(self):
+    self._basicTest(self.pyTm)
+
+
+  def testIdenticalTms(self):
+    self.assertTrue(fdrutils.tmDiff2(self.cppTm, self.pyTm))
 
 
 

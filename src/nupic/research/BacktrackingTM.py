@@ -21,7 +21,7 @@
 
 """ @file BacktrackingTM.py
 
-Temporal pooler implementation.
+Temporal memory implementation.
 
 This is the Python implementation and is used as the base class for the C++
 implementation.
@@ -42,7 +42,7 @@ from nupic.support.consoleprinter import ConsolePrinterMixin
 VERBOSITY = 0
 
 # The current TM version used to track the checkpoint state.
-TP_VERSION = 1
+TM_VERSION = 1
 
 # The numpy equivalent to the floating point type used by NTA
 dtype = GetNTAReal()
@@ -51,7 +51,7 @@ dtype = GetNTAReal()
 
 class BacktrackingTM(ConsolePrinterMixin):
   """
-  Class implementing the temporal pooler algorithm as described in the
+  Class implementing the temporal memory algorithm as described in the
   published Cortical Learning Algorithm documentation.  The implementation here
   attempts to closely match the pseudocode in the documentation. This
   implementation does contain several additional bells and whistles such as
@@ -150,7 +150,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
 
     ## @todo document
-    self.version = TP_VERSION
+    self.version = TM_VERSION
 
     ConsolePrinterMixin.__init__(self, verbosity)
 
@@ -163,7 +163,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       assert (globalDecay == 0.0)
       assert (maxAge == 0)
 
-      assert maxSynapsesPerSegment >= newSynapseCount, ("TP requires that "
+      assert maxSynapsesPerSegment >= newSynapseCount, ("TM requires that "
           "maxSynapsesPerSegment >= newSynapseCount. (Currently %s >= %s)" % (
           maxSynapsesPerSegment, newSynapseCount))
 
@@ -400,7 +400,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     # version if necessary.
     if not hasattr(self, 'version'):
       self._initEphemerals()
-      self.version = TP_VERSION
+      self.version = TM_VERSION
 
 
   def __getattr__(self, name):
@@ -422,24 +422,24 @@ class BacktrackingTM(ConsolePrinterMixin):
     try:
       return super(BacktrackingTM, self).__getattr__(name)
     except AttributeError:
-      raise AttributeError("'TP' object has no attribute '%s'" % name)
+      raise AttributeError("'TM' object has no attribute '%s'" % name)
 
 
   def __del__(self):
     pass
 
 
-  def __ne__(self, tp):
-    return not self == tp
+  def __ne__(self, tm):
+    return not self == tm
 
 
-  def __eq__(self, tp):
-    return not self.diff(tp)
+  def __eq__(self, tm):
+    return not self.diff(tm)
 
 
-  def diff(self, tp):
+  def diff(self, tm):
     diff = []
-    toCheck = [((), self.__getstate__(), tp.__getstate__())]
+    toCheck = [((), self.__getstate__(), tm.__getstate__())]
     while toCheck:
       keys, a, b = toCheck.pop()
       if type(a) != type(b):
@@ -999,8 +999,8 @@ class BacktrackingTM(ConsolePrinterMixin):
       print
 
     elif self.verbosity >= 1:
-      print "TP: learn:", learn
-      print "TP: active outputs(%d):" % len(output.nonzero()[0]),
+      print "TM: learn:", learn
+      print "TM: active outputs(%d):" % len(output.nonzero()[0]),
       self.printActiveIndices(output.reshape(self.numberOfCols,
                                              self.cellsPerColumn))
 
@@ -1302,7 +1302,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     @param nSteps The number of future time steps to be predicted
     @returns      all the future predictions - a numpy array of type "float32" and
                   shape (nSteps, numberOfCols).
-                  The ith row gives the tp prediction for each column at
+                  The ith row gives the tm prediction for each column at
                   a future timestep (t+i+1).
     """
     # Save the TM dynamic state, we will use to revert back in the end
@@ -1385,7 +1385,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     <tpDynamicState> dict has all the dynamic state variable names as keys and
     their values at this instant as values.
 
-    We set the dynamic state variables in the tp object with these items.
+    We set the dynamic state variables in the tm object with these items.
     """
     for variableName in self._getTPDynamicStateVariableNames():
       self.__dict__[variableName] = tpDynamicState.pop(variableName)
@@ -3142,7 +3142,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
       # (segID, sequenceSegment flag, frequency, positiveActivations,
       #          totalActivations, lastActiveIteration)
-      newSegment = Segment(tp=self, isSequenceSeg=segUpdate.sequenceSegment)
+      newSegment = Segment(tm=self, isSequenceSeg=segUpdate.sequenceSegment)
 
       # numpy.float32 important so that we can match with C++
       for synapse in activeSynapses:
@@ -3259,13 +3259,13 @@ class Segment(object):
                      0.0000010]
 
 
-  def __init__(self, tp, isSequenceSeg):
-    self.tp = tp
-    self.segID = tp.segID
-    tp.segID += 1
+  def __init__(self, tm, isSequenceSeg):
+    self.tm = tm
+    self.segID = tm.segID
+    tm.segID += 1
 
     self.isSequenceSeg = isSequenceSeg
-    self.lastActiveIteration = tp.lrnIterationIdx
+    self.lastActiveIteration = tm.lrnIterationIdx
 
     self.positiveActivations = 1
     self.totalActivations = 1
@@ -3273,8 +3273,8 @@ class Segment(object):
     # These are internal variables used to compute the positive activations
     #  duty cycle.
     # Callers should use dutyCycle()
-    self._lastPosDutyCycle = 1.0 / tp.lrnIterationIdx
-    self._lastPosDutyCycleIteration = tp.lrnIterationIdx
+    self._lastPosDutyCycle = 1.0 / tm.lrnIterationIdx
+    self._lastPosDutyCycleIteration = tm.lrnIterationIdx
 
     # Each synapse is a tuple (srcCellCol, srcCellIdx, permanence)
     self.syns = []
@@ -3290,7 +3290,7 @@ class Segment(object):
     if set(d1) != set(d2):
       return False
     for k, v in d1.iteritems():
-      if k in ('tp',):
+      if k in ('tm',):
         continue
       elif v != d2[k]:
         return False
@@ -3336,16 +3336,16 @@ class Segment(object):
     @ref dutyCycleTiers.
     """
     # For tier #0, compute it from total number of positive activations seen
-    if self.tp.lrnIterationIdx <= self.dutyCycleTiers[1]:
+    if self.tm.lrnIterationIdx <= self.dutyCycleTiers[1]:
       dutyCycle = float(self.positiveActivations) \
-                                    / self.tp.lrnIterationIdx
+                                    / self.tm.lrnIterationIdx
       if not readOnly:
-        self._lastPosDutyCycleIteration = self.tp.lrnIterationIdx
+        self._lastPosDutyCycleIteration = self.tm.lrnIterationIdx
         self._lastPosDutyCycle = dutyCycle
       return dutyCycle
 
     # How old is our update?
-    age = self.tp.lrnIterationIdx - self._lastPosDutyCycleIteration
+    age = self.tm.lrnIterationIdx - self._lastPosDutyCycleIteration
 
     # If it's already up to date, we can returned our cached value.
     if age == 0 and not active:
@@ -3353,7 +3353,7 @@ class Segment(object):
 
     # Figure out which alpha we're using
     for tierIdx in range(len(self.dutyCycleTiers)-1, 0, -1):
-      if self.tp.lrnIterationIdx > self.dutyCycleTiers[tierIdx]:
+      if self.tm.lrnIterationIdx > self.dutyCycleTiers[tierIdx]:
         alpha = self.dutyCycleAlphas[tierIdx]
         break
 
@@ -3364,7 +3364,7 @@ class Segment(object):
 
     # Update cached values if not read-only
     if not readOnly:
-      self._lastPosDutyCycleIteration = self.tp.lrnIterationIdx
+      self._lastPosDutyCycleIteration = self.tm.lrnIterationIdx
       self._lastPosDutyCycle = dutyCycle
 
     return dutyCycle
@@ -3403,7 +3403,7 @@ class Segment(object):
                           self.totalActivations),
 
     # Age
-    print "%4d" % (self.tp.lrnIterationIdx - self.lastActiveIteration),
+    print "%4d" % (self.tm.lrnIterationIdx - self.lastActiveIteration),
 
     # Print each synapses on this segment as: srcCellCol/srcCellIdx/perm
     # if the permanence is above connected, put [] around the synapse info
@@ -3489,7 +3489,7 @@ class Segment(object):
   def updateSynapses(self, synapses, delta):
     """Update a set of synapses in the segment.
 
-    @param tp       The owner TM
+    @param tm       The owner TM
     @param synapses List of synapse indices to update
     @param delta    How much to add to each permanence
 
@@ -3502,8 +3502,8 @@ class Segment(object):
         self.syns[synapse][2] = newValue = self.syns[synapse][2] + delta
 
         # Cap synapse permanence at permanenceMax
-        if newValue > self.tp.permanenceMax:
-          self.syns[synapse][2] = self.tp.permanenceMax
+        if newValue > self.tm.permanenceMax:
+          self.syns[synapse][2] = self.tm.permanenceMax
 
     else:
       for synapse in synapses:

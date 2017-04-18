@@ -423,7 +423,7 @@ class KNNClassifierRegion(PyRegion):
 
           cellsPerCol=dict(
             description='If >= 1, we assume the input is organized into columns, '
-                        'in the same manner as the temporal pooler AND '
+                        'in the same manner as the temporal memory AND '
                         'whenever we store a new prototype, we only store the '
                         'start cell (first cell) in any column which is bursting.'
               'colum ',

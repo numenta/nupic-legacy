@@ -19,17 +19,17 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Tests for the C++ implementation of the temporal pooler."""
+"""Tests for the C++ implementation of the temporal memory."""
 
 import unittest2 as unittest
 
 from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
 
-import tp_test
+import tm_test
 
 # Run the Python TM test against the BacktrackingTMCPP.
-tp_test.BacktrackingTM = BacktrackingTMCPP
-TPTest = tp_test.TPTest
+tm_test.BacktrackingTM = BacktrackingTMCPP
+TMTest = tm_test.TMTest
 
 
 

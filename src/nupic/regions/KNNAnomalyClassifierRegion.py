@@ -85,7 +85,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
             requireSplitterMap=False),
 
           tpLrnActiveStateT=dict(
-            description="""Active cells in the learn state at time T from TP.
+            description="""Active cells in the learn state at time T from TM.
                         This is used to classify on.""",
             dataType='Real32',
             count=0,
@@ -135,7 +135,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
 
           classificationVectorType=dict(
             description="""Vector type to use when classifying.
-              1 - Vector Column with Difference (TP and SP)
+              1 - Vector Column with Difference (TM and SP)
             """,
             dataType='UInt32',
             count=1,

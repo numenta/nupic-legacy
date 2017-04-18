@@ -269,9 +269,9 @@ class OPFRegionTest(TestCaseBase):
     level1SP.setParameter('learningMode', 1)
     level1SP.setParameter('inferenceMode', 0)
   
-    tp = netOPF.regions['level1TP']
-    tp.setParameter('learningMode', 0)
-    tp.setParameter('inferenceMode', 0)
+    tm = netOPF.regions['level1TP']
+    tm.setParameter('learningMode', 0)
+    tm.setParameter('inferenceMode', 0)
   
     print "maxPhase,maxEnabledPhase = ", netOPF.maxPhase, \
                                       netOPF.getMaxEnabledPhase()
@@ -336,10 +336,10 @@ class OPFRegionTest(TestCaseBase):
     tpRegion = tpRegions[0]
 
     sp = spRegion.getSelf().getAlgorithmInstance()
-    tp = tpRegion.getSelf().getAlgorithmInstance()
+    tm = tpRegion.getSelf().getAlgorithmInstance()
 
     self.assertEqual(type(sp), SpatialPooler)
-    self.assertEqual(type(tp), BacktrackingTMCPP)
+    self.assertEqual(type(tm), BacktrackingTMCPP)
 
 
 

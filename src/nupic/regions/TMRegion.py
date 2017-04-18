@@ -114,7 +114,7 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
   to 'Byte' for None and complex types
 
   Determines the spatial parameters based on the selected implementation.
-  It defaults to TemporalPooler.
+  It defaults to TemporalMemory.
   Determines the temporal parameters based on the temporalImp
   """
   typeNames = {int: 'UInt32', float: 'Real32', str: 'Byte', bool: 'bool', tuple: 'tuple'}
@@ -138,7 +138,7 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
     else:
       return ''
 
-  # Build up parameters from temporal pooler's constructor
+  # Build up parameters from temporal memory's constructor
   TemporalClass = _getTPClass(temporalImp)
   tArgTuples = _buildArgs(TemporalClass.__init__)
   temporalSpec = {}
@@ -168,7 +168,7 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
       constraints=''),
 
     inputWidth=dict(
-      description='Number of inputs to the TP.',
+      description='Number of inputs to the TM.',
       accessMode='Read',
       dataType='UInt32',
       count=1,
@@ -183,7 +183,7 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
 
     orColumnOutputs=dict(
       description="""OR together the cell outputs from each column to produce
-      the temporal pooler output. When this mode is enabled, the number of
+      the temporal memory output. When this mode is enabled, the number of
       cells per column must also be specified and the output size of the region
       should be set the same as columnCount""",
       accessMode='Read',
@@ -192,7 +192,7 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
       constraints='bool'),
 
     cellsSavePath=dict(
-      description="""Optional path to file in which large temporal pooler cells
+      description="""Optional path to file in which large temporal memory cells
                      data structure is to be saved.""",
       accessMode='ReadWrite',
       dataType='Byte',
@@ -200,7 +200,7 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
       constraints=''),
 
     temporalImp=dict(
-      description="""Which temporal pooler implementation to use. Set to either
+      description="""Which temporal memory implementation to use. Set to either
        'py' or 'cpp'. The 'cpp' implementation is optimized for speed in C++.""",
       accessMode='ReadWrite',
       dataType='Byte',
@@ -281,7 +281,7 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
 class TMRegion(PyRegion):
 
   """
-  TMRegion is designed to implement the temporal pooler compute for a given
+  TMRegion is designed to implement the temporal memory compute for a given
   CLA level.
 
   Uses a subclass of TM to do most of the work. The specific TM implementation
@@ -290,7 +290,7 @@ class TMRegion(PyRegion):
   Automatic parameter handling:
 
   Parameter names, default values, and descriptions are retrieved automatically
-  from the temporal pooler class. Thus, there are only a few hardcoded
+  from the temporal memory class. Thus, there are only a few hardcoded
   arguments in __init__, and the rest are passed to the appropriate underlying
   class. The RegionSpec is mostly built automatically from these parameters.
 
@@ -298,7 +298,7 @@ class TMRegion(PyRegion):
   automatically as if it were in TMRegion.__init__, with the right default
   value. Add an entry in the __init__ docstring for it too, and that will be
   brought into the RegionSpec. TMRegion will maintain the parameter as its own
-  instance variable and also pass it to the temporal pooler instance. If the
+  instance variable and also pass it to the temporal memory instance. If the
   parameter is changed, TMRegion will propagate the change.
 
   If you want to do something different with the parameter, add it as an
@@ -415,7 +415,7 @@ class TMRegion(PyRegion):
 
   def initialize(self):
 
-    # Allocate appropriate temporal pooler object
+    # Allocate appropriate temporal memory object
     # Retrieve the necessary extra arguments that were handled automatically
     autoArgs = dict((name, getattr(self, name))
                     for name in self._temporalArgNames)
@@ -489,7 +489,7 @@ class TMRegion(PyRegion):
     #                    "topDownMode is True")
 
     if self._tfdr is None:
-      raise RuntimeError("TP has not been initialized")
+      raise RuntimeError("TM has not been initialized")
 
     # Conditional compute break
     self._conditionalBreak()
@@ -764,7 +764,7 @@ class TMRegion(PyRegion):
     all potential inputs to each column.
     """
     if self._tfdr is None:
-      raise RuntimeError("Temporal pooler has not been initialized")
+      raise RuntimeError("Temporal memory has not been initialized")
 
     if hasattr(self._tfdr, 'finishLearning'):
       self.resetSequenceStates()

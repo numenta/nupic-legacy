@@ -33,12 +33,12 @@ from nupic.research.connections import Connections
 
 
 
-TPClass = BacktrackingTMCPP
+TMClass = BacktrackingTMCPP
 dtype = GetNTAReal()
 
 
 
-class TemporalMemoryShim(TPClass):
+class TemporalMemoryShim(TMClass):
   """
   Temporal Memory => TM shim class.
   """

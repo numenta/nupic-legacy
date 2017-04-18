@@ -66,7 +66,7 @@ SP_PARAMS = {
 }
 
 # Config field for TMRegion
-TP_PARAMS = {
+TM_PARAMS = {
     "verbosity": _VERBOSITY,
     "columnCount": 2048,
     "cellsPerColumn": 32,
@@ -142,9 +142,9 @@ def createNetwork(dataSource, enableTP=False, temporalImp="py"):
 
   if enableTP:
     # Add the TMRegion on top of the SPRegion
-    TP_PARAMS["temporalImp"] = temporalImp
+    TM_PARAMS["temporalImp"] = temporalImp
     network.addRegion("temporalPoolerRegion", "py.TMRegion",
-                      json.dumps(TP_PARAMS))
+                      json.dumps(TM_PARAMS))
 
     network.link("spatialPoolerRegion", "temporalPoolerRegion", "UniformLink", "")
     network.link("temporalPoolerRegion", "spatialPoolerRegion", "UniformLink", "",

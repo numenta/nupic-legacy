@@ -61,7 +61,7 @@ def _extractCallingMethodArgs():
 
 
 class BacktrackingTMCPP(BacktrackingTM):
-  """Class implementing the temporal pooler algorithm as described in the
+  """Class implementing the temporal memory algorithm as described in the
   published Cortical Learning Algorithm documentation.  The implementation here
   attempts to closely match the pseudocode in the documentation. This
   implementation does contain several additional bells and whistles such as
@@ -275,7 +275,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     try:
       return super(BacktrackingTM, self).__getattr__(name)
     except AttributeError:
-      raise AttributeError("'TP' object has no attribute '%s'" % name)
+      raise AttributeError("'TM' object has no attribute '%s'" % name)
 
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
@@ -400,7 +400,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     are reset to 0.
     """
     if self.verbosity >= 3:
-      print "TP Reset"
+      print "TM Reset"
     self._setStatePointers()
     self.cells4.reset()
     BacktrackingTM.reset(self)

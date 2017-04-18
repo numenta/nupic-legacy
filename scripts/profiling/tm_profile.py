@@ -19,31 +19,31 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-## run python -m cProfile --sort cumtime $NUPIC/scripts/profiling/tp_profile.py [nColumns nEpochs]
+## run python -m cProfile --sort cumtime $NUPIC/scripts/profiling/tm_profile.py [nColumns nEpochs]
 
 import sys
 import numpy
 # chose desired TM implementation to compare:
-from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP as CppTP
-from nupic.research.BacktrackingTM import BacktrackingTM as PyTP
+from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP as CppTM
+from nupic.research.BacktrackingTM import BacktrackingTM as PyTM
 
 
-def profileTP(tpClass, tpDim, nRuns):
+def profileTM(tmClass, tmDim, nRuns):
   """
-  profiling performance of TemporalPooler (TM)
+  profiling performance of TemporalMemory (TM)
   using the python cProfile module and ordered by cumulative time, 
   see how to run on command-line above.
 
-  @param tpClass implementation of TM (cpp, py, ..)
-  @param tpDim number of columns in TM
+  @param tmClass implementation of TM (cpp, py, ..)
+  @param tmDim number of columns in TM
   @param nRuns number of calls of the profiled code (epochs)
   """
 
   # create TM instance to measure
-  tp = tpClass(numberOfCols=tpDim)
+  tm = tmClass(numberOfCols=tmDim)
 
   # generate input data
-  data = numpy.random.randint(0, 2, [tpDim, nRuns]).astype('float32')
+  data = numpy.random.randint(0, 2, [tmDim, nRuns]).astype('float32')
 
   for i in xrange(nRuns):
     # new data every time, this is the worst case performance
@@ -51,7 +51,7 @@ def profileTP(tpClass, tpDim, nRuns):
     d = data[:,i]
 
     # the actual function to profile!
-    tp.compute(d, True)
+    tm.compute(d, True)
 
 
 
@@ -63,4 +63,4 @@ if __name__ == "__main__":
     columns=int(sys.argv[1])
     epochs=int(sys.argv[2])
 
-  profileTP(CppTP, columns, epochs)
+  profileTM(CppTM, columns, epochs)

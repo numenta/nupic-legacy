@@ -446,8 +446,8 @@ class HTMPredictionModelClassifierHelper(object):
     """
     model = self.htmpredictionmodel
     sp = model._getSPRegion()
-    tp = model._getTPRegion()
-    tpImp = tp.getSelf()._tfdr
+    tm = model._getTPRegion()
+    tpImp = tm.getSelf()._tfdr
 
     # Count the number of unpredicted columns
     activeColumns = sp.getOutputData("bottomUpOut").nonzero()[0]
@@ -455,7 +455,7 @@ class HTMPredictionModelClassifierHelper(object):
     score = (self._activeColumnCount - score)/float(self._activeColumnCount)
 
     spSize = sp.getParameter('activeOutputCount')
-    tpSize = tp.getParameter('cellsPerColumn') * tp.getParameter('columnCount')
+    tpSize = tm.getParameter('cellsPerColumn') * tm.getParameter('columnCount')
 
     classificationVector = numpy.array([])
 
@@ -483,7 +483,7 @@ class HTMPredictionModelClassifierHelper(object):
 
     # Store the state for next time step
     numPredictedCols = len(self._prevPredictedColumns)
-    predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
+    predictedColumns = tm.getOutputData("topDownOut").nonzero()[0]
     self._prevPredictedColumns = copy.deepcopy(predictedColumns)
 
     if self._anomalyVectorLength is None:

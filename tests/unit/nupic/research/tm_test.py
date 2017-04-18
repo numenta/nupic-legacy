@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Tests for the Python implementation of the temporal pooler."""
+"""Tests for the Python implementation of the temporal memory."""
 
 import csv
 import cPickle as pickle
@@ -42,7 +42,7 @@ VERBOSITY = 0
 
 
 
-class TPTest(unittest.TestCase):
+class TMTest(unittest.TestCase):
   """Unit tests for the TM class."""
 
 
@@ -54,88 +54,92 @@ class TPTest(unittest.TestCase):
     shutil.rmtree(self._tmpDir)
 
   
-  def testInitDefaultTP(self):
+  def testInitDefaultTM(self):
     self.assertTrue(isinstance(BacktrackingTM(), BacktrackingTM))
 
 
   def testCheckpointLearned(self):
     # Create a model and give it some inputs to learn.
-    tp1 = BacktrackingTM(numberOfCols=100, cellsPerColumn=12, verbosity=VERBOSITY)
+    tm1 = BacktrackingTM(numberOfCols=100, cellsPerColumn=12,
+                         verbosity=VERBOSITY)
     sequences = [self.generateSequence() for _ in xrange(5)]
     train = list(itertools.chain.from_iterable(sequences[:3]))
     for bottomUpInput in train:
       if bottomUpInput is None:
-        tp1.reset()
+        tm1.reset()
       else:
-        tp1.compute(bottomUpInput, True, True)
+        tm1.compute(bottomUpInput, True, True)
 
     # Serialize and deserialized the TM.
     checkpointPath = os.path.join(self._tmpDir, 'a')
-    tp1.saveToFile(checkpointPath)
-    tp2 = pickle.loads(pickle.dumps(tp1))
-    tp2.loadFromFile(checkpointPath)
+    tm1.saveToFile(checkpointPath)
+    tm2 = pickle.loads(pickle.dumps(tm1))
+    tm2.loadFromFile(checkpointPath)
 
     # Check that the TMs are the same.
-    self.assertTPsEqual(tp1, tp2)
+    self.assertTMsEqual(tm1, tm2)
 
     # Feed some data into the models.
     test = list(itertools.chain.from_iterable(sequences[3:]))
     for bottomUpInput in test:
       if bottomUpInput is None:
-        tp1.reset()
-        tp2.reset()
+        tm1.reset()
+        tm2.reset()
       else:
-        result1 = tp1.compute(bottomUpInput, True, True)
-        result2 = tp2.compute(bottomUpInput, True, True)
+        result1 = tm1.compute(bottomUpInput, True, True)
+        result2 = tm2.compute(bottomUpInput, True, True)
 
-        self.assertTPsEqual(tp1, tp2)
+        self.assertTMsEqual(tm1, tm2)
         self.assertTrue(numpy.array_equal(result1, result2))
 
 
   def testCheckpointMiddleOfSequence(self):
     # Create a model and give it some inputs to learn.
-    tp1 = BacktrackingTM(numberOfCols=100, cellsPerColumn=12, verbosity=VERBOSITY)
+    tm1 = BacktrackingTM(numberOfCols=100, cellsPerColumn=12,
+                         verbosity=VERBOSITY)
     sequences = [self.generateSequence() for _ in xrange(5)]
     train = list(itertools.chain.from_iterable(sequences[:3] +
                                                [sequences[3][:5]]))
     for bottomUpInput in train:
       if bottomUpInput is None:
-        tp1.reset()
+        tm1.reset()
       else:
-        tp1.compute(bottomUpInput, True, True)
+        tm1.compute(bottomUpInput, True, True)
 
     # Serialize and deserialized the TM.
     checkpointPath = os.path.join(self._tmpDir, 'a')
-    tp1.saveToFile(checkpointPath)
-    tp2 = pickle.loads(pickle.dumps(tp1))
-    tp2.loadFromFile(checkpointPath)
+    tm1.saveToFile(checkpointPath)
+    tm2 = pickle.loads(pickle.dumps(tm1))
+    tm2.loadFromFile(checkpointPath)
 
     # Check that the TMs are the same.
-    self.assertTPsEqual(tp1, tp2)
+    self.assertTMsEqual(tm1, tm2)
 
     # Feed some data into the models.
     test = list(itertools.chain.from_iterable([sequences[3][5:]] +
                                               sequences[3:]))
     for bottomUpInput in test:
       if bottomUpInput is None:
-        tp1.reset()
-        tp2.reset()
+        tm1.reset()
+        tm2.reset()
       else:
-        result1 = tp1.compute(bottomUpInput, True, True)
-        result2 = tp2.compute(bottomUpInput, True, True)
+        result1 = tm1.compute(bottomUpInput, True, True)
+        result2 = tm2.compute(bottomUpInput, True, True)
 
-        self.assertTPsEqual(tp1, tp2)
+        self.assertTMsEqual(tm1, tm2)
         self.assertTrue(numpy.array_equal(result1, result2))
 
 
   def testCheckpointMiddleOfSequence2(self):
     """More complex test of checkpointing in the middle of a sequence."""
-    tp1 = BacktrackingTM(2048, 32, 0.21, 0.5, 11, 20, 0.1, 0.1, 1.0, 0.0, 14, False, 5, 2,
-                         False, 1960, 0, False, 3, 10, 5, 0, 32, 128, 32, 'normal')
-    tp2 = BacktrackingTM(2048, 32, 0.21, 0.5, 11, 20, 0.1, 0.1, 1.0, 0.0, 14, False, 5, 2,
-                         False, 1960, 0, False, 3, 10, 5, 0, 32, 128, 32, 'normal')
+    tm1 = BacktrackingTM(2048, 32, 0.21, 0.5, 11, 20, 0.1, 0.1, 1.0, 0.0, 14,
+                         False, 5, 2, False, 1960, 0, False, 3, 10, 5, 0, 32,
+                         128, 32, 'normal')
+    tm2 = BacktrackingTM(2048, 32, 0.21, 0.5, 11, 20, 0.1, 0.1, 1.0, 0.0, 14,
+                         False, 5, 2, False, 1960, 0, False, 3, 10, 5, 0, 32,
+                         128, 32, 'normal')
 
-    with open(resource_filename(__name__, 'data/tp_input.csv'), 'r') as fin:
+    with open(resource_filename(__name__, 'data/tm_input.csv'), 'r') as fin:
       reader = csv.reader(fin)
       records = []
       for bottomUpInStr in fin:
@@ -147,56 +151,56 @@ class TPTest(unittest.TestCase):
     for r in records[:250]:
       print i
       i += 1
-      output1 = tp1.compute(r, True, True)
-      output2 = tp2.compute(r, True, True)
+      output1 = tm1.compute(r, True, True)
+      output2 = tm2.compute(r, True, True)
       self.assertTrue(numpy.array_equal(output1, output2))
 
     print 'Serializing and deserializing models.'
 
-    savePath1 = os.path.join(self._tmpDir, 'tp1.bin')
-    tp1.saveToFile(savePath1)
-    tp3 = pickle.loads(pickle.dumps(tp1))
-    tp3.loadFromFile(savePath1)
+    savePath1 = os.path.join(self._tmpDir, 'tm1.bin')
+    tm1.saveToFile(savePath1)
+    tm3 = pickle.loads(pickle.dumps(tm1))
+    tm3.loadFromFile(savePath1)
 
-    savePath2 = os.path.join(self._tmpDir, 'tp2.bin')
-    tp2.saveToFile(savePath2)
-    tp4 = pickle.loads(pickle.dumps(tp2))
-    tp4.loadFromFile(savePath2)
+    savePath2 = os.path.join(self._tmpDir, 'tm2.bin')
+    tm2.saveToFile(savePath2)
+    tm4 = pickle.loads(pickle.dumps(tm2))
+    tm4.loadFromFile(savePath2)
 
-    self.assertTPsEqual(tp1, tp3)
-    self.assertTPsEqual(tp2, tp4)
+    self.assertTMsEqual(tm1, tm3)
+    self.assertTMsEqual(tm2, tm4)
 
     for r in records[250:]:
       print i
       i += 1
-      out1 = tp1.compute(r, True, True)
-      out2 = tp2.compute(r, True, True)
-      out3 = tp3.compute(r, True, True)
-      out4 = tp4.compute(r, True, True)
+      out1 = tm1.compute(r, True, True)
+      out2 = tm2.compute(r, True, True)
+      out3 = tm3.compute(r, True, True)
+      out4 = tm4.compute(r, True, True)
 
       self.assertTrue(numpy.array_equal(out1, out2))
       self.assertTrue(numpy.array_equal(out1, out3))
       self.assertTrue(numpy.array_equal(out1, out4))
 
-    self.assertTPsEqual(tp1, tp2)
-    self.assertTPsEqual(tp1, tp3)
-    self.assertTPsEqual(tp2, tp4)
+    self.assertTMsEqual(tm1, tm2)
+    self.assertTMsEqual(tm1, tm3)
+    self.assertTMsEqual(tm2, tm4)
 
 
-  def assertTPsEqual(self, tp1, tp2):
+  def assertTMsEqual(self, tm1, tm2):
     """Asserts that two TM instances are the same.
 
     This is temporarily disabled since it does not work with the C++
     implementation of the TM.
     """
-    self.assertEqual(tp1, tp2, tp1.diff(tp2))
-    self.assertTrue(fdrutilities.tpDiff2(tp1, tp2, 1, False))
+    self.assertEqual(tm1, tm2, tm1.diff(tm2))
+    self.assertTrue(fdrutilities.tmDiff2(tm1, tm2, 1, False))
 
 
   @staticmethod
   def generateSequence(n=10, numCols=100, minOnes=21, maxOnes=25):
     """Generates a sequence of n patterns."""
-    return [None] + [TPTest.generatePattern(numCols, minOnes, maxOnes)
+    return [None] + [TMTest.generatePattern(numCols, minOnes, maxOnes)
                      for _ in xrange(n)]
 
 
