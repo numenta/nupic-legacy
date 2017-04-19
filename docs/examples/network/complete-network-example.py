@@ -143,11 +143,10 @@ def runHotgym():
     fiveStep = results[5]["predictedValue"]
     fiveStepConfidence = results[5]["predictionConfidence"]
 
-    print("1-step: {:16} ({:4.4}%)\t"
-          "5-step: {:16} ({:4.4}%)".format(oneStep,
-                                           oneStepConfidence * 100,
-                                           fiveStep,
-                                           fiveStepConfidence * 100))
+    result = (oneStep, oneStepConfidence * 100,
+              fiveStep, fiveStepConfidence * 100)
+    print "1-step: {:16} ({:4.4}%)\t 5-step: {:16} ({:4.4}%)".format(*result)
+    yield result
 
 
 if __name__ == "__main__":
