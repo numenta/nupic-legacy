@@ -39,6 +39,6 @@ python ${NUPIC}/scripts/run_opf_experiment.py ${NUPIC}/examples/opf/experiments/
 # opf/experiments/params - skip now
 python ${NUPIC}/scripts/run_opf_experiment.py ${NUPIC}/examples/opf/experiments/spatial_classification/category_1/ || exit
 
-# examples/tp
-python ${NUPIC}/examples/tp/hello_tm.py || exit
-python ${NUPIC}/examples/tp/tp_test.py || exit
+# examples/tm
+python ${NUPIC}/examples/tm/hello_tm.py || exit
+python ${NUPIC}/examples/tm/tp_test.py || exit
