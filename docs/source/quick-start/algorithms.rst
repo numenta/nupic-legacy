@@ -3,8 +3,7 @@
 Algorithms API
 --------------
 
-    See the `Algorithms API <../api/algorithms/>`_ for an overview of
-    this API.
+See the `Algorithms API <../api/algorithms/>`_ for an overview of this API.
 
 Here is the complete program we are going to use as an example. In sections
 below, we'll break it down into parts and explain what is happening (without
