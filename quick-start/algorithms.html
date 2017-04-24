@@ -47,59 +47,72 @@
   <img alt="../_images/quickstart.png" class="align-right" src="../_images/quickstart.png" />
 <div class="section" id="algorithms-api">
 <h1>Algorithms API<a class="headerlink" href="#algorithms-api" title="Permalink to this headline">¶</a></h1>
-<blockquote>
-<div>See the <a class="reference external" href="../api/algorithms/">Algorithms API</a> for an overview of
-this API.</div></blockquote>
+<p>See the <a class="reference external" href="../api/algorithms/">Algorithms API</a> for an overview of this API.</p>
 <p>Here is the complete program we are going to use as an example. In sections
 below, we&#8217;ll break it down into parts and explain what is happening (without
 some of the plumbing details).</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">csv</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
-
 <span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="kn">from</span> <span class="nn">nupic.encoders.date</span> <span class="k">import</span> <span class="n">DateEncoder</span>
 <span class="kn">from</span> <span class="nn">nupic.encoders.random_distributed_scalar</span> <span class="k">import</span> \
-    <span class="n">RandomDistributedScalarEncoder</span>
+  <span class="n">RandomDistributedScalarEncoder</span>
 <span class="kn">from</span> <span class="nn">nupic.research.spatial_pooler</span> <span class="k">import</span> <span class="n">SpatialPooler</span>
 <span class="kn">from</span> <span class="nn">nupic.research.temporal_memory</span> <span class="k">import</span> <span class="n">TemporalMemory</span>
 <span class="kn">from</span> <span class="nn">nupic.algorithms.sdr_classifier_factory</span> <span class="k">import</span> <span class="n">SDRClassifierFactory</span>
 
-<span class="n">_INPUT_FILE_PATH</span> <span class="o">=</span> <span class="s2">&quot;../data/gymdata.csv&quot;</span>
+<span class="n">_NUM_RECORDS</span> <span class="o">=</span> <span class="mi">3000</span>
+<span class="n">_EXAMPLE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">_INPUT_FILE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_EXAMPLE_DIR</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;gymdata.csv&quot;</span><span class="p">)</span>
+<span class="n">_PARAMS_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_EXAMPLE_DIR</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="s2">&quot;model.yaml&quot;</span><span class="p">)</span>
+
+
 
 <span class="k">def</span> <span class="nf">runHotgym</span><span class="p">():</span>
+  <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_PARAMS_PATH</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">modelParams</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="s2">&quot;modelParams&quot;</span><span class="p">]</span>
+    <span class="n">enParams</span> <span class="o">=</span> <span class="n">modelParams</span><span class="p">[</span><span class="s2">&quot;sensorParams&quot;</span><span class="p">][</span><span class="s2">&quot;encoders&quot;</span><span class="p">]</span>
+    <span class="n">spParams</span> <span class="o">=</span> <span class="n">modelParams</span><span class="p">[</span><span class="s2">&quot;spParams&quot;</span><span class="p">]</span>
+    <span class="n">tmParams</span> <span class="o">=</span> <span class="n">modelParams</span><span class="p">[</span><span class="s2">&quot;tmParams&quot;</span><span class="p">]</span>
 
-  <span class="n">timeOfDayEncoder</span> <span class="o">=</span> <span class="n">DateEncoder</span><span class="p">(</span><span class="n">timeOfDay</span><span class="o">=</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
-  <span class="n">weekendEncoder</span> <span class="o">=</span> <span class="n">DateEncoder</span><span class="p">(</span><span class="n">weekend</span><span class="o">=</span><span class="mi">21</span><span class="p">)</span>
-  <span class="n">scalarEncoder</span> <span class="o">=</span> <span class="n">RandomDistributedScalarEncoder</span><span class="p">(</span><span class="mf">0.88</span><span class="p">)</span>
+  <span class="n">timeOfDayEncoder</span> <span class="o">=</span> <span class="n">DateEncoder</span><span class="p">(</span>
+    <span class="n">timeOfDay</span><span class="o">=</span><span class="n">enParams</span><span class="p">[</span><span class="s2">&quot;timestamp_timeOfDay&quot;</span><span class="p">][</span><span class="s2">&quot;timeOfDay&quot;</span><span class="p">])</span>
+  <span class="n">weekendEncoder</span> <span class="o">=</span> <span class="n">DateEncoder</span><span class="p">(</span>
+    <span class="n">weekend</span><span class="o">=</span><span class="n">enParams</span><span class="p">[</span><span class="s2">&quot;timestamp_weekend&quot;</span><span class="p">][</span><span class="s2">&quot;weekend&quot;</span><span class="p">])</span>
+  <span class="n">scalarEncoder</span> <span class="o">=</span> <span class="n">RandomDistributedScalarEncoder</span><span class="p">(</span>
+    <span class="n">enParams</span><span class="p">[</span><span class="s2">&quot;consumption&quot;</span><span class="p">][</span><span class="s2">&quot;resolution&quot;</span><span class="p">])</span>
 
-  <span class="n">encodingWidth</span> <span class="o">=</span> <span class="n">timeOfDayEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span> \
-    <span class="o">+</span> <span class="n">weekendEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span> \
-    <span class="o">+</span> <span class="n">scalarEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span>
+  <span class="n">encodingWidth</span> <span class="o">=</span> <span class="p">(</span><span class="n">timeOfDayEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span>
+                   <span class="o">+</span> <span class="n">weekendEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span>
+                   <span class="o">+</span> <span class="n">scalarEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">())</span>
 
   <span class="n">sp</span> <span class="o">=</span> <span class="n">SpatialPooler</span><span class="p">(</span>
     <span class="c1"># How large the input encoding will be.</span>
     <span class="n">inputDimensions</span><span class="o">=</span><span class="p">(</span><span class="n">encodingWidth</span><span class="p">),</span>
     <span class="c1"># How many mini-columns will be in the Spatial Pooler.</span>
-    <span class="n">columnDimensions</span><span class="o">=</span><span class="p">(</span><span class="mi">2048</span><span class="p">),</span>
-    <span class="c1"># What percent of the columns&#39;s receptive field is available for potential</span>
+    <span class="n">columnDimensions</span><span class="o">=</span><span class="p">(</span><span class="n">spParams</span><span class="p">[</span><span class="s2">&quot;columnCount&quot;</span><span class="p">]),</span>
+    <span class="c1"># What percent of the columns&quot;s receptive field is available for potential</span>
     <span class="c1"># synapses?</span>
-    <span class="n">potentialPct</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span>
+    <span class="n">potentialPct</span><span class="o">=</span><span class="n">spParams</span><span class="p">[</span><span class="s2">&quot;potentialPct&quot;</span><span class="p">],</span>
     <span class="c1"># This means that the input space has no topology.</span>
-    <span class="n">globalInhibition</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">localAreaDensity</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">globalInhibition</span><span class="o">=</span><span class="n">spParams</span><span class="p">[</span><span class="s2">&quot;globalInhibition&quot;</span><span class="p">],</span>
+    <span class="n">localAreaDensity</span><span class="o">=</span><span class="n">spParams</span><span class="p">[</span><span class="s2">&quot;localAreaDensity&quot;</span><span class="p">],</span>
     <span class="c1"># Roughly 2%, giving that there is only one inhibition area because we have</span>
     <span class="c1"># turned on globalInhibition (40 / 2048 = 0.0195)</span>
-    <span class="n">numActiveColumnsPerInhArea</span><span class="o">=</span><span class="mf">40.0</span><span class="p">,</span>
+    <span class="n">numActiveColumnsPerInhArea</span><span class="o">=</span><span class="n">spParams</span><span class="p">[</span><span class="s2">&quot;numActiveColumnsPerInhArea&quot;</span><span class="p">],</span>
     <span class="c1"># How quickly synapses grow and degrade.</span>
-    <span class="n">synPermInactiveDec</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
-    <span class="n">synPermActiveInc</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span>
-    <span class="n">synPermConnected</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">synPermInactiveDec</span><span class="o">=</span><span class="n">spParams</span><span class="p">[</span><span class="s2">&quot;synPermInactiveDec&quot;</span><span class="p">],</span>
+    <span class="n">synPermActiveInc</span><span class="o">=</span><span class="n">spParams</span><span class="p">[</span><span class="s2">&quot;synPermActiveInc&quot;</span><span class="p">],</span>
+    <span class="n">synPermConnected</span><span class="o">=</span><span class="n">spParams</span><span class="p">[</span><span class="s2">&quot;synPermConnected&quot;</span><span class="p">],</span>
     <span class="c1"># boostStrength controls the strength of boosting. Boosting encourages</span>
     <span class="c1"># efficient usage of SP columns.</span>
-    <span class="n">boostStrength</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+    <span class="n">boostStrength</span><span class="o">=</span><span class="n">spParams</span><span class="p">[</span><span class="s2">&quot;boostStrength&quot;</span><span class="p">],</span>
     <span class="c1"># Random number generator seed.</span>
-    <span class="n">seed</span><span class="o">=</span><span class="mi">1956</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="n">spParams</span><span class="p">[</span><span class="s2">&quot;seed&quot;</span><span class="p">],</span>
+    <span class="c1"># TODO: is this useful?</span>
     <span class="c1"># Determines if inputs at the beginning and end of an input dimension should</span>
     <span class="c1"># be considered neighbors when mapping columns to inputs.</span>
     <span class="n">wrapAround</span><span class="o">=</span><span class="kc">False</span>
@@ -107,36 +120,40 @@ some of the plumbing details).</p>
 
   <span class="n">tm</span> <span class="o">=</span> <span class="n">TemporalMemory</span><span class="p">(</span>
     <span class="c1"># Must be the same dimensions as the SP</span>
-    <span class="n">columnDimensions</span><span class="o">=</span><span class="p">(</span><span class="mi">2048</span><span class="p">,</span> <span class="p">),</span>
+    <span class="n">columnDimensions</span><span class="o">=</span><span class="p">(</span><span class="n">tmParams</span><span class="p">[</span><span class="s2">&quot;columnCount&quot;</span><span class="p">],),</span>
     <span class="c1"># How many cells in each mini-column.</span>
-    <span class="n">cellsPerColumn</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">cellsPerColumn</span><span class="o">=</span><span class="n">tmParams</span><span class="p">[</span><span class="s2">&quot;cellsPerColumn&quot;</span><span class="p">],</span>
     <span class="c1"># A segment is active if it has &gt;= activationThreshold connected synapses</span>
     <span class="c1"># that are active due to infActiveState</span>
-    <span class="n">activationThreshold</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
-    <span class="n">initialPermanence</span><span class="o">=</span><span class="mf">0.21</span><span class="p">,</span>
-    <span class="n">connectedPermanence</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">activationThreshold</span><span class="o">=</span><span class="n">tmParams</span><span class="p">[</span><span class="s2">&quot;activationThreshold&quot;</span><span class="p">],</span>
+    <span class="n">initialPermanence</span><span class="o">=</span><span class="n">tmParams</span><span class="p">[</span><span class="s2">&quot;initialPerm&quot;</span><span class="p">],</span>
+    <span class="c1"># TODO: This comes from the SP params, is this normal</span>
+    <span class="n">connectedPermanence</span><span class="o">=</span><span class="n">spParams</span><span class="p">[</span><span class="s2">&quot;synPermConnected&quot;</span><span class="p">],</span>
     <span class="c1"># Minimum number of active synapses for a segment to be considered during</span>
     <span class="c1"># search for the best-matching segments.</span>
-    <span class="n">minThreshold</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+    <span class="n">minThreshold</span><span class="o">=</span><span class="n">tmParams</span><span class="p">[</span><span class="s2">&quot;minThreshold&quot;</span><span class="p">],</span>
     <span class="c1"># The max number of synapses added to a segment during learning</span>
-    <span class="n">maxNewSynapseCount</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-    <span class="n">permanenceIncrement</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-    <span class="n">permanenceDecrement</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">maxNewSynapseCount</span><span class="o">=</span><span class="n">tmParams</span><span class="p">[</span><span class="s2">&quot;newSynapseCount&quot;</span><span class="p">],</span>
+    <span class="n">permanenceIncrement</span><span class="o">=</span><span class="n">tmParams</span><span class="p">[</span><span class="s2">&quot;permanenceInc&quot;</span><span class="p">],</span>
+    <span class="n">permanenceDecrement</span><span class="o">=</span><span class="n">tmParams</span><span class="p">[</span><span class="s2">&quot;permanenceDec&quot;</span><span class="p">],</span>
     <span class="n">predictedSegmentDecrement</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">maxSegmentsPerCell</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
-    <span class="n">maxSynapsesPerSegment</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
-    <span class="n">seed</span><span class="o">=</span><span class="mi">1960</span>
+    <span class="n">maxSegmentsPerCell</span><span class="o">=</span><span class="n">tmParams</span><span class="p">[</span><span class="s2">&quot;maxSegmentsPerCell&quot;</span><span class="p">],</span>
+    <span class="n">maxSynapsesPerSegment</span><span class="o">=</span><span class="n">tmParams</span><span class="p">[</span><span class="s2">&quot;maxSynapsesPerSegment&quot;</span><span class="p">],</span>
+    <span class="n">seed</span><span class="o">=</span><span class="n">tmParams</span><span class="p">[</span><span class="s2">&quot;seed&quot;</span><span class="p">]</span>
   <span class="p">)</span>
 
   <span class="n">classifier</span> <span class="o">=</span> <span class="n">SDRClassifierFactory</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
 
-  <span class="k">with</span> <span class="nb">open</span> <span class="p">(</span><span class="n">_INPUT_FILE_PATH</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+  <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_INPUT_FILE_PATH</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
     <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">fin</span><span class="p">)</span>
     <span class="n">headers</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
     <span class="n">reader</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
     <span class="n">reader</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
 
     <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reader</span><span class="p">):</span>
+
+      <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="n">_NUM_RECORDS</span><span class="p">:</span> <span class="k">return</span>
+
       <span class="c1"># Convert data string into Python date object.</span>
       <span class="n">dateString</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;%m/</span><span class="si">%d</span><span class="s2">/%y %H:%M&quot;</span><span class="p">)</span>
       <span class="c1"># Convert data value string into float.</span>
@@ -162,7 +179,7 @@ some of the plumbing details).</p>
       <span class="c1"># Create an array to represent active columns, all initially zero. This</span>
       <span class="c1"># will be populated by the compute method below. It must have the same</span>
       <span class="c1"># dimensions as the Spatial Pooler.</span>
-      <span class="n">activeColumns</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2048</span><span class="p">)</span>
+      <span class="n">activeColumns</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">spParams</span><span class="p">[</span><span class="s2">&quot;columnCount&quot;</span><span class="p">])</span>
 
       <span class="c1"># Execute Spatial Pooling algorithm over input space.</span>
       <span class="n">sp</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">activeColumns</span><span class="p">)</span>
@@ -194,6 +211,7 @@ some of the plumbing details).</p>
         <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span>
       <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
       <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">probability</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
