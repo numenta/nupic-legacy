@@ -57,7 +57,7 @@ some of the plumbing details).</p>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">islice</span>
 
-<span class="kn">from</span> <span class="nn">nupic.frameworks.opf.modelfactory</span> <span class="k">import</span> <span class="n">ModelFactory</span>
+<span class="kn">from</span> <span class="nn">nupic.frameworks.opf.model_factory</span> <span class="k">import</span> <span class="n">ModelFactory</span>
 
 <span class="n">_NUM_RECORDS</span> <span class="o">=</span> <span class="mi">3000</span>
 <span class="n">_EXAMPLE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
@@ -123,9 +123,9 @@ those <a class="reference external" href="example-model-params.html">linked abov
 <div class="section" id="create-an-opf-model">
 <h2>Create an OPF Model<a class="headerlink" href="#create-an-opf-model" title="Permalink to this headline">¶</a></h2>
 <p>The easiest way to create a model once you have access to model parameters is by
-using the <a class="reference internal" href="../api/opf/models.html#nupic.frameworks.opf.modelfactory.ModelFactory" title="nupic.frameworks.opf.modelfactory.ModelFactory"><code class="xref py py-class docutils literal"><span class="pre">ModelFactory</span></code></a>.</p>
+using the <code class="xref py py-class docutils literal"><span class="pre">ModelFactory</span></code>.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">nupic.frameworks.opf.modelfactory</span> <span class="k">import</span> <span class="n">ModelFactory</span>
+<span class="kn">from</span> <span class="nn">nupic.frameworks.opf.model_factory</span> <span class="k">import</span> <span class="n">ModelFactory</span>
 
 <span class="n">_PARAMS_PATH</span> <span class="o">=</span> <span class="s2">&quot;/path/to/model.yaml&quot;</span>
 
@@ -138,7 +138,7 @@ using the <a class="reference internal" href="../api/opf/models.html#nupic.frame
 <span class="n">model</span><span class="o">.</span><span class="n">enableInference</span><span class="p">({</span><span class="s1">&#39;predictedField&#39;</span><span class="p">:</span> <span class="s1">&#39;consumption&#39;</span><span class="p">})</span>
 </pre></div>
 </div>
-<p>The resulting <code class="docutils literal"><span class="pre">model</span></code> will be an instance of <a class="reference internal" href="../api/opf/models.html#nupic.frameworks.opf.htmpredictionmodel.HTMPredictionModel" title="nupic.frameworks.opf.htmpredictionmodel.HTMPredictionModel"><code class="xref py py-class docutils literal"><span class="pre">HTMPredictionModel</span></code></a>.</p>
+<p>The resulting <code class="docutils literal"><span class="pre">model</span></code> will be an instance of <code class="xref py py-class docutils literal"><span class="pre">HTMPredictionModel</span></code>.</p>
 </div>
 <div class="section" id="feed-the-model-data">
 <h2>Feed the Model Data<a class="headerlink" href="#feed-the-model-data" title="Permalink to this headline">¶</a></h2>
@@ -171,7 +171,7 @@ the <a class="reference internal" href="../api/algorithms/encoders.html#nupic.en
 different aspects of time using the <a class="reference internal" href="../api/algorithms/encoders.html#nupic.encoders.date.DateEncoder" title="nupic.encoders.date.DateEncoder"><code class="xref py py-class docutils literal"><span class="pre">DateEncoder</span></code></a>. The encoder called
 <code class="docutils literal"><span class="pre">timestamp_timeOfDay</span></code> encodes the time of day, while the <code class="docutils literal"><span class="pre">timestamp_weekend</span></code>
 encoder will output different representations for weekends vs weekdays. The
-<a class="reference internal" href="../api/opf/models.html#nupic.frameworks.opf.htmpredictionmodel.HTMPredictionModel" title="nupic.frameworks.opf.htmpredictionmodel.HTMPredictionModel"><code class="xref py py-class docutils literal"><span class="pre">HTMPredictionModel</span></code></a> will combine these encodings using the
+<code class="xref py py-class docutils literal"><span class="pre">HTMPredictionModel</span></code> will combine these encodings using the
 <a class="reference internal" href="../api/algorithms/encoders.html#nupic.encoders.multi.MultiEncoder" title="nupic.encoders.multi.MultiEncoder"><code class="xref py py-class docutils literal"><span class="pre">MultiEncoder</span></code></a>.</p>
 <blockquote>
 <div>For details about encoding and how these encoders work, see the
