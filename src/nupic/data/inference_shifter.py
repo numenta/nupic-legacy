@@ -24,7 +24,7 @@
 import collections
 import copy
 
-from nupic.frameworks.opf.opfutils import InferenceElement, ModelResult
+from nupic.frameworks.opf.opf_utils import InferenceElement, ModelResult
 
 
 class InferenceShifter(object):

@@ -51,7 +51,7 @@ class PredictionLoggerIface(object):
     """ Emits a set of inputs data, inferences, and metrics from a model
     resulting from a single record.
 
-    modelResult:    An opfutils.ModelResult object that contains the model input
+    modelResult:    An opf_utils.ModelResult object that contains the model input
                     and output for the current timestep.
     """
 
@@ -60,7 +60,7 @@ class PredictionLoggerIface(object):
   def writeRecords(self, modelResults, progressCB=None):
     """ Same as writeRecord above, but emits multiple rows in one shot.
 
-    modelResults:  a list of opfutils.ModelResult objects, Each dictionary
+    modelResults:  a list of opf_utils.ModelResult objects, Each dictionary
                     represents one record.
     progressCB: an optional callback method that will be called after each
                   batch of records is written.

@@ -26,7 +26,7 @@ from collections import defaultdict
 import re
 
 from nupic.data.inference_shifter import InferenceShifter
-from nupic.frameworks.opf.modelfactory import ModelFactory
+from nupic.frameworks.opf.model_factory import ModelFactory
 
 
 # Prepare textfile and tokenize:

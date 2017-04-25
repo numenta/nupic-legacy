@@ -1,7 +1,7 @@
 ccopy_reg
 _reconstructor
 p1
-(cnupic.frameworks.opf.htmpredictionmodel
+(cnupic.frameworks.opf.htm_prediction_model
 HTMPredictionModel
 p2
 c__builtin__
@@ -43,7 +43,7 @@ p19
 ssS'_netInfo'
 p20
 g1
-(cnupic.frameworks.opf.htmpredictionmodel
+(cnupic.frameworks.opf.htm_prediction_model
 NetworkInfo
 p21
 g3

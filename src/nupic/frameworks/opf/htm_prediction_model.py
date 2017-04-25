@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-""" @file htmpredictionmodel.py
+""" @file htm_prediction_model.py
 
 Encapsulation of CLAnetwork that implements the ModelBase.
 
@@ -43,11 +43,11 @@ from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
 from nupic.encoders import MultiEncoder, DeltaEncoder
 from nupic.engine import Network
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                      InferenceElement,
-                      SensorInput,
-                      ClassifierInput,
-                      initLogger)
+from nupic.frameworks.opf.opf_utils import (InferenceType,
+                                            InferenceElement,
+                                            SensorInput,
+                                            ClassifierInput,
+                                            initLogger)
 
 try:
   import capnp
@@ -236,7 +236,7 @@ class HTMPredictionModel(Model):
     if paramName == '__numRunCalls':
       return self.__numRunCalls
     else:
-      raise RuntimeError("'%s' parameter is not exposed by htmpredictionmodel." % \
+      raise RuntimeError("'%s' parameter is not exposed by htm_prediction_model." % \
         (paramName))
 
 
@@ -356,7 +356,7 @@ class HTMPredictionModel(Model):
                     nupic.data.RecordStream.getNextRecordDict() result format.
 
             return:
-                An ModelResult class (see opfutils.py) The contents of
+                An ModelResult class (see opf_utils.py) The contents of
                 ModelResult.inferences depends on the the specific inference
                 type of this model, which can be queried by getInferenceType()
     """
