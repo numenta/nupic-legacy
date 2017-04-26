@@ -48,16 +48,16 @@
 <span id="anomaly-detection"></span><h1>Anomaly Detection<a class="headerlink" href="#anomaly-detection" title="Permalink to this headline">¶</a></h1>
 <p>This technical note describes how the anomaly score is implemented and incorporated into the CLA (Cortical Learning Algorithm).</p>
 <p>The anomaly score enables the CLA to provide a metric representing the degree to which each record is predictable. For example, if you have temporal anomaly model that is predicting the energy consumption of a building, each record will have an anomaly score between zero and one.  A zero represents a completely predicted value whereas a one represents a completely anomalous value.</p>
-<p>The anomaly score feature of CLA is implemented on top of the core spatial and temporal pooler, and don’t require any spatial pooler and temporal pooler algorithm changes.</p>
+<p>The anomaly score feature of CLA is implemented on top of the core spatial and temporal memory, and don’t require any spatial pooler and temporal memory algorithm changes.</p>
 <div class="section" id="temporalanomaly-model">
 <span id="temporalanomaly-model"></span><h2>TemporalAnomaly model<a class="headerlink" href="#temporalanomaly-model" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="description">
 <span id="description"></span><h3>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h3>
-<p>The user must specify the model as a TemporalAnomaly type to have the model report the anomaly score. The anomaly score uses the temporal pooler to detect novel points in sequences. This will detect both novel input patterns (because they have not been seen in any sequence) as well as old spatial patterns that occur in a novel context.</p>
+<p>The user must specify the model as a TemporalAnomaly type to have the model report the anomaly score. The anomaly score uses the temporal memory to detect novel points in sequences. This will detect both novel input patterns (because they have not been seen in any sequence) as well as old spatial patterns that occur in a novel context.</p>
 </div>
 <div class="section" id="computation">
 <span id="computation"></span><h3>Computation<a class="headerlink" href="#computation" title="Permalink to this headline">¶</a></h3>
-<p>A TemporalAnomaly model calculates the anomaly score based on the correctness of the previous prediction. This is calculated as the percentage of active spatial pooler columns that were incorrectly predicted by the temporal pooler.</p>
+<p>A TemporalAnomaly model calculates the anomaly score based on the correctness of the previous prediction. This is calculated as the percentage of active spatial pooler columns that were incorrectly predicted by the temporal memory.</p>
 <p>The algorithm for the anomaly score is as follows:</p>
 <p><img alt="equation" src="http://latex.codecogs.com/gif.latex?anomalyScore%3D%5Cfrac%7B%5Clvert%20A_t-%28P_%7Bt-1%7D%5Cbigcap%20A_t%29%5Crvert%20%7D%7B%5Clvert%20A_t%5Crvert%20%7D" /></p>
 <p><img alt="equation" src="http://latex.codecogs.com/gif.latex?P_%7Bt-1%7D%3D%5Ctext%7BPredicted%20columns%20at%20time%20t%7D" /></p>
@@ -95,7 +95,7 @@
 </div>
 <div class="section" id="computation">
 <span id="id4"></span><h3>Computation<a class="headerlink" href="#computation" title="Permalink to this headline">¶</a></h3>
-<p>Since NontemporalAnomaly models have no temporal pooler, the anomaly score is based on the state within the spatial pooler.</p>
+<p>Since NontemporalAnomaly models have no temporal memory, the anomaly score is based on the state within the spatial pooler.</p>
 <p>To compute the nontemporal anomaly score, we first compute the &#8220;match&#8221; score for each winning column after inhibition</p>
 <p><img alt="equation" src="http://latex.codecogs.com/gif.latex?match_%7Bcol_%7Bk%7D%7D%20%3D%20overlap_%7Bcol_%7Bi%7D%7D*dutyCycle_%7Bcol_%7Bi%7D%7D" /></p>
 <p>Then, to get the anomaly score (how unusual the data is), we take the inverse of the total matches</p>
@@ -108,7 +108,7 @@
 </div>
 <div class="section" id="results">
 <span id="id6"></span><h3>Results<a class="headerlink" href="#results" title="Permalink to this headline">¶</a></h3>
-<p>This algorithm was run on some artificial datasets. However, the results were not very promising, and this approach was abandoned. From a theoretical perspective the temporal anomaly detection technique is a superset of this technique. If a static pattern by itself is novel, by definition the temporal pooler won&#8217;t make good predictions and hence the temporal anomaly score should be high. As such there was not too much interest in pursuing this route.</p>
+<p>This algorithm was run on some artificial datasets. However, the results were not very promising, and this approach was abandoned. From a theoretical perspective the temporal anomaly detection technique is a superset of this technique. If a static pattern by itself is novel, by definition the temporal memory won&#8217;t make good predictions and hence the temporal anomaly score should be high. As such there was not too much interest in pursuing this route.</p>
 </div>
 </div>
 </div>

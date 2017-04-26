@@ -145,24 +145,24 @@ using the <a class="reference internal" href="../api/opf/models.html#nupic.frame
 <p>The raw input data file is described <a class="reference external" href="example-data.html">here</a> in detail.</p>
 <p>Our <a class="reference external" href="example-model-params.html">model parameters</a> define how this data will be
 encoded in the <code class="docutils literal"><span class="pre">encoders</span></code> section:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;encoders&#39;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="sa">u</span><span class="s1">&#39;consumption&#39;</span><span class="p">:</span>    <span class="p">{</span>
-        <span class="s1">&#39;fieldname&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;consumption&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;resolution&#39;</span><span class="p">:</span> <span class="mf">0.88</span><span class="p">,</span>
-        <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;consumption&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;RandomDistributedScalarEncoder&#39;</span><span class="p">,</span>
-        <span class="p">},</span>
-
-    <span class="s1">&#39;timestamp_timeOfDay&#39;</span><span class="p">:</span> <span class="p">{</span>   <span class="s1">&#39;fieldname&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;timestamp_timeOfDay&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;timeOfDay&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-                               <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;DateEncoder&#39;</span><span class="p">},</span>
-    <span class="s1">&#39;timestamp_weekend&#39;</span><span class="p">:</span> <span class="p">{</span>   <span class="s1">&#39;fieldname&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;timestamp_weekend&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;DateEncoder&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;weekend&#39;</span><span class="p">:</span> <span class="mi">21</span><span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># List of encoders and their parameters.</span>
+<span class="n">encoders</span><span class="p">:</span>
+  <span class="n">consumption</span><span class="p">:</span>
+    <span class="n">fieldname</span><span class="p">:</span> <span class="n">consumption</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">consumption</span>
+    <span class="n">resolution</span><span class="p">:</span> <span class="mf">0.88</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">RandomDistributedScalarEncoder</span>
+  <span class="n">timestamp_timeOfDay</span><span class="p">:</span>
+    <span class="n">fieldname</span><span class="p">:</span> <span class="n">timestamp</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">timestamp_timeOfDay</span>
+    <span class="n">timeOfDay</span><span class="p">:</span> <span class="p">[</span><span class="mi">21</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">DateEncoder</span>
+  <span class="n">timestamp_weekend</span><span class="p">:</span>
+    <span class="n">fieldname</span><span class="p">:</span> <span class="n">timestamp</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">timestamp_weekend</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">DateEncoder</span>
+    <span class="n">weekend</span><span class="p">:</span> <span class="mi">21</span>
 </pre></div>
 </div>
 <p>Notice that three semantic values are being encoded into the input space. The

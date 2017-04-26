@@ -2,7 +2,7 @@
 
 This document contains detailed instructions for configuring and running swarms. Please see the document [Swarming Algorithm](Swarming-Algorithm) for a description of the underlying swarming algorithm.
 
-Swarming is a process that automatically determines the best model for a given dataset. By "best", we mean the model that most accurately produces the desired output. Swarming figures out which optional components should go into a model (encoders, spatial pooler, temporal pooler, classifier, etc.), as well as the best parameter values to use for each component.
+Swarming is a process that automatically determines the best model for a given dataset. By "best", we mean the model that most accurately produces the desired output. Swarming figures out which optional components should go into a model (encoders, spatial pooler, temporal memory, classifier, etc.), as well as the best parameter values to use for each component.
 
 When you run a swarm, you provide the following information:
 * A dataset to optimize over (a .csv file containing the inputs and desired output).

@@ -4,7 +4,7 @@ Swarming
     Swarming is a process that automatically determines the best model for a
     given dataset. By "best", we mean the model that most accurately produces
     the desired output. Swarming figures out which optional components should go
-    into a model (encoders, spatial pooler, temporal pooler, classifier, etc.),
+    into a model (encoders, spatial pooler, temporal memory, classifier, etc.),
     as well as the best parameter values to use for each component.
 
 We have plans to replace the current swarming library with a more universal

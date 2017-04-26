@@ -408,106 +408,8 @@ special treatment are explicitly handled here.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="tpregion">
-<h2>TPRegion<a class="headerlink" href="#tpregion" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="nupic.regions.TPRegion.TPRegion">
-<em class="property">class </em><code class="descclassname">nupic.regions.TPRegion.</code><code class="descname">TPRegion</code><span class="sig-paren">(</span><em>columnCount</em>, <em>inputWidth</em>, <em>cellsPerColumn</em>, <em>orColumnOutputs=False</em>, <em>cellsSavePath=''</em>, <em>temporalImp='py'</em>, <em>anomalyMode=False</em>, <em>computePredictedActiveCellIndices=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TPRegion.TPRegion" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion</span></code></a></p>
-<p>TPRegion is designed to implement the temporal pooler compute for a given
-CLA level.</p>
-<p>Uses a subclass of TP to do most of the work. The specific TP implementation
-is specified using the temporalImp parameter.</p>
-<p>Automatic parameter handling:</p>
-<p>Parameter names, default values, and descriptions are retrieved automatically
-from the temporal pooler class. Thus, there are only a few hardcoded
-arguments in __init__, and the rest are passed to the appropriate underlying
-class. The RegionSpec is mostly built automatically from these parameters.</p>
-<p>If you add a parameter to a TP class, it will be exposed through TPRegion
-automatically as if it were in TPRegion.__init__, with the right default
-value. Add an entry in the __init__ docstring for it too, and that will be
-brought into the RegionSpec. TPRegion will maintain the parameter as its own
-instance variable and also pass it to the temporal pooler instance. If the
-parameter is changed, TPRegion will propagate the change.</p>
-<p>If you want to do something different with the parameter, add it as an
-argument into TPRegion.__init__, which will override all the default handling.</p>
-<dl class="method">
-<dt id="nupic.regions.TPRegion.TPRegion.compute">
-<code class="descname">compute</code><span class="sig-paren">(</span><em>inputs</em>, <em>outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TPRegion.TPRegion.compute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run one iteration of TPRegion&#8217;s compute, profiling it if requested.</p>
-<p>The guts of the compute are contained in the _compute() call so that
-we can profile it if requested.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.regions.TPRegion.TPRegion.deSerializeExtraData">
-<code class="descname">deSerializeExtraData</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TPRegion.TPRegion.deSerializeExtraData" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method is called during network deserialization with an external
-filename that can be used to bypass pickle for loading large binary states.</p>
-<p>filePath: full filepath and name</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.regions.TPRegion.TPRegion.finishLearning">
-<code class="descname">finishLearning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TPRegion.TPRegion.finishLearning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform an internal optimization step that speeds up inference if we know
-learning will not be performed anymore. This call may, for example, remove
-all potential inputs to each column.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.regions.TPRegion.TPRegion.getAlgorithmInstance">
-<code class="descname">getAlgorithmInstance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TPRegion.TPRegion.getAlgorithmInstance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns instance of the underlying TemporalMemory algorithm object.</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="nupic.regions.TPRegion.TPRegion.getBaseSpec">
-<em class="property">classmethod </em><code class="descname">getBaseSpec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TPRegion.TPRegion.getBaseSpec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the base Spec for TPRegion.</p>
-<p>Doesn&#8217;t include the spatial, temporal and other parameters</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.regions.TPRegion.TPRegion.getParameter">
-<code class="descname">getParameter</code><span class="sig-paren">(</span><em>parameterName</em>, <em>index=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TPRegion.TPRegion.getParameter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the value of a parameter. Most parameters are handled automatically by
-PyRegion&#8217;s parameter get mechanism. The ones that need special treatment
-are explicitly handled here.</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="nupic.regions.TPRegion.TPRegion.getSpec">
-<em class="property">classmethod </em><code class="descname">getSpec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TPRegion.TPRegion.getSpec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Spec for TPRegion.</p>
-<p>The parameters collection is constructed based on the parameters specified
-by the variosu components (spatialSpec, temporalSpec and otherSpec)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.regions.TPRegion.TPRegion.resetSequenceStates">
-<code class="descname">resetSequenceStates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TPRegion.TPRegion.resetSequenceStates" title="Permalink to this definition">¶</a></dt>
-<dd><p>Resets the region&#8217;s sequence states</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.regions.TPRegion.TPRegion.serializeExtraData">
-<code class="descname">serializeExtraData</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TPRegion.TPRegion.serializeExtraData" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method is called during network serialization with an external
-filename that can be used to bypass pickle for saving large binary states.</p>
-<p>filePath: full filepath and name</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.regions.TPRegion.TPRegion.setParameter">
-<code class="descname">setParameter</code><span class="sig-paren">(</span><em>parameterName</em>, <em>index</em>, <em>parameterValue</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TPRegion.TPRegion.setParameter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the value of a Spec parameter. Most parameters are handled
-automatically by PyRegion&#8217;s parameter set mechanism. The ones that need
-special treatment are explicitly handled here.</p>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="tmregion">
+<h2>TMRegion<a class="headerlink" href="#tmregion" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="anomalylikelihoodregion">
 <h2>AnomalyLikelihoodRegion<a class="headerlink" href="#anomalylikelihoodregion" title="Permalink to this headline">¶</a></h2>
@@ -1066,7 +968,7 @@ Initializes self._sdrClassifier if it is not already initialized.</p>
 <li class="toctree-l4"><a class="reference internal" href="#pyregion">PyRegion</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#anomalyregion">AnomalyRegion</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spregion">SPRegion</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tpregion">TPRegion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tmregion">TMRegion</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#anomalylikelihoodregion">AnomalyLikelihoodRegion</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#claclassifierregion">CLAClassifierRegion</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#knnanomalyclassifierregion">KNNAnomalyClassifierRegion</a></li>
