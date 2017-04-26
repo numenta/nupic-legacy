@@ -395,11 +395,11 @@
 * Rename testconsoleprinter_output.txt so as to not be picked up by py.test as a test during discovery
 * likelihood test: fix raw-value must be int
 * Fix broken TMShim
-* Revert "Fix TP Shim"
+* Revert "Fix TM Shim"
 * Anomaly serialization verify complex anomaly instance
 * Likelihood pickle serialization test
 * MovingAverage pickle serialization test
-* Fix TP Shim
+* Fix TM Shim
 * Removed stripUnlearnedColumns-from-SPRegion
 * Updated comment describing activeArray paramater of stripUnlearnedColumns method in SP
 * Revert "MovingAvera: remove unused pickle serialization method"
@@ -482,7 +482,7 @@
 * Remove FDRCSpatial2.py
 * Replace the use of FDRCSpatial2 to SpatialPooler
 * SP profile implemented from tp_large
-* TP profile: can use args from command-line, random data used
+* TM profile: can use args from command-line, random data used
 * Adds AnomalyRegion for computing the raw anomaly score. Updates the network api example to use the new anomaly region. Updates PyRegion to have better error messages.
 * Remove FlatSpatialPooler
 * Add delete segment/synapse functionality to Connections data structure

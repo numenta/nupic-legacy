@@ -14,7 +14,7 @@ Regions:
     phases:
       - 1
     label: R1
-  - name: TP
+  - name: TM
     nodeType: py.TMRegion
     dimensions:
       - 1
@@ -62,7 +62,7 @@ Links:
     destInput: resetIn
   - type: UniformLink
     params: ""
-    srcRegion: TP
+    srcRegion: TM
     srcOutput: topDownOut
     destRegion: SP
     destInput: topDownIn
@@ -70,17 +70,17 @@ Links:
     params: ""
     srcRegion: SP
     srcOutput: bottomUpOut
-    destRegion: TP
+    destRegion: TM
     destInput: bottomUpIn
   - type: UniformLink
     params: ""
     srcRegion: sensor
     srcOutput: resetOut
-    destRegion: TP
+    destRegion: TM
     destInput: resetIn
   - type: UniformLink
     params: ""
-    srcRegion: TP
+    srcRegion: TM
     srcOutput: bottomUpOut
     destRegion: Classifier
     destInput: bottomUpIn
@@ -98,13 +98,13 @@ Links:
     destInput: spBottomUpOut
   - type: UniformLink
     params: ""
-    srcRegion: TP
+    srcRegion: TM
     srcOutput: lrnActiveStateT
     destRegion: AnomalyClassifier
     destInput: tpLrnActiveStateT
   - type: UniformLink
     params: ""
-    srcRegion: TP
+    srcRegion: TM
     srcOutput: topDownOut
     destRegion: AnomalyClassifier
     destInput: tpTopDownOut

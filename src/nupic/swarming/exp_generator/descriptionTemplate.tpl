@@ -226,7 +226,7 @@ config = {
   # General CLA Region Parameters
   ##############################################################################
 
-  # Number of cell columns in the cortical region (same number for SP and TP)
+  # Number of cell columns in the cortical region (same number for SP and TM)
   # (see also tpNCellsPerCol)
   # Replaces: spCoincCount
   'claRegionNColumns' : 2048,
@@ -263,7 +263,7 @@ config = {
   # level before inhibition falls below minDutyCycleBeforeInh
   # will have their own internal synPermConnectedCell
   # threshold set below this default value.
-  # (This concept applies to both SP and TP and so 'cells'
+  # (This concept applies to both SP and TM and so 'cells'
   # is correct here as opposed to 'columns')
   'spSynPermConnected' : $SP_PERM_CONNECTED,
 
@@ -271,12 +271,12 @@ config = {
 
 
   ##############################################################################
-  # Temporal Pooler (TP) Parameters
+  # Temporal Memory (TM) Parameters
   ##############################################################################
 
-  # TP diagnostic output verbosity control;
+  # TM diagnostic output verbosity control;
   # 0: silent; [1..6]: increasing levels of verbosity
-  # (see verbosity in nupic/trunk/py/nupic/research/TP.py and BacktrackingTMCPP.py)
+  # (see verbosity in nupic/trunk/py/nupic/research/BacktrackingTM.py and BacktrackingTMCPP.py)
   #
   'tpVerbosity' : 0,
 
@@ -288,8 +288,8 @@ config = {
   #       by LPF; solve in OPF.
   'tpTrainPrintStatsPeriodIter' : 0,
 
-  # Controls whether TP is enabled or disabled;
-  # TP is necessary for making temporal predictions, such as predicting the next
+  # Controls whether TM is enabled or disabled;
+  # TM is necessary for making temporal predictions, such as predicting the next
   # inputs.  Without TP, the model is only capable of reconstructing missing sensor
   # inputs (via SP).
   #
@@ -321,7 +321,7 @@ config = {
   #  > 0 for fixed-size CLA
   # -1 for non-fixed-size CLA
   #
-  # TODO for Ron: once the appropriate value is placed in TP constructor, see if
+  # TODO for Ron: once the appropriate value is placed in TM constructor, see if
   #  we should eliminate this parameter from description.py
   #
   'tpMaxSegmentsPerCell' : 128,
@@ -343,7 +343,7 @@ config = {
   #  > 0 for fixed-size CLA
   # -1 for non-fixed-size CLA
   #
-  # TODO for Ron: once the appropriate value is placed in TP constructor, see if
+  # TODO for Ron: once the appropriate value is placed in TM constructor, see if
   #  we should eliminate this parameter from description.py
   #
   'tpMaxSynapsesPerSegment' : 32,
@@ -355,7 +355,7 @@ config = {
   #
   'tpNewSynapseCount' : 20,
 
-  # "Pay Attention Mode" length. This tells the TP how many new elements
+  # "Pay Attention Mode" length. This tells the TM how many new elements
   # to append to the end of a learned sequence at a time. Smaller values are
   # better for datasets with short sequences, higher values are better for
   # datasets with long sequences.

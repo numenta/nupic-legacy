@@ -47,7 +47,7 @@ _SP_PARAMS = {
 }
 
 # Default config fields for TPRegion
-_TP_PARAMS = {
+_TM_PARAMS = {
     "verbosity": _VERBOSITY,
     "columnCount": 2048,
     "cellsPerColumn": 32,
@@ -77,7 +77,7 @@ _NUM_RECORDS = 2000
 
 
 def createTemporalAnomaly(recordParams, spatialParams=_SP_PARAMS,
-                          temporalParams=_TP_PARAMS,
+                          temporalParams=_TM_PARAMS,
                           verbosity=_VERBOSITY):
 
 
