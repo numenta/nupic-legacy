@@ -25,7 +25,7 @@ Segment Learning Tests
 
 Multi-attribute sequence tests.
 
-SL1) Train the TP repeatedly using a single sequence plus noise. The sequence
+SL1) Train the TM repeatedly using a single sequence plus noise. The sequence
 can be relatively short, say 5 patterns. Add random noise each time a pattern is
 presented. The noise should be different for each presentation and can be equal
 to the number of on bits in the pattern.
@@ -35,7 +35,7 @@ bits and no two patterns share columns. The patterns that belong to the sequence
 will be in the left half of the input vector. The noise bits will be in the
 right half of the input vector.
 
-After several iterations of each sequence, the TP should should achieve perfect
+After several iterations of each sequence, the TM should should achieve perfect
 inference on the true sequence. There should be resets between each presentation
 of the sequence. Check predictions in the sequence part only (it's ok to predict
 random bits in the right half of the column space), and test with clean
@@ -56,13 +56,13 @@ right half. Both should be learned well.
 import numpy
 import unittest2 as unittest
 
-from nupic.research.TP import TP
-from nupic.research.TP10X2 import TP10X2
+from nupic.research.BacktrackingTM import BacktrackingTM
+from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
 from nupic.research import fdrutilities as fdrutils
 from nupic.support.unittesthelpers import testcasebase
 
 
-g_testCPPTP = True
+g_testCPPTM = True
 
 
 
@@ -92,16 +92,16 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
         self._printOneTrainingVector(pattern)
 
 
-  def _setVerbosity(self, verbosity, tp, tpPy):
-    """Set verbosity level on the TP"""
-    tp.cells4.setVerbosity(verbosity)
-    tp.verbosity = verbosity
-    tpPy.verbosity = verbosity
+  def _setVerbosity(self, verbosity, tm, tmPy):
+    """Set verbosity level on the TM"""
+    tm.cells4.setVerbosity(verbosity)
+    tm.verbosity = verbosity
+    tmPy.verbosity = verbosity
 
 
-  def _createTPs(self, numCols, fixedResources=False,
-                checkSynapseConsistency = True):
-    """Create an instance of the appropriate temporal pooler. We isolate
+  def _createTMs(self, numCols, fixedResources=False,
+                 checkSynapseConsistency = True):
+    """Create an instance of the appropriate temporal memory. We isolate
     all parameters as constants specified here."""
 
     # Keep these fixed:
@@ -127,45 +127,48 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
       maxAge = 1
 
 
-    if g_testCPPTP:
+    if g_testCPPTM:
       if g_options.verbosity > 1:
-        print "Creating TP10X2 instance"
+        print "Creating BacktrackingTMCPP instance"
 
-      cppTP = TP10X2(numberOfCols = numCols, cellsPerColumn = 4,
-                     initialPerm = initialPerm, connectedPerm = connectedPerm,
-                     minThreshold = minThreshold,
-                     newSynapseCount = newSynapseCount,
-                     permanenceInc = permanenceInc,
-                     permanenceDec = permanenceDec,
-                     activationThreshold = activationThreshold,
-                     globalDecay = globalDecay, maxAge=maxAge, burnIn = 1,
-                     seed=g_options.seed, verbosity=g_options.verbosity,
-                     checkSynapseConsistency = checkSynapseConsistency,
-                     pamLength = 1000,
-                     maxSegmentsPerCell = maxSegmentsPerCell,
-                     maxSynapsesPerSegment = maxSynapsesPerSegment,
-                     )
-      # Ensure we are copying over learning states for TPDiff
-      cppTP.retrieveLearningStates = True
+      cppTM = BacktrackingTMCPP(numberOfCols = numCols, cellsPerColumn = 4,
+                                initialPerm = initialPerm, connectedPerm = connectedPerm,
+                                minThreshold = minThreshold,
+                                newSynapseCount = newSynapseCount,
+                                permanenceInc = permanenceInc,
+                                permanenceDec = permanenceDec,
+                                activationThreshold = activationThreshold,
+                                globalDecay = globalDecay, maxAge=maxAge, burnIn = 1,
+                                seed=g_options.seed, verbosity=g_options.verbosity,
+                                checkSynapseConsistency = checkSynapseConsistency,
+                                pamLength = 1000,
+                                maxSegmentsPerCell = maxSegmentsPerCell,
+                                maxSynapsesPerSegment = maxSynapsesPerSegment,
+                                )
+      # Ensure we are copying over learning states for TMDiff
+      cppTM.retrieveLearningStates = True
 
     else:
-      cppTP = None
+      cppTM = None
 
     if g_options.verbosity > 1:
-      print "Creating PY TP instance"
-    pyTP = TP(numberOfCols = numCols, cellsPerColumn = 4,
-               initialPerm = initialPerm, connectedPerm = connectedPerm,
-               minThreshold = minThreshold, newSynapseCount = newSynapseCount,
-               permanenceInc = permanenceInc, permanenceDec = permanenceDec,
-               activationThreshold = activationThreshold,
-               globalDecay = globalDecay, maxAge=maxAge, burnIn = 1,
-               seed=g_options.seed, verbosity=g_options.verbosity,
-               pamLength = 1000,
-               maxSegmentsPerCell = maxSegmentsPerCell,
-               maxSynapsesPerSegment = maxSynapsesPerSegment,
-               )
+      print "Creating PY TM instance"
+    pyTM = BacktrackingTM(numberOfCols = numCols, cellsPerColumn = 4,
+                          initialPerm = initialPerm,
+                          connectedPerm = connectedPerm,
+                          minThreshold = minThreshold,
+                          newSynapseCount = newSynapseCount,
+                          permanenceInc = permanenceInc,
+                          permanenceDec = permanenceDec,
+                          activationThreshold = activationThreshold,
+                          globalDecay = globalDecay, maxAge=maxAge, burnIn = 1,
+                          seed=g_options.seed, verbosity=g_options.verbosity,
+                          pamLength = 1000,
+                          maxSegmentsPerCell = maxSegmentsPerCell,
+                          maxSynapsesPerSegment = maxSynapsesPerSegment,
+                          )
 
-    return cppTP, pyTP
+    return cppTM, pyTM
 
 
   def _getSimplePatterns(self, numOnes, numPatterns):
@@ -203,7 +206,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     # Create noisy training sequence
     trainingSequences = []
-    for _ in xrange(numRepetitions):
+    for i in xrange(numRepetitions):
       sequence = []
       for j in xrange(numPatterns):
 
@@ -228,9 +231,9 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     if g_options.verbosity > 1:
       print "\nTraining sequences"
-      self._printAllTrainingSequences(trainingSequences)
+      self.printAllTrainingSequences(trainingSequences)
       print "\nTest sequence"
-      self._printAllTrainingSequences([testSequence])
+      self.printAllTrainingSequences([testSequence])
 
     return (trainingSequences, [testSequence])
 
@@ -296,19 +299,19 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     if g_options.verbosity > 1:
       print "\nTraining sequences"
-      self._printAllTrainingSequences(trainingSequences)
+      self.printAllTrainingSequences(trainingSequences)
       print "\nTest sequences"
-      self._printAllTrainingSequences(testSequences)
+      self.printAllTrainingSequences(testSequences)
 
     return (trainingSequences, testSequences)
 
 
-  def _testSegmentLearningSequence(self, tps,
-                                  trainingSequences,
-                                  testSequences,
-                                  doResets = True):
+  def _testSegmentLearningSequence(self, tms,
+                                   trainingSequences,
+                                   testSequences,
+                                   doResets = True):
 
-    """Train the given TP once on the entire training set. on the Test a single
+    """Train the given TM once on the entire training set. on the Test a single
     set of sequences once and check that individual predictions reflect the true
     relative frequencies. Return a success code. Success code is 1 for pass, 0
     for fail."""
@@ -317,21 +320,21 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
     if testSequences == None:
       testSequences = trainingSequences
 
-    cppTP, pyTP = tps[0], tps[1]
+    cppTM, pyTM = tms[0], tms[1]
 
-    if cppTP is not None:
-      assert fdrutils.tpDiff2(cppTP, pyTP, g_options.verbosity) == True
+    if cppTM is not None:
+      assert fdrutils.tmDiff2(cppTM, pyTM, g_options.verbosity) == True
 
     #--------------------------------------------------------------------------
     # Learn
     if g_options.verbosity > 0:
       print "============= Training ================="
-      print "TP parameters:"
+      print "TM parameters:"
       print "CPP"
-      if cppTP is not None:
-        print cppTP.printParameters()
+      if cppTM is not None:
+        print cppTM.printParameters()
       print "\nPY"
-      print pyTP.printParameters()
+      print pyTM.printParameters()
 
     for sequenceNum, trainingSequence in enumerate(trainingSequences):
 
@@ -339,76 +342,76 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
         print "============= New sequence ================="
 
       if doResets:
-        if cppTP is not None:
-          cppTP.reset()
-        pyTP.reset()
+        if cppTM is not None:
+          cppTM.reset()
+        pyTM.reset()
 
       for t, x in enumerate(trainingSequence):
 
         if g_options.verbosity > 1:
           print "Time step", t, "sequence number", sequenceNum
-          print "Input: ", pyTP.printInput(x)
+          print "Input: ", pyTM.printInput(x)
           print "NNZ:", x.nonzero()
 
         x = numpy.array(x).astype('float32')
-        if cppTP is not None:
-          cppTP.learn(x)
-        pyTP.learn(x)
+        if cppTM is not None:
+          cppTM.learn(x)
+        pyTM.learn(x)
 
-        if cppTP is not None:
-          assert fdrutils.tpDiff2(cppTP, pyTP, g_options.verbosity,
+        if cppTM is not None:
+          assert fdrutils.tmDiff2(cppTM, pyTM, g_options.verbosity,
                                   relaxSegmentTests = False) == True
 
         if g_options.verbosity > 2:
-          if cppTP is not None:
+          if cppTM is not None:
             print "CPP"
-            cppTP.printStates(printPrevious = (g_options.verbosity > 4))
+            cppTM.printStates(printPrevious = (g_options.verbosity > 4))
           print "\nPY"
-          pyTP.printStates(printPrevious = (g_options.verbosity > 4))
+          pyTM.printStates(printPrevious = (g_options.verbosity > 4))
           print
 
       if g_options.verbosity > 4:
         print "Sequence finished. Complete state after sequence"
-        if cppTP is not None:
+        if cppTM is not None:
           print "CPP"
-          cppTP.printCells()
+          cppTM.printCells()
         print "\nPY"
-        pyTP.printCells()
+        pyTM.printCells()
         print
 
     if g_options.verbosity > 2:
       print "Calling trim segments"
 
-    if cppTP is not None:
-      nSegsRemovedCPP, nSynsRemovedCPP = cppTP.trimSegments()
-    nSegsRemoved, nSynsRemoved = pyTP.trimSegments()
-    if cppTP is not None:
+    if cppTM is not None:
+      nSegsRemovedCPP, nSynsRemovedCPP = cppTM.trimSegments()
+    nSegsRemoved, nSynsRemoved = pyTM.trimSegments()
+    if cppTM is not None:
       assert nSegsRemovedCPP == nSegsRemoved
       assert nSynsRemovedCPP == nSynsRemoved
 
-    if cppTP is not None:
-      assert fdrutils.tpDiff2(cppTP, pyTP, g_options.verbosity) == True
+    if cppTM is not None:
+      assert fdrutils.tmDiff2(cppTM, pyTM, g_options.verbosity) == True
 
     print "Training completed. Stats:"
-    info = pyTP.getSegmentInfo()
+    info = pyTM.getSegmentInfo()
     print "  nSegments:", info[0]
     print "  nSynapses:", info[1]
     if g_options.verbosity > 3:
       print "Complete state:"
-      if cppTP is not None:
+      if cppTM is not None:
         print "CPP"
-        cppTP.printCells()
+        cppTM.printCells()
       print "\nPY"
-      pyTP.printCells()
+      pyTM.printCells()
 
     #---------------------------------------------------------------------------
     # Infer
     if g_options.verbosity > 1:
       print "============= Inference ================="
 
-    if cppTP is not None:
-      cppTP.collectStats = True
-    pyTP.collectStats = True
+    if cppTM is not None:
+      cppTM.collectStats = True
+    pyTM.collectStats = True
 
     nPredictions = 0
     cppNumCorrect, pyNumCorrect = 0, 0
@@ -421,58 +424,58 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
       slen = len(testSequence)
 
       if doResets:
-        if cppTP is not None:
-          cppTP.reset()
-        pyTP.reset()
+        if cppTM is not None:
+          cppTM.reset()
+        pyTM.reset()
 
       for t, x in enumerate(testSequence):
 
         if g_options.verbosity >= 2:
           print "Time step", t, '\nInput:'
-          pyTP.printInput(x)
+          pyTM.printInput(x)
 
-        if cppTP is not None:
-          cppTP.infer(x)
-        pyTP.infer(x)
+        if cppTM is not None:
+          cppTM.infer(x)
+        pyTM.infer(x)
 
-        if cppTP is not None:
-          assert fdrutils.tpDiff2(cppTP, pyTP, g_options.verbosity) == True
+        if cppTM is not None:
+          assert fdrutils.tmDiff2(cppTM, pyTM, g_options.verbosity) == True
 
         if g_options.verbosity > 2:
-          if cppTP is not None:
+          if cppTM is not None:
             print "CPP"
-            cppTP.printStates(printPrevious = (g_options.verbosity > 4),
+            cppTM.printStates(printPrevious = (g_options.verbosity > 4),
                            printLearnState = False)
           print "\nPY"
-          pyTP.printStates(printPrevious = (g_options.verbosity > 4),
+          pyTM.printStates(printPrevious = (g_options.verbosity > 4),
                          printLearnState = False)
 
-        if cppTP is not None:
-          cppScores = cppTP.getStats()
-        pyScores = pyTP.getStats()
+        if cppTM is not None:
+          cppScores = cppTM.getStats()
+        pyScores = pyTM.getStats()
 
         if g_options.verbosity >= 2:
-          if cppTP is not None:
+          if cppTM is not None:
             print "CPP"
             print cppScores
           print "\nPY"
           print pyScores
 
-        if t < slen-1 and t > pyTP.burnIn:
+        if t < slen-1 and t > pyTM.burnIn:
           nPredictions += 1
-          if cppTP is not None:
+          if cppTM is not None:
             if cppScores['curPredictionScore2'] > 0.3:
               cppNumCorrect += 1
           if pyScores['curPredictionScore2'] > 0.3:
             pyNumCorrect += 1
 
     # Check that every inference was correct, excluding the very last inference
-    if cppTP is not None:
-      cppScores = cppTP.getStats()
-    pyScores = pyTP.getStats()
+    if cppTM is not None:
+      cppScores = cppTM.getStats()
+    pyScores = pyTM.getStats()
 
     passTest = False
-    if cppTP is not None:
+    if cppTM is not None:
       if cppNumCorrect == nPredictions and pyNumCorrect == nPredictions:
         passTest = True
     else:
@@ -502,10 +505,10 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
                                                                  numRepetitions)
     numCols = len(trainingSet[0][0])
 
-    tps = self._createTPs(numCols = numCols, fixedResources=fixedResources,
-                    checkSynapseConsistency = checkSynapseConsistency)
+    tms = self._createTMs(numCols = numCols, fixedResources=fixedResources,
+                          checkSynapseConsistency = checkSynapseConsistency)
 
-    testResult = self._testSegmentLearningSequence(tps, trainingSet, testSet)
+    testResult = self._testSegmentLearningSequence(tms, trainingSet, testSet)
 
     if testResult:
       print "%s PASS" % testName
@@ -529,10 +532,10 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
     trainingSet, testSet = self._buildSL2TrainingSet(numOnes, numRepetitions)
     numCols = len(trainingSet[0][0])
 
-    tps = self._createTPs(numCols = numCols, fixedResources=fixedResources,
-                    checkSynapseConsistency = checkSynapseConsistency)
+    tms = self._createTMs(numCols = numCols, fixedResources=fixedResources,
+                          checkSynapseConsistency = checkSynapseConsistency)
 
-    testResult = self._testSegmentLearningSequence(tps, trainingSet, testSet)
+    testResult = self._testSegmentLearningSequence(tms, trainingSet, testSet)
 
     if testResult:
       print "%s PASS" % testName
@@ -543,7 +546,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
 
 
-class TPSegmentLearningTests(ExperimentTestBaseClass):
+class TMSegmentLearningTests(ExperimentTestBaseClass):
   """Our high level tests"""
 
 

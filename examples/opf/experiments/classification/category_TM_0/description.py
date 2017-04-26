@@ -28,7 +28,7 @@ from nupic.frameworks.opf.exp_description_helpers import importBaseDescription
 config = \
 {
   'dataSource': 'file://' + os.path.join(os.path.dirname(__file__),
-                                         '../datasets/category_TP_0.csv'),
+                                         '../datasets/category_TM_0.csv'),
   'modelParams': { 'clParams': { 'verbosity': 0},
                    'sensorParams': { 'encoders': { }, 'verbosity': 0},
                    'spParams': { },

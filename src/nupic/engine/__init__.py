@@ -54,7 +54,7 @@ pyRegions = (
     ("nupic.regions.SPRegion", "SPRegion"),
     ("nupic.regions.SVMClassifierNode", "SVMClassifierNode"),
     ("nupic.regions.TestRegion", "TestRegion"),
-    ("nupic.regions.TPRegion", "TPRegion"),
+    ("nupic.regions.TMRegion", "TMRegion"),
     ("nupic.regions.UnimportableNode", "UnimportableNode"),
 )
 

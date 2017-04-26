@@ -125,7 +125,7 @@
 * Updated SDR classifier internals
 * calculate raw anomly score in KNNAnomalyClassifier
 * removes anomaly.py dependency in network_api_demo.py
-* changes how TPRegion computes prevPredictdColumns and updates clamodel
+* changes how TMRegion computes prevPredictdColumns and updates clamodel
 * Install pip from local copy, other simplifications
 * Fixup PYTHONPATH to properly include previously-defined PYTHONPATH
 * adds pseudocode to core functions
@@ -250,8 +250,8 @@
 * Change temporalImp to tm_py for both networks and add comment about it being a temporary value until C++ TM is implemented
 * Refactored to remove common code between network_checkpoint_test.py and temporal_memory_compatibility_test.py
 * Use named constants from nupic.data.fieldmeta in aggregator module instead of naked constants.
-* Fix AttributeError: 'TPShim' object has no attribute 'topDownCompute'
-* Support more parameters in TPShim
+* Fix AttributeError: 'TMShim' object has no attribute 'topDownCompute'
+* Support more parameters in TMShim
 * Serialize remaining fields in CLAModel using capnproto
 * Enforce pyproj==1.9.3 in requirements.txt
 * Use FastCLAClassifier read class method instead of instance method
@@ -394,12 +394,12 @@
 * Merge remote-tracking branch 'upstream/master'
 * Rename testconsoleprinter_output.txt so as to not be picked up by py.test as a test during discovery
 * likelihood test: fix raw-value must be int
-* Fix broken TPShim
-* Revert "Fix TP Shim"
+* Fix broken TMShim
+* Revert "Fix TM Shim"
 * Anomaly serialization verify complex anomaly instance
 * Likelihood pickle serialization test
 * MovingAverage pickle serialization test
-* Fix TP Shim
+* Fix TM Shim
 * Removed stripUnlearnedColumns-from-SPRegion
 * Updated comment describing activeArray paramater of stripUnlearnedColumns method in SP
 * Revert "MovingAvera: remove unused pickle serialization method"
@@ -482,7 +482,7 @@
 * Remove FDRCSpatial2.py
 * Replace the use of FDRCSpatial2 to SpatialPooler
 * SP profile implemented from tp_large
-* TP profile: can use args from command-line, random data used
+* TM profile: can use args from command-line, random data used
 * Adds AnomalyRegion for computing the raw anomaly score. Updates the network api example to use the new anomaly region. Updates PyRegion to have better error messages.
 * Remove FlatSpatialPooler
 * Add delete segment/synapse functionality to Connections data structure

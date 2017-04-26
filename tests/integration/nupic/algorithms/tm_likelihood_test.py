@@ -35,10 +35,10 @@ Test: after presenting A-B-C-D, prediction scores should reflect the transition
 probabilities for E, F and G, i.e. Run the test for several different
 probability combinations.
 
-LI2) Given a TP trained with LI1, compute the prediction score across a
+LI2) Given a TM trained with LI1, compute the prediction score across a
 list of sequences.
 
-LI3) Given the following sequence and a one cell per column TP:
+LI3) Given the following sequence and a one cell per column TM:
 
 Seq1: a-b-b-c-d
 
@@ -48,8 +48,8 @@ There should be four segments a-b
 import numpy
 import unittest2 as unittest
 
-from nupic.research.TP import TP
-from nupic.research.TP10X2 import TP10X2
+from nupic.research.BacktrackingTM import BacktrackingTM
+from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
 from nupic.support.unittesthelpers import testcasebase
 
 SEED = 42
@@ -88,10 +88,10 @@ def _buildLikelihoodTrainingSet(numOnes=5, relativeFrequencies=None):
 
   return (trainingSequences, relativeFrequencies, allPatterns)
 
-def _createTPs(numCols, cellsPerColumn=4, checkSynapseConsistency=True):
-  """Create TP and TP10X instances with identical parameters. """
+def _createTMs(numCols, cellsPerColumn=4, checkSynapseConsistency=True):
+  """Create TM and BacktrackingTMCPP instances with identical parameters. """
 
-  # Keep these fixed for both TP's:
+  # Keep these fixed for both TM's:
   minThreshold = 4
   activationThreshold = 4
   newSynapseCount = 5
@@ -102,43 +102,43 @@ def _createTPs(numCols, cellsPerColumn=4, checkSynapseConsistency=True):
   globalDecay = 0.0
 
   if VERBOSITY > 1:
-    print "Creating TP10X instance"
+    print "Creating BacktrackingTMCPP instance"
 
-  cppTp = TP10X2(numberOfCols=numCols, cellsPerColumn=cellsPerColumn,
-                 initialPerm=initialPerm, connectedPerm=connectedPerm,
-                 minThreshold=minThreshold, newSynapseCount=newSynapseCount,
-                 permanenceInc=permanenceInc, permanenceDec=permanenceDec,
-                 activationThreshold=activationThreshold,
-                 globalDecay=globalDecay, burnIn=1,
-                 seed=SEED, verbosity=VERBOSITY,
-                 checkSynapseConsistency=checkSynapseConsistency,
-                 pamLength=1000)
+  cppTm = BacktrackingTMCPP(numberOfCols=numCols, cellsPerColumn=cellsPerColumn,
+                            initialPerm=initialPerm, connectedPerm=connectedPerm,
+                            minThreshold=minThreshold, newSynapseCount=newSynapseCount,
+                            permanenceInc=permanenceInc, permanenceDec=permanenceDec,
+                            activationThreshold=activationThreshold,
+                            globalDecay=globalDecay, burnIn=1,
+                            seed=SEED, verbosity=VERBOSITY,
+                            checkSynapseConsistency=checkSynapseConsistency,
+                            pamLength=1000)
 
   if VERBOSITY > 1:
-    print "Creating PY TP instance"
+    print "Creating PY TM instance"
 
-  pyTp = TP(numberOfCols=numCols, cellsPerColumn=cellsPerColumn,
-            initialPerm=initialPerm, connectedPerm=connectedPerm,
-            minThreshold=minThreshold, newSynapseCount=newSynapseCount,
-            permanenceInc=permanenceInc, permanenceDec=permanenceDec,
-            activationThreshold=activationThreshold,
-            globalDecay=globalDecay, burnIn=1,
-            seed=SEED, verbosity=VERBOSITY,
-            pamLength=1000)
+  pyTm = BacktrackingTM(numberOfCols=numCols, cellsPerColumn=cellsPerColumn,
+                        initialPerm=initialPerm, connectedPerm=connectedPerm,
+                        minThreshold=minThreshold, newSynapseCount=newSynapseCount,
+                        permanenceInc=permanenceInc, permanenceDec=permanenceDec,
+                        activationThreshold=activationThreshold,
+                        globalDecay=globalDecay, burnIn=1,
+                        seed=SEED, verbosity=VERBOSITY,
+                        pamLength=1000)
 
-  return cppTp, pyTp
+  return cppTm, pyTm
 
 
-def _computeTPMetric(tp=None, sequences=None, useResets=True, verbosity=1):
-  """Given a trained TP and a list of sequences, compute the temporal pooler
+def _computeTMMetric(tm=None, sequences=None, useResets=True, verbosity=1):
+  """Given a trained TM and a list of sequences, compute the temporal memory
   performance metric on those sequences.
 
   Parameters:
   ===========
-  tp:               A trained temporal pooler.
+  tm:               A trained temporal memory.
   sequences:        A list of sequences. Each sequence is a list of numpy
                     vectors.
-  useResets:        If True, the TP's reset method will be called before the
+  useResets:        If True, the TM's reset method will be called before the
                     the start of each new sequence.
   verbosity:        An integer controlling the level of printouts. The higher
                     the number the more debug printouts.
@@ -154,12 +154,12 @@ def _computeTPMetric(tp=None, sequences=None, useResets=True, verbosity=1):
   datasetScore = 0
   numPredictions = 0
 
-  tp.resetStats()
+  tm.resetStats()
 
   for seqIdx, seq in enumerate(sequences):
     # Feed in a reset
     if useResets:
-      tp.reset()
+      tm.reset()
 
     seq = numpy.array(seq, dtype='uint32')
     if verbosity > 2:
@@ -170,11 +170,11 @@ def _computeTPMetric(tp=None, sequences=None, useResets=True, verbosity=1):
         print "pattern", inputPattern
 
 
-      # Feed this input to the TP and get the stats
-      y = tp.infer(inputPattern)
+      # Feed this input to the TM and get the stats
+      y = tm.infer(inputPattern)
 
       if verbosity > 2:
-        stats = tp.getStats()
+        stats = tm.getStats()
         if stats['curPredictionScore'] > 0:
           print "   patternConfidence=", stats['curPredictionScore2']
 
@@ -182,16 +182,16 @@ def _computeTPMetric(tp=None, sequences=None, useResets=True, verbosity=1):
       # Print some diagnostics for debugging
       if verbosity > 3:
         print "\n\n"
-        predOut = numpy.sum(tp.predictedState['t'], axis=1)
-        actOut  = numpy.sum(tp.activeState['t'], axis=1)
-        outout  = numpy.sum(y.reshape(tp.activeState['t'].shape), axis=1)
+        predOut = numpy.sum(tm.predictedState['t'], axis=1)
+        actOut  = numpy.sum(tm.activeState['t'], axis=1)
+        outout  = numpy.sum(y.reshape(tm.activeState['t'].shape), axis=1)
         print "Prediction non-zeros: ", predOut.nonzero()
         print "Activestate non-zero: ", actOut.nonzero()
         print "input non-zeros:      ", inputPattern.nonzero()
         print "Output non-zeros:     ", outout.nonzero()
 
   # Print and return final stats
-  stats = tp.getStats()
+  stats = tm.getStats()
   datasetScore = stats['predictionScoreAvg2']
   numPredictions = stats['nPredictions']
   print "Final results: datasetScore=", datasetScore,
@@ -217,18 +217,18 @@ def _createDataset(numSequences, originalSequences, relativeFrequencies):
   return dataSet
 
 
-class TPLikelihoodTest(testcasebase.TestCaseBase):
+class TMLikelihoodTest(testcasebase.TestCaseBase):
 
   def _testSequence(self,
                     trainingSet,
                     nSequencePresentations=1,
-                    tp=None,
+                    tm=None,
                     testSequences=None,
                     doResets=True,
                     relativeFrequencies=None):
     """Test a single set of sequences once and check that individual
     predictions reflect the true relative frequencies. Return a success code
-    as well as the trained TP. Success code is 1 for pass, 0 for fail.
+    as well as the trained TM. Success code is 1 for pass, 0 for fail.
 
 
     The trainingSet is a set of 3 sequences that share the same first 4
@@ -293,27 +293,27 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
         print "=========Presentation #%d Sequence #%d==============" % \
                                               (r, whichSequence)
       if doResets:
-        tp.reset()
+        tm.reset()
       for t, x in enumerate(trainingSequence):
         if VERBOSITY > 3:
           print "Time step", t
-          print "Input: ", tp.printInput(x)
-        tp.learn(x)
+          print "Input: ", tm.printInput(x)
+        tm.learn(x)
         if VERBOSITY > 4:
-          tp.printStates(printPrevious=(VERBOSITY > 4))
+          tm.printStates(printPrevious=(VERBOSITY > 4))
           print
       if VERBOSITY > 4:
         print "Sequence finished. Complete state after sequence"
-        tp.printCells()
+        tm.printCells()
         print
 
-    tp.finishLearning()
+    tm.finishLearning()
     if VERBOSITY > 2:
       print "Training completed. Complete state:"
-      tp.printCells()
+      tm.printCells()
       print
-      print "TP parameters:"
-      print tp.printParameters()
+      print "TM parameters:"
+      print tm.printParameters()
 
     # Infer
     if VERBOSITY > 1:
@@ -321,22 +321,22 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
 
     testSequence = testSequences[0]
     slen = len(testSequence)
-    tp.collectStats = True
-    tp.resetStats()
+    tm.collectStats = True
+    tm.resetStats()
     if doResets:
-      tp.reset()
+      tm.reset()
     for t, x in enumerate(testSequence):
       if VERBOSITY > 2:
-        print "Time step", t, '\nInput:', tp.printInput(x)
-      tp.infer(x)
+        print "Time step", t, '\nInput:', tm.printInput(x)
+      tm.infer(x)
       if VERBOSITY > 3:
-        tp.printStates(printPrevious=(VERBOSITY > 4), printLearnState=False)
+        tm.printStates(printPrevious=(VERBOSITY > 4), printLearnState=False)
         print
 
       # We will exit with the confidence score for the last element
       if t == slen-2:
-        tpNonZeros = [pattern.nonzero()[0] for pattern in allTrainingPatterns]
-        predictionScore2 = tp.checkPrediction2(tpNonZeros)[2]
+        tmNonZeros = [pattern.nonzero()[0] for pattern in allTrainingPatterns]
+        predictionScore2 = tm.checkPrediction2(tmNonZeros)[2]
 
     if VERBOSITY > 0:
       print "predictionScore:", predictionScore2
@@ -347,7 +347,7 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
     patternConfidenceScores = numpy.array([x[1] for x in predictionScore2])
     # Normalize so that the sum is 1.0. This makes us independent of any
     #  potential scaling differences in the column confidence calculations of
-    #  various TP implementations.
+    #  various TM implementations.
     patternConfidenceScores /= patternConfidenceScores.sum()
 
     msg = ('Prediction failed with predictionScore: %s. Expected %s but got %s.'
@@ -367,14 +367,14 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
     print relativeFrequencies
 
     trainingSet = _buildLikelihoodTrainingSet(numOnes, relativeFrequencies)
-    cppTp, pyTp = _createTPs(numCols=trainingSet[0][0][0].size,
-                              checkSynapseConsistency=checkSynapseConsistency)
+    cppTm, pyTm = _createTMs(numCols=trainingSet[0][0][0].size,
+                             checkSynapseConsistency=checkSynapseConsistency)
 
-    # Test both TP's. Currently the CPP TP has faster confidence estimation
-    self._testSequence(trainingSet, nSequencePresentations=200, tp=cppTp,
+    # Test both TM's. Currently the CPP TM has faster confidence estimation
+    self._testSequence(trainingSet, nSequencePresentations=200, tm=cppTm,
                        relativeFrequencies=relativeFrequencies)
 
-    self._testSequence(trainingSet, nSequencePresentations=500, tp=pyTp,
+    self._testSequence(trainingSet, nSequencePresentations=500, tm=pyTm,
                        relativeFrequencies=relativeFrequencies)
 
   def _likelihoodTest2(self, numOnes=5, relativeFrequencies=None,
@@ -384,25 +384,25 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
 
     trainingSet = _buildLikelihoodTrainingSet(numOnes, relativeFrequencies)
 
-    cppTp, pyTp = _createTPs(numCols=trainingSet[0][0][0].size,
-                            checkSynapseConsistency=checkSynapseConsistency)
+    cppTm, pyTm = _createTMs(numCols=trainingSet[0][0][0].size,
+                             checkSynapseConsistency=checkSynapseConsistency)
 
-    # Test both TP's
-    for tp in [cppTp, pyTp]:
-      self._testSequence(trainingSet, nSequencePresentations=500, tp=tp,
+    # Test both TM's
+    for tm in [cppTm, pyTm]:
+      self._testSequence(trainingSet, nSequencePresentations=500, tm=tm,
                          relativeFrequencies=relativeFrequencies)
 
       # Create a dataset with the same relative frequencies for testing the
       # metric.
       testDataSet = _createDataset(500, trainingSet[0], relativeFrequencies)
-      tp.collectStats = True
-      score, _ = _computeTPMetric(tp, testDataSet, verbosity=2)
+      tm.collectStats = True
+      score, _ = _computeTMMetric(tm, testDataSet, verbosity=2)
 
       # Create a dataset with very different relative frequencies
       # This score should be lower than the one above.
       testDataSet = _createDataset(500, trainingSet[0],
                                    relativeFrequencies = [0.1, 0.1, 0.9])
-      score2, _ = _computeTPMetric(tp, testDataSet, verbosity=2)
+      score2, _ = _computeTMMetric(tm, testDataSet, verbosity=2)
 
       self.assertLessEqual(score2, score)
 

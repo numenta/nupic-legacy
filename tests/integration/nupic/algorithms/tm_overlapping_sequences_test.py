@@ -31,7 +31,7 @@ repeats of the training data.
 Test 2 - Test with slow learning, make sure PAM allows us to train with fewer
 repeats of the training data.
 
-Test 3 - Test with slow learning, some overlap in the patterns, and TP
+Test 3 - Test with slow learning, some overlap in the patterns, and TM
 thresholds of 80% of newSynapseCount
 
 Test 4 - Test with "Forbes-like" data. A bunch of sequences of lengths between 2
@@ -46,8 +46,8 @@ import pprint
 import random
 import unittest2 as unittest
 
-from nupic.research.TP import TP
-from nupic.research.TP10X2 import TP10X2
+from nupic.research.BacktrackingTM import BacktrackingTM
+from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
 from nupic.research import fdrutilities as fdrutils
 from nupic.support.unittesthelpers import testcasebase
 
@@ -56,8 +56,8 @@ SEED = 35             # the random seed used throughout
 # Whether to only run the short tests.
 SHORT = True
 
-# If set to 0 the CPP TP will not be tested
-INCLUDE_CPP_TP = 1    # Also test with CPP TP
+# If set to 0 the CPP TM will not be tested
+INCLUDE_CPP_TM = 1    # Also test with CPP TM
 
 
 
@@ -124,7 +124,7 @@ def buildOverlappedSequences( numSequences = 2,
   seqLen:               Overall length of each sequence
   sharedElements:       Which element indices of each sequence are shared. These
                           will be in the range between 0 and seqLen-1
-  numOnBitsPerPattern:  Number of ON bits in each TP input pattern
+  numOnBitsPerPattern:  Number of ON bits in each TM input pattern
   patternOverlap:       Max number of bits of overlap between any 2 patterns
   retval:               (numCols, trainingSequences)
                           numCols - width of the patterns
@@ -191,7 +191,7 @@ def buildSequencePool(numSequences = 10,
   seqLen:               List of possible sequence lengths
   numPatterns:          How many possible patterns there are to use within
                           sequences
-  numOnBitsPerPattern:  Number of ON bits in each TP input pattern
+  numOnBitsPerPattern:  Number of ON bits in each TM input pattern
   patternOverlap:       Max number of bits of overlap between any 2 patterns
   retval:               (numCols, trainingSequences)
                           numCols - width of the patterns
@@ -231,7 +231,7 @@ def buildSequencePool(numSequences = 10,
 
 
 
-def createTPs(includeCPP = True,
+def createTMs(includeCPP = True,
               includePy = True,
               numCols = 100,
               cellsPerCol = 4,
@@ -249,118 +249,118 @@ def createTPs(includeCPP = True,
               **kwargs
               ):
 
-  """Create one or more TP instances, placing each into a dict keyed by
+  """Create one or more TM instances, placing each into a dict keyed by
   name.
 
   Parameters:
   ------------------------------------------------------------------
-  retval:   tps - dict of TP instances
+  retval:   tms - dict of TM instances
   """
 
   # Keep these fixed:
   connectedPerm = 0.5
 
-  tps = dict()
+  tms = dict()
 
   if includeCPP:
     if VERBOSITY >= 2:
-      print "Creating TP10X2 instance"
+      print "Creating BacktrackingTMCPP instance"
 
-    cpp_tp = TP10X2(numberOfCols = numCols, cellsPerColumn = cellsPerCol,
-                   initialPerm = initialPerm, connectedPerm = connectedPerm,
-                   minThreshold = minThreshold, newSynapseCount = newSynapseCount,
-                   permanenceInc = permanenceInc, permanenceDec = permanenceDec,
-                   activationThreshold = activationThreshold,
-                   globalDecay = globalDecay, burnIn = 1,
-                   seed=SEED, verbosity=VERBOSITY,
-                   checkSynapseConsistency = checkSynapseConsistency,
-                   collectStats = True,
-                   pamLength = pamLength,
-                   maxInfBacktrack = maxInfBacktrack,
-                   maxLrnBacktrack = maxLrnBacktrack,
-                   )
+    cpp_tm = BacktrackingTMCPP(numberOfCols = numCols, cellsPerColumn = cellsPerCol,
+                               initialPerm = initialPerm, connectedPerm = connectedPerm,
+                               minThreshold = minThreshold, newSynapseCount = newSynapseCount,
+                               permanenceInc = permanenceInc, permanenceDec = permanenceDec,
+                               activationThreshold = activationThreshold,
+                               globalDecay = globalDecay, burnIn = 1,
+                               seed=SEED, verbosity=VERBOSITY,
+                               checkSynapseConsistency = checkSynapseConsistency,
+                               collectStats = True,
+                               pamLength = pamLength,
+                               maxInfBacktrack = maxInfBacktrack,
+                               maxLrnBacktrack = maxLrnBacktrack,
+                               )
 
-    # Ensure we are copying over learning states for TPDiff
-    cpp_tp.retrieveLearningStates = True
+    # Ensure we are copying over learning states for TMDiff
+    cpp_tm.retrieveLearningStates = True
 
-    tps['CPP'] = cpp_tp
+    tms['CPP'] = cpp_tm
 
 
   if includePy:
     if VERBOSITY >= 2:
-      print "Creating PY TP instance"
+      print "Creating PY TM instance"
 
-    py_tp = TP(numberOfCols = numCols, cellsPerColumn = cellsPerCol,
-               initialPerm = initialPerm, connectedPerm = connectedPerm,
-               minThreshold = minThreshold, newSynapseCount = newSynapseCount,
-               permanenceInc = permanenceInc, permanenceDec = permanenceDec,
-               activationThreshold = activationThreshold,
-               globalDecay = globalDecay, burnIn = 1,
-               seed=SEED, verbosity=VERBOSITY,
-               collectStats = True,
-               pamLength = pamLength,
-               maxInfBacktrack = maxInfBacktrack,
-               maxLrnBacktrack = maxLrnBacktrack,
-               )
-
-
-    tps['PY '] = py_tp
-
-  return tps
+    py_tm = BacktrackingTM(numberOfCols = numCols, cellsPerColumn = cellsPerCol,
+                           initialPerm = initialPerm, connectedPerm = connectedPerm,
+                           minThreshold = minThreshold, newSynapseCount = newSynapseCount,
+                           permanenceInc = permanenceInc, permanenceDec = permanenceDec,
+                           activationThreshold = activationThreshold,
+                           globalDecay = globalDecay, burnIn = 1,
+                           seed=SEED, verbosity=VERBOSITY,
+                           collectStats = True,
+                           pamLength = pamLength,
+                           maxInfBacktrack = maxInfBacktrack,
+                           maxLrnBacktrack = maxLrnBacktrack,
+                           )
 
 
+    tms['PY '] = py_tm
 
-def assertNoTPDiffs(tps):
+  return tms
+
+
+
+def assertNoTMDiffs(tms):
   """
-  Check for diffs among the TP instances in the passed in tps dict and
+  Check for diffs among the TM instances in the passed in tms dict and
   raise an assert if any are detected
 
   Parameters:
   ---------------------------------------------------------------------
-  tps:                  dict of TP instances
+  tms:                  dict of TM instances
   """
 
-  if len(tps) == 1:
+  if len(tms) == 1:
     return
-  if len(tps) > 2:
-    raise "Not implemented for more than 2 TPs"
+  if len(tms) > 2:
+    raise "Not implemented for more than 2 TMs"
 
-  same = fdrutils.tpDiff2(*tps.values(), verbosity=VERBOSITY)
+  same = fdrutils.tmDiff2(*tms.values(), verbosity=VERBOSITY)
   assert(same)
   return
 
 
 
-def evalSequences(tps,
+def evalSequences(tms,
                   trainingSequences,
                   testSequences = None,
                   nTrainRepetitions = 1,
                   doResets = True,
                   **kwargs):
 
-  """Train the TPs on the entire training set for nTrainRepetitions in a row.
+  """Train the TMs on the entire training set for nTrainRepetitions in a row.
   Then run the test set through inference once and return the inference stats.
 
   Parameters:
   ---------------------------------------------------------------------
-  tps:                  dict of TP instances
+  tms:                  dict of TM instances
   trainingSequences:    list of training sequences. Each sequence is a list
-                        of TP input patterns
+                        of TM input patterns
   testSequences:        list of test sequences. If None, we will test against
                         the trainingSequences
-  nTrainRepetitions:    Number of times to run the training set through the TP
-  doResets:             If true, send a reset to the TP between each sequence
+  nTrainRepetitions:    Number of times to run the training set through the TM
+  doResets:             If true, send a reset to the TM between each sequence
   """
 
   # If no test sequence is specified, use the first training sequence
   if testSequences == None:
     testSequences = trainingSequences
 
-  # First TP instance is used by default for verbose printing of input values,
+  # First TM instance is used by default for verbose printing of input values,
   #  etc.
-  firstTP = tps.values()[0]
+  firstTP = tms.values()[0]
 
-  assertNoTPDiffs(tps)
+  assertNoTMDiffs(tms)
 
   # =====================================================================
   # Loop through the training set nTrainRepetitions times
@@ -370,10 +370,10 @@ def evalSequences(tps,
       print "\n##############################################################"
       print "################# Training round #%d of %d #################" \
                 % (trainingNum, nTrainRepetitions)
-      for (name,tp) in tps.iteritems():
-        print "TP parameters for %s: " % (name)
+      for (name,tm) in tms.iteritems():
+        print "TM parameters for %s: " % (name)
         print "---------------------"
-        tp.printParameters()
+        tm.printParameters()
         print
 
     # ======================================================================
@@ -387,8 +387,8 @@ def evalSequences(tps,
                   % (sequenceNum, numSequences)
 
       if doResets:
-        for tp in tps.itervalues():
-          tp.reset()
+        for tm in tms.itervalues():
+          tm.reset()
 
       # --------------------------------------------------------------------
       # Train each element of the sequence
@@ -406,49 +406,49 @@ def evalSequences(tps,
 
         # Train in this element
         x = numpy.array(x).astype('float32')
-        for tp in tps.itervalues():
-          tp.learn(x, computeInfOutput=True)
+        for tm in tms.itervalues():
+          tm.learn(x, computeInfOutput=True)
 
         # Print the input and output states
         if VERBOSITY >= 3:
-          for (name,tp) in tps.iteritems():
-            print "I/O states of %s TP:" % (name)
+          for (name,tm) in tms.iteritems():
+            print "I/O states of %s TM:" % (name)
             print "-------------------------------------",
-            tp.printStates(printPrevious = (VERBOSITY >= 5))
+            tm.printStates(printPrevious = (VERBOSITY >= 5))
             print
 
-        assertNoTPDiffs(tps)
+        assertNoTMDiffs(tms)
 
         # Print out number of columns that weren't predicted
         if VERBOSITY >= 2:
-          for (name,tp) in tps.iteritems():
-            stats = tp.getStats()
-            print "# of unpredicted columns for %s TP: %d of %d" \
+          for (name,tm) in tms.iteritems():
+            stats = tm.getStats()
+            print "# of unpredicted columns for %s TM: %d of %d" \
                 % (name, stats['curMissing'], x.sum())
-            numBurstingCols = tp.infActiveState['t'].min(axis=1).sum()
-            print "# of bursting columns for %s TP: %d of %d" \
+            numBurstingCols = tm.infActiveState['t'].min(axis=1).sum()
+            print "# of bursting columns for %s TM: %d of %d" \
                 % (name, numBurstingCols, x.sum())
 
 
       # Print the trained cells
       if VERBOSITY >= 4:
         print "Sequence %d finished." % (sequenceNum)
-        for (name,tp) in tps.iteritems():
-          print "All cells of %s TP:" % (name)
+        for (name,tm) in tms.iteritems():
+          print "All cells of %s TM:" % (name)
           print "-------------------------------------",
-          tp.printCells()
+          tm.printCells()
           print
 
     # --------------------------------------------------------------------
     # Done training all sequences in this round, print the total number of
-    #  missing, extra columns and make sure it's the same among the TPs
+    #  missing, extra columns and make sure it's the same among the TMs
     if VERBOSITY >= 2:
       print
     prevResult = None
-    for (name,tp) in tps.iteritems():
-      stats = tp.getStats()
+    for (name,tm) in tms.iteritems():
+      stats = tm.getStats()
       if VERBOSITY >= 1:
-        print "Stats for %s TP over all sequences for training round #%d of %d:" \
+        print "Stats for %s TM over all sequences for training round #%d of %d:" \
                 % (name, trainingNum, nTrainRepetitions)
         print "   total missing:", stats['totalMissing']
         print "   total extra:", stats['totalExtra']
@@ -459,7 +459,7 @@ def evalSequences(tps,
         assert (stats['totalMissing'] == prevResult[0])
         assert (stats['totalExtra'] == prevResult[1])
 
-      tp.resetStats()
+      tm.resetStats()
 
 
   # =====================================================================
@@ -467,21 +467,21 @@ def evalSequences(tps,
   if VERBOSITY >= 3:
     print "Calling trim segments"
   prevResult = None
-  for tp in tps.itervalues():
-    nSegsRemoved, nSynsRemoved = tp.trimSegments()
+  for tm in tms.itervalues():
+    nSegsRemoved, nSynsRemoved = tm.trimSegments()
     if prevResult is None:
       prevResult = (nSegsRemoved, nSynsRemoved)
     else:
       assert (nSegsRemoved == prevResult[0])
       assert (nSynsRemoved == prevResult[1])
 
-  assertNoTPDiffs(tps)
+  assertNoTMDiffs(tms)
 
   if VERBOSITY >= 4:
     print "Training completed. Complete state:"
-    for (name,tp) in tps.iteritems():
+    for (name,tm) in tms.iteritems():
       print "%s:" % (name)
-      tp.printCells()
+      tm.printCells()
       print
 
 
@@ -492,9 +492,9 @@ def evalSequences(tps,
     print "\n##############################################################"
     print "########################## Inference #########################"
 
-  # Reset stats in all TPs
-  for tp in tps.itervalues():
-    tp.resetStats()
+  # Reset stats in all TMs
+  for tm in tms.itervalues():
+    tm.resetStats()
 
   # -------------------------------------------------------------------
   # Loop through the test sequences
@@ -509,8 +509,8 @@ def evalSequences(tps,
 
     # Send in the rest
     if doResets:
-      for tp in tps.itervalues():
-        tp.reset()
+      for tm in tms.itervalues():
+        tm.reset()
 
     # -------------------------------------------------------------------
     # Loop through the elements of this sequence
@@ -527,35 +527,35 @@ def evalSequences(tps,
         print "input nzs:", x.nonzero()
 
       # Infer on this element
-      for tp in tps.itervalues():
-        tp.infer(x)
+      for tm in tms.itervalues():
+        tm.infer(x)
 
-      assertNoTPDiffs(tps)
+      assertNoTMDiffs(tms)
 
       # Print out number of columns that weren't predicted
       if VERBOSITY >= 2:
-        for (name,tp) in tps.iteritems():
-          stats = tp.getStats()
-          print "# of unpredicted columns for %s TP: %d of %d" \
+        for (name,tm) in tms.iteritems():
+          stats = tm.getStats()
+          print "# of unpredicted columns for %s TM: %d of %d" \
               % (name, stats['curMissing'], x.sum())
 
       # Debug print of internal state
       if VERBOSITY >= 3:
-        for (name,tp) in tps.iteritems():
-          print "I/O states of %s TP:" % (name)
+        for (name,tm) in tms.iteritems():
+          print "I/O states of %s TM:" % (name)
           print "-------------------------------------",
-          tp.printStates(printPrevious = (VERBOSITY >= 5),
+          tm.printStates(printPrevious = (VERBOSITY >= 5),
                          printLearnState = False)
           print
 
     # Done with this sequence
-    # Debug print of all stats of the TPs
+    # Debug print of all stats of the TMs
     if VERBOSITY >= 4:
       print
-      for (name,tp) in tps.iteritems():
-        print "Interim internal stats for %s TP:" % (name)
+      for (name,tm) in tms.iteritems():
+        print "Interim internal stats for %s TM:" % (name)
         print "---------------------------------"
-        pprint.pprint(tp.getStats())
+        pprint.pprint(tm.getStats())
         print
 
 
@@ -563,18 +563,18 @@ def evalSequences(tps,
     print "\n##############################################################"
     print "####################### Inference Done #######################"
 
-  # Get the overall stats for each TP and return them
+  # Get the overall stats for each TM and return them
   tpStats = dict()
-  for (name,tp) in tps.iteritems():
-    tpStats[name] = stats = tp.getStats()
+  for (name,tm) in tms.iteritems():
+    tpStats[name] = stats = tm.getStats()
     if VERBOSITY >= 2:
-      print "Stats for %s TP over all sequences:" % (name)
+      print "Stats for %s TM over all sequences:" % (name)
       print "   total missing:", stats['totalMissing']
       print "   total extra:", stats['totalExtra']
 
-  for (name,tp) in tps.iteritems():
+  for (name,tm) in tms.iteritems():
     if VERBOSITY >= 3:
-      print "\nAll internal stats for %s TP:" % (name)
+      print "\nAll internal stats for %s TM:" % (name)
       print "-------------------------------------",
       pprint.pprint(tpStats[name])
       print
@@ -585,14 +585,14 @@ def evalSequences(tps,
 
 def _testConfig(baseParams, expMissingMin=0, expMissingMax=0, **mods):
   """
-  Build up a set of sequences, create the TP(s), train them, test them,
+  Build up a set of sequences, create the TM(s), train them, test them,
   and check that we got the expected number of missing predictions during
   inference.
 
   Parameters:
   -----------------------------------------------------------------------
   baseParams:     dict of all of the parameters for building sequences,
-                      creating the TPs, and training and testing them. This
+                      creating the TMs, and training and testing them. This
                       gets updated from 'mods' before we use it.
 
   expMissingMin:   Minimum number of expected missing predictions during testing.
@@ -612,14 +612,14 @@ def _testConfig(baseParams, expMissingMin=0, expMissingMax=0, **mods):
   (numCols, trainingSequences) = func(**params)
 
   # --------------------------------------------------------------------
-  # Create the TPs
+  # Create the TMs
   if params['numCols'] is None:
     params['numCols'] = numCols
-  tps = createTPs(**params)
+  tps = createTMs(**params)
 
   # --------------------------------------------------------------------
   # Train and get test results
-  tpStats = evalSequences(tps = tps,
+  tpStats = evalSequences(tms= tps,
                           trainingSequences=trainingSequences,
                           testSequences=None,
                           **params)
@@ -642,7 +642,7 @@ def _testConfig(baseParams, expMissingMin=0, expMissingMax=0, **mods):
   return True
 
 
-class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
+class TMOverlappingSeqsTest(testcasebase.TestCaseBase):
 
   def testFastLearning(self):
     """
@@ -662,8 +662,8 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
         sharedElements = [2,3],
         numOnBitsPerPattern = numOnBitsPerPattern,
 
-        # TP construction
-        includeCPP = INCLUDE_CPP_TP,
+        # TM construction
+        includeCPP = INCLUDE_CPP_TM,
         numCols = None,   # filled in based on generated sequences
         activationThreshold = numOnBitsPerPattern,
         minThreshold = numOnBitsPerPattern,
@@ -712,8 +712,8 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
         sharedElements = [2,3],
         numOnBitsPerPattern = numOnBitsPerPattern,
 
-        # TP construction
-        includeCPP = INCLUDE_CPP_TP,
+        # TM construction
+        includeCPP = INCLUDE_CPP_TM,
         numCols = None,   # filled in based on generated sequences
         activationThreshold = numOnBitsPerPattern,
         minThreshold = numOnBitsPerPattern,
@@ -747,7 +747,7 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
 
   def testSlowLearningWithOverlap(self):
     """
-    Test with slow learning, some overlap in the patterns, and TP thresholds
+    Test with slow learning, some overlap in the patterns, and TM thresholds
     of 80% of newSynapseCount
 
     Make sure PAM allows us to train with fewer repeats of the training data.
@@ -769,8 +769,8 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
                     numOnBitsPerPattern = numOnBitsPerPattern,
                     patternOverlap = 2,
 
-                    # TP construction
-                    includeCPP = INCLUDE_CPP_TP,
+                    # TM construction
+                    includeCPP = INCLUDE_CPP_TM,
                     numCols = None,   # filled in based on generated sequences
                     activationThreshold = int(0.8 * numOnBitsPerPattern),
                     minThreshold = int(0.8 * numOnBitsPerPattern),
@@ -827,8 +827,8 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
         numOnBitsPerPattern = numOnBitsPerPattern,
         patternOverlap = 1,
 
-        # TP construction
-        includeCPP = INCLUDE_CPP_TP,
+        # TM construction
+        includeCPP = INCLUDE_CPP_TM,
         numCols = None,   # filled in based on generated sequences
         activationThreshold = int(0.8 * numOnBitsPerPattern),
         minThreshold = int(0.8 * numOnBitsPerPattern),
@@ -900,9 +900,9 @@ if __name__=="__main__":
   rgen = numpy.random.RandomState(SEED)
   random.seed(SEED)
 
-  if not INCLUDE_CPP_TP:
+  if not INCLUDE_CPP_TM:
     print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    print "!!  WARNING: C++ TP testing is DISABLED until it can be updated."
+    print "!!  WARNING: C++ TM testing is DISABLED until it can be updated."
     print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
   # Form the command line for the unit test framework.

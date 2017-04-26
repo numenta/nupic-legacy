@@ -224,7 +224,7 @@ class PositiveTests(MyTestCaseBase):
 
     expectedValue = 12
     self.assertEqual(tpActivationThreshold, expectedValue,
-                     "Expected tp activationThreshold=%s, but got %s" % (
+                     "Expected tm activationThreshold=%s, but got %s" % (
                       expectedValue, tpActivationThreshold))
 
 

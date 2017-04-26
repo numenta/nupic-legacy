@@ -28,7 +28,7 @@ from nupic.frameworks.opf.exp_description_helpers import importBaseDescription
 config = \
 { 'claEvalClassification': True,
   'dataSource': 'file://' + os.path.join(os.path.dirname(__file__),
-                                         '../datasets/scalar_TP_1.csv'),
+                                         '../datasets/scalar_TM_1.csv'),
   'modelParams': { 'clParams': { 'verbosity': 0},
                    'sensorParams': { 'encoders': { }, 'verbosity': 0},
                    'spParams': { },

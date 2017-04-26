@@ -68,7 +68,7 @@ SP_PARAMS = {"spVerbosity": _VERBOSITY,
              "boostStrength": 0.0}
 
 # Parameter dict for TPRegion
-TP_PARAMS = {"verbosity": _VERBOSITY,
+TM_PARAMS = {"verbosity": _VERBOSITY,
              "temporalImp": "cpp",
              "seed": _SEED,
 
@@ -168,8 +168,8 @@ def createSpatialPooler(network, name, inputWidth):
 
 
 def createTemporalMemory(network, name):
-  temporalMemoryRegion = network.addRegion(name, "py.TPRegion",
-                                           json.dumps(TP_PARAMS))
+  temporalMemoryRegion = network.addRegion(name, "py.TMRegion",
+                                           json.dumps(TM_PARAMS))
   # Enable topDownMode to get the predicted columns output
   temporalMemoryRegion.setParameter("topDownMode", True)
   # Make sure learning is enabled (this is the default)
@@ -186,7 +186,7 @@ def createTemporalMemory(network, name):
 
 def createNetwork(dataSource):
   """Creates and returns a new Network with a sensor region reading data from
-  'dataSource'. There are two hierarchical levels, each with one SP and one TP.
+  'dataSource'. There are two hierarchical levels, each with one SP and one TM.
   @param dataSource - A RecordStream containing the input data
   @returns a Network ready to run
   """
@@ -203,10 +203,10 @@ def createNetwork(dataSource):
   linkParams = ""
   network.link(_RECORD_SENSOR, _L1_SPATIAL_POOLER, linkType, linkParams)
 
-  # Create and add a TP region
+  # Create and add a TM region
   l1temporalMemory = createTemporalMemory(network, _L1_TEMPORAL_MEMORY)
 
-  # Link SP region to TP region in the feedforward direction
+  # Link SP region to TM region in the feedforward direction
   network.link(_L1_SPATIAL_POOLER, _L1_TEMPORAL_MEMORY, linkType, linkParams)
 
   # Add a classifier
@@ -254,7 +254,7 @@ def createNetwork(dataSource):
 def runClassifier(classifier, sensorRegion, tpRegion, recordNumber):
   """Calls classifier manually, not using network"""
 
-  # Obtain input, its encoding, and the tp output for classification
+  # Obtain input, its encoding, and the tm output for classification
   actualInput = float(sensorRegion.getOutputData("sourceOut")[0])
   scalarEncoder = sensorRegion.getSelf().encoder.encoders[0][1]
   bucketIndex = scalarEncoder.getBucketIndices(actualInput)[0]

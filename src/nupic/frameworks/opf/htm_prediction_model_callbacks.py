@@ -85,7 +85,7 @@ def htmPredictionModelControlEnableTPLearningCb(htmPredictionModel):
 
 def htmPredictionModelControlDisableTPLearningCb(htmPredictionModel):
   """ Disables learning in the HTMPredictionModel's Temporal Pooler, while
-  retaining the ability to re-enable TP learning in the future.
+  retaining the ability to re-enable TM learning in the future.
 
   See also: htmPredictionModelControlEnableTPLearningCb.
   See also: model_callbacks.modelControlFinishLearningCb.
@@ -143,11 +143,11 @@ class HTMPredictionModelPickleSPInitArgs(object):
 
 
 class HTMPredictionModelPickleTPInitArgs(object):
-  """ Saves TP10X2 initialization args
+  """ Saves BacktrackingTMCPP initialization args
   """
   def __init__(self, filePath):
     """
-    filePath: path of file where TP __init__ args are to be saved
+    filePath: path of file where TM __init__ args are to be saved
     """
 
     self.__filePath = filePath
@@ -159,7 +159,7 @@ class HTMPredictionModelPickleTPInitArgs(object):
 
     import pickle
 
-    # Get the TP args dictionary
+    # Get the TM args dictionary
     assert isinstance(htmPredictionModel, HTMPredictionModel)
 
     tpRegion = htmPredictionModel._getTPRegion().getSelf()

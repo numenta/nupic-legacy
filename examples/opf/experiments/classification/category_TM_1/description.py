@@ -19,19 +19,21 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Tests for the C++ implementation of the temporal pooler."""
+## This file defines parameters for a prediction experiment.
 
-import unittest2 as unittest
+import os
+from nupic.frameworks.opf.exp_description_helpers import importBaseDescription
 
-from nupic.research.TP10X2 import TP10X2
+# the sub-experiment configuration
+config = \
+{
+  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__),
+                                         '../datasets/category_TM_1.csv'),
+  'modelParams': { 'clParams': { 'verbosity': 0},
+                   'sensorParams': { 'encoders': { }, 'verbosity': 0},
+                   'spParams': { 'spVerbosity': 0},
+                   'tmEnable': True,
+                   'tmParams': { 'verbosity': 0}}}
 
-import tp_test
-
-# Run the Python TP test against the TP10X2.
-tp_test.TP = TP10X2
-TPTest = tp_test.TPTest
-
-
-
-if __name__ == '__main__':
-  unittest.main()
+mod = importBaseDescription('../base_category/description.py', config)
+locals().update(mod.__dict__)

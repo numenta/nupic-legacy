@@ -19,21 +19,19 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-## This file defines parameters for a prediction experiment.
+"""Tests for the C++ implementation of the temporal memory."""
 
-import os
-from nupic.frameworks.opf.exp_description_helpers import importBaseDescription
+import unittest2 as unittest
 
-# the sub-experiment configuration
-config = \
-{
-  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__),
-                                         '../datasets/category_TP_1.csv'),
-  'modelParams': { 'clParams': { 'verbosity': 0},
-                   'sensorParams': { 'encoders': { }, 'verbosity': 0},
-                   'spParams': { 'spVerbosity': 0},
-                   'tmEnable': True,
-                   'tmParams': { 'verbosity': 0}}}
+from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
 
-mod = importBaseDescription('../base_category/description.py', config)
-locals().update(mod.__dict__)
+import tm_test
+
+# Run the Python TM test against the BacktrackingTMCPP.
+tm_test.BacktrackingTM = BacktrackingTMCPP
+TMTest = tm_test.TMTest
+
+
+
+if __name__ == '__main__':
+  unittest.main()

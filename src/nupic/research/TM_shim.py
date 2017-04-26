@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 
 """
-A shim for the TP class that transparently implements TemporalMemory,
+A shim for the TM class that transparently implements TemporalMemory,
 for use with OPF.
 """
 
@@ -38,9 +38,9 @@ class MonitoredTemporalMemory(TemporalMemoryMonitorMixin,
 
 
 
-class TPShimMixin(object):
+class TMShimMixin(object):
   """
-  TP => Temporal Memory shim class.
+  TM => Temporal Memory shim class.
   """
   def __init__(self,
                numberOfCols=500,
@@ -63,9 +63,9 @@ class TPShimMixin(object):
                outputType="normal",
                seed=42):
     """
-    Translate parameters and initialize member variables specific to `TP.py`.
+    Translate parameters and initialize member variables specific to `BacktrackingTM.py`.
     """
-    super(TPShimMixin, self).__init__(
+    super(TMShimMixin, self).__init__(
       columnDimensions=(numberOfCols,),
       cellsPerColumn=cellsPerColumn,
       activationThreshold=activationThreshold,
@@ -85,7 +85,7 @@ class TPShimMixin(object):
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """
-    (From `TP.py`)
+    (From `BacktrackingTM.py`)
     Handle one compute, possibly learning.
 
     @param bottomUpInput     The bottom-up input, typically from a spatial pooler
@@ -95,8 +95,8 @@ class TPShimMixin(object):
                              If true, compute the inference output
                              If false, do not compute the inference output
     """
-    super(TPShimMixin, self).compute(set(bottomUpInput.nonzero()[0]),
-                                            learn=enableLearn)
+    super(TMShimMixin, self).compute(set(bottomUpInput.nonzero()[0]),
+                                     learn=enableLearn)
     numberOfCells = self.numberOfCells()
 
     activeState = numpy.zeros(numberOfCells)
@@ -112,12 +112,12 @@ class TPShimMixin(object):
 
   def topDownCompute(self, topDownIn=None):
     """
-    (From `TP.py`)
-    Top-down compute - generate expected input given output of the TP
+    (From `BacktrackingTM.py`)
+    Top-down compute - generate expected input given output of the TM
 
     @param topDownIn top down input from the level above us
 
-    @returns best estimate of the TP input that would have generated bottomUpOut.
+    @returns best estimate of the TM input that would have generated bottomUpOut.
     """
     output = numpy.zeros(self.numberOfColumns())
     columns = [self.columnForCell(idx) for idx in self.getPredictiveCells()]
@@ -143,19 +143,19 @@ class TPShimMixin(object):
 
 
 
-class TPShim(TPShimMixin, TemporalMemory):
+class TMShim(TMShimMixin, TemporalMemory):
   pass
 
 
 
-class TPCPPShim(TPShimMixin, TemporalMemoryCPP):
+class TMCPPShim(TMShimMixin, TemporalMemoryCPP):
   pass
 
 
 
-class MonitoredTPShim(MonitoredTemporalMemory):
+class MonitoredTMShim(MonitoredTemporalMemory):
   """
-  TP => Monitored Temporal Memory shim class.
+  TM => Monitored Temporal Memory shim class.
 
   TODO: This class is not very DRY. This whole file needs to be replaced by a
   pure TemporalMemory region
@@ -182,9 +182,9 @@ class MonitoredTPShim(MonitoredTemporalMemory):
                outputType="normal",
                seed=42):
     """
-    Translate parameters and initialize member variables specific to `TP.py`.
+    Translate parameters and initialize member variables specific to `BacktrackingTM.py`.
     """
-    super(MonitoredTPShim, self).__init__(
+    super(MonitoredTMShim, self).__init__(
       columnDimensions=(numberOfCols,),
       cellsPerColumn=cellsPerColumn,
       activationThreshold=activationThreshold,
@@ -204,7 +204,7 @@ class MonitoredTPShim(MonitoredTemporalMemory):
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """
-    (From `TP.py`)
+    (From `BacktrackingTM.py`)
     Handle one compute, possibly learning.
 
     @param bottomUpInput     The bottom-up input, typically from a spatial pooler
@@ -214,8 +214,8 @@ class MonitoredTPShim(MonitoredTemporalMemory):
                              If true, compute the inference output
                              If false, do not compute the inference output
     """
-    super(MonitoredTPShim, self).compute(set(bottomUpInput.nonzero()[0]),
-                                             learn=enableLearn)
+    super(MonitoredTMShim, self).compute(set(bottomUpInput.nonzero()[0]),
+                                         learn=enableLearn)
     numberOfCells = self.numberOfCells()
 
     activeState = numpy.zeros(numberOfCells)
@@ -229,12 +229,12 @@ class MonitoredTPShim(MonitoredTemporalMemory):
 
   def topDownCompute(self, topDownIn=None):
     """
-    (From `TP.py`)
-    Top-down compute - generate expected input given output of the TP
+    (From `BacktrackingTM.py`)
+    Top-down compute - generate expected input given output of the TM
 
     @param topDownIn top down input from the level above us
 
-    @returns best estimate of the TP input that would have generated bottomUpOut.
+    @returns best estimate of the TM input that would have generated bottomUpOut.
     """
     output = numpy.zeros(self.numberOfColumns())
     columns = [self.columnForCell(idx) for idx in self.getPredictiveCells()]

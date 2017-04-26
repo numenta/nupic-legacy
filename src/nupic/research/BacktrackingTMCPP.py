@@ -23,7 +23,7 @@ import numpy
 from numpy import *
 
 import nupic.math
-from nupic.research.TP import TP
+from nupic.research.BacktrackingTM import BacktrackingTM
 
 from nupic.bindings.algorithms import Cells4
 
@@ -60,8 +60,8 @@ def _extractCallingMethodArgs():
 
 
 
-class TP10X2(TP):
-  """Class implementing the temporal pooler algorithm as described in the
+class BacktrackingTMCPP(BacktrackingTM):
+  """Class implementing the temporal memory algorithm as described in the
   published Cortical Learning Algorithm documentation.  The implementation here
   attempts to closely match the pseudocode in the documentation. This
   implementation does contain several additional bells and whistles such as
@@ -69,7 +69,7 @@ class TP10X2(TP):
   """
 
 
-  # We use the same keyword arguments as TP()
+  # We use the same keyword arguments as TM()
   def __init__(self,
                numberOfCols = 500,
                cellsPerColumn = 10,
@@ -115,46 +115,46 @@ class TP10X2(TP):
     self.checkSynapseConsistency = checkSynapseConsistency
 
     # If set to False, Cells4 will *not* be treated as an ephemeral member
-    # and full TP10X pickling is possible. This is useful for testing
+    # and full BacktrackingTMCPP pickling is possible. This is useful for testing
     # pickle/unpickle without saving Cells4 to an external file
     self.makeCells4Ephemeral = True
 
     #---------------------------------------------------------------------------------
     # Init the base class
-    TP.__init__(self,
-               numberOfCols = numberOfCols,
-               cellsPerColumn = cellsPerColumn,
-               initialPerm = initialPerm,
-               connectedPerm = connectedPerm,
-               minThreshold = minThreshold,
-               newSynapseCount = newSynapseCount,
-               permanenceInc = permanenceInc,
-               permanenceDec = permanenceDec,
-               permanenceMax = permanenceMax, # never exceed this value
+    BacktrackingTM.__init__(self,
+                            numberOfCols = numberOfCols,
+                            cellsPerColumn = cellsPerColumn,
+                            initialPerm = initialPerm,
+                            connectedPerm = connectedPerm,
+                            minThreshold = minThreshold,
+                            newSynapseCount = newSynapseCount,
+                            permanenceInc = permanenceInc,
+                            permanenceDec = permanenceDec,
+                            permanenceMax = permanenceMax,  # never exceed this value
                globalDecay = globalDecay,
-               activationThreshold = activationThreshold,
-               doPooling = doPooling,
-               segUpdateValidDuration = segUpdateValidDuration,
-               burnIn = burnIn,
-               collectStats = collectStats,
-               seed = seed,
-               verbosity = verbosity,
-               pamLength = pamLength,
-               maxInfBacktrack = maxInfBacktrack,
-               maxLrnBacktrack = maxLrnBacktrack,
-               maxAge = maxAge,
-               maxSeqLength = maxSeqLength,
-               maxSegmentsPerCell = maxSegmentsPerCell,
-               maxSynapsesPerSegment = maxSynapsesPerSegment,
-               outputType = outputType,
-               )
+                            activationThreshold = activationThreshold,
+                            doPooling = doPooling,
+                            segUpdateValidDuration = segUpdateValidDuration,
+                            burnIn = burnIn,
+                            collectStats = collectStats,
+                            seed = seed,
+                            verbosity = verbosity,
+                            pamLength = pamLength,
+                            maxInfBacktrack = maxInfBacktrack,
+                            maxLrnBacktrack = maxLrnBacktrack,
+                            maxAge = maxAge,
+                            maxSeqLength = maxSeqLength,
+                            maxSegmentsPerCell = maxSegmentsPerCell,
+                            maxSynapsesPerSegment = maxSynapsesPerSegment,
+                            outputType = outputType,
+                            )
 
 
   def __setstate__(self, state):
     """
     Set the state of ourself from a serialized state.
     """
-    super(TP10X2, self).__setstate__(state)
+    super(BacktrackingTMCPP, self).__setstate__(state)
     if self.makeCells4Ephemeral:
       self.cells4 = Cells4(self.numberOfCols,
                  self.cellsPerColumn,
@@ -190,7 +190,7 @@ class TP10X2(TP):
     """
     List of our member variables that we don't need to be saved
     """
-    e = TP._getEphemeralMembers(self)
+    e = BacktrackingTM._getEphemeralMembers(self)
     if self.makeCells4Ephemeral:
       e.extend(['cells4'])
     return e
@@ -200,7 +200,7 @@ class TP10X2(TP):
     """
     Initialize all ephemeral members after being restored to a pickled state.
     """
-    TP._initEphemerals(self)
+    BacktrackingTM._initEphemerals(self)
     #---------------------------------------------------------------------------------
     # cells4 specific initialization
 
@@ -273,9 +273,9 @@ class TP10X2(TP):
     """
 
     try:
-      return super(TP, self).__getattr__(name)
+      return super(BacktrackingTM, self).__getattr__(name)
     except AttributeError:
-      raise AttributeError("'TP' object has no attribute '%s'" % name)
+      raise AttributeError("'TM' object has no attribute '%s'" % name)
 
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
@@ -285,7 +285,7 @@ class TP10X2(TP):
     slows things down, but you can override this by passing in True for
     computeInfOutput
     """
-    # The C++ TP takes 32 bit floats as input. uint32 works as well since the
+    # The C++ TM takes 32 bit floats as input. uint32 works as well since the
     # code only checks whether elements are non-zero
     assert (bottomUpInput.dtype == numpy.dtype('float32')) or \
            (bottomUpInput.dtype == numpy.dtype('uint32')) or \
@@ -330,7 +330,7 @@ class TP10X2(TP):
 
 
 
-    # Finally return the TP output
+    # Finally return the TM output
     output = self.computeOutput()
 
     # Print diagnostic information based on the current verbosity level
@@ -400,10 +400,10 @@ class TP10X2(TP):
     are reset to 0.
     """
     if self.verbosity >= 3:
-      print "TP Reset"
+      print "TM Reset"
     self._setStatePointers()
     self.cells4.reset()
-    TP.reset(self)
+    BacktrackingTM.reset(self)
 
 
   def finishLearning(self):
@@ -640,7 +640,7 @@ class TP10X2(TP):
 
   def getSegmentInfo(self, collectActiveData = False):
     """Returns information about the distribution of segments, synapses and
-    permanence values in the current TP. If requested, also returns information
+    permanence values in the current TM. If requested, also returns information
     regarding the number of currently active segments and synapses.
 
     The method returns the following tuple:
