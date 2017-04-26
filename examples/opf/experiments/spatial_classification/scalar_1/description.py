@@ -22,20 +22,20 @@
 ## This file defines parameters for a prediction experiment.
 
 import os
-from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
+from nupic.frameworks.opf.exp_description_helpers import importBaseDescription
 
 # the sub-experiment configuration
 config = \
-{ 
-  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
+{
+  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__),
                                          '../datasets/scalar_1.csv'),
   'errorMetric': 'aae',
 
-  'modelParams': { 
-    'sensorParams': { 
+  'modelParams': {
+    'sensorParams': {
       'verbosity': 0,
-      'encoders': { 
-        'field1': { 
+      'encoders': {
+        'field1': {
           'clipInput': True,
           'fieldname': u'field1',
           'maxval': 5.0,
@@ -45,7 +45,7 @@ config = \
           'type': 'ScalarEncoder',
           'w': 21
         },
-        'classification': { 
+        'classification': {
           'classifierOnly': True,
           'clipInput': True,
           'fieldname': u'classification',
@@ -58,7 +58,7 @@ config = \
          },
        },
     },
-    'clParams': { 
+    'clParams': {
       'verbosity': 0,
     },
   }

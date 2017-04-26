@@ -1,5 +1,5 @@
 import yaml
-from nupic.frameworks.opf.modelfactory import ModelFactory
+from nupic.frameworks.opf.model_factory import ModelFactory
 
 _PARAMS_PATH = "/path/to/model.yaml"
 

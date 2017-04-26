@@ -19,17 +19,17 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-""" @file modelfactory.py
+""" @file model_factory.py
 
  Model factory.
 """
 
 import logging
 
-import nupic.frameworks.opf.opfutils as opfutils
+import nupic.frameworks.opf.opf_utils as opf_utils
 
 # Import models
-from htmpredictionmodel import HTMPredictionModel
+from htm_prediction_model import HTMPredictionModel
 from model import Model
 from two_gram_model import TwoGramModel
 from previousvaluemodel import PreviousValueModel
@@ -49,7 +49,7 @@ class ModelFactory(object):
     @returns (Logger) A Logger object.
     """
     if cls.__logger is None:
-      cls.__logger = opfutils.initLogger(cls)
+      cls.__logger = opf_utils.initLogger(cls)
     return cls.__logger
 
 

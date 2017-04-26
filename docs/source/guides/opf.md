@@ -138,7 +138,7 @@ binary numpy arrays, one for each field in dataRow.
 
 The concept of InferenceElements is a key part of the OPF. A model's inference may have multiple parts to it. For example, a model may output both a prediction and an anomaly score. Models output their set of inferences as a dictionary that is keyed by the enumerated type InferenceElement. Each entry in an inference dictionary is considered a separate inference element, and is handled independently by the OPF.
 
-Data structures related to inference elements are located in [**opfutils.py**](https://github.com/numenta/nupic/blob/master/nupic/frameworks/opf/opfutils.py).
+Data structures related to inference elements are located in [**opf_utils.py**](https://github.com/numenta/nupic/blob/master/nupic/frameworks/opf/opf_utils.py).
 
 #### Inference Data Types
 
