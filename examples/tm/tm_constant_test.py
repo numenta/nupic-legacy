@@ -68,7 +68,7 @@ def _createTms(numCols):
   globalDecay = 0
   cellsPerColumn = 1
 
-  cppTp = BacktrackingTMCPP(numberOfCols=numCols,
+  cppTm = BacktrackingTMCPP(numberOfCols=numCols,
                             cellsPerColumn=cellsPerColumn,
                             initialPerm=initialPerm,
                             connectedPerm=connectedPerm,
@@ -83,9 +83,9 @@ def _createTms(numCols):
                             pamLength=1000)
 
   # Ensure we are copying over learning states for TPDiff
-  cppTp.retrieveLearningStates = True
+  cppTm.retrieveLearningStates = True
 
-  pyTp = BacktrackingTM(numberOfCols=numCols,
+  pyTm = BacktrackingTM(numberOfCols=numCols,
                         cellsPerColumn=cellsPerColumn,
                         initialPerm=initialPerm,
                         connectedPerm=connectedPerm,
@@ -98,7 +98,7 @@ def _createTms(numCols):
                         seed=SEED, verbosity=VERBOSITY,
                         pamLength=1000)
 
-  return cppTp, pyTp
+  return cppTm, pyTm
 
 class TMConstantTest(TestCaseBase):
 

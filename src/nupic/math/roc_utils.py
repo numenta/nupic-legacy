@@ -207,11 +207,11 @@ def _test():
   1          0.45
 
   Some ROC terminology:
-  A True Positive (TM) is when we predict TRUE and the actual value is 1.
+  A True Positive (TP) is when we predict TRUE and the actual value is 1.
 
   A False Positive (FP) is when we predict TRUE, but the actual value is 0.
 
-  The True Positive Rate (TPR) is TM/P, where P is the total number of actual
+  The True Positive Rate (TPR) is TP/P, where P is the total number of actual
   positives (3 in this example, the last 3 samples).
 
   The False Positive Rate (FPR) is FP/N, where N is the total number of actual
@@ -229,7 +229,7 @@ def _test():
   1          0.3      0        0      0        1      1
   1          0.45     0        1      1        1      1
 
-  TruePos(TM)         1        2      2        3      3
+  TruePos(TP)         1        2      2        3      3
   FalsePos(FP)        0        0      1        1      2
   TruePosRate(TPR)    1/3      2/3    2/3      3/3    3/3
   FalsePosRate(FPR)   0/2      0/2    1/2      1/2    2/2
@@ -238,7 +238,7 @@ def _test():
   The ROC curve is a plot of FPR on the x-axis and TPR on the y-axis. Basically,
   one can pick any operating point along this curve to run, the operating point
   determined by which threshold you want to use. By changing the threshold, you
-  tradeoff TM's for FPs.
+  tradeoff TP's for FPs.
 
   The more area under this curve, the better the classification algorithm is.
   The AreaUnderCurve() function can be used to compute the area under this
