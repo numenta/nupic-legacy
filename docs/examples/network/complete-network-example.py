@@ -70,7 +70,7 @@ def createNetwork(dataSource):
 
   # Add SP and TM regions.
   network.addRegion("SP", "py.SPRegion", json.dumps(modelParams["spParams"]))
-  network.addRegion("TM", "py.TPRegion", json.dumps(modelParams["tmParams"]))
+  network.addRegion("TM", "py.TMRegion", json.dumps(modelParams["tmParams"]))
 
   # Add a classifier region.
   clName = "py.%s" % modelParams["clParams"].pop("regionName")
