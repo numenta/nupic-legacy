@@ -27,16 +27,16 @@ template in source control. Branching via source control may make it easier to
 integrate future template improvements into your description.py.
 """
 
-from nupic.frameworks.opf.expdescriptionapi import ExperimentDescriptionAPI
+from nupic.frameworks.opf.exp_description_api import ExperimentDescriptionAPI
 
-from nupic.frameworks.opf.expdescriptionhelpers import (
+from nupic.frameworks.opf.exp_description_helpers import (
   updateConfigFromSubConfig,
   applyValueGettersToContainer,
   DeferredDictLookup)
 
 from nupic.frameworks.opf.predictionmetricsmanager import MetricSpec
 
-from nupic.frameworks.opf.opftaskdriver import (
+from nupic.frameworks.opf.opf_task_driver import (
                                             IterationPhaseSpecLearnOnly,
                                             IterationPhaseSpecInferOnly,
                                             IterationPhaseSpecLearnAndInfer,
@@ -402,7 +402,7 @@ tasks = [
     # Task Control parameters for OPFTaskDriver (per opfTaskControlSchema.json)
     'taskControl' : {
 
-      # Iteration cycle list consisting of opftaskdriver.IterationPhaseSpecXXXXX
+      # Iteration cycle list consisting of opf_task_driver.IterationPhaseSpecXXXXX
       # instances.
       'iterationCycle' : [
         #IterationPhaseSpecLearnOnly(1000),
@@ -411,7 +411,7 @@ tasks = [
       ],
 
 
-      # Inference specifications: sequence of opftaskdriver.InferenceSpecXXXXX
+      # Inference specifications: sequence of opf_task_driver.InferenceSpecXXXXX
       # instances that indicate which inferences to perform and which metrics to
       # gather for each inference step. Note that it is up to the client
       # to decide what to do with these metrics

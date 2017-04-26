@@ -60,7 +60,7 @@ def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
     :rtype: dict
 
     Example:
-      from nupic.frameworks.opf.modelfactory import ModelFactory
+      from nupic.frameworks.opf.model_factory import ModelFactory
       from nupic.frameworks.opf.common_models.cluster_params import (
         getScalarMetricWithTimeOfDayAnomalyParams)
 

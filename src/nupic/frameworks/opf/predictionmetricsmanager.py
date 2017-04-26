@@ -31,7 +31,7 @@ from collections import (namedtuple,
 from nupic.data.inference_shifter import InferenceShifter
 from nupic.frameworks.opf import metrics
 
-from opfutils import InferenceType, InferenceElement
+from opf_utils import InferenceType, InferenceElement
 
 
 
@@ -64,7 +64,7 @@ class MetricsManager(object):
     metricSpecs:    A sequence of MetricSpecs that specify which metrics should
                     be calculated
 
-    inferenceType:  An opfutils.inferenceType value that specifies the inference
+    inferenceType:  An opf_utils.inferenceType value that specifies the inference
                     type of the associated model. This affects how metrics are
                     calculated. FOR EXAMPLE, temporal models save the inference
                     from the previous timestep to match it to the ground truth
@@ -96,7 +96,7 @@ class MetricsManager(object):
 
     Parameters:
     -----------------------------------------------------------------------
-    results:  An opfutils.ModelResult object that was computed during the last
+    results:  An opf_utils.ModelResult object that was computed during the last
               iteration of the model
 
     Returns:  A dictionary where each key is the metric-name, and the values are
@@ -107,7 +107,7 @@ class MetricsManager(object):
     #print "\n\n---------------------------------------------------------------"
     #print "Model results: \nrawInput:%s \ninferences:%s" % \
     #      (pprint.pformat(results.rawInput), pprint.pformat(results.inferences))
-          
+
     self._addResults(results)
 
     if  not self.__metricSpecs \
@@ -310,7 +310,7 @@ def _testMetricsMgr():
     FieldMetaSpecial)
 
   from nupic.frameworks.opf.metrics import MetricSpec
-  from nupic.frameworks.opf.opfutils import ModelResult, SensorInput
+  from nupic.frameworks.opf.opf_utils import ModelResult, SensorInput
   onlineMetrics = (MetricSpec(metric="aae", inferenceElement='', \
                               field="consumption", params={}),)
 
@@ -415,7 +415,7 @@ def _testTemporalShift():
     FieldMetaSpecial)
 
   from nupic.frameworks.opf.metrics import MetricSpec
-  from nupic.frameworks.opf.opfutils import ModelResult, SensorInput
+  from nupic.frameworks.opf.opf_utils import ModelResult, SensorInput
   onlineMetrics = ()
 
   modelFieldMetaInfo = (

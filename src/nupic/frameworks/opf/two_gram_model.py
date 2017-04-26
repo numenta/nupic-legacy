@@ -27,8 +27,8 @@ import itertools
 from nupic import encoders
 from nupic.data import fieldmeta
 from nupic.frameworks.opf import model
-from nupic.frameworks.opf import opfutils
-from opfutils import InferenceType
+from nupic.frameworks.opf import opf_utils
+from opf_utils import InferenceType
 
 
 class TwoGramModel(model.Model):
@@ -38,13 +38,13 @@ class TwoGramModel(model.Model):
                encoderParams=()):
     """ Two-gram model constructor.
 
-    inferenceType: An opfutils.InferenceType value that specifies what type of
+    inferenceType: An opf_utils.InferenceType value that specifies what type of
         inference (i.e. TemporalNextStep, Classification, etc.)
     encoders: Sequence of encoder params dictionaries.
     """
     super(TwoGramModel, self).__init__(inferenceType)
 
-    self._logger = opfutils.initLogger(self)
+    self._logger = opf_utils.initLogger(self)
     self._reset = False
     self._hashToValueDict = dict()
     self._learningEnabled = True
@@ -61,7 +61,7 @@ class TwoGramModel(model.Model):
           nupic.data.FileSource.getNext() result format.
 
     Returns:
-      A ModelResult named tuple (see opfutils.py). The contents of
+      A ModelResult named tuple (see opf_utils.py). The contents of
       ModelResult.inferences depends on the specific inference type of this
       model, which can be queried by getInferenceType().
       TODO: Implement getInferenceType()?
@@ -74,7 +74,7 @@ class TwoGramModel(model.Model):
     inputFieldEncodings = self._encoder.encodeEachField(inputRecord)
     inputBuckets = self._encoder.getBucketIndices(inputRecord)
 
-    results.sensorInput = opfutils.SensorInput(
+    results.sensorInput = opf_utils.SensorInput(
         dataRow=values, dataEncodings=inputFieldEncodings,
         sequenceReset=int(self._reset))
 
@@ -110,8 +110,8 @@ class TwoGramModel(model.Model):
         encodedPredictions.append(self._encoder.encodeField(fieldName,
                                                             default))
     results.inferences = dict()
-    results.inferences[opfutils.InferenceElement.prediction] = predictions
-    results.inferences[opfutils.InferenceElement.encodings] = encodedPredictions
+    results.inferences[opf_utils.InferenceElement.prediction] = predictions
+    results.inferences[opf_utils.InferenceElement.encodings] = encodedPredictions
 
     self._prevValues = inputBuckets
     self._reset = False
@@ -129,8 +129,8 @@ class TwoGramModel(model.Model):
 
   def setFieldStatistics(self,fieldStats):
     """
-    This method is used for the data source to communicate to the 
-    model any statistics that it knows about the fields 
+    This method is used for the data source to communicate to the
+    model any statistics that it knows about the fields
     Since the two-gram has no use for this information, this is a no-op
     """
     pass
@@ -182,4 +182,4 @@ class TwoGramModel(model.Model):
     return self.__dict__
 
   def __setstate__(self):
-    self._logger = opfutils.initLogger(self)
+    self._logger = opf_utils.initLogger(self)

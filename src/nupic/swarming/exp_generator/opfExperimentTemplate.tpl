@@ -35,7 +35,7 @@ control = {
       # Task Control parameters for OPFTaskDriver (per opfTaskControlSchema.json)
       'taskControl' : {
 
-        # Iteration cycle list consisting of opftaskdriver.IterationPhaseSpecXXXXX
+        # Iteration cycle list consisting of opf_task_driver.IterationPhaseSpecXXXXX
         # instances.
         'iterationCycle' : [
           #IterationPhaseSpecLearnOnly(1000),

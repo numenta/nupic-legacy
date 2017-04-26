@@ -19,14 +19,14 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Unit tests for the htmpredictionmodel module."""
+"""Unit tests for the htm_prediction_model module."""
 
 import datetime
 import unittest2 as unittest
 
-from nupic.frameworks.opf.htmpredictionmodel import HTMPredictionModel
-from nupic.frameworks.opf.modelfactory import ModelFactory
-from nupic.frameworks.opf.opfutils import ModelResult
+from nupic.frameworks.opf.htm_prediction_model import HTMPredictionModel
+from nupic.frameworks.opf.model_factory import ModelFactory
+from nupic.frameworks.opf.opf_utils import ModelResult
 
 
 

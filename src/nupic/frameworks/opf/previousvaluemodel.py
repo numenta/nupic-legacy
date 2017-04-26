@@ -25,8 +25,8 @@ import itertools
 
 from nupic.data import fieldmeta
 from nupic.frameworks.opf import model
-from nupic.frameworks.opf import opfutils
-from opfutils import InferenceType
+from nupic.frameworks.opf import opf_utils
+from opf_utils import InferenceType
 
 
 class PreviousValueModel(model.Model):
@@ -39,7 +39,7 @@ class PreviousValueModel(model.Model):
                predictionSteps=[]):
     """ PVM constructor.
 
-    inferenceType: An opfutils.InferenceType value that specifies what type of
+    inferenceType: An opf_utils.InferenceType value that specifies what type of
         inference (i.e. TemporalNextStep, TemporalMultiStep, etc.)
     fieldNames: a list of field names
     fieldTypes: a list of the types for the fields mentioned in fieldNames
@@ -49,7 +49,7 @@ class PreviousValueModel(model.Model):
     """
     super(PreviousValueModel, self).__init__(inferenceType)
 
-    self._logger = opfutils.initLogger(self)
+    self._logger = opf_utils.initLogger(self)
     self._predictedField = predictedField
     self._fieldNames = fieldNames
     self._fieldTypes = fieldTypes
@@ -70,30 +70,30 @@ class PreviousValueModel(model.Model):
           nupic.data.FileSource.getNext() result format.
 
     Returns:
-      A ModelResult named tuple (see opfutils.py). The contents of
+      A ModelResult named tuple (see opf_utils.py). The contents of
       ModelResult.inferences depends on the specific inference type of this
       model, which can be queried by getInferenceType().
       TODO: Implement getInferenceType()?
     """
     # set the results. note that there is no translation to sensorInput
     results = super(PreviousValueModel, self).run(inputRecord)
-    results.sensorInput = opfutils.SensorInput(dataRow= \
+    results.sensorInput = opf_utils.SensorInput(dataRow= \
       [inputRecord[fn] for fn in self._fieldNames])
-    
+
     # select the current value for the prediction with probablity of 1
-    results.inferences = { opfutils.InferenceElement.multiStepBestPredictions : \
+    results.inferences = {opf_utils.InferenceElement.multiStepBestPredictions : \
                           dict((steps, inputRecord[self._predictedField]) \
                           for steps in self._predictionSteps),
-                          opfutils.InferenceElement.multiStepPredictions : \
+                          opf_utils.InferenceElement.multiStepPredictions : \
                           dict((steps, {inputRecord[self._predictedField] : 1}) \
                           for steps in self._predictionSteps)
-    }
+                          }
 
     # set the next step prediction if step of 1 is selected
     if 1 in self._predictionSteps:
-      results.inferences[opfutils.InferenceElement.prediction] = \
+      results.inferences[opf_utils.InferenceElement.prediction] = \
       inputRecord[self._predictedField]
-    
+
     return results
 
   def finishLearning(self):
@@ -106,8 +106,8 @@ class PreviousValueModel(model.Model):
 
   def setFieldStatistics(self,fieldStats):
     """
-    This method is used for the data source to communicate to the 
-    model any statistics that it knows about the fields 
+    This method is used for the data source to communicate to the
+    model any statistics that it knows about the fields
     Since the PVM has no use for this information, this is a no-op
     """
     pass
@@ -157,4 +157,4 @@ class PreviousValueModel(model.Model):
     return self.__dict__
 
   def __setstate__(self):
-    self._logger = opfutils.initLogger(self)
+    self._logger = opf_utils.initLogger(self)

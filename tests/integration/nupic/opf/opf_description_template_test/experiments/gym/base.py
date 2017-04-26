@@ -24,20 +24,20 @@ Template file used by the OPF Experiment Generator to generate the actual
 description.py file by replacing $XXXXXXXX tokens with desired values.
 """
 
-from nupic.frameworks.opf.expdescriptionapi import ExperimentDescriptionAPI
+from nupic.frameworks.opf.exp_description_api import ExperimentDescriptionAPI
 
-from nupic.frameworks.opf.expdescriptionhelpers import (
+from nupic.frameworks.opf.exp_description_helpers import (
   updateConfigFromSubConfig,
   applyValueGettersToContainer,
   DeferredDictLookup)
 
-from nupic.frameworks.opf.htmpredictionmodelcallbacks import *
+from nupic.frameworks.opf.htm_prediction_model_callbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                                           InferenceElement)
+from nupic.frameworks.opf.opf_utils import (InferenceType,
+                                            InferenceElement)
 from nupic.support import aggregationDivide
 
-from nupic.frameworks.opf.opftaskdriver import (
+from nupic.frameworks.opf.opf_task_driver import (
                                             IterationPhaseSpecLearnOnly,
                                             IterationPhaseSpecInferOnly,
                                             IterationPhaseSpecLearnAndInfer)
@@ -373,7 +373,7 @@ control = dict(
       # Task Control parameters for OPFTaskDriver (per opfTaskControlSchema.json)
       'taskControl' : {
 
-        # Iteration cycle list consisting of opftaskdriver.IterationPhaseSpecXXXXX
+        # Iteration cycle list consisting of opf_task_driver.IterationPhaseSpecXXXXX
         # instances.
         'iterationCycle' : [
           #IterationPhaseSpecLearnOnly(1000),

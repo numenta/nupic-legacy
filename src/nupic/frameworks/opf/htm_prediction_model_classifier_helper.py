@@ -59,10 +59,10 @@ class HTMPredictionModelClassifierHelper(object):
 
   __VERSION__ = 3
 
-  def __init__(self, htmpredictionmodel, anomalyParams={}):
+  def __init__(self, htm_prediction_model, anomalyParams={}):
     if anomalyParams is None:
       anomalyParams = {}
-    self.htmpredictionmodel = htmpredictionmodel
+    self.htm_prediction_model = htm_prediction_model
 
     self._version = HTMPredictionModelClassifierHelper.__VERSION__
 
@@ -97,7 +97,7 @@ class HTMPredictionModelClassifierHelper(object):
       self._vectorType = anomalyParams['anomalyVectorType']
 
     self._activeColumnCount = \
-      self.htmpredictionmodel._getSPRegion().getSelf().getParameter('numActiveColumnsPerInhArea')
+      self.htm_prediction_model._getSPRegion().getSelf().getParameter('numActiveColumnsPerInhArea')
 
     # Storage for last run
     self._anomalyVectorLength = None
@@ -146,7 +146,7 @@ class HTMPredictionModelClassifierHelper(object):
       'recordLabels': []
     }
 
-    classifier = self.htmpredictionmodel._getAnomalyClassifier()
+    classifier = self.htm_prediction_model._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     ROWIDX = numpy.array(
@@ -325,7 +325,7 @@ class HTMPredictionModelClassifierHelper(object):
     """
     This method will add the record to the KNN classifier.
     """
-    classifier = self.htmpredictionmodel._getAnomalyClassifier()
+    classifier = self.htm_prediction_model._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     prototype_idx = classifier.getSelf().getParameter('categoryRecencyList')
@@ -350,7 +350,7 @@ class HTMPredictionModelClassifierHelper(object):
     ------------
     recordsToDelete - list of records to delete from the classififier
     """
-    classifier = self.htmpredictionmodel._getAnomalyClassifier()
+    classifier = self.htm_prediction_model._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     prototype_idx = classifier.getSelf().getParameter('categoryRecencyList')
@@ -373,7 +373,7 @@ class HTMPredictionModelClassifierHelper(object):
     end - integer representing the ROWID of the end of the deletion range,
       if None, it will default to end.
     """
-    classifier = self.htmpredictionmodel._getAnomalyClassifier()
+    classifier = self.htm_prediction_model._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     prototype_idx = numpy.array(
@@ -405,7 +405,7 @@ class HTMPredictionModelClassifierHelper(object):
                "categoryProbabilitiesOut":numpy.zeros((1,))}
 
     # Run inference only to capture state before learning
-    classifier = self.htmpredictionmodel._getAnomalyClassifier()
+    classifier = self.htm_prediction_model._getAnomalyClassifier()
     knn = classifier.getSelf()._knn
 
     # Only use points before record to classify and after the wait period.
@@ -439,12 +439,12 @@ class HTMPredictionModelClassifierHelper(object):
   def _constructClassificationRecord(self):
     """
     Construct a _HTMClassificationRecord based on the current state of the
-    htmpredictionmodel of this classifier.
+    htm_prediction_model of this classifier.
 
     ***This will look into the internals of the model and may depend on the
     SP, TM, and KNNClassifier***
     """
-    model = self.htmpredictionmodel
+    model = self.htm_prediction_model
     sp = model._getSPRegion()
     tm = model._getTPRegion()
     tpImp = tm.getSelf()._tfdr
