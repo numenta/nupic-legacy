@@ -91,7 +91,8 @@ class ExamplesTest(unittest.TestCase):
     self.assertTrue(os.path.exists(ExamplesTest.examplesDir), failMsg)
 
 
-  @unittest.skip
+  @unittest.skip("Skip test until we figure out why we get different "
+                 "results with OPF, Network and Algorithm APIs.")
   def testNumberOfOneStepPredictions(self):
     """Make sure all examples output the same number of oneStepPredictions."""
 
@@ -101,7 +102,8 @@ class ExamplesTest(unittest.TestCase):
                       len(ExamplesTest.oneStepPredictions["network"]))
 
 
-  @unittest.skip
+  @unittest.skip("Skip test until we figure out why we get different "
+                 "results with OPF, Network and Algorithm APIs.")
   def testOneStepPredictionsOpfVsAlgo(self):
     """Make sure one-step predictions are the same for OPF and Algo API."""
     for i in range(len(ExamplesTest.oneStepPredictions["opf"])):
@@ -109,7 +111,8 @@ class ExamplesTest(unittest.TestCase):
                         ExamplesTest.oneStepPredictions["algo"][i])
 
 
-  @unittest.skip
+  @unittest.skip("Skip test until we figure out why we get different "
+                 "results with OPF, Network and Algorithm APIs.")
   def testOneStepPredictionsOpfVsNetwork(self):
     """Make sure one-step predictions are the same for OPF and Network API."""
     for i in range(len(ExamplesTest.oneStepPredictions["opf"])):
@@ -117,7 +120,8 @@ class ExamplesTest(unittest.TestCase):
                         ExamplesTest.oneStepPredictions["network"][i])
 
 
-  @unittest.skip
+  @unittest.skip("Skip test until we figure out why we get different "
+                 "results with OPF, Network and Algorithm APIs.")
   def testOneStepPredictionsAlgoVsNetwork(self):
     """Make sure one-step predictions are the same for Algo and Network API."""
     for i in range(len(ExamplesTest.oneStepPredictions["algo"])):
@@ -125,7 +129,8 @@ class ExamplesTest(unittest.TestCase):
                         ExamplesTest.oneStepPredictions["network"][i])
 
 
-  @unittest.skip
+  @unittest.skip("Skip test until we figure out why we get different "
+                 "results with OPF, Network and Algorithm APIs.")
   def testFiveStepPredictionsOpfVsNetwork(self):
     """Make sure five-step predictions are the same for OPF and Network API."""
     for i in range(len(ExamplesTest.fiveStepPredictions["opf"])):
@@ -133,7 +138,8 @@ class ExamplesTest(unittest.TestCase):
                         ExamplesTest.fiveStepPredictions["network"][i])
 
 
-  @unittest.skip
+  @unittest.skip("Skip test until we figure out why we get different "
+                 "results with OPF, Network and Algorithm APIs.")
   def testOneStepConfidencesOpfVsAlgo(self):
     """Make sure one-step confidences are the same for OPF and Algo API."""
     for i in range(len(ExamplesTest.oneStepConfidences["opf"])):
@@ -141,7 +147,8 @@ class ExamplesTest(unittest.TestCase):
                         ExamplesTest.oneStepConfidences["algo"][i])
 
 
-  @unittest.skip
+  @unittest.skip("Skip test until we figure out why we get different "
+                 "results with OPF, Network and Algorithm APIs.")
   def testOneStepConfidencesOpfVsNetwork(self):
     """Make sure one-step confidences are the same for OPF and Network API."""
     for i in range(len(ExamplesTest.oneStepConfidences["opf"])):
@@ -149,7 +156,8 @@ class ExamplesTest(unittest.TestCase):
                         ExamplesTest.oneStepConfidences["network"][i])
 
 
-  @unittest.skip
+  @unittest.skip("Skip test until we figure out why we get different "
+                 "results with OPF, Network and Algorithm APIs.")
   def testOneStepConfidencesAlgoVsNetwork(self):
     """Make sure one-step confidences are the same for Algo and Network API."""
     for i in range(len(ExamplesTest.oneStepConfidences["algo"])):
@@ -157,7 +165,8 @@ class ExamplesTest(unittest.TestCase):
                         ExamplesTest.oneStepConfidences["network"][i])
 
 
-  @unittest.skip
+  @unittest.skip("Skip test until we figure out why we get different "
+                 "results with OPF, Network and Algorithm APIs.")
   def testFiveStepConfidencesOpfVsNetwork(self):
     """Make sure five-step confidences are the same for OPF and Network API."""
     for i in range(len(ExamplesTest.fiveStepConfidences["opf"])):
