@@ -63,6 +63,19 @@ deploy:
     # Only deploy on master
     on:
       branch: master
+  - provider: s3
+    access_key_id: AKIAIGHYSEHV3WFKOWNQ
+    secret_access_key:
+      secure: "ONG00ZCPpfU/nugFiON3K2q8IMk3nB/aAUj2Ggjf1z0CJS/cvnfIexmJhe+DJCccoco2l5gpiqp7gweH5vXEcyrzTt1I3Z+iFNas2cQ/wF3LjW0NcbdGeC9NN9kGIoOvr8g6L66CUvazYoirgbJO01ktm7LVNeGS3Q1pk36Vp10="
+    bucket: artifacts.numenta.org
+    region: us-west-2
+    local-dir: "artifacts"
+    upload-dir: "numenta/nupic"
+    skip_cleanup: true
+    # Only deploy on master
+    on:
+      branch: master
+
 
 before_install:
   # Create a new virtualenv to enable upgrade of setuptools and pip;
