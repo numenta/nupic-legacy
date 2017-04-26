@@ -244,7 +244,7 @@ class CLAClassifierRegion(PyRegion):
     # prevent backward compatibilities issues with the customCompute() method
     # being called at the same time as the compute() method. Only compute()
     # should be called via network.run(). This flag will be removed once we
-    # get to cleaning up the htmpredictionmodel.py file.
+    # get to cleaning up the htm_prediction_model.py file.
     self._computeFlag = False
 
 

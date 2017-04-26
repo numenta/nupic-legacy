@@ -36,12 +36,12 @@ import random
 import numpy
 
 from nupic.data import jsonhelpers
-from nupic.frameworks.opf import opfbasicenvironment, opfhelpers
-from nupic.frameworks.opf.expdescriptionapi import OpfEnvironment
-from nupic.frameworks.opf.modelfactory import ModelFactory
-from nupic.frameworks.opf.opftaskdriver import OPFTaskDriver
-from nupic.frameworks.opf.opfutils import (InferenceElement, matchPatterns,
-                                           validateOpfJsonValue)
+from nupic.frameworks.opf import opf_basic_environment, opf_helpers
+from nupic.frameworks.opf.exp_description_api import OpfEnvironment
+from nupic.frameworks.opf.model_factory import ModelFactory
+from nupic.frameworks.opf.opf_task_driver import OPFTaskDriver
+from nupic.frameworks.opf.opf_utils import (InferenceElement, matchPatterns,
+                                            validateOpfJsonValue)
 from nupic.support import initLogging
 
 
@@ -378,9 +378,9 @@ def _runExperimentImpl(options, model=None):
 
   # Load the experiment's description.py module
   experimentDir = options.experimentDir
-  descriptionPyModule = opfhelpers.loadExperimentDescriptionScriptFromDir(
+  descriptionPyModule = opf_helpers.loadExperimentDescriptionScriptFromDir(
       experimentDir)
-  expIface = opfhelpers.getExperimentDescriptionInterfaceFromModule(
+  expIface = opf_helpers.getExperimentDescriptionInterfaceFromModule(
       descriptionPyModule)
 
   # Handle "list checkpoints" request
@@ -622,7 +622,7 @@ class _TaskRunner(object):
 
     # Generate a new dataset from streamDef and create the dataset reader
     streamDef = task['dataset']
-    datasetReader = opfbasicenvironment.BasicDatasetReader(streamDef)
+    datasetReader = opf_basic_environment.BasicDatasetReader(streamDef)
 
     self.__model = model
     self.__datasetReader = datasetReader
@@ -630,7 +630,7 @@ class _TaskRunner(object):
     self.__cmdOptions = cmdOptions
 
 
-    self.__predictionLogger = opfbasicenvironment.BasicPredictionLogger(
+    self.__predictionLogger = opf_basic_environment.BasicPredictionLogger(
       fields=model.getFieldInfo(),
       experimentDir=cmdOptions.experimentDir,
       label=task['taskLabel'],
@@ -650,7 +650,7 @@ class _TaskRunner(object):
     self.__predictionLogger.setLoggedMetrics(loggedMetricLabels)
 
     # Create a prediction metrics logger
-    self.__metricsLogger = opfbasicenvironment.BasicPredictionMetricsLogger(
+    self.__metricsLogger = opf_basic_environment.BasicPredictionMetricsLogger(
       experimentDir=cmdOptions.experimentDir,
       label=task['taskLabel'])
 

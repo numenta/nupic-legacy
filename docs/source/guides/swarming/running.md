@@ -55,7 +55,7 @@ In addition to the information printed to stdout, run_swarm also generates the f
 * **permutations.py**: This is a swarming permutations file that defines the extent of the search space used during the swarm. For example, it includes the min and max allowed value for each parameter. Unless you want to perform a more advanced swarm (see below), you can ignore this file.
 * **model_0/description.py**: This is an OPF description file which overrides specific parameters from the above description.py with the best values found during the swarming process. This description file can be run using run_opf_experiment.py.
 * **model_0/params.csv**: A csv file containing the parameter values chosen for this best model. This is for reference only.
-* **model_0/model_params.py**: The model parameters, which can be used for creating models manually through the [`ModelFactory`](https://github.com/numenta/nupic/blob/master/py/nupic/frameworks/opf/modelfactory.py#L33).
+* **model_0/model_params.py**: The model parameters, which can be used for creating models manually through the [`ModelFactory`](https://github.com/numenta/nupic/blob/master/py/nupic/frameworks/opf/model_factory.py#L33).
 * **search_def_Report.csv**: This is a spreadsheet that lists information on each of the models that were evaluated as part of the swarm. For each model, it has the parameters that were used and the results that that model generated on each of the error metrics that were evaluated.
 
 **Note:** when running the swarm, if you get an error such as "No handlers could be found for logger..." it could be a MySQL setup issue. You can check this using the [above script](#prerequisites).

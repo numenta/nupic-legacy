@@ -25,7 +25,7 @@ import os
 from pprint import pprint
 import time
 
-from nupic.frameworks.opf import opfhelpers
+from nupic.frameworks.opf import opf_helpers
 from nupic.frameworks.opf.client import Client
 
 # Experiment directories relative to "trunk/examples/opf/experiments."
@@ -38,7 +38,7 @@ def testAll(experiments):
   for experiment in experiments:
     experimentBase = os.path.join(os.getcwd(), experimentsDir, experiment)
 
-    config, control = opfhelpers.loadExperiment(experimentBase)
+    config, control = opf_helpers.loadExperiment(experimentBase)
 
     if control['environment'] == 'opfExperiment':
       experimentTasks = control['tasks']

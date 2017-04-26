@@ -163,7 +163,7 @@ class OPFMetricsTest(unittest.TestCase):
     msp = getModule(MetricSpec("multiStep", None, None,
      {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "errorMetric":"aae",
            "steps": 3}))
-    
+
     # Make each ground truth 1 greater than the prediction
     gt = [i+1 for i in range(100)]
     p = [{3: {i: .7, 5: 0.3}} for i in range(100)]
@@ -179,7 +179,7 @@ class OPFMetricsTest(unittest.TestCase):
     msp = getModule(MetricSpec("multiStep", None, None,
      {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "errorMetric":"aae",
            "steps": [3,6]}))
-    
+
     # Make each 3 step prediction +1 over ground truth and each 6 step
     # prediction +0.5 over ground truth
     gt = [i for i in range(100)]
@@ -485,7 +485,7 @@ record={"test":gt[i]})
   def testNegativeLogLikelihood(self):
     # make sure negativeLogLikelihood returns correct LL numbers
 
-    # mock objects for ClassifierInput and ModelResult (see opfutils.py)
+    # mock objects for ClassifierInput and ModelResult (see opf_utils.py)
     class MockClassifierInput(object):
       def __init__(self, bucketIdx):
         self.bucketIndex = bucketIdx
@@ -539,7 +539,7 @@ record={"test":gt[i]})
     # and models that gives single prediction (either most likely outcome or
     # average outcome) has worse LL
 
-    # mock objects for ClassifierInput and ModelResult (see opfutils.py)
+    # mock objects for ClassifierInput and ModelResult (see opf_utils.py)
     class MockClassifierInput(object):
       def __init__(self, bucketIdx):
         self.bucketIndex = bucketIdx
@@ -880,10 +880,10 @@ record={"test":gt[i]})
     metric1000ref = getModule(ms1)
     metric10ref = getModule(ms2)
 
-    
+
     gt = range(500, 1000)
     p = range(500)
- 
+
     for i in xrange(len(gt)):
       v10=metric10ref.addInstance(gt[i], p[i])
       v1000=metric1000ref.addInstance(gt[i], p[i])

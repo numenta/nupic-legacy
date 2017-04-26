@@ -4,7 +4,7 @@ import os
 import yaml
 from itertools import islice
 
-from nupic.frameworks.opf.modelfactory import ModelFactory
+from nupic.frameworks.opf.model_factory import ModelFactory
 
 _NUM_RECORDS = 3000
 _EXAMPLE_DIR = os.path.dirname(os.path.abspath(__file__))

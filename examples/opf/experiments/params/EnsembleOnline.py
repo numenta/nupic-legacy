@@ -1,7 +1,7 @@
 import random
 import multiprocessing
 import numpy as np
-from nupic.frameworks.opf import opfhelpers
+from nupic.frameworks.opf import opf_helpers
 from nupic.frameworks.opf.client import Client
 from random import shuffle
 from random import randrange, uniform
@@ -168,7 +168,7 @@ def getFieldPermutations(config, predictedField):
 
 
 def getModelDescriptionLists(numProcesses, experiment):
-    config, control = opfhelpers.loadExperiment(experiment)
+    config, control = opf_helpers.loadExperiment(experiment)
     encodersList=getFieldPermutations(config, 'pounds')
     ns=range(50, 140, 120)
     clAlphas=np.arange(0.01, 0.16, 0.104)

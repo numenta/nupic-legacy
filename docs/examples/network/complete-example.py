@@ -100,7 +100,7 @@ def getPredictionResults(network, clRegionName):
   N = classifierRegion.getSelf().maxCategoryCount
   results = {step: {} for step in steps}
   for i in range(len(steps)):
-    # stepProbabilities are probabilities for this prediction step only.
+    # stepProbabilities: probabilities for this prediction step only.
     stepProbabilities = probabilities[i * N:(i + 1) * N - 1]
     mostLikelyCategoryIdx = stepProbabilities.argmax()
     predictedValue = actualValues[mostLikelyCategoryIdx]

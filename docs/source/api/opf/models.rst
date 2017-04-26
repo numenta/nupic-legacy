@@ -11,7 +11,7 @@ Model
 HTMPredictionModel
 ^^^^^^^^
 
-.. autoclass:: nupic.frameworks.opf.htmpredictionmodel.HTMPredictionModel
+.. autoclass:: nupic.frameworks.opf.htm_prediction_model.HTMPredictionModel
    :members:
    :show-inheritance:
 =======
@@ -26,5 +26,5 @@ TwoGramModel
 ModelFactory
 ^^^^^^^^^^^^
 
-.. autoclass:: nupic.frameworks.opf.modelfactory.ModelFactory
+.. autoclass:: nupic.frameworks.opf.model_factory.ModelFactory
    :members:
