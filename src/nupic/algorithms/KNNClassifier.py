@@ -150,7 +150,7 @@ class KNNClassifier(object):
       even if distThreshold is 0. Should be True for online learning
 
   :param cellsPerCol: (int) If >= 1, input is assumed to be organized into
-      columns, in the same manner as the temporal pooler AND whenever a new
+      columns, in the same manner as the temporal memory AND whenever a new
       prototype is stored, only the start cell (first cell) is stored in any
       bursting column
 

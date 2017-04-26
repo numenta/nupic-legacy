@@ -93,7 +93,7 @@ class NetworkSugarTest(unittest.TestCase):
 
     # test .keys()
     keys = regions.keys()
-    self.assertEqual(keys, set(['r1', 'r2']))
+    self.assertEqual(keys, list(['r1', 'r2']))
 
     # test .values()
     values = regions.values()

@@ -32,7 +32,7 @@ import shutil
 import tempfile
 import unittest2 as unittest
 
-from nupic.frameworks.opf.modelfactory import ModelFactory
+from nupic.frameworks.opf.model_factory import ModelFactory
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 
 # Model parameters derived from the Hotgym anomaly example. This example was

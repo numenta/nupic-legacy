@@ -10,5 +10,5 @@ Common Models
 Helpers
 ^^^^^^^
 
-.. automodule:: nupic.frameworks.opf.opfhelpers
+.. automodule:: nupic.frameworks.opf.opf_helpers
    :members:

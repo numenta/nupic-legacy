@@ -29,7 +29,7 @@
 ###############################################################################
 
 
-from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
+from nupic.frameworks.opf.exp_description_helpers import importBaseDescription
 
 # the sub-experiment configuration
 config ={

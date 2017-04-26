@@ -166,7 +166,7 @@ class RecordSensor(PyRegion):
           isDefaultOutput=False),
         temporalTopDownOut=dict(
           description="The top-down output signal, generated from "
-                      "feedback from TP through SP",
+                      "feedback from TM through SP",
           dataType='Real32',
           count=0,
           regionLevel=True,
@@ -184,7 +184,7 @@ class RecordSensor(PyRegion):
           requireSplitterMap=False),
         temporalTopDownIn=dict(
           description="The top-down input signal, generated from "
-                      "feedback from TP through SP",
+                      "feedback from TM through SP",
           dataType='Real32',
           count=0,
           required=False,
@@ -481,7 +481,7 @@ class RecordSensor(PyRegion):
       # ========================================================================
 
       ## TODO: Add temporal top-down loop
-      # We get the temporal pooler's topDownOut passed through the spatial 
+      # We get the temporal memory's topDownOut passed through the spatial
       # pooler as temporalTopDownIn
       temporalTopDownIn = inputs['temporalTopDownIn']
       temporalTopDownOut = self.encoder.topDownCompute(temporalTopDownIn)

@@ -41,10 +41,10 @@ from nupic.support.unittesthelpers.testcasebase import (
 from nupic.swarming import HypersearchWorker
 from nupic.swarming.permutationhelpers import PermuteChoices
 from nupic.swarming.utils import generatePersistentJobGUID, rCopy
-from nupic.frameworks.opf.expdescriptionapi import OpfEnvironment
+from nupic.frameworks.opf.exp_description_api import OpfEnvironment
 from nupic.swarming.exp_generator import ExpGenerator
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                                           InferenceElement)
+from nupic.frameworks.opf.opf_utils import (InferenceType,
+                                            InferenceElement)
 
 LOGGER = logging.getLogger(__name__)
 HOTGYM_INPUT = "extra/hotgym/hotgym.csv"
@@ -1059,7 +1059,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertEqual(perms.inputPredictedField, "auto")
 
 
-    # Should have TP parameters being permuted
+    # Should have TM parameters being permuted
     self.assertIn('activationThreshold',
                   perms.permutations['modelParams']['tmParams'])
     self.assertIn('minThreshold', perms.permutations['modelParams']['tmParams'])
@@ -1091,7 +1091,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # --------------------------------------
-    # If we specify NonTemporal, we shouldn't permute over TP parameters
+    # If we specify NonTemporal, we shouldn't permute over TM parameters
     expDesc2 = copy.deepcopy(expDesc)
     expDesc2['inferenceType'] = 'NontemporalMultiStep'
     (base, perms) = self.getModules(expDesc2)
@@ -1795,7 +1795,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
              base.config['modelParams']['sensorParams']['encoders'].keys())
 
 
-    # The SP and TP should both be disabled
+    # The SP and TM should both be disabled
     self.assertFalse(base.config['modelParams']['spEnable'])
     self.assertFalse(base.config['modelParams']['tmEnable'])
 
@@ -1806,7 +1806,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
             + "steps=\\[0\\]:window=1000:field=consumption")
     self.assertIn('alpha', perms.permutations['modelParams']['clParams'])
 
-    # Should have no SP or TP params to permute over
+    # Should have no SP or TM params to permute over
     self.assertEqual(perms.permutations['modelParams']['tmParams'], {})
     self.assertEqual(perms.permutations['modelParams']['spParams'], {})
 

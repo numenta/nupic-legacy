@@ -39,7 +39,7 @@ There is also a reset generated every 10 elements, although this should have
 little to no effect on the prediction accuracy. 
 
 When you run this dataset against 1st order n-grams, you get 52.6% accuracy,
-so we would expect roughly the same accuracy using the TP:
+so we would expect roughly the same accuracy using the TM:
 
 inputPredScore_burnIn1    :  0.526
 

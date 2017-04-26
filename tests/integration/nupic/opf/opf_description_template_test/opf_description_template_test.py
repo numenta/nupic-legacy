@@ -28,7 +28,7 @@ import unittest2 as unittest
 from pkg_resources import resource_filename
 
 
-from nupic.frameworks.opf.opfhelpers import (
+from nupic.frameworks.opf.opf_helpers import (
   loadExperimentDescriptionScriptFromDir,
   getExperimentDescriptionInterfaceFromModule
 )
@@ -224,7 +224,7 @@ class PositiveTests(MyTestCaseBase):
 
     expectedValue = 12
     self.assertEqual(tpActivationThreshold, expectedValue,
-                     "Expected tp activationThreshold=%s, but got %s" % (
+                     "Expected tm activationThreshold=%s, but got %s" % (
                       expectedValue, tpActivationThreshold))
 
 

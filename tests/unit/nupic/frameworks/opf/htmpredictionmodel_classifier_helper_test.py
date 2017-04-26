@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Unit tests for the htmpredictionmodel module."""
+"""Unit tests for the htm_prediction_model module."""
 
 import sys
 import copy
@@ -30,11 +30,11 @@ from mock import Mock, patch, ANY, call
 from nupic.support.unittesthelpers.testcasebase import (unittest,
                                                         TestOptionParser)
 
-from nupic.frameworks.opf.htmpredictionmodel import HTMPredictionModel
-from nupic.frameworks.opf.htmpredictionmodel_classifier_helper import \
+from nupic.frameworks.opf.htm_prediction_model import HTMPredictionModel
+from nupic.frameworks.opf.htm_prediction_model_classifier_helper import \
   HTMPredictionModelClassifierHelper, _CLAClassificationRecord, Configuration
 
-from nupic.frameworks.opf.opfutils import InferenceType
+from nupic.frameworks.opf.opf_utils import InferenceType
 
 from nupic.frameworks.opf.exceptions import HTMPredictionModelInvalidRangeError
 
@@ -228,7 +228,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     }
     self.helper.saved_categories = ['TestCategory']
     categoryList = [1,1,1]
-    classifier = self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf()
+    classifier = self.helper.htm_prediction_model._getAnomalyClassifier().getSelf()
     classifier.getParameter.side_effect = values.get
     classifier._knn._categoryList = categoryList
 
@@ -244,7 +244,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
   @patch.object(HTMPredictionModelClassifierHelper, '_getStateAnomalyVector')
   @patch.object(HTMPredictionModelClassifierHelper, '_updateState')
   def testAddLabel(self, _updateState, _getStateAnomalyVector):
-    self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf().getParameter.return_value = [1,2,3]
+    self.helper.htm_prediction_model._getAnomalyClassifier().getSelf().getParameter.return_value = [1,2,3]
     self.helper.saved_states = []
     self.assertRaises(HTMPredictionModelInvalidRangeError,
                       self.helper.addLabel, start=100, end=100, labelName="test")
@@ -275,7 +275,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     self.assertTrue(self.helper.saved_states[1].setByUser)
 
     # Verifies record added to KNN classifier
-    knn = self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf()._knn
+    knn = self.helper.htm_prediction_model._getAnomalyClassifier().getSelf()._knn
     knn.learn.assert_called_once_with(ANY, ANY, rowID=11)
 
     # Verifies records after added label is recomputed
@@ -285,7 +285,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
   @patch.object(HTMPredictionModelClassifierHelper, '_getStateAnomalyVector')
   @patch.object(HTMPredictionModelClassifierHelper, '_updateState')
   def testRemoveLabel(self, _updateState, _getStateAnomalyVector):
-    classifier = self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf()
+    classifier = self.helper.htm_prediction_model._getAnomalyClassifier().getSelf()
     classifier.getParameter.return_value = [10,11,12]
     classifier._knn._numPatterns = 3
     classifier._knn.removeIds.side_effect = self.mockRemoveIds
@@ -319,7 +319,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     self.assertTrue('Test' not in self.helper.saved_states[1].anomalyLabel)
 
     # Verifies records removed from KNN classifier
-    knn = self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf()._knn
+    knn = self.helper.htm_prediction_model._getAnomalyClassifier().getSelf()._knn
     self.assertEqual(knn.removeIds.mock_calls, [call([11]), call([])])
 
     # Verifies records after removed record are updated
@@ -329,7 +329,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
   @patch.object(HTMPredictionModelClassifierHelper, '_getStateAnomalyVector')
   @patch.object(HTMPredictionModelClassifierHelper, '_updateState')
   def testRemoveLabelNoFilter(self, _updateState, _getStateAnomalyVector):
-    classifier = self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf()
+    classifier = self.helper.htm_prediction_model._getAnomalyClassifier().getSelf()
     values = {
       'categoryRecencyList': [10, 11, 12]
     }
@@ -348,7 +348,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     self.assertTrue('Test' not in self.helper.saved_states[1].anomalyLabel)
 
     # Verifies records removed from KNN classifier
-    knn = self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf()._knn
+    knn = self.helper.htm_prediction_model._getAnomalyClassifier().getSelf()._knn
     self.assertEqual(knn.removeIds.mock_calls, [call([11]), call([])])
 
     # Verifies records after removed record are updated
@@ -519,7 +519,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     values = {
       'categoryRecencyList': [1, 2, 3]
     }
-    classifier = self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf()
+    classifier = self.helper.htm_prediction_model._getAnomalyClassifier().getSelf()
     classifier.getParameter.side_effect = values.get
     state = {
       "ROWID": 5,
@@ -553,7 +553,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     values = {
       'categoryRecencyList': [1, 2, 3]
     }
-    classifier = self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf()
+    classifier = self.helper.htm_prediction_model._getAnomalyClassifier().getSelf()
     classifier.getParameter.side_effect = values.get
     classifier._knn._numPatterns = len(values['categoryRecencyList'])
     classifier._knn.removeIds.side_effect = self.mockRemoveIds
@@ -580,7 +580,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
       'latestDists': numpy.array([0.7, 0.2, 0.5, 1, 0.3, 0.2, 0.1]),
       'categories': ['A','B','C','D','E','F','G']
     }
-    classifier = self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf()
+    classifier = self.helper.htm_prediction_model._getAnomalyClassifier().getSelf()
     classifier.getLatestDistances.return_value = values['latestDists']
     classifier.getCategoryList.return_value = values['categories']
     classifier.getParameter.side_effect = values.get
@@ -633,27 +633,27 @@ class CLAClassifierHelperTest(unittest.TestCase):
         'topDownOut': numpy.array([1,0,0,0,1])
       }
     }
-    self.helper.htmpredictionmodel.getParameter.side_effect = modelParams.get
-    sp = self.helper.htmpredictionmodel._getSPRegion()
-    tp = self.helper.htmpredictionmodel._getTPRegion()
-    tpImp = tp.getSelf()._tfdr
+    self.helper.htm_prediction_model.getParameter.side_effect = modelParams.get
+    sp = self.helper.htm_prediction_model._getSPRegion()
+    tm = self.helper.htm_prediction_model._getTPRegion()
+    tpImp = tm.getSelf()._tfdr
 
     sp.getParameter.side_effect = spVals['params'].get
     sp.getOutputData.side_effect = spVals['output'].get
 
     self.helper._activeColumnCount = 5
 
-    tp.getParameter.side_effect = tpVals['params'].get
-    tp.getOutputData.side_effect = tpVals['output'].get
+    tm.getParameter.side_effect = tpVals['params'].get
+    tm.getOutputData.side_effect = tpVals['output'].get
 
     tpImp.getLearnActiveStateT.return_value = tpVals['output']['lrnActive']
 
-    # Test TP Cell vector
+    # Test TM Cell vector
     self.helper._vectorType = 'tpc'
     vector = self.helper._constructClassificationRecord()
     self.assertEqual(vector.anomalyVector, tpImp.getLearnActiveStateT().nonzero()[0].tolist())
 
-    # Test SP and TP Column Error vector
+    # Test SP and TM Column Error vector
     self.helper._vectorType = 'sp_tpe'
     self.helper._prevPredictedColumns = numpy.array([1,0,0,0,1]).nonzero()[0]
     vector = self.helper._constructClassificationRecord()
@@ -879,10 +879,10 @@ class CLAClassifierHelperTest(unittest.TestCase):
 
 
   def mockRemoveIds(self, ids):
-    self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf()._knn._numPatterns -= len(ids)
+    self.helper.htm_prediction_model._getAnomalyClassifier().getSelf()._knn._numPatterns -= len(ids)
     for idx in ids:
-      if idx in self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf().getParameter('categoryRecencyList'):
-        self.helper.htmpredictionmodel._getAnomalyClassifier().getSelf().getParameter('categoryRecencyList').remove(idx)
+      if idx in self.helper.htm_prediction_model._getAnomalyClassifier().getSelf().getParameter('categoryRecencyList'):
+        self.helper.htm_prediction_model._getAnomalyClassifier().getSelf().getParameter('categoryRecencyList').remove(idx)
 
 
 

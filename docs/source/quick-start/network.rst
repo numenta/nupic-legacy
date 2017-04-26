@@ -9,7 +9,7 @@ Here is the complete program we are going to use as an example. In sections
 below, we'll break it down into parts and explain what is happening (without
 some of the plumbing details).
 
-.. literalinclude:: ../../examples/network/complete-network-example.py
+.. literalinclude:: ../../examples/network/complete-example.py
 
 Network Parameters
 ^^^^^^^^^^^^^^^^^^
@@ -194,7 +194,7 @@ classifier region. In our case, we are interested in:
     probabilities = classifierRegion.getOutputData("probabilities")
 
 
-Refer to the documentation of :class:`.SDRClassisifierRegion` for
+Refer to the documentation of :class:`~nupic.regions.SDRClassifierRegion.SDRClassifierRegion` for
 more information about output values and their structure.
 
 We'll use the helper function below to extract predictions more easily from
