@@ -48,78 +48,16 @@
 <h1>Model Results<a class="headerlink" href="#model-results" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="modelresult">
 <h2>ModelResult<a class="headerlink" href="#modelresult" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="nupic.frameworks.opf.opfutils.ModelResult">
-<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.opfutils.</code><code class="descname">ModelResult</code><span class="sig-paren">(</span><em>predictionNumber=None</em>, <em>rawInput=None</em>, <em>sensorInput=None</em>, <em>inferences=None</em>, <em>metrics=None</em>, <em>predictedFieldIdx=None</em>, <em>predictedFieldName=None</em>, <em>classifierInput=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.opfutils.ModelResult" title="Permalink to this definition">¶</a></dt>
-<dd><p>A structure that contains the input to a model and the resulting predictions
-as well as any related information related to the predictions.</p>
-<p>All params below are accesses as properties of the ModelResult object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>predictionNumber</strong> &#8211; (int) This should start at 0 and increase with each
-new ModelResult.</li>
-<li><strong>rawInput</strong> &#8211; (object) The input record, as input by the user. This is a
-dictionary-like object which has attributes whose names are the same as
-the input field names</li>
-<li><strong>sensorInput</strong> &#8211; (<a class="reference internal" href="#nupic.frameworks.opf.opfutils.SensorInput" title="nupic.frameworks.opf.opfutils.SensorInput"><code class="xref py py-class docutils literal"><span class="pre">SensorInput</span></code></a>) object that represents the input
-record</li>
-<li><strong>inferences</strong> &#8211; (dict) Each key is a <a class="reference internal" href="#nupic.frameworks.opf.opfutils.InferenceType" title="nupic.frameworks.opf.opfutils.InferenceType"><code class="xref py py-class docutils literal"><span class="pre">InferenceType</span></code></a> constant
-which corresponds to the type of prediction being made. Each value is
-a an element that corresponds to the actual prediction by the model,
-including auxillary information.</li>
-<li><strong>metrics</strong> &#8211; The metrics corresponding to the most-recent prediction/ground
-truth pair</li>
-<li><strong>predictedFieldIdx</strong> &#8211; predicted field index</li>
-<li><strong>predictedFieldName</strong> &#8211; predicted field name</li>
-<li><strong>classifierInput</strong> &#8211; input from classifier</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 </div>
 <div class="section" id="sensorinput">
 <h2>SensorInput<a class="headerlink" href="#sensorinput" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="nupic.frameworks.opf.opfutils.SensorInput">
-<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.opfutils.</code><code class="descname">SensorInput</code><span class="sig-paren">(</span><em>dataRow=None</em>, <em>dataDict=None</em>, <em>dataEncodings=None</em>, <em>sequenceReset=None</em>, <em>category=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.opfutils.SensorInput" title="Permalink to this definition">¶</a></dt>
-<dd><p>Represents the mapping of a given inputRecord by the sensor region&#8217;s encoder.</p>
-<p>This represents the input record, as it appears right before it is encoded.
-This may differ from the raw input in that certain input fields (such as
-DateTime fields) may be split into multiple encoded fields.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>dataRow</strong> &#8211; A data row that is the sensor&#8217;s <code class="docutils literal"><span class="pre">sourceOut</span></code> mapping of the
-supplied inputRecord.</li>
-<li><strong>dataEncodings</strong> &#8211; A list of the corresponding bit-array encodings of each
-value in &#8220;dataRow&#8221;</li>
-<li><strong>sequenceReset</strong> &#8211; The sensor&#8217;s &#8220;resetOut&#8221; signal (0 or 1) emitted by the
-sensor&#8217;s compute logic on the supplied inputRecord; provided
-for analysis and diagnostics.</li>
-<li><strong>dataDict</strong> &#8211; The raw encoded input to the sensor</li>
-<li><strong>category</strong> &#8211; the categoryOut on the sensor region</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 </div>
 <div class="section" id="inferenceshifter">
 <h2>InferenceShifter<a class="headerlink" href="#inferenceshifter" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="nupic.data.inference_shifter.InferenceShifter">
 <em class="property">class </em><code class="descclassname">nupic.data.inference_shifter.</code><code class="descname">InferenceShifter</code><a class="headerlink" href="#nupic.data.inference_shifter.InferenceShifter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shifts time for <a class="reference internal" href="#nupic.frameworks.opf.opfutils.ModelResult" title="nupic.frameworks.opf.opfutils.ModelResult"><code class="xref py py-class docutils literal"><span class="pre">ModelResult</span></code></a> objects.
+<dd><p>Shifts time for <code class="xref py py-class docutils literal"><span class="pre">ModelResult</span></code> objects.
 This is useful for plotting results with the predictions at the same time step
 as the input data.</p>
 <dl class="method">
@@ -134,10 +72,10 @@ FIFO and would not be able to emit a meaningful input/prediction pair.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>modelResult</strong> &#8211; A <a class="reference internal" href="#nupic.frameworks.opf.opfutils.ModelResult" title="nupic.frameworks.opf.opfutils.ModelResult"><code class="xref py py-class docutils literal"><span class="pre">ModelResult</span></code></a>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>modelResult</strong> &#8211; A <code class="xref py py-class docutils literal"><span class="pre">ModelResult</span></code>
 instance to shift.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <a class="reference internal" href="#nupic.frameworks.opf.opfutils.ModelResult" title="nupic.frameworks.opf.opfutils.ModelResult"><code class="xref py py-class docutils literal"><span class="pre">ModelResult</span></code></a> instance that
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <code class="xref py py-class docutils literal"><span class="pre">ModelResult</span></code> instance that
 has been shifted</td>
 </tr>
 </tbody>
@@ -149,28 +87,6 @@ has been shifted</td>
 </div>
 <div class="section" id="inferencetype">
 <h2>InferenceType<a class="headerlink" href="#inferencetype" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="nupic.frameworks.opf.opfutils.InferenceType">
-<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.opfutils.</code><code class="descname">InferenceType</code><a class="headerlink" href="#nupic.frameworks.opf.opfutils.InferenceType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Enum: one of the following:</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">TemporalNextStep</span></code></li>
-<li><code class="docutils literal"><span class="pre">TemporalClassification</span></code></li>
-<li><code class="docutils literal"><span class="pre">NontemporalClassification</span></code></li>
-<li><code class="docutils literal"><span class="pre">TemporalAnomaly</span></code></li>
-<li><code class="docutils literal"><span class="pre">NontemporalAnomaly</span></code></li>
-<li><code class="docutils literal"><span class="pre">TemporalMultiStep</span></code></li>
-<li><code class="docutils literal"><span class="pre">NontemporalMultiStep</span></code></li>
-</ul>
-<dl class="staticmethod">
-<dt id="nupic.frameworks.opf.opfutils.InferenceType.isTemporal">
-<em class="property">static </em><code class="descname">isTemporal</code><span class="sig-paren">(</span><em>inferenceType</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.opfutils.InferenceType.isTemporal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns True if the inference type is &#8216;temporal&#8217;, i.e. requires a
-temporal pooler in the network.</p>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 </div>
 

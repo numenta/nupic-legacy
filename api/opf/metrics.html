@@ -88,7 +88,7 @@ metric</p>
 <code class="descname">update</code><span class="sig-paren">(</span><em>results</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.predictionmetricsmanager.MetricsManager.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the new metrics values, given the next inference/ground-truth values</p>
 <dl class="docutils">
-<dt>results:  An opfutils.ModelResult object that was computed during the last</dt>
+<dt>results:  An opf_utils.ModelResult object that was computed during the last</dt>
 <dd>iteration of the model</dd>
 <dt>Returns:  A dictionary where each key is the metric-name, and the values are</dt>
 <dd>it scalar value.</dd>
@@ -158,7 +158,7 @@ now this is only used by CLA networks</dd>
 <dd>The binary encoding of the prediction value (as a numpy array). Right
 now this is only used by CLA networks</dd>
 <dt>result:</dt>
-<dd><p class="first">An ModelResult class (see opfutils.py)</p>
+<dd><p class="first">An ModelResult class (see opf_utils.py)</p>
 <dl class="last docutils">
 <dt>return:</dt>
 <dd>The average error as computed over the metric&#8217;s window size</dd>
@@ -208,7 +208,7 @@ ground truth.</p>
 <dd><p class="first">that have been observed.</p>
 <p class="last">If historyBuffer = None,  it means that no history is being kept.</p>
 </dd>
-<dt>result: An ModelResult class (see opfutils.py), used for advanced</dt>
+<dt>result: An ModelResult class (see opf_utils.py), used for advanced</dt>
 <dd><p class="first">metric calculation (e.g., MetricNegativeLogLikelihood)</p>
 <dl class="last docutils">
 <dt>retval:</dt>
@@ -293,7 +293,7 @@ aggregateMetric value.</p>
 <dl class="method">
 <dt id="nupic.frameworks.opf.metrics.CustomErrorMetric.expValue">
 <code class="descclassname">CustomErrorMetric.</code><code class="descname">expValue</code><span class="sig-paren">(</span><em>pred</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.CustomErrorMetric.expValue" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function to return a scalar value representing the expected 
+<dd><p>Helper function to return a scalar value representing the expected
 value of a probability distribution</p>
 </dd></dl>
 

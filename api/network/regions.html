@@ -653,13 +653,13 @@ and strings, as in the case of records with categorical variables</p>
 <dt id="nupic.regions.KNNAnomalyClassifierRegion.KNNAnomalyClassifierRegion">
 <em class="property">class </em><code class="descclassname">nupic.regions.KNNAnomalyClassifierRegion.</code><code class="descname">KNNAnomalyClassifierRegion</code><span class="sig-paren">(</span><em>trainRecords</em>, <em>anomalyThreshold</em>, <em>cacheSize</em>, <em>classificationVectorType=1</em>, <em>activeColumnCount=40</em>, <em>classificationMaxDist=0.3</em>, <em>**classifierArgs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.KNNAnomalyClassifierRegion.KNNAnomalyClassifierRegion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion</span></code></a></p>
-<p>KNNAnomalyClassifierRegion wraps the KNNClassifierRegion to classify htmpredictionmodel
+<p>KNNAnomalyClassifierRegion wraps the KNNClassifierRegion to classify htm_prediction_model
 state.  It allows for individual records to be classified as anomalies and
 supports anomaly detection even after the model has learned the anomalous
 sequence.</p>
 <dl class="docutils">
 <dt>Methods:</dt>
-<dd>compute() - called by htmpredictionmodel during record processing
+<dd>compute() - called by htm_prediction_model during record processing
 getLabels() - return points with classification records
 addLabel() - add a set label to a given set of points
 removeLabels() - remove labels from a given set of points</dd>
