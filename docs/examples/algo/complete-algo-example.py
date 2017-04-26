@@ -153,7 +153,7 @@ def runHotgym():
       )
 
       # Print the best prediction for 1 step out.
-      oneStep, oneStepConfidence = sorted(
+      oneStepConfidence, oneStep = sorted(
         zip(classifierResult[1], classifierResult["actualValues"]),
         reverse=True
       )[0]
