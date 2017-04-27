@@ -4,17 +4,17 @@ This technical note describes how the anomaly score is implemented and incorpora
 
 The anomaly score enables the CLA to provide a metric representing the degree to which each record is predictable. For example, if you have temporal anomaly model that is predicting the energy consumption of a building, each record will have an anomaly score between zero and one.  A zero represents a completely predicted value whereas a one represents a completely anomalous value.
 
-The anomaly score feature of CLA is implemented on top of the core spatial and temporal pooler, and don’t require any spatial pooler and temporal pooler algorithm changes.
+The anomaly score feature of CLA is implemented on top of the core spatial and temporal memory, and don’t require any spatial pooler and temporal memory algorithm changes.
 
 ## TemporalAnomaly model
 
 ### Description
 
-The user must specify the model as a TemporalAnomaly type to have the model report the anomaly score. The anomaly score uses the temporal pooler to detect novel points in sequences. This will detect both novel input patterns (because they have not been seen in any sequence) as well as old spatial patterns that occur in a novel context.
+The user must specify the model as a TemporalAnomaly type to have the model report the anomaly score. The anomaly score uses the temporal memory to detect novel points in sequences. This will detect both novel input patterns (because they have not been seen in any sequence) as well as old spatial patterns that occur in a novel context.
 
 ### Computation
 
-A TemporalAnomaly model calculates the anomaly score based on the correctness of the previous prediction. This is calculated as the percentage of active spatial pooler columns that were incorrectly predicted by the temporal pooler.
+A TemporalAnomaly model calculates the anomaly score based on the correctness of the previous prediction. This is calculated as the percentage of active spatial pooler columns that were incorrectly predicted by the temporal memory.
 
 The algorithm for the anomaly score is as follows:
 
@@ -59,7 +59,7 @@ There were also some attempts at adding anomaly detection that are "non-temporal
 
 ### Computation
 
-Since NontemporalAnomaly models have no temporal pooler, the anomaly score is based on the state within the spatial pooler.  
+Since NontemporalAnomaly models have no temporal memory, the anomaly score is based on the state within the spatial pooler.  
 
 To compute the nontemporal anomaly score, we first compute the "match" score for each winning column after inhibition
 
@@ -77,4 +77,4 @@ The purpose of this anomaly score was to detect input records that represented n
 
 ### Results
 
-This algorithm was run on some artificial datasets. However, the results were not very promising, and this approach was abandoned. From a theoretical perspective the temporal anomaly detection technique is a superset of this technique. If a static pattern by itself is novel, by definition the temporal pooler won't make good predictions and hence the temporal anomaly score should be high. As such there was not too much interest in pursuing this route.
+This algorithm was run on some artificial datasets. However, the results were not very promising, and this approach was abandoned. From a theoretical perspective the temporal anomaly detection technique is a superset of this technique. If a static pattern by itself is novel, by definition the temporal memory won't make good predictions and hence the temporal anomaly score should be high. As such there was not too much interest in pursuing this route.

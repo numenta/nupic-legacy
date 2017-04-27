@@ -63,7 +63,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   Each input pattern can optionally have an amount of spatial noise represented
   by X, where X is the probability of switching an on bit with a random bit.
 
-  Training: The TP is trained with P passes of the M sequences. There
+  Training: The TM is trained with P passes of the M sequences. There
   should be a reset between sequences. The total number of iterations during
   training is P*N*M.
 
@@ -96,7 +96,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
       connectedPermanence = 0.7
       permanenceIncrement = 0.2
 
-  Now we train the TP with the B1 sequence 4 times (P=4). This will increment
+  Now we train the TM with the B1 sequence 4 times (P=4). This will increment
   the permanences to be above 0.8 and at that point the inference will be correct.
   This test will ensure the basic match function and segment activation rules are
   working correctly.
@@ -289,7 +289,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
       connectedPermanence = 0.7
       permanenceIncrement = 0.2
 
-    Now we train the TP with the B1 sequence 4 times (P=4). This will increment
+    Now we train the TM with the B1 sequence 4 times (P=4). This will increment
     the permanences to be above 0.8 and at that point the inference will be correct.
     This test will ensure the basic match function and segment activation rules are
     working correctly.

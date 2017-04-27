@@ -23,10 +23,10 @@ SPRegion
    :members:
    :show-inheritance:
 
-TPRegion
+TMRegion
 ^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.TPRegion.TPRegion
+.. autoclass:: nupic.regions.TMRegion.TMRegion
    :members:
    :show-inheritance:
 

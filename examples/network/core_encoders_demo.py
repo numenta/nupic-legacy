@@ -81,7 +81,7 @@ def createNetwork():
   #
   # Add a TPRegion, a region containing a Temporal Memory
   #
-  network.addRegion("tm", "py.TPRegion",
+  network.addRegion("tm", "py.TMRegion",
                     json.dumps({
                       "columnCount": 2048,
                       "cellsPerColumn": 32,

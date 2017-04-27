@@ -23,7 +23,7 @@ import json
 import unittest
 import numpy
 
-from nupic.regions.TPRegion import TPRegion
+from nupic.regions.TMRegion import TMRegion
 
 from network_creation_common import createAndRunNetwork
 
@@ -35,12 +35,12 @@ class TemporalMemoryCompatibilityTest(unittest.TestCase):
     """
     Test compatibility between C++ and Python TM implementation.
     """
-    results1 = createAndRunNetwork(TPRegion,
+    results1 = createAndRunNetwork(TMRegion,
                                    "bottomUpOut",
                                    checkpointMidway=False,
                                    temporalImp="tm_cpp")
 
-    results2 = createAndRunNetwork(TPRegion,
+    results2 = createAndRunNetwork(TMRegion,
                                    "bottomUpOut",
                                    checkpointMidway=False,
                                    temporalImp="tm_py")

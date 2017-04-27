@@ -1,0 +1,1 @@
+network.addRegion("sensor", "py.RecordSensor", '{}')

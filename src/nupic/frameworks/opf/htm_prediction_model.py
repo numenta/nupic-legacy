@@ -142,9 +142,9 @@ class HTMPredictionModel(Model):
           are passed to the spatial pooler.
       trainSPNetOnlyIfRequested: If set, don't create an SP network unless the
           user requests SP metrics.
-      tmEnable: Whether to use a temporal pooler.
-      tmParams: A dictionary specifying the temporal pooler parameters. These
-          are passed to the temporal pooler.
+      tmEnable: Whether to use a temporal memory.
+      tmParams: A dictionary specifying the temporal memory parameters. These
+          are passed to the temporal memory.
       clEnable: Whether to use the classifier. If false, the classifier will
           not be created and no predictions will be generated.
       clParams: A dictionary specifying the classifier parameters. These are
@@ -177,11 +177,11 @@ class HTMPredictionModel(Model):
     self._maxPredictionsPerStep = maxPredictionsPerStep
 
     # set up learning parameters (note: these may be replaced via
-    # enable/disable//SP/TP//Learning methods)
+    # enable/disable//SP/TM//Learning methods)
     self.__spLearningEnabled = bool(spEnable)
     self.__tpLearningEnabled = bool(tmEnable)
 
-    # Explicitly exclude the TP if this type of inference doesn't require it
+    # Explicitly exclude the TM if this type of inference doesn't require it
     if not InferenceType.isTemporal(self.getInferenceType()) \
        or self.getInferenceType() == InferenceType.NontemporalMultiStep:
       tmEnable = False
@@ -246,7 +246,7 @@ class HTMPredictionModel(Model):
     """
 
     if self._hasTP:
-      # Reset TP's sequence states
+      # Reset TM's sequence states
       self._getTPRegion().executeCommand(['resetSequenceStates'])
 
       self.__logger.debug("HTMPredictionModel.resetSequenceStates(): reset temporal "
@@ -273,10 +273,10 @@ class HTMPredictionModel(Model):
         "HTMPredictionModel.finishLearning(): finished SP learning")
 
     if self._hasTP:
-      # Finish temporal network's TP learning
+      # Finish temporal network's TM learning
       self._getTPRegion().executeCommand(['finishLearning'])
       self.__logger.debug(
-        "HTMPredictionModel.finishLearning(): finished TP learning")
+        "HTMPredictionModel.finishLearning(): finished TM learning")
 
     self.__spLearningEnabled = self.__tpLearningEnabled = False
     self.__finishedLearning = True
@@ -490,8 +490,8 @@ class HTMPredictionModel(Model):
 
 
   def _tpCompute(self):
-    tp = self._getTPRegion()
-    if tp is None:
+    tm = self._getTPRegion()
+    if tm is None:
       return
 
     if (self.getInferenceType() == InferenceType.TemporalAnomaly or
@@ -500,12 +500,12 @@ class HTMPredictionModel(Model):
     else:
       topDownCompute = False
 
-    tp = self._getTPRegion()
-    tp.setParameter('topDownMode', topDownCompute)
-    tp.setParameter('inferenceMode', self.isInferenceEnabled())
-    tp.setParameter('learningMode', self.isLearningEnabled())
-    tp.prepareInputs()
-    tp.compute()
+    tm = self._getTPRegion()
+    tm.setParameter('topDownMode', topDownCompute)
+    tm.setParameter('inferenceMode', self.isInferenceEnabled())
+    tm.setParameter('learningMode', self.isLearningEnabled())
+    tm.prepareInputs()
+    tm.compute()
 
 
   def _isReconstructionModel(self):
@@ -534,8 +534,8 @@ class HTMPredictionModel(Model):
   def _multiStepCompute(self, rawInput):
     patternNZ = None
     if self._getTPRegion() is not None:
-      tp = self._getTPRegion()
-      tpOutput = tp.getSelf()._tfdr.infActiveState['t']
+      tm = self._getTPRegion()
+      tpOutput = tm.getSelf()._tfdr.infActiveState['t']
       patternNZ = tpOutput.reshape(-1).nonzero()[0]
     elif self._getSPRegion() is not None:
       sp = self._getSPRegion()
@@ -547,7 +547,7 @@ class HTMPredictionModel(Model):
       patternNZ = sensorOutput.nonzero()[0]
     else:
       raise RuntimeError("Attempted to make multistep prediction without"
-                         "TP, SP, or Sensor regions")
+                         "TM, SP, or Sensor regions")
 
     inputTSRecordIdx = rawInput.get('_timestampRecordIdx')
     return self._handleCLAClassifierMultiStep(
@@ -627,7 +627,7 @@ class HTMPredictionModel(Model):
       score = sp.getOutputData("anomalyScore")[0] #TODO move from SP to Anomaly ?
 
     elif inferenceType == InferenceType.TemporalAnomaly:
-      tp = self._getTPRegion()
+      tm = self._getTPRegion()
 
       if sp is not None:
         activeColumns = sp.getOutputData("bottomUpOut").nonzero()[0]
@@ -642,7 +642,7 @@ class HTMPredictionModel(Model):
         )
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
-      score = tp.getOutputData("anomalyScore")[0]
+      score = tm.getOutputData("anomalyScore")[0]
 
       # Calculate the classifier's output and use the result as the anomaly
       # label. Stores as string of results.
@@ -667,7 +667,7 @@ class HTMPredictionModel(Model):
     """ Handle the CLA Classifier compute logic when implementing multi-step
     prediction. This is where the patternNZ is associated with one of the
     other fields from the dataset 0 to N steps in the future. This method is
-    used by each type of network (encoder only, SP only, SP +TP) to handle the
+    used by each type of network (encoder only, SP only, SP +TM) to handle the
     compute logic through the CLA Classifier. It fills in the inference dict with
     the results of the compute.
 
@@ -1008,9 +1008,9 @@ class HTMPredictionModel(Model):
 
   def _getTPRegion(self):
     """
-    Returns reference to the network's TP region
+    Returns reference to the network's TM region
     """
-    return self._netInfo.net.regions.get('TP', None)
+    return self._netInfo.net.regions.get('TM', None)
 
 
   def _getSensorRegion(self):
@@ -1082,8 +1082,8 @@ class HTMPredictionModel(Model):
           enabledEncoders.pop(name)
 
     # Disabled encoders are encoders that are fed to CLAClassifierRegion but not
-    # SP or TP Regions. This is to handle the case where the predicted field
-    # is not fed through the SP/TP. We typically just have one of these now.
+    # SP or TM Regions. This is to handle the case where the predicted field
+    # is not fed through the SP/TM. We typically just have one of these now.
     disabledEncoders = copy.deepcopy(sensorParams['encoders'])
     for name, params in disabledEncoders.items():
       if params is None:
@@ -1130,21 +1130,21 @@ class HTMPredictionModel(Model):
         assert tmParams['columnCount'] == prevRegionWidth
         tmParams['inputWidth'] = tmParams['columnCount']
 
-      self.__logger.debug("Adding TPRegion; tmParams: %r" % tmParams)
-      n.addRegion("TP", "py.TPRegion", json.dumps(tmParams))
+      self.__logger.debug("Adding TMRegion; tmParams: %r" % tmParams)
+      n.addRegion("TM", "py.TMRegion", json.dumps(tmParams))
 
-      # Link TP region
-      n.link(prevRegion, "TP", "UniformLink", "")
+      # Link TM region
+      n.link(prevRegion, "TM", "UniformLink", "")
       if prevRegion != "sensor":
-        n.link("TP", prevRegion, "UniformLink", "", srcOutput="topDownOut",
+        n.link("TM", prevRegion, "UniformLink", "", srcOutput="topDownOut",
            destInput="topDownIn")
       else:
-        n.link("TP", prevRegion, "UniformLink", "", srcOutput="topDownOut",
+        n.link("TM", prevRegion, "UniformLink", "", srcOutput="topDownOut",
            destInput="temporalTopDownIn")
-      n.link("sensor", "TP", "UniformLink", "", srcOutput="resetOut",
+      n.link("sensor", "TM", "UniformLink", "", srcOutput="resetOut",
          destInput="resetIn")
 
-      prevRegion = "TP"
+      prevRegion = "TM"
       prevRegionWidth = tmParams['inputWidth']
 
     if clEnable and clParams is not None:
@@ -1303,7 +1303,7 @@ class HTMPredictionModel(Model):
 
     network = Network.read(proto.network)
     spEnable = ("SP" in network.regions)
-    tmEnable = ("TP" in network.regions)
+    tmEnable = ("TM" in network.regions)
     clEnable = ("Classifier" in network.regions)
 
     model = cls(spEnable=spEnable,
@@ -1412,7 +1412,7 @@ class HTMPredictionModel(Model):
             self._classifier_helper.saved_categories)
         self._getAnomalyClassifier().getSelf()._knnclassifier = knnRegion
 
-        # Set TP to output neccessary information
+        # Set TM to output neccessary information
         self._getTPRegion().setParameter('anomalyMode', True)
 
         # Remove old classifier_helper
@@ -1439,7 +1439,7 @@ class HTMPredictionModel(Model):
     network - network to add the AnomalyClassifier region
     params - parameters to pass to the region
     spEnable - True if network has an SP region
-    tmEnable - True if network has a TP region; Currently requires True
+    tmEnable - True if network has a TM region; Currently requires True
     """
 
     allParams = copy.deepcopy(params)
@@ -1475,14 +1475,14 @@ class HTMPredictionModel(Model):
       network.link("sensor", "AnomalyClassifier", "UniformLink", "",
           srcOutput="dataOut", destInput="spBottomUpOut")
 
-    # Attach link to TP
+    # Attach link to TM
     if tmEnable:
-      network.link("TP", "AnomalyClassifier", "UniformLink", "",
+      network.link("TM", "AnomalyClassifier", "UniformLink", "",
               srcOutput="topDownOut", destInput="tpTopDownOut")
-      network.link("TP", "AnomalyClassifier", "UniformLink", "",
+      network.link("TM", "AnomalyClassifier", "UniformLink", "",
               srcOutput="lrnActiveStateT", destInput="tpLrnActiveStateT")
     else:
-      raise RuntimeError("TemporalAnomaly models require a TP region.")
+      raise RuntimeError("TemporalAnomaly models require a TM region.")
 
 
   def __getNetworkStateDirectory(self, extraDataDir):

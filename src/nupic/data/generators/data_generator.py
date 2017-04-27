@@ -33,7 +33,7 @@ class DataGenerator():
   """The DataGenerator provides a framework for generating, encoding, saving
   and exporting records. Each column of the output contains records with a
   specific set of parameters such as encoderType, n, w, etc. This interface
-  is intended to be used for testing the spatial pooler, temporal pooler and
+  is intended to be used for testing the spatial pooler, temporal memory and
   for generating artificial datasets.
   """
 

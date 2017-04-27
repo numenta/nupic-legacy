@@ -280,7 +280,7 @@ def getDescription(datasets):
     spSeed = 1,
     printPeriodicStats = int(config['spPeriodicStats']),
 
-    # TP params
+    # TM params
     disableTemporal = 1,
 
     # General params

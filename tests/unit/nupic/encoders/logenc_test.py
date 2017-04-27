@@ -76,10 +76,10 @@ class LogEncoderTest(unittest.TestCase):
                   ([1], [1000], 0.25),
                   ([1], [1], 1.0),
                   ([1], [-200], 1.0)]
-    for tp in testTuples:
-      expected = tp[0]
-      actual = tp[1]
-      expectedResult = tp[2]
+    for tm in testTuples:
+      expected = tm[0]
+      actual = tm[1]
+      expectedResult = tm[2]
       self.assertEqual(le.closenessScores(expected, actual),
                        expectedResult,
                        "exp: %s act: %s expR: %s" % (str(expected),

@@ -635,25 +635,25 @@ class CLAClassifierHelperTest(unittest.TestCase):
     }
     self.helper.htm_prediction_model.getParameter.side_effect = modelParams.get
     sp = self.helper.htm_prediction_model._getSPRegion()
-    tp = self.helper.htm_prediction_model._getTPRegion()
-    tpImp = tp.getSelf()._tfdr
+    tm = self.helper.htm_prediction_model._getTPRegion()
+    tpImp = tm.getSelf()._tfdr
 
     sp.getParameter.side_effect = spVals['params'].get
     sp.getOutputData.side_effect = spVals['output'].get
 
     self.helper._activeColumnCount = 5
 
-    tp.getParameter.side_effect = tpVals['params'].get
-    tp.getOutputData.side_effect = tpVals['output'].get
+    tm.getParameter.side_effect = tpVals['params'].get
+    tm.getOutputData.side_effect = tpVals['output'].get
 
     tpImp.getLearnActiveStateT.return_value = tpVals['output']['lrnActive']
 
-    # Test TP Cell vector
+    # Test TM Cell vector
     self.helper._vectorType = 'tpc'
     vector = self.helper._constructClassificationRecord()
     self.assertEqual(vector.anomalyVector, tpImp.getLearnActiveStateT().nonzero()[0].tolist())
 
-    # Test SP and TP Column Error vector
+    # Test SP and TM Column Error vector
     self.helper._vectorType = 'sp_tpe'
     self.helper._prevPredictedColumns = numpy.array([1,0,0,0,1]).nonzero()[0]
     vector = self.helper._constructClassificationRecord()
