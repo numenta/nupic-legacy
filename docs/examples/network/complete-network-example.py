@@ -132,22 +132,23 @@ def runHotgym():
   network.regions["TM"].setParameter("inferenceMode", 1)
   network.regions["classifier"].setParameter("inferenceMode", 1)
 
+  results = []
   N = 1  # Run the network, N iterations at a time.
   for iteration in range(0, numRecords, N):
     network.run(N)
 
-    # Get prediction results.
-    results = getPredictionResults(network, "classifier")
-    oneStep = results[1]["predictedValue"]
-    oneStepConfidence = results[1]["predictionConfidence"]
-    fiveStep = results[5]["predictedValue"]
-    fiveStepConfidence = results[5]["predictionConfidence"]
+    predictionResults = getPredictionResults(network, "classifier")
+    oneStep = predictionResults[1]["predictedValue"]
+    oneStepConfidence = predictionResults[1]["predictionConfidence"]
+    fiveStep = predictionResults[5]["predictedValue"]
+    fiveStepConfidence = predictionResults[5]["predictionConfidence"]
 
     result = (oneStep, oneStepConfidence * 100,
               fiveStep, fiveStepConfidence * 100)
     print "1-step: {:16} ({:4.4}%)\t 5-step: {:16} ({:4.4}%)".format(*result)
-    yield result
+    results.append(result)
 
+  return results
 
 if __name__ == "__main__":
   runHotgym()

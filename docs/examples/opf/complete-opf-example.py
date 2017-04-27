@@ -29,6 +29,7 @@ def runHotgym():
     reader.next()
     reader.next()
 
+    results = []
     for record in islice(reader, _NUM_RECORDS):
       modelInput = dict(zip(headers, record))
       modelInput["consumption"] = float(modelInput["consumption"])
@@ -45,8 +46,8 @@ def runHotgym():
       result = (oneStep, oneStepConfidence * 100,
                 fiveStep, fiveStepConfidence * 100)
       print "1-step: {:16} ({:4.4}%)\t 5-step: {:16} ({:4.4}%)".format(*result)
-      yield result
-
+      results.append(result)
+    return results
 
 
 if __name__ == "__main__":
