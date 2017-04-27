@@ -99,6 +99,7 @@ def runHotgym():
 
     for count, record in enumerate(reader):
 
+      if count >= _NUM_RECORDS: continue
 
       # Convert data string into Python date object.
       dateString = datetime.datetime.strptime(record[0], "%m/%d/%y %H:%M")
