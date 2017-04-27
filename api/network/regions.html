@@ -410,6 +410,104 @@ special treatment are explicitly handled here.</p>
 </div>
 <div class="section" id="tmregion">
 <h2>TMRegion<a class="headerlink" href="#tmregion" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.regions.TMRegion.TMRegion">
+<em class="property">class </em><code class="descclassname">nupic.regions.TMRegion.</code><code class="descname">TMRegion</code><span class="sig-paren">(</span><em>columnCount</em>, <em>inputWidth</em>, <em>cellsPerColumn</em>, <em>orColumnOutputs=False</em>, <em>cellsSavePath=''</em>, <em>temporalImp='py'</em>, <em>anomalyMode=False</em>, <em>computePredictedActiveCellIndices=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TMRegion.TMRegion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion</span></code></a></p>
+<p>TMRegion is designed to implement the temporal memory compute for a given
+CLA level.</p>
+<p>Uses a subclass of TM to do most of the work. The specific TM implementation
+is specified using the temporalImp parameter.</p>
+<p>Automatic parameter handling:</p>
+<p>Parameter names, default values, and descriptions are retrieved automatically
+from the temporal memory class. Thus, there are only a few hardcoded
+arguments in __init__, and the rest are passed to the appropriate underlying
+class. The RegionSpec is mostly built automatically from these parameters.</p>
+<p>If you add a parameter to a TM class, it will be exposed through TMRegion
+automatically as if it were in TMRegion.__init__, with the right default
+value. Add an entry in the __init__ docstring for it too, and that will be
+brought into the RegionSpec. TMRegion will maintain the parameter as its own
+instance variable and also pass it to the temporal memory instance. If the
+parameter is changed, TMRegion will propagate the change.</p>
+<p>If you want to do something different with the parameter, add it as an
+argument into TMRegion.__init__, which will override all the default handling.</p>
+<dl class="method">
+<dt id="nupic.regions.TMRegion.TMRegion.compute">
+<code class="descname">compute</code><span class="sig-paren">(</span><em>inputs</em>, <em>outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TMRegion.TMRegion.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run one iteration of TMRegion&#8217;s compute, profiling it if requested.</p>
+<p>The guts of the compute are contained in the _compute() call so that
+we can profile it if requested.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.TMRegion.TMRegion.deSerializeExtraData">
+<code class="descname">deSerializeExtraData</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TMRegion.TMRegion.deSerializeExtraData" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called during network deserialization with an external
+filename that can be used to bypass pickle for loading large binary states.</p>
+<p>filePath: full filepath and name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.TMRegion.TMRegion.finishLearning">
+<code class="descname">finishLearning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TMRegion.TMRegion.finishLearning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform an internal optimization step that speeds up inference if we know
+learning will not be performed anymore. This call may, for example, remove
+all potential inputs to each column.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.TMRegion.TMRegion.getAlgorithmInstance">
+<code class="descname">getAlgorithmInstance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TMRegion.TMRegion.getAlgorithmInstance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns instance of the underlying TemporalMemory algorithm object.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.regions.TMRegion.TMRegion.getBaseSpec">
+<em class="property">classmethod </em><code class="descname">getBaseSpec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TMRegion.TMRegion.getBaseSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the base Spec for TMRegion.</p>
+<p>Doesn&#8217;t include the spatial, temporal and other parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.TMRegion.TMRegion.getParameter">
+<code class="descname">getParameter</code><span class="sig-paren">(</span><em>parameterName</em>, <em>index=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TMRegion.TMRegion.getParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value of a parameter. Most parameters are handled automatically by
+PyRegion&#8217;s parameter get mechanism. The ones that need special treatment
+are explicitly handled here.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.regions.TMRegion.TMRegion.getSpec">
+<em class="property">classmethod </em><code class="descname">getSpec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TMRegion.TMRegion.getSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Spec for TMRegion.</p>
+<p>The parameters collection is constructed based on the parameters specified
+by the variosu components (spatialSpec, temporalSpec and otherSpec)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.TMRegion.TMRegion.resetSequenceStates">
+<code class="descname">resetSequenceStates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TMRegion.TMRegion.resetSequenceStates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the region&#8217;s sequence states</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.TMRegion.TMRegion.serializeExtraData">
+<code class="descname">serializeExtraData</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TMRegion.TMRegion.serializeExtraData" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called during network serialization with an external
+filename that can be used to bypass pickle for saving large binary states.</p>
+<p>filePath: full filepath and name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.TMRegion.TMRegion.setParameter">
+<code class="descname">setParameter</code><span class="sig-paren">(</span><em>parameterName</em>, <em>index</em>, <em>parameterValue</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.TMRegion.TMRegion.setParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of a Spec parameter. Most parameters are handled
+automatically by PyRegion&#8217;s parameter set mechanism. The ones that need
+special treatment are explicitly handled here.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="anomalylikelihoodregion">
 <h2>AnomalyLikelihoodRegion<a class="headerlink" href="#anomalylikelihoodregion" title="Permalink to this headline">¶</a></h2>
@@ -611,8 +709,8 @@ This method is called by the runtime engine.</p>
 passed in through the inputs.</p>
 <dl class="docutils">
 <dt>Types for self.classificationVectorType:</dt>
-<dd>1 - TP active cells in learn state
-2 - SP columns concatenated with error from TP column predictions and SP</dd>
+<dd>1 - TM active cells in learn state
+2 - SP columns concatenated with error from TM column predictions and SP</dd>
 </dl>
 </dd></dl>
 

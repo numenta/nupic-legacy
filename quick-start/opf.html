@@ -95,11 +95,10 @@ some of the plumbing details).</p>
       <span class="n">fiveStep</span> <span class="o">=</span> <span class="n">bestPredictions</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
       <span class="n">fiveStepConfidence</span> <span class="o">=</span> <span class="n">allPredictions</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="n">fiveStep</span><span class="p">]</span>
 
-      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)</span><span class="se">\t</span><span class="s2">&quot;</span>
-            <span class="s2">&quot;5-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">oneStep</span><span class="p">,</span>
-                                             <span class="n">oneStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
-                                             <span class="n">fiveStep</span><span class="p">,</span>
-                                             <span class="n">fiveStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">oneStep</span><span class="p">,</span> <span class="n">oneStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
+                <span class="n">fiveStep</span><span class="p">,</span> <span class="n">fiveStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+      <span class="nb">print</span> <span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)</span><span class="se">\t</span><span class="s2"> 5-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">)</span>
+      <span class="k">yield</span> <span class="n">result</span>
 
 
 
@@ -222,12 +221,9 @@ and five steps into the future as shown by the value <code class="docutils liter
 <span class="n">oneStepConfidence</span> <span class="o">=</span> <span class="n">allPredictions</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">oneStep</span><span class="p">]</span>
 <span class="n">fiveStepConfidence</span> <span class="o">=</span> <span class="n">allPredictions</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="n">fiveStep</span><span class="p">]</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)</span><span class="se">\t</span><span class="s2">5-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-  <span class="n">oneStep</span><span class="p">,</span>
-  <span class="n">oneStepConfidence</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span>
-  <span class="n">fiveStep</span><span class="p">,</span>
-  <span class="n">fiveStepConfidence</span><span class="o">*</span><span class="mi">100</span>
-<span class="p">))</span>
+<span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">oneStep</span><span class="p">,</span> <span class="n">oneStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
+          <span class="n">fiveStep</span><span class="p">,</span> <span class="n">fiveStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+<span class="nb">print</span> <span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)</span><span class="se">\t</span><span class="s2"> 5-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>As you can see in the example above, the <code class="docutils literal"><span class="pre">results</span></code> object contains an

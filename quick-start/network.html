@@ -153,7 +153,7 @@ some of the plumbing details).</p>
   <span class="n">N</span> <span class="o">=</span> <span class="n">classifierRegion</span><span class="o">.</span><span class="n">getSelf</span><span class="p">()</span><span class="o">.</span><span class="n">maxCategoryCount</span>
   <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="n">step</span><span class="p">:</span> <span class="p">{}</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">}</span>
   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">steps</span><span class="p">)):</span>
-    <span class="c1"># stepProbabilities: probabilities for this prediction step only.</span>
+    <span class="c1"># stepProbabilities are probabilities for this prediction step only.</span>
     <span class="n">stepProbabilities</span> <span class="o">=</span> <span class="n">probabilities</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">N</span><span class="p">:(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
     <span class="n">mostLikelyCategoryIdx</span> <span class="o">=</span> <span class="n">stepProbabilities</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
     <span class="n">predictedValue</span> <span class="o">=</span> <span class="n">actualValues</span><span class="p">[</span><span class="n">mostLikelyCategoryIdx</span><span class="p">]</span>
@@ -196,11 +196,10 @@ some of the plumbing details).</p>
     <span class="n">fiveStep</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="s2">&quot;predictedValue&quot;</span><span class="p">]</span>
     <span class="n">fiveStepConfidence</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="s2">&quot;predictionConfidence&quot;</span><span class="p">]</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)</span><span class="se">\t</span><span class="s2">&quot;</span>
-          <span class="s2">&quot;5-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">oneStep</span><span class="p">,</span>
-                                           <span class="n">oneStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
-                                           <span class="n">fiveStep</span><span class="p">,</span>
-                                           <span class="n">fiveStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">oneStep</span><span class="p">,</span> <span class="n">oneStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
+              <span class="n">fiveStep</span><span class="p">,</span> <span class="n">fiveStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)</span><span class="se">\t</span><span class="s2"> 5-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="n">result</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

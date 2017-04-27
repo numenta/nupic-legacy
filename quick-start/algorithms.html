@@ -206,11 +206,13 @@ some of the plumbing details).</p>
       <span class="p">)</span>
 
       <span class="c1"># Print the best prediction for 1 step out.</span>
-      <span class="n">probability</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+      <span class="n">oneStepConfidence</span><span class="p">,</span> <span class="n">oneStep</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
         <span class="nb">zip</span><span class="p">(</span><span class="n">classifierResult</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">classifierResult</span><span class="p">[</span><span class="s2">&quot;actualValues&quot;</span><span class="p">]),</span>
         <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span>
       <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">probability</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">oneStep</span><span class="p">,</span> <span class="n">oneStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+
+      <span class="k">yield</span> <span class="n">oneStep</span><span class="p">,</span> <span class="n">oneStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
 
 
