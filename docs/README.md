@@ -38,26 +38,6 @@ nupic
 │   ├── stats_v2.py [TODO]
 │   ├── stream_reader.py [TODO]
 │   └── utils.py [TODO]
-├── database
-│   ├── ClientJobsDAO.py [TODO]
-│   └── Connection.py [TODO]
-├── datafiles
-│   ├── extra
-│   │   ├── firstOrder
-│   │   │   └── raw
-│   │   │       └── makeDataset.py [TODO]
-│   │   ├── generated
-│   │   │   ├── GenerateSampleData.py [TODO]
-│   │   ├── gym
-│   │   │   └── raw
-│   │   │       └── makeDataset.py [TODO]
-│   │   ├── hotgym
-│   │   │   └── raw
-│   │   │       └── makeDataset.py [TODO]
-│   │   ├── regression
-│   │   │   └── makeDataset.py [TODO]
-│   │   ├── secondOrder
-│   │   │   └── makeDataset.py [TODO]
 ├── encoders
 │   ├── adaptivescalar.py [TODO]
 │   ├── base.py [TODO]
@@ -77,9 +57,9 @@ nupic
 │   └── utils.py [TODO]
 ├── frameworks
 │   ├── opf
-│   │   ├── clamodel.py [TODO]
-│   │   ├── clamodel_classifier_helper.py [TODO]
-│   │   ├── clamodelcallbacks.py [TODO]
+│   │   ├── htm_prediction_model.py [TODO]
+│   │   ├── htm_prediction_model_classifier_helper.py [TODO]
+│   │   ├── htm_prediction_model_callbacks.py [TODO]
 │   │   ├── client.py [TODO]
 │   │   ├── common_models
 │   │   │   └── cluster_params.py [TODO]
@@ -87,7 +67,6 @@ nupic
 │   │   ├── exp_description_api.py [TODO]
 │   │   ├── exp_description_helpers.py [TODO]
 │   │   ├── experiment_runner.py [TODO]
-│   │   ├── jsonschema
 │   │   ├── metrics.py [TODO]
 │   │   ├── model.py [TODO]
 │   │   ├── model_callbacks.py [TODO]
@@ -141,7 +120,7 @@ nupic
 ├── research
 │   ├── BacktrackingTM.py [TODO]
 │   ├── BacktrackingTMCPP.py [TODO]
-│   ├── TP_shim.py [TODO]
+│   ├── TM_shim.py [TODO]
 │   ├── connections.py [TODO]
 │   ├── fdrutilities.py [TODO]
 │   ├── monitor_mixin
@@ -173,12 +152,7 @@ nupic
 │   ├── lockattributes.py [TODO]
 │   ├── log_utils.py [TODO]
 │   ├── loophelpers.py [TODO]
-│   ├──.py [TODO]mysqlhelpers.py [TODO]
-│   └── unittesthelpers
-│       ├── abstract_temporal_memory_test.py [TODO]
-│       ├── algorithm_test_helpers.py [TODO]
-│       ├── test_framework_helpers.py [TODO]
-│       └── testcasebase.py [TODO]
+│   └── mysqlhelpers.py [TODO]
 ├── swarming
 │   ├── DummyModelRunner.py [TODO]
 │   ├── HypersearchV2.py [TODO]
