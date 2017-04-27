@@ -9,7 +9,7 @@ Here is the complete program we are going to use as an example. In sections
 below, we'll break it down into parts and explain what is happening (without
 some of the plumbing details).
 
-.. literalinclude:: ../../examples/opf/complete-opf-example.py
+.. literalinclude:: ../../examples/opf/complete-example.py
 
 Model Parameters
 ^^^^^^^^^^^^^^^^

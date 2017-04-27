@@ -9,7 +9,7 @@ Here is the complete program we are going to use as an example. In sections
 below, we'll break it down into parts and explain what is happening (without
 some of the plumbing details).
 
-.. literalinclude:: ../../examples/network/complete-network-example.py
+.. literalinclude:: ../../examples/network/complete-example.py
 
 Network Parameters
 ^^^^^^^^^^^^^^^^^^
