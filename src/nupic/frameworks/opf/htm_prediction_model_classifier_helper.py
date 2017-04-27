@@ -43,7 +43,7 @@ class HTMPredictionModelClassifierHelper(object):
   This class implements a record classifier used to classify prediction
   records. It currently depends on the KNN classifier within the parent model.
 
-  Currently it is classifying based on SP / TP properties and has a sliding
+  Currently it is classifying based on SP / TM properties and has a sliding
   window of 1000 records.
 
   The model should call the compute() method for each iteration that will be
@@ -442,12 +442,12 @@ class HTMPredictionModelClassifierHelper(object):
     htm_prediction_model of this classifier.
 
     ***This will look into the internals of the model and may depend on the
-    SP, TP, and KNNClassifier***
+    SP, TM, and KNNClassifier***
     """
     model = self.htm_prediction_model
     sp = model._getSPRegion()
-    tp = model._getTPRegion()
-    tpImp = tp.getSelf()._tfdr
+    tm = model._getTPRegion()
+    tpImp = tm.getSelf()._tfdr
 
     # Count the number of unpredicted columns
     activeColumns = sp.getOutputData("bottomUpOut").nonzero()[0]
@@ -455,19 +455,19 @@ class HTMPredictionModelClassifierHelper(object):
     score = (self._activeColumnCount - score)/float(self._activeColumnCount)
 
     spSize = sp.getParameter('activeOutputCount')
-    tpSize = tp.getParameter('cellsPerColumn') * tp.getParameter('columnCount')
+    tpSize = tm.getParameter('cellsPerColumn') * tm.getParameter('columnCount')
 
     classificationVector = numpy.array([])
 
     if self._vectorType == 'tpc':
-      # Classification Vector: [---TP Cells---]
+      # Classification Vector: [---TM Cells---]
       classificationVector = numpy.zeros(tpSize)
       activeCellMatrix = tpImp.getLearnActiveStateT().reshape(tpSize, 1)
       activeCellIdx = numpy.where(activeCellMatrix > 0)[0]
       if activeCellIdx.shape[0] > 0:
         classificationVector[numpy.array(activeCellIdx, dtype=numpy.uint16)] = 1
     elif self._vectorType == 'sp_tpe':
-      # Classification Vecotr: [---SP---|---(TP-SP)----]
+      # Classification Vecotr: [---SP---|---(TM-SP)----]
       classificationVector = numpy.zeros(spSize+spSize)
       if activeColumns.shape[0] > 0:
         classificationVector[activeColumns] = 1.0
@@ -483,7 +483,7 @@ class HTMPredictionModelClassifierHelper(object):
 
     # Store the state for next time step
     numPredictedCols = len(self._prevPredictedColumns)
-    predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
+    predictedColumns = tm.getOutputData("topDownOut").nonzero()[0]
     self._prevPredictedColumns = copy.deepcopy(predictedColumns)
 
     if self._anomalyVectorLength is None:

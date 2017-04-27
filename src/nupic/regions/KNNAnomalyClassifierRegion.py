@@ -85,7 +85,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
             requireSplitterMap=False),
 
           tpLrnActiveStateT=dict(
-            description="""Active cells in the learn state at time T from TP.
+            description="""Active cells in the learn state at time T from TM.
                         This is used to classify on.""",
             dataType='Real32',
             count=0,
@@ -135,7 +135,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
 
           classificationVectorType=dict(
             description="""Vector type to use when classifying.
-              1 - Vector Column with Difference (TP and SP)
+              1 - Vector Column with Difference (TM and SP)
             """,
             dataType='UInt32',
             count=1,
@@ -400,8 +400,8 @@ class KNNAnomalyClassifierRegion(PyRegion):
     passed in through the inputs.
 
     Types for self.classificationVectorType:
-      1 - TP active cells in learn state
-      2 - SP columns concatenated with error from TP column predictions and SP
+      1 - TM active cells in learn state
+      2 - SP columns concatenated with error from TM column predictions and SP
     """
     # Count the number of unpredicted columns
     allSPColumns = inputs["spBottomUpOut"]
@@ -419,14 +419,14 @@ class KNNAnomalyClassifierRegion(PyRegion):
     classificationVector = numpy.array([])
 
     if self.classificationVectorType == 1:
-      # Classification Vector: [---TP Cells---]
+      # Classification Vector: [---TM Cells---]
       classificationVector = numpy.zeros(tpSize)
       activeCellMatrix = inputs["tpLrnActiveStateT"].reshape(tpSize, 1)
       activeCellIdx = numpy.where(activeCellMatrix > 0)[0]
       if activeCellIdx.shape[0] > 0:
         classificationVector[numpy.array(activeCellIdx, dtype=numpy.uint16)] = 1
     elif self.classificationVectorType == 2:
-      # Classification Vecotr: [---SP---|---(TP-SP)----]
+      # Classification Vecotr: [---SP---|---(TM-SP)----]
       classificationVector = numpy.zeros(spSize+spSize)
       if activeSPColumns.shape[0] > 0:
         classificationVector[activeSPColumns] = 1.0

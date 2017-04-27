@@ -20,27 +20,27 @@
 # ----------------------------------------------------------------------
 
 """
-A shim for the TemporalMemory class that transparently implements TP,
+A shim for the TemporalMemory class that transparently implements TM,
 for use with tests.
 """
 
 import numpy
 
 from nupic.math import GetNTAReal
-from nupic.research.TP import TP
-from nupic.research.TP10X2 import TP10X2
+from nupic.research.BacktrackingTM import BacktrackingTM
+from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
 from nupic.research.connections import Connections
 
 
 
-TPClass = TP10X2
+TMClass = BacktrackingTMCPP
 dtype = GetNTAReal()
 
 
 
-class TemporalMemoryShim(TPClass):
+class TemporalMemoryShim(TMClass):
   """
-  Temporal Memory => TP shim class.
+  Temporal Memory => TM shim class.
   """
   def __init__(self,
                columnDimensions=(2048,),

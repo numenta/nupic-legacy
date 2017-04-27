@@ -231,10 +231,10 @@ if __name__ == '__main__':
   _generateCategory('category_SP_1.csv', numSequences=50, elementsPerSeq=1, 
                   numRepeats=20)
   
-  _generateCategory('category_TP_0.csv', numSequences=2, elementsPerSeq=5, 
+  _generateCategory('category_TM_0.csv', numSequences=2, elementsPerSeq=5,
                   numRepeats=30)
   
-  _generateCategory('category_TP_1.csv', numSequences=10, elementsPerSeq=5, 
+  _generateCategory('category_TM_1.csv', numSequences=10, elementsPerSeq=5,
                   numRepeats=20)
 
   _generateOverlapping('category_hub_TP_0.csv', numSequences=10, elementsPerSeq=5, 
@@ -246,10 +246,10 @@ if __name__ == '__main__':
   _generateScalar('scalar_SP_0.csv', numSequences=2, elementsPerSeq=1, 
                   numRepeats=20, stepSize=0.1, resets=False)
   
-  _generateScalar('scalar_TP_0.csv', numSequences=2, elementsPerSeq=5, 
+  _generateScalar('scalar_TM_0.csv', numSequences=2, elementsPerSeq=5,
                   numRepeats=20, stepSize=0.1, resets=False)
   
-  _generateScalar('scalar_TP_1.csv', numSequences=10, elementsPerSeq=5, 
+  _generateScalar('scalar_TM_1.csv', numSequences=10, elementsPerSeq=5,
                   numRepeats=20, stepSize=0.1, resets=False)
   
   

@@ -322,10 +322,10 @@ def generateL2Sequences(nL1Patterns=10, l1Hubs=[2,6], l1SeqLength=[5,6,7],
                   patternLen=500, patternActivity=50):
   """
   Generate the simulated output from a spatial pooler that's sitting
-  on top of another spatial pooler / temporal pooler pair.  The average on-time
-  of the outputs from the simulated TP is given by the l1Pooling argument.
+  on top of another spatial pooler / temporal memory pair.  The average on-time
+  of the outputs from the simulated TM is given by the l1Pooling argument.
 
-  In this routine, L1 refers to the first spatial and temporal pooler and L2
+  In this routine, L1 refers to the first spatial and temporal memory and L2
   refers to the spatial pooler above that.
 
   Parameters:
@@ -341,7 +341,7 @@ def generateL2Sequences(nL1Patterns=10, l1Hubs=[2,6], l1SeqLength=[5,6,7],
   perfectStability:     If true, then the input patterns represented by the
                         sequences generated will have perfect stability over
                         l1Pooling time steps. This is the best case ideal input
-                        to a TP. In actual situations, with an actual SP
+                        to a TM. In actual situations, with an actual SP
                         providing input, the stability will always be less than
                         this.
   spHystereisFactor:    The hysteresisFactor to use in the L2 spatial pooler.
@@ -440,10 +440,10 @@ def vectorsFromSeqList(seqList, patternMatrix):
 
 ###############################################################################
 # The following three functions are used in tests to compare two different
-# TP instances.
+# TM instances.
 
-def sameTPParams(tp1, tp2):
-  """Given two TP instances, see if any parameters are different."""
+def sameTMParams(tp1, tp2):
+  """Given two TM instances, see if any parameters are different."""
   result = True
   for param in ["numberOfCols", "cellsPerColumn", "initialPerm", "connectedPerm",
                 "minThreshold", "newSynapseCount", "permanenceInc", "permanenceDec",
@@ -496,20 +496,20 @@ def sameSegment(seg1, seg2):
 
   return result
 
-def tpDiff(tp1, tp2, verbosity = 0, relaxSegmentTests =True):
+def tmDiff(tm1, tm2, verbosity = 0, relaxSegmentTests =True):
   """
-  Given two TP instances, list the difference between them and returns False
+  Given two TM instances, list the difference between them and returns False
   if there is a difference. This function checks the major parameters. If this
   passes (and checkLearn is true) it checks the number of segments on
   each cell. If this passes, checks each synapse on each segment.
   When comparing C++ and Py, the segments are usually in different orders in the
-  cells. tpDiff ignores segment order when comparing TP's.
+  cells. tmDiff ignores segment order when comparing TM's.
 
   """
 
   # First check basic parameters. If we fail here, don't continue
-  if sameTPParams(tp1, tp2) == False:
-    print "Two TP's have different parameters"
+  if sameTMParams(tm1, tm2) == False:
+    print "Two TM's have different parameters"
     return False
 
   result = True
@@ -517,76 +517,76 @@ def tpDiff(tp1, tp2, verbosity = 0, relaxSegmentTests =True):
   # Compare states at t first, they usually diverge before the structure of the
   # cells starts diverging
 
-  if (tp1.activeState['t'] != tp2.activeState['t']).any():
-    print 'Active states diverge', numpy.where(tp1.activeState['t'] != tp2.activeState['t'])
+  if (tm1.activeState['t'] != tm2.activeState['t']).any():
+    print 'Active states diverge', numpy.where(tm1.activeState['t'] != tm2.activeState['t'])
     result = False
 
-  if (tp1.predictedState['t'] - tp2.predictedState['t']).any():
-    print 'Predicted states diverge', numpy.where(tp1.predictedState['t'] != tp2.predictedState['t'])
+  if (tm1.predictedState['t'] - tm2.predictedState['t']).any():
+    print 'Predicted states diverge', numpy.where(tm1.predictedState['t'] != tm2.predictedState['t'])
     result = False
 
   # TODO: check confidence at T (confT)
 
   # Now check some high level learned parameters.
-  if tp1.getNumSegments() != tp2.getNumSegments():
-    print "Number of segments are different", tp1.getNumSegments(), tp2.getNumSegments()
+  if tm1.getNumSegments() != tm2.getNumSegments():
+    print "Number of segments are different", tm1.getNumSegments(), tm2.getNumSegments()
     result = False
 
-  if tp1.getNumSynapses() != tp2.getNumSynapses():
-    print "Number of synapses are different", tp1.getNumSynapses(), tp2.getNumSynapses()
-    tp1.printCells()
-    tp2.printCells()
+  if tm1.getNumSynapses() != tm2.getNumSynapses():
+    print "Number of synapses are different", tm1.getNumSynapses(), tm2.getNumSynapses()
+    tm1.printCells()
+    tm2.printCells()
     result = False
 
   # Check that each cell has the same number of segments and synapses
-  for c in xrange(tp1.numberOfCols):
-    for i in xrange(tp2.cellsPerColumn):
-      if tp1.getNumSegmentsInCell(c, i) != tp2.getNumSegmentsInCell(c, i):
+  for c in xrange(tm1.numberOfCols):
+    for i in xrange(tm2.cellsPerColumn):
+      if tm1.getNumSegmentsInCell(c, i) != tm2.getNumSegmentsInCell(c, i):
         print "Num segments different in cell:",c,i,
-        print tp1.getNumSegmentsInCell(c, i), tp2.getNumSegmentsInCell(c, i)
+        print tm1.getNumSegmentsInCell(c, i), tm2.getNumSegmentsInCell(c, i)
         result = False
 
   # If the above tests pass, then check each segment and report differences
-  # Note that segments in tp1 can be in a different order than tp2. Here we
-  # make sure that, for each segment in tp1, there is an identical segment
-  # in tp2.
+  # Note that segments in tm1 can be in a different order than tm2. Here we
+  # make sure that, for each segment in tm1, there is an identical segment
+  # in tm2.
   if result == True and not relaxSegmentTests:
-    for c in xrange(tp1.numberOfCols):
-      for i in xrange(tp2.cellsPerColumn):
-        nSegs = tp1.getNumSegmentsInCell(c, i)
+    for c in xrange(tm1.numberOfCols):
+      for i in xrange(tm2.cellsPerColumn):
+        nSegs = tm1.getNumSegmentsInCell(c, i)
         for segIdx in xrange(nSegs):
-          tp1seg = tp1.getSegmentOnCell(c, i, segIdx)
+          tm1seg = tm1.getSegmentOnCell(c, i, segIdx)
 
-          # Loop through all segments in tp2seg and see if any of them match tp1seg
+          # Loop through all segments in tm2seg and see if any of them match tm1seg
           res = False
-          for tp2segIdx in xrange(nSegs):
-            tp2seg = tp2.getSegmentOnCell(c, i, tp2segIdx)
-            if sameSegment(tp1seg, tp2seg) == True:
+          for tm2segIdx in xrange(nSegs):
+            tm2seg = tm2.getSegmentOnCell(c, i, tm2segIdx)
+            if sameSegment(tm1seg, tm2seg) == True:
               res = True
               break
           if res == False:
             print "\nSegments are different for cell:",c,i
             if verbosity >= 1:
               print "C++"
-              tp1.printCell(c,i)
+              tm1.printCell(c, i)
               print "Py"
-              tp2.printCell(c,i)
+              tm2.printCell(c, i)
             result = False
 
   if result == True and (verbosity > 1):
-    print "TP's match"
+    print "TM's match"
 
   return result
 
-def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
+def tmDiff2(tm1, tm2, verbosity = 0, relaxSegmentTests =True,
             checkLearn = True, checkStates = True):
   """
-  Given two TP instances, list the difference between them and returns False
+  Given two TM instances, list the difference between them and returns False
   if there is a difference. This function checks the major parameters. If this
   passes (and checkLearn is true) it checks the number of segments on each cell.
   If this passes, checks each synapse on each segment.
   When comparing C++ and Py, the segments are usually in different orders in the
-  cells. tpDiff ignores segment order when comparing TP's.
+  cells. tmDiff ignores segment order when comparing TM's.
 
   If checkLearn is True, will check learn states as well as all the segments
 
@@ -595,12 +595,12 @@ def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
   """
 
   # First check basic parameters. If we fail here, don't continue
-  if sameTPParams(tp1, tp2) == False:
-    print "Two TP's have different parameters"
+  if sameTMParams(tm1, tm2) == False:
+    print "Two TM's have different parameters"
     return False
 
-  tp1Label = "<tp_1 (%s)>" % tp1.__class__.__name__
-  tp2Label = "<tp_2 (%s)>" % tp2.__class__.__name__
+  tm1Label = "<tm_1 (%s)>" % tm1.__class__.__name__
+  tm2Label = "<tm_2 (%s)>" % tm2.__class__.__name__
 
   result = True
 
@@ -608,80 +608,80 @@ def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
     # Compare states at t first, they usually diverge before the structure of the
     # cells starts diverging
 
-    if (tp1.infActiveState['t'] != tp2.infActiveState['t']).any():
-      print 'Active states diverged', numpy.where(tp1.infActiveState['t'] != tp2.infActiveState['t'])
+    if (tm1.infActiveState['t'] != tm2.infActiveState['t']).any():
+      print 'Active states diverged', numpy.where(tm1.infActiveState['t'] != tm2.infActiveState['t'])
       result = False
 
-    if (tp1.infPredictedState['t'] - tp2.infPredictedState['t']).any():
-      print 'Predicted states diverged', numpy.where(tp1.infPredictedState['t'] != tp2.infPredictedState['t'])
+    if (tm1.infPredictedState['t'] - tm2.infPredictedState['t']).any():
+      print 'Predicted states diverged', numpy.where(tm1.infPredictedState['t'] != tm2.infPredictedState['t'])
       result = False
 
-    if checkLearn and (tp1.lrnActiveState['t'] - tp2.lrnActiveState['t']).any():
-      print 'lrnActiveState[t] diverged', numpy.where(tp1.lrnActiveState['t'] != tp2.lrnActiveState['t'])
+    if checkLearn and (tm1.lrnActiveState['t'] - tm2.lrnActiveState['t']).any():
+      print 'lrnActiveState[t] diverged', numpy.where(tm1.lrnActiveState['t'] != tm2.lrnActiveState['t'])
       result = False
 
-    if checkLearn and (tp1.lrnPredictedState['t'] - tp2.lrnPredictedState['t']).any():
-      print 'lrnPredictedState[t] diverged', numpy.where(tp1.lrnPredictedState['t'] != tp2.lrnPredictedState['t'])
+    if checkLearn and (tm1.lrnPredictedState['t'] - tm2.lrnPredictedState['t']).any():
+      print 'lrnPredictedState[t] diverged', numpy.where(tm1.lrnPredictedState['t'] != tm2.lrnPredictedState['t'])
       result = False
 
-    if checkLearn and abs(tp1.getAvgLearnedSeqLength() - tp2.getAvgLearnedSeqLength()) > 0.01:
+    if checkLearn and abs(tm1.getAvgLearnedSeqLength() - tm2.getAvgLearnedSeqLength()) > 0.01:
       print "Average learned sequence lengths differ: ",
-      print tp1.getAvgLearnedSeqLength()," vs ", tp2.getAvgLearnedSeqLength()
+      print tm1.getAvgLearnedSeqLength(), " vs ", tm2.getAvgLearnedSeqLength()
       result = False
 
   # TODO: check confidence at T (confT)
 
   # Now check some high level learned parameters.
-  if tp1.getNumSegments() != tp2.getNumSegments():
-    print "Number of segments are different", tp1.getNumSegments(), tp2.getNumSegments()
+  if tm1.getNumSegments() != tm2.getNumSegments():
+    print "Number of segments are different", tm1.getNumSegments(), tm2.getNumSegments()
     result = False
 
-  if tp1.getNumSynapses() != tp2.getNumSynapses():
-    print "Number of synapses are different", tp1.getNumSynapses(), tp2.getNumSynapses()
+  if tm1.getNumSynapses() != tm2.getNumSynapses():
+    print "Number of synapses are different", tm1.getNumSynapses(), tm2.getNumSynapses()
     if verbosity >= 3:
-      print "%s: " % tp1Label,
-      tp1.printCells()
-      print "\n%s  : " % tp2Label,
-      tp2.printCells()
+      print "%s: " % tm1Label,
+      tm1.printCells()
+      print "\n%s  : " % tm2Label,
+      tm2.printCells()
     #result = False
 
   # Check that each cell has the same number of segments and synapses
-  for c in xrange(tp1.numberOfCols):
-    for i in xrange(tp2.cellsPerColumn):
-      if tp1.getNumSegmentsInCell(c, i) != tp2.getNumSegmentsInCell(c, i):
+  for c in xrange(tm1.numberOfCols):
+    for i in xrange(tm2.cellsPerColumn):
+      if tm1.getNumSegmentsInCell(c, i) != tm2.getNumSegmentsInCell(c, i):
         print "Num segments different in cell:",c,i,
-        print tp1.getNumSegmentsInCell(c, i), tp2.getNumSegmentsInCell(c, i)
+        print tm1.getNumSegmentsInCell(c, i), tm2.getNumSegmentsInCell(c, i)
         result = False
 
   # If the above tests pass, then check each segment and report differences
-  # Note that segments in tp1 can be in a different order than tp2. Here we
-  # make sure that, for each segment in tp1, there is an identical segment
-  # in tp2.
+  # Note that segments in tm1 can be in a different order than tm2. Here we
+  # make sure that, for each segment in tm1, there is an identical segment
+  # in tm2.
   if result == True and not relaxSegmentTests and checkLearn:
-    for c in xrange(tp1.numberOfCols):
-      for i in xrange(tp2.cellsPerColumn):
-        nSegs = tp1.getNumSegmentsInCell(c, i)
+    for c in xrange(tm1.numberOfCols):
+      for i in xrange(tm2.cellsPerColumn):
+        nSegs = tm1.getNumSegmentsInCell(c, i)
         for segIdx in xrange(nSegs):
-          tp1seg = tp1.getSegmentOnCell(c, i, segIdx)
+          tm1seg = tm1.getSegmentOnCell(c, i, segIdx)
 
-          # Loop through all segments in tp2seg and see if any of them match tp1seg
+          # Loop through all segments in tm2seg and see if any of them match tm1seg
           res = False
-          for tp2segIdx in xrange(nSegs):
-            tp2seg = tp2.getSegmentOnCell(c, i, tp2segIdx)
-            if sameSegment(tp1seg, tp2seg) == True:
+          for tm2segIdx in xrange(nSegs):
+            tm2seg = tm2.getSegmentOnCell(c, i, tm2segIdx)
+            if sameSegment(tm1seg, tm2seg) == True:
               res = True
               break
           if res == False:
             print "\nSegments are different for cell:",c,i
             result = False
             if verbosity >= 0:
-              print "%s : " % tp1Label,
-              tp1.printCell(c,i)
-              print "\n%s  : " % tp2Label,
-              tp2.printCell(c,i)
+              print "%s : " % tm1Label,
+              tm1.printCell(c, i)
+              print "\n%s  : " % tm2Label,
+              tm2.printCell(c, i)
 
   if result == True and (verbosity > 1):
-    print "TP's match"
+    print "TM's match"
 
   return result
 
@@ -955,7 +955,7 @@ def averageOnTimePerTimestep(vectors, numSamples=None):
   This metric is resiliant to the number of outputs that are on at each time
   step. That is, if time step 0 has many more outputs on than time step 100, it
   won't skew the results. This is particularly useful when measuring the
-  average on-time of things like the temporal pooler output where you might
+  average on-time of things like the temporal memory output where you might
   have many columns bursting at the start of a sequence - you don't want those
   start of sequence bursts to over-influence the calculated average on-time.
 
@@ -1064,7 +1064,7 @@ def plotOutputsOverTime(vectors, buVectors=None, title='On-times'):
   ------------------------------------------------------------
   vectors:            the vectors to plot
   buVectors:          These are normally specified when plotting the pooling
-                      outputs of the temporal pooler over time. The 'buVectors'
+                      outputs of the temporal memory over time. The 'buVectors'
                       are the sequence outputs and the 'vectors' are the
                       pooling outputs. The buVector (sequence) outputs will be drawn
                       in a darker color than the vector (pooling) outputs to
@@ -1310,13 +1310,13 @@ def checkMatch(input, prediction, sparse=True, verbosity=0):
 
 def predictionExtent(inputs, resets, outputs, minOverlapPct=100.0):
   """
-  Computes the predictive ability of a temporal pooler (TP). This routine returns
+  Computes the predictive ability of a temporal memory (TM). This routine returns
   a value which is the average number of time steps of prediction provided
-  by the TP. It accepts as input the inputs, outputs, and resets provided to
-  the TP as well as a 'minOverlapPct' used to evalulate whether or not a
+  by the TM. It accepts as input the inputs, outputs, and resets provided to
+  the TM as well as a 'minOverlapPct' used to evalulate whether or not a
   prediction is a good enough match to the actual input.
 
-  The 'outputs' are the pooling outputs of the TP. This routine treats each output
+  The 'outputs' are the pooling outputs of the TM. This routine treats each output
   as a "manifold" that includes the active columns that should be present in the
   next N inputs. It then looks at each successive input and sees if it's active
   columns are within the manifold. For each output sample, it computes how
@@ -1326,11 +1326,11 @@ def predictionExtent(inputs, resets, outputs, minOverlapPct=100.0):
 
   Parameters:
   -----------------------------------------------
-  inputs:          The inputs to the TP. Row 0 contains the inputs from time
+  inputs:          The inputs to the TM. Row 0 contains the inputs from time
                    step 0, row 1 from time step 1, etc.
-  resets:          The reset input to the TP. Element 0 contains the reset from
+  resets:          The reset input to the TM. Element 0 contains the reset from
                    time step 0, element 1 from time step 1, etc.
-  outputs:         The pooling outputs from the TP. Row 0 contains the outputs
+  outputs:         The pooling outputs from the TM. Row 0 contains the outputs
                    from time step 0, row 1 from time step 1, etc.
   minOverlapPct:   How much each input's columns must overlap with the pooling
                    output's columns to be considered a valid prediction.

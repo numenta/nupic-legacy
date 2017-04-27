@@ -47,6 +47,10 @@ if [ "${TRAVIS_BRANCH}" = "master" ]; then
     python setup.py bdist_egg -d dist
     ls dist/wheels
 
+    # Create a tarball named according to commit sha
+    mkdir -p artifacts/travis-ci
+    tar -zcvf artifacts/travis-ci/nupic-${TRAVIS_COMMIT}.tar.gz dist/wheels/nupic-*.whl
+
     # The dist/wheels folder is expected to be deployed to S3.
 
 # If this is a tag, we're doing a release deployment, so we want to build docs
