@@ -153,11 +153,13 @@ def runHotgym():
       )
 
       # Print the best prediction for 1 step out.
-      probability, value = sorted(
+      oneStepConfidence, oneStep = sorted(
         zip(classifierResult[1], classifierResult["actualValues"]),
         reverse=True
       )[0]
-      print("1-step: {:16} ({:4.4}%)".format(value, probability * 100))
+      print("1-step: {:16} ({:4.4}%)".format(oneStep, oneStepConfidence * 100))
+
+      yield oneStep, oneStepConfidence * 100, None, None
 
 
 

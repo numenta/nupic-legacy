@@ -9,7 +9,7 @@ Here is the complete program we are going to use as an example. In sections
 below, we'll break it down into parts and explain what is happening (without
 some of the plumbing details).
 
-.. literalinclude:: ../../examples/algo/complete-example.py
+.. literalinclude:: ../../examples/algo/complete-algo-example.py
 
 
 Encoding Data
