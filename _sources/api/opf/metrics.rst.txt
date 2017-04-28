@@ -4,7 +4,7 @@ Metrics
 MetricsManager
 ^^^^^^^^^^^^^^
 
-.. autoclass:: nupic.frameworks.opf.predictionmetricsmanager.MetricsManager
+.. autoclass:: nupic.frameworks.opf.prediction_metrics_manager.MetricsManager
    :members:
 
 MetricSpec

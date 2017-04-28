@@ -48,55 +48,6 @@
 <h1>Metrics<a class="headerlink" href="#metrics" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="metricsmanager">
 <h2>MetricsManager<a class="headerlink" href="#metricsmanager" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="nupic.frameworks.opf.predictionmetricsmanager.MetricsManager">
-<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.predictionmetricsmanager.</code><code class="descname">MetricsManager</code><span class="sig-paren">(</span><em>metricSpecs</em>, <em>fieldInfo</em>, <em>inferenceType</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.predictionmetricsmanager.MetricsManager" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is a class to handle the computation of metrics properly. This class
-takes in an inferenceType, and it assumes that it is associcated with a single
-model</p>
-<dl class="method">
-<dt id="nupic.frameworks.opf.predictionmetricsmanager.MetricsManager.getMetricDetails">
-<code class="descname">getMetricDetails</code><span class="sig-paren">(</span><em>metricLabel</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.predictionmetricsmanager.MetricsManager.getMetricDetails" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets detailed info about a given metric, in addition to its value. This
-may including any statistics or auxilary data that are computed for a given
-metric</p>
-<p>metricLabel:   The string label of the given metric (see metrics.MetricSpec)</p>
-<dl class="docutils">
-<dt>Returns:  A dictionary of metric information, as returned by</dt>
-<dd>opf.metric.Metric.getMetric()</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.frameworks.opf.predictionmetricsmanager.MetricsManager.getMetricLabels">
-<code class="descname">getMetricLabels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.predictionmetricsmanager.MetricsManager.getMetricLabels" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the list of labels for the metrics that are being calculated</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.frameworks.opf.predictionmetricsmanager.MetricsManager.getMetrics">
-<code class="descname">getMetrics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.predictionmetricsmanager.MetricsManager.getMetrics" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the current metric values</p>
-<dl class="docutils">
-<dt>Returns: A dictionary where each key is the metric-name, and the values are</dt>
-<dd>it scalar value. Same as the output of update()</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.frameworks.opf.predictionmetricsmanager.MetricsManager.update">
-<code class="descname">update</code><span class="sig-paren">(</span><em>results</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.predictionmetricsmanager.MetricsManager.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the new metrics values, given the next inference/ground-truth values</p>
-<dl class="docutils">
-<dt>results:  An opf_utils.ModelResult object that was computed during the last</dt>
-<dd>iteration of the model</dd>
-<dt>Returns:  A dictionary where each key is the metric-name, and the values are</dt>
-<dd>it scalar value.</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 <div class="section" id="metricspec">
 <h2>MetricSpec<a class="headerlink" href="#metricspec" title="Permalink to this headline">¶</a></h2>
