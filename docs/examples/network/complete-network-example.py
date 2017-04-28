@@ -110,12 +110,12 @@ def getPredictionResults(network, clRegionName):
   return results
 
 
-def runHotgym():
+def runHotgym(numRecords):
   """Run the Hot Gym example."""
 
   # Create a data source for the network.
   dataSource = FileRecordStream(streamID=_INPUT_FILE_PATH)
-  numRecords = min(_NUM_RECORDS, dataSource.getDataRowCount())
+  numRecords = min(numRecords, dataSource.getDataRowCount())
   network = createNetwork(dataSource)
 
   # Set predicted field index. It needs to be the same index as the data source.
@@ -151,4 +151,4 @@ def runHotgym():
   return results
 
 if __name__ == "__main__":
-  runHotgym()
+  runHotgym(_NUM_RECORDS)

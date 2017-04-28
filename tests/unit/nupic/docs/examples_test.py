@@ -27,7 +27,7 @@ import unittest2 as unittest
 import numpy as np
 import random
 
-MAX_PREDICTIONS = 500
+MAX_PREDICTIONS = 100
 SEED = 42
 random.seed(SEED)
 np.random.seed(SEED)
@@ -77,12 +77,11 @@ class ExamplesTest(unittest.TestCase):
     """Get the predictions and prediction confidences for all examples."""
     for example in cls.examples:
       predictionGenerator = _getPredictionsGenerator(cls.examplesDir, example)
-      predictions = predictionGenerator()
-      for i in range(min(len(predictions[example]), MAX_PREDICTIONS)):
-        cls.oneStepPredictions[example].append(predictions[i][0])
-        cls.oneStepConfidences[example].append(predictions[i][1])
-        cls.fiveStepPredictions[example].append(predictions[i][2])
-        cls.fiveStepConfidences[example].append(predictions[i][3])
+      for prediction in predictionGenerator(MAX_PREDICTIONS):
+        cls.oneStepPredictions[example].append(prediction[0])
+        cls.oneStepConfidences[example].append(prediction[1])
+        cls.fiveStepPredictions[example].append(prediction[2])
+        cls.fiveStepConfidences[example].append(prediction[3])
 
 
   def testExamplesDirExists(self):

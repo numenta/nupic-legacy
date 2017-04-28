@@ -18,7 +18,7 @@ _PARAMS_PATH = os.path.join(_EXAMPLE_DIR, os.pardir, "params", "model.yaml")
 
 
 
-def runHotgym():
+def runHotgym(numRecords):
   with open(_PARAMS_PATH, "r") as f:
     modelParams = yaml.safe_load(f)["modelParams"]
     enParams = modelParams["sensorParams"]["encoders"]
@@ -99,7 +99,7 @@ def runHotgym():
 
     for count, record in enumerate(reader):
 
-      if count >= _NUM_RECORDS: continue
+      if count >= numRecords: break
 
       # Convert data string into Python date object.
       dateString = datetime.datetime.strptime(record[0], "%m/%d/%y %H:%M")
@@ -164,4 +164,4 @@ def runHotgym():
 
 
 if __name__ == "__main__":
-  runHotgym()
+  runHotgym(_NUM_RECORDS)
