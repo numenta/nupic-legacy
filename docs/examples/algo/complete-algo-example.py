@@ -18,7 +18,7 @@ _PARAMS_PATH = os.path.join(_EXAMPLE_DIR, os.pardir, "params", "model.yaml")
 
 
 
-def runHotgym():
+def runHotgym(numRecords):
   with open(_PARAMS_PATH, "r") as f:
     modelParams = yaml.safe_load(f)["modelParams"]
     enParams = modelParams["sensorParams"]["encoders"]
@@ -90,7 +90,7 @@ def runHotgym():
   )
 
   classifier = SDRClassifierFactory.create()
-
+  results = []
   with open(_INPUT_FILE_PATH, "r") as fin:
     reader = csv.reader(fin)
     headers = reader.next()
@@ -99,7 +99,7 @@ def runHotgym():
 
     for count, record in enumerate(reader):
 
-      if count > _NUM_RECORDS: return
+      if count >= numRecords: break
 
       # Convert data string into Python date object.
       dateString = datetime.datetime.strptime(record[0], "%m/%d/%y %H:%M")
@@ -158,10 +158,10 @@ def runHotgym():
         reverse=True
       )[0]
       print("1-step: {:16} ({:4.4}%)".format(oneStep, oneStepConfidence * 100))
+      results.append([oneStep, oneStepConfidence * 100, None, None])
 
-      yield oneStep, oneStepConfidence * 100, None, None
-
+    return results
 
 
 if __name__ == "__main__":
-  runHotgym()
+  runHotgym(_NUM_RECORDS)

@@ -27,10 +27,10 @@ import unittest2 as unittest
 import numpy as np
 import random
 
+MAX_PREDICTIONS = 100
 SEED = 42
 random.seed(SEED)
 np.random.seed(SEED)
-
 
 
 def _getPredictionsGenerator(examplesDir, exampleName):
@@ -76,13 +76,12 @@ class ExamplesTest(unittest.TestCase):
   def setUpClass(cls):
     """Get the predictions and prediction confidences for all examples."""
     for example in cls.examples:
-      predictionsGenerator = _getPredictionsGenerator(cls.examplesDir, example)
-      for (oneStepPrediction, oneStepConfidence,
-           fiveStepPrediction, fiveStepConfidence) in predictionsGenerator():
-        cls.oneStepPredictions[example].append(oneStepPrediction)
-        cls.oneStepConfidences[example].append(oneStepConfidence)
-        cls.fiveStepPredictions[example].append(fiveStepPrediction)
-        cls.fiveStepConfidences[example].append(fiveStepConfidence)
+      predictionGenerator = _getPredictionsGenerator(cls.examplesDir, example)
+      for prediction in predictionGenerator(MAX_PREDICTIONS):
+        cls.oneStepPredictions[example].append(prediction[0])
+        cls.oneStepConfidences[example].append(prediction[1])
+        cls.fiveStepPredictions[example].append(prediction[2])
+        cls.fiveStepConfidences[example].append(prediction[3])
 
 
   def testExamplesDirExists(self):
@@ -91,8 +90,6 @@ class ExamplesTest(unittest.TestCase):
     self.assertTrue(os.path.exists(ExamplesTest.examplesDir), failMsg)
 
 
-  @unittest.skip("Skip test until we figure out why we get different "
-                 "results with OPF, Network and Algorithm APIs.")
   def testNumberOfOneStepPredictions(self):
     """Make sure all examples output the same number of oneStepPredictions."""
 

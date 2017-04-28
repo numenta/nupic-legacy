@@ -20,7 +20,7 @@ def createModel():
 
 
 
-def runHotgym():
+def runHotgym(numRecords):
   model = createModel()
   model.enableInference({"predictedField": "consumption"})
   with open(_INPUT_FILE_PATH) as fin:
@@ -29,7 +29,8 @@ def runHotgym():
     reader.next()
     reader.next()
 
-    for record in islice(reader, _NUM_RECORDS):
+    results = []
+    for record in islice(reader, numRecords):
       modelInput = dict(zip(headers, record))
       modelInput["consumption"] = float(modelInput["consumption"])
       modelInput["timestamp"] = datetime.datetime.strptime(
@@ -45,9 +46,9 @@ def runHotgym():
       result = (oneStep, oneStepConfidence * 100,
                 fiveStep, fiveStepConfidence * 100)
       print "1-step: {:16} ({:4.4}%)\t 5-step: {:16} ({:4.4}%)".format(*result)
-      yield result
-
+      results.append(result)
+    return results
 
 
 if __name__ == "__main__":
-  runHotgym()
+  runHotgym(_NUM_RECORDS)
