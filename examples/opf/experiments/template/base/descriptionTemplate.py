@@ -34,7 +34,7 @@ from nupic.frameworks.opf.exp_description_helpers import (
   applyValueGettersToContainer,
   DeferredDictLookup)
 
-from nupic.frameworks.opf.predictionmetricsmanager import MetricSpec
+from nupic.frameworks.opf.prediction_metrics_manager import MetricSpec
 
 from nupic.frameworks.opf.opf_task_driver import (
                                             IterationPhaseSpecLearnOnly,

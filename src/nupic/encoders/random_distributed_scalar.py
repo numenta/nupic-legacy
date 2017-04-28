@@ -27,7 +27,7 @@ import sys
 import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.data.fieldmeta import FieldMetaType
+from nupic.data.field_meta import FieldMetaType
 from nupic.encoders.base import Encoder
 from nupic.bindings.math import Random as NupicRandom
 

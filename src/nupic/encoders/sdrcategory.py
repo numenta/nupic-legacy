@@ -22,7 +22,7 @@
 import random
 
 import numpy
-from nupic.data.fieldmeta import FieldMetaType
+from nupic.data.field_meta import FieldMetaType
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.base import Encoder, EncoderResult
 from nupic.bindings.math import SM32, GetNTAReal, Random as NupicRandom

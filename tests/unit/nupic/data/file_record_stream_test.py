@@ -24,7 +24,7 @@ import unittest
 
 from datetime import datetime
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.data.fieldmeta import FieldMetaInfo, FieldMetaType, FieldMetaSpecial
+from nupic.data.field_meta import FieldMetaInfo, FieldMetaType, FieldMetaSpecial
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data.utils import (
     parseTimestamp, serializeTimestamp, escape, unescape)

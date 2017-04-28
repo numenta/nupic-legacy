@@ -48,9 +48,9 @@ import opf_utils
 import opf_environment as opfenv
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data.stream_reader import StreamReader
-from nupic.data.fieldmeta import (FieldMetaInfo,
-                                  FieldMetaType,
-                                  FieldMetaSpecial)
+from nupic.data.field_meta import (FieldMetaInfo,
+                                   FieldMetaType,
+                                   FieldMetaSpecial)
 from nupic.data.inference_shifter import InferenceShifter
 from opf_utils import InferenceType, InferenceElement
 
@@ -66,7 +66,7 @@ class PredictionMetricsLoggerIface(object):
   def emitPeriodicMetrics(self, metrics):
     """ Emits periodic metrics
 
-    metrics:        A list of predictionmetricsmanager.MetricValueElement:
+    metrics:        A list of prediction_metrics_manager.MetricValueElement:
 
     Returns:        nothing.
     """
@@ -79,7 +79,7 @@ class PredictionMetricsLoggerIface(object):
     NOTE: the intention is that the final metrics may go to a different
           place (e.g., csv file) versus emitPeriodicMetrics (e.g., stdout)
 
-    metrics:        A list of predictionmetricsmanager.MetricValueElement:
+    metrics:        A list of prediction_metrics_manager.MetricValueElement:
 
     Returns:        nothing.
     """
@@ -146,7 +146,7 @@ class PredictionWriterIface(object):
     metrics:        OPTIONAL -A dictionary of metrics that will be written out
                     with every prediction. The keys are the automatically
                     generated metric labels (see MetricSpec in
-                    predictionmetricsmanager.py), and the value is the real
+                    prediction_metrics_manager.py), and the value is the real
                     number value of the metric.
     """
 
@@ -194,7 +194,7 @@ class BasicPredictionMetricsLogger(PredictionMetricsLoggerIface):
   def emitPeriodicMetrics(self, metrics):
     """ Emits periodic metrics
 
-    metrics:        A list of predictionmetricsmanager.MetricValueElement:
+    metrics:        A list of prediction_metrics_manager.MetricValueElement:
 
     Returns:        nothing.
     """
@@ -211,7 +211,7 @@ class BasicPredictionMetricsLogger(PredictionMetricsLoggerIface):
     NOTE: the intention is that the final metrics may go to a different
           place (e.g., csv file) versus emitPeriodicMetrics (e.g., stdout)
 
-    metrics:        A list of predictionmetricsmanager.MetricValueElement:
+    metrics:        A list of prediction_metrics_manager.MetricValueElement:
 
     Returns:        nothing.
     """

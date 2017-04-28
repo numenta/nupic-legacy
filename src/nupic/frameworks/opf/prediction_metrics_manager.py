@@ -304,7 +304,7 @@ def test():
 
 def _testMetricsMgr():
   print "*Testing Metrics Managers*..."
-  from nupic.data.fieldmeta import (
+  from nupic.data.field_meta import (
     FieldMetaInfo,
     FieldMetaType,
     FieldMetaSpecial)
@@ -409,7 +409,7 @@ def _testTemporalShift():
   prediction cases
   """
   print "*Testing Multistep temporal shift*..."
-  from nupic.data.fieldmeta import (
+  from nupic.data.field_meta import (
     FieldMetaInfo,
     FieldMetaType,
     FieldMetaSpecial)

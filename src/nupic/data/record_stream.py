@@ -25,7 +25,7 @@ from abc import ABCMeta, abstractmethod
 import datetime
 
 
-from nupic.data.fieldmeta import FieldMetaSpecial
+from nupic.data.field_meta import FieldMetaSpecial
 
 
 

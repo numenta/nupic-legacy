@@ -26,7 +26,7 @@ from pkg_resources import resource_filename
 import time
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.data.fieldmeta import FieldMetaSpecial
+from nupic.data.field_meta import FieldMetaSpecial
 from nupic.data.file_record_stream import FileRecordStream
 
 

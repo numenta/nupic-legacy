@@ -23,7 +23,7 @@
 
 from nupic.frameworks.opf.model_factory import ModelFactory
 from nupic.frameworks.opf.opf_basic_environment import BasicDatasetReader
-from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
+from nupic.frameworks.opf.prediction_metrics_manager import MetricsManager
 
 
 class Client(object):

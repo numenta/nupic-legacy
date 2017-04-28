@@ -28,7 +28,7 @@ import copy
 import random
 import numpy as np
 
-from nupic.data.fieldmeta import FieldMetaType
+from nupic.data.field_meta import FieldMetaType
 import nupic.math.roc_utils as roc
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.frameworks.opf.opf_utils import InferenceType

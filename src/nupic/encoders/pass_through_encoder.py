@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 
 import numpy
-from nupic.data.fieldmeta import FieldMetaType
+from nupic.data.field_meta import FieldMetaType
 from nupic.encoders.base import Encoder
 
 
