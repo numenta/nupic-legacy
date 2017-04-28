@@ -100,7 +100,7 @@ def getPredictionResults(network, clRegionName):
   N = classifierRegion.getSelf().maxCategoryCount
   results = {step: {} for step in steps}
   for i in range(len(steps)):
-    # stepProbabilities are probabilities for this prediction step only.
+    # stepProbabilities: probabilities for this prediction step only.
     stepProbabilities = probabilities[i * N:(i + 1) * N - 1]
     mostLikelyCategoryIdx = stepProbabilities.argmax()
     predictedValue = actualValues[mostLikelyCategoryIdx]
@@ -143,10 +143,11 @@ def runHotgym():
     fiveStep = results[5]["predictedValue"]
     fiveStepConfidence = results[5]["predictionConfidence"]
 
-    result = (oneStep, oneStepConfidence * 100,
-              fiveStep, fiveStepConfidence * 100)
-    print "1-step: {:16} ({:4.4}%)\t 5-step: {:16} ({:4.4}%)".format(*result)
-    yield result
+    print("1-step: {:16} ({:4.4}%)\t"
+          "5-step: {:16} ({:4.4}%)".format(oneStep,
+                                           oneStepConfidence * 100,
+                                           fiveStep,
+                                           fiveStepConfidence * 100))
 
 
 if __name__ == "__main__":
