@@ -47,164 +47,8 @@
   <div class="section" id="data">
 <h1>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h1>
 <p>Data wrappers and helpers.</p>
-<div class="section" id="module-nupic.data.fieldmeta">
-<span id="field-meta"></span><h2>Field Meta<a class="headerlink" href="#module-nupic.data.fieldmeta" title="Permalink to this headline">¶</a></h2>
-<p>This module defines the structure of meta-data that describes the field name,
-field type, special field attribute, etc. for a field in a dataset.</p>
-<dl class="class">
-<dt id="nupic.data.fieldmeta.FieldMetaInfo">
-<em class="property">class </em><code class="descclassname">nupic.data.fieldmeta.</code><code class="descname">FieldMetaInfo</code><span class="sig-paren">(</span><em>name</em>, <em>type</em>, <em>special</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.fieldmeta.FieldMetaInfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>This class acts as a container of meta-data for a single field (column) of
-a dataset. Each instance of this class has <code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">type</span></code>, and <code class="docutils literal"><span class="pre">special</span></code>
-properties.</p>
-<p>Examples:</p>
-<ol class="arabic">
-<li><p class="first">Access a sub-element from an instance of FieldMetaInfo:</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">metainfo.name</span></code></li>
-<li><code class="docutils literal"><span class="pre">metainfo.type</span></code></li>
-<li><code class="docutils literal"><span class="pre">metainfo.special</span></code></li>
-</ul>
-</li>
-<li><p class="first">Create a single element of <code class="docutils literal"><span class="pre">FieldMetaInfo</span></code> from a tuple of <code class="docutils literal"><span class="pre">name</span></code>,
-<code class="docutils literal"><span class="pre">type</span></code>, and <code class="docutils literal"><span class="pre">special</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;pounds&#39;</span><span class="p">,</span> <span class="n">FieldMetaType</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">FieldMetaSpecial</span><span class="o">.</span><span class="n">none</span><span class="p">)</span>
-<span class="n">m</span> <span class="o">=</span> <span class="n">FieldMetaInfo</span><span class="o">.</span><span class="n">createFromFileFieldElement</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-</pre></div>
-</div>
-</li>
-</ol>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<em>str</em>) &#8211; field name</li>
-<li><strong>type</strong> (<em>str</em>) &#8211; one of the values from FieldMetaType</li>
-<li><strong>special</strong> (<em>str</em>) &#8211; one of the values from FieldMetaSpecial</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if type or special arg values are invalid</p>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="staticmethod">
-<dt id="nupic.data.fieldmeta.FieldMetaInfo.createFromFileFieldElement">
-<em class="property">static </em><code class="descname">createFromFileFieldElement</code><span class="sig-paren">(</span><em>fieldInfoTuple</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.fieldmeta.FieldMetaInfo.createFromFileFieldElement" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a <a class="reference internal" href="#nupic.data.fieldmeta.FieldMetaInfo" title="nupic.data.fieldmeta.FieldMetaInfo"><code class="xref py py-class docutils literal"><span class="pre">fieldmeta.FieldMetaInfo</span></code></a> instance from a tuple containing
-<code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">type</span></code>, and <code class="docutils literal"><span class="pre">special</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fieldInfoTuple</strong> &#8211; Must contain <code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">type</span></code>, and <code class="docutils literal"><span class="pre">special</span></code></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="#nupic.data.fieldmeta.FieldMetaInfo" title="nupic.data.fieldmeta.FieldMetaInfo"><code class="xref py py-class docutils literal"><span class="pre">FieldMetaInfo</span></code></a> instance</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="nupic.data.fieldmeta.FieldMetaInfo.createListFromFileFieldList">
-<em class="property">classmethod </em><code class="descname">createListFromFileFieldList</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.fieldmeta.FieldMetaInfo.createListFromFileFieldList" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a FieldMetaInfo list from the a list of tuples. Basically runs
-<a class="reference internal" href="#nupic.data.fieldmeta.FieldMetaInfo.createFromFileFieldElement" title="nupic.data.fieldmeta.FieldMetaInfo.createFromFileFieldElement"><code class="xref py py-meth docutils literal"><span class="pre">createFromFileFieldElement()</span></code></a> on each tuple.</p>
-<p><em>Example:</em></p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Create a list of FieldMetaInfo instances from a list of File meta-data</span>
-<span class="c1"># tuples</span>
-<span class="n">el</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;pounds&quot;</span><span class="p">,</span> <span class="n">FieldMetaType</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">FieldMetaSpecial</span><span class="o">.</span><span class="n">none</span><span class="p">),</span>
-      <span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">,</span> <span class="n">FieldMetaType</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">FieldMetaSpecial</span><span class="o">.</span><span class="n">none</span><span class="p">),</span>
-      <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">FieldMetaType</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">FieldMetaSpecial</span><span class="o">.</span><span class="n">sequence</span><span class="p">),</span>
-      <span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">FieldMetaType</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">FieldMetaSpecial</span><span class="o">.</span><span class="n">timestamp</span><span class="p">),</span>
-     <span class="p">]</span>
-<span class="n">ml</span> <span class="o">=</span> <span class="n">FieldMetaInfo</span><span class="o">.</span><span class="n">createListFromFileFieldList</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
-</pre></div>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fields</strong> &#8211; a sequence of field attribute tuples conforming to the format
-of <code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">type</span></code>, and <code class="docutils literal"><span class="pre">special</span></code></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of <a class="reference internal" href="#nupic.data.fieldmeta.FieldMetaInfo" title="nupic.data.fieldmeta.FieldMetaInfo"><code class="xref py py-class docutils literal"><span class="pre">FieldMetaInfo</span></code></a> elements corresponding
-to the given &#8216;fields&#8217; list.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="nupic.data.fieldmeta.FieldMetaType">
-<em class="property">class </em><code class="descclassname">nupic.data.fieldmeta.</code><code class="descname">FieldMetaType</code><a class="headerlink" href="#nupic.data.fieldmeta.FieldMetaType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Public values for the field data types. Valid types are:</p>
-<blockquote>
-<div><ul class="simple">
-<li><code class="docutils literal"><span class="pre">string</span></code></li>
-<li><code class="docutils literal"><span class="pre">datetime</span></code></li>
-<li><code class="docutils literal"><span class="pre">int</span></code></li>
-<li><code class="docutils literal"><span class="pre">float</span></code></li>
-<li><code class="docutils literal"><span class="pre">bool</span></code></li>
-<li><code class="docutils literal"><span class="pre">list</span></code></li>
-<li><code class="docutils literal"><span class="pre">sdr</span></code></li>
-</ul>
-</div></blockquote>
-<dl class="classmethod">
-<dt id="nupic.data.fieldmeta.FieldMetaType.isValid">
-<em class="property">classmethod </em><code class="descname">isValid</code><span class="sig-paren">(</span><em>fieldDataType</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.fieldmeta.FieldMetaType.isValid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check a candidate value whether it&#8217;s one of the valid field data types</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fieldDataType</strong> &#8211; (string) candidate field data type</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the candidate value is a legitimate field data type value;
-False if not</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="nupic.data.fieldmeta.FieldMetaSpecial">
-<em class="property">class </em><code class="descclassname">nupic.data.fieldmeta.</code><code class="descname">FieldMetaSpecial</code><a class="headerlink" href="#nupic.data.fieldmeta.FieldMetaSpecial" title="Permalink to this definition">¶</a></dt>
-<dd><p>Public values for the &#8220;special&#8221; field attribute. Valid values are:</p>
-<blockquote>
-<div><ul class="simple">
-<li><code class="docutils literal"><span class="pre">R</span></code>: reset</li>
-<li><code class="docutils literal"><span class="pre">S</span></code>: sequence</li>
-<li><code class="docutils literal"><span class="pre">T</span></code>: timestamp</li>
-<li><code class="docutils literal"><span class="pre">C</span></code>: category</li>
-<li><code class="docutils literal"><span class="pre">L</span></code>: learning</li>
-</ul>
-</div></blockquote>
-<dl class="classmethod">
-<dt id="nupic.data.fieldmeta.FieldMetaSpecial.isValid">
-<em class="property">classmethod </em><code class="descname">isValid</code><span class="sig-paren">(</span><em>attr</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.fieldmeta.FieldMetaSpecial.isValid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check a candidate value whether it&#8217;s one of the valid attributes</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>attr</strong> &#8211; (string) candidate value</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the candidate value is a legitimate &#8220;special&#8221; field
-attribute; False if not</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="field-meta">
+<h2>Field Meta<a class="headerlink" href="#field-meta" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-nupic.data.file_record_stream">
 <span id="filerecordstream"></span><h2>FileRecordStream<a class="headerlink" href="#module-nupic.data.file_record_stream" title="Permalink to this headline">¶</a></h2>
@@ -251,14 +95,14 @@ protocol so you may read its contents using a for loop:</p>
 <em class="property">class </em><code class="descclassname">nupic.data.file_record_stream.</code><code class="descname">FileRecordStream</code><span class="sig-paren">(</span><em>streamID</em>, <em>write=False</em>, <em>fields=None</em>, <em>missingValues=None</em>, <em>bookmark=None</em>, <em>includeMS=True</em>, <em>firstRecord=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream" title="Permalink to this definition">¶</a></dt>
 <dd><p>CSV file based RecordStream implementation</p>
 <p>Each field is a 3-tuple (<code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">type</span></code>, <code class="docutils literal"><span class="pre">special</span></code> or
-<a class="reference internal" href="#nupic.data.fieldmeta.FieldMetaSpecial" title="nupic.data.fieldmeta.FieldMetaSpecial"><code class="xref py py-class docutils literal"><span class="pre">FieldMetaSpecial</span></code></a>.none)</p>
+<code class="xref py py-class docutils literal"><span class="pre">FieldMetaSpecial</span></code>.none)</p>
 <p>The name is the name of the field. The type is one of the constants in
-<a class="reference internal" href="#nupic.data.fieldmeta.FieldMetaType" title="nupic.data.fieldmeta.FieldMetaType"><code class="xref py py-class docutils literal"><span class="pre">FieldMetaType</span></code></a>. The special is one of the
-<a class="reference internal" href="#nupic.data.fieldmeta.FieldMetaSpecial" title="nupic.data.fieldmeta.FieldMetaSpecial"><code class="xref py py-class docutils literal"><span class="pre">FieldMetaSpecial</span></code></a> values that designate their field as the
+<code class="xref py py-class docutils literal"><span class="pre">FieldMetaType</span></code>. The special is one of the
+<code class="xref py py-class docutils literal"><span class="pre">FieldMetaSpecial</span></code> values that designate their field as the
 sequenceId, reset, timestamp, or category. With exception of multiple
 categories, there can be at most one of each. There may be multiple fields of
 type datetime, but no more than one of them may be the timestamp field
-(<a class="reference internal" href="#nupic.data.fieldmeta.FieldMetaSpecial" title="nupic.data.fieldmeta.FieldMetaSpecial"><code class="xref py py-class docutils literal"><span class="pre">FieldMetaSpecial</span></code></a>.timestamp). The sequence id
+(<code class="xref py py-class docutils literal"><span class="pre">FieldMetaSpecial</span></code>.timestamp). The sequence id
 field must be either a string or an int. The reset field must be an int (and
 must contain 0 or 1).</p>
 <p>The category field must be an int or space-separated list of ints, where
@@ -403,7 +247,7 @@ information</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a sequence of <a class="reference internal" href="#nupic.data.fieldmeta.FieldMetaInfo" title="nupic.data.fieldmeta.FieldMetaInfo"><code class="xref py py-class docutils literal"><span class="pre">FieldMetaInfo</span></code></a>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a sequence of <code class="xref py py-class docutils literal"><span class="pre">FieldMetaInfo</span></code>
 <code class="docutils literal"><span class="pre">name</span></code>/<code class="docutils literal"><span class="pre">type</span></code>/<code class="docutils literal"><span class="pre">special</span></code> tuples for each field in the stream.</td>
 </tr>
 </tbody>
@@ -588,7 +432,7 @@ information</p>
 <li class="toctree-l2"><a class="reference internal" href="../network/index.html">Network API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../algorithms/index.html">Algorithms</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-nupic.data.fieldmeta">Field Meta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#field-meta">Field Meta</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-nupic.data.file_record_stream">FileRecordStream</a></li>
 </ul>
 </li>

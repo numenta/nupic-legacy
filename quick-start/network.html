@@ -163,12 +163,12 @@ some of the plumbing details).</p>
   <span class="k">return</span> <span class="n">results</span>
 
 
-<span class="k">def</span> <span class="nf">runHotgym</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">runHotgym</span><span class="p">(</span><span class="n">numRecords</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Run the Hot Gym example.&quot;&quot;&quot;</span>
 
   <span class="c1"># Create a data source for the network.</span>
   <span class="n">dataSource</span> <span class="o">=</span> <span class="n">FileRecordStream</span><span class="p">(</span><span class="n">streamID</span><span class="o">=</span><span class="n">_INPUT_FILE_PATH</span><span class="p">)</span>
-  <span class="n">numRecords</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">_NUM_RECORDS</span><span class="p">,</span> <span class="n">dataSource</span><span class="o">.</span><span class="n">getDataRowCount</span><span class="p">())</span>
+  <span class="n">numRecords</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">numRecords</span><span class="p">,</span> <span class="n">dataSource</span><span class="o">.</span><span class="n">getDataRowCount</span><span class="p">())</span>
   <span class="n">network</span> <span class="o">=</span> <span class="n">createNetwork</span><span class="p">(</span><span class="n">dataSource</span><span class="p">)</span>
 
   <span class="c1"># Set predicted field index. It needs to be the same index as the data source.</span>
@@ -185,25 +185,26 @@ some of the plumbing details).</p>
   <span class="n">network</span><span class="o">.</span><span class="n">regions</span><span class="p">[</span><span class="s2">&quot;TM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;inferenceMode&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
   <span class="n">network</span><span class="o">.</span><span class="n">regions</span><span class="p">[</span><span class="s2">&quot;classifier&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;inferenceMode&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
+  <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
   <span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Run the network, N iterations at a time.</span>
   <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">numRecords</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
     <span class="n">network</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
 
-    <span class="c1"># Get prediction results.</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="n">getPredictionResults</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="s2">&quot;classifier&quot;</span><span class="p">)</span>
-    <span class="n">oneStep</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;predictedValue&quot;</span><span class="p">]</span>
-    <span class="n">oneStepConfidence</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;predictionConfidence&quot;</span><span class="p">]</span>
-    <span class="n">fiveStep</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="s2">&quot;predictedValue&quot;</span><span class="p">]</span>
-    <span class="n">fiveStepConfidence</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="s2">&quot;predictionConfidence&quot;</span><span class="p">]</span>
+    <span class="n">predictionResults</span> <span class="o">=</span> <span class="n">getPredictionResults</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="s2">&quot;classifier&quot;</span><span class="p">)</span>
+    <span class="n">oneStep</span> <span class="o">=</span> <span class="n">predictionResults</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;predictedValue&quot;</span><span class="p">]</span>
+    <span class="n">oneStepConfidence</span> <span class="o">=</span> <span class="n">predictionResults</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;predictionConfidence&quot;</span><span class="p">]</span>
+    <span class="n">fiveStep</span> <span class="o">=</span> <span class="n">predictionResults</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="s2">&quot;predictedValue&quot;</span><span class="p">]</span>
+    <span class="n">fiveStepConfidence</span> <span class="o">=</span> <span class="n">predictionResults</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="s2">&quot;predictionConfidence&quot;</span><span class="p">]</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">oneStep</span><span class="p">,</span> <span class="n">oneStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
               <span class="n">fiveStep</span><span class="p">,</span> <span class="n">fiveStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
     <span class="nb">print</span> <span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)</span><span class="se">\t</span><span class="s2"> 5-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">)</span>
-    <span class="k">yield</span> <span class="n">result</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
+  <span class="k">return</span> <span class="n">results</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-  <span class="n">runHotgym</span><span class="p">()</span>
+  <span class="n">runHotgym</span><span class="p">(</span><span class="n">_NUM_RECORDS</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="section" id="network-parameters">

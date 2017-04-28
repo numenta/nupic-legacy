@@ -73,7 +73,7 @@ some of the plumbing details).</p>
 
 
 
-<span class="k">def</span> <span class="nf">runHotgym</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">runHotgym</span><span class="p">(</span><span class="n">numRecords</span><span class="p">):</span>
   <span class="n">model</span> <span class="o">=</span> <span class="n">createModel</span><span class="p">()</span>
   <span class="n">model</span><span class="o">.</span><span class="n">enableInference</span><span class="p">({</span><span class="s2">&quot;predictedField&quot;</span><span class="p">:</span> <span class="s2">&quot;consumption&quot;</span><span class="p">})</span>
   <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_INPUT_FILE_PATH</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
@@ -82,7 +82,8 @@ some of the plumbing details).</p>
     <span class="n">reader</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
     <span class="n">reader</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
 
-    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">islice</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">_NUM_RECORDS</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">islice</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">numRecords</span><span class="p">):</span>
       <span class="n">modelInput</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">headers</span><span class="p">,</span> <span class="n">record</span><span class="p">))</span>
       <span class="n">modelInput</span><span class="p">[</span><span class="s2">&quot;consumption&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">modelInput</span><span class="p">[</span><span class="s2">&quot;consumption&quot;</span><span class="p">])</span>
       <span class="n">modelInput</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
@@ -98,12 +99,12 @@ some of the plumbing details).</p>
       <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">oneStep</span><span class="p">,</span> <span class="n">oneStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
                 <span class="n">fiveStep</span><span class="p">,</span> <span class="n">fiveStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
       <span class="nb">print</span> <span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)</span><span class="se">\t</span><span class="s2"> 5-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">)</span>
-      <span class="k">yield</span> <span class="n">result</span>
-
+      <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">results</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-  <span class="n">runHotgym</span><span class="p">()</span>
+  <span class="n">runHotgym</span><span class="p">(</span><span class="n">_NUM_RECORDS</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="section" id="model-parameters">

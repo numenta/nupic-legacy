@@ -71,7 +71,7 @@ some of the plumbing details).</p>
 
 
 
-<span class="k">def</span> <span class="nf">runHotgym</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">runHotgym</span><span class="p">(</span><span class="n">numRecords</span><span class="p">):</span>
   <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_PARAMS_PATH</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">modelParams</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="s2">&quot;modelParams&quot;</span><span class="p">]</span>
     <span class="n">enParams</span> <span class="o">=</span> <span class="n">modelParams</span><span class="p">[</span><span class="s2">&quot;sensorParams&quot;</span><span class="p">][</span><span class="s2">&quot;encoders&quot;</span><span class="p">]</span>
@@ -143,7 +143,7 @@ some of the plumbing details).</p>
   <span class="p">)</span>
 
   <span class="n">classifier</span> <span class="o">=</span> <span class="n">SDRClassifierFactory</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
-
+  <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
   <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_INPUT_FILE_PATH</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
     <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">fin</span><span class="p">)</span>
     <span class="n">headers</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
@@ -152,7 +152,7 @@ some of the plumbing details).</p>
 
     <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reader</span><span class="p">):</span>
 
-      <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="n">_NUM_RECORDS</span><span class="p">:</span> <span class="k">return</span>
+      <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="n">numRecords</span><span class="p">:</span> <span class="k">break</span>
 
       <span class="c1"># Convert data string into Python date object.</span>
       <span class="n">dateString</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;%m/</span><span class="si">%d</span><span class="s2">/%y %H:%M&quot;</span><span class="p">)</span>
@@ -211,13 +211,13 @@ some of the plumbing details).</p>
         <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span>
       <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
       <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1-step: </span><span class="si">{:16}</span><span class="s2"> (</span><span class="si">{:4.4}</span><span class="s2">%)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">oneStep</span><span class="p">,</span> <span class="n">oneStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+      <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">oneStep</span><span class="p">,</span> <span class="n">oneStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
 
-      <span class="k">yield</span> <span class="n">oneStep</span><span class="p">,</span> <span class="n">oneStepConfidence</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-
+    <span class="k">return</span> <span class="n">results</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-  <span class="n">runHotgym</span><span class="p">()</span>
+  <span class="n">runHotgym</span><span class="p">(</span><span class="n">_NUM_RECORDS</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="section" id="encoding-data">
