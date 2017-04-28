@@ -74,6 +74,8 @@ build_script:
   - python setup.py bdist_wheel
 
   - ps: ls -l dist
+  - 7z a nupic-%APPVEYOR_REPO_COMMIT%.zip .\dist\nupic-%NUPIC_VERSION%-py2-none-any.whl
+  - ps: ls -l .
   - ps: move .\dist\nupic-$env:NUPIC_VERSION-py2-none-any.whl .\dist\nupic-$env:NUPIC_VERSION-cp27-none-win_amd64.whl
 
 test_script:
@@ -100,9 +102,6 @@ test_script:
 
   # Python integration tests
   - py.test tests\integration
-
-after_build:
-  - 7z a nupic-$(APPVEYOR_REPO_COMMIT).zip .\dist\nupic-*.whl
 
 artifacts:
   - path: 'dist\*.whl' # Find all wheel files in project root only (non-recusive)
