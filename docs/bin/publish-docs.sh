@@ -98,7 +98,7 @@ git checkout gh-pages
 # Get rid of any nupic artifacts
 git clean -fd
 # Get the docs from the temp folder
-mv "$TMP_DIR/$VERSION" .
+mv "$TMP_DIR/$VERSION" . || exit
 
 find_existing_versions "$NUPIC"
 echo "${versions[@]}"
