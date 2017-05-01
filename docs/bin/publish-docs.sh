@@ -33,11 +33,13 @@ mkdir $TMP_DIR
 find_existing_versions() {
     declare docRoot="$1"
     versions=()
+    echo "Looking for published versions in $docRoot..."
     for file in `ls -d $docRoot | sort -r`; do
         if [[ $file == *html ]]
         then
-            echo "Skipping $file"
+            echo "\tSkipping $file"
         else
+            echo "\tFound $file"
             versions+=($file)
         fi
     done
