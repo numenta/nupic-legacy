@@ -34,13 +34,15 @@ find_existing_versions() {
     declare docRoot="$1"
     versions=()
     echo "Looking for published versions in $docRoot..."
-    for file in `ls -d $docRoot | sort -r`; do
+    for file in `ls $docRoot | sort -r`; do
         if [[ $file == *html ]]
         then
-            echo "\tSkipping $file"
-        else
-            echo "\tFound $file"
+            echo "  Skipping $file"
+        else if [[ -d "$docRoot/$file" ]]
+            echo "  Found $file"
             versions+=($file)
+        else
+            echo "  Skipping $file"
         fi
     done
 }
