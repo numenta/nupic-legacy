@@ -22,9 +22,12 @@
 
 # This script assumes you have the latest codebase built locally.
 
-DOC_HTML_ROOT="/Users/mtaylor/Desktop/newdocs"
+# This is NUPIC because we're going to switch to the gh-pages branch.
+DOC_HTML_ROOT="$NUPIC"
+TMP_DIR="$HOME/tmp"
 versions=()
-mkdir -p $DOC_HTML_ROOT
+
+mkdir -p $TMP_DIR
 
 find_existing_versions() {
     declare docRoot="$1"
@@ -43,11 +46,18 @@ build_html_index() {
     declare indexFile="$1"
     declare versions="${!2}"
     echo "<html>" > $indexFile
-    echo "<body" >> $indexFile
-    echo "style='font-size:xx-large'" >> $indexFile
-    echo ">" >> $indexFile
+
+    echo "<head>" >> $indexFile
+    echo "<style>" >> $indexFile
+        echo "body{font-size:xx-large}" >> $indexFile
+        echo "ul{margin-left:200px}" >> $indexFile
+    echo "</style>" >> $indexFile
+    echo "</head>" >> $indexFile
+
+    echo "<body>" >> $indexFile
     echo "<ul>" >> $indexFile
-    echo "<h1>NuPIC API Documentation Versions</h1>" >> $indexFile
+    echo "<h1>NuPIC API Documentation</h1>" >> $indexFile
+    echo "<h2>Versions</h2>" >> $indexFile
     for version in $versions; do
         echo "<li><a href='$version/index.html'>$version</a></li>" >> $indexFile
     done
@@ -76,27 +86,22 @@ cd $NUPIC/docs
 
 VERSION=`cat $NUPIC/VERSION`
 
-# # Clean and build into versioned folder.
-# make clean html
-# # Replace any old docs for this verison in the documentation root directory.
-# rm -rf "$DOC_HTML_ROOT/$VERSION"
-# mv ./build/html "$DOC_HTML_ROOT/$VERSION"
+# Clean and build into versioned folder.
+make clean html
+# Replace any old docs for this verison in the documentation root directory.
+mv ./build/html "$TMP_DIR/$VERSION"
 
+# Context switch to GH Pages branch
 cd $NUPIC
-
-# Get versions
+git checkout gh-pages
+# Get rid of any nupic artifacts
+git clean -fd
+# Get the docs from the temp folder
+cp -r "$TMP_DIR/$VERSION" .
 
 find_existing_versions $DOC_HTML_ROOT
 copy_latest_build $DOC_HTML_ROOT versions[@]
 build_html_index "$DOC_HTML_ROOT/index.html" versions[@]
-echo "${versions[@]}"
-
-# # Context switch to GH Pages branch
-# git checkout gh-pages
-# # Get rid of any nupic artifacts
-# git clean -fd
-# # Get the docs from the temp folder
-# cp -r $HOME/html/* .
 
 # # Add and force push all. Nukes everything. Who cares.
 # git add guides contributing quick-start api _sources _static _images objects.inv *.html *.css *.js .nojekyll
@@ -106,7 +111,5 @@ echo "${versions[@]}"
 # else
 #   echo "No doc changes"
 # fi
-
-
 
 cd -
