@@ -23,7 +23,6 @@
 # This script assumes you have the latest codebase built locally.
 
 # This is NUPIC because we're going to switch to the gh-pages branch.
-DOC_HTML_ROOT="$NUPIC"
 TMP_DIR="$HOME/tmp"
 CWD=`pwd`
 versions=()
@@ -88,10 +87,10 @@ cd $NUPIC/docs
 
 VERSION=`cat $NUPIC/VERSION`
 
-# Clean and build into versioned folder.
-make clean html
-# Replace any old docs for this verison in the documentation root directory.
-mv ./build/html "$TMP_DIR/$VERSION"
+# # Clean and build into versioned folder.
+# make clean html
+# # Replace any old docs for this verison in the documentation root directory.
+# mv ./build/html "$TMP_DIR/$VERSION"
 
 # Context switch to GH Pages branch
 cd $NUPIC
@@ -99,16 +98,16 @@ git checkout gh-pages
 # Get rid of any nupic artifacts
 git clean -fd
 # Get the docs from the temp folder
-cp -r "$TMP_DIR/$VERSION" .
+mv "$TMP_DIR/$VERSION" .
 
-find_existing_versions $DOC_HTML_ROOT
+find_existing_versions "$NUPIC"
 echo "${versions[@]}"
 exit
 copy_latest_build $DOC_HTML_ROOT versions[@]
 build_html_index "$DOC_HTML_ROOT/index.html" versions[@]
 
 # Add and force push all. Nukes everything. Who cares.
-git add "$VERSION" latest index.html
+echo git add "$VERSION" latest index.html
 if [[ `git status --porcelain` ]]; then
     echo "This is where we would commit and push."
   # git commit -am "Development documentation build."
