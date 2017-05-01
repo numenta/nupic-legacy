@@ -104,8 +104,6 @@ git clean -fd
 mv "$TMP_DIR/$VERSION" .
 
 find_existing_versions "$NUPIC"
-echo "${versions[@]}"
-exit
 copy_latest_build $DOC_HTML_ROOT versions[@]
 build_html_index "$DOC_HTML_ROOT/index.html" versions[@]
 
