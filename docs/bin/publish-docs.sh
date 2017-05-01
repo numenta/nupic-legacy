@@ -49,6 +49,7 @@ find_existing_versions() {
 build_html_index() {
     declare indexFile="$1"
     declare versions="${!2}"
+    echo "Building version index at $indexFile..."
     echo "<html>" > $indexFile
 
     echo "<head>" >> $indexFile
