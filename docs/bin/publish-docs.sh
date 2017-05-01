@@ -22,58 +22,91 @@
 
 # This script assumes you have the latest codebase built locally.
 
-build_html_index() {
-    ROOT="$1"
-    HTTP="/"
-    OUTPUT="$2"
+DOC_HTML_ROOT="/Users/mtaylor/Desktop/newdocs"
+versions=()
+mkdir -p $DOC_HTML_ROOT
 
-    i=0
-    echo "<UL>" > $OUTPUT
-    for filepath in `find "$ROOT" -maxdepth 1 -mindepth 1 -type d| sort`; do
-      path=`basename "$filepath"`
-      echo "  <LI>$path</LI>" >> $OUTPUT
-      echo "  <UL>" >> $OUTPUT
-      for i in `find "$filepath" -maxdepth 1 -mindepth 1 -type f| sort`; do
-        file=`basename "$i"`
-        echo "    <LI><a href=\"/$path/$file\">$file</a></LI>" >> $OUTPUT
-      done
-      echo "  </UL>" >> $OUTPUT
+find_existing_versions() {
+    declare docRoot="$1"
+    versions=()
+    for file in `ls $docRoot | sort -r`; do
+        if [[ $file == *html ]]
+        then
+            echo "Skipping $file"
+        else
+            versions+=($file)
+        fi
     done
-    echo "</UL>" >> $OUTPUT
+}
+
+build_html_index() {
+    declare indexFile="$1"
+    declare versions="${!2}"
+    echo "<html>" > $indexFile
+    echo "<body" >> $indexFile
+    echo "style='font-size:xx-large'" >> $indexFile
+    echo ">" >> $indexFile
+    echo "<ul>" >> $indexFile
+    echo "<h1>NuPIC API Documentation Versions</h1>" >> $indexFile
+    for version in $versions; do
+        echo "<li><a href='$version/index.html'>$version</a></li>" >> $indexFile
+    done
+    echo "</ul>" >> $indexFile
+    echo "</body></html>" >> $indexFile
+}
+
+copy_latest_build() {
+    declare docRoot="$1"
+    declare versions="${!2}"
+    for version in $versions; do
+        echo "checking $version..."
+        if [[ $version == *dev0 || $version == "latest" ]]; then
+            echo "Skipping $version"
+        else
+            echo "Found latest version $version"
+            rm -rf "$docRoot/latest"
+            cp -rf "$docRoot/$version" "$docRoot/latest"
+            versions=("latest" "${versions[@]}");
+            break
+        fi
+    done
 }
 
 cd $NUPIC/docs
 
 VERSION=`cat $NUPIC/VERSION`
 
-# Clean and build into versioned folder.
-make clean html
-
-# Move the HTML somewhere else for sanity's sake.
-mkdir ~/docstash
-mv ./build/html ~/docstash/.
+# # Clean and build into versioned folder.
+# make clean html
+# # Replace any old docs for this verison in the documentation root directory.
+# rm -rf "$DOC_HTML_ROOT/$VERSION"
+# mv ./build/html "$DOC_HTML_ROOT/$VERSION"
 
 cd $NUPIC
 
-# Context switch
-git checkout gh-pages
-# Get rid of any nupic artifacts
-git clean -fd
+# Get versions
+
+find_existing_versions $DOC_HTML_ROOT
+copy_latest_build $DOC_HTML_ROOT versions[@]
+build_html_index "$DOC_HTML_ROOT/index.html" versions[@]
+echo "${versions[@]}"
+
+# # Context switch to GH Pages branch
+# git checkout gh-pages
+# # Get rid of any nupic artifacts
+# git clean -fd
+# # Get the docs from the temp folder
+# cp -r $HOME/html/* .
+
+# # Add and force push all. Nukes everything. Who cares.
+# git add guides contributing quick-start api _sources _static _images objects.inv *.html *.css *.js .nojekyll
+# if [[ `git status --porcelain` ]]; then
+#   git commit -am "Development documentation build."
+#   git push upstream gh-pages
+# else
+#   echo "No doc changes"
+# fi
 
 
-# Get the docs from the temp folder
-cp -r ~/html/* .
-
-# Add a .nojekyll file to ensure static site build
-touch .nojekyll
-
-# Add and force push all. Nukes everything. Who cares.
-git add guides contributing quick-start api _sources _static _images objects.inv *.html *.css *.js .nojekyll
-if [[ `git status --porcelain` ]]; then
-  git commit -am "Development documentation build."
-  git push upstream gh-pages
-else
-  echo "No doc changes"
-fi
 
 cd -
