@@ -136,7 +136,7 @@ MODEL_PARAMS = {
 
             # Temporal Pooler implementation selector (see _getTPClass in
             # CLARegion.py).
-            'temporalImp': 'cpp',
+            'temporalImp': 'tm_cpp',
 
             # New Synapse formation count
             # NOTE: If None, use spNumActivePerInhArea
@@ -202,7 +202,7 @@ MODEL_PARAMS = {
 
         'clParams': {
             # Classifier implementation selection.
-            'implementation': 'cpp',
+            'implementation': 'py',
 
             'regionName' : 'SDRClassifierRegion',
 
