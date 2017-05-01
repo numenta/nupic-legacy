@@ -25,6 +25,7 @@
 # This is NUPIC because we're going to switch to the gh-pages branch.
 DOC_HTML_ROOT="$NUPIC"
 TMP_DIR="$HOME/tmp"
+CWD=`pwd`
 versions=()
 
 rm -rf $TMP_DIR
@@ -33,7 +34,7 @@ mkdir $TMP_DIR
 find_existing_versions() {
     declare docRoot="$1"
     versions=()
-    for file in `ls $docRoot | sort -r`; do
+    for file in `ls -d $docRoot | sort -r`; do
         if [[ $file == *html ]]
         then
             echo "Skipping $file"
@@ -87,10 +88,10 @@ cd $NUPIC/docs
 
 VERSION=`cat $NUPIC/VERSION`
 
-# Clean and build into versioned folder.
-make clean html
-# Replace any old docs for this verison in the documentation root directory.
-mv ./build/html "$TMP_DIR/$VERSION"
+# # Clean and build into versioned folder.
+# make clean html
+# # Replace any old docs for this verison in the documentation root directory.
+# mv ./build/html "$TMP_DIR/$VERSION"
 
 # Context switch to GH Pages branch
 cd $NUPIC
@@ -101,6 +102,8 @@ git clean -fd
 cp -r "$TMP_DIR/$VERSION" .
 
 find_existing_versions $DOC_HTML_ROOT
+echo "${versions[@]}"
+exit
 copy_latest_build $DOC_HTML_ROOT versions[@]
 build_html_index "$DOC_HTML_ROOT/index.html" versions[@]
 
@@ -114,4 +117,4 @@ else
     echo "No doc changes"
 fi
 
-cd -
+cd $CWD
