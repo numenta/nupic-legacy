@@ -87,10 +87,10 @@ cd $NUPIC/docs
 
 VERSION=`cat $NUPIC/VERSION`
 
-# # Clean and build into versioned folder.
-# make clean html
-# # Replace any old docs for this verison in the documentation root directory.
-# mv ./build/html "$TMP_DIR/$VERSION"
+# Clean and build into versioned folder.
+make clean html
+# Replace any old docs for this verison in the documentation root directory.
+mv ./build/html "$TMP_DIR/$VERSION"
 
 # Context switch to GH Pages branch
 cd $NUPIC
@@ -98,7 +98,7 @@ git checkout gh-pages
 # Get rid of any nupic artifacts
 git clean -fd
 # Get the docs from the temp folder
-mv "$TMP_DIR/$VERSION" . || exit
+mv "$TMP_DIR/$VERSION" .
 
 find_existing_versions "$NUPIC"
 echo "${versions[@]}"
