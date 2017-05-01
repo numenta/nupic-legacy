@@ -27,7 +27,8 @@ DOC_HTML_ROOT="$NUPIC"
 TMP_DIR="$HOME/tmp"
 versions=()
 
-mkdir -p $TMP_DIR
+rm -rf $TMP_DIR
+mkdir $TMP_DIR
 
 find_existing_versions() {
     declare docRoot="$1"
@@ -103,13 +104,14 @@ find_existing_versions $DOC_HTML_ROOT
 copy_latest_build $DOC_HTML_ROOT versions[@]
 build_html_index "$DOC_HTML_ROOT/index.html" versions[@]
 
-# # Add and force push all. Nukes everything. Who cares.
-# git add guides contributing quick-start api _sources _static _images objects.inv *.html *.css *.js .nojekyll
-# if [[ `git status --porcelain` ]]; then
-#   git commit -am "Development documentation build."
-#   git push upstream gh-pages
-# else
-#   echo "No doc changes"
-# fi
+# Add and force push all. Nukes everything. Who cares.
+git add "$VERSION" latest index.html
+if [[ `git status --porcelain` ]]; then
+    echo "This is where we would commit and push."
+  # git commit -am "Development documentation build."
+  # git push upstream gh-pages
+else
+    echo "No doc changes"
+fi
 
 cd -
