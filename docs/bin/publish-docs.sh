@@ -38,7 +38,7 @@ find_existing_versions() {
         if [[ $file == *html ]]
         then
             echo "  Skipping $file"
-        else if [[ -d "$docRoot/$file" ]]
+        elif [[ -d "$docRoot/$file" ]]
             echo "  Found $file"
             versions+=($file)
         else
