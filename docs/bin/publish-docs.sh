@@ -68,7 +68,7 @@ build_html_index() {
     echo "</body></html>" >> $indexFile
 }
 
-create_latest_and_dev_shortcuts() {
+create_latest_and_stable_shortcuts() {
     declare docRoot="$1"
     declare versions="${!2}"
     local latest=false
@@ -118,7 +118,7 @@ git clean -fd
 mv "$TMP_DIR/$VERSION" $NUPIC
 
 find_existing_versions $NUPIC
-create_latest_and_dev_shortcuts $NUPIC versions[@]
+create_latest_and_stable_shortcuts $NUPIC versions[@]
 versions=("stable" "${versions[@]}");
 versions=("latest" "${versions[@]}");
 echo "${versions[@]}"
