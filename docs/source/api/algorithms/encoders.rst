@@ -14,6 +14,15 @@ Encoder Result
 
 .. autoclass:: nupic.encoders.base.EncoderResult
 
+Category Encoders
+^^^^^^^^^^^^^^^^^
+
+.. autoclass:: nupic.encoders.category.CategoryEncoder
+   :show-inheritance:
+
+.. autoclass:: nupic.encoders.sdrcategory.SDRCategoryEncoder
+   :show-inheritance:
+
 Scalar Encoder
 ^^^^^^^^^^^^^^
 
@@ -45,15 +54,26 @@ CoordinateEncoder
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.coordinate.CoordinateEncoder
-   :members:
+   :show-inheritance:
 
 GeospatialCoordinateEncoder
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder
-   :members:
+   :members: coordinateForPosition, radiusForSpeed
+   :show-inheritance:
 
+DeltaEncoder
+^^^^^^^^^^^^
 
+.. autoclass:: nupic.encoders.delta.DeltaEncoder
+   :show-inheritance:
+
+Logarithm Encoder
+^^^^^^^^^^^^^^^^^
+
+.. autoclass:: nupic.encoders.logenc.LogEncoder
+   :show-inheritance:
 
 MultiEncoder
 ^^^^^^^^^^^^
