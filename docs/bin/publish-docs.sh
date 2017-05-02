@@ -33,7 +33,7 @@ find_existing_versions() {
     versions=()
     echo "Looking for published versions in $docRoot..."
     for file in `ls $docRoot | sort -r`; do
-        if [[ $file == *html ]]; then
+        if [[ $file == *html || "$file" = latest || "$file" == stable ]]; then
             echo "  Skipping $file"
         elif [[ -d "$docRoot/$file" ]]; then
             echo "  Found $file"
