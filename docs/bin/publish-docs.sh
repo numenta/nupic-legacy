@@ -124,16 +124,16 @@ versions=("latest" "${versions[@]}");
 echo "${versions[@]}"
 build_html_index "$NUPIC/index.html" versions[@]
 
-# # Add latest/stable version builds and new index
-# git add "$VERSION" index.html
-# # Runnning these individually in case they don't exist yet.
-# git add latest
-# git add stable
-# if [[ `git status --porcelain` ]]; then
-#   git commit -am "Development documentation build."
-#   git push upstream gh-pages --force
-# else
-#     echo "No doc changes"
-# fi
+# Add latest/stable version builds and new index
+git add "$VERSION" index.html
+# Runnning these individually in case they don't exist yet.
+git add latest
+git add stable
+if [[ `git status --porcelain` ]]; then
+  git commit -am "Development documentation build."
+  git push upstream gh-pages --force
+else
+    echo "No doc changes"
+fi
 
 cd $CWD
