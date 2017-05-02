@@ -102,11 +102,11 @@ git checkout gh-pages
 # Get rid of any nupic artifacts
 git clean -fd
 # Get the docs from the temp folder
-mv "$TMP_DIR/$VERSION" .
+mv "$TMP_DIR/$VERSION" $NUPIC
 
-find_existing_versions "$NUPIC"
-copy_latest_build $DOC_HTML_ROOT versions[@]
-build_html_index "$DOC_HTML_ROOT/index.html" versions[@]
+find_existing_versions $NUPIC
+copy_latest_build $NUPIC versions[@]
+build_html_index "$NUPIC/index.html" versions[@]
 
 # Add and force push all. Nukes everything. Who cares.
 echo git add "$VERSION" latest index.html
