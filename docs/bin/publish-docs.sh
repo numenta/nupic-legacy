@@ -73,19 +73,20 @@ create_latest_and_dev_shortcuts() {
     declare versions="${!2}"
     local latest=false
     local stable=false
+    echo "Building shortcut to stable and latest versions..."
     for version in $versions; do
-        echo "checking $version..."
+        echo "  checking $version..."
         if [[ $version == *dev0 ]]; then
             # First dev version found should be latest
-            echo "Found latest version $version"
+            echo "    Found latest version $version"
             rm -rf "$docRoot/latest"
             cp -rf "$docRoot/$version" "$docRoot/latest"
             # versions=("latest" "${versions[@]}");
             latest=true
         elif [[ $version == "stable" || $version == "latest" ]]; then
-            echo "Skipping $version"
+            echo "    Skipping $version"
         else
-            echo "Found stable version $version"
+            echo "    Found stable version $version"
             rm -rf "$docRoot/stable"
             cp -rf "$docRoot/$version" "$docRoot/latest"
             # versions=("latest" "${versions[@]}");
