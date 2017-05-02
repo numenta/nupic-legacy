@@ -54,7 +54,7 @@ pyRegions = (
     ("nupic.regions.SPRegion", "SPRegion"),
     ("nupic.regions.SVMClassifierNode", "SVMClassifierNode"),
     ("nupic.regions.TestRegion", "TestRegion"),
-    ("nupic.regions.TPRegion", "TPRegion"),
+    ("nupic.regions.TMRegion", "TMRegion"),
     ("nupic.regions.UnimportableNode", "UnimportableNode"),
 )
 
@@ -270,25 +270,21 @@ class CollectionWrapper(object):
     return self.collection.contains(key)
 
   def keys(self):
-    keys = set()
+    keys = list()
     for i in range(self.collection.getCount()):
-      keys.add(self.collection.getByIndex(i)[0])
+      keys.append(self.collection.getByIndex(i)[0])
     return keys
 
   def values(self):
-    values = set()
+    values = list()
 
     for i in range(self.collection.getCount()):
       p = self.collection.getByIndex(i)
-      values.add(self.valueWrapper(p[0], p[1]))
+      values.append(self.valueWrapper(p[0], p[1]))
     return values
 
   def items(self):
-    items = set()
-    for i in range(self.collection.getCount()):
-      p = self.collection.getByIndex(i)
-      items.add((p[0], self.valueWrapper(p[0], p[1])))
-    return items
+    return zip(self.keys(), self.values())
 
   def __cmp__(self, other):
     return self.collection == other.collection

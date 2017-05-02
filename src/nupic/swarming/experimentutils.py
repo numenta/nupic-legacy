@@ -153,7 +153,7 @@ class InferenceType(Enum("TemporalNextStep",
   @staticmethod
   def isTemporal(inferenceType):
     """ Returns True if the inference type is 'temporal', i.e. requires a
-    temporal pooler in the network.
+    temporal memory in the network.
     """
     if InferenceType.__temporalInferenceTypes is None:
       InferenceType.__temporalInferenceTypes = \

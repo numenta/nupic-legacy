@@ -84,7 +84,7 @@ def _buildArgs(f, self=None, kwargs={}):
   init = SPRegion.__init__
   ourArgNames = [t[0] for t in getArgumentDescriptions(init)]
   # Also remove a few other names that aren't in our constructor but are
-  #  computed automatically (e.g. numberOfCols for the TP)
+  #  computed automatically (e.g. numberOfCols for the TM)
   # TODO: where does numberOfCols come into SPRegion?
   ourArgNames += [
     'numberOfCols',
@@ -710,7 +710,7 @@ class SPRegion(PyRegion):
         spatialTopDownOut = dict(
           description="""The top-down output, generated only from the current
                          SP output. This can be used to evaluate how well the
-                         SP is representing the inputs independent of the TP.""",
+                         SP is representing the inputs independent of the TM.""",
           dataType='Real32',
           count=0,
           regionLevel=True,
@@ -718,7 +718,7 @@ class SPRegion(PyRegion):
 
         temporalTopDownOut = dict(
           description="""The top-down output, generated only from the current
-                         TP output feedback down through the SP.""",
+                         TM output feedback down through the SP.""",
           dataType='Real32',
           count=0,
           regionLevel=True,

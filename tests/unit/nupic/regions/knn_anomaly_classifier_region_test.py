@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Unit tests for the htmpredictionmodel module."""
+"""Unit tests for the htm_prediction_model module."""
 
 import sys
 import copy
@@ -30,13 +30,13 @@ from mock import Mock, patch, ANY, call
 
 from nupic.support.unittesthelpers.testcasebase import (unittest,
                                                         TestOptionParser)
-from nupic.frameworks.opf.opfutils import InferenceType
+from nupic.frameworks.opf.opf_utils import InferenceType
 
 from nupic.regions.KNNAnomalyClassifierRegion import (
     KNNAnomalyClassifierRegion,
     _CLAClassificationRecord)
 
-from nupic.frameworks.opf.opfutils import InferenceType
+from nupic.frameworks.opf.opf_utils import InferenceType
 
 from nupic.frameworks.opf.exceptions import (HTMPredictionModelInvalidRangeError)
 
@@ -608,13 +608,13 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
 
     self.helper._activeColumnCount = 5
 
-    # Test TP Cell vector
+    # Test TM Cell vector
     self.helper.classificationVectorType = 1
     vector = self.helper.constructClassificationRecord(inputs)
     self.assertEqual(vector.anomalyVector,
         tpVals['output']['lrnActive'].nonzero()[0].tolist())
 
-    # Test SP and TP Column Error vector
+    # Test SP and TM Column Error vector
     self.helper.classificationVectorType = 2
     self.helper._prevPredictedColumns = numpy.array(
         [1, 0, 0, 0, 1]).nonzero()[0]

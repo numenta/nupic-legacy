@@ -318,17 +318,17 @@ if __name__ == "__main__":
       name="tm_py")
 
   if "tp_py" in args.implementations:
-    import nupic.research.TP
+    import nupic.research.BacktrackingTM
     benchmark.addContestant(
-      nupic.research.TP.TP,
+      nupic.research.BacktrackingTM.BacktrackingTM,
       paramsFn=tmParamsFn,
       computeFn=tpComputeFn,
       name="tp_py")
 
   if "tp_cpp" in args.implementations:
-    import nupic.research.TP10X2
+    import nupic.research.BacktrackingTMCPP
     benchmark.addContestant(
-      nupic.research.TP10X2.TP10X2,
+      nupic.research.BacktrackingTMCPP.BacktrackingTMCPP,
       paramsFn=tmParamsFn,
       computeFn=tpComputeFn,
       name="tp_cpp")

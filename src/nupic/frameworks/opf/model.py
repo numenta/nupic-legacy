@@ -26,7 +26,7 @@ import os
 import shutil
 from abc import ABCMeta, abstractmethod
 
-import nupic.frameworks.opf.opfutils as opfutils
+import nupic.frameworks.opf.opf_utils as opf_utils
 
 
 
@@ -41,7 +41,7 @@ class Model(object):
 
   def __init__(self, inferenceType):
     """ Model constructor.
-    @param inferenceType (nupic.frameworks.opf.opfutils.InferenceType)
+    @param inferenceType (nupic.frameworks.opf.opf_utils.InferenceType)
            A value that specifies the type of inference (i.e. TemporalNextStep,
            Classification, etc.).
     """
@@ -58,7 +58,7 @@ class Model(object):
            nupic.data.record_stream.RecordStreamIface.getNextRecord() or
            nupic.data.record_stream.RecordStreamIface.getNextRecordDict()
            result format.
-    @returns (nupic.frameworks.opf.opfutils.ModelResult)
+    @returns (nupic.frameworks.opf.opf_utils.ModelResult)
              An ModelResult namedtuple. The contents of ModelResult.inferences
              depends on the the specific inference type of this model, which
              can be queried by getInferenceType()
@@ -68,7 +68,7 @@ class Model(object):
       self._numPredictions += 1
     else:
       predictionNumber = None
-    result = opfutils.ModelResult(predictionNumber=predictionNumber,
+    result = opf_utils.ModelResult(predictionNumber=predictionNumber,
                                   rawInput=inputRecord)
     return result
 
@@ -132,7 +132,7 @@ class Model(object):
   def getInferenceType(self):
     """ Return the InferenceType of this model.
     This is immutable.
-    @returns (nupic.frameworks.opf.opfutils.InferenceType) An inference type
+    @returns (nupic.frameworks.opf.opf_utils.InferenceType) An inference type
     """
     return self.__inferenceType
 
@@ -319,7 +319,7 @@ class Model(object):
            Directory of where the experiment is to be or was saved
     @returns (Model) The loaded model instance
     """
-    logger = opfutils.initLogger(cls)
+    logger = opf_utils.initLogger(cls)
     logger.debug("Loading model from local checkpoint at %r...", savedModelDir)
 
     # Load the model

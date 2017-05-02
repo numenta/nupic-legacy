@@ -27,7 +27,7 @@ import unittest
 import mock
 
 
-from nupic.data.fieldmeta import FieldMetaInfo, FieldMetaType, FieldMetaSpecial
+from nupic.data.field_meta import FieldMetaInfo, FieldMetaType, FieldMetaSpecial
 from nupic.data.record_stream import ModelRecordEncoder, RecordStreamIface
 
 

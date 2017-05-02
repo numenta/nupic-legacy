@@ -1375,7 +1375,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
     tokenReplacements['\$PERM_SP_CHOICES'] = \
       _ONE_INDENT +"'synPermInactiveDec': PermuteFloat(0.0003, 0.1),\n"
 
-  # The TP permutation parameters are not required for non-temporal networks
+  # The TM permutation parameters are not required for non-temporal networks
   if options['inferenceType'] in ['NontemporalMultiStep',
                                   'NontemporalClassification']:
     tokenReplacements['\$PERM_TP_CHOICES'] = ""

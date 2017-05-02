@@ -9,22 +9,22 @@ Here is the complete program we are going to use as an example. In sections
 below, we'll break it down into parts and explain what is happening (without
 some of the plumbing details).
 
-.. literalinclude:: ../../examples/opf/complete-example.py
+.. literalinclude:: ../../examples/opf/complete-opf-example.py
 
 Model Parameters
 ^^^^^^^^^^^^^^^^
 
 Before you can create an OPF model, you need to have model parameters defined in
-a python file. These model parameters contain many details about how the HTM
+a file. These model parameters contain many details about how the HTM
 network will be constructed, what encoder configurations will be used, and
 individual algorithm parameters that can drastically affect how a model
 operates. The model parameters we're using in this Quick Start
 `can be found here <example-model-params.html>`_.
 
-To use model parameters, they can be written to a python file and imported into
-your script. In this example, our model parameters existing in a python file
-called ``model_params.py`` and are identical to those
-`linked above <example-model-params.html>`_.
+To use model parameters, they can be written to a file and imported into
+your script. In this example, our model parameters existing in a
+`YAML <http://yaml.org/>`_ file called ``params.yaml`` and are identical to
+those `linked above <example-model-params.html>`_.
 
 Create an OPF Model
 ^^^^^^^^^^^^^^^^^^^
@@ -44,7 +44,7 @@ The raw input data file is described `here <example-data.html>`_ in detail.
 Our `model parameters <example-model-params.html>`_ define how this data will be
 encoded in the ``encoders`` section:
 
-.. literalinclude:: ../../examples/opf/example-model-param-encoders.py
+.. literalinclude:: ../../examples/opf/example-model-param-encoders.yaml
 
 Notice that three semantic values are being encoded into the input space. The
 first is the scalar energy ``consumption`` value, which is being encoded with

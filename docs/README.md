@@ -10,6 +10,60 @@ sphinx-autobuild  ${NUPIC}/docs/source  ${NUPIC}/docs/_build_html  \
     --watch ${NUPIC}/src  --poll  --open-browser
 ```
 
+## How to Document Code
+
+We are using [reStructuredText](http://docutils.sourceforge.net/docs/user/rst/quickref.html) and [Sphinx](http://www.sphinx-doc.org/en/stable/) to build docs. Here is an example of a properly formatted function docstring:
+
+```python
+def compute(self, recordNum, patternNZ, classification, learn, infer):
+  """
+  Process one input sample.
+
+  This method is called by outer loop code outside the nupic-engine. We
+  use this instead of the nupic engine compute() because our inputs and
+  outputs aren't fixed size vectors of reals.
+
+
+  :param recordNum: Record number of this input pattern. Record numbers
+    normally increase sequentially by 1 each time unless there are missing
+    records in the dataset. Knowing this information insures that we don't get
+    confused by missing records.
+
+  :param patternNZ: List of the active indices from the output below. When the
+    input is from TemporalMemory, this list should be the indices of the
+    active cells.
+
+  :param classification: Dict of the classification information where:
+
+    - bucketIdx: index of the encoder bucket
+    - actValue: actual value going into the encoder
+
+    Classification could be None for inference mode.
+  :param learn: (bool) if true, learn this sample
+  :param infer: (bool) if true, perform inference
+
+  :return:    Dict containing inference results, there is one entry for each
+              step in self.steps, where the key is the number of steps, and
+              the value is an array containing the relative likelihood for
+              each bucketIdx starting from bucketIdx 0.
+
+              There is also an entry containing the average actual value to
+              use for each bucket. The key is 'actualValues'.
+
+              for example:
+
+              .. code-block:: python
+
+                 {1 :             [0.1, 0.3, 0.2, 0.7],
+                   4 :             [0.2, 0.4, 0.3, 0.5],
+                   'actualValues': [1.5, 3,5, 5,5, 7.6],
+                 }
+  """
+
+```
+
+See the codebase that has been documented (denoted below) for examples of completely documented code.
+
 ## Documentation status
 List of NuPIC packages and their documentation status:
 * `TODO`: Package doc needs to be reviewed and potentially converted to RST
@@ -28,16 +82,8 @@ nupic
 │   ├── aggregator.py [DEFER]
 │   ├── dictutils.py [DEFER]
 │   ├── fieldmeta.py [OK]
-│   ├── file_record_stream.py [TODO]
-│   ├── filters.py [TODO]
-│   ├── functionsource.py [TODO]
-│   ├── generators
-│   │   ├── anomalyzer.py [TODO]
-│   │   ├── data_generator.py [TODO]
-│   │   ├── distributions.py [TODO]
-│   │   ├── pattern_machine.py [TODO]
-│   │   └── sequence_machine.py [TODO]
-│   ├── inference_shifter.py [TODO]
+│   ├── file_record_stream.py [OK]
+│   ├── inference_shifter.py [OK]
 │   ├── joiner.py [TODO]
 │   ├── jsonhelpers.py [TODO]
 │   ├── record_stream.py [TODO]
@@ -46,26 +92,6 @@ nupic
 │   ├── stats_v2.py [TODO]
 │   ├── stream_reader.py [TODO]
 │   └── utils.py [TODO]
-├── database
-│   ├── ClientJobsDAO.py [TODO]
-│   └── Connection.py [TODO]
-├── datafiles
-│   ├── extra
-│   │   ├── firstOrder
-│   │   │   └── raw
-│   │   │       └── makeDataset.py [TODO]
-│   │   ├── generated
-│   │   │   ├── GenerateSampleData.py [TODO]
-│   │   ├── gym
-│   │   │   └── raw
-│   │   │       └── makeDataset.py [TODO]
-│   │   ├── hotgym
-│   │   │   └── raw
-│   │   │       └── makeDataset.py [TODO]
-│   │   ├── regression
-│   │   │   └── makeDataset.py [TODO]
-│   │   ├── secondOrder
-│   │   │   └── makeDataset.py [TODO]
 ├── encoders
 │   ├── adaptivescalar.py [OK]
 │   ├── base.py [TODO]
@@ -85,29 +111,30 @@ nupic
 │   └── utils.py [TODO]
 ├── frameworks
 │   ├── opf
-│   │   ├── clamodel.py [TODO]
-│   │   ├── clamodel_classifier_helper.py [TODO]
-│   │   ├── clamodelcallbacks.py [TODO]
+│   │   ├── htm_prediction_model.py [TODO]
+│   │   ├── htm_prediction_model_classifier_helper.py [TODO]
+│   │   ├── htm_prediction_model_callbacks.py [TODO]
 │   │   ├── client.py [TODO]
 │   │   ├── common_models
 │   │   │   └── cluster_params.py [TODO]
 │   │   ├── exceptions.py [TODO]
-│   │   ├── expdescriptionapi.py [TODO]
-│   │   ├── expdescriptionhelpers.py [TODO]
+│   │   ├── exp_description_api.py [TODO]
+│   │   ├── exp_description_helpers.py [TODO]
 │   │   ├── experiment_runner.py [TODO]
-│   │   ├── jsonschema
 │   │   ├── metrics.py [TODO]
 │   │   ├── model.py [TODO]
-│   │   ├── modelcallbacks.py [TODO]
-│   │   ├── modelfactory.py [TODO]
-│   │   ├── opfbasicenvironment.py [TODO]
-│   │   ├── opfenvironment.py [TODO]
-│   │   ├── opfhelpers.py [TODO]
-│   │   ├── opftaskdriver.py [TODO]
-│   │   ├── opfutils.py [TODO]
+│   │   ├── model_callbacks.py [TODO]
+│   │   ├── model_factory.py [TODO]
+│   │   ├── opf_basic_environment.py [TODO]
+│   │   ├── opf_environment.py [TODO]
+│   │   ├── opf_helpers.py [TODO]
+│   │   ├── opf_task_driver.py [TODO]
+│   │   ├── opf_utils.py [TODO]
+│   │   │   ├── ModelResults [OK]
+│   │   │   └── SensorInput [OK]
 │   │   ├── periodic.py [TODO]
-│   │   ├── predictionmetricsmanager.py [TODO]
-│   │   ├── previousvaluemodel.py [TODO]
+│   │   ├── prediction_metrics_manager.py [TODO]
+│   │   ├── previous_value_model.py [TODO]
 │   │   ├── safe_interpreter.py [TODO]
 │   │   └── two_gram_model.py [TODO]
 │   └── viz
@@ -141,13 +168,13 @@ nupic
 │   ├── SPRegion.py [TODO]
 │   ├── SVMClassifierNode.py [TODO]
 │   ├── Spec.py [TODO]
-│   ├── TPRegion.py [TODO]
+│   ├── TMRegion.py [TODO]
 │   ├── TestRegion.py [TODO]
 │   └─── UnimportableNode.py [TODO]
 ├── research
-│   ├── TP.py [TODO]
-│   ├── TP10X2.py [TODO]
-│   ├── TP_shim.py [TODO]
+│   ├── BacktrackingTM.py [TODO]
+│   ├── BacktrackingTMCPP.py [TODO]
+│   ├── TM_shim.py [TODO]
 │   ├── connections.py [TODO]
 │   ├── fdrutilities.py [TODO]
 │   ├── monitor_mixin
@@ -179,12 +206,7 @@ nupic
 │   ├── lockattributes.py [TODO]
 │   ├── log_utils.py [TODO]
 │   ├── loophelpers.py [TODO]
-│   ├──.py [TODO]mysqlhelpers.py [TODO]
-│   └── unittesthelpers
-│       ├── abstract_temporal_memory_test.py [TODO]
-│       ├── algorithm_test_helpers.py [TODO]
-│       ├── test_framework_helpers.py [TODO]
-│       └── testcasebase.py [TODO]
+│   └── mysqlhelpers.py [TODO]
 ├── swarming
 │   ├── DummyModelRunner.py [TODO]
 │   ├── HypersearchV2.py [TODO]

@@ -47,7 +47,7 @@ _SP_PARAMS = {
 }
 
 # Default config fields for TPRegion
-_TP_PARAMS = {
+_TM_PARAMS = {
     "verbosity": _VERBOSITY,
     "columnCount": 2048,
     "cellsPerColumn": 32,
@@ -77,16 +77,16 @@ _NUM_RECORDS = 2000
 
 
 def createTemporalAnomaly(recordParams, spatialParams=_SP_PARAMS,
-                          temporalParams=_TP_PARAMS,
+                          temporalParams=_TM_PARAMS,
                           verbosity=_VERBOSITY):
 
 
-  """Generates a Network with connected RecordSensor, SP, TP.
+  """Generates a Network with connected RecordSensor, SP, TM.
 
   This function takes care of generating regions and the canonical links.
   The network has a sensor region reading data from a specified input and
   passing the encoded representation to an SPRegion.
-  The SPRegion output is passed to a TPRegion.
+  The SPRegion output is passed to a TMRegion.
 
   Note: this function returns a network that needs to be initialized. This
   allows the user to extend the network by adding further regions and
@@ -94,7 +94,7 @@ def createTemporalAnomaly(recordParams, spatialParams=_SP_PARAMS,
 
   :param recordParams: a dict with parameters for creating RecordSensor region.
   :param spatialParams: a dict with parameters for creating SPRegion.
-  :param temporalParams: a dict with parameters for creating TPRegion.
+  :param temporalParams: a dict with parameters for creating TMRegion.
   :param verbosity: an integer representing how chatty the network will be.
   """
   inputFilePath = recordParams["inputFilePath"]
@@ -132,7 +132,7 @@ def createTemporalAnomaly(recordParams, spatialParams=_SP_PARAMS,
                srcOutput="temporalTopDownOut", destInput="temporalTopDownIn")
 
   # Add the TPRegion on top of the SPRegion
-  network.addRegion("temporalPoolerRegion", "py.TPRegion",
+  network.addRegion("temporalPoolerRegion", "py.TMRegion",
                     json.dumps(temporalParams))
 
   network.link("spatialPoolerRegion", "temporalPoolerRegion", "UniformLink", "")

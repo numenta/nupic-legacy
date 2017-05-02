@@ -26,7 +26,7 @@ import tempfile
 import pkg_resources
 
 from nupic.data.aggregator import Aggregator
-from nupic.data.fieldmeta import FieldMetaInfo, FieldMetaType, FieldMetaSpecial
+from nupic.data.field_meta import FieldMetaInfo, FieldMetaType, FieldMetaSpecial
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data import jsonhelpers
 from nupic.data.record_stream import RecordStreamIface

@@ -27,16 +27,16 @@ template in source control. Branching via source control may make it easier to
 integrate future template improvements into your description.py.
 """
 
-from nupic.frameworks.opf.expdescriptionapi import ExperimentDescriptionAPI
+from nupic.frameworks.opf.exp_description_api import ExperimentDescriptionAPI
 
-from nupic.frameworks.opf.expdescriptionhelpers import (
+from nupic.frameworks.opf.exp_description_helpers import (
   updateConfigFromSubConfig,
   applyValueGettersToContainer,
   DeferredDictLookup)
 
-from nupic.frameworks.opf.predictionmetricsmanager import MetricSpec
+from nupic.frameworks.opf.prediction_metrics_manager import MetricSpec
 
-from nupic.frameworks.opf.opftaskdriver import (
+from nupic.frameworks.opf.opf_task_driver import (
                                             IterationPhaseSpecLearnOnly,
                                             IterationPhaseSpecInferOnly,
                                             IterationPhaseSpecLearnAndInfer,
@@ -220,7 +220,7 @@ config = {
   # General CLA Region Parameters
   ##############################################################################
 
-  # Number of cell columns in the cortical region (same number for SP and TP)
+  # Number of cell columns in the cortical region (same number for SP and TM)
   # (see also tpNCellsPerCol)
   # Replaces: spCoincCount
   'claRegionNColumns' : 2048,
@@ -252,12 +252,12 @@ config = {
 
 
   ##############################################################################
-  # Temporal Pooler (TP) Parameters
+  # Temporal Pooler (TM) Parameters
   ##############################################################################
 
-  # TP diagnostic output verbosity control;
+  # TM diagnostic output verbosity control;
   # 0: silent; [1..6]: increasing levels of verbosity
-  # (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)
+  # (see verbosity in nupic/trunk/py/nupic/research/BacktrackingTM.py and BacktrackingTMCPP.py)
   #
   'tpVerbosity' : 0,
 
@@ -269,9 +269,9 @@ config = {
   #       by LPF; solve in OPF.
   'tpTrainPrintStatsPeriodIter' : 0,
 
-  # Controls whether TP is enabled or disabled;
-  # TP is necessary for making temporal predictions, such as predicting the next
-  # inputs.  Without TP, the model is only capable of reconstructing missing sensor
+  # Controls whether TM is enabled or disabled;
+  # TM is necessary for making temporal predictions, such as predicting the next
+  # inputs.  Without TM, the model is only capable of reconstructing missing sensor
   # inputs (via SP).
   #
   'tmEnable' : True,
@@ -302,7 +302,7 @@ config = {
   #  > 0 for fixed-size CLA
   # -1 for non-fixed-size CLA
   #
-  # TODO for Ron: once the appropriate value is placed in TP constructor, see if
+  # TODO for Ron: once the appropriate value is placed in TM constructor, see if
   #  we should eliminate this parameter from description.py
   #
   'tpMaxSegmentsPerCell' : 128,
@@ -324,7 +324,7 @@ config = {
   #  > 0 for fixed-size CLA
   # -1 for non-fixed-size CLA
   #
-  # TODO for Ron: once the appropriate value is placed in TP constructor, see if
+  # TODO for Ron: once the appropriate value is placed in TM constructor, see if
   #  we should eliminate this parameter from description.py
   #
   'tpMaxSynapsesPerSegment' : 32,
@@ -402,7 +402,7 @@ tasks = [
     # Task Control parameters for OPFTaskDriver (per opfTaskControlSchema.json)
     'taskControl' : {
 
-      # Iteration cycle list consisting of opftaskdriver.IterationPhaseSpecXXXXX
+      # Iteration cycle list consisting of opf_task_driver.IterationPhaseSpecXXXXX
       # instances.
       'iterationCycle' : [
         #IterationPhaseSpecLearnOnly(1000),
@@ -411,7 +411,7 @@ tasks = [
       ],
 
 
-      # Inference specifications: sequence of opftaskdriver.InferenceSpecXXXXX
+      # Inference specifications: sequence of opf_task_driver.InferenceSpecXXXXX
       # instances that indicate which inferences to perform and which metrics to
       # gather for each inference step. Note that it is up to the client
       # to decide what to do with these metrics
