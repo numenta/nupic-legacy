@@ -20,22 +20,20 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# This script assumes you have the latest codebase built locally.
+# This script assumes you have the latest codebase built locally. It assumes
+# that $NUPIC is a complete path to the NuPIC codebase.
 
-# This is NUPIC because we're going to switch to the gh-pages branch.
 TMP_DIR="$HOME/tmp"
 CWD=`pwd`
+VERSION=`cat $NUPIC/VERSION`
 versions=()
-
-rm -rf $TMP_DIR
-mkdir $TMP_DIR
 
 find_existing_versions() {
     declare docRoot="$1"
     versions=()
     echo "Looking for published versions in $docRoot..."
     for file in `ls $docRoot | sort -r`; do
-        if [[ $file == *html ]]; then
+        if [[ $file == *html || "$file" = latest || "$file" == stable ]]; then
             echo "  Skipping $file"
         elif [[ -d "$docRoot/$file" ]]; then
             echo "  Found $file"
@@ -70,26 +68,39 @@ build_html_index() {
     echo "</body></html>" >> $indexFile
 }
 
-copy_latest_build() {
+create_latest_and_stable_shortcuts() {
     declare docRoot="$1"
     declare versions="${!2}"
+    local latest=false
+    local stable=false
+    echo "Building shortcut to stable and latest versions..."
     for version in $versions; do
-        echo "checking $version..."
-        if [[ $version == *dev0 || $version == "latest" ]]; then
-            echo "Skipping $version"
-        else
-            echo "Found latest version $version"
+        echo "  checking $version..."
+        if [[ $version == *dev0 ]]; then
+            # First dev version found should be latest
+            echo "    Found latest version $version"
             rm -rf "$docRoot/latest"
             cp -rf "$docRoot/$version" "$docRoot/latest"
-            versions=("latest" "${versions[@]}");
+            latest=true
+        elif [[ $version == "stable" || $version == "latest" ]]; then
+            echo "    Skipping $version"
+        else
+            echo "    Found stable version $version"
+            rm -rf "$docRoot/stable"
+            cp -rf "$docRoot/$version" "$docRoot/stable"
+            stable=true
+        fi
+        if [[ "$latest" = true && "$stable" = true ]]; then
             break
         fi
     done
 }
 
-cd $NUPIC/docs
+# Program start.
+rm -rf $TMP_DIR
+mkdir $TMP_DIR
 
-VERSION=`cat $NUPIC/VERSION`
+cd $NUPIC/docs
 
 # Clean and build into versioned folder.
 make clean html
@@ -105,12 +116,18 @@ git clean -fd
 mv "$TMP_DIR/$VERSION" $NUPIC
 
 find_existing_versions $NUPIC
-copy_latest_build $NUPIC versions[@]
+create_latest_and_stable_shortcuts $NUPIC versions[@]
+# Add new shortcuts to version list for HTML render.
+versions=("stable" "${versions[@]}");
+versions=("latest" "${versions[@]}");
+echo "${versions[@]}"
 build_html_index "$NUPIC/index.html" versions[@]
 
-# Add latest version build and new index
+# Add latest/stable version builds and new index
 git add "$VERSION" index.html
+# Runnning these individually in case they don't exist yet.
 git add latest
+git add stable
 if [[ `git status --porcelain` ]]; then
   git commit -am "Development documentation build."
   git push upstream gh-pages --force
