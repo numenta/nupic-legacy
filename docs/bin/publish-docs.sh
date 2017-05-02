@@ -92,7 +92,7 @@ create_latest_and_dev_shortcuts() {
             # versions=("latest" "${versions[@]}");
             stable=true
         fi
-        if [[ latest && stable ]]; then
+        if [[ "$latest" = true && "$stable" = true ]]; then
             versions=("stable" "${versions[@]}");
             versions=("latest" "${versions[@]}");
             break
