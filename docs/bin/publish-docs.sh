@@ -81,7 +81,6 @@ create_latest_and_stable_shortcuts() {
             echo "    Found latest version $version"
             rm -rf "$docRoot/latest"
             cp -rf "$docRoot/$version" "$docRoot/latest"
-            # versions=("latest" "${versions[@]}");
             latest=true
         elif [[ $version == "stable" || $version == "latest" ]]; then
             echo "    Skipping $version"
@@ -89,7 +88,6 @@ create_latest_and_stable_shortcuts() {
             echo "    Found stable version $version"
             rm -rf "$docRoot/stable"
             cp -rf "$docRoot/$version" "$docRoot/stable"
-            # versions=("latest" "${versions[@]}");
             stable=true
         fi
         if [[ "$latest" = true && "$stable" = true ]]; then
@@ -119,6 +117,7 @@ mv "$TMP_DIR/$VERSION" $NUPIC
 
 find_existing_versions $NUPIC
 create_latest_and_stable_shortcuts $NUPIC versions[@]
+# Add new shortcuts to version list for HTML render.
 versions=("stable" "${versions[@]}");
 versions=("latest" "${versions[@]}");
 echo "${versions[@]}"
