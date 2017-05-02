@@ -1,11 +1,18 @@
 Encoders
 --------
 
-Encoder
-^^^^^^^
+.. automodule:: nupic.encoders.base
+
+Base Encoder
+^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.base.Encoder
    :members:
+
+Encoder Result
+^^^^^^^^^^^^^^
+
+.. autoclass:: nupic.encoders.base.EncoderResult
 
 Scalar Encoder
 ^^^^^^^^^^^^^^
