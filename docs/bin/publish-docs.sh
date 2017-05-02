@@ -51,13 +51,13 @@ build_html_index() {
     echo "<html>" > $indexFile
 
     echo "<head>" >> $indexFile
-    echo "<style>" >> $indexFile
-        echo "body{font-size:xx-large}" >> $indexFile
-        echo "ul{margin-left:200px}" >> $indexFile
-    echo "</style>" >> $indexFile
+    echo "<link rel='stylesheet' href='latest/_static/alabaster.css' type='text/css' />" >> $indexFile
     echo "</head>" >> $indexFile
 
-    echo "<body>" >> $indexFile
+    echo "<body role='document'>" >> $indexFile
+    echo "<div class='document'>" >> $indexFile
+    echo "<div class='documentwrapper'>" >> $indexFile
+
     echo "<ul>" >> $indexFile
     echo "<h1>NuPIC API Documentation</h1>" >> $indexFile
     echo "<h2>Versions</h2>" >> $indexFile
@@ -65,6 +65,7 @@ build_html_index() {
         echo "<li><a href='$version/index.html'>$version</a></li>" >> $indexFile
     done
     echo "</ul>" >> $indexFile
+    echo "</div></div>" >> $indexFile
     echo "</body></html>" >> $indexFile
 }
 
