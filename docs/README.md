@@ -104,11 +104,10 @@ nupic
 │   ├── multi.py [OK]
 │   ├── pass_through_encoder.py [OK]
 │   ├── random_distributed_scalar.py [OK]
-│   ├── scalar.py [TODO]
-│   ├── scalarspace.py [TODO]
+│   ├── scalar.py [OK]
+│   ├── scalarspace.py [OK]
 │   ├── sdrcategory.py [OK]
-│   ├── sparse_pass_through_encoder.py [OK]
-│   └── utils.py [TODO]
+│   └── sparse_pass_through_encoder.py [OK]
 ├── frameworks
 │   ├── opf
 │   │   ├── htm_prediction_model.py [TODO]
