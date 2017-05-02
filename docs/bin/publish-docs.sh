@@ -113,7 +113,7 @@ git add "$VERSION" index.html
 git add latest
 if [[ `git status --porcelain` ]]; then
   git commit -am "Development documentation build."
-  git push upstream gh-pages
+  git push upstream gh-pages --force
 else
     echo "No doc changes"
 fi
