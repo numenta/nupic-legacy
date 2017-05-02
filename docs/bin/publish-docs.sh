@@ -112,9 +112,8 @@ build_html_index "$NUPIC/index.html" versions[@]
 git add "$VERSION" index.html
 git add latest
 if [[ `git status --porcelain` ]]; then
-    echo "This is where we would commit and push."
-  # git commit -am "Development documentation build."
-  # git push upstream gh-pages
+  git commit -am "Development documentation build."
+  git push upstream gh-pages
 else
     echo "No doc changes"
 fi
