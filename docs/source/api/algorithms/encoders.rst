@@ -82,9 +82,14 @@ MultiEncoder
    :members: addEncoder, addMultipleEncoders
    :show-inheritance:
 
-Pass Through Encoder
-^^^^^^^^^^^^^^^^^^^^
+Pass Through Encoders
+^^^^^^^^^^^^^^^^^^^^^
+
+Used to pass raw SDRs through to the algorithms when data is already encoded.
 
 .. autoclass:: nupic.encoders.pass_through_encoder.PassThroughEncoder
    :members: closenessScores
+   :show-inheritance:
+
+.. autoclass:: nupic.encoders.sparse_pass_through_encoder.SparsePassThroughEncoder
    :show-inheritance:

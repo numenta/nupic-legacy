@@ -26,16 +26,36 @@ from nupic.encoders import pass_through_encoder
 
 
 class SparsePassThroughEncoder(pass_through_encoder.PassThroughEncoder):
-  """Convert a bitmap encoded as array indicies to an SDR
+  """
+  Convert a bitmap encoded as array indices to an SDR.
 
-  Each encoding is an SDR in which w out of n bits are turned on.
-  The input should be an array or string of indicies to turn on
-  Note: the value for n must equal input length * w
-  i.e. for n=8 w=1 [0,2,5] => 101001000
-    or for n=8 w=1 "0,2,5" => 101001000
+  Each encoding is an SDR in which ``w`` out of ``n`` bits are turned on.
+  The input should be an array or string of indices to turn on.
 
-  i.e. for n=24 w=3 [0,2,5] => 111000111000000111000000000
-    or for n=24 w=3 "0,2,5" => 111000111000000111000000000
+  **Note:** the value for ``n`` must equal input length * w, for example:
+
+  .. code-block:: python
+
+     for n=8 w=1 [0,2,5] => 101001000
+
+  or:
+
+  .. code-block:: python
+
+    for n=8 w=1 "0,2,5" => 101001000
+
+  and:
+
+  .. code-block:: python
+
+    for n=24 w=3 [0,2,5] => 111000111000000111000000000
+
+  or:
+
+  .. code-block:: python
+
+    for n=24 w=3 "0,2,5" => 111000111000000111000000000
+
   """
 
 
