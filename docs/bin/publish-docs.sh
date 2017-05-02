@@ -93,8 +93,6 @@ create_latest_and_dev_shortcuts() {
             stable=true
         fi
         if [[ "$latest" = true && "$stable" = true ]]; then
-            versions=("stable" "${versions[@]}");
-            versions=("latest" "${versions[@]}");
             break
         fi
     done
@@ -121,16 +119,19 @@ mv "$TMP_DIR/$VERSION" $NUPIC
 
 find_existing_versions $NUPIC
 create_latest_and_dev_shortcuts $NUPIC versions[@]
+versions=("stable" "${versions[@]}");
+versions=("latest" "${versions[@]}");
+echo "${versions[@]}"
 build_html_index "$NUPIC/index.html" versions[@]
 
-# Add latest version build and new index
-git add "$VERSION" index.html
-git add latest
-if [[ `git status --porcelain` ]]; then
-  git commit -am "Development documentation build."
-  git push upstream gh-pages --force
-else
-    echo "No doc changes"
-fi
+# # Add latest version build and new index
+# git add "$VERSION" index.html
+# git add latest
+# if [[ `git status --porcelain` ]]; then
+#   git commit -am "Development documentation build."
+#   git push upstream gh-pages --force
+# else
+#     echo "No doc changes"
+# fi
 
 cd $CWD
