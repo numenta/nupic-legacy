@@ -88,7 +88,7 @@ create_latest_and_dev_shortcuts() {
         else
             echo "    Found stable version $version"
             rm -rf "$docRoot/stable"
-            cp -rf "$docRoot/$version" "$docRoot/latest"
+            cp -rf "$docRoot/$version" "$docRoot/stable"
             # versions=("latest" "${versions[@]}");
             stable=true
         fi
