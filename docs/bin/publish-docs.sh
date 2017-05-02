@@ -109,7 +109,7 @@ copy_latest_build $NUPIC versions[@]
 build_html_index "$NUPIC/index.html" versions[@]
 
 # Add and force push all. Nukes everything. Who cares.
-echo git add "$VERSION" latest index.html
+git add "$VERSION" latest index.html
 if [[ `git status --porcelain` ]]; then
     echo "This is where we would commit and push."
   # git commit -am "Development documentation build."
