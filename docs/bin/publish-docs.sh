@@ -33,7 +33,7 @@ find_existing_versions() {
     versions=()
     echo "Looking for published versions in $docRoot..."
     for file in `ls $docRoot | sort -r`; do
-        if [[ $file == *html || "$file" = latest || "$file" == stable ]]; then
+        if [[ $file == *html || "$file" = prerelease || "$file" == latest ]]; then
             echo "  Skipping $file"
         elif [[ -d "$docRoot/$file" ]]; then
             echo "  Found $file"
@@ -51,7 +51,7 @@ build_html_index() {
     echo "<html>" > $indexFile
 
     echo "<head>" >> $indexFile
-    echo "<link rel='stylesheet' href='latest/_static/alabaster.css' type='text/css' />" >> $indexFile
+    echo "<link rel='stylesheet' href='prerelease/_static/alabaster.css' type='text/css' />" >> $indexFile
     echo "</head>" >> $indexFile
 
     echo "<body role='document'>" >> $indexFile
@@ -69,29 +69,30 @@ build_html_index() {
     echo "</body></html>" >> $indexFile
 }
 
-create_latest_and_stable_shortcuts() {
+create_prerelease_and_latest_shortcuts() {
     declare docRoot="$1"
     declare versions="${!2}"
+    local prerelease=false
     local latest=false
-    local stable=false
-    echo "Building shortcut to stable and latest versions..."
+    echo "Building shortcut to latest and prerelease versions..."
     for version in $versions; do
         echo "  checking $version..."
         if [[ $version == *dev0 ]]; then
-            # First dev version found should be latest
+            # First dev version found should be prerelease
+            echo "    Found prerelease version $version"
+            rm -rf "$docRoot/prerelease"
+            cp -rf "$docRoot/$version" "$docRoot/prerelease"
+            prerelease=true
+        elif [[ $version == "latest" || $version == "prerelease" ]]; then
+            echo "    Skipping $version"
+        else
             echo "    Found latest version $version"
             rm -rf "$docRoot/latest"
             cp -rf "$docRoot/$version" "$docRoot/latest"
             latest=true
-        elif [[ $version == "stable" || $version == "latest" ]]; then
-            echo "    Skipping $version"
-        else
-            echo "    Found stable version $version"
-            rm -rf "$docRoot/stable"
-            cp -rf "$docRoot/$version" "$docRoot/stable"
-            stable=true
         fi
-        if [[ "$latest" = true && "$stable" = true ]]; then
+        if [[ "$prerelease" = true && "$latest" = true ]]; then
+            # We've already found them.
             break
         fi
     done
@@ -117,18 +118,18 @@ git clean -fd
 mv "$TMP_DIR/$VERSION" $NUPIC
 
 find_existing_versions $NUPIC
-create_latest_and_stable_shortcuts $NUPIC versions[@]
+create_prerelease_and_latest_shortcuts $NUPIC versions[@]
 # Add new shortcuts to version list for HTML render.
-versions=("stable" "${versions[@]}");
 versions=("latest" "${versions[@]}");
+versions=("prerelease" "${versions[@]}");
 echo "${versions[@]}"
 build_html_index "$NUPIC/index.html" versions[@]
 
-# Add latest/stable version builds and new index
+# Add prerelease/latest version builds and new index
 git add "$VERSION" index.html
 # Runnning these individually in case they don't exist yet.
+git add prerelease
 git add latest
-git add stable
 if [[ `git status --porcelain` ]]; then
   git commit -am "Development documentation build."
   git push upstream gh-pages --force
