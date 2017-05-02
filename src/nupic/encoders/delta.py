@@ -28,9 +28,9 @@ from nupic.encoders.base import EncoderResult
 
 class DeltaEncoder(AdaptiveScalarEncoder):
   """
-  This is an implementation of a delta encoder. The delta encoder encodes differences between
-  successive scalar values instead of encoding the actual values. It returns an actual value when
-  decoding and not a delta.
+  This is an implementation of a delta encoder. The delta encoder encodes
+  differences between successive scalar values instead of encoding the actual
+  values. It returns an actual value when decoding and not a delta.
   """
 
 
