@@ -33,22 +33,24 @@ UNKNOWN = "<UNKNOWN>"
 
 
 class CategoryEncoder(Encoder):
-  """Encodes a list of discrete categories (described by strings), that aren't
+  """
+  Encodes a list of discrete categories (described by strings), that aren't
   related to each other, so we never emit a mixture of categories.
 
   The value of zero is reserved for "unknown category"
 
-  Internally we use a ScalarEncoder with a radius of 1, but since we only encode
-  integers, we never get mixture outputs.
+  Internally we use a :class:`.ScalarEncoder` with a radius of 1, but since we
+  only encode integers, we never get mixture outputs.
 
-  The SDRCategoryEncoder uses a different method to encode categories"""
+  The :class:`.SDRCategoryEncoder` uses a different method to encode categories.
+
+  :param categoryList: list of discrete string categories
+  :param forced: if True, skip checks for parameters' settings; see
+                 :class:`.ScalarEncoder` for details. (default False)
+  """
 
 
   def __init__(self, w, categoryList, name="category", verbosity=0, forced=False):
-    """params:
-       forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
-    """
-
     self.encoders = None
     self.verbosity = verbosity
 

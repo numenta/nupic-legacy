@@ -30,29 +30,29 @@ from nupic.bindings.math import SM32, GetNTAReal, Random as NupicRandom
 
 
 class SDRCategoryEncoder(Encoder):
-  """Encodes a list of discrete categories (described by strings), that aren't
+  """
+  Encodes a list of discrete categories (described by strings), that aren't
   related to each other.
 
   Each  encoding is an SDR in which w out of n bits are turned on.
 
-  Unknown categories are encoded as a single
+  Unknown categories are encoded as a single value.
 
-  Internally we use a ScalarEncoder with a radius of 1, but since we only encode
-  integers, we never get mixture outputs.
+  Internally we use a :class:`.ScalarEncoder` with a radius of 1, but since we
+  only encode integers, we never get mixture outputs.
 
-  The SDRCategoryEncoder uses a different method to encode categories"""
+  The :class:`.CategoryEncoder` uses a different method to encode categories
+
+  :param categoryList: list of discrete string categories, if ``None`` then
+                       categories will automatically be added as they are
+                       encountered
+  :param forced: if True, skip checks for parameters' settings; see
+                 :class:`.ScalarEncoder` for details. (default False)
+  """
 
 
   def __init__(self, n, w, categoryList = None, name="category", verbosity=0,
                encoderSeed=1, forced=False):
-    """
-    n is  total bits in output
-    w is the number of bits that are turned on for each rep
-    categoryList is a list of strings that define the categories.
-    If "none" then categories will automatically be added as they are encountered.
-    forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
-    """
-
     self.n = n
     self.w = w
 
