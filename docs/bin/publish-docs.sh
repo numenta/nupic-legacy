@@ -52,14 +52,9 @@ build_html_index() {
 
     echo "<head>" >> $indexFile
     echo "<link rel='stylesheet' href='latest/_static/alabaster.css' type='text/css' />" >> $indexFile
-    echo "<style>" >> $indexFile
-        echo "body{font-size:xx-large}" >> $indexFile
-        echo "ul{margin-left:200px}" >> $indexFile
-    echo "</style>" >> $indexFile
     echo "</head>" >> $indexFile
 
     echo "<body role='document'>" >> $indexFile
-
     echo "<div class='document'>" >> $indexFile
     echo "<div class='documentwrapper'>" >> $indexFile
 
