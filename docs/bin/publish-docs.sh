@@ -62,8 +62,6 @@ build_html_index() {
 
     echo "<div class='document'>" >> $indexFile
     echo "<div class='documentwrapper'>" >> $indexFile
-    echo "<div class='bodywrapper'>" >> $indexFile
-    echo "<div class='body' role='main'>" >> $indexFile
 
     echo "<ul>" >> $indexFile
     echo "<h1>NuPIC API Documentation</h1>" >> $indexFile
@@ -72,7 +70,7 @@ build_html_index() {
         echo "<li><a href='$version/index.html'>$version</a></li>" >> $indexFile
     done
     echo "</ul>" >> $indexFile
-    echo "</div></div></div></div>" >> $indexFile
+    echo "</div></div>" >> $indexFile
     echo "</body></html>" >> $indexFile
 }
 
