@@ -20,15 +20,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# This script assumes you have the latest codebase built locally.
+# This script assumes you have the latest codebase built locally. It assumes
+# that $NUPIC is a complete path to the NuPIC codebase.
 
-# This is NUPIC because we're going to switch to the gh-pages branch.
 TMP_DIR="$HOME/tmp"
 CWD=`pwd`
+VERSION=`cat $NUPIC/VERSION`
 versions=()
-
-rm -rf $TMP_DIR
-mkdir $TMP_DIR
 
 find_existing_versions() {
     declare docRoot="$1"
@@ -70,26 +68,42 @@ build_html_index() {
     echo "</body></html>" >> $indexFile
 }
 
-copy_latest_build() {
+create_latest_and_dev_shortcuts() {
     declare docRoot="$1"
     declare versions="${!2}"
+    local latest=false
+    local stable=false
     for version in $versions; do
         echo "checking $version..."
-        if [[ $version == *dev0 || $version == "latest" ]]; then
-            echo "Skipping $version"
-        else
+        if [[ $version == *dev0 ]]; then
+            # First dev version found should be latest
             echo "Found latest version $version"
             rm -rf "$docRoot/latest"
             cp -rf "$docRoot/$version" "$docRoot/latest"
+            # versions=("latest" "${versions[@]}");
+            latest=true
+        elif [[ $version == "stable" || $version == "latest" ]]; then
+            echo "Skipping $version"
+        else
+            echo "Found stable version $version"
+            rm -rf "$docRoot/stable"
+            cp -rf "$docRoot/$version" "$docRoot/latest"
+            # versions=("latest" "${versions[@]}");
+            stable=true
+        fi
+        if [[ latest && stable ]]; then
+            versions=("stable" "${versions[@]}");
             versions=("latest" "${versions[@]}");
             break
         fi
     done
 }
 
-cd $NUPIC/docs
+# Program start.
+rm -rf $TMP_DIR
+mkdir $TMP_DIR
 
-VERSION=`cat $NUPIC/VERSION`
+cd $NUPIC/docs
 
 # Clean and build into versioned folder.
 make clean html
@@ -105,7 +119,7 @@ git clean -fd
 mv "$TMP_DIR/$VERSION" $NUPIC
 
 find_existing_versions $NUPIC
-copy_latest_build $NUPIC versions[@]
+create_latest_and_dev_shortcuts $NUPIC versions[@]
 build_html_index "$NUPIC/index.html" versions[@]
 
 # Add latest version build and new index
