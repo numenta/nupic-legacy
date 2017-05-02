@@ -79,5 +79,5 @@ MultiEncoder
 ^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.multi.MultiEncoder
-   :members:
+   :members: addEncoder, addMultipleEncoders
    :show-inheritance:

@@ -101,7 +101,7 @@ nupic
 │   ├── delta.py [OK]
 │   ├── geospatial_coordinate.py [OK]
 │   ├── logenc.py [OK]
-│   ├── multi.py [TODO]
+│   ├── multi.py [OK]
 │   ├── pass_through_encoder.py [TODO]
 │   ├── random_distributed_scalar.py [OK]
 │   ├── scalar.py [TODO]
