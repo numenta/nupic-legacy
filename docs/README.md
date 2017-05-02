@@ -102,7 +102,7 @@ nupic
 │   ├── geospatial_coordinate.py [OK]
 │   ├── logenc.py [OK]
 │   ├── multi.py [OK]
-│   ├── pass_through_encoder.py [TODO]
+│   ├── pass_through_encoder.py [OK]
 │   ├── random_distributed_scalar.py [OK]
 │   ├── scalar.py [TODO]
 │   ├── scalarspace.py [TODO]

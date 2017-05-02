@@ -81,3 +81,10 @@ MultiEncoder
 .. autoclass:: nupic.encoders.multi.MultiEncoder
    :members: addEncoder, addMultipleEncoders
    :show-inheritance:
+
+Pass Through Encoder
+^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: nupic.encoders.pass_through_encoder.PassThroughEncoder
+   :members: closenessScores
+   :show-inheritance:
