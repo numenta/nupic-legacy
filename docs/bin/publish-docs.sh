@@ -114,6 +114,8 @@ cd $NUPIC
 git checkout gh-pages
 # Get rid of any nupic artifacts
 git clean -fd
+# Nuke any existing version of these docs
+rm -rf $VERSION
 # Get the docs from the temp folder
 mv "$TMP_DIR/$VERSION" $NUPIC
 
