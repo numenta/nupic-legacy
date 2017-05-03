@@ -65,6 +65,7 @@
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
 </div>
@@ -83,6 +84,10 @@
 </li>
       <li><a href="api/algorithms/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory.activatePredictedColumn">activatePredictedColumn() (nupic.research.temporal_memory.TemporalMemory method)</a>
 </li>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.adaptivescalar.AdaptiveScalarEncoder">AdaptiveScalarEncoder (class in nupic.encoders.adaptivescalar)</a>
+</li>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.multi.MultiEncoder.addEncoder">addEncoder() (nupic.encoders.multi.MultiEncoder method)</a>
+</li>
       <li><a href="api/opf/metrics.html#nupic.frameworks.opf.metrics.MetricPassThruPrediction.addInstance">addInstance() (nupic.frameworks.opf.metrics.MetricPassThruPrediction method)</a>
 
       <ul>
@@ -93,10 +98,10 @@
 </li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.multi.MultiEncoder.addMultipleEncoders">addMultipleEncoders() (nupic.encoders.multi.MultiEncoder method)</a>
 </li>
-      <li><a href="api/network/network.html#nupic.engine.Network.addRegion">addRegion() (nupic.engine.Network method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/network/network.html#nupic.engine.Network.addRegion">addRegion() (nupic.engine.Network method)</a>
+</li>
       <li><a href="api/network/network.html#nupic.engine.Network.addRegionFromBundle">addRegionFromBundle() (nupic.engine.Network method)</a>
 </li>
       <li><a href="api/opf/metrics.html#nupic.frameworks.opf.metrics.AggregateMetric.aggregate">aggregate() (nupic.frameworks.opf.metrics.AggregateMetric method)</a>
@@ -133,6 +138,8 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.category.CategoryEncoder">CategoryEncoder (class in nupic.encoders.category)</a>
+</li>
       <li><a href="api/algorithms/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory.cellsForColumn">cellsForColumn() (nupic.research.temporal_memory.TemporalMemory method)</a>
 </li>
       <li><a href="api/network/regions.html#nupic.regions.CLAClassifierRegion.CLAClassifierRegion">CLAClassifierRegion (class in nupic.regions.CLAClassifierRegion)</a>
@@ -150,7 +157,7 @@
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.closenessScores">closenessScores() (nupic.encoders.base.Encoder method)</a>
 
       <ul>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.scalar.ScalarEncoder.closenessScores">(nupic.encoders.scalar.ScalarEncoder method)</a>
+        <li><a href="api/algorithms/encoders.html#nupic.encoders.pass_through_encoder.PassThroughEncoder.closenessScores">(nupic.encoders.pass_through_encoder.PassThroughEncoder method)</a>
 </li>
       </ul></li>
       <li><a href="api/algorithms/classifiers.html#nupic.algorithms.KNNClassifier.KNNClassifier.closestOtherTrainingPattern">closestOtherTrainingPattern() (nupic.algorithms.KNNClassifier.KNNClassifier method)</a>
@@ -207,6 +214,10 @@
         <li><a href="api/opf/models.html#nupic.frameworks.opf.model_factory.ModelFactory.create">(nupic.frameworks.opf.model_factory.ModelFactory static method)</a>
 </li>
       </ul></li>
+      <li><a href="api/data/field-meta.html#nupic.data.field_meta.FieldMetaInfo.createFromFileFieldElement">createFromFileFieldElement() (nupic.data.field_meta.FieldMetaInfo static method)</a>, <a href="api/data/index.html#nupic.data.field_meta.FieldMetaInfo.createFromFileFieldElement">[1]</a>
+</li>
+      <li><a href="api/data/field-meta.html#nupic.data.field_meta.FieldMetaInfo.createListFromFileFieldList">createListFromFileFieldList() (nupic.data.field_meta.FieldMetaInfo class method)</a>, <a href="api/data/index.html#nupic.data.field_meta.FieldMetaInfo.createListFromFileFieldList">[1]</a>
+</li>
       <li><a href="api/network/regions.html#nupic.regions.CLAClassifierRegion.CLAClassifierRegion.customCompute">customCompute() (nupic.regions.CLAClassifierRegion.CLAClassifierRegion method)</a>
 
       <ul>
@@ -226,12 +237,10 @@
       <li><a href="api/algorithms/encoders.html#nupic.encoders.date.DateEncoder">DateEncoder (class in nupic.encoders.date)</a>
 </li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.decode">decode() (nupic.encoders.base.Encoder method)</a>
-
-      <ul>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.scalar.ScalarEncoder.decode">(nupic.encoders.scalar.ScalarEncoder method)</a>
 </li>
-      </ul></li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.decodedToStr">decodedToStr() (nupic.encoders.base.Encoder method)</a>
+</li>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.delta.DeltaEncoder">DeltaEncoder (class in nupic.encoders.delta)</a>
 </li>
       <li><a href="api/network/regions.html#nupic.bindings.regions.PyRegion.PyRegion.deSerializeExtraData">deSerializeExtraData() (nupic.bindings.regions.PyRegion.PyRegion method)</a>
 
@@ -279,23 +288,15 @@
 </li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.encodedBitDescription">encodedBitDescription() (nupic.encoders.base.Encoder method)</a>
 </li>
-      <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.encodeIntoArray">encodeIntoArray() (nupic.encoders.base.Encoder method)</a>
-
-      <ul>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.coordinate.CoordinateEncoder.encodeIntoArray">(nupic.encoders.coordinate.CoordinateEncoder method)</a>
-</li>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.date.DateEncoder.encodeIntoArray">(nupic.encoders.date.DateEncoder method)</a>
-</li>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.encodeIntoArray">(nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder method)</a>
-</li>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.encodeIntoArray">(nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder method)</a>
-</li>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.scalar.ScalarEncoder.encodeIntoArray">(nupic.encoders.scalar.ScalarEncoder method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.encodeIntoArray">encodeIntoArray() (nupic.encoders.base.Encoder method)</a>
+</li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder">Encoder (class in nupic.encoders.base)</a>
+</li>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.base.EncoderResult">EncoderResult (class in nupic.encoders.base)</a>
+</li>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.base.EncoderResult.encoding">encoding (nupic.encoders.base.EncoderResult attribute)</a>
 </li>
       <li><a href="api/algorithms/anomaly-detection.html#nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods">estimateAnomalyLikelihoods() (in module nupic.algorithms.anomaly_likelihood)</a>
 </li>
@@ -309,6 +310,12 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/data/field-meta.html#nupic.data.field_meta.FieldMetaInfo">FieldMetaInfo (class in nupic.data.field_meta)</a>, <a href="api/data/index.html#nupic.data.field_meta.FieldMetaInfo">[1]</a>
+</li>
+      <li><a href="api/data/field-meta.html#nupic.data.field_meta.FieldMetaSpecial">FieldMetaSpecial (class in nupic.data.field_meta)</a>, <a href="api/data/index.html#nupic.data.field_meta.FieldMetaSpecial">[1]</a>
+</li>
+      <li><a href="api/data/field-meta.html#nupic.data.field_meta.FieldMetaType">FieldMetaType (class in nupic.data.field_meta)</a>, <a href="api/data/index.html#nupic.data.field_meta.FieldMetaType">[1]</a>
+</li>
       <li><a href="api/data/index.html#nupic.data.file_record_stream.FileRecordStream">FileRecordStream (class in nupic.data.file_record_stream)</a>
 </li>
       <li><a href="api/algorithms/classifiers.html#nupic.algorithms.KNNClassifier.KNNClassifier.finishLearning">finishLearning() (nupic.algorithms.KNNClassifier.KNNClassifier method)</a>
@@ -326,8 +333,6 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/data/index.html#nupic.data.file_record_stream.FileRecordStream.flush">flush() (nupic.data.file_record_stream.FileRecordStream method)</a>
-</li>
-      <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.formatBits">formatBits() (nupic.encoders.base.Encoder method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -376,27 +381,11 @@
       <li><a href="api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.getBoostStrength">getBoostStrength() (nupic.research.spatial_pooler.SpatialPooler method)</a>
 </li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.getBucketIndices">getBucketIndices() (nupic.encoders.base.Encoder method)</a>
-
-      <ul>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.date.DateEncoder.getBucketIndices">(nupic.encoders.date.DateEncoder method)</a>
 </li>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.getBucketIndices">(nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder method)</a>
-</li>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.scalar.ScalarEncoder.getBucketIndices">(nupic.encoders.scalar.ScalarEncoder method)</a>
-</li>
-      </ul></li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.getBucketInfo">getBucketInfo() (nupic.encoders.base.Encoder method)</a>
-
-      <ul>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.scalar.ScalarEncoder.getBucketInfo">(nupic.encoders.scalar.ScalarEncoder method)</a>
 </li>
-      </ul></li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.getBucketValues">getBucketValues() (nupic.encoders.base.Encoder method)</a>
-
-      <ul>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.scalar.ScalarEncoder.getBucketValues">(nupic.encoders.scalar.ScalarEncoder method)</a>
 </li>
-      </ul></li>
       <li><a href="api/network/network.html#nupic.engine.Network.getCallbacks">getCallbacks() (nupic.engine.Network method)</a>
 </li>
       <li><a href="api/network/regions.html#nupic.regions.KNNClassifierRegion.KNNClassifierRegion.getCategoryList">getCategoryList() (nupic.regions.KNNClassifierRegion.KNNClassifierRegion method)</a>
@@ -424,21 +413,9 @@
       <li><a href="api/data/index.html#nupic.data.file_record_stream.FileRecordStream.getDataRowCount">getDataRowCount() (nupic.data.file_record_stream.FileRecordStream method)</a>
 </li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.getDecoderOutputFieldTypes">getDecoderOutputFieldTypes() (nupic.encoders.base.Encoder method)</a>
-
-      <ul>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.getDecoderOutputFieldTypes">(nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder method)</a>
 </li>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.scalar.ScalarEncoder.getDecoderOutputFieldTypes">(nupic.encoders.scalar.ScalarEncoder method)</a>
-</li>
-      </ul></li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.getDescription">getDescription() (nupic.encoders.base.Encoder method)</a>
-
-      <ul>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.coordinate.CoordinateEncoder.getDescription">(nupic.encoders.coordinate.CoordinateEncoder method)</a>
 </li>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.getDescription">(nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder method)</a>
-</li>
-      </ul></li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.getDisplayWidth">getDisplayWidth() (nupic.encoders.base.Encoder method)</a>
 </li>
       <li><a href="api/algorithms/classifiers.html#nupic.algorithms.KNNClassifier.KNNClassifier.getDistances">getDistances() (nupic.algorithms.KNNClassifier.KNNClassifier method)</a>
@@ -446,11 +423,7 @@
       <li><a href="api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.getDutyCyclePeriod">getDutyCyclePeriod() (nupic.research.spatial_pooler.SpatialPooler method)</a>
 </li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.getEncodedValues">getEncodedValues() (nupic.encoders.base.Encoder method)</a>
-
-      <ul>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.date.DateEncoder.getEncodedValues">(nupic.encoders.date.DateEncoder method)</a>
 </li>
-      </ul></li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.getEncoderList">getEncoderList() (nupic.encoders.base.Encoder method)</a>
 </li>
       <li><a href="api/data/index.html#nupic.data.file_record_stream.FileRecordStream.getError">getError() (nupic.data.file_record_stream.FileRecordStream method)</a>
@@ -515,12 +488,12 @@
       </ul></li>
       <li><a href="api/opf/metrics.html#nupic.frameworks.opf.prediction_metrics_manager.MetricsManager.getMetricDetails">getMetricDetails() (nupic.frameworks.opf.prediction_metrics_manager.MetricsManager method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/opf/metrics.html#nupic.frameworks.opf.prediction_metrics_manager.MetricsManager.getMetricLabels">getMetricLabels() (nupic.frameworks.opf.prediction_metrics_manager.MetricsManager method)</a>
 </li>
       <li><a href="api/opf/metrics.html#nupic.frameworks.opf.prediction_metrics_manager.MetricsManager.getMetrics">getMetrics() (nupic.frameworks.opf.prediction_metrics_manager.MetricsManager method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.getMinOverlapDutyCycles">getMinOverlapDutyCycles() (nupic.research.spatial_pooler.SpatialPooler method)</a>
 </li>
       <li><a href="api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.getMinPctOverlapDutyCycles">getMinPctOverlapDutyCycles() (nupic.research.spatial_pooler.SpatialPooler method)</a>
@@ -642,19 +615,11 @@
       <li><a href="api/opf/utils.html#nupic.frameworks.opf.common_models.cluster_params.getScalarMetricWithTimeOfDayAnomalyParams">getScalarMetricWithTimeOfDayAnomalyParams() (in module nupic.frameworks.opf.common_models.cluster_params)</a>
 </li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.getScalarNames">getScalarNames() (nupic.encoders.base.Encoder method)</a>
-
-      <ul>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.date.DateEncoder.getScalarNames">(nupic.encoders.date.DateEncoder method)</a>
 </li>
-      </ul></li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.getScalars">getScalars() (nupic.encoders.base.Encoder method)</a>
 
       <ul>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.coordinate.CoordinateEncoder.getScalars">(nupic.encoders.coordinate.CoordinateEncoder method)</a>
-</li>
         <li><a href="api/algorithms/encoders.html#nupic.encoders.date.DateEncoder.getScalars">(nupic.encoders.date.DateEncoder method)</a>
-</li>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.getScalars">(nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder method)</a>
 </li>
       </ul></li>
       <li><a href="api/network/regions.html#nupic.bindings.regions.PyRegion.PyRegion.getSpec">getSpec() (nupic.bindings.regions.PyRegion.PyRegion class method)</a>
@@ -684,15 +649,7 @@
       <li><a href="api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.getUpdatePeriod">getUpdatePeriod() (nupic.research.spatial_pooler.SpatialPooler method)</a>
 </li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.getWidth">getWidth() (nupic.encoders.base.Encoder method)</a>
-
-      <ul>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.coordinate.CoordinateEncoder.getWidth">(nupic.encoders.coordinate.CoordinateEncoder method)</a>
 </li>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.multi.MultiEncoder.getWidth">(nupic.encoders.multi.MultiEncoder method)</a>
-</li>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.getWidth">(nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder method)</a>
-</li>
-      </ul></li>
       <li><a href="api/algorithms/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory.getWinnerCells">getWinnerCells() (nupic.research.temporal_memory.TemporalMemory method)</a>
 </li>
       <li><a href="api/network/regions.html#nupic.bindings.regions.PyRegion.PyRegion.guardedCompute">guardedCompute() (nupic.bindings.regions.PyRegion.PyRegion method)</a>
@@ -743,6 +700,12 @@
 </li>
       <li><a href="api/opf/models.html#nupic.frameworks.opf.model.Model.isLearningEnabled">isLearningEnabled() (nupic.frameworks.opf.model.Model method)</a>
 </li>
+      <li><a href="api/data/field-meta.html#nupic.data.field_meta.FieldMetaSpecial.isValid">isValid() (nupic.data.field_meta.FieldMetaSpecial class method)</a>, <a href="api/data/index.html#nupic.data.field_meta.FieldMetaSpecial.isValid">[1]</a>
+
+      <ul>
+        <li><a href="api/data/field-meta.html#nupic.data.field_meta.FieldMetaType.isValid">(nupic.data.field_meta.FieldMetaType class method)</a>, <a href="api/data/index.html#nupic.data.field_meta.FieldMetaType.isValid">[1]</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -776,6 +739,8 @@
       <li><a href="api/opf/utils.html#nupic.frameworks.opf.opf_helpers.loadExperimentDescriptionScriptFromDir">loadExperimentDescriptionScriptFromDir() (in module nupic.frameworks.opf.opf_helpers)</a>
 </li>
       <li><a href="api/opf/models.html#nupic.frameworks.opf.model_factory.ModelFactory.loadFromCheckpoint">loadFromCheckpoint() (nupic.frameworks.opf.model_factory.ModelFactory static method)</a>
+</li>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.logenc.LogEncoder">LogEncoder (class in nupic.encoders.logenc)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -851,11 +816,15 @@
 </li>
       <li><a href="api/algorithms/anomaly-detection.html#module-nupic.algorithms.anomaly_likelihood">nupic.algorithms.anomaly_likelihood (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/algorithms/classifiers.html#module-nupic.algorithms.sdr_classifier">nupic.algorithms.sdr_classifier (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/data/field-meta.html#module-nupic.data.field_meta">nupic.data.field_meta (module)</a>, <a href="api/data/index.html#module-nupic.data.field_meta">[1]</a>
+</li>
       <li><a href="api/data/index.html#module-nupic.data.file_record_stream">nupic.data.file_record_stream (module)</a>
+</li>
+      <li><a href="api/algorithms/encoders.html#module-nupic.encoders.base">nupic.encoders.base (module)</a>
 </li>
       <li><a href="api/opf/utils.html#module-nupic.frameworks.opf.common_models.cluster_params">nupic.frameworks.opf.common_models.cluster_params (module)</a>
 </li>
@@ -873,16 +842,18 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.pass_through_encoder.PassThroughEncoder">PassThroughEncoder (class in nupic.encoders.pass_through_encoder)</a>
+</li>
       <li><a href="api/network/sensors.html#nupic.regions.PluggableEncoderSensor.PluggableEncoderSensor">PluggableEncoderSensor (class in nupic.regions.PluggableEncoderSensor)</a>
 </li>
       <li><a href="api/network/sensors.html#nupic.regions.RecordSensor.RecordSensor.populateCategoriesOut">populateCategoriesOut() (nupic.regions.RecordSensor.RecordSensor method)</a>
 </li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.pprint">pprint() (nupic.encoders.base.Encoder method)</a>
 </li>
-      <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.pprintHeader">pprintHeader() (nupic.encoders.base.Encoder method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.pprintHeader">pprintHeader() (nupic.encoders.base.Encoder method)</a>
+</li>
       <li><a href="api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.printParameters">printParameters() (nupic.research.spatial_pooler.SpatialPooler method)</a>
 </li>
       <li><a href="api/algorithms/classifiers.html#nupic.algorithms.KNNClassifier.KNNClassifier.prototypeSetCategory">prototypeSetCategory() (nupic.algorithms.KNNClassifier.KNNClassifier method)</a>
@@ -989,9 +960,15 @@
         <li><a href="api/opf/models.html#nupic.frameworks.opf.model.Model.save">(nupic.frameworks.opf.model.Model method)</a>
 </li>
       </ul></li>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.base.EncoderResult.scalar">scalar (nupic.encoders.base.EncoderResult attribute)</a>
+</li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.scalar.ScalarEncoder">ScalarEncoder (class in nupic.encoders.scalar)</a>
 </li>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.scalarspace.ScalarSpaceEncoder">ScalarSpaceEncoder (class in nupic.encoders.scalarspace)</a>
+</li>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.scalarsToStr">scalarsToStr() (nupic.encoders.base.Encoder method)</a>
+</li>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.sdrcategory.SDRCategoryEncoder">SDRCategoryEncoder (class in nupic.encoders.sdrcategory)</a>
 </li>
       <li><a href="api/algorithms/classifiers.html#nupic.algorithms.sdr_classifier.SDRClassifier">SDRClassifier (class in nupic.algorithms.sdr_classifier)</a>
 </li>
@@ -1053,10 +1030,10 @@
 </li>
       <li><a href="api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.setMinOverlapDutyCycles">setMinOverlapDutyCycles() (nupic.research.spatial_pooler.SpatialPooler method)</a>
 </li>
-      <li><a href="api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.setMinPctOverlapDutyCycles">setMinPctOverlapDutyCycles() (nupic.research.spatial_pooler.SpatialPooler method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.setMinPctOverlapDutyCycles">setMinPctOverlapDutyCycles() (nupic.research.spatial_pooler.SpatialPooler method)</a>
+</li>
       <li><a href="api/algorithms/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory.setMinThreshold">setMinThreshold() (nupic.research.temporal_memory.TemporalMemory method)</a>
 </li>
       <li><a href="api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.setNumActiveColumnsPerInhArea">setNumActiveColumnsPerInhArea() (nupic.research.spatial_pooler.SpatialPooler method)</a>
@@ -1121,6 +1098,8 @@
 </li>
       <li><a href="api/opf/results.html#nupic.data.inference_shifter.InferenceShifter.shift">shift() (nupic.data.inference_shifter.InferenceShifter method)</a>
 </li>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.sparse_pass_through_encoder.SparsePassThroughEncoder">SparsePassThroughEncoder (class in nupic.encoders.sparse_pass_through_encoder)</a>
+</li>
       <li><a href="api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler">SpatialPooler (class in nupic.research.spatial_pooler)</a>
 </li>
       <li><a href="api/network/regions.html#nupic.regions.SPRegion.SPRegion">SPRegion (class in nupic.regions.SPRegion)</a>
@@ -1140,11 +1119,7 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/algorithms/encoders.html#nupic.encoders.base.Encoder.topDownCompute">topDownCompute() (nupic.encoders.base.Encoder method)</a>
-
-      <ul>
-        <li><a href="api/algorithms/encoders.html#nupic.encoders.scalar.ScalarEncoder.topDownCompute">(nupic.encoders.scalar.ScalarEncoder method)</a>
 </li>
-      </ul></li>
       <li><a href="api/opf/models.html#nupic.frameworks.opf.two_gram_model.TwoGramModel">TwoGramModel (class in nupic.frameworks.opf.two_gram_model)</a>
 </li>
   </ul></td>
@@ -1160,6 +1135,14 @@
       <li><a href="api/opf/metrics.html#nupic.frameworks.opf.prediction_metrics_manager.MetricsManager.update">update() (nupic.frameworks.opf.prediction_metrics_manager.MetricsManager method)</a>
 </li>
       <li><a href="api/algorithms/anomaly-detection.html#nupic.algorithms.anomaly_likelihood.updateAnomalyLikelihoods">updateAnomalyLikelihoods() (in module nupic.algorithms.anomaly_likelihood)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/algorithms/encoders.html#nupic.encoders.base.EncoderResult.value">value (nupic.encoders.base.EncoderResult attribute)</a>
 </li>
   </ul></td>
 </tr></table>

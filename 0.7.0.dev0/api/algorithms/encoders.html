@@ -44,10 +44,11 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="encoders">
-<h1>Encoders<a class="headerlink" href="#encoders" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="encoder">
-<h2>Encoder<a class="headerlink" href="#encoder" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="module-nupic.encoders.base">
+<span id="encoders"></span><h1>Encoders<a class="headerlink" href="#module-nupic.encoders.base" title="Permalink to this headline">¶</a></h1>
+<p>Classes for encoding different types into SDRs for HTM input.</p>
+<div class="section" id="base-encoder">
+<h2>Base Encoder<a class="headerlink" href="#base-encoder" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="nupic.encoders.base.Encoder">
 <em class="property">class </em><code class="descclassname">nupic.encoders.base.</code><code class="descname">Encoder</code><a class="headerlink" href="#nupic.encoders.base.Encoder" title="Permalink to this definition">¶</a></dt>
@@ -60,60 +61,34 @@ like the SDR Classifier.</p>
 <p class="last">The Encoder superclass implements:</p>
 </div>
 <ul class="simple">
-<li><a class="reference internal" href="#nupic.encoders.base.Encoder.encode" title="nupic.encoders.base.Encoder.encode"><code class="xref py py-func docutils literal"><span class="pre">encode()</span></code></a> - returns a numpy array encoding
-the input; syntactic sugar on top of encodeIntoArray. If pprint, prints the
-encoding to the terminal</li>
-<li><a class="reference internal" href="#nupic.encoders.base.Encoder.pprintHeader" title="nupic.encoders.base.Encoder.pprintHeader"><code class="xref py py-func docutils literal"><span class="pre">pprintHeader()</span></code></a> - prints a header
-describing the encoding to the terminal</li>
-<li><a class="reference internal" href="#nupic.encoders.base.Encoder.pprint" title="nupic.encoders.base.Encoder.pprint"><code class="xref py py-func docutils literal"><span class="pre">pprint()</span></code></a> - prints an encoding to the
-terminal</li>
+<li><a class="reference internal" href="#nupic.encoders.base.Encoder.encode" title="nupic.encoders.base.Encoder.encode"><code class="xref py py-func docutils literal"><span class="pre">encode()</span></code></a></li>
+<li><a class="reference internal" href="#nupic.encoders.base.Encoder.pprintHeader" title="nupic.encoders.base.Encoder.pprintHeader"><code class="xref py py-func docutils literal"><span class="pre">pprintHeader()</span></code></a></li>
+<li><a class="reference internal" href="#nupic.encoders.base.Encoder.pprint" title="nupic.encoders.base.Encoder.pprint"><code class="xref py py-func docutils literal"><span class="pre">pprint()</span></code></a></li>
 </ul>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">The following methods and properties must be implemented by
 subclasses:</p>
 </div>
-<ul>
-<li><dl class="first docutils">
-<dt><a class="reference internal" href="#nupic.encoders.base.Encoder.getDecoderOutputFieldTypes" title="nupic.encoders.base.Encoder.getDecoderOutputFieldTypes"><code class="xref py py-func docutils literal"><span class="pre">getDecoderOutputFieldTypes()</span></code></a> - must be</dt>
-<dd><p class="first last">implemented by leaf encoders. Returns <code class="xref py py-class docutils literal"><span class="pre">nupic.data.fieldmeta.FieldMetaType</span></code>.XXXXX
-(e.g., <code class="xref py py-class docutils literal"><span class="pre">nupic.data.fieldmeta.FieldMetaType</span></code>.float)</p>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt><a class="reference internal" href="#nupic.encoders.base.Encoder.getWidth" title="nupic.encoders.base.Encoder.getWidth"><code class="xref py py-func docutils literal"><span class="pre">getWidth()</span></code></a> - returns the output width, in</dt>
-<dd><p class="first last">bits</p>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt><a class="reference internal" href="#nupic.encoders.base.Encoder.encodeIntoArray" title="nupic.encoders.base.Encoder.encodeIntoArray"><code class="xref py py-func docutils literal"><span class="pre">encodeIntoArray()</span></code></a> - encodes input and</dt>
-<dd><p class="first last">puts the encoded value into the numpy output array, which is a 1-D array of
-length returned by <a class="reference internal" href="#nupic.encoders.base.Encoder.getWidth" title="nupic.encoders.base.Encoder.getWidth"><code class="xref py py-func docutils literal"><span class="pre">getWidth()</span></code></a></p>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt><a class="reference internal" href="#nupic.encoders.base.Encoder.getDescription" title="nupic.encoders.base.Encoder.getDescription"><code class="xref py py-func docutils literal"><span class="pre">getDescription()</span></code></a> - returns a list of</dt>
-<dd><p class="first last">(name, offset) pairs describing the encoded output</p>
-</dd>
-</dl>
-</li>
+<ul class="simple">
+<li><a class="reference internal" href="#nupic.encoders.base.Encoder.getDecoderOutputFieldTypes" title="nupic.encoders.base.Encoder.getDecoderOutputFieldTypes"><code class="xref py py-func docutils literal"><span class="pre">getDecoderOutputFieldTypes()</span></code></a></li>
+<li><a class="reference internal" href="#nupic.encoders.base.Encoder.getWidth" title="nupic.encoders.base.Encoder.getWidth"><code class="xref py py-func docutils literal"><span class="pre">getWidth()</span></code></a></li>
+<li><a class="reference internal" href="#nupic.encoders.base.Encoder.encodeIntoArray" title="nupic.encoders.base.Encoder.encodeIntoArray"><code class="xref py py-func docutils literal"><span class="pre">encodeIntoArray()</span></code></a></li>
+<li><a class="reference internal" href="#nupic.encoders.base.Encoder.getDescription" title="nupic.encoders.base.Encoder.getDescription"><code class="xref py py-func docutils literal"><span class="pre">getDescription()</span></code></a></li>
 </ul>
 <dl class="method">
 <dt id="nupic.encoders.base.Encoder.closenessScores">
 <code class="descname">closenessScores</code><span class="sig-paren">(</span><em>expValues</em>, <em>actValues</em>, <em>fractional=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.closenessScores" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute closeness scores between the expected scalar value(s) and actual
 scalar value(s). The expected scalar values are typically those obtained
-from the getScalars() method. The actual scalar values are typically those
-returned from the topDownCompute() method.</p>
+from the <a class="reference internal" href="#nupic.encoders.base.Encoder.getScalars" title="nupic.encoders.base.Encoder.getScalars"><code class="xref py py-meth docutils literal"><span class="pre">getScalars()</span></code></a> method. The actual scalar values are typically
+those returned from <a class="reference internal" href="#nupic.encoders.base.Encoder.topDownCompute" title="nupic.encoders.base.Encoder.topDownCompute"><code class="xref py py-meth docutils literal"><span class="pre">topDownCompute()</span></code></a>.</p>
 <p>This method returns one closeness score for each value in expValues (or
 actValues which must be the same length). The closeness score ranges from
 0 to 1.0, 1.0 being a perfect match and 0 being the worst possible match.</p>
 <p>If this encoder is a simple, single field encoder, then it will expect
-just 1 item in each of the expValues and actValues arrays. Multi-encoders
-will expect 1 item per sub-encoder.</p>
+just 1 item in each of the <code class="docutils literal"><span class="pre">expValues</span></code> and <code class="docutils literal"><span class="pre">actValues</span></code> arrays.
+Multi-encoders will expect 1 item per sub-encoder.</p>
 <p>Each encoder type can define it&#8217;s own metric for closeness. For example,
 a category encoder may return either 1 or 0, if the scalar matches exactly
 or not. A scalar encoder might return a percentage match, etc.</p>
@@ -123,9 +98,9 @@ or not. A scalar encoder might return a percentage match, etc.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>expValues</strong> &#8211; Array of expected scalar values, typically obtained from
-getScalars()</li>
+<a class="reference internal" href="#nupic.encoders.base.Encoder.getScalars" title="nupic.encoders.base.Encoder.getScalars"><code class="xref py py-meth docutils literal"><span class="pre">getScalars()</span></code></a></li>
 <li><strong>actValues</strong> &#8211; Array of actual values, typically obtained from
-topDownCompute()</li>
+<a class="reference internal" href="#nupic.encoders.base.Encoder.topDownCompute" title="nupic.encoders.base.Encoder.topDownCompute"><code class="xref py py-meth docutils literal"><span class="pre">topDownCompute()</span></code></a></li>
 </ul>
 </td>
 </tr>
@@ -149,10 +124,10 @@ target output. This behavior makes this method suitable for doing things
 like generating a description of a learned coincidence in the SP, which
 in many cases might be a union of one or more inputs.</p>
 <p>If instead, you want to figure the <em>most likely</em> single input scalar value
-that would have generated a specific encoded output, use the topDownCompute()
-method.</p>
+that would have generated a specific encoded output, use the
+<a class="reference internal" href="#nupic.encoders.base.Encoder.topDownCompute" title="nupic.encoders.base.Encoder.topDownCompute"><code class="xref py py-meth docutils literal"><span class="pre">topDownCompute()</span></code></a> method.</p>
 <p>If you want to pretty print the return value from this method, use the
-decodedToStr() method.</p>
+<a class="reference internal" href="#nupic.encoders.base.Encoder.decodedToStr" title="nupic.encoders.base.Encoder.decodedToStr"><code class="xref py py-meth docutils literal"><span class="pre">decodedToStr()</span></code></a> method.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -165,61 +140,63 @@ keys of the dict() in the retval.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple(fieldsDict, fieldOrder) (see below for details)</p>
-</td>
-</tr>
-</tbody>
-</table>
-<p>fieldsDict is a dict() where the keys represent field names
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>tuple(<code class="docutils literal"><span class="pre">fieldsDict</span></code>, <code class="docutils literal"><span class="pre">fieldOrder</span></code>)</p>
+<p><code class="docutils literal"><span class="pre">fieldsDict</span></code> is a dict() where the keys represent field names
 (only 1 if this is a simple encoder, &gt; 1 if this is a multi
 or date encoder) and the values are the result of decoding each
 field. If there are  no bits in encoded that would have been
 generated by a field, it won&#8217;t be present in the dict. The
 key of each entry in the dict is formed by joining the passed in
 parentFieldName with the child encoder name using a &#8216;.&#8217;.</p>
-<p>Each &#8216;value&#8217; in fieldsDict consists of (ranges, desc), where
+<p>Each &#8216;value&#8217; in <code class="docutils literal"><span class="pre">fieldsDict</span></code> consists of (ranges, desc), where
 ranges is a list of one or more (minVal, maxVal) ranges of
 input that would generate bits in the encoded output and &#8216;desc&#8217;
 is a pretty print description of the ranges. For encoders like
 the category encoder, the &#8216;desc&#8217; will contain the category
 names that correspond to the scalar values included in the
 ranges.</p>
-<p>The fieldOrder is a list of the keys from fieldsDict, in the
+<p><code class="docutils literal"><span class="pre">fieldOrder</span></code> is a list of the keys from <code class="docutils literal"><span class="pre">fieldsDict</span></code>, in the
 same order as the fields appear in the encoded output.</p>
 <p>TODO: when we switch to Python 2.7 or 3.x, use OrderedDict</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
 <p>Example retvals for a scalar encoder:</p>
-<blockquote>
-<div>{&#8216;amount&#8217;:  ( [[1,3], [7,10]], &#8216;1-3, 7-10&#8217; )}
-{&#8216;amount&#8217;:  ( [[2.5,2.5]],     &#8216;2.5&#8217;       )}</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;amount&#39;</span><span class="p">:</span>  <span class="p">(</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span><span class="mi">10</span><span class="p">]],</span> <span class="s1">&#39;1-3, 7-10&#39;</span> <span class="p">)}</span>
+<span class="p">{</span><span class="s1">&#39;amount&#39;</span><span class="p">:</span>  <span class="p">(</span> <span class="p">[[</span><span class="mf">2.5</span><span class="p">,</span><span class="mf">2.5</span><span class="p">]],</span>     <span class="s1">&#39;2.5&#39;</span>       <span class="p">)}</span>
+</pre></div>
+</div>
 <p>Example retval for a category encoder:</p>
-<blockquote>
-<div>{&#8216;country&#8217;: ( [[1,1], [5,6]], &#8216;US, GB, ES&#8217; )}</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;country&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]],</span> <span class="s1">&#39;US, GB, ES&#39;</span> <span class="p">)}</span>
+</pre></div>
+</div>
 <p>Example retval for a multi encoder:</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>{&#8216;amount&#8217;:  ( [[2.5,2.5]],     &#8216;2.5&#8217;       ),</dt>
-<dd>&#8216;country&#8217;: ( [[1,1], [5,6]],  &#8216;US, GB, ES&#8217; )}</dd>
-</dl>
-</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;amount&#39;</span><span class="p">:</span>  <span class="p">(</span> <span class="p">[[</span><span class="mf">2.5</span><span class="p">,</span><span class="mf">2.5</span><span class="p">]],</span>     <span class="s1">&#39;2.5&#39;</span>       <span class="p">),</span>
+ <span class="s1">&#39;country&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]],</span>  <span class="s1">&#39;US, GB, ES&#39;</span> <span class="p">)}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.encoders.base.Encoder.decodedToStr">
 <code class="descname">decodedToStr</code><span class="sig-paren">(</span><em>decodeResults</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.decodedToStr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a pretty print string representing the return value from decode().</p>
+<dd><p>Return a pretty print string representing the return value from
+<a class="reference internal" href="#nupic.encoders.base.Encoder.decode" title="nupic.encoders.base.Encoder.decode"><code class="xref py py-meth docutils literal"><span class="pre">decode()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.encoders.base.Encoder.encode">
 <code class="descname">encode</code><span class="sig-paren">(</span><em>inputData</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.encode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convenience wrapper for encodeIntoArray.</p>
+<dd><p>Convenience wrapper for <a class="reference internal" href="#nupic.encoders.base.Encoder.encodeIntoArray" title="nupic.encoders.base.Encoder.encodeIntoArray"><code class="xref py py-meth docutils literal"><span class="pre">encodeIntoArray()</span></code></a>.</p>
 <p>This may be less efficient because it allocates a new numpy array every
 call.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputData</strong> &#8211; undocumented</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputData</strong> &#8211; input data to be encoded</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a numpy array with the encoded representation of inputData</td>
 </tr>
@@ -231,15 +208,19 @@ call.</p>
 <dt id="nupic.encoders.base.Encoder.encodeIntoArray">
 <code class="descname">encodeIntoArray</code><span class="sig-paren">(</span><em>inputData</em>, <em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.encodeIntoArray" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encodes inputData and puts the encoded value into the numpy output array,
-which is a 1-D array of length returned by getWidth().</p>
-<p>Note: The numpy output array is reused, so clear it before updating it.</p>
+which is a 1-D array of length returned by <a class="reference internal" href="#nupic.encoders.base.Encoder.getWidth" title="nupic.encoders.base.Encoder.getWidth"><code class="xref py py-meth docutils literal"><span class="pre">getWidth()</span></code></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The numpy output array is reused, so clear it before updating it.</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>inputData</strong> &#8211; Data to encode. This should be validated by the encoder.</li>
-<li><strong>output</strong> &#8211; numpy 1-D array of same length returned by getWidth()</li>
+<li><strong>output</strong> &#8211; numpy 1-D array of same length returned by
+<a class="reference internal" href="#nupic.encoders.base.Encoder.getWidth" title="nupic.encoders.base.Encoder.getWidth"><code class="xref py py-meth docutils literal"><span class="pre">getWidth()</span></code></a>.</li>
 </ul>
 </td>
 </tr>
@@ -263,31 +244,7 @@ which includes separators</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple(fieldName, offsetWithinField)</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.base.Encoder.formatBits">
-<code class="descname">formatBits</code><span class="sig-paren">(</span><em>inarray</em>, <em>outarray</em>, <em>scale=1</em>, <em>blank=255</em>, <em>leftpad=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.formatBits" title="Permalink to this definition">¶</a></dt>
-<dd><p>Copy one array to another, inserting blanks
-between fields (for display)
-If leftpad is one, then there is a dummy value at element 0
-of the arrays, and we should start our counting from 1 rather than 0</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>inarray</strong> &#8211; TODO: document</li>
-<li><strong>outarray</strong> &#8211; TODO: document</li>
-<li><strong>scale</strong> &#8211; TODO: document</li>
-<li><strong>blank</strong> &#8211; TODO: document</li>
-<li><strong>leftpad</strong> &#8211; TODO: document</li>
-</ul>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple(<code class="docutils literal"><span class="pre">fieldName</span></code>, <code class="docutils literal"><span class="pre">offsetWithinField</span></code>)</p>
 </td>
 </tr>
 </tbody>
@@ -297,14 +254,14 @@ of the arrays, and we should start our counting from 1 rather than 0</p>
 <dl class="method">
 <dt id="nupic.encoders.base.Encoder.getBucketIndices">
 <code class="descname">getBucketIndices</code><span class="sig-paren">(</span><em>inputData</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.getBucketIndices" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns an array containing the sub-field bucket indices for
-each sub-field of the inputData. To get the associated field names for each of
-the buckets, call getScalarNames().</p>
+<dd><p>Returns an array containing the sub-field bucket indices for each sub-field
+of the inputData. To get the associated field names for each of the buckets,
+call <a class="reference internal" href="#nupic.encoders.base.Encoder.getScalarNames" title="nupic.encoders.base.Encoder.getScalarNames"><code class="xref py py-meth docutils literal"><span class="pre">getScalarNames()</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputData</strong> &#8211; The data from the source. This is typically a object with
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputData</strong> &#8211; The data from the source. This is typically an object with
 members.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">array of bucket indices</td>
@@ -316,35 +273,19 @@ members.</td>
 <dl class="method">
 <dt id="nupic.encoders.base.Encoder.getBucketInfo">
 <code class="descname">getBucketInfo</code><span class="sig-paren">(</span><em>buckets</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.getBucketInfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of EncoderResult namedtuples describing the inputs for
-each sub-field that correspond to the bucket indices passed in &#8216;buckets&#8217;.
-To get the associated field names for each of the values, call getScalarNames().</p>
+<dd><p>Returns a list of <a class="reference internal" href="#nupic.encoders.base.EncoderResult" title="nupic.encoders.base.EncoderResult"><code class="xref py py-class docutils literal"><span class="pre">EncoderResult</span></code></a> namedtuples describing the inputs
+for each sub-field that correspond to the bucket indices passed in
+<code class="docutils literal"><span class="pre">buckets</span></code>. To get the associated field names for each of the values, call
+<a class="reference internal" href="#nupic.encoders.base.Encoder.getScalarNames" title="nupic.encoders.base.Encoder.getScalarNames"><code class="xref py py-meth docutils literal"><span class="pre">getScalarNames()</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>buckets</strong> &#8211; The list of bucket indices, one for each sub-field encoder.
 These bucket indices for example may have been retrieved
-from the getBucketIndices() call.</td>
+from the <a class="reference internal" href="#nupic.encoders.base.Encoder.getBucketIndices" title="nupic.encoders.base.Encoder.getBucketIndices"><code class="xref py py-meth docutils literal"><span class="pre">getBucketIndices()</span></code></a> call.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of EncoderResult namedtuples. Each EncoderResult has
-three attributes:<dl class="docutils">
-<dt>-# value:         This is the value for the sub-field</dt>
-<dd>in a format that is consistent with the type
-specified by getDecoderOutputFieldTypes().
-Note that this value is not necessarily
-numeric.</dd>
-<dt>-# scalar:        The scalar representation of value. This</dt>
-<dd>number is consistent with what is returned
-by getScalars(). This value is always an
-int or float, and can be used for
-numeric comparisons</dd>
-<dt>-# encoding       This is the encoded bit-array (numpy array)</dt>
-<dd>that represents &#8216;value&#8217;. That is, if &#8216;value&#8217;
-was passed to encode(), an identical
-bit-array should be returned</dd>
-</dl>
-</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of <a class="reference internal" href="#nupic.encoders.base.EncoderResult" title="nupic.encoders.base.EncoderResult"><code class="xref py py-class docutils literal"><span class="pre">EncoderResult</span></code></a>.</td>
 </tr>
 </tbody>
 </table>
@@ -353,14 +294,14 @@ bit-array should be returned</dd>
 <dl class="method">
 <dt id="nupic.encoders.base.Encoder.getBucketValues">
 <code class="descname">getBucketValues</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.getBucketValues" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of items, one for each bucket defined by this encoder.
+<dd><p><strong>Must be overridden by subclasses.</strong></p>
+<p>Returns a list of items, one for each bucket defined by this encoder.
 Each item is the value assigned to that bucket, this is the same as the
-EncoderResult.value that would be returned by getBucketInfo() for that
-bucket and is in the same format as the input that would be passed to
-encode().</p>
-<p>This call is faster than calling getBucketInfo() on each bucket individually
-if all you need are the bucket values.</p>
-<p><strong>Must be overridden by subclasses.</strong></p>
+<a class="reference internal" href="#nupic.encoders.base.EncoderResult.value" title="nupic.encoders.base.EncoderResult.value"><code class="xref py py-attr docutils literal"><span class="pre">EncoderResult.value</span></code></a> that would be returned by
+<a class="reference internal" href="#nupic.encoders.base.Encoder.getBucketInfo" title="nupic.encoders.base.Encoder.getBucketInfo"><code class="xref py py-meth docutils literal"><span class="pre">getBucketInfo()</span></code></a> for that bucket and is in the same format as the
+input that would be passed to <a class="reference internal" href="#nupic.encoders.base.Encoder.encode" title="nupic.encoders.base.Encoder.encode"><code class="xref py py-meth docutils literal"><span class="pre">encode()</span></code></a>.</p>
+<p>This call is faster than calling <a class="reference internal" href="#nupic.encoders.base.Encoder.getBucketInfo" title="nupic.encoders.base.Encoder.getBucketInfo"><code class="xref py py-meth docutils literal"><span class="pre">getBucketInfo()</span></code></a> on each bucket
+individually if all you need are the bucket values.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -377,12 +318,12 @@ bucket.</td>
 <code class="descname">getDecoderOutputFieldTypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.getDecoderOutputFieldTypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a sequence of field types corresponding to the elements in the
 decoded output field array.  The types are defined by
-<code class="xref py py-class docutils literal"><span class="pre">nupic.data.fieldmeta.FieldMetaType</span></code>.</p>
+<a class="reference internal" href="../data/index.html#nupic.data.field_meta.FieldMetaType" title="nupic.data.field_meta.FieldMetaType"><code class="xref py py-class docutils literal"><span class="pre">FieldMetaType</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of <code class="xref py py-class docutils literal"><span class="pre">nupic.data.fieldmeta.FieldMetaType</span></code> objects</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of <a class="reference internal" href="../data/index.html#nupic.data.field_meta.FieldMetaType" title="nupic.data.field_meta.FieldMetaType"><code class="xref py py-class docutils literal"><span class="pre">FieldMetaType</span></code></a> objects</td>
 </tr>
 </tbody>
 </table>
@@ -391,12 +332,12 @@ decoded output field array.  The types are defined by
 <dl class="method">
 <dt id="nupic.encoders.base.Encoder.getDescription">
 <code class="descname">getDescription</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.getDescription" title="Permalink to this definition">¶</a></dt>
-<dd><p>This returns a list of tuples, each containing (name, offset).
-The &#8216;name&#8217; is a string description of each sub-field, and offset is the bit
-offset of the sub-field for that encoder.</p>
+<dd><p><strong>Must be overridden by subclasses.</strong></p>
+<p>This returns a list of tuples, each containing (<code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">offset</span></code>).
+The <code class="docutils literal"><span class="pre">name</span></code> is a string description of each sub-field, and <code class="docutils literal"><span class="pre">offset</span></code> is
+the bit offset of the sub-field for that encoder.</p>
 <p>For now, only the &#8216;multi&#8217; and &#8216;date&#8217; encoders have multiple (name, offset)
 pairs. All other encoders have a single pair, where the offset is 0.</p>
-<p><strong>Must be overridden by subclasses.</strong></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -415,7 +356,7 @@ pairs. All other encoders have a single pair, where the offset is 0.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">width of display for bits plus blanks between fields</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) width of display for bits plus blanks between fields</td>
 </tr>
 </tbody>
 </table>
@@ -424,24 +365,26 @@ pairs. All other encoders have a single pair, where the offset is 0.</p>
 <dl class="method">
 <dt id="nupic.encoders.base.Encoder.getEncodedValues">
 <code class="descname">getEncodedValues</code><span class="sig-paren">(</span><em>inputData</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.getEncodedValues" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the input in the same format as is returned by topDownCompute().
-For most encoder types, this is the same as the input data.
-For instance, for scalar and category types, this corresponds to the numeric
-and string values, respectively, from the inputs. For datetime encoders, this
-returns the list of scalars for each of the sub-fields (timeOfDay, dayOfWeek, etc.)</p>
-<p>This method is essentially the same as getScalars() except that it returns
-strings</p>
+<dd><p>Returns the input in the same format as is returned by
+<a class="reference internal" href="#nupic.encoders.base.Encoder.topDownCompute" title="nupic.encoders.base.Encoder.topDownCompute"><code class="xref py py-meth docutils literal"><span class="pre">topDownCompute()</span></code></a>. For most encoder types, this is the same as the
+input data. For instance, for scalar and category types, this corresponds to
+the numeric and string values, respectively, from the inputs. For datetime
+encoders, this returns the list of scalars for each of the sub-fields
+(timeOfDay, dayOfWeek, etc.)</p>
+<p>This method is essentially the same as <a class="reference internal" href="#nupic.encoders.base.Encoder.getScalars" title="nupic.encoders.base.Encoder.getScalars"><code class="xref py py-meth docutils literal"><span class="pre">getScalars()</span></code></a> except that it
+returns strings.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputData</strong> &#8211; The input data in the format it is received from the data source</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputData</strong> &#8211; The input data in the format it is received from the data
+source</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of values, in the same format and in the same order as they</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of values, in the same format and in the same order as they
+are returned by <a class="reference internal" href="#nupic.encoders.base.Encoder.topDownCompute" title="nupic.encoders.base.Encoder.topDownCompute"><code class="xref py py-meth docutils literal"><span class="pre">topDownCompute()</span></code></a>.</td>
 </tr>
 </tbody>
 </table>
-<p>are returned by topDownCompute.</p>
 </dd></dl>
 
 <dl class="method">
@@ -452,8 +395,8 @@ strings</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a reference to each sub-encoder in this encoder. They are
-returned in the same order as they are for getScalarNames() and
-getScalars().</td>
+returned in the same order as they are for <a class="reference internal" href="#nupic.encoders.base.Encoder.getScalarNames" title="nupic.encoders.base.Encoder.getScalarNames"><code class="xref py py-meth docutils literal"><span class="pre">getScalarNames()</span></code></a>
+and <a class="reference internal" href="#nupic.encoders.base.Encoder.getScalars" title="nupic.encoders.base.Encoder.getScalars"><code class="xref py py-meth docutils literal"><span class="pre">getScalars()</span></code></a>.</td>
 </tr>
 </tbody>
 </table>
@@ -469,7 +412,7 @@ getScalars().</td>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fieldName</strong> &#8211; Name of the field</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">tuple(offset, width) of the field within the encoded output</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">tuple(<code class="docutils literal"><span class="pre">offset</span></code>, <code class="docutils literal"><span class="pre">width</span></code>) of the field within the encoded output</td>
 </tr>
 </tbody>
 </table>
@@ -498,21 +441,21 @@ form the keys of the dict() in the retval.</td>
 <dt id="nupic.encoders.base.Encoder.getScalars">
 <code class="descname">getScalars</code><span class="sig-paren">(</span><em>inputData</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.getScalars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a numpy array containing the sub-field scalar value(s) for
-each sub-field of the inputData. To get the associated field names for each of
-the scalar values, call getScalarNames().</p>
+each sub-field of the <code class="docutils literal"><span class="pre">inputData</span></code>. To get the associated field names for
+each of the scalar values, call <a class="reference internal" href="#nupic.encoders.base.Encoder.getScalarNames" title="nupic.encoders.base.Encoder.getScalarNames"><code class="xref py py-meth docutils literal"><span class="pre">getScalarNames()</span></code></a>.</p>
 <p>For a simple scalar encoder, the scalar value is simply the input unmodified.
 For category encoders, it is the scalar representing the category string
 that is passed in. For the datetime encoder, the scalar value is the
 the number of seconds since epoch.</p>
 <p>The intent of the scalar representation of a sub-field is to provide a
 baseline for measuring error differences. You can compare the scalar value
-of the inputData with the scalar value returned from topDownCompute() on a
-top-down representation to evaluate prediction accuracy, for example.</p>
+of the inputData with the scalar value returned from <a class="reference internal" href="#nupic.encoders.base.Encoder.topDownCompute" title="nupic.encoders.base.Encoder.topDownCompute"><code class="xref py py-meth docutils literal"><span class="pre">topDownCompute()</span></code></a>
+on a top-down representation to evaluate prediction accuracy, for example.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputData</strong> &#8211; The data from the source. This is typically a object with
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputData</strong> &#8211; The data from the source. This is typically an object with
 members</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">array of scalar values</td>
@@ -529,7 +472,7 @@ members</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">output width in bits</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) output width in bits</td>
 </tr>
 </tbody>
 </table>
@@ -557,7 +500,7 @@ members</td>
 <dt id="nupic.encoders.base.Encoder.pprintHeader">
 <code class="descname">pprintHeader</code><span class="sig-paren">(</span><em>prefix=''</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.pprintHeader" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pretty-print a header that labels the sub-fields of the encoded
-output. This can be used in conjuction with pprint.</p>
+output. This can be used in conjuction with <a class="reference internal" href="#nupic.encoders.base.Encoder.pprint" title="nupic.encoders.base.Encoder.pprint"><code class="xref py py-meth docutils literal"><span class="pre">pprint()</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -572,7 +515,7 @@ output. This can be used in conjuction with pprint.</p>
 <dt id="nupic.encoders.base.Encoder.scalarsToStr">
 <code class="descname">scalarsToStr</code><span class="sig-paren">(</span><em>scalarValues</em>, <em>scalarNames=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.scalarsToStr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a pretty print string representing the return values from
-getScalars and getScalarNames().</p>
+<a class="reference internal" href="#nupic.encoders.base.Encoder.getScalars" title="nupic.encoders.base.Encoder.getScalars"><code class="xref py py-meth docutils literal"><span class="pre">getScalars()</span></code></a> and <a class="reference internal" href="#nupic.encoders.base.Encoder.getScalarNames" title="nupic.encoders.base.Encoder.getScalarNames"><code class="xref py py-meth docutils literal"><span class="pre">getScalarNames()</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -580,7 +523,7 @@ getScalars and getScalarNames().</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>scalarValues</strong> &#8211; input values to encode to string</li>
 <li><strong>scalarNames</strong> &#8211; optional input of scalar names to convert. If None, gets
-scalar names from getScalarNames()</li>
+scalar names from <a class="reference internal" href="#nupic.encoders.base.Encoder.getScalarNames" title="nupic.encoders.base.Encoder.getScalarNames"><code class="xref py py-meth docutils literal"><span class="pre">getScalarNames()</span></code></a></li>
 </ul>
 </td>
 </tr>
@@ -602,10 +545,10 @@ max for the underlying encoders if this information is available.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>fieldName</strong> &#8211; name of the field this encoder is encoding, provided by
-multiencoder</li>
+<a class="reference internal" href="#nupic.encoders.multi.MultiEncoder" title="nupic.encoders.multi.MultiEncoder"><code class="xref py py-class docutils literal"><span class="pre">MultiEncoder</span></code></a>.</li>
 <li><strong>fieldStatistics</strong> &#8211; dictionary of dictionaries with the first level being
 the fieldname and the second index the statistic ie:
-fieldStatistics[&#8216;pounds&#8217;][&#8216;min&#8217;]</li>
+<code class="docutils literal"><span class="pre">fieldStatistics['pounds']['min']</span></code></li>
 </ul>
 </td>
 </tr>
@@ -621,7 +564,7 @@ fieldStatistics[&#8216;pounds&#8217;][&#8216;min&#8217;]</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>learningEnabled</strong> &#8211; whether learning should be enabled</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>learningEnabled</strong> &#8211; (bool) whether learning should be enabled</td>
 </tr>
 </tbody>
 </table>
@@ -638,37 +581,19 @@ Implemented in subclasses.</p>
 <dl class="method">
 <dt id="nupic.encoders.base.Encoder.topDownCompute">
 <code class="descname">topDownCompute</code><span class="sig-paren">(</span><em>encoded</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.Encoder.topDownCompute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of EncoderResult namedtuples describing the top-down
-best guess inputs for each sub-field given the encoded output. These are the
-values which are most likely to generate the given encoded output.
-To get the associated field names for each of the values, call
-getScalarNames().</p>
+<dd><p>Returns a list of <a class="reference internal" href="#nupic.encoders.base.EncoderResult" title="nupic.encoders.base.EncoderResult"><code class="xref py py-class docutils literal"><span class="pre">EncoderResult</span></code></a> namedtuples describing the
+top-down best guess inputs for each sub-field given the encoded output.
+These are the values which are most likely to generate the given encoded
+output. To get the associated field names for each of the values, call
+<a class="reference internal" href="#nupic.encoders.base.Encoder.getScalarNames" title="nupic.encoders.base.Encoder.getScalarNames"><code class="xref py py-meth docutils literal"><span class="pre">getScalarNames()</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>encoded</strong> &#8211; The encoded output. Typically received from the topDown outputs
-from the spatial pooler just above us.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>encoded</strong> &#8211; The encoded output. Typically received from the topDown
+outputs from the spatial pooler just above us.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of EncoderResult namedtuples. Each EncoderResult has
-three attributes:<dl class="docutils">
-<dt>-# value:         This is the best-guess value for the sub-field</dt>
-<dd>in a format that is consistent with the type
-specified by getDecoderOutputFieldTypes().
-Note that this value is not necessarily
-numeric.</dd>
-<dt>-# scalar:        The scalar representation of this best-guess</dt>
-<dd>value. This number is consistent with what
-is returned by getScalars(). This value is
-always an int or float, and can be used for
-numeric comparisons.</dd>
-<dt>-# encoding       This is the encoded bit-array (numpy array)</dt>
-<dd>that represents the best-guess value.
-That is, if &#8216;value&#8217; was passed to
-encode(), an identical bit-array should be
-returned.</dd>
-</dl>
-</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of <a class="reference internal" href="#nupic.encoders.base.EncoderResult" title="nupic.encoders.base.EncoderResult"><code class="xref py py-class docutils literal"><span class="pre">EncoderResult</span></code></a></td>
 </tr>
 </tbody>
 </table>
@@ -677,8 +602,100 @@ returned.</dd>
 </dd></dl>
 
 </div>
-<div class="section" id="scalar-encoder">
-<h2>Scalar Encoder<a class="headerlink" href="#scalar-encoder" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="encoder-result">
+<h2>Encoder Result<a class="headerlink" href="#encoder-result" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.encoders.base.EncoderResult">
+<em class="property">class </em><code class="descclassname">nupic.encoders.base.</code><code class="descname">EncoderResult</code><span class="sig-paren">(</span><em>value</em>, <em>scalar</em>, <em>encoding</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.base.EncoderResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple to represent the results of computations in different forms.</p>
+<dl class="attribute">
+<dt id="nupic.encoders.base.EncoderResult.value">
+<code class="descname">value</code><a class="headerlink" href="#nupic.encoders.base.EncoderResult.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>A representation of the encoded value in the same format as the input
+(i.e. float for scalars, string for categories). This is the value for
+the sub-field in a format that is consistent with the type specified by
+<a class="reference internal" href="#nupic.encoders.base.Encoder.getDecoderOutputFieldTypes" title="nupic.encoders.base.Encoder.getDecoderOutputFieldTypes"><code class="xref py py-meth docutils literal"><span class="pre">getDecoderOutputFieldTypes()</span></code></a>. Note that this value is not
+necessarily numeric.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nupic.encoders.base.EncoderResult.scalar">
+<code class="descname">scalar</code><a class="headerlink" href="#nupic.encoders.base.EncoderResult.scalar" title="Permalink to this definition">¶</a></dt>
+<dd><p>The scalar representation of value (e.g. for categories, this is the
+internal index used by the encoder). This number is consistent with what
+is returned by <a class="reference internal" href="#nupic.encoders.base.Encoder.getScalars" title="nupic.encoders.base.Encoder.getScalars"><code class="xref py py-meth docutils literal"><span class="pre">getScalars()</span></code></a>. This value is always an int or
+float, and can be used for numeric comparisons.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nupic.encoders.base.EncoderResult.encoding">
+<code class="descname">encoding</code><a class="headerlink" href="#nupic.encoders.base.EncoderResult.encoding" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the encoded bit-array (numpy array) that represents <code class="docutils literal"><span class="pre">value</span></code>.
+That is, if <code class="docutils literal"><span class="pre">value</span></code> was passed to <a class="reference internal" href="#nupic.encoders.base.Encoder.encode" title="nupic.encoders.base.Encoder.encode"><code class="xref py py-meth docutils literal"><span class="pre">encode()</span></code></a>, an identical
+bit-array should be returned.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="category-encoders">
+<h2>Category Encoders<a class="headerlink" href="#category-encoders" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.encoders.category.CategoryEncoder">
+<em class="property">class </em><code class="descclassname">nupic.encoders.category.</code><code class="descname">CategoryEncoder</code><span class="sig-paren">(</span><em>w</em>, <em>categoryList</em>, <em>name='category'</em>, <em>verbosity=0</em>, <em>forced=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.category.CategoryEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.encoders.base.Encoder" title="nupic.encoders.base.Encoder"><code class="xref py py-class docutils literal"><span class="pre">nupic.encoders.base.Encoder</span></code></a></p>
+<p>Encodes a list of discrete categories (described by strings), that aren&#8217;t
+related to each other, so we never emit a mixture of categories.</p>
+<p>The value of zero is reserved for &#8220;unknown category&#8221;</p>
+<p>Internally we use a <a class="reference internal" href="#nupic.encoders.scalar.ScalarEncoder" title="nupic.encoders.scalar.ScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">ScalarEncoder</span></code></a> with a radius of 1, but since we
+only encode integers, we never get mixture outputs.</p>
+<p>The <a class="reference internal" href="#nupic.encoders.sdrcategory.SDRCategoryEncoder" title="nupic.encoders.sdrcategory.SDRCategoryEncoder"><code class="xref py py-class docutils literal"><span class="pre">SDRCategoryEncoder</span></code></a> uses a different method to encode categories.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>categoryList</strong> &#8211; list of discrete string categories</li>
+<li><strong>forced</strong> &#8211; if True, skip checks for parameters&#8217; settings; see
+<a class="reference internal" href="#nupic.encoders.scalar.ScalarEncoder" title="nupic.encoders.scalar.ScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">ScalarEncoder</span></code></a> for details. (default False)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.encoders.sdrcategory.SDRCategoryEncoder">
+<em class="property">class </em><code class="descclassname">nupic.encoders.sdrcategory.</code><code class="descname">SDRCategoryEncoder</code><span class="sig-paren">(</span><em>n</em>, <em>w</em>, <em>categoryList=None</em>, <em>name='category'</em>, <em>verbosity=0</em>, <em>encoderSeed=1</em>, <em>forced=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.sdrcategory.SDRCategoryEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.encoders.base.Encoder" title="nupic.encoders.base.Encoder"><code class="xref py py-class docutils literal"><span class="pre">nupic.encoders.base.Encoder</span></code></a></p>
+<p>Encodes a list of discrete categories (described by strings), that aren&#8217;t
+related to each other.</p>
+<p>Each  encoding is an SDR in which w out of n bits are turned on.</p>
+<p>Unknown categories are encoded as a single value.</p>
+<p>Internally we use a <a class="reference internal" href="#nupic.encoders.scalar.ScalarEncoder" title="nupic.encoders.scalar.ScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">ScalarEncoder</span></code></a> with a radius of 1, but since we
+only encode integers, we never get mixture outputs.</p>
+<p>The <a class="reference internal" href="#nupic.encoders.category.CategoryEncoder" title="nupic.encoders.category.CategoryEncoder"><code class="xref py py-class docutils literal"><span class="pre">CategoryEncoder</span></code></a> uses a different method to encode categories</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>categoryList</strong> &#8211; list of discrete string categories, if <code class="docutils literal"><span class="pre">None</span></code> then
+categories will automatically be added as they are
+encountered</li>
+<li><strong>forced</strong> &#8211; if True, skip checks for parameters&#8217; settings; see
+<a class="reference internal" href="#nupic.encoders.scalar.ScalarEncoder" title="nupic.encoders.scalar.ScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">ScalarEncoder</span></code></a> for details. (default False)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="scalar-encoders">
+<h2>Scalar Encoders<a class="headerlink" href="#scalar-encoders" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="nupic.encoders.scalar.ScalarEncoder">
 <em class="property">class </em><code class="descclassname">nupic.encoders.scalar.</code><code class="descname">ScalarEncoder</code><span class="sig-paren">(</span><em>w</em>, <em>minval</em>, <em>maxval</em>, <em>periodic=False</em>, <em>n=0</em>, <em>radius=0</em>, <em>resolution=0</em>, <em>name=None</em>, <em>verbosity=0</em>, <em>clipInput=False</em>, <em>forced=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.scalar.ScalarEncoder" title="Permalink to this definition">¶</a></dt>
@@ -708,21 +725,26 @@ set. &#8220;0&#8221; is a special value that means &#8220;not set&#8221;.</p>
 &#8220;width&#8221; of the output signal restriction: w must be odd to avoid
 centering problems.</li>
 <li><strong>minval</strong> &#8211; The minimum value of the input signal.</li>
-<li><strong>maxval</strong> &#8211; The upper bound of the input signal. (input is strictly less if periodic == True)</li>
-<li><strong>periodic</strong> &#8211; If true, then the input value &#8220;wraps around&#8221; such that minval = maxval
-For a periodic value, the input must be strictly less than maxval,
-otherwise maxval is a true upper bound.</li>
-<li><strong>n</strong> &#8211; The number of bits in the output. Must be greater than or equal to w</li>
-<li><strong>radius</strong> &#8211; Two inputs separated by more than the radius have non-overlapping
-representations. Two inputs separated by less than the radius will
-in general overlap in at least some of their bits. You can think
-of this as the radius of the input.</li>
-<li><strong>resolution</strong> &#8211; Two inputs separated by greater than, or equal to the resolution are guaranteed
-to have different representations.</li>
+<li><strong>maxval</strong> &#8211; The upper bound of the input signal. (input is strictly less if
+<code class="docutils literal"><span class="pre">periodic</span> <span class="pre">==</span> <span class="pre">True</span></code>)</li>
+<li><strong>periodic</strong> &#8211; If true, then the input value &#8220;wraps around&#8221; such that
+<code class="docutils literal"><span class="pre">minval</span></code> = <code class="docutils literal"><span class="pre">maxval</span></code>. For a periodic value, the input must be
+strictly less than <code class="docutils literal"><span class="pre">maxval</span></code>, otherwise <code class="docutils literal"><span class="pre">maxval</span></code> is a true
+upper bound.</li>
+<li><strong>n</strong> &#8211; The number of bits in the output. Must be greater than or equal to
+<code class="docutils literal"><span class="pre">w</span></code></li>
+<li><strong>radius</strong> &#8211; Two inputs separated by more than the radius have
+non-overlapping representations. Two inputs separated by less
+than the radius will in general overlap in at least some of
+their bits. You can think of this as the radius of the input.</li>
+<li><strong>resolution</strong> &#8211; Two inputs separated by greater than, or equal to the
+resolution are guaranteed to have different
+representations.</li>
 <li><strong>name</strong> &#8211; an optional string which will become part of the description</li>
 <li><strong>clipInput</strong> &#8211; if true, non-periodic inputs smaller than minval or greater
 than maxval will be clipped to minval/maxval</li>
-<li><strong>forced</strong> &#8211; if true, skip some safety checks (for compatibility reasons), default false</li>
+<li><strong>forced</strong> &#8211; if true, skip some safety checks (for compatibility reasons),
+default false</li>
 </ul>
 </td>
 </tr>
@@ -730,8 +752,8 @@ than maxval will be clipped to minval/maxval</li>
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Radius and resolution are specified with respect to the input, not output. w
-is specified with respect to the output.</p>
+<p class="last"><code class="docutils literal"><span class="pre">radius</span></code> and <code class="docutils literal"><span class="pre">resolution</span></code> are specified with respect to the
+input, not output. <code class="docutils literal"><span class="pre">w</span></code> is specified with respect to the output.</p>
 </div>
 <p><strong>Example: day of week</strong></p>
 <div class="highlight-text"><div class="highlight"><pre><span></span>w = 3
@@ -803,59 +825,36 @@ n = w * range/radius (periodic)
 n = w * range/radius + 2 * h (non-periodic)
 </pre></div>
 </div>
-<dl class="method">
-<dt id="nupic.encoders.scalar.ScalarEncoder.closenessScores">
-<code class="descname">closenessScores</code><span class="sig-paren">(</span><em>expValues</em>, <em>actValues</em>, <em>fractional=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.scalar.ScalarEncoder.closenessScores" title="Permalink to this definition">¶</a></dt>
-<dd><p>See the function description in base.py</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="nupic.encoders.scalar.ScalarEncoder.decode">
-<code class="descname">decode</code><span class="sig-paren">(</span><em>encoded</em>, <em>parentFieldName=''</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.scalar.ScalarEncoder.decode" title="Permalink to this definition">¶</a></dt>
-<dd><p>See the function description in base.py</p>
+<dl class="class">
+<dt id="nupic.encoders.adaptivescalar.AdaptiveScalarEncoder">
+<em class="property">class </em><code class="descclassname">nupic.encoders.adaptivescalar.</code><code class="descname">AdaptiveScalarEncoder</code><span class="sig-paren">(</span><em>w</em>, <em>minval=None</em>, <em>maxval=None</em>, <em>periodic=False</em>, <em>n=0</em>, <em>radius=0</em>, <em>resolution=0</em>, <em>name=None</em>, <em>verbosity=0</em>, <em>clipInput=True</em>, <em>forced=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.adaptivescalar.AdaptiveScalarEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.encoders.scalar.ScalarEncoder" title="nupic.encoders.scalar.ScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">nupic.encoders.scalar.ScalarEncoder</span></code></a></p>
+<p>This is an implementation of the scalar encoder that adapts the min and
+max of the scalar encoder dynamically. This is essential to the streaming
+model of the online prediction framework.</p>
+<p>Initialization of an adapive encoder using resolution or radius is not supported;
+it must be intitialized with n. This n is kept constant while the min and max of the
+encoder changes.</p>
+<p>The adaptive encoder must be have periodic set to false.</p>
+<p>The adaptive encoder may be initialized with a minval and maxval or with <cite>None</cite>
+for each of these. In the latter case, the min and max are set as the 1st and 99th
+percentile over a window of the past 100 records.</p>
+<p><strong>Note:</strong> the sliding window may record duplicates of the values in the dataset,
+and therefore does not reflect the statistical distribution of the input data
+and may not be used to calculate the median, mean etc.</p>
+<p>For params, see <a class="reference internal" href="#nupic.encoders.scalar.ScalarEncoder" title="nupic.encoders.scalar.ScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">ScalarEncoder</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">Exception if input is periodic.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="method">
-<dt id="nupic.encoders.scalar.ScalarEncoder.encodeIntoArray">
-<code class="descname">encodeIntoArray</code><span class="sig-paren">(</span><em>input</em>, <em>output</em>, <em>learn=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.scalar.ScalarEncoder.encodeIntoArray" title="Permalink to this definition">¶</a></dt>
-<dd><p>See method description in base.py</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.scalar.ScalarEncoder.getBucketIndices">
-<code class="descname">getBucketIndices</code><span class="sig-paren">(</span><em>input</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.scalar.ScalarEncoder.getBucketIndices" title="Permalink to this definition">¶</a></dt>
-<dd><p>See method description in base.py</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.scalar.ScalarEncoder.getBucketInfo">
-<code class="descname">getBucketInfo</code><span class="sig-paren">(</span><em>buckets</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.scalar.ScalarEncoder.getBucketInfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>See the function description in base.py</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.scalar.ScalarEncoder.getBucketValues">
-<code class="descname">getBucketValues</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.scalar.ScalarEncoder.getBucketValues" title="Permalink to this definition">¶</a></dt>
-<dd><p>See the function description in base.py</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.scalar.ScalarEncoder.getDecoderOutputFieldTypes">
-<code class="descname">getDecoderOutputFieldTypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.scalar.ScalarEncoder.getDecoderOutputFieldTypes" title="Permalink to this definition">¶</a></dt>
-<dd><p>[Encoder class virtual method override]</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.scalar.ScalarEncoder.topDownCompute">
-<code class="descname">topDownCompute</code><span class="sig-paren">(</span><em>encoded</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.scalar.ScalarEncoder.topDownCompute" title="Permalink to this definition">¶</a></dt>
-<dd><p>See the function description in base.py</p>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="random-distributed-scalar-encoder">
-<h2>Random Distributed Scalar Encoder<a class="headerlink" href="#random-distributed-scalar-encoder" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder">
 <em class="property">class </em><code class="descclassname">nupic.encoders.random_distributed_scalar.</code><code class="descname">RandomDistributedScalarEncoder</code><span class="sig-paren">(</span><em>resolution</em>, <em>w=21</em>, <em>n=400</em>, <em>name=None</em>, <em>offset=None</em>, <em>seed=42</em>, <em>verbosity=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder" title="Permalink to this definition">¶</a></dt>
@@ -880,52 +879,119 @@ confuse representations. Specifically, buckets that are more than w indices
 apart should have at most maxOverlap bits of overlap. We arbitrarily (and
 safely) define &#8220;very low&#8221; to be 2 bits of overlap or lower.</p>
 <p>Properties 1 and 2 lead to the following overlap rules for buckets i and j:</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>If abs(i-j) &lt; w then:</dt>
-<dd>overlap(i,j) = w - abs(i-j)</dd>
-<dt>else:</dt>
-<dd>overlap(i,j) &lt;= maxOverlap</dd>
-</dl>
-</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">If</span> <span class="nb">abs</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="n">j</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">w</span> <span class="n">then</span><span class="p">:</span>
+  <span class="n">overlap</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span> <span class="o">=</span> <span class="n">w</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="n">j</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+  <span class="n">overlap</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">maxOverlap</span>
+</pre></div>
+</div>
 <p>3) The representation for a scalar must not change during the lifetime of
 the object. Specifically, as new buckets are created and the min/max range
 is extended, the representation for previously in-range sscalars and
 previously created buckets must not change.</p>
-<dl class="method">
-<dt id="nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.encodeIntoArray">
-<code class="descname">encodeIntoArray</code><span class="sig-paren">(</span><em>x</em>, <em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.encodeIntoArray" title="Permalink to this definition">¶</a></dt>
-<dd><p>See method description in base.py</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.getBucketIndices">
-<code class="descname">getBucketIndices</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.getBucketIndices" title="Permalink to this definition">¶</a></dt>
-<dd><p>See method description in base.py</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.getDecoderOutputFieldTypes">
-<code class="descname">getDecoderOutputFieldTypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.getDecoderOutputFieldTypes" title="Permalink to this definition">¶</a></dt>
-<dd><p>See method description in base.py</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.getWidth">
-<code class="descname">getWidth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.getWidth" title="Permalink to this definition">¶</a></dt>
-<dd><p>See method description in base.py</p>
-</dd></dl>
-
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>resolution</strong> &#8211; A floating point positive number denoting the resolution
+of the output representation. Numbers within
+[offset-resolution/2, offset+resolution/2] will fall into
+the same bucket and thus have an identical representation.
+Adjacent buckets will differ in one bit. resolution is a
+required parameter.</li>
+<li><strong>w</strong> &#8211; Number of bits to set in output. w must be odd to avoid centering
+problems.  w must be large enough that spatial pooler
+columns will have a sufficiently large overlap to avoid
+false matches. A value of w=21 is typical.</li>
+<li><strong>n</strong> &#8211; Number of bits in the representation (must be &gt; w). n must be
+large enough such that there is enough room to select
+new representations as the range grows. With w=21 a value
+of n=400 is typical. The class enforces n &gt; 6*w.</li>
+<li><strong>name</strong> &#8211; An optional string which will become part of the description.</li>
+<li><strong>offset</strong> &#8211; A floating point offset used to map scalar inputs to bucket
+indices. The middle bucket will correspond to numbers in the
+range [offset - resolution/2, offset + resolution/2). If set
+to None, the very first input that is encoded will be used
+to determine the offset.</li>
+<li><strong>seed</strong> &#8211; The seed used for numpy&#8217;s random number generator. If set to -1
+the generator will be initialized without a fixed seed.</li>
+<li><strong>verbosity</strong> &#8211; An integer controlling the level of debugging output. A
+value of 0 implies no output. verbosity=1 may lead to
+one-time printouts during construction, serialization or
+deserialization. verbosity=2 may lead to some output per
+encode operation. verbosity&gt;2 may lead to significantly
+more output.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.mapBucketIndexToNonZeroBits">
 <code class="descname">mapBucketIndexToNonZeroBits</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder.mapBucketIndexToNonZeroBits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a bucket index, return the list of non-zero bits. If the bucket
 index does not exist, it is created. If the index falls outside our range
 we clip it.</p>
-<p>&#64;param index The bucket index to get non-zero bits for.
+<p>:param index The bucket index to get non-zero bits for.
 &#64;returns numpy array of indices of non-zero bits for specified index.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.encoders.scalarspace.ScalarSpaceEncoder">
+<em class="property">class </em><code class="descclassname">nupic.encoders.scalarspace.</code><code class="descname">ScalarSpaceEncoder</code><a class="headerlink" href="#nupic.encoders.scalarspace.ScalarSpaceEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.encoders.base.Encoder" title="nupic.encoders.base.Encoder"><code class="xref py py-class docutils literal"><span class="pre">nupic.encoders.base.Encoder</span></code></a></p>
+<p>An encoder that can be used to permute the encodings through different spaces
+These include absolute value, delta, log space, etc.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>space</strong> &#8211; (string) if &#8220;absolute&#8221;, an <a class="reference internal" href="#nupic.encoders.adaptivescalar.AdaptiveScalarEncoder" title="nupic.encoders.adaptivescalar.AdaptiveScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">AdaptiveScalarEncoder</span></code></a> is
+returned. Otherwise, a <a class="reference internal" href="#nupic.encoders.delta.DeltaEncoder" title="nupic.encoders.delta.DeltaEncoder"><code class="xref py py-class docutils literal"><span class="pre">DeltaEncoder</span></code></a> is returned.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.encoders.delta.DeltaEncoder">
+<em class="property">class </em><code class="descclassname">nupic.encoders.delta.</code><code class="descname">DeltaEncoder</code><span class="sig-paren">(</span><em>w</em>, <em>minval=None</em>, <em>maxval=None</em>, <em>periodic=False</em>, <em>n=0</em>, <em>radius=0</em>, <em>resolution=0</em>, <em>name=None</em>, <em>verbosity=0</em>, <em>clipInput=True</em>, <em>forced=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.delta.DeltaEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.encoders.adaptivescalar.AdaptiveScalarEncoder" title="nupic.encoders.adaptivescalar.AdaptiveScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">nupic.encoders.adaptivescalar.AdaptiveScalarEncoder</span></code></a></p>
+<p>This is an implementation of a delta encoder. The delta encoder encodes
+differences between successive scalar values instead of encoding the actual
+values. It returns an actual value when decoding and not a delta.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.encoders.logenc.LogEncoder">
+<em class="property">class </em><code class="descclassname">nupic.encoders.logenc.</code><code class="descname">LogEncoder</code><span class="sig-paren">(</span><em>w=5</em>, <em>minval=1e-07</em>, <em>maxval=10000</em>, <em>periodic=False</em>, <em>n=0</em>, <em>radius=0</em>, <em>resolution=0</em>, <em>name='log'</em>, <em>verbosity=0</em>, <em>clipInput=True</em>, <em>forced=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.logenc.LogEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.encoders.base.Encoder" title="nupic.encoders.base.Encoder"><code class="xref py py-class docutils literal"><span class="pre">nupic.encoders.base.Encoder</span></code></a></p>
+<p>This class wraps the <a class="reference internal" href="#nupic.encoders.scalar.ScalarEncoder" title="nupic.encoders.scalar.ScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">ScalarEncoder</span></code></a>.</p>
+<p>A Log encoder represents a floating point value on a logarithmic scale.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">valueToEncode</span> <span class="o">=</span> <span class="n">log10</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>resolution</strong> &#8211; The minimum change in scaled value needed to produce a
+change in encoding. This should be specified in log space.
+For example, the scaled values 10 and 11 will be
+distinguishable in the output. In terms of the original
+input values, this means 10^1 (1) and 10^1.1 (1.25) will be
+distinguishable.</li>
+<li><strong>radius</strong> &#8211; inputs separated by more than this distance in log space will
+have non-overlapping representations</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -935,170 +1001,148 @@ we clip it.</p>
 <dt id="nupic.encoders.date.DateEncoder">
 <em class="property">class </em><code class="descclassname">nupic.encoders.date.</code><code class="descname">DateEncoder</code><span class="sig-paren">(</span><em>season=0</em>, <em>dayOfWeek=0</em>, <em>weekend=0</em>, <em>holiday=0</em>, <em>timeOfDay=0</em>, <em>customDays=0</em>, <em>name=''</em>, <em>forced=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.date.DateEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#nupic.encoders.base.Encoder" title="nupic.encoders.base.Encoder"><code class="xref py py-class docutils literal"><span class="pre">nupic.encoders.base.Encoder</span></code></a></p>
-<p>A date encoder encodes a date according to encoding parameters
-specified in its constructor.
-The input to a date encoder is a datetime.datetime object. The output
-is the concatenation of several sub-encodings, each of which encodes
-a different aspect of the date. Which sub-encodings are present, and
-details of those sub-encodings, are specified in the DateEncoder
-constructor.</p>
+<p>A date encoder encodes a date according to encoding parameters specified in
+its constructor. The input to a date encoder is a datetime.datetime object.
+The output is the concatenation of several sub-encodings, each of which
+encodes a different aspect of the date. Which sub-encodings are present, and
+details of those sub-encodings, are specified in the DateEncoder constructor.</p>
 <p>Each parameter describes one attribute to encode. By default, the attribute
 is not encoded.</p>
-<dl class="docutils">
-<dt>season (season of the year; units = day):</dt>
-<dd>(int) width of attribute; default radius = 91.5 days (1 season)
-(tuple)  season[0] = width; season[1] = radius</dd>
-<dt>dayOfWeek (monday = 0; units = day)</dt>
-<dd>(int) width of attribute; default radius = 1 day
-(tuple) dayOfWeek[0] = width; dayOfWeek[1] = radius</dd>
-<dt>weekend (boolean: 0, 1)</dt>
-<dd>(int) width of attribute</dd>
-<dt>holiday (boolean: 0, 1)</dt>
-<dd>(int) width of attribute</dd>
-<dt>timeOfday (midnight = 0; units = hour)</dt>
-<dd>(int) width of attribute: default radius = 4 hours
-(tuple) timeOfDay[0] = width; timeOfDay[1] = radius</dd>
-</dl>
-<p>customDays TODO: what is it?</p>
-<p>forced (default True) : if True, skip checks for parameters&#8217; settings; see encoders/scalar.py for details</p>
-<dl class="method">
-<dt id="nupic.encoders.date.DateEncoder.encodeIntoArray">
-<code class="descname">encodeIntoArray</code><span class="sig-paren">(</span><em>input</em>, <em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.date.DateEncoder.encodeIntoArray" title="Permalink to this definition">¶</a></dt>
-<dd><p>See method description in base.py</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.date.DateEncoder.getBucketIndices">
-<code class="descname">getBucketIndices</code><span class="sig-paren">(</span><em>input</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.date.DateEncoder.getBucketIndices" title="Permalink to this definition">¶</a></dt>
-<dd><p>See method description in base.py</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.date.DateEncoder.getEncodedValues">
-<code class="descname">getEncodedValues</code><span class="sig-paren">(</span><em>input</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.date.DateEncoder.getEncodedValues" title="Permalink to this definition">¶</a></dt>
-<dd><p>See method description in base.py</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.date.DateEncoder.getScalarNames">
-<code class="descname">getScalarNames</code><span class="sig-paren">(</span><em>parentFieldName=''</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.date.DateEncoder.getScalarNames" title="Permalink to this definition">¶</a></dt>
-<dd><p>See method description in base.py</p>
-</dd></dl>
-
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>season</strong> &#8211; <p>(int | tuple) Season of the year, where units = day.</p>
+<ul>
+<li>(int) width of attribute; default radius = 91.5 days (1 season)</li>
+<li>(tuple)  season[0] = width; season[1] = radius</li>
+</ul>
+</li>
+<li><strong>dayOfWeek</strong> &#8211; <p>(int | tuple) Day of week, where monday = 0, units = 1 day.</p>
+<ul>
+<li>(int) width of attribute; default radius = 1 day</li>
+<li>(tuple) dayOfWeek[0] = width; dayOfWeek[1] = radius</li>
+</ul>
+</li>
+<li><strong>weekend</strong> &#8211; <p>(int) Is a weekend or not. A block of bits either 0s or 1s.</p>
+<ul>
+<li>(int) width of attribute</li>
+</ul>
+</li>
+<li><strong>holiday</strong> &#8211; <p>(int) Is a holiday or not, boolean: 0, 1</p>
+<ul>
+<li>(int) width of attribute</li>
+</ul>
+</li>
+<li><strong>timeOfday</strong> &#8211; <p>(int | tuple) Time of day, where midnight = 0, units = hour.</p>
+<ul>
+<li>(int) width of attribute: default radius = 4 hours</li>
+<li>(tuple) timeOfDay[0] = width; timeOfDay[1] = radius</li>
+</ul>
+</li>
+<li><strong>customDays</strong> &#8211; <p>(tuple) A way to custom encode specific days of the week.</p>
+<ul>
+<li>[0] (int) Width of attribute</li>
+<li>[1] (str | list) Either a string representing a day of the week like
+&#8220;Monday&#8221; or &#8220;mon&#8221;, or a list of these strings.</li>
+</ul>
+</li>
+<li><strong>forced</strong> &#8211; (default True) if True, skip checks for parameters&#8217; settings.
+See <a class="reference internal" href="#nupic.encoders.scalar.ScalarEncoder" title="nupic.encoders.scalar.ScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">ScalarEncoder</span></code></a> for details.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="nupic.encoders.date.DateEncoder.getScalars">
 <code class="descname">getScalars</code><span class="sig-paren">(</span><em>input</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.date.DateEncoder.getScalars" title="Permalink to this definition">¶</a></dt>
-<dd><p>See method description in base.py</p>
-<p>input:          A datetime object representing the time being encoded</p>
-<dl class="docutils">
-<dt>Returns:        A numpy array of the corresponding scalar values in</dt>
-<dd><p class="first">the following order:</p>
-<p>[season, dayOfWeek, weekend, holiday, timeOfDay]</p>
-<p class="last">Note: some of these fields might be omitted if they were not
-specified in the encoder</p>
-</dd>
-</dl>
+<dd><p>See method description in <a class="reference internal" href="#nupic.encoders.base.Encoder.getScalars" title="nupic.encoders.base.Encoder.getScalars"><code class="xref py py-meth docutils literal"><span class="pre">getScalars()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input</strong> &#8211; (datetime) representing the time being encoded</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A numpy array of the corresponding scalar values in the following
+order: season, dayOfWeek, weekend, holiday, timeOfDay. Some of
+these fields might be omitted if they were not specified in the
+encoder.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
 
 </div>
-<div class="section" id="coordinateencoder">
-<h2>CoordinateEncoder<a class="headerlink" href="#coordinateencoder" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="coordinate-encoders">
+<h2>Coordinate Encoders<a class="headerlink" href="#coordinate-encoders" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="nupic.encoders.coordinate.CoordinateEncoder">
 <em class="property">class </em><code class="descclassname">nupic.encoders.coordinate.</code><code class="descname">CoordinateEncoder</code><span class="sig-paren">(</span><em>w=21</em>, <em>n=1000</em>, <em>name=None</em>, <em>verbosity=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.coordinate.CoordinateEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a coordinate in an N-dimensional space, and a radius around
+<dd><p>Bases: <a class="reference internal" href="#nupic.encoders.base.Encoder" title="nupic.encoders.base.Encoder"><code class="xref py py-class docutils literal"><span class="pre">nupic.encoders.base.Encoder</span></code></a></p>
+<p>Given a coordinate in an N-dimensional space, and a radius around
 that coordinate, the Coordinate Encoder returns an SDR representation
 of that position.</p>
 <p>The Coordinate Encoder uses an N-dimensional integer coordinate space.
 For example, a valid coordinate in this space is (150, -49, 58), whereas
 an invalid coordinate would be (55.4, -5, 85.8475).</p>
 <p>It uses the following algorithm:</p>
-<p>1. Find all the coordinates around the input coordinate, within the
-specified radius.
-2. For each coordinate, use a uniform hash function to
+<ol class="arabic simple">
+<li>Find all the coordinates around the input coordinate, within the
+specified radius.</li>
+<li>For each coordinate, use a uniform hash function to
 deterministically map it to a real number between 0 and 1. This is the
-&#8220;order&#8221; of the coordinate.
-3. Of these coordinates, pick the top W by order, where W is the
-number of active bits desired in the SDR.
-4. For each of these W coordinates, use a uniform hash function to
-deterministically map it to one of the bits in the SDR. Make this bit active.
-5. This results in a final SDR with exactly W bits active
-(barring chance hash collisions).</p>
-<dl class="method">
-<dt id="nupic.encoders.coordinate.CoordinateEncoder.encodeIntoArray">
-<code class="descname">encodeIntoArray</code><span class="sig-paren">(</span><em>inputData</em>, <em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.coordinate.CoordinateEncoder.encodeIntoArray" title="Permalink to this definition">¶</a></dt>
-<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
-<dl class="docutils">
-<dt>&#64;param inputData (tuple) Contains coordinate (numpy.array, N-dimensional</dt>
-<dd>integer coordinate) and radius (int)</dd>
-</dl>
-<p>&#64;param output (numpy.array) Stores encoded SDR in this numpy array</p>
+&#8220;order&#8221; of the coordinate.</li>
+<li>Of these coordinates, pick the top W by order, where W is the
+number of active bits desired in the SDR.</li>
+<li>For each of these W coordinates, use a uniform hash function to
+deterministically map it to one of the bits in the SDR. Make this bit
+active.</li>
+<li>This results in a final SDR with exactly W bits active (barring chance hash
+collisions).</li>
+</ol>
 </dd></dl>
 
-<dl class="method">
-<dt id="nupic.encoders.coordinate.CoordinateEncoder.getDescription">
-<code class="descname">getDescription</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.coordinate.CoordinateEncoder.getDescription" title="Permalink to this definition">¶</a></dt>
-<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.coordinate.CoordinateEncoder.getScalars">
-<code class="descname">getScalars</code><span class="sig-paren">(</span><em>inputData</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.coordinate.CoordinateEncoder.getScalars" title="Permalink to this definition">¶</a></dt>
-<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.coordinate.CoordinateEncoder.getWidth">
-<code class="descname">getWidth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.coordinate.CoordinateEncoder.getWidth" title="Permalink to this definition">¶</a></dt>
-<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="geospatialcoordinateencoder">
-<h2>GeospatialCoordinateEncoder<a class="headerlink" href="#geospatialcoordinateencoder" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder">
 <em class="property">class </em><code class="descclassname">nupic.encoders.geospatial_coordinate.</code><code class="descname">GeospatialCoordinateEncoder</code><span class="sig-paren">(</span><em>scale</em>, <em>timestep</em>, <em>w=21</em>, <em>n=1000</em>, <em>name=None</em>, <em>verbosity=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a GPS coordinate and a speed reading, the
+<dd><p>Bases: <a class="reference internal" href="#nupic.encoders.coordinate.CoordinateEncoder" title="nupic.encoders.coordinate.CoordinateEncoder"><code class="xref py py-class docutils literal"><span class="pre">nupic.encoders.coordinate.CoordinateEncoder</span></code></a></p>
+<p>Given a GPS coordinate and a speed reading, the
 Geospatial Coordinate Encoder returns an SDR representation
 of that position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Param:</th><td class="field-body">scale (int) Scale of the map, as measured by distance between two
+coordinates (in meters per dimensional unit)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Param:</th><td class="field-body">timestep (int) Time between readings (in seconds)</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.coordinateForPosition">
 <code class="descname">coordinateForPosition</code><span class="sig-paren">(</span><em>longitude</em>, <em>latitude</em>, <em>altitude=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.coordinateForPosition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns coordinate for given GPS position.</p>
-<p>&#64;param longitude (float) Longitude of position
-&#64;param latitude (float) Latitude of position
-&#64;param altitude (float) Altitude of position
-&#64;return (numpy.array) Coordinate that the given GPS position</p>
-<blockquote>
-<div>maps to</div></blockquote>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.encodeIntoArray">
-<code class="descname">encodeIntoArray</code><span class="sig-paren">(</span><em>inputData</em>, <em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.encodeIntoArray" title="Permalink to this definition">¶</a></dt>
-<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
-<dl class="docutils">
-<dt>&#64;param inputData (tuple) Contains speed (float), longitude (float),</dt>
-<dd>latitude (float), altitude (float)</dd>
-</dl>
-<p>&#64;param output (numpy.array) Stores encoded SDR in this numpy array</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.getDescription">
-<code class="descname">getDescription</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.getDescription" title="Permalink to this definition">¶</a></dt>
-<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.getScalars">
-<code class="descname">getScalars</code><span class="sig-paren">(</span><em>inputData</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.geospatial_coordinate.GeospatialCoordinateEncoder.getScalars" title="Permalink to this definition">¶</a></dt>
-<dd><p>See <cite>nupic.encoders.base.Encoder</cite> for more information.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Param:</th><td class="field-body">longitude (float) Longitude of position</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Param:</th><td class="field-body">latitude (float) Latitude of position</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Param:</th><td class="field-body">altitude (float) Altitude of position</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(numpy.array) Coordinate that the given GPS position
+maps to</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1107,8 +1151,16 @@ of that position.</p>
 <dd><p>Returns radius for given speed.</p>
 <p>Tries to get the encodings of consecutive readings to be
 adjacent with some overlap.</p>
-<p>&#64;param speed (float) Speed (in meters per second)
-&#64;return (int) Radius for given speed</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Param:</th><td class="field-body">speed (float) Speed (in meters per second)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(int) Radius for given speed</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -1118,49 +1170,142 @@ adjacent with some overlap.</p>
 <h2>MultiEncoder<a class="headerlink" href="#multiencoder" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="nupic.encoders.multi.MultiEncoder">
-<em class="property">class </em><code class="descclassname">nupic.encoders.multi.</code><code class="descname">MultiEncoder</code><span class="sig-paren">(</span><em>encoderDescriptions=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.multi.MultiEncoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">nupic.encoders.multi.</code><code class="descname">MultiEncoder</code><span class="sig-paren">(</span><em>encoderDefinitions=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.multi.MultiEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#nupic.encoders.base.Encoder" title="nupic.encoders.base.Encoder"><code class="xref py py-class docutils literal"><span class="pre">nupic.encoders.base.Encoder</span></code></a></p>
-<p>A MultiEncoder encodes a dictionary or object with
-multiple components. A MultiEncode contains a number
-of sub-encoders, each of which encodes a separate component.</p>
+<p>A MultiEncoder encodes a dictionary or object with multiple components. A
+MultiEncoder contains a number of sub-encoders, each of which encodes a
+separate component.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>encoderDefinitions</strong> &#8211; a dict of dicts, mapping field names to the field
+params dict. Sent directly to <a class="reference internal" href="#nupic.encoders.multi.MultiEncoder.addMultipleEncoders" title="nupic.encoders.multi.MultiEncoder.addMultipleEncoders"><code class="xref py py-meth docutils literal"><span class="pre">addMultipleEncoders()</span></code></a>.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.encoders.multi.MultiEncoder.addEncoder">
+<code class="descname">addEncoder</code><span class="sig-paren">(</span><em>name</em>, <em>encoder</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.multi.MultiEncoder.addEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds one encoder.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; (string) name of encoder, should be unique</li>
+<li><strong>encoder</strong> &#8211; (<a class="reference internal" href="#nupic.encoders.base.Encoder" title="nupic.encoders.base.Encoder"><code class="xref py py-class docutils literal"><span class="pre">Encoder</span></code></a>) the encoder to add</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="nupic.encoders.multi.MultiEncoder.addMultipleEncoders">
 <code class="descname">addMultipleEncoders</code><span class="sig-paren">(</span><em>fieldEncodings</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.multi.MultiEncoder.addMultipleEncoders" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>fieldEncodings &#8211; a dict of dicts, mapping field names to the field params</dt>
-<dd>dict.</dd>
-</dl>
-<p>Each field params dict has the following keys
-1) data fieldname that matches the key (&#8216;fieldname&#8217;)
-2) an encoder type (&#8216;type&#8217;)
-3) and the encoder params (all other keys)</p>
-<p>For example,
-fieldEncodings={</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>&#8216;dateTime&#8217;: dict(fieldname=&#8217;dateTime&#8217;, type=&#8217;DateEncoder&#8217;,</dt>
-<dd>timeOfDay=(5,5)),</dd>
-<dt>&#8216;attendeeCount&#8217;: dict(fieldname=&#8217;attendeeCount&#8217;, type=&#8217;ScalarEncoder&#8217;,</dt>
-<dd>name=&#8217;attendeeCount&#8217;, minval=0, maxval=250,
-clipInput=True, w=5, resolution=10),</dd>
-<dt>&#8216;consumption&#8217;: dict(fieldname=&#8217;consumption&#8217;,type=&#8217;ScalarEncoder&#8217;,</dt>
-<dd>name=&#8217;consumption&#8217;, minval=0,maxval=110,
-clipInput=True, w=5, resolution=5),</dd>
-</dl>
-</div></blockquote>
-<p>}</p>
-<p>would yield a vector with a part encoded by the DateEncoder, 
-and to parts seperately taken care of by the ScalarEncoder with the specified parameters. 
-The three seperate encodings are then merged together to the final vector, in such a way that
-they are always at the same location within the vector.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fieldEncodings</strong> &#8211; <p>dict of dicts, mapping field names to the field
+params dict.</p>
+<p>Each field params dict has the following keys:</p>
+<ol class="arabic simple">
+<li><code class="docutils literal"><span class="pre">fieldname</span></code>: data field name</li>
+<li><code class="docutils literal"><span class="pre">type</span></code> an encoder type</li>
+<li>All other keys are encoder parameters</li>
+</ol>
+</td>
+</tr>
+</tbody>
+</table>
+<p>For example,</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">fieldEncodings</span><span class="o">=</span><span class="p">{</span>
+    <span class="s1">&#39;dateTime&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fieldname</span><span class="o">=</span><span class="s1">&#39;dateTime&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;DateEncoder&#39;</span><span class="p">,</span>
+                     <span class="n">timeOfDay</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">)),</span>
+    <span class="s1">&#39;attendeeCount&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fieldname</span><span class="o">=</span><span class="s1">&#39;attendeeCount&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;ScalarEncoder&#39;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="s1">&#39;attendeeCount&#39;</span><span class="p">,</span> <span class="n">minval</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span>
+                          <span class="n">clipInput</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="s1">&#39;consumption&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fieldname</span><span class="o">=</span><span class="s1">&#39;consumption&#39;</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;ScalarEncoder&#39;</span><span class="p">,</span>
+                        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;consumption&#39;</span><span class="p">,</span> <span class="n">minval</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">maxval</span><span class="o">=</span><span class="mi">110</span><span class="p">,</span>
+                        <span class="n">clipInput</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>would yield a vector with a part encoded by the <a class="reference internal" href="#nupic.encoders.date.DateEncoder" title="nupic.encoders.date.DateEncoder"><code class="xref py py-class docutils literal"><span class="pre">DateEncoder</span></code></a>, and
+to parts seperately taken care of by the <a class="reference internal" href="#nupic.encoders.scalar.ScalarEncoder" title="nupic.encoders.scalar.ScalarEncoder"><code class="xref py py-class docutils literal"><span class="pre">ScalarEncoder</span></code></a> with the
+specified parameters. The three seperate encodings are then merged together
+to the final vector, in such a way that they are always at the same location
+within the vector.</p>
 </dd></dl>
 
+</dd></dl>
+
+</div>
+<div class="section" id="pass-through-encoders">
+<h2>Pass Through Encoders<a class="headerlink" href="#pass-through-encoders" title="Permalink to this headline">¶</a></h2>
+<p>Used to pass raw SDRs through to the algorithms when data is already encoded.</p>
+<dl class="class">
+<dt id="nupic.encoders.pass_through_encoder.PassThroughEncoder">
+<em class="property">class </em><code class="descclassname">nupic.encoders.pass_through_encoder.</code><code class="descname">PassThroughEncoder</code><span class="sig-paren">(</span><em>n</em>, <em>w=None</em>, <em>name='pass_through'</em>, <em>forced=False</em>, <em>verbosity=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.pass_through_encoder.PassThroughEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.encoders.base.Encoder" title="nupic.encoders.base.Encoder"><code class="xref py py-class docutils literal"><span class="pre">nupic.encoders.base.Encoder</span></code></a></p>
+<p>Pass an encoded SDR straight to the model.</p>
+<p>Each encoding is an SDR in which w out of n bits are turned on.
+The input should be a 1-D array or numpy.ndarray of length n</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>n</strong> &#8211; the total #bits in output</li>
+<li><strong>w</strong> &#8211; used to normalize the sparsity of the output, exactly w bits ON,
+if None (default) - do not alter the input, just pass it further.</li>
+<li><strong>forced</strong> &#8211; if forced, encode will accept any data, and just return it back</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
-<dt id="nupic.encoders.multi.MultiEncoder.getWidth">
-<code class="descname">getWidth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.multi.MultiEncoder.getWidth" title="Permalink to this definition">¶</a></dt>
-<dd><p>Represents the sum of the widths of each fields encoding.</p>
+<dt id="nupic.encoders.pass_through_encoder.PassThroughEncoder.closenessScores">
+<code class="descname">closenessScores</code><span class="sig-paren">(</span><em>expValues</em>, <em>actValues</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.pass_through_encoder.PassThroughEncoder.closenessScores" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does a bitwise compare of the two bitmaps and returns a fractonal
+value between 0 and 1 of how similar they are.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">1</span></code> =&gt; identical</li>
+<li><code class="docutils literal"><span class="pre">0</span></code> =&gt; no overlaping bits</li>
+</ul>
+<p><code class="docutils literal"><span class="pre">kwargs</span></code> will have the keyword &#8220;fractional&#8221;, which is assumed by this
+encoder.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.encoders.sparse_pass_through_encoder.SparsePassThroughEncoder">
+<em class="property">class </em><code class="descclassname">nupic.encoders.sparse_pass_through_encoder.</code><code class="descname">SparsePassThroughEncoder</code><span class="sig-paren">(</span><em>n</em>, <em>w=None</em>, <em>name='sparse_pass_through'</em>, <em>forced=False</em>, <em>verbosity=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.encoders.sparse_pass_through_encoder.SparsePassThroughEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.encoders.pass_through_encoder.PassThroughEncoder" title="nupic.encoders.pass_through_encoder.PassThroughEncoder"><code class="xref py py-class docutils literal"><span class="pre">nupic.encoders.pass_through_encoder.PassThroughEncoder</span></code></a></p>
+<p>Convert a bitmap encoded as array indices to an SDR.</p>
+<p>Each encoding is an SDR in which <code class="docutils literal"><span class="pre">w</span></code> out of <code class="docutils literal"><span class="pre">n</span></code> bits are turned on.
+The input should be an array or string of indices to turn on.</p>
+<p><strong>Note:</strong> the value for <code class="docutils literal"><span class="pre">n</span></code> must equal input length * w, for example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span> <span class="o">=&gt;</span> <span class="mi">101001000</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span> <span class="s2">&quot;0,2,5&quot;</span> <span class="o">=&gt;</span> <span class="mi">101001000</span>
+</pre></div>
+</div>
+<p>and:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">n</span><span class="o">=</span><span class="mi">24</span> <span class="n">w</span><span class="o">=</span><span class="mi">3</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span> <span class="o">=&gt;</span> <span class="mi">111000111000000111000000000</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">n</span><span class="o">=</span><span class="mi">24</span> <span class="n">w</span><span class="o">=</span><span class="mi">3</span> <span class="s2">&quot;0,2,5&quot;</span> <span class="o">=&gt;</span> <span class="mi">111000111000000111000000000</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>
@@ -1200,13 +1345,14 @@ they are always at the same location within the vector.</p>
 <li class="toctree-l2"><a class="reference internal" href="../network/index.html">Network API</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Algorithms</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Encoders</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#encoder">Encoder</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scalar-encoder">Scalar Encoder</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#random-distributed-scalar-encoder">Random Distributed Scalar Encoder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#base-encoder">Base Encoder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#encoder-result">Encoder Result</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#category-encoders">Category Encoders</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scalar-encoders">Scalar Encoders</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#dateencoder">DateEncoder</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#coordinateencoder">CoordinateEncoder</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#geospatialcoordinateencoder">GeospatialCoordinateEncoder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#coordinate-encoders">Coordinate Encoders</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#multiencoder">MultiEncoder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pass-through-encoders">Pass Through Encoders</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="spatial-pooler.html">Spatial Pooler</a></li>
