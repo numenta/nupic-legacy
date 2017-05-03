@@ -57,12 +57,12 @@ some of the plumbing details).</p>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 
+<span class="kn">from</span> <span class="nn">nupic.algorithms.sdr_classifier_factory</span> <span class="k">import</span> <span class="n">SDRClassifierFactory</span>
+<span class="kn">from</span> <span class="nn">nupic.algorithms.spatial_pooler</span> <span class="k">import</span> <span class="n">SpatialPooler</span>
+<span class="kn">from</span> <span class="nn">nupic.algorithms.temporal_memory</span> <span class="k">import</span> <span class="n">TemporalMemory</span>
 <span class="kn">from</span> <span class="nn">nupic.encoders.date</span> <span class="k">import</span> <span class="n">DateEncoder</span>
 <span class="kn">from</span> <span class="nn">nupic.encoders.random_distributed_scalar</span> <span class="k">import</span> \
   <span class="n">RandomDistributedScalarEncoder</span>
-<span class="kn">from</span> <span class="nn">nupic.research.spatial_pooler</span> <span class="k">import</span> <span class="n">SpatialPooler</span>
-<span class="kn">from</span> <span class="nn">nupic.research.temporal_memory</span> <span class="k">import</span> <span class="n">TemporalMemory</span>
-<span class="kn">from</span> <span class="nn">nupic.algorithms.sdr_classifier_factory</span> <span class="k">import</span> <span class="n">SDRClassifierFactory</span>
 
 <span class="n">_NUM_RECORDS</span> <span class="o">=</span> <span class="mi">3000</span>
 <span class="n">_EXAMPLE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
@@ -330,10 +330,10 @@ pass each encoding to into the Spatial Pooling algorithm.</p>
 <div class="section" id="creating-the-sp">
 <h3>Creating the SP<a class="headerlink" href="#creating-the-sp" title="Permalink to this headline">¶</a></h3>
 <p>First, we must identify parameters for the creation of the
-<a class="reference internal" href="../api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler" title="nupic.research.spatial_pooler.SpatialPooler"><code class="xref py py-class docutils literal"><span class="pre">SpatialPooler</span></code></a> instance. We will be using the same parameters
+<code class="xref py py-class docutils literal"><span class="pre">SpatialPooler</span></code> instance. We will be using the same parameters
 identified in the <a class="reference external" href="opf.html">OPF Quick Start</a> document&#8217;s
 <a class="reference external" href="example-model-params.html">model parameters</a> (see the <code class="docutils literal"><span class="pre">spParams</span></code> section).</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nupic.research.spatial_pooler</span> <span class="k">import</span> <span class="n">SpatialPooler</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nupic.algorithms.spatial_pooler</span> <span class="k">import</span> <span class="n">SpatialPooler</span>
 
 <span class="n">encodingWidth</span> <span class="o">=</span> <span class="n">timeOfDayEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span> \
   <span class="o">+</span> <span class="n">weekendEncoder</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span> \
@@ -371,8 +371,8 @@ identified in the <a class="reference external" href="opf.html">OPF Quick Start<
 </div>
 <div class="section" id="running-the-sp">
 <h3>Running the SP<a class="headerlink" href="#running-the-sp" title="Permalink to this headline">¶</a></h3>
-<p>The <a class="reference internal" href="../api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler" title="nupic.research.spatial_pooler.SpatialPooler"><code class="xref py py-class docutils literal"><span class="pre">SpatialPooler</span></code></a> instance should be created once, and each encoded
-row of data passed into its <a class="reference internal" href="../api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.compute" title="nupic.research.spatial_pooler.SpatialPooler.compute"><code class="xref py py-meth docutils literal"><span class="pre">compute()</span></code></a> function.</p>
+<p>The <code class="xref py py-class docutils literal"><span class="pre">SpatialPooler</span></code> instance should be created once, and each encoded
+row of data passed into its <code class="xref py py-meth docutils literal"><span class="pre">compute()</span></code> function.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Create an array to represent active columns, all initially zero. This</span>
 <span class="c1"># will be populated by the compute method below. It must have the same</span>
 <span class="c1"># dimensions as the Spatial Pooler.</span>
@@ -396,20 +396,20 @@ time step, and will look something like this:</p>
 </div>
 <div class="section" id="temporal-memory">
 <h2>Temporal Memory<a class="headerlink" href="#temporal-memory" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="../api/algorithms/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory" title="nupic.research.temporal_memory.TemporalMemory"><code class="xref py py-class docutils literal"><span class="pre">TemporalMemory</span></code></a> algorithm works within the active mini-columns
-created by the <a class="reference internal" href="../api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler" title="nupic.research.spatial_pooler.SpatialPooler"><code class="xref py py-class docutils literal"><span class="pre">SpatialPooler</span></code></a>. Given a list of active columns, it
+<p>The <code class="xref py py-class docutils literal"><span class="pre">TemporalMemory</span></code> algorithm works within the active mini-columns
+created by the <code class="xref py py-class docutils literal"><span class="pre">SpatialPooler</span></code>. Given a list of active columns, it
 performs sequence memory operations by activating individual cells within each
 mini-column structure.</p>
 <div class="section" id="creating-the-tm">
 <h3>Creating the TM<a class="headerlink" href="#creating-the-tm" title="Permalink to this headline">¶</a></h3>
 <p>Just like the SP, we must create an instance of the
-<a class="reference internal" href="../api/algorithms/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory" title="nupic.research.temporal_memory.TemporalMemory"><code class="xref py py-class docutils literal"><span class="pre">TemporalMemory</span></code></a> with parameters we identified in the
+<code class="xref py py-class docutils literal"><span class="pre">TemporalMemory</span></code> with parameters we identified in the
 <a class="reference external" href="opf.html">OPF Quick Start</a> document&#8217;s
 <a class="reference external" href="example-model-params.html">model parameters</a> (see the <code class="docutils literal"><span class="pre">tpParams</span></code> section).</p>
 <blockquote>
 <div><strong>NOTE</strong>: The term <cite>tpParams</cite> is leftover from an older generation of code
 where the Temporal Memory algorithm was called <em>Temporal Pooling</em>.</div></blockquote>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nupic.research.temporal_memory</span> <span class="k">import</span> <span class="n">TemporalMemory</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nupic.algorithms.temporal_memory</span> <span class="k">import</span> <span class="n">TemporalMemory</span>
 
 <span class="n">tm</span> <span class="o">=</span> <span class="n">TemporalMemory</span><span class="p">(</span>
   <span class="c1"># Must be the same dimensions as the SP</span>
@@ -438,9 +438,9 @@ where the Temporal Memory algorithm was called <em>Temporal Pooling</em>.</div><
 </div>
 <div class="section" id="running-the-tm">
 <h3>Running the TM<a class="headerlink" href="#running-the-tm" title="Permalink to this headline">¶</a></h3>
-<p>Now, after <a class="reference internal" href="../api/algorithms/spatial-pooler.html#nupic.research.spatial_pooler.SpatialPooler.compute" title="nupic.research.spatial_pooler.SpatialPooler.compute"><code class="xref py py-meth docutils literal"><span class="pre">SpatialPooler.compute()</span></code></a>, we will run the
-<a class="reference internal" href="../api/algorithms/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory.compute" title="nupic.research.temporal_memory.TemporalMemory.compute"><code class="xref py py-meth docutils literal"><span class="pre">TemporalMemory.compute()</span></code></a> function using the active columns presented by
-the SP. Then we can call <a class="reference internal" href="../api/algorithms/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory.getActiveCells" title="nupic.research.temporal_memory.TemporalMemory.getActiveCells"><code class="xref py py-meth docutils literal"><span class="pre">TemporalMemory.getActiveCells()</span></code></a> to return the
+<p>Now, after <code class="xref py py-meth docutils literal"><span class="pre">SpatialPooler.compute()</span></code>, we will run the
+<code class="xref py py-meth docutils literal"><span class="pre">TemporalMemory.compute()</span></code> function using the active columns presented by
+the SP. Then we can call <code class="xref py py-meth docutils literal"><span class="pre">TemporalMemory.getActiveCells()</span></code> to return the
 indices of the active cells within the structure. All active cells will fall
 within active mini-columns.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Execute Temporal Memory algorithm over active mini-columns.</span>
@@ -500,11 +500,11 @@ printed to the console, each step looks like this:</p>
 </div>
 <div class="section" id="predictive-cells">
 <h3>Predictive Cells<a class="headerlink" href="#predictive-cells" title="Permalink to this headline">¶</a></h3>
-<p>The <a class="reference internal" href="../api/algorithms/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory" title="nupic.research.temporal_memory.TemporalMemory"><code class="xref py py-class docutils literal"><span class="pre">TemporalMemory</span></code></a> interface has many methods of getting cellular
+<p>The <code class="xref py py-class docutils literal"><span class="pre">TemporalMemory</span></code> interface has many methods of getting cellular
 state information. In the section above, we used the
 <code class="xref py py-meth docutils literal"><span class="pre">getActiveCells()</span></code> function to get the indices of active
 cells. We can also get predictive cells by calling
-<a class="reference internal" href="../api/algorithms/temporal-memory.html#nupic.research.temporal_memory.TemporalMemory.getPredictiveCells" title="nupic.research.temporal_memory.TemporalMemory.getPredictiveCells"><code class="xref py py-meth docutils literal"><span class="pre">TemporalMemory.getPredictiveCells()</span></code></a>, which returns an array of indices of
+<code class="xref py py-meth docutils literal"><span class="pre">TemporalMemory.getPredictiveCells()</span></code>, which returns an array of indices of
 cells in a depolarized, or predictive, state.</p>
 </div>
 </div>

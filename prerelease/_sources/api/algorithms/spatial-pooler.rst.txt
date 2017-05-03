@@ -1,7 +1,7 @@
 Spatial Pooler
 ^^^^^^^^^^^^^^
 
-.. automodule:: nupic.research.spatial_pooler
+.. automodule:: nupic.algorithms.spatial_pooler
 
 .. autoclass:: SpatialPooler
   :members:
