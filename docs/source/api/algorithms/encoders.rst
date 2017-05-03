@@ -24,7 +24,7 @@ Category Encoders
    :show-inheritance:
 
 Scalar Encoders
-^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.scalar.ScalarEncoder
    :show-inheritance:
