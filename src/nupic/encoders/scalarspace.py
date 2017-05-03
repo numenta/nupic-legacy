@@ -24,22 +24,32 @@ from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
 
 
 class ScalarSpaceEncoder(Encoder):
-  """An encoder that can be used to permute the encodings through different spaces
-  These include absolute value,delta, log space, etc.
+  """
+  An encoder that can be used to permute the encodings through different spaces
+  These include absolute value, delta, log space, etc.
+
+  :param space: (string) if "absolute", an :class:`.AdaptiveScalarEncoder` is
+                returned. Otherwise, a :class:`.DeltaEncoder` is returned.
   """
 
-  
-  SPACE_ABSOLUTE="absolute"
-  SPACE_DELTA="delta"
+  SPACE_ABSOLUTE = "absolute"
+  SPACE_DELTA = "delta"
+
+
   def __init__(self):
     pass
+
+
   def __new__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
-                resolution=0, name=None, verbosity=0, clipInput=False, 
-                space="absolute", forced=False):
+              resolution=0, name=None, verbosity=0, clipInput=False,
+              space="absolute", forced=False):
     self._encoder = None
+
     if space == "absolute":
-      ret = AdaptiveScalarEncoder(w,minval,maxval,periodic,n,radius,
-                                            resolution,name,verbosity,clipInput, forced=forced)
+      ret = AdaptiveScalarEncoder(w, minval, maxval, periodic, n, radius,
+                                  resolution, name, verbosity, clipInput,
+                                  forced=forced)
     else:
-      ret = DeltaEncoder(w,minval,maxval,periodic,n,radius,resolution,name,verbosity,clipInput, forced=forced)
+      ret = DeltaEncoder(w, minval, maxval, periodic, n, radius, resolution,
+                         name, verbosity, clipInput, forced=forced)
     return ret

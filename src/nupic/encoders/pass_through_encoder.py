@@ -26,20 +26,20 @@ from nupic.encoders.base import Encoder
 
 
 class PassThroughEncoder(Encoder):
-  """Pass an encoded SDR straight to the model.
+  """
+  Pass an encoded SDR straight to the model.
 
   Each encoding is an SDR in which w out of n bits are turned on.
   The input should be a 1-D array or numpy.ndarray of length n
+
+  :param n: the total #bits in output
+  :param w: used to normalize the sparsity of the output, exactly w bits ON,
+         if None (default) - do not alter the input, just pass it further.
+  :param forced: if forced, encode will accept any data, and just return it back
   """
 
   def __init__(self, n, w=None, name="pass_through", forced=False,
                verbosity=0):
-    """
-    n -- is the total #bits in output
-    w -- is used to normalize the sparsity of the output, exactly w bits ON,
-         if None (default) - do not alter the input, just pass it further.
-    forced -- if forced, encode will accept any data, and just return it back.
-    """
     self.n = n
     self.w = w
     self.verbosity = verbosity
@@ -113,12 +113,15 @@ class PassThroughEncoder(Encoder):
 
 
   def closenessScores(self, expValues, actValues, **kwargs):
-    """Does a bitwise compare of the two bitmaps and returns a fractonal
+    """
+    Does a bitwise compare of the two bitmaps and returns a fractonal
     value between 0 and 1 of how similar they are.
-    1 => identical
-    0 => no overlaping bits
 
-    kwargs will have the keyword "fractional", which is assumed by this encoder
+    - ``1`` => identical
+    - ``0`` => no overlaping bits
+
+    ``kwargs`` will have the keyword "fractional", which is assumed by this
+    encoder.
     """
     ratio = 1.0
     esum = int(expValues.sum())

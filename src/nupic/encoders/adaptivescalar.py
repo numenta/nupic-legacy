@@ -47,14 +47,16 @@ class AdaptiveScalarEncoder(ScalarEncoder):
   **Note:** the sliding window may record duplicates of the values in the dataset,
   and therefore does not reflect the statistical distribution of the input data
   and may not be used to calculate the median, mean etc.
+
+  For params, see :class:`~.nupic.encoders.scalar.ScalarEncoder`.
+
+  :raises: Exception if input is periodic.
+
   """
 
 
   def __init__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
                 resolution=0, name=None, verbosity=0, clipInput=True, forced=False):
-    """
-    [overrides nupic.encoders.scalar.ScalarEncoder.__init__]
-    """
     self._learningEnabled = True
     if periodic:
       #Adaptive scalar encoders take non-periodic inputs only

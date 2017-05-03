@@ -41,24 +41,21 @@ class CoordinateEncoder(Encoder):
   It uses the following algorithm:
 
   1. Find all the coordinates around the input coordinate, within the
-  specified radius.
+     specified radius.
   2. For each coordinate, use a uniform hash function to
-  deterministically map it to a real number between 0 and 1. This is the
-  "order" of the coordinate.
+     deterministically map it to a real number between 0 and 1. This is the
+     "order" of the coordinate.
   3. Of these coordinates, pick the top W by order, where W is the
-  number of active bits desired in the SDR.
+     number of active bits desired in the SDR.
   4. For each of these W coordinates, use a uniform hash function to
-  deterministically map it to one of the bits in the SDR. Make this bit active.
-  5. This results in a final SDR with exactly W bits active
-  (barring chance hash collisions).
+     deterministically map it to one of the bits in the SDR. Make this bit
+     active.
+  5. This results in a final SDR with exactly W bits active (barring chance hash
+     collisions).
+
   """
 
   def __init__(self, w=21, n=1000, name=None, verbosity=0):
-    """
-    See `nupic.encoders.base.Encoder` for more information.
-
-    @param name An optional string which will become part of the description
-    """
     # Validate inputs
     if (w <= 0) or (w % 2 == 0):
       raise ValueError("w must be an odd positive integer")
