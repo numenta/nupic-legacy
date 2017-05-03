@@ -21,7 +21,6 @@
 
 import math
 import numbers
-import pprint
 import sys
 
 import numpy
@@ -154,7 +153,7 @@ class RandomDistributedScalarEncoder(Encoder):
       self.name = "[%s]" % (self.resolution)
 
     if self.verbosity > 0:
-      self.dump()
+      print(self)
 
 
   def __setstate__(self, state):
@@ -441,20 +440,21 @@ class RandomDistributedScalarEncoder(Encoder):
     self.numTries = 0
 
 
-  def dump(self):
-    print "RandomDistributedScalarEncoder:"
-    print "  minIndex:   %d" % self.minIndex
-    print "  maxIndex:   %d" % self.maxIndex
-    print "  w:          %d" % self.w
-    print "  n:          %d" % self.getWidth()
-    print "  resolution: %g" % self.resolution
-    print "  offset:     %s" % str(self._offset)
-    print "  numTries:   %d" % self.numTries
-    print "  name:       %s" % self.name
+  def __str__(self):
+    string =  "RandomDistributedScalarEncoder:"
+    string += "\n  minIndex:   {min}".format(min = self.minIndex)
+    string += "\n  maxIndex:   {max}".format(max = self.maxIndex)
+    string += "\n  w:          {w}".format(w = self.w)
+    string += "\n  n:          {width}".format(width = self.getWidth())
+    string += "\n  resolution: {res}".format(res = self.resolution)
+    string += "\n  offset:     {offset}".format(offset = str(self._offset))
+    string += "\n  numTries:   {tries}".format(tries = self.numTries)
+    string += "\n  name:       {name}".format(name = self.name)
     if self.verbosity > 2:
-      print "  All buckets:     "
-      pprint.pprint(self.bucketMap)
-
+      string += "\n  All buckets:     "
+      string += "\n  "
+      string += str(self.bucketMap)
+    return string
 
   @classmethod
   def read(cls, proto):
