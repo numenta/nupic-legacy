@@ -56,11 +56,10 @@ right half. Both should be learned well.
 import numpy
 import unittest2 as unittest
 
-from nupic.research.BacktrackingTM import BacktrackingTM
-from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
-from nupic.research import fdrutilities as fdrutils
+from nupic.algorithms import fdrutilities as fdrutils
+from nupic.algorithms.backtracking_tm import BacktrackingTM
+from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
 from nupic.support.unittesthelpers import testcasebase
-
 
 g_testCPPTM = True
 

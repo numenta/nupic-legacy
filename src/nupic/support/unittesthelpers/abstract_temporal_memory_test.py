@@ -21,9 +21,9 @@
 
 from abc import ABCMeta, abstractmethod
 
-from nupic.data.generators.sequence_machine import SequenceMachine
-from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
+from nupic.algorithms.monitor_mixin.temporal_memory_monitor_mixin import (
   TemporalMemoryMonitorMixin)
+from nupic.data.generators.sequence_machine import SequenceMachine
 
 
 

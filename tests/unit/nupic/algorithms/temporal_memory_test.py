@@ -19,13 +19,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import copy
 import tempfile
 import unittest
-import copy
 
+from nupic.algorithms.temporal_memory import TemporalMemory
 from nupic.data.generators.pattern_machine import PatternMachine
 from nupic.data.generators.sequence_machine import SequenceMachine
-from nupic.research.temporal_memory import TemporalMemory
 
 try:
   import capnp
@@ -1006,7 +1006,7 @@ class TemporalMemoryTest(unittest.TestCase):
     )
     self.assertEqual(tm.getMaxSegmentsPerCell(), 200)
 
-  
+
   def testMaxSynapsesPerSegmentGetter(self):
     tm = TemporalMemory(
       columnDimensions=[32,32],

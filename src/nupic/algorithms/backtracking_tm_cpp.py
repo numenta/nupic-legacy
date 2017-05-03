@@ -21,12 +21,10 @@
 
 import numpy
 from numpy import *
-
-import nupic.math
-from nupic.research.BacktrackingTM import BacktrackingTM
-
 from nupic.bindings.algorithms import Cells4
 
+import nupic.math
+from nupic.algorithms.backtracking_tm import BacktrackingTM
 
 # Default verbosity while running unit tests
 VERBOSITY = 0

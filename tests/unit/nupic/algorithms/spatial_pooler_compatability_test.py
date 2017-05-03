@@ -21,15 +21,15 @@
 
 import cPickle as pickle
 import numpy
-import unittest2 as unittest
 import time
 import traceback
-
-from nupic.support.unittesthelpers.algorithm_test_helpers \
-     import getNumpyRandomGenerator, CreateSP, convertPermanences
-from nupic.research.spatial_pooler import SpatialPooler as PySpatialPooler
+import unittest2 as unittest
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 from nupic.bindings.math import GetNTAReal, Random as NupicRandom
+
+from nupic.algorithms.spatial_pooler import SpatialPooler as PySpatialPooler
+from nupic.support.unittesthelpers.algorithm_test_helpers \
+     import getNumpyRandomGenerator, CreateSP, convertPermanences
 
 realType = GetNTAReal()
 uintType = "uint32"

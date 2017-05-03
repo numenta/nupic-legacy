@@ -23,19 +23,18 @@
 # pylint: disable=W0212
 
 import numbers
+import numpy
 import tempfile
 import unittest
 from copy import copy
-
 from mock import Mock
-import numpy
+from nupic.bindings.math import GetNTAReal, Random
 
+from nupic.algorithms.spatial_pooler import (BinaryCorticalColumns,
+                                             CorticalColumns,
+                                             SpatialPooler)
 from nupic.support.unittesthelpers.algorithm_test_helpers import (
   getNumpyRandomGenerator, getSeed)
-from nupic.bindings.math import GetNTAReal, Random
-from nupic.research.spatial_pooler import (BinaryCorticalColumns,
-                                           CorticalColumns,
-                                           SpatialPooler)
 
 try:
   import capnp

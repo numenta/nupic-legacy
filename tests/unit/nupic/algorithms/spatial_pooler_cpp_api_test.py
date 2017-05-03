@@ -19,7 +19,15 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-## @package research
-# The nupic.research package contains Python implementations of
-# Numenta algorithms that are in early development.
+import unittest2 as unittest
+from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 
+import spatial_pooler_py_api_test
+
+spatial_pooler_py_api_test.SpatialPooler = CPPSpatialPooler
+SpatialPoolerCPPAPITest = spatial_pooler_py_api_test.SpatialPoolerAPITest
+
+
+
+if __name__ == "__main__":
+  unittest.main()

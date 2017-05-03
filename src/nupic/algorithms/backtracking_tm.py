@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-""" @file BacktrackingTM.py
+""" @file backtracking_tm.py
 
 Temporal memory implementation.
 
@@ -133,8 +133,8 @@ class BacktrackingTM(ConsolePrinterMixin):
 
     @param outputType Can be one of the following: 'normal', 'activeState',
                   'activeState1CellPerCol'.
-                  'normal': output the OR of the active and predicted state. 
-                  'activeState': output only the active state. 
+                  'normal': output the OR of the active and predicted state.
+                  'activeState': output only the active state.
                   'activeState1CellPerCol': output only the active state, and at
                   most 1 cell/column. If more than 1 cell is active in a column,
                   the one with the highest confidence is sent up.
@@ -249,7 +249,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     ## @todo document
     self.iterationIdx = 0
     ## unique segment id, so we can put segments in hashes
-    self.segID = 0 
+    self.segID = 0
     ## @todo document
     self.currentOutput = None # for checkPrediction
 
@@ -499,7 +499,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
 
   def setRandomSeed(self, seed):
-    """ @internal 
+    """ @internal
     Seed the random number generator.
     This is used during unit testing to generate repeatable results.
     """
@@ -507,7 +507,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
 
   def getRandomState(self):
-    """ @internal 
+    """ @internal
     Return the random number state.
 
     This is used during unit testing to generate repeatable results.
@@ -691,7 +691,7 @@ class BacktrackingTM(ConsolePrinterMixin):
                            colConfidence):
     """
     Called at the end of learning and inference, this routine will update
-    a number of stats in our _internalStats dictionary, including our computed 
+    a number of stats in our _internalStats dictionary, including our computed
     prediction score.
 
     @param stats            internal stats dictionary
@@ -758,7 +758,7 @@ class BacktrackingTM(ConsolePrinterMixin):
   def printState(self, aState):
     """
     Print an integer array that is the same shape as activeState.
-    
+
     @param aState TODO: document
     """
     def formatRow(var, i):
@@ -777,7 +777,7 @@ class BacktrackingTM(ConsolePrinterMixin):
   def printConfidence(self, aState, maxCols = 20):
     """
     Print a floating point array that is the same shape as activeState.
-    
+
     @param aState TODO: document
     @param maxCols TODO: document
     """
@@ -797,7 +797,7 @@ class BacktrackingTM(ConsolePrinterMixin):
   def printColConfidence(self, aState, maxCols = 20):
     """
     Print up to maxCols number from a flat floating point array.
-    
+
     @param aState TODO: document
     @param maxCols TODO: document
     """
@@ -897,8 +897,8 @@ class BacktrackingTM(ConsolePrinterMixin):
   def printActiveIndices(self, state, andValues=False):
     """
     Print the list of [column, cellIdx] indices for each of the active
-    cells in state. 
-    
+    cells in state.
+
     @param state TODO: document
     @param andValues TODO: document
     """
@@ -935,7 +935,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Called at the end of inference to print out various diagnostic
     information based on the current verbosity level.
-    
+
     @param output TODO: document
     @param learn TODO: document
     """
@@ -1019,7 +1019,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     @todo document
     """
-    
+
     if len(self.cells[c][i]) > 0:
       print "Column", c, "Cell", i, ":",
       print len(self.cells[c][i]), "segment(s)"
@@ -1116,7 +1116,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     @param segIdx TODO: document
 
     @returns list representing the the segment on cell (c, i) with index sidx.
-    
+
     Returns the segment as following list:
 
         [  [segmentID, sequenceSegmentFlag, positiveActivations,
@@ -1274,7 +1274,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Return a numpy array, predictedCells, representing the current predicted
     state.
-    
+
     predictedCells[c][i] represents the state of the i'th cell in the c'th
     column.
 
@@ -1435,7 +1435,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     -------------------------------------------------------------------
     This method gets called from updateInferenceState when we detect either of
     the following two conditions:
-    
+
     -# The current bottom-up input had too many un-expected columns
     -# We fail to generate a sufficient number of predicted columns for the
        next time step.
@@ -1938,7 +1938,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     -------------------------------------------------------------------
     This method gets called from updateLearningState when we detect either of
     the following two conditions:
-    
+
     -# Our PAM counter (@ref pamCounter) expired
     -# We reached the max allowed learned sequence length
 
@@ -2040,7 +2040,7 @@ class BacktrackingTM(ConsolePrinterMixin):
                          This tells us not to increment any segment
                          duty cycles or queue up any updates.
     @returns True if the current input was sufficiently predicted, OR
-             if we started over on startCells. False indicates that the current 
+             if we started over on startCells. False indicates that the current
              input was NOT predicted, well enough to consider it as "inSequence"
 
     This looks at:
@@ -2556,14 +2556,14 @@ class BacktrackingTM(ConsolePrinterMixin):
   def cleanUpdatesList(self, col, cellIdx, seg):
     """
     Removes any update that would be for the given col, cellIdx, segIdx.
-    
+
     NOTE: logically, we need to do this when we delete segments, so that if
     an update refers to a segment that was just deleted, we also remove
     that update from the update list. However, I haven't seen it trigger
     in any of the unit tests yet, so it might mean that it's not needed
     and that situation doesn't occur, by construction.
     """
-    # TODO: check if the situation described in the docstring above actually 
+    # TODO: check if the situation described in the docstring above actually
     #       occurs.
     for key, updateList in self.segmentUpdates.iteritems():
       c, i = key[0], key[1]
@@ -2599,7 +2599,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def checkPrediction2(self, patternNZs, output=None, colConfidence=None,
                        details=False):
-    """ 
+    """
     This function will replace checkPrediction.
 
     This function produces goodness-of-match scores for a set of input patterns,
@@ -2632,14 +2632,14 @@ class BacktrackingTM(ConsolePrinterMixin):
     @retval totalExtras a global count of the number of 'extras', i.e. bits that
                         are on in the current output but not in the or of all the
                         passed in patterns
-    @retval totalMissing a global count of all the missing bits, i.e. the bits 
-                         that are on in the or of the patterns, but not in the 
+    @retval totalMissing a global count of all the missing bits, i.e. the bits
+                         that are on in the or of the patterns, but not in the
                          current output
     @retval conf_i the confidence score for the i'th pattern inpatternsToCheck
                    This consists of 3 items as a tuple:
                    (predictionScore, posPredictionScore, negPredictionScore)
     @retval missing_i the bits in the i'th pattern that were missing
-                      in the output. This list is only returned if details is 
+                      in the output. This list is only returned if details is
                       True.
     """
 
@@ -3073,7 +3073,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     We also increment the positiveActivations count of the segment.
 
     @param segUpdate SegmentUpdate instance
-    @returns True if some synapses were decremented to 0 and the segment is a 
+    @returns True if some synapses were decremented to 0 and the segment is a
              candidate for trimming
     """
     # This will be set to True if detect that any syapses were decremented to
@@ -3303,7 +3303,7 @@ class Segment(object):
     providing good predictions.
 
     @param active   True if segment just provided a good prediction
-    
+
     @param readOnly If True, compute the updated duty cycle, but don't change
                the cached value. This is used by debugging print statements.
 

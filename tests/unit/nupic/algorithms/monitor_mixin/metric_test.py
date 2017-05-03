@@ -20,9 +20,9 @@
 # ----------------------------------------------------------------------
 
 import unittest
+from nupic.algorithms.monitor_mixin.metric import Metric
 
-from nupic.research.monitor_mixin.metric import Metric
-from nupic.research.monitor_mixin.trace import CountsTrace, BoolsTrace
+from nupic.algorithms.monitor_mixin.trace import CountsTrace, BoolsTrace
 
 
 

@@ -24,11 +24,10 @@ Temporal Memory implementation in Python.
 """
 
 from collections import defaultdict
+from nupic.bindings.math import Random
 from operator import mul
 
-
-from nupic.bindings.math import Random
-from nupic.research.connections import Connections, binSearch
+from nupic.algorithms.connections import Connections, binSearch
 from nupic.support.group_by import groupby2
 
 EPSILON = 0.00001 # constant error threshold to check equality of permanences to
@@ -984,7 +983,7 @@ class TemporalMemory(object):
     """
     self.connectedPermanence = connectedPermanence
 
-  
+
   def getMaxSegmentsPerCell(self):
       """
       Get the maximum number of segments per cell
@@ -992,7 +991,7 @@ class TemporalMemory(object):
       """
       return self.connections.maxSegmentsPerCell
 
-  
+
   def getMaxSynapsesPerSegment(self):
       """
       Get the maximum number of synapses per segment.

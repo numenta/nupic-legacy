@@ -4,12 +4,12 @@ import numpy
 import os
 import yaml
 
+from nupic.algorithms.sdr_classifier_factory import SDRClassifierFactory
+from nupic.algorithms.spatial_pooler import SpatialPooler
+from nupic.algorithms.temporal_memory import TemporalMemory
 from nupic.encoders.date import DateEncoder
 from nupic.encoders.random_distributed_scalar import \
   RandomDistributedScalarEncoder
-from nupic.research.spatial_pooler import SpatialPooler
-from nupic.research.temporal_memory import TemporalMemory
-from nupic.algorithms.sdr_classifier_factory import SDRClassifierFactory
 
 _NUM_RECORDS = 3000
 _EXAMPLE_DIR = os.path.dirname(os.path.abspath(__file__))

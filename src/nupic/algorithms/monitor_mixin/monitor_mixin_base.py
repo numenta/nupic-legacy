@@ -77,11 +77,10 @@ that inherit from MonitorMixinBase.
 """
 
 import abc
-
 import numpy
 from prettytable import PrettyTable
 
-from nupic.research.monitor_mixin.plot import Plot
+from nupic.algorithms.monitor_mixin.plot import Plot
 
 
 

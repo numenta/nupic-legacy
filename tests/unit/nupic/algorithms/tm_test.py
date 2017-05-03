@@ -21,20 +21,19 @@
 
 """Tests for the Python implementation of the temporal memory."""
 
-import csv
 import cPickle as pickle
+import csv
 import itertools
+import numpy
 import os
 import random
 import shutil
 import tempfile
 import unittest2 as unittest
-
-import numpy
 from pkg_resources import resource_filename
 
-from nupic.research import fdrutilities
-from nupic.research.BacktrackingTM import BacktrackingTM
+from nupic.algorithms import fdrutilities
+from nupic.algorithms.backtracking_tm import BacktrackingTM
 
 COL_SET = set(range(500))
 
@@ -53,7 +52,7 @@ class TMTest(unittest.TestCase):
   def tearDown(self):
     shutil.rmtree(self._tmpDir)
 
-  
+
   def testInitDefaultTM(self):
     self.assertTrue(isinstance(BacktrackingTM(), BacktrackingTM))
 

@@ -20,7 +20,6 @@
 # ----------------------------------------------------------------------
 
 """
-## @file
 The nupic.algorithms package contains Python implementations of Numenta
 algorithms that are used inside Numenta-supplied regions.
 """

@@ -19,15 +19,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import os
 import numpy
-
-from nupic.algorithms import anomaly
-from nupic.research import BacktrackingTM
-from nupic.research import BacktrackingTMCPP
-from nupic.research import TM_shim
-from nupic.support import getArgumentDescriptions
+import os
 from nupic.bindings.regions.PyRegion import PyRegion
+
+from nupic.algorithms import (anomaly, backtracking_tm, backtracking_tm_cpp,
+                              tm_shim)
+from nupic.support import getArgumentDescriptions
 
 gDefaultTemporalImp = 'py'
 
@@ -38,17 +36,17 @@ def _getTPClass(temporalImp):
   """
 
   if temporalImp == 'py':
-    return BacktrackingTM.BacktrackingTM
+    return backtracking_tm.BacktrackingTM
   elif temporalImp == 'cpp':
-    return BacktrackingTMCPP.BacktrackingTMCPP
+    return backtracking_tm_cpp.BacktrackingTMCPP
   elif temporalImp == 'tm_py':
-    return TM_shim.TMShim
+    return tm_shim.TMShim
   elif temporalImp == 'tm_cpp':
-    return TM_shim.TMCPPShim
+    return tm_shim.TMCPPShim
   elif temporalImp == 'tm_py_fast':
-    return TM_shim.FastTMShim
+    return tm_shim.FastTMShim
   elif temporalImp == 'monitored_tm_py':
-    return TM_shim.MonitoredTMShim
+    return tm_shim.MonitoredTMShim
   else:
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
               "'cpp', 'tm_py', 'monitored_tm_py'" % (temporalImp))
@@ -509,7 +507,7 @@ class TMRegion(PyRegion):
 
     if self.computePredictedActiveCellIndices:
       prevPredictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
-    
+
     if self.anomalyMode:
       prevPredictedColumns = self._tfdr.topDownCompute().copy().nonzero()[0]
 
@@ -541,8 +539,8 @@ class TMRegion(PyRegion):
       activeLearnCells = self._tfdr.getLearnActiveStateT()
       size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
-      
-      activeColumns = buInputVector.nonzero()[0]  
+
+      activeColumns = buInputVector.nonzero()[0]
       outputs['anomalyScore'][:] = anomaly.computeRawAnomalyScore(
         activeColumns, prevPredictedColumns)
 

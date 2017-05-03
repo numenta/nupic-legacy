@@ -433,17 +433,17 @@ the older sequences?).
 
 """
 
-import random
-import numpy
-from numpy import *
-import sys
-import pickle
 import cPickle
+import numpy
+import pickle
 import pprint
+import random
+import sys
+from numpy import *
 
-from nupic.research.BacktrackingTM import BacktrackingTM
-from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
-from nupic.research import fdrutilities as fdrutils
+from nupic.algorithms import fdrutilities as fdrutils
+from nupic.algorithms.backtracking_tm import BacktrackingTM
+from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
 
 #---------------------------------------------------------------------------------
 TEST_CPP_TM = 1   # temporarily disabled until it can be updated

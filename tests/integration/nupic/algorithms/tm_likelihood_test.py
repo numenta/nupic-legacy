@@ -48,8 +48,8 @@ There should be four segments a-b
 import numpy
 import unittest2 as unittest
 
-from nupic.research.BacktrackingTM import BacktrackingTM
-from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
+from nupic.algorithms.backtracking_tm import BacktrackingTM
+from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
 from nupic.support.unittesthelpers import testcasebase
 
 SEED = 42

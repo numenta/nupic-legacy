@@ -235,7 +235,7 @@ config = {
         'tmParams': {
             # TM diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
-            # (see verbosity in nupic/trunk/py/nupic/research/BacktrackingTM.py and BacktrackingTMCPP.py)
+            # (see verbosity in nupic/trunk/py/nupic/research/backtracking_tm.py and backtracking_tm_cpp.py)
             'verbosity': 0,
 
             # Number of cell columns in the cortical region (same number for

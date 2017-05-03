@@ -40,24 +40,22 @@ Test N: test that all the parameters of a TM region work properly
 
 """
 
+import json
 import numpy
 import os
-import json
 import random
 import tempfile
-
 import unittest2 as unittest
+from nupic.bindings.algorithms import SpatialPooler
 from pkg_resources import resource_filename
 
+from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
 from nupic.data.file_record_stream import FileRecordStream
-from nupic.engine import Network
 from nupic.encoders import MultiEncoder
-from nupic.support.unittesthelpers.testcasebase import TestCaseBase
-
-from nupic.bindings.algorithms import SpatialPooler
-from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
+from nupic.engine import Network
 from nupic.regions.SPRegion import SPRegion
 from nupic.regions.TMRegion import TMRegion
+from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 
 _VERBOSITY = 0         # how chatty the unit tests should be
 _SEED = 35             # the random seed used throughout
@@ -71,7 +69,7 @@ g_tpRegionConfig = None
 
 
 def _initConfigDicts():
-  
+
   # ============================================================================
   # Config field for SPRegion
   global g_spRegionConfig  # pylint: disable=W0603
@@ -83,7 +81,7 @@ def _initConfigDicts():
     spatialImp = 'cpp',
     seed = _SEED,
     )
-  
+
   # ============================================================================
   # Config field for TMRegion
   global g_tpRegionConfig  # pylint: disable=W0603
@@ -207,7 +205,7 @@ class OPFRegionTest(TestCaseBase):
 
   def setUp(self):
     _initConfigDicts()
-  
+
   # ============================================================================
   def testSaveAndReload(self):
     """
@@ -216,12 +214,12 @@ class OPFRegionTest(TestCaseBase):
     then run both networks for 100 iterations and ensure they return identical
     results.
     """
-  
+
     print "Creating network..."
-  
+
     netOPF = _createOPFNetwork()
     level1OPF = netOPF.regions['level1SP']
-  
+
     # ==========================================================================
     print "Training network for 500 iterations"
     level1OPF.setParameter('learningMode', 1)
@@ -229,7 +227,7 @@ class OPFRegionTest(TestCaseBase):
     netOPF.run(500)
     level1OPF.setParameter('learningMode', 0)
     level1OPF.setParameter('inferenceMode', 1)
-  
+
     # ==========================================================================
     # Save network and reload as a second instance. We need to reset the data
     # source for the unsaved network so that both instances start at the same
@@ -239,12 +237,12 @@ class OPFRegionTest(TestCaseBase):
     netOPF.save(tmpNetworkFilename)
     netOPF2 = Network(tmpNetworkFilename)
     level1OPF2 = netOPF2.regions['level1SP']
-  
+
     sensor = netOPF.regions['sensor'].getSelf()
     trainFile = resource_filename("nupic.datafiles", "extra/gym/gym.csv")
     sensor.dataSource = FileRecordStream(streamID=trainFile)
     sensor.dataSource.setAutoRewind(True)
-  
+
     # ==========================================================================
     print "Running inference on the two networks for 100 iterations"
     for _ in xrange(100):
@@ -254,25 +252,25 @@ class OPFRegionTest(TestCaseBase):
       l1outputOPF  = level1OPF.getOutputData("bottomUpOut")
       opfHash2 = l1outputOPF2.nonzero()[0].sum()
       opfHash  = l1outputOPF.nonzero()[0].sum()
-  
+
       self.assertEqual(opfHash2, opfHash)
-  
+
   # ============================================================================
   def testMaxEnabledPhase(self):
     """ Test maxEnabledPhase"""
-  
+
     print "Creating network..."
-  
+
     netOPF = _createOPFNetwork(addSP = True, addTP = True)
     netOPF.initialize()
     level1SP = netOPF.regions['level1SP']
     level1SP.setParameter('learningMode', 1)
     level1SP.setParameter('inferenceMode', 0)
-  
+
     tm = netOPF.regions['level1TP']
     tm.setParameter('learningMode', 0)
     tm.setParameter('inferenceMode', 0)
-  
+
     print "maxPhase,maxEnabledPhase = ", netOPF.maxPhase, \
                                       netOPF.getMaxEnabledPhase()
     self.assertEqual(netOPF.maxPhase, 2)
@@ -286,9 +284,9 @@ class OPFRegionTest(TestCaseBase):
     self.assertEqual(netOPF.getMaxEnabledPhase(), 1)
 
     netOPF.run(1)
-  
+
     print "RUN SUCCEEDED"
-  
+
     # TODO: The following does not run and is probably flawed.
     """
     print "\nSetting setMaxEnabledPhase to 2"
@@ -296,9 +294,9 @@ class OPFRegionTest(TestCaseBase):
     print "maxPhase,maxEnabledPhase = ", netOPF.maxPhase, \
                                       netOPF.getMaxEnabledPhase()
     netOPF.run(1)
-  
+
     print "RUN SUCCEEDED"
-  
+
     print "\nSetting setMaxEnabledPhase to 1"
     netOPF.setMaxEnabledPhase(1)
     print "maxPhase,maxEnabledPhase = ", netOPF.maxPhase, \
