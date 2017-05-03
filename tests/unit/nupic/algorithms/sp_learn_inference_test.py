@@ -30,12 +30,11 @@ import cPickle as pickle
 import numpy as np
 import random
 import time
-
 import unittest2 as unittest
-
 from nupic.bindings.math import GetNTAReal
-from nupic.research.spatial_pooler import SpatialPooler
-from nupic.research.fdrutilities import spDiff
+
+from nupic.algorithms.fdrutilities import spDiff
+from nupic.algorithms.spatial_pooler import SpatialPooler
 
 realDType = GetNTAReal()
 

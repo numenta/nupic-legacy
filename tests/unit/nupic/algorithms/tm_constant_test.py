@@ -25,12 +25,11 @@ single constant signal!
 """
 
 import numpy as np
-
 import unittest2 as unittest
 
-from nupic.research import fdrutilities as fdrutils
-from nupic.research.BacktrackingTM import BacktrackingTM
-from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
+from nupic.algorithms import fdrutilities as fdrutils
+from nupic.algorithms.backtracking_tm import BacktrackingTM
+from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
 
 _SEED = 42
 VERBOSITY = 1
@@ -59,8 +58,8 @@ def _getSimplePatterns(numOnes, numPatterns):
 
 
 def _createTms(numCols):
-  """Create two instances of temporal poolers (BacktrackingTM.py 
-  and BacktrackingTMCPP.py) with identical parameter settings."""
+  """Create two instances of temporal poolers (backtracking_tm.py
+  and backtracking_tm_cpp.py) with identical parameter settings."""
 
   # Keep these fixed:
   minThreshold = 4

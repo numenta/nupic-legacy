@@ -1,7 +1,7 @@
 Temporal Memory
 ^^^^^^^^^^^^^^^
 
-.. automodule:: nupic.research.temporal_memory
+.. automodule:: nupic.algorithms.temporal_memory
 
 .. autoclass:: TemporalMemory
   :members:

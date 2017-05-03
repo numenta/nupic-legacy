@@ -40,15 +40,15 @@ and 10 elements long.
 """
 
 import numpy
-import sys
-from optparse import OptionParser
 import pprint
 import random
+import sys
 import unittest2 as unittest
+from optparse import OptionParser
 
-from nupic.research.BacktrackingTM import BacktrackingTM
-from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
-from nupic.research import fdrutilities as fdrutils
+from nupic.algorithms import fdrutilities as fdrutils
+from nupic.algorithms.backtracking_tm import BacktrackingTM
+from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
 from nupic.support.unittesthelpers import testcasebase
 
 VERBOSITY = 0         # how chatty the unit tests should be

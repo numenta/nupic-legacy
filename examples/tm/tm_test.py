@@ -88,7 +88,7 @@ B3) N=300, M=1, P=1.  (See how high we can go with M)
 
 B4) N=100, M=3, P=1   (See how high we can go with N*M)
 
-B5) Like B1) but only have newSynapseCount columns ON in each pattern (instead 
+B5) Like B1) but only have newSynapseCount columns ON in each pattern (instead
 of between 21 and 25), and set activationThreshold to newSynapseCount.
 
 B6) Like B1 but with cellsPerCol = 4. First order sequences should still work
@@ -286,14 +286,14 @@ HiLo Tests
 A high order sequence memory like the TM can memorize very long sequences. In
 many applications though you don't want to memorize. You see a long sequence of
 patterns but there are actually lower order repeating sequences embedded within
-it.  A simplistic example is words in a sentence. Words such as You'd like the 
+it.  A simplistic example is words in a sentence. Words such as You'd like the
 TM to learn those sequences.
 
 Tests should capture number of synapses learned and compare against
 theoretically optimal numbers to pass/fail.
 
-HL0a) For debugging, similar to H0. We want to learn a 3 pattern long sequence 
-presented with noise before and after, with no resets. Two steps of noise will 
+HL0a) For debugging, similar to H0. We want to learn a 3 pattern long sequence
+presented with noise before and after, with no resets. Two steps of noise will
 be presented.
 The noise will be 20 patterns, presented in random order. Every pattern has a
 consecutive set of 5 bits on, so the vector will be 115 bits long. No pattern
@@ -312,22 +312,22 @@ TM parameters should be the same as B7 except that permanenceDec should be 0.05:
 So, this means it should learn a sequence after 4 repetitions. It will take
 4 orphan decay steps to get an incorrect synapse to go away completely.
 
-HL0b) Like HL0a, but after the 3-sequence is learned, try to learn a 4-sequence 
+HL0b) Like HL0a, but after the 3-sequence is learned, try to learn a 4-sequence
 that builds on the 3-sequence. For example, if learning A-B-C we train also on
 D-A-B-C. It should learn that ABC is separate from DABC.  Note: currently this
-test is disabled in the code. It is a bit tricky to test this. When you present 
-DAB, you should predict the same columns as when you present AB (i.e. in both 
-cases C should be predicted). However, the representation for C in DABC should 
+test is disabled in the code. It is a bit tricky to test this. When you present
+DAB, you should predict the same columns as when you present AB (i.e. in both
+cases C should be predicted). However, the representation for C in DABC should
 be different than the representation for C in ABC. Furthermore, when you present
-AB, the representation for C should be an OR of the representation in DABC and 
-ABC since you could also be starting in the middle of the DABC sequence. All 
+AB, the representation for C should be an OR of the representation in DABC and
+ABC since you could also be starting in the middle of the DABC sequence. All
 this is actually happening in the code, but verified by visual inspection only.
 
 HL1) Noise + sequence + noise + sequence repeatedly without resets until it has
 learned that sequence. Train the TM repeatedly with N random sequences that all
 share a single subsequence. Each random sequence can be 10 patterns long,
 sharing a subsequence that is 5 patterns long. There should be no resets
-between presentations.  Inference should then be on that 5 long shared 
+between presentations.  Inference should then be on that 5 long shared
 subsequence.
 
 Example (3-long shared subsequence):
@@ -339,7 +339,7 @@ Y Z 1 D E F 2 3 4 5
 
 TM parameters should be the same as HL0.
 
-HL2) Like HL1, but after A B C has learned, try to learn D A B C . It should 
+HL2) Like HL1, but after A B C has learned, try to learn D A B C . It should
 learn ABC is separate from DABC.
 
 HL3) Like HL2, but test with resets.
@@ -436,17 +436,17 @@ the older sequences?).
 
 """
 
-import random
-import numpy
-from numpy import *
-import sys
-import pickle
 import cPickle
+import numpy
+import pickle
 import pprint
+import random
+import sys
+from numpy import *
 
-from nupic.research.BacktrackingTM import BacktrackingTM
-from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
-from nupic.research import fdrutilities as fdrutils
+from nupic.algorithms import fdrutilities as fdrutils
+from nupic.algorithms.backtracking_tm import BacktrackingTM
+from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
 
 #-------------------------------------------------------------------------------
 TEST_CPP_TM = 1   # temporarily disabled until it can be updated
@@ -526,7 +526,7 @@ def buildTrainingSet(numSequences = 2,
                           every sequence. If sequenceLength is 100 and pctShared
                           is 0.2, then a subsequence consisting of 20 patterns
                           will be in every sequence. Can also be the keyword
-                          'one pattern', in which case a single time step is 
+                          'one pattern', in which case a single time step is
                           shared.
   seqGenMode:             What kind of sequence to generate. If contains 'shared'
                           generates shared subsequence. If contains 'no shared',

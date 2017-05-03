@@ -25,12 +25,11 @@ for use with OPF.
 """
 
 import numpy
-
-from nupic.research.temporal_memory import TemporalMemory
 from nupic.bindings.algorithms import TemporalMemory as TemporalMemoryCPP
-from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
-  TemporalMemoryMonitorMixin)
 
+from nupic.algorithms.monitor_mixin.temporal_memory_monitor_mixin import (
+  TemporalMemoryMonitorMixin)
+from nupic.algorithms.temporal_memory import TemporalMemory
 
 
 class MonitoredTemporalMemory(TemporalMemoryMonitorMixin,
@@ -63,7 +62,7 @@ class TMShimMixin(object):
                outputType="normal",
                seed=42):
     """
-    Translate parameters and initialize member variables specific to `BacktrackingTM.py`.
+    Translate parameters and initialize member variables specific to `backtracking_tm.py`.
     """
     super(TMShimMixin, self).__init__(
       columnDimensions=(numberOfCols,),
@@ -85,7 +84,7 @@ class TMShimMixin(object):
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """
-    (From `BacktrackingTM.py`)
+    (From `backtracking_tm.py`)
     Handle one compute, possibly learning.
 
     @param bottomUpInput     The bottom-up input, typically from a spatial pooler
@@ -112,7 +111,7 @@ class TMShimMixin(object):
 
   def topDownCompute(self, topDownIn=None):
     """
-    (From `BacktrackingTM.py`)
+    (From `backtracking_tm.py`)
     Top-down compute - generate expected input given output of the TM
 
     @param topDownIn top down input from the level above us
@@ -182,7 +181,7 @@ class MonitoredTMShim(MonitoredTemporalMemory):
                outputType="normal",
                seed=42):
     """
-    Translate parameters and initialize member variables specific to `BacktrackingTM.py`.
+    Translate parameters and initialize member variables specific to `backtracking_tm.py`.
     """
     super(MonitoredTMShim, self).__init__(
       columnDimensions=(numberOfCols,),
@@ -204,7 +203,7 @@ class MonitoredTMShim(MonitoredTemporalMemory):
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """
-    (From `BacktrackingTM.py`)
+    (From `backtracking_tm.py`)
     Handle one compute, possibly learning.
 
     @param bottomUpInput     The bottom-up input, typically from a spatial pooler
@@ -229,7 +228,7 @@ class MonitoredTMShim(MonitoredTemporalMemory):
 
   def topDownCompute(self, topDownIn=None):
     """
-    (From `BacktrackingTM.py`)
+    (From `backtracking_tm.py`)
     Top-down compute - generate expected input given output of the TM
 
     @param topDownIn top down input from the level above us

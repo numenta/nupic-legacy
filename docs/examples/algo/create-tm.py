@@ -1,4 +1,4 @@
-from nupic.research.temporal_memory import TemporalMemory
+from nupic.algorithms.temporal_memory import TemporalMemory
 
 tm = TemporalMemory(
   # Must be the same dimensions as the SP

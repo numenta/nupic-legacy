@@ -26,10 +26,10 @@ for use with tests.
 
 import numpy
 
+from nupic.algorithms.backtracking_tm import BacktrackingTM
+from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
+from nupic.algorithms.connections import Connections
 from nupic.math import GetNTAReal
-from nupic.research.BacktrackingTM import BacktrackingTM
-from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
-from nupic.research.connections import Connections
 
 
 

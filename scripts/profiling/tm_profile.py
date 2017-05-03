@@ -21,17 +21,17 @@
 
 ## run python -m cProfile --sort cumtime $NUPIC/scripts/profiling/tm_profile.py [nColumns nEpochs]
 
-import sys
 import numpy
-# chose desired TM implementation to compare:
-from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP as CppTM
-from nupic.research.BacktrackingTM import BacktrackingTM as PyTM
+import sys
+
+from nupic.algorithms.backtracking_tm import BacktrackingTM as PyTM
+from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP as CppTM
 
 
 def profileTM(tmClass, tmDim, nRuns):
   """
   profiling performance of TemporalMemory (TM)
-  using the python cProfile module and ordered by cumulative time, 
+  using the python cProfile module and ordered by cumulative time,
   see how to run on command-line above.
 
   @param tmClass implementation of TM (cpp, py, ..)

@@ -19,17 +19,17 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import time
 import numpy
+import time
 import unittest2 as unittest
-
-from nupic.support.unittesthelpers.algorithm_test_helpers \
-     import getNumpyRandomGenerator, convertSP, CreateSP
 from nupic.bindings.math import (count_gte,
                                  GetNTAReal,
                                  SM_01_32_32 as SparseBinaryMatrix,
                                  SM32 as SparseMatrix)
-from nupic.research.spatial_pooler import SpatialPooler
+
+from nupic.algorithms.spatial_pooler import SpatialPooler
+from nupic.support.unittesthelpers.algorithm_test_helpers \
+     import getNumpyRandomGenerator, convertSP, CreateSP
 
 uintType = "uint32"
 
@@ -37,7 +37,7 @@ uintType = "uint32"
 class SpatialPoolerComputeTest(unittest.TestCase):
   """
   End to end tests of the compute function for the SpatialPooler class with no
-  mocking anywhere. 
+  mocking anywhere.
   """
 
 
@@ -83,7 +83,7 @@ class SpatialPoolerComputeTest(unittest.TestCase):
     """
     # Size of each input vector
     inputSize = 30
-    
+
     # Size of each output SDR vector
     columnDimensions = 50
 
@@ -106,7 +106,7 @@ class SpatialPoolerComputeTest(unittest.TestCase):
 
     # Size of each input vector
     inputSize = 100
-    
+
     # Size of each output SDR vector
     columnDimensions = 100
 

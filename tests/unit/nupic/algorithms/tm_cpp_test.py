@@ -22,14 +22,13 @@
 """Tests for the C++ implementation of the temporal memory."""
 
 import cPickle as pickle
-import unittest2 as unittest
-
 import numpy
-
+import unittest2 as unittest
 from nupic.bindings.math import Random
-from nupic.research import fdrutilities as fdrutils
-from nupic.research.BacktrackingTM import BacktrackingTM
-from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
+
+from nupic.algorithms import fdrutilities as fdrutils
+from nupic.algorithms.backtracking_tm import BacktrackingTM
+from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
 
 VERBOSITY = 0  # how chatty the unit tests should be
 INFERENCE_VERBOSITY = 0  # Chattiness during inference test

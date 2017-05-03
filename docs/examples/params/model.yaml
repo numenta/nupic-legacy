@@ -203,7 +203,7 @@ modelParams:
     # Controls the verbosity of the TM diagnostic output:
     # - verbosity == 0: silent
     # - verbosity in [1..6]: increasing levels of verbosity
-    # See verbosity in nupic.research.TM for more details.
+    # See verbosity in nupic.algorithms.temporaly_memory for more details.
     verbosity: 0
 
     # Number of mini-columns in the region. This values needs to be the same

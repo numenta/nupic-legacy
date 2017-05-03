@@ -19,19 +19,15 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Tests for the C++ implementation of the temporal memory."""
-
 import unittest2 as unittest
+from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 
-from nupic.research.BacktrackingTMCPP import BacktrackingTMCPP
+import spatial_pooler_py_api_test
 
-import tm_test
-
-# Run the Python TM test against the BacktrackingTMCPP.
-tm_test.BacktrackingTM = BacktrackingTMCPP
-TMTest = tm_test.TMTest
+spatial_pooler_py_api_test.SpatialPooler = CPPSpatialPooler
+SpatialPoolerCPPAPITest = spatial_pooler_py_api_test.SpatialPoolerAPITest
 
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
   unittest.main()

@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -19,16 +19,35 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import unittest2 as unittest
+import unittest
 
-from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
-
-import spatial_pooler_py_api_test
-
-spatial_pooler_py_api_test.SpatialPooler = CPPSpatialPooler
-SpatialPoolerCPPAPITest = spatial_pooler_py_api_test.SpatialPoolerAPITest
+from nupic.algorithms.monitor_mixin.trace import IndicesTrace
 
 
 
-if __name__ == "__main__":
+class IndicesTraceTest(unittest.TestCase):
+
+
+  def setUp(self):
+    self.trace = IndicesTrace(self, "active cells")
+    self.trace.data.append(set([1, 2, 3]))
+    self.trace.data.append(set([4, 5]))
+    self.trace.data.append(set([6]))
+    self.trace.data.append(set([]))
+
+
+  def testMakeCountsTrace(self):
+    countsTrace = self.trace.makeCountsTrace()
+    self.assertEqual(countsTrace.title, "# active cells")
+    self.assertEqual(countsTrace.data, [3, 2, 1, 0])
+
+
+  def testMakeCumCountsTrace(self):
+    countsTrace = self.trace.makeCumCountsTrace()
+    self.assertEqual(countsTrace.title, "# (cumulative) active cells")
+    self.assertEqual(countsTrace.data, [3, 5, 6, 6])
+
+
+
+if __name__ == '__main__':
   unittest.main()

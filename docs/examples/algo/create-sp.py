@@ -1,4 +1,4 @@
-from nupic.research.spatial_pooler import SpatialPooler
+from nupic.algorithms.spatial_pooler import SpatialPooler
 
 encodingWidth = timeOfDayEncoder.getWidth() \
   + weekendEncoder.getWidth() \

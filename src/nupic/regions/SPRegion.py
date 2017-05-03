@@ -19,15 +19,15 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import os
-
 import numpy
-from nupic.bindings.math import GetNTAReal
+import os
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
-from nupic.research.spatial_pooler import SpatialPooler as PYSpatialPooler
-import nupic.research.fdrutilities as fdru
-from nupic.support import getArgumentDescriptions
+from nupic.bindings.math import GetNTAReal
 from nupic.bindings.regions.PyRegion import PyRegion
+
+import nupic.algorithms.fdrutilities as fdru
+from nupic.algorithms.spatial_pooler import SpatialPooler as PYSpatialPooler
+from nupic.support import getArgumentDescriptions
 
 try:
   import capnp
@@ -222,7 +222,7 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
 
     spatialImp=dict(
         description="""Which spatial pooler implementation to use. Set to either
-                      'py', or 'cpp'. The 'cpp' implementation is optimized for 
+                      'py', or 'cpp'. The 'cpp' implementation is optimized for
                       speed in C++.""",
         accessMode='ReadWrite',
         dataType='Byte',
@@ -455,19 +455,19 @@ class SPRegion(PyRegion):
     # Retrieve the necessary extra arguments that were handled automatically
     autoArgs = dict((name, getattr(self, name))
                      for name in self._spatialArgNames)
-    
+
     # Instantiate the spatial pooler class.
     if ( (self.SpatialClass == CPPSpatialPooler) or
          (self.SpatialClass == PYSpatialPooler) ):
-      
+
       autoArgs['columnDimensions'] = [self.columnCount]
       autoArgs['inputDimensions'] = [self.inputWidth]
       autoArgs['potentialRadius'] = self.inputWidth
-    
+
       self._sfdr = self.SpatialClass(
         **autoArgs
       )
-  
+
 
   #############################################################################
   #
@@ -591,7 +591,7 @@ class SPRegion(PyRegion):
     # if we are in learning mode and trainingStep is set appropriately.
 
     # Run SFDR bottom-up compute and cache output in self._spatialPoolerOutput
-    
+
     inputVector = numpy.array(rfInput[0]).astype('uint32')
     outputVector = numpy.zeros(self._sfdr.getNumColumns()).astype('uint32')
 

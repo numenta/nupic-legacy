@@ -19,7 +19,18 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-## @package research
-# The nupic.research package contains Python implementations of
-# Numenta algorithms that are in early development.
+"""Tests for the C++ implementation of the temporal memory."""
 
+import unittest2 as unittest
+
+from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
+from tests.unit.nupic.algorithms import tm_test
+
+# Run the Python TM test against the BacktrackingTMCPP.
+tm_test.BacktrackingTM = BacktrackingTMCPP
+TMTest = tm_test.TMTest
+
+
+
+if __name__ == '__main__':
+  unittest.main()

@@ -28,7 +28,7 @@ except ImportError:
 if capnp:
   from nupic.proto import ConnectionsProto_capnp
 
-from nupic.research.connections import Connections
+from nupic.algorithms.connections import Connections
 
 
 class ConnectionsTest(unittest.TestCase):
