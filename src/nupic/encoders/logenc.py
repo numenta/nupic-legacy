@@ -30,37 +30,22 @@ from nupic.encoders.scalar import ScalarEncoder
 
 class LogEncoder(Encoder):
   """
-  This class wraps the ScalarEncoder class.
+  This class wraps the :class:`.ScalarEncoder`.
 
   A Log encoder represents a floating point value on a logarithmic scale.
 
-  valueToEncode = log10(input)
+  .. code-block:: python
 
-    w -- number of bits to set in output
-    minval -- minimum input value. must be greater than 0. Lower values are
-              reset to this value
-    maxval -- maximum input value (input is strictly less if periodic == True)
-    periodic -- If true, then the input value "wraps around" such that minval =
-              maxval For a periodic value, the input must be strictly less than
-              maxval, otherwise maxval is a true upper bound.
+     valueToEncode = log10(input)
 
-    Exactly one of n, radius, resolution must be set. "0" is a special
-    value that means "not set".
-
-    n -- number of bits in the representation (must be > w)
-    radius -- inputs separated by more than this distance in log space will have
-              non-overlapping representations
-    resolution -- The minimum change in scaled value needed to produce a change
-                  in encoding. This should be specified in log space. For
-                  example, the scaled values 10 and 11 will be distinguishable
-                  in the output. In terms of the original input values, this
-                  means 10^1 (1) and 10^1.1 (1.25) will be distinguishable.
-    name -- an optional string which will become part of the description
-    verbosity -- level of debugging output you want the encoder to provide.
-    clipInput -- if true, non-periodic inputs smaller than minval or greater
-                  than maxval will be clipped to minval/maxval
-    forced -- (default False), if True, skip some safety checks
-
+  :param resolution: The minimum change in scaled value needed to produce a
+                     change in encoding. This should be specified in log space.
+                     For example, the scaled values 10 and 11 will be
+                     distinguishable in the output. In terms of the original
+                     input values, this means 10^1 (1) and 10^1.1 (1.25) will be
+                     distinguishable.
+  :param radius: inputs separated by more than this distance in log space will
+                 have non-overlapping representations
   """
 
   def __init__(self,

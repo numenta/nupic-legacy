@@ -30,38 +30,47 @@ from nupic.encoders.scalar import ScalarEncoder
 
 
 class DateEncoder(Encoder):
-  """A date encoder encodes a date according to encoding parameters
-  specified in its constructor.
-  The input to a date encoder is a datetime.datetime object. The output
-  is the concatenation of several sub-encodings, each of which encodes
-  a different aspect of the date. Which sub-encodings are present, and
-  details of those sub-encodings, are specified in the DateEncoder
-  constructor.
+  """
+  A date encoder encodes a date according to encoding parameters specified in
+  its constructor. The input to a date encoder is a datetime.datetime object.
+  The output is the concatenation of several sub-encodings, each of which
+  encodes a different aspect of the date. Which sub-encodings are present, and
+  details of those sub-encodings, are specified in the DateEncoder constructor.
 
   Each parameter describes one attribute to encode. By default, the attribute
   is not encoded.
 
-  season (season of the year; units = day):
-    (int) width of attribute; default radius = 91.5 days (1 season)
-    (tuple)  season[0] = width; season[1] = radius
+  :param season: (int | tuple) Season of the year, where units = day.
 
-  dayOfWeek (monday = 0; units = day)
-    (int) width of attribute; default radius = 1 day
-    (tuple) dayOfWeek[0] = width; dayOfWeek[1] = radius
+      - (int) width of attribute; default radius = 91.5 days (1 season)
+      - (tuple)  season[0] = width; season[1] = radius
 
-  weekend (boolean: 0, 1)
-    (int) width of attribute
+  :param dayOfWeek: (int | tuple) Day of week, where monday = 0, units = 1 day.
 
-  holiday (boolean: 0, 1)
-    (int) width of attribute
+      - (int) width of attribute; default radius = 1 day
+      - (tuple) dayOfWeek[0] = width; dayOfWeek[1] = radius
 
-  timeOfday (midnight = 0; units = hour)
-    (int) width of attribute: default radius = 4 hours
-    (tuple) timeOfDay[0] = width; timeOfDay[1] = radius
+  :param weekend: (int) Is a weekend or not. A block of bits either 0s or 1s.
 
-  customDays TODO: what is it?
+      - (int) width of attribute
 
-  forced (default True) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
+  :param holiday: (int) Is a holiday or not, boolean: 0, 1
+
+      - (int) width of attribute
+
+  :param timeOfday: (int | tuple) Time of day, where midnight = 0, units = hour.
+
+      - (int) width of attribute: default radius = 4 hours
+      - (tuple) timeOfDay[0] = width; timeOfDay[1] = radius
+
+  :param customDays: (tuple) A way to custom encode specific days of the week.
+
+      - [0] (int) Width of attribute
+      - [1] (str | list) Either a string representing a day of the week like
+        "Monday" or "mon", or a list of these strings.
+
+  :param forced: (default True) if True, skip checks for parameters' settings.
+         See :class:`~.nupic.encoders.scalar.ScalarEncoder` for details.
 
   """
 
@@ -320,19 +329,15 @@ class DateEncoder(Encoder):
 
 
   def getScalars(self, input):
-    """ See method description in base.py
+    """
+    See method description in :meth:`~.nupic.encoders.base.Encoder.getScalars`.
 
-    Parameters:
-    -----------------------------------------------------------------------
-    input:          A datetime object representing the time being encoded
+    :param input: (datetime) representing the time being encoded
 
-    Returns:        A numpy array of the corresponding scalar values in
-                    the following order:
-
-                    [season, dayOfWeek, weekend, holiday, timeOfDay]
-
-                    Note: some of these fields might be omitted if they were not
-                    specified in the encoder
+    :returns: A numpy array of the corresponding scalar values in the following
+              order: season, dayOfWeek, weekend, holiday, timeOfDay. Some of
+              these fields might be omitted if they were not specified in the
+              encoder.
     """
     return numpy.array(self.getEncodedValues(input))
 

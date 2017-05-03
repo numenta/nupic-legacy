@@ -1,13 +1,13 @@
 Field Meta
 ^^^^^^^^^^
 
-.. automodule:: nupic.data.fieldmeta
+.. automodule:: nupic.data.field_meta
 
-.. autoclass:: nupic.data.fieldmeta.FieldMetaInfo
+.. autoclass:: nupic.data.field_meta.FieldMetaInfo
    :members:
 
-.. autoclass:: nupic.data.fieldmeta.FieldMetaType
+.. autoclass:: nupic.data.field_meta.FieldMetaType
    :members:
 
-.. autoclass:: nupic.data.fieldmeta.FieldMetaSpecial
+.. autoclass:: nupic.data.field_meta.FieldMetaSpecial
    :members:

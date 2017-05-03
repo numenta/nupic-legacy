@@ -24,7 +24,7 @@ Category Encoders
    :show-inheritance:
 
 Scalar Encoders
-^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.scalar.ScalarEncoder
    :show-inheritance:
@@ -46,8 +46,8 @@ Scalar Encoders
    :show-inheritance:
 
 
-DateEncoder
-^^^^^^^^^^^
+Date Encoder
+^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.date.DateEncoder
    :members: getScalars
@@ -63,8 +63,8 @@ Coordinate Encoders
    :members: coordinateForPosition, radiusForSpeed
    :show-inheritance:
 
-MultiEncoder
-^^^^^^^^^^^^
+Multi Encoder
+^^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.multi.MultiEncoder
    :members: addEncoder, addMultipleEncoders

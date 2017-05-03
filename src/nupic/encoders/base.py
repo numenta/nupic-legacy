@@ -74,27 +74,17 @@ class Encoder(object):
 
   .. note:: The Encoder superclass implements:
 
-  - :func:`~nupic.encoders.base.Encoder.encode` - returns a numpy array encoding
-    the input; syntactic sugar on top of encodeIntoArray. If pprint, prints the
-    encoding to the terminal
-  - :func:`~nupic.encoders.base.Encoder.pprintHeader` - prints a header
-    describing the encoding to the terminal
-  - :func:`~nupic.encoders.base.Encoder.pprint` - prints an encoding to the
-    terminal
+  - :func:`~nupic.encoders.base.Encoder.encode`
+  - :func:`~nupic.encoders.base.Encoder.pprintHeader`
+  - :func:`~nupic.encoders.base.Encoder.pprint`
 
   .. warning:: The following methods and properties must be implemented by
      subclasses:
 
-  - :func:`~nupic.encoders.base.Encoder.getDecoderOutputFieldTypes` - must be
-     implemented by leaf encoders. Returns :class:`~nupic.data.field_meta.FieldMetaType`.XXXXX
-     (e.g., :class:`~nupic.data.field_meta.FieldMetaType`.float)
-  - :func:`~nupic.encoders.base.Encoder.getWidth` - returns the output width, in
-     bits
-  - :func:`~nupic.encoders.base.Encoder.encodeIntoArray` - encodes input and
-     puts the encoded value into the numpy output array, which is a 1-D array of
-     length returned by :func:`~nupic.encoders.base.Encoder.getWidth`
-  - :func:`~nupic.encoders.base.Encoder.getDescription` - returns a list of
-     (name, offset) pairs describing the encoded output
+  - :func:`~nupic.encoders.base.Encoder.getDecoderOutputFieldTypes`
+  - :func:`~nupic.encoders.base.Encoder.getWidth`
+  - :func:`~nupic.encoders.base.Encoder.encodeIntoArray`
+  - :func:`~nupic.encoders.base.Encoder.getDescription`
   """
 
 
@@ -111,7 +101,7 @@ class Encoder(object):
     Encodes inputData and puts the encoded value into the numpy output array,
     which is a 1-D array of length returned by :meth:`.getWidth`.
 
-    Note: The numpy output array is reused, so clear it before updating it.
+    .. note:: The numpy output array is reused, so clear it before updating it.
 
     :param inputData: Data to encode. This should be validated by the encoder.
     :param output: numpy 1-D array of same length returned by
@@ -284,7 +274,7 @@ class Encoder(object):
     of the inputData with the scalar value returned from :meth:`.topDownCompute`
     on a top-down representation to evaluate prediction accuracy, for example.
 
-    :param inputData: The data from the source. This is typically a object with
+    :param inputData: The data from the source. This is typically an object with
                  members
     :return: array of scalar values
     """
@@ -345,7 +335,7 @@ class Encoder(object):
     of the inputData. To get the associated field names for each of the buckets,
     call :meth:`.getScalarNames`.
 
-    :param inputData: The data from the source. This is typically a object with
+    :param inputData: The data from the source. This is typically an object with
                  members.
     :return: array of bucket indices
     """
