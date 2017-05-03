@@ -765,27 +765,3 @@ class Encoder(object):
     """
     width = self.getWidth() + len(self.getDescription()) - 1
     return width
-
-
-  def formatBits(self, inarray, outarray, scale=1, blank=255, leftpad=0):
-    """
-    Copy one array to another, inserting blanks between fields (for display).
-    If ``leftpad`` is one, then there is a dummy value at element 0
-    of the arrays, and we should start our counting from 1 rather than 0.
-
-    :param inarray: TODO: document
-    :param outarray: TODO: document
-    :param scale: TODO: document
-    :param blank: TODO: document
-    :param leftpad: TODO: document
-    """
-    description = self.getDescription() + [("end", self.getWidth())]
-
-    # copy the data, but put one blank in between each field
-    for i in xrange(len(description) - 1):
-      start = description[i][1]
-      end = description[i+1][1]
-      # print "Copying: %s" % inarray[start:end]
-      outarray[start+i+leftpad:end+i+leftpad] = inarray[(start+leftpad):(end+leftpad)] * scale
-      if end < self.getWidth():
-        outarray[end+i+leftpad] = blank
