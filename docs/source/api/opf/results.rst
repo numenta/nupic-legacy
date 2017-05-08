@@ -4,13 +4,13 @@ Model Results
 ModelResult
 ^^^^^^^^^^^
 
-.. autoclass:: nupic.frameworks.opf.opfutils.ModelResult
+.. autoclass:: nupic.frameworks.opf.opf_utils.ModelResult
    :members:
 
 SensorInput
 ^^^^^^^^^^^
 
-.. autoclass:: nupic.frameworks.opf.opfutils.SensorInput
+.. autoclass:: nupic.frameworks.opf.opf_utils.SensorInput
    :members:
 
 InferenceShifter
@@ -22,5 +22,5 @@ InferenceShifter
 InferenceType
 ^^^^^^^^^^^^^
 
-.. autoclass:: nupic.frameworks.opf.opfutils.InferenceType
+.. autoclass:: nupic.frameworks.opf.opf_utils.InferenceType
    :members:
