@@ -12,3 +12,11 @@ FileRecordStream
 
 .. autoclass:: nupic.data.file_record_stream.FileRecordStream
    :members:
+
+RecordStream
+^^^^^^^^^^^^
+
+.. automodule:: nupic.data.record_stream
+
+.. autoclass:: nupic.data.record_stream.RecordStreamIface
+   :members:
