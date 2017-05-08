@@ -20,3 +20,11 @@ RecordStream
 
 .. autoclass:: nupic.data.record_stream.RecordStreamIface
    :members:
+
+StreamReader
+^^^^^^^^^^^^
+
+.. automodule:: nupic.data.stream_reader
+
+.. autoclass:: nupic.data.stream_reader.StreamReader
+   :members:
