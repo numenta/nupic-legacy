@@ -38,8 +38,7 @@ class Model(object):
   as well as some shared functionality for saving/loading models
 
   :param inferenceType: (:class:`~nupic.frameworks.opf.opf_utils.InferenceType`)
-         A value that specifies the type of inference (i.e. TemporalNextStep,
-         Classification, etc.).
+         A value that specifies the type of inference.
   """
 
   __metaclass__ = ABCMeta
@@ -52,16 +51,18 @@ class Model(object):
     self.__inferenceArgs = {}
 
   def run(self, inputRecord):
-    """ Run one iteration of this model.
-    @param inputRecord (object)
+    """
+    Run one iteration of this model.
+
+    :param inputRecord: (object)
            A record object formatted according to
-           nupic.data.record_stream.RecordStreamIface.getNextRecord() or
-           nupic.data.record_stream.RecordStreamIface.getNextRecordDict()
+           :meth:`~nupic.data.record_stream.RecordStreamIface.getNextRecord` or
+           :meth:`~nupic.data.record_stream.RecordStreamIface.getNextRecordDict`
            result format.
-    @returns (nupic.frameworks.opf.opf_utils.ModelResult)
+    :returns: (:class:`~nupic.frameworks.opf.opf_utils.ModelResult`)
              An ModelResult namedtuple. The contents of ModelResult.inferences
              depends on the the specific inference type of this model, which
-             can be queried by getInferenceType()
+             can be queried by :meth:`.getInferenceType`.
     """
     if hasattr(self, '_numPredictions'):
       predictionNumber = self._numPredictions
@@ -78,9 +79,9 @@ class Model(object):
     In such a mode the model will not be able to learn from subsequent input
     records.
 
-    **NOTE:** Upon completion of this command, learning may not be resumed on
-    the given instance of the model (e.g., the implementation may optimize
-    itself by pruning data structures that are necessary for learning).
+    .. note:: Upon completion of this command, learning may not be resumed on
+       the given instance of the model (e.g., the implementation may optimize
+       itself by pruning data structures that are necessary for learning).
     """
 
   @abstractmethod
@@ -89,32 +90,37 @@ class Model(object):
 
   @abstractmethod
   def getFieldInfo(self, includeClassifierOnlyField=False):
-    """ Return the sequence of FieldMetaInfo objects specifying the format of
-    Model's output.
-    This may be different than the list of FieldMetaInfo objects supplied at
+    """
+    Return the sequence of :class:`~nupic.data.field_meta.FieldMetaInfo` objects
+    specifying the format of Model's output.
+
+    This may be different than the list of
+    :class:`~nupic.data.field_meta.FieldMetaInfo` objects supplied at
     initialization (e.g., due to the transcoding of some input fields into
     meta-fields, such as datetime -> dayOfWeek, timeOfDay, etc.).
-    @param includeClassifierOnlyField (bool)
+
+    :param includeClassifierOnlyField: (bool)
            If True, any field which is only sent to the classifier (i.e. not
            sent in to the bottom of the network) is also included
-    @returns (list<nupic.data.fieldmeta.FieldMetaInfo>)
-             List of FieldMetaInfo objects.
+    :returns: (list) of :class:`~nupic.data.field_meta.FieldMetaInfo` objects.
     """
 
   @abstractmethod
-  def setFieldStatistics(self,fieldStats):
+  def setFieldStatistics(self, fieldStats):
     """ Propagate field statistics to the model in case some of its machinery
     needs it.
-    @param fieldStats (dict)
+
+    :param fieldStats: (dict)
            A dict of dicts with first key being the fieldname and the second
-           key is min,max or other supported statistics
+           key is min,max or other supported statistics.
     """
 
   @abstractmethod
   def getRuntimeStats(self):
-    """ Get runtime statistics specific to this model,
-    i.e. activeCellOverlapAvg.
-    @returns (dict) A {statistic names: stats} dictionary
+    """ Get runtime statistics specific to this model, i.e.
+    ``activeCellOverlapAvg``.
+
+    :returns: (dict) A {statistic names: stats} dictionary
     """
 
   @abstractmethod
@@ -122,7 +128,8 @@ class Model(object):
     """ Get the logger for this object.
     This is a protected method that is used by the ModelBase to access the
     logger created by the subclass.
-    @returns (Logger) A Logger object, it should not be None.
+
+    :returns: (Logger) A Logger object, it should not be None.
     """
 
   ###############################################################################
@@ -132,7 +139,8 @@ class Model(object):
   def getInferenceType(self):
     """ Return the InferenceType of this model.
     This is immutable.
-    @returns (nupic.frameworks.opf.opf_utils.InferenceType) An inference type
+
+    :returns: :class:`~nupic.frameworks.opf.opf_utils.InferenceType`
     """
     return self.__inferenceType
 
@@ -148,13 +156,15 @@ class Model(object):
 
   def isLearningEnabled(self):
     """ Return the Learning state of the current model.
-    @returns (bool) The learning state
+
+    :returns: (bool) The learning state
     """
     return self.__learningEnabled
 
   def enableInference(self, inferenceArgs=None):
     """ Enable inference for this model.
-    @param inferenceArgs (dict)
+
+    :param inferenceArgs: (dict)
            A dictionary of arguments required for inference. These depend on
            the InferenceType of the current model
     """
@@ -163,7 +173,8 @@ class Model(object):
 
   def getInferenceArgs(self):
     """ Return the dict of arguments for the current inference mode.
-    @returns (dict) The arguments of the inference mode
+
+    :returns: (dict) The arguments of the inference mode
     """
     return self.__inferenceArgs
 
@@ -173,7 +184,8 @@ class Model(object):
 
   def isInferenceEnabled(self):
     """ Return the inference state of the current model.
-    @returns (bool) The inference state
+
+    :returns: (bool) The inference state
     """
     return self.__inferenceEnabled
 
@@ -189,16 +201,17 @@ class Model(object):
   @staticmethod
   def _getModelCheckpointFilePath(checkpointDir):
     """ Return the absolute path of the model's checkpoint file.
-    @param checkpointDir (string)
+
+    :param checkpointDir (string)
            Directory of where the experiment is to be or was saved
-    @returns (string) An absolute path.
+    :returns: (string) An absolute path.
     """
     path = os.path.join(checkpointDir, "model.data")
     path = os.path.abspath(path)
     return path
 
   def writeToCheckpoint(self, checkpointDir):
-    """Serializes model using capnproto and writes data to checkpointDir"""
+    """Serializes model using capnproto and writes data to ``checkpointDir``"""
     proto = self.getProtoType().new_message()
 
     self.write(proto)
@@ -239,7 +252,7 @@ class Model(object):
   def write(self, proto):
     """Write state to proto object.
 
-    The type of proto is determined by getProtoType().
+    The type of proto is determined by :meth:`getProtoType`.
     """
     raise NotImplementedError()
 
@@ -247,7 +260,7 @@ class Model(object):
   def read(cls, proto):
     """Read state from proto object.
 
-    The type of proto is determined by getProtoType().
+    The type of proto is determined by :meth:`getProtoType`.
     """
     raise NotImplementedError()
 
@@ -257,13 +270,14 @@ class Model(object):
 
   def save(self, saveModelDir):
     """ Save the model in the given directory.
-    @param saveModelDir (string)
-           Absolute directory path for saving the model. This directory should
-           only be used to store a saved model. If the directory does not exist,
-           it will be created automatically and populated with model data. A
-           pre-existing directory will only be accepted if it contains previously
-           saved model data. If such a directory is given, the full contents of
-           the directory will be deleted and replaced with current model data.
+
+    :param saveModelDir: (string)
+         Absolute directory path for saving the model. This directory should
+         only be used to store a saved model. If the directory does not exist,
+         it will be created automatically and populated with model data. A
+         pre-existing directory will only be accepted if it contains previously
+         saved model data. If such a directory is given, the full contents of
+         the directory will be deleted and replaced with current model data.
     """
     logger = self._getLogger()
     logger.debug("(%s) Creating local checkpoint in %r...",
@@ -308,16 +322,17 @@ class Model(object):
     directory path. It can be overridden by subclasses to bypass pickle for
     saving large binary states.
     This is called by ModelBase only.
-    @param extraDataDir (string) Model's extra data directory path
+    :param extraDataDir (string) Model's extra data directory path
     """
     pass
 
   @classmethod
   def load(cls, savedModelDir):
     """ Load saved model.
-    @param savedModelDir (string)
+
+    :param savedModelDir: (string)
            Directory of where the experiment is to be or was saved
-    @returns (Model) The loaded model instance
+    :returns: (:class:`Model`) The loaded model instance
     """
     logger = opf_utils.initLogger(cls)
     logger.debug("Loading model from local checkpoint at %r...", savedModelDir)
@@ -345,17 +360,19 @@ class Model(object):
     (after __setstate__) with an external directory path.
     It can be overridden by subclasses to bypass pickle for loading large
     binary states.
-    This is called by ModelBase only
-    @param extraDataDir (string) Model's extra data directory path
+    This is called by ModelBase only.
+
+    :param extraDataDir: (string) Model's extra data directory path
     """
     pass
 
   @staticmethod
   def _getModelPickleFilePath(saveModelDir):
     """ Return the absolute path of the model's pickle file.
-    @param saveModelDir (string)
+
+    :param saveModelDir: (string)
            Directory of where the experiment is to be or was saved
-    @returns (string) An absolute path.
+    :returns: (string) An absolute path.
     """
     path = os.path.join(saveModelDir, "model.pkl")
     path = os.path.abspath(path)
@@ -365,9 +382,10 @@ class Model(object):
   def _getModelExtraDataDir(saveModelDir):
     """ Return the absolute path to the directory where the model's own
     "extra data" are stored (i.e., data that's too big for pickling).
-    @param saveModelDir (string)
+
+    :param saveModelDir: (string)
            Directory of where the experiment is to be or was saved
-    @returns (string) An absolute path.
+    :returns: (string) An absolute path.
     """
     path = os.path.join(saveModelDir, "modelextradata")
     path = os.path.abspath(path)
@@ -378,7 +396,8 @@ class Model(object):
   def __makeDirectoryFromAbsolutePath(absDirPath):
     """ Make directory for the given directory path if it doesn't already
     exist in the filesystem.
-    @param absDirPath (string) Absolute path of the directory to create
+
+    :param absDirPath: (string) Absolute path of the directory to create
     @exception (Exception) OSError if directory creation fails
     """
 
