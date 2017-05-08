@@ -1,6 +1,12 @@
 Models
 ======
 
+ModelFactory
+^^^^^^^^^^^^
+
+.. autoclass:: nupic.frameworks.opf.model_factory.ModelFactory
+   :members:
+
 Base Model
 ^^^^^^^^^^
 
@@ -29,12 +35,16 @@ HTMPredictionModel
 TwoGramModel
 ^^^^^^^^^^^^
 
+.. automodule:: nupic.frameworks.opf.two_gram_model
+
 .. autoclass:: nupic.frameworks.opf.two_gram_model.TwoGramModel
    :members:
    :show-inheritance:
 
-ModelFactory
-^^^^^^^^^^^^
+PreviousValueModel
+^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: nupic.frameworks.opf.model_factory.ModelFactory
+.. automodule:: nupic.frameworks.opf.previous_value_model
+
+.. autoclass:: nupic.frameworks.opf.previous_value_model.PreviousValueModel
    :members:

@@ -32,16 +32,17 @@ from opf_utils import InferenceType
 
 
 class TwoGramModel(model.Model):
-  """Two-gram benchmark model."""
+  """
+  Two-gram benchmark model.
+
+  :param inferenceType: (:class:`nupic.frameworks.opf.opf_utils.InferenceType`)
+  :param encoders: a dict of dicts, eventually sent to
+         :meth:`~nupic.encoders.multi.MultiEncoder.addMultipleEncoders` (see
+         there for details).
+  """
 
   def __init__(self, inferenceType=InferenceType.TemporalNextStep,
                encoderParams=()):
-    """ Two-gram model constructor.
-
-    inferenceType: An opf_utils.InferenceType value that specifies what type of
-        inference (i.e. TemporalNextStep, Classification, etc.)
-    encoders: Sequence of encoder params dictionaries.
-    """
     super(TwoGramModel, self).__init__(inferenceType)
 
     self._logger = opf_utils.initLogger(self)
@@ -54,18 +55,6 @@ class TwoGramModel(model.Model):
     self._twoGramDicts = [dict() for _ in xrange(len(self._fieldNames))]
 
   def run(self, inputRecord):
-    """Run one iteration of this model.
-
-    Args:
-      inputRecord: A record object formatted according to
-          nupic.data.FileSource.getNext() result format.
-
-    Returns:
-      A ModelResult named tuple (see opf_utils.py). The contents of
-      ModelResult.inferences depends on the specific inference type of this
-      model, which can be queried by getInferenceType().
-      TODO: Implement getInferenceType()?
-    """
     results = super(TwoGramModel, self).run(inputRecord)
 
     # Set up the lists of values, defaults, and encoded values.
@@ -118,31 +107,15 @@ class TwoGramModel(model.Model):
     return results
 
   def finishLearning(self):
-    """Places the model in a permanent "finished learning" mode.
-
-    Once called, the model will not be able to learn from subsequent input
-    records. Learning may not be resumed on a given instance of the model once
-    this is called as the implementation may optimize itself by pruning data
-    structures that are necessary for learning.
-    """
     self._learningEnabled = False
 
   def setFieldStatistics(self,fieldStats):
     """
-    This method is used for the data source to communicate to the
-    model any statistics that it knows about the fields
     Since the two-gram has no use for this information, this is a no-op
     """
     pass
 
   def getFieldInfo(self):
-    """Returns the metadata specifying the format of the model's output.
-
-    The result may be different than the list of
-    nupic.data.fieldmeta.FieldMetaInfo objects supplied at initialization due
-    to the transcoding of some input fields into meta- fields, such as
-    datetime -> dayOfWeek, timeOfDay, etc.
-    """
     fieldTypes = self._encoder.getDecoderOutputFieldTypes()
     assert len(self._fieldNames) == len(fieldTypes)
 
@@ -152,29 +125,13 @@ class TwoGramModel(model.Model):
                      itertools.repeat(field_meta.FieldMetaSpecial.none)))
 
   def getRuntimeStats(self):
-    """Get the runtime statistics specific to the model.
-
-    I.E. activeCellOverlapAvg
-
-    Returns:
-      A dict mapping statistic names to values.
-    """
     # TODO: Add debugging stats.
     return dict()
 
   def _getLogger(self):
-    """Get the logger created by this subclass.
-
-    Returns:
-      A logging.Logger object. Should not be None.
-    """
     return self._logger
 
   def resetSequenceStates(self):
-    """Called to indicate the start of a new sequence.
-
-    The next call to run should not perform learning.
-    """
     self._reset = True
 
   def __getstate__(self):
