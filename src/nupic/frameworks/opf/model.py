@@ -33,18 +33,18 @@ import nupic.frameworks.opf.opf_utils as opf_utils
 class Model(object):
   """ This is the base class that all OPF Model implementations should
   subclass.
+
   It includes a number of virtual methods, to be overridden by subclasses,
   as well as some shared functionality for saving/loading models
+
+  :param inferenceType: (:class:`~nupic.frameworks.opf.opf_utils.InferenceType`)
+         A value that specifies the type of inference (i.e. TemporalNextStep,
+         Classification, etc.).
   """
 
   __metaclass__ = ABCMeta
 
   def __init__(self, inferenceType):
-    """ Model constructor.
-    @param inferenceType (nupic.frameworks.opf.opf_utils.InferenceType)
-           A value that specifies the type of inference (i.e. TemporalNextStep,
-           Classification, etc.).
-    """
     self._numPredictions = 0
     self.__inferenceType =  inferenceType
     self.__learningEnabled = True

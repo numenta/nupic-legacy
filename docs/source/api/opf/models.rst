@@ -1,20 +1,22 @@
 Models
 ======
 
-Model
-^^^^^
+Base Model
+^^^^^^^^^^
+
+.. automodule:: nupic.frameworks.opf.model
 
 .. autoclass:: nupic.frameworks.opf.model.Model
    :members:
 
 
 HTMPredictionModel
-^^^^^^^^
+^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: nupic.frameworks.opf.htm_prediction_model.HTMPredictionModel
    :members:
    :show-inheritance:
-=======
+
 
 TwoGramModel
 ^^^^^^^^^^^^
