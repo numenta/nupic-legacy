@@ -12,3 +12,12 @@ FileRecordStream
 
 .. autoclass:: nupic.data.file_record_stream.FileRecordStream
    :members:
+
+Utilities
+^^^^^^^^^
+
+.. automodule:: nupic.data.utils
+   :members:
+
+.. autodata:: nupic.data.utils.DATETIME_FORMATS
+   :annotation:
