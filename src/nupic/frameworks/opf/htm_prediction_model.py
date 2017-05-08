@@ -19,10 +19,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-""" @file htm_prediction_model.py
-
-Encapsulation of CLAnetwork that implements the ModelBase.
-
+"""
+Encapsulation of HTM network that implements the base :class:`Model` to perform
+temporal prediction.
 """
 
 import copy
@@ -34,6 +33,7 @@ import logging
 import traceback
 from collections import deque
 from operator import itemgetter
+from functools import wraps
 
 import numpy
 
@@ -54,7 +54,8 @@ try:
 except ImportError:
   capnp = None
 if capnp:
-  from nupic.frameworks.opf.HTMPredictionModelProto_capnp import HTMPredictionModelProto
+  from nupic.frameworks.opf.HTMPredictionModelProto_capnp \
+    import HTMPredictionModelProto
 
 
 DEFAULT_LIKELIHOOD_THRESHOLD = 0.0001
@@ -69,6 +70,7 @@ def requireAnomalyModel(func):
   """
   Decorator for functions that require anomaly models.
   """
+  @wraps(func)
   def _decorator(self, *args, **kwargs):
     if not self.getInferenceType() == InferenceType.TemporalAnomaly:
       raise RuntimeError("Method required a TemporalAnomaly model.")
@@ -102,6 +104,44 @@ class NetworkInfo(object):
 
 
 class HTMPredictionModel(Model):
+  """
+
+  This model is for temporal predictions multiple steps ahead.
+
+  :param inferenceType: (:class:`~nupic.frameworks.opf.opf_utils.InferenceType`)
+
+  :param predictedField: (string) The field to predict for multistep prediction.
+
+  :param sensorParams: (dict) specifying the sensor parameters.
+
+  :param spEnable: (bool) Whether or not to use a spatial pooler.
+
+  :param spParams: (dict) specifying the spatial pooler parameters. These are
+      passed to the spatial pooler.
+
+  :param trainSPNetOnlyIfRequested: (bool) If set, don't create an SP network
+      unless the user requests SP metrics.
+
+  :param tmEnable: (bool) Whether to use a temporal memory.
+
+  :param tmParams: (dict) specifying the temporal memory parameters. These are
+      passed to the temporal memory.
+
+  :param clEnable: (bool) Whether to use the classifier. If false, the
+      classifier will not be created and no predictions will be generated.
+
+  :param clParams: (dict) specifying the classifier parameters. These are passed
+      to the classifier.
+
+  :param anomalyParams: (dict) Anomaly detection parameters
+
+  :param minLikelihoodThreshold: (float) The minimum likelihood value to include
+      in inferences.  Currently only applies to multistep inferences.
+
+  :param maxPredictionsPerStep: (int) Maximum number of predictions to include
+      for each step in inferences. The predictions with highest likelihood are
+      included.
+  """
 
   __supportedInferenceKindSet = set((InferenceType.TemporalNextStep,
                                      InferenceType.TemporalClassification,
@@ -131,31 +171,6 @@ class HTMPredictionModel(Model):
       minLikelihoodThreshold=DEFAULT_LIKELIHOOD_THRESHOLD,
       maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP,
       network=None):
-    """HTMPredictionModel constructor.
-
-    Args:
-      inferenceType: A value from the InferenceType enum class.
-      predictedField: The field to predict for multistep prediction.
-      sensorParams: A dictionary specifying the sensor parameters.
-      spEnable: Whether or not to use a spatial pooler.
-      spParams: A dictionary specifying the spatial pooler parameters. These
-          are passed to the spatial pooler.
-      trainSPNetOnlyIfRequested: If set, don't create an SP network unless the
-          user requests SP metrics.
-      tmEnable: Whether to use a temporal memory.
-      tmParams: A dictionary specifying the temporal memory parameters. These
-          are passed to the temporal memory.
-      clEnable: Whether to use the classifier. If false, the classifier will
-          not be created and no predictions will be generated.
-      clParams: A dictionary specifying the classifier parameters. These are
-          are passed to the classifier.
-      anomalyParams: Anomaly detection parameters
-      minLikelihoodThreshold: The minimum likelihood value to include in
-          inferences.  Currently only applies to multistep inferences.
-      maxPredictionsPerStep: Maximum number of predictions to include for
-          each step in inferences. The predictions with highest likelihood are
-          included.
-    """
     if not inferenceType in self.__supportedInferenceKindSet:
       raise ValueError("{0} received incompatible inference type: {1}"\
                        .format(self.__class__, inferenceType))
@@ -233,6 +248,13 @@ class HTMPredictionModel(Model):
 
 
   def getParameter(self, paramName):
+    """
+    Currently only supports a parameter named ``__numRunCalls``.
+
+    :param paramName: (string) name of parameter to get. If not
+           ``__numRunCalls`` an exception is thrown.
+    :returns: (int) the value of ``self.__numRunCalls``
+    """
     if paramName == '__numRunCalls':
       return self.__numRunCalls
     else:
@@ -241,10 +263,6 @@ class HTMPredictionModel(Model):
 
 
   def resetSequenceStates(self):
-    """ [virtual method override] Resets the model's sequence states. Normally
-    called to force the delineation of a sequence, such as between OPF tasks.
-    """
-
     if self._hasTP:
       # Reset TM's sequence states
       self._getTPRegion().executeCommand(['resetSequenceStates'])
@@ -256,14 +274,6 @@ class HTMPredictionModel(Model):
 
 
   def finishLearning(self):
-    """ [virtual method override] Places the model in a permanent "finished
-    learning" mode where it will not be able to learn from subsequent input
-    records.
-
-    NOTE: Upon completion of this command, learning may not be resumed on
-    the given instance of the model (e.g., the implementation may optimize
-    itself by pruning data structures that are necessary for learning)
-    """
     assert not self.__finishedLearning
 
     if self._hasSP:
@@ -283,7 +293,7 @@ class HTMPredictionModel(Model):
     return
 
 
-  def setFieldStatistics(self,fieldStats):
+  def setFieldStatistics(self, fieldStats):
     encoder = self._getEncoder()
     # Set the stats for the encoders. The first argument to setFieldStats
     # is the field name of the encoder. Since we are using a multiencoder
@@ -293,13 +303,11 @@ class HTMPredictionModel(Model):
 
 
   def enableLearning(self):
-    """[override] Turn Learning on for the current model """
     super(HTMPredictionModel, self).enableLearning()
     self.setEncoderLearning(True)
 
 
   def disableLearning(self):
-    """[override] Turn Learning off for the current model """
     super(HTMPredictionModel, self).disableLearning()
     self.setEncoderLearning(False)
 
@@ -313,6 +321,9 @@ class HTMPredictionModel(Model):
   def setAnomalyParameter(self, param, value):
     """
     Set a parameter of the anomaly classifier within this model.
+
+    :param param: (string) name of parameter to set
+    :param value: (object) value to set
     """
     self._getAnomalyClassifier().setParameter(param, value)
 
@@ -320,7 +331,9 @@ class HTMPredictionModel(Model):
   @requireAnomalyModel
   def getAnomalyParameter(self, param):
     """
-    Get a parameter of the anomaly classifier within this model.
+    Get a parameter of the anomaly classifier within this model by key.
+
+    :param param: (string) name of parameter to retrieve
     """
     return self._getAnomalyClassifier().getParameter(param)
 
@@ -329,6 +342,9 @@ class HTMPredictionModel(Model):
   def anomalyRemoveLabels(self, start, end, labelFilter):
     """
     Remove labels from the anomaly classifier within this model.
+
+    :param start: (int) index to start removing labels
+    :param end: (int) index to end removing labels
     """
     self._getAnomalyClassifier().getSelf().removeLabels(start, end, labelFilter)
 
@@ -337,6 +353,10 @@ class HTMPredictionModel(Model):
   def anomalyAddLabel(self, start, end, labelName):
     """
     Add labels from the anomaly classifier within this model.
+
+    :param start: (int) index to start label
+    :param end: (int) index to end label
+    :param labelName: (string) name of label
     """
     self._getAnomalyClassifier().getSelf().addLabel(start, end, labelName)
 
@@ -345,21 +365,14 @@ class HTMPredictionModel(Model):
   def anomalyGetLabels(self, start, end):
     """
     Get labels from the anomaly classifier within this model.
+
+    :param start: (int) index to start getting labels
+    :param end: (int) index to end getting labels
     """
     return self._getAnomalyClassifier().getSelf().getLabels(start, end)
 
 
   def run(self, inputRecord):
-    """ run one iteration of this model.
-            args:
-                inputRecord is a record object formatted according to
-                    nupic.data.RecordStream.getNextRecordDict() result format.
-
-            return:
-                An ModelResult class (see opf_utils.py) The contents of
-                ModelResult.inferences depends on the the specific inference
-                type of this model, which can be queried by getInferenceType()
-    """
     assert not self.__restoringFromState
     assert inputRecord
 
@@ -933,11 +946,9 @@ class HTMPredictionModel(Model):
 
 
   def getRuntimeStats(self):
-    """ [virtual method override] get runtime statistics specific to this
-    model, i.e. activeCellOverlapAvg
-
-        return:
-            a dict where keys are statistic names and values are the stats
+    """
+    Only returns data for a stat called ``numRunCalls``.
+    :return:
     """
     ret = {"numRunCalls" : self.__numRunCalls}
 
@@ -956,16 +967,6 @@ class HTMPredictionModel(Model):
 
 
   def getFieldInfo(self, includeClassifierOnlyField=False):
-    """ [virtual method override]
-        Returns the sequence of FieldMetaInfo objects specifying this
-        Model's output; note that this may be different than the list of
-        FieldMetaInfo objects supplied at initialization (e.g., due to the
-        transcoding of some input fields into meta-fields, such as datetime
-        -> dayOfWeek, timeOfDay, etc.)
-
-    Returns:    List of FieldMetaInfo objects (see description above)
-    """
-
     encoder = self._getEncoder()
 
     fieldNames = encoder.getScalarNames()

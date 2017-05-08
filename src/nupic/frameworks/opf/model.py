@@ -86,7 +86,10 @@ class Model(object):
 
   @abstractmethod
   def resetSequenceStates(self):
-    """ Signal that the input record is the start of a new sequence. """
+    """
+    Signal that the input record is the start of a new sequence. Normally called
+    to force the delineation of a sequence, such as between OPF tasks.
+    """
 
   @abstractmethod
   def getFieldInfo(self, includeClassifierOnlyField=False):
