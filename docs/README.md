@@ -122,9 +122,7 @@ nupic
 │   └── sparse_pass_through_encoder.py [OK]
 ├── frameworks
 │   ├── opf
-│   │   ├── htm_prediction_model.py [TODO]
-│   │   ├── htm_prediction_model_classifier_helper.py [TODO]
-│   │   ├── htm_prediction_model_callbacks.py [TODO]
+│   │   ├── htm_prediction_model.py [OK]
 │   │   ├── client.py [TODO]
 │   │   ├── common_models
 │   │   │   └── cluster_params.py [TODO]
@@ -133,9 +131,8 @@ nupic
 │   │   ├── exp_description_helpers.py [TODO]
 │   │   ├── experiment_runner.py [TODO]
 │   │   ├── metrics.py [TODO]
-│   │   ├── model.py [TODO]
-│   │   ├── model_callbacks.py [TODO]
-│   │   ├── model_factory.py [TODO]
+│   │   ├── model.py [OK]
+│   │   ├── model_factory.py [OK]
 │   │   ├── opf_basic_environment.py [TODO]
 │   │   ├── opf_environment.py [TODO]
 │   │   ├── opf_helpers.py [TODO]
@@ -145,9 +142,9 @@ nupic
 │   │   │   └── SensorInput [OK]
 │   │   ├── periodic.py [TODO]
 │   │   ├── prediction_metrics_manager.py [TODO]
-│   │   ├── previous_value_model.py [TODO]
+│   │   ├── previous_value_model.py [OK]
 │   │   ├── safe_interpreter.py [TODO]
-│   │   └── two_gram_model.py [TODO]
+│   │   └── two_gram_model.py [OK]
 │   └── viz
 │       ├── dot_renderer.py [TODO]
 │       ├── examples
