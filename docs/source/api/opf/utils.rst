@@ -12,3 +12,7 @@ Helpers
 
 .. automodule:: nupic.frameworks.opf.opf_helpers
    :members:
+
+.. autoclass:: nupic.frameworks.opf.opf_utils.InferenceType
+   :members:
+   :show-inheritance:
