@@ -388,14 +388,6 @@ class StreamReader(RecordStreamIface):
         raise RuntimeError('No end of datastream found.')
 
 
-  def getLastRecords(self, numRecords):
-    raise RuntimeError("Not implemented in StreamReader")
-
-
-  def getRecordsRange(self, bookmark=None, range=None):
-    raise RuntimeError("Not implemented in StreamReader")
-
-
   def getNextRecordIdx(self):
     """
     :returns: the index of the record that will be read next from
@@ -436,10 +428,6 @@ class StreamReader(RecordStreamIface):
 
 
   def appendRecords(self, records, progressCB=None):
-    raise RuntimeError("Not implemented in StreamReader")
-
-
-  def removeOldData(self):
     raise RuntimeError("Not implemented in StreamReader")
 
 

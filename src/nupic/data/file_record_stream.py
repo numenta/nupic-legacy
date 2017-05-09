@@ -387,19 +387,7 @@ class FileRecordStream(RecordStreamIface):
     return record
 
 
-  def getRecordsRange(self, bookmark=None, range=None):
-    raise Exception('getRecordsRange() is not supported for the file storage')
-
-
-  def getLastRecords(self, numRecords):
-    raise Exception('getLastRecords() is not supported for the file storage')
-
-
-  def removeOldData(self):
-    raise Exception('removeOldData is not supported in this class.')
-
-
-  def appendRecord(self, record):
+  def appendRecord(self, record, inputBookmark=None):
     """
     Saves the record in the underlying csv file.
 
