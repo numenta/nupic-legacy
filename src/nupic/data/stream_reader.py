@@ -429,10 +429,6 @@ class StreamReader(RecordStreamIface):
     raise RuntimeError("Not implemented in StreamReader")
 
 
-  def removeOldData(self):
-    raise RuntimeError("Not implemented in StreamReader")
-
-
   def seekFromEnd(self, numRecords):
     """Seeks to numRecords from the end and returns a bookmark to the new
     position.

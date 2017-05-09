@@ -304,11 +304,6 @@ class RecordStreamIface(object):
 
 
   @abstractmethod
-  def removeOldData(self):
-    """Deletes all rows from the table if any data was found."""
-
-
-  @abstractmethod
   def appendRecord(self, record, inputRef=None):
     """Saves the record in the underlying storage."""
 
