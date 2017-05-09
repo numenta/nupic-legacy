@@ -205,7 +205,7 @@ class Model(object):
   def _getModelCheckpointFilePath(checkpointDir):
     """ Return the absolute path of the model's checkpoint file.
 
-    :param checkpointDir (string)
+    :param checkpointDir: (string)
            Directory of where the experiment is to be or was saved
     :returns: (string) An absolute path.
     """
@@ -325,7 +325,8 @@ class Model(object):
     directory path. It can be overridden by subclasses to bypass pickle for
     saving large binary states.
     This is called by ModelBase only.
-    :param extraDataDir (string) Model's extra data directory path
+
+    :param extraDataDir: (string) Model's extra data directory path
     """
     pass
 
