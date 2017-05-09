@@ -440,7 +440,7 @@ class FileRecordStream(RecordStreamIface):
     """
 
     for record in records:
-      self.appendRecord(record, None)
+      self.appendRecord(record)
       if progressCB is not None:
         progressCB()
 
