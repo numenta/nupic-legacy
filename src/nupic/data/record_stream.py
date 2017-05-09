@@ -363,7 +363,7 @@ class RecordStreamIface(object):
     or if a field type does not support min/max (non scalars), the return
     value will be None.
 
-    :param fieldName: (string) name of field to get max
+    :param fieldName: (string) name of field to get min
     :returns: current minimum value for the field ``fieldName``.
     """
     stats = self.getStats()
@@ -441,9 +441,9 @@ class RecordStreamIface(object):
   @abstractmethod
   def getFields(self):
     """
-    :returns: (list) of :class:`nupic.data.fieldmeta.FieldMetaInfo`objects for
+    :returns: (list) of :class:`nupic.data.fieldmeta.FieldMetaInfo` objects for
         each field in the stream. Might be None, if that information is provided
-        externally (thru stream def, for example).
+        externally (through stream def, for example).
     """
 
 
@@ -477,7 +477,7 @@ class RecordStreamIface(object):
 
   def getLearningFieldIdx(self):
     """
-    :returns: (int) index of the ``learning ``field.
+    :returns: (int) index of the ``learning`` field.
     """
     return _getFieldIndexBySpecial(self.getFields(), FieldMetaSpecial.learning)
 
