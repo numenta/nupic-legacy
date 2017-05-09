@@ -51,13 +51,13 @@ class StreamReader(RecordStreamIface):
   """
   Implements a stream reader. This is a high level class that owns one or more
   underlying implementations of a
-  :class:`~nupic.data.record_stream.RecordStreamIFace`. Each
-  :class:`~nupic.data.record_stream.RecordStreamIFace` implements the raw
+  :class:`~nupic.data.record_stream.RecordStreamIface`. Each
+  :class:`~nupic.data.record_stream.RecordStreamIface` implements the raw
   reading of records from the record store (which could be a file, hbase table
   or something else).
 
   In the future, we will support joining of two or more
-  :class:`~nupic.data.record_stream.RecordStreamIFace`'s (which is why the
+  :class:`~nupic.data.record_stream.RecordStreamIface`'s (which is why the
   ``streamDef`` accepts a list of 'stream' elements), but for now only 1 source
   is supported.
 
@@ -66,12 +66,12 @@ class StreamReader(RecordStreamIface):
 
   This module parses the stream definition (as defined in
   ``/src/nupic/frameworks/opf/jsonschema/stream_def.json``), creates the
-  :class:`~nupic.data.record_stream.RecordStreamIFace` for each source
+  :class:`~nupic.data.record_stream.RecordStreamIface` for each source
   ('stream' element) defined in the stream def, performs aggregation, and
   returns each record in the correct format according to the desired column
   names specified in the streamDef.
 
-  This class implements the :class:`~nupic.data.record_stream.RecordStreamIFace`
+  This class implements the :class:`~nupic.data.record_stream.RecordStreamIface`
   interface and thus can be used in place of a raw record stream.
 
   This is an example streamDef:
