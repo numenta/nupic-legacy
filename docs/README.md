@@ -93,15 +93,10 @@ nupic
 │   ├── temporal_memory.py [TODO]
 │   └── temporal_memory_shim.py [TODO]
 ├── data
-│   ├── aggregator.py [DEFER]
-│   ├── dictutils.py [DEFER]
 │   ├── fieldmeta.py [OK]
 │   ├── file_record_stream.py [OK]
 │   ├── inference_shifter.py [OK]
-│   ├── record_stream.py [TODO]
-│   ├── sorter.py [TODO]
-│   ├── stats.py [TODO]
-│   ├── stats_v2.py [TODO]
+│   ├── record_stream.py [OK]
 │   ├── stream_reader.py [OK]
 │   └── utils.py [OK]
 ├── encoders
