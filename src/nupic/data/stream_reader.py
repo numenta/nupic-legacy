@@ -66,12 +66,12 @@ class StreamReader(RecordStreamIface):
 
   This module parses the stream definition (as defined in
   ``/src/nupic/frameworks/opf/jsonschema/stream_def.json``), creates the
-  :class:`~nupic.data.record_stream.RecordStreamIFace` for each source
+  :class:`~nupic.data.record_stream.RecordStreamIface` for each source
   ('stream' element) defined in the stream def, performs aggregation, and
   returns each record in the correct format according to the desired column
   names specified in the streamDef.
 
-  This class implements the :class:`~nupic.data.record_stream.RecordStreamIFace`
+  This class implements the :class:`~nupic.data.record_stream.RecordStreamIface`
   interface and thus can be used in place of a raw record stream.
 
   This is an example streamDef:
