@@ -387,7 +387,7 @@ class FileRecordStream(RecordStreamIface):
     return record
 
 
-  def appendRecord(self, record, inputBookmark=None):
+  def appendRecord(self, record):
     """
     Saves the record in the underlying csv file.
 

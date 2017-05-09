@@ -304,7 +304,7 @@ class RecordStreamIface(object):
 
 
   @abstractmethod
-  def appendRecord(self, record, inputRef=None):
+  def appendRecord(self, record):
     """
     Saves the record in the underlying storage. Should be implemented in
     subclasses.
