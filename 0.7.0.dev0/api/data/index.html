@@ -562,13 +562,35 @@ information</p>
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.appendRecord">
 <code class="descname">appendRecord</code><span class="sig-paren">(</span><em>record</em>, <em>inputRef=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.appendRecord" title="Permalink to this definition">¶</a></dt>
-<dd><p>Saves the record in the underlying storage.</p>
+<dd><p>Saves the record in the underlying storage. Should be implemented in
+subclasses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>record</strong> &#8211; (object) to store</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.appendRecords">
 <code class="descname">appendRecords</code><span class="sig-paren">(</span><em>records</em>, <em>inputRef=None</em>, <em>progressCB=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.appendRecords" title="Permalink to this definition">¶</a></dt>
-<dd><p>Saves multiple records in the underlying storage.</p>
+<dd><p>Saves multiple records in the underlying storage. Should be implemented in
+subclasses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>records</strong> &#8211; (list) of objects to store</li>
+<li><strong>progressCB</strong> &#8211; (func) called after each appension</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -597,15 +619,18 @@ containing &#8216;months&#8217; and &#8216;seconds&#8217;. The months is always 
 seconds is a floating point. Only one is allowed to be non-zero.</p>
 <p>If there is no aggregation associated with the stream, returns None.</p>
 <p>Typically, a raw file or hbase stream will NOT have any aggregation info,
-but subclasses of RecordStreamIFace, like StreamReader, will and will
-return the aggregation period from this call. This call is used by the
-getNextRecordDict() method to assign a record number to a record given
-its timestamp and the aggregation interval</p>
-<dl class="docutils">
-<dt>retval: aggregationPeriod (as a dict) or None</dt>
-<dd>&#8216;months&#8217;: number of months in aggregation period
-&#8216;seconds&#8217;: number of seconds in aggregation period (as a float)</dd>
-</dl>
+but subclasses of RecordStreamIFace, like <code class="xref py py-class docutils literal"><span class="pre">StreamReader</span></code>,
+will and will return the aggregation period from this call. This call is
+used by the <a class="reference internal" href="#nupic.data.record_stream.RecordStreamIface.getNextRecordDict" title="nupic.data.record_stream.RecordStreamIface.getNextRecordDict"><code class="xref py py-meth docutils literal"><span class="pre">getNextRecordDict()</span></code></a> method to assign a record number to a
+record given its timestamp and the aggregation interval</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">None</span></code></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -615,70 +640,134 @@ its timestamp and the aggregation interval</p>
 anchor to the constructor makes the current position to be the first
 returned record. If record is no longer in the storage, the first available
 after it will be returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">anchor to current position in the data.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.getCategoryFieldIdx">
 <code class="descname">getCategoryFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getCategoryFieldIdx" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return index of the &#8216;category&#8217; field.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) index of <code class="docutils literal"><span class="pre">category</span></code> field</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.getError">
 <code class="descname">getError</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns errors saved in the storage.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">errors saved in the storage.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.getFieldMax">
 <code class="descname">getFieldMax</code><span class="sig-paren">(</span><em>fieldName</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getFieldMax" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns current maximum value for the field &#8216;fieldName&#8217;.</p>
-<p>If underlying implementation does not support min/max stats collection,
+<dd><p>If underlying implementation does not support min/max stats collection,
 or if a field type does not support min/max (non scalars), the return
 value will be None.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fieldName</strong> &#8211; (string) name of field to get max</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">current maximum value for the field <code class="docutils literal"><span class="pre">fieldName</span></code>.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.getFieldMin">
 <code class="descname">getFieldMin</code><span class="sig-paren">(</span><em>fieldName</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getFieldMin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns current minimum value for the field &#8216;fieldName&#8217;.</p>
-<p>If underlying implementation does not support min/max stats collection,
+<dd><p>If underlying implementation does not support min/max stats collection,
 or if a field type does not support min/max (non scalars), the return
 value will be None.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fieldName</strong> &#8211; (string) name of field to get min</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">current minimum value for the field <code class="docutils literal"><span class="pre">fieldName</span></code>.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.getFieldNames">
 <code class="descname">getFieldNames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getFieldNames" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns an array of field names associated with the data.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) of field names associated with the data.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.getFields">
 <code class="descname">getFields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getFields" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a sequence of nupic.data.fieldmeta.FieldMetaInfo
-name/type/special tuples for each field in the stream. Might be None, if
-that information is provided externally (thru stream def, for example).</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) of <code class="xref py py-class docutils literal"><span class="pre">nupic.data.fieldmeta.FieldMetaInfo</span></code> objects for
+each field in the stream. Might be None, if that information is provided
+externally (through stream def, for example).</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.getLearningFieldIdx">
 <code class="descname">getLearningFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getLearningFieldIdx" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return index of the &#8216;learning&#8217; field.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) index of the <code class="docutils literal"><span class="pre">learning</span></code> field.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.getNextRecord">
 <code class="descname">getNextRecord</code><span class="sig-paren">(</span><em>useCache=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getNextRecord" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns next available data record from the storage. If useCache is
-False, then don&#8217;t read ahead and don&#8217;t cache any records.</p>
-<p>Raises nupic.support.exceptions.StreamDisappearedError if stream
-disappears (e.g., gets garbage-collected).</p>
-<dl class="docutils">
-<dt>retval: a data row (a list or tuple) if available; None, if no more records</dt>
-<dd>in the table (End of Stream - EOS); empty sequence (list or tuple)
-when timing out while waiting for the next record.</dd>
-</dl>
+<dd><p>Returns next available data record from the storage. If <code class="docutils literal"><span class="pre">useCache</span></code> is
+<code class="docutils literal"><span class="pre">False</span></code>, then don&#8217;t read ahead and don&#8217;t cache any records.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a data row (a list or tuple) if available; None, if no more records
+in the table (End of Stream - EOS); empty sequence (list or tuple)
+when timing out while waiting for the next record.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -687,16 +776,26 @@ when timing out while waiting for the next record.</dd>
 <dd><p>Returns next available data record from the storage as a dict, with the
 keys being the field names. This also adds in some meta fields:</p>
 <blockquote>
-<div>&#8216;_category&#8217;: The value from the category field (if any)
-&#8216;_reset&#8217;: True if the reset field was True (if any)
-&#8216;_sequenceId&#8217;: the value from the sequenceId field (if any)</div></blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">_category</span></code>: The value from the category field (if any)</li>
+<li><code class="docutils literal"><span class="pre">_reset</span></code>: True if the reset field was True (if any)</li>
+<li><code class="docutils literal"><span class="pre">_sequenceId</span></code>: the value from the sequenceId field (if any)</li>
+</ul>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.getNextRecordIdx">
 <code class="descname">getNextRecordIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getNextRecordIdx" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the index of the record that will be read next from
-getNextRecord()</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) index of the record that will be read next from
+<a class="reference internal" href="#nupic.data.record_stream.RecordStreamIface.getNextRecord" title="nupic.data.record_stream.RecordStreamIface.getNextRecord"><code class="xref py py-meth docutils literal"><span class="pre">getNextRecord()</span></code></a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -706,7 +805,7 @@ getNextRecord()</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">index of the &#8216;reset&#8217; field; None if no such field.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) index of the <code class="docutils literal"><span class="pre">reset</span></code> field; <code class="docutils literal"><span class="pre">None</span></code> if no such field.</td>
 </tr>
 </tbody>
 </table>
@@ -715,62 +814,132 @@ getNextRecord()</p>
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.getSequenceIdFieldIdx">
 <code class="descname">getSequenceIdFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getSequenceIdFieldIdx" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return index of the &#8216;sequenceId&#8217; field.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) index of the <code class="docutils literal"><span class="pre">sequenceId</span></code> field.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.getStats">
 <code class="descname">getStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getStats" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns storage stats (like min and max values of the fields).</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">storage stats (like min and max values of the fields).</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.getTimestampFieldIdx">
 <code class="descname">getTimestampFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getTimestampFieldIdx" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return index of the &#8216;timestamp&#8217; field.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) index of the <code class="docutils literal"><span class="pre">timestamp</span></code> field.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.isCompleted">
 <code class="descname">isCompleted</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.isCompleted" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns True if all records are already in the storage or False
-if more records is expected.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if all records are already in the storage or False
+if more records is expected.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.recordsExistAfter">
 <code class="descname">recordsExistAfter</code><span class="sig-paren">(</span><em>bookmark</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.recordsExistAfter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns True iff there are records left after the  bookmark.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bookmark</strong> &#8211; (int) where to start</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if there are records left after the  bookmark.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.rewind">
 <code class="descname">rewind</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.rewind" title="Permalink to this definition">¶</a></dt>
-<dd><p>Put us back at the beginning of the file again)</p>
+<dd><p>Put us back at the beginning of the file again.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.seekFromEnd">
 <code class="descname">seekFromEnd</code><span class="sig-paren">(</span><em>numRecords</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.seekFromEnd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a bookmark numRecords from the end of the stream.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>numRecords</strong> &#8211; (int) number of records from the end.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(int) a bookmark numRecords from the end of the stream.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.setCompleted">
 <code class="descname">setCompleted</code><span class="sig-paren">(</span><em>completed</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.setCompleted" title="Permalink to this definition">¶</a></dt>
-<dd><p>Marks the stream completed (True or False).</p>
+<dd><p>Marks the stream completed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>completed</strong> &#8211; (bool) is completed?</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.setError">
 <code class="descname">setError</code><span class="sig-paren">(</span><em>error</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.setError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves specified error in the storage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>error</strong> &#8211; Error to store.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="nupic.data.record_stream.RecordStreamIface.setTimeout">
 <code class="descname">setTimeout</code><span class="sig-paren">(</span><em>timeout</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.setTimeout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the read timeout in seconds (int or floating point)</p>
+<dd><p>Set the read timeout in seconds</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>timeout</strong> &#8211; (int or floating point)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
