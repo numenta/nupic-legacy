@@ -38,7 +38,7 @@ class TwoGramModel(model.Model):
   :param inferenceType: (:class:`nupic.frameworks.opf.opf_utils.InferenceType`)
   :param encoders: a dict of dicts, eventually sent to
          :meth:`~nupic.encoders.multi.MultiEncoder.addMultipleEncoders` (see
-         there for details).
+         docs of that method for param details).
   """
 
   def __init__(self, inferenceType=InferenceType.TemporalNextStep,
