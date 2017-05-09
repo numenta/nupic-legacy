@@ -431,11 +431,11 @@ class StreamReader(RecordStreamIface):
     return self._aggMonthsAndSeconds
 
 
-  def appendRecord(self, record, inputRef=None):
+  def appendRecord(self, record):
     raise RuntimeError("Not implemented in StreamReader")
 
 
-  def appendRecords(self, records, inputRef=None, progressCB=None):
+  def appendRecords(self, records, progressCB=None):
     raise RuntimeError("Not implemented in StreamReader")
 
 

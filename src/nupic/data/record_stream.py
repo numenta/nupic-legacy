@@ -336,7 +336,7 @@ class RecordStreamIface(object):
 
 
   @abstractmethod
-  def appendRecord(self, record, inputRef=None):
+  def appendRecord(self, record):
     """
     Saves the record in the underlying storage. Should be implemented in
     subclasses.
@@ -346,7 +346,7 @@ class RecordStreamIface(object):
 
 
   @abstractmethod
-  def appendRecords(self, records, inputRef=None, progressCB=None):
+  def appendRecords(self, records, progressCB=None):
     """
     Saves multiple records in the underlying storage. Should be implemented in
     subclasses.
