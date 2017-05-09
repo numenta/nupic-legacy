@@ -102,7 +102,7 @@ nupic
 │   ├── sorter.py [TODO]
 │   ├── stats.py [TODO]
 │   ├── stats_v2.py [TODO]
-│   ├── stream_reader.py [TODO]
+│   ├── stream_reader.py [OK]
 │   └── utils.py [OK]
 ├── encoders
 │   ├── adaptivescalar.py [OK]
