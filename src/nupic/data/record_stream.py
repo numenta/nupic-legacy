@@ -313,11 +313,7 @@ class RecordStreamIface(object):
 
 
   @abstractmethod
-<<<<<<< HEAD
   def appendRecords(self, records, progressCB=None):
-=======
-  def appendRecords(self, records, inputRef=None, progressCB=None):
->>>>>>> 3684bbd96d63dc12b7123a859e92d5980cb2fc95
     """
     Saves multiple records in the underlying storage. Should be implemented in
     subclasses.
@@ -367,11 +363,7 @@ class RecordStreamIface(object):
     or if a field type does not support min/max (non scalars), the return
     value will be None.
 
-<<<<<<< HEAD
-    :param fieldName: (string) name of field to get max
-=======
     :param fieldName: (string) name of field to get min
->>>>>>> 3684bbd96d63dc12b7123a859e92d5980cb2fc95
     :returns: current minimum value for the field ``fieldName``.
     """
     stats = self.getStats()
@@ -449,15 +441,9 @@ class RecordStreamIface(object):
   @abstractmethod
   def getFields(self):
     """
-<<<<<<< HEAD
-    :returns: (list) of :class:`nupic.data.fieldmeta.FieldMetaInfo`objects for
-        each field in the stream. Might be None, if that information is provided
-        externally (thru stream def, for example).
-=======
     :returns: (list) of :class:`nupic.data.fieldmeta.FieldMetaInfo` objects for
         each field in the stream. Might be None, if that information is provided
         externally (through stream def, for example).
->>>>>>> 3684bbd96d63dc12b7123a859e92d5980cb2fc95
     """
 
 
@@ -491,11 +477,7 @@ class RecordStreamIface(object):
 
   def getLearningFieldIdx(self):
     """
-<<<<<<< HEAD
-    :returns: (int) index of the ``learning ``field.
-=======
     :returns: (int) index of the ``learning`` field.
->>>>>>> 3684bbd96d63dc12b7123a859e92d5980cb2fc95
     """
     return _getFieldIndexBySpecial(self.getFields(), FieldMetaSpecial.learning)
 
