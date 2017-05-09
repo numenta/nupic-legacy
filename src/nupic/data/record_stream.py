@@ -46,7 +46,7 @@ def _getFieldIndexBySpecial(fields, special):
 
 
 class ModelRecordEncoder(object):
-  """Encodes metric data input rows  for consumption by OPF models. See
+  """Encodes metric data input rows for consumption by OPF models. See
   the `ModelRecordEncoder.encode` method for more details.
   """
 
@@ -212,7 +212,9 @@ class ModelRecordEncoder(object):
 
 
 class RecordStreamIface(object):
-  """This is the interface for the record input/output storage classes."""
+  """
+  This is the interface for the record input/output storage classes.
+  """
 
   __metaclass__ = ABCMeta
 
@@ -230,20 +232,18 @@ class RecordStreamIface(object):
 
 
   def rewind(self):
-    """Put us back at the beginning of the file again) """
+    """Put us back at the beginning of the file again. """
     if self._modelRecordEncoder is not None:
       self._modelRecordEncoder.rewind()
 
 
   @abstractmethod
   def getNextRecord(self, useCache=True):
-    """Returns next available data record from the storage. If useCache is
-    False, then don't read ahead and don't cache any records.
+    """
+    Returns next available data record from the storage. If ``useCache`` is
+    ``False``, then don't read ahead and don't cache any records.
 
-    Raises nupic.support.exceptions.StreamDisappearedError if stream
-    disappears (e.g., gets garbage-collected).
-
-    retval: a data row (a list or tuple) if available; None, if no more records
+    :return: a data row (a list or tuple) if available; None, if no more records
              in the table (End of Stream - EOS); empty sequence (list or tuple)
              when timing out while waiting for the next record.
     """
@@ -252,9 +252,10 @@ class RecordStreamIface(object):
   def getNextRecordDict(self):
     """Returns next available data record from the storage as a dict, with the
     keys being the field names. This also adds in some meta fields:
-      '_category': The value from the category field (if any)
-      '_reset': True if the reset field was True (if any)
-      '_sequenceId': the value from the sequenceId field (if any)
+
+      - ``_category``: The value from the category field (if any)
+      - ``_reset``: True if the reset field was True (if any)
+      - ``_sequenceId``: the value from the sequenceId field (if any)
 
     """
 
@@ -275,42 +276,51 @@ class RecordStreamIface(object):
 
 
   def getAggregationMonthsAndSeconds(self):
-    """ Returns the aggregation period of the record stream as a dict
+    """
+    Returns the aggregation period of the record stream as a dict
     containing 'months' and 'seconds'. The months is always an integer and
     seconds is a floating point. Only one is allowed to be non-zero.
 
     If there is no aggregation associated with the stream, returns None.
 
     Typically, a raw file or hbase stream will NOT have any aggregation info,
-    but subclasses of RecordStreamIFace, like StreamReader, will and will
-    return the aggregation period from this call. This call is used by the
-    getNextRecordDict() method to assign a record number to a record given
-    its timestamp and the aggregation interval
+    but subclasses of RecordStreamIFace, like :class:`~nupic.data.StreamReader`,
+    will and will return the aggregation period from this call. This call is
+    used by the :meth:`getNextRecordDict` method to assign a record number to a
+    record given its timestamp and the aggregation interval
 
-    Parameters:
-    ------------------------------------------------------------------------
-    retval: aggregationPeriod (as a dict) or None
-              'months': number of months in aggregation period
-              'seconds': number of seconds in aggregation period (as a float)
+    :returns: ``None``
     """
     return None
 
 
   @abstractmethod
   def getNextRecordIdx(self):
-    """Returns the index of the record that will be read next from
-    getNextRecord()
+    """
+    :returns: (int) index of the record that will be read next from
+              :meth:`getNextRecord`
     """
 
 
   @abstractmethod
   def appendRecord(self, record, inputRef=None):
-    """Saves the record in the underlying storage."""
+    """
+    Saves the record in the underlying storage. Should be implemented in
+    subclasses.
+
+    :param record: (object) to store
+    """
 
 
   @abstractmethod
   def appendRecords(self, records, inputRef=None, progressCB=None):
-    """Saves multiple records in the underlying storage."""
+    """
+    Saves multiple records in the underlying storage. Should be implemented in
+    subclasses.
+
+    :param records: (list) of objects to store
+    :param progressCB: (func) called after each appension
+    """
 
 
   @abstractmethod
@@ -319,30 +329,42 @@ class RecordStreamIface(object):
     anchor to the constructor makes the current position to be the first
     returned record. If record is no longer in the storage, the first available
     after it will be returned.
+
+    :returns: anchor to current position in the data.
     """
 
 
   @abstractmethod
   def recordsExistAfter(self, bookmark):
-    """Returns True iff there are records left after the  bookmark."""
+    """
+    :param bookmark: (int) where to start
+    :returns: True if there are records left after the  bookmark.
+    """
 
 
   @abstractmethod
   def seekFromEnd(self, numRecords):
-    """Returns a bookmark numRecords from the end of the stream."""
+    """
+    :param numRecords: (int) number of records from the end.
+    :returns: (int) a bookmark numRecords from the end of the stream.
+    """
 
 
   @abstractmethod
   def getStats(self):
-    """Returns storage stats (like min and max values of the fields)."""
+    """
+    :returns: storage stats (like min and max values of the fields).
+    """
 
 
   def getFieldMin(self, fieldName):
-    """ Returns current minimum value for the field 'fieldName'.
-
+    """
     If underlying implementation does not support min/max stats collection,
     or if a field type does not support min/max (non scalars), the return
     value will be None.
+
+    :param fieldName: (string) name of field to get min
+    :returns: current minimum value for the field ``fieldName``.
     """
     stats = self.getStats()
     if stats == None:
@@ -355,11 +377,13 @@ class RecordStreamIface(object):
 
 
   def getFieldMax(self, fieldName):
-    """ Returns current maximum value for the field 'fieldName'.
-
+    """
     If underlying implementation does not support min/max stats collection,
     or if a field type does not support min/max (non scalars), the return
     value will be None.
+
+    :param fieldName: (string) name of field to get max
+    :returns: current maximum value for the field ``fieldName``.
     """
     stats = self.getStats()
     if stats == None:
@@ -378,68 +402,93 @@ class RecordStreamIface(object):
 
   @abstractmethod
   def getError(self):
-    """Returns errors saved in the storage."""
+    """:returns: errors saved in the storage."""
 
 
   @abstractmethod
   def setError(self, error):
-    """Saves specified error in the storage."""
+    """
+    Saves specified error in the storage.
+
+    :param error: Error to store.
+    """
 
 
   @abstractmethod
   def isCompleted(self):
-    """Returns True if all records are already in the storage or False
-    if more records is expected.
+    """
+    :returns: True if all records are already in the storage or False
+              if more records is expected.
     """
 
 
   @abstractmethod
   def setCompleted(self, completed):
-    """Marks the stream completed (True or False)."""
+    """
+    Marks the stream completed.
+
+    :param completed: (bool) is completed?
+    """
 
 
   @abstractmethod
   def getFieldNames(self):
-    """Returns an array of field names associated with the data."""
+    """
+    :returns: (list) of field names associated with the data.
+    """
 
 
   @abstractmethod
   def getFields(self):
-    """Returns a sequence of nupic.data.fieldmeta.FieldMetaInfo
-    name/type/special tuples for each field in the stream. Might be None, if
-    that information is provided externally (thru stream def, for example).
+    """
+    :returns: (list) of :class:`nupic.data.fieldmeta.FieldMetaInfo` objects for
+        each field in the stream. Might be None, if that information is provided
+        externally (through stream def, for example).
     """
 
 
   def getResetFieldIdx(self):
     """
-    :returns: index of the 'reset' field; None if no such field. """
+    :returns: (int) index of the ``reset`` field; ``None`` if no such field.
+    """
     return _getFieldIndexBySpecial(self.getFields(), FieldMetaSpecial.reset)
 
 
   def getTimestampFieldIdx(self):
-    """ Return index of the 'timestamp' field. """
+    """
+    :returns: (int) index of the ``timestamp`` field.
+    """
     return _getFieldIndexBySpecial(self.getFields(), FieldMetaSpecial.timestamp)
 
 
   def getSequenceIdFieldIdx(self):
-    """ Return index of the 'sequenceId' field. """
+    """
+    :returns: (int) index of the ``sequenceId`` field.
+    """
     return _getFieldIndexBySpecial(self.getFields(), FieldMetaSpecial.sequence)
 
 
   def getCategoryFieldIdx(self):
-    """ Return index of the 'category' field. """
+    """
+    :returns: (int) index of ``category`` field
+    """
     return _getFieldIndexBySpecial(self.getFields(), FieldMetaSpecial.category)
 
 
   def getLearningFieldIdx(self):
-    """ Return index of the 'learning' field. """
+    """
+    :returns: (int) index of the ``learning`` field.
+    """
     return _getFieldIndexBySpecial(self.getFields(), FieldMetaSpecial.learning)
 
 
   @abstractmethod
   def setTimeout(self, timeout):
-    """ Set the read timeout in seconds (int or floating point) """
+    """
+    Set the read timeout in seconds
+
+    :param timeout: (int or floating point)
+    """
 
 
   @abstractmethod

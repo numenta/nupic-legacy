@@ -30,23 +30,29 @@ from opf_utils import InferenceType
 
 
 class PreviousValueModel(model.Model):
-  """Previous value model."""
+  """
+  Previous value model.
+
+  :param inferenceType: (:class:`nupic.frameworks.opf.opf_utils.InferenceType`)
+
+  :param fieldNames: a list of field names
+
+  :param fieldTypes: a list of the types for the fields mentioned in
+         ``fieldNames``
+
+  :param predictedField: the field from ``fieldNames`` which is to be predicted
+
+  :param predictionSteps: a list of steps for which a prediction is made. This is
+      only needed in the case of multi step predictions. For example, to get
+      predictions 1, 5, and 10 steps ahead: ``[1,5,10]``.
+
+  """
 
   def __init__(self, inferenceType=InferenceType.TemporalNextStep,
                fieldNames=[],
                fieldTypes=[],
                predictedField=None,
                predictionSteps=[]):
-    """ PVM constructor.
-
-    inferenceType: An opf_utils.InferenceType value that specifies what type of
-        inference (i.e. TemporalNextStep, TemporalMultiStep, etc.)
-    fieldNames: a list of field names
-    fieldTypes: a list of the types for the fields mentioned in fieldNames
-    predictedField: the field from fieldNames which is to be predicted
-    predictionSteps: a list of steps for which a prediction is made. This is
-        only needed in the case of multi step predictions
-    """
     super(PreviousValueModel, self).__init__(inferenceType)
 
     self._logger = opf_utils.initLogger(self)
@@ -63,18 +69,6 @@ class PreviousValueModel(model.Model):
       assert False, "Previous Value Model only works for next step or multi-step."
 
   def run(self, inputRecord):
-    """Run one iteration of this model.
-
-    Args:
-      inputRecord: A record object formatted according to
-          nupic.data.FileSource.getNext() result format.
-
-    Returns:
-      A ModelResult named tuple (see opf_utils.py). The contents of
-      ModelResult.inferences depends on the specific inference type of this
-      model, which can be queried by getInferenceType().
-      TODO: Implement getInferenceType()?
-    """
     # set the results. note that there is no translation to sensorInput
     results = super(PreviousValueModel, self).run(inputRecord)
     results.sensorInput = opf_utils.SensorInput(dataRow= \
@@ -97,8 +91,7 @@ class PreviousValueModel(model.Model):
     return results
 
   def finishLearning(self):
-    """Places the model in a permanent "finished learning" mode.
-
+    """
     The PVM does not learn, so this function has no effect.
     """
     pass
@@ -106,50 +99,25 @@ class PreviousValueModel(model.Model):
 
   def setFieldStatistics(self,fieldStats):
     """
-    This method is used for the data source to communicate to the
-    model any statistics that it knows about the fields
     Since the PVM has no use for this information, this is a no-op
     """
     pass
 
   def getFieldInfo(self):
-    """Returns the metadata specifying the format of the model's output.
-
-    The result may be different than the list of
-    nupic.data.fieldmeta.FieldMetaInfo objects supplied at initialization due
-    to the transcoding of some input fields into meta- fields, such as
-    datetime -> dayOfWeek, timeOfDay, etc.
-    """
     return tuple(field_meta.FieldMetaInfo(*args) for args in
                  itertools.izip(
                      self._fieldNames, self._fieldTypes,
                      itertools.repeat(field_meta.FieldMetaSpecial.none)))
 
   def getRuntimeStats(self):
-    """Get the runtime statistics specific to the model.
-
-    I.E. activeCellOverlapAvg
-
-    Returns:
-      A dict mapping statistic names to values.
-    """
     # TODO: Add debugging stats.
     # > what sort of stats are we supposed to return?
     return dict()
 
   def _getLogger(self):
-    """Get the logger created by this subclass.
-
-    Returns:
-      A logging.Logger object. Should not be None.
-    """
     return self._logger
 
   def resetSequenceStates(self):
-    """Called to indicate the start of a new sequence.
-
-    The next call to run should not perform learning.
-    """
     self._reset = True
 
   def __getstate__(self):

@@ -35,10 +35,9 @@ from two_gram_model import TwoGramModel
 from previous_value_model import PreviousValueModel
 
 class ModelFactory(object):
-  """ Static factory class that produces a Model based on a description dict.
-  Eventually this will be the source for all Model creation, HTM and otherwise.
-  We may also implement building the description dict from a database or a
-  description.py file. For now, this is a very skeletal implementation.
+  """
+  Static factory class that produces a :class:`nupic.frameworks.opf.model.Model`
+  based on a description dict.
   """
   __logger = None
 
@@ -46,7 +45,8 @@ class ModelFactory(object):
   @classmethod
   def __getLogger(cls):
     """ Get the logger for this object.
-    @returns (Logger) A Logger object.
+
+    :returns: (Logger) A Logger object.
     """
     if cls.__logger is None:
       cls.__logger = opf_utils.initLogger(cls)
@@ -56,11 +56,16 @@ class ModelFactory(object):
   @staticmethod
   def create(modelConfig, logLevel=logging.ERROR):
     """ Create a new model instance, given a description dictionary.
-    @param modelConfig (dict)
-           A dictionary describing the current model (TODO: schema)
-    @param logLevel (int) The level of logging output that should be generated
-    @exception (Exception) Unsupported model type
-    @returns (nupic.frameworks.opf.model.Model) A model.
+
+    :param modelConfig: (dict)
+           A dictionary describing the current model,
+           `described here <../../quick-start/example-model-params.html>`_.
+
+    :param logLevel: (int) The level of logging output that should be generated
+
+    :raises Exception: Unsupported model type
+
+    :returns: :class:`nupic.frameworks.opf.model.Model`
     """
     logger = ModelFactory.__getLogger()
     logger.setLevel(logLevel)
@@ -82,9 +87,11 @@ class ModelFactory(object):
   @staticmethod
   def loadFromCheckpoint(savedModelDir, newSerialization=False):
     """ Load saved model.
-    @param savedModelDir (string)
+
+    :param savedModelDir: (string)
            Directory of where the experiment is to be or was saved
-    @returns (nupic.frameworks.opf.model.Model) The loaded model instance.
+    :returns: (:class:`nupic.frameworks.opf.model.Model`) The loaded model
+              instance.
     """
     if newSerialization:
       return HTMPredictionModel.readFromCheckpoint(savedModelDir)
