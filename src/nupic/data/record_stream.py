@@ -284,10 +284,11 @@ class RecordStreamIface(object):
     If there is no aggregation associated with the stream, returns None.
 
     Typically, a raw file or hbase stream will NOT have any aggregation info,
-    but subclasses of RecordStreamIface, like :class:`~nupic.data.StreamReader`,
-    will and will return the aggregation period from this call. This call is
-    used by the :meth:`getNextRecordDict` method to assign a record number to a
-    record given its timestamp and the aggregation interval
+    but subclasses of :class:`~nupic.data.record_stream.RecordStreamIface`, like
+    :class:`~nupic.data.stream_reader.StreamReader`, will and will return the
+    aggregation period from this call. This call is used by
+    :meth:`getNextRecordDict` to assign a record number to a record given its
+    timestamp and the aggregation interval.
 
     :returns: ``None``
     """
@@ -303,7 +304,7 @@ class RecordStreamIface(object):
 
 
   @abstractmethod
-  def appendRecord(self, record, inputRef=None):
+  def appendRecord(self, record):
     """
     Saves the record in the underlying storage. Should be implemented in
     subclasses.
@@ -313,7 +314,7 @@ class RecordStreamIface(object):
 
 
   @abstractmethod
-  def appendRecords(self, records, inputRef=None, progressCB=None):
+  def appendRecords(self, records, progressCB=None):
     """
     Saves multiple records in the underlying storage. Should be implemented in
     subclasses.

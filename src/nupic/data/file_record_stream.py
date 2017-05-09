@@ -387,7 +387,7 @@ class FileRecordStream(RecordStreamIface):
     return record
 
 
-  def appendRecord(self, record, inputBookmark=None):
+  def appendRecord(self, record):
     """
     Saves the record in the underlying csv file.
 
@@ -418,22 +418,17 @@ class FileRecordStream(RecordStreamIface):
     self._recordCount += 1
 
 
-  def appendRecords(self, records, inputRef=None, progressCB=None):
+  def appendRecords(self, records, progressCB=None):
     """
     Saves multiple records in the underlying storage.
 
     :param records: array of records as in
                     :meth:`~.FileRecordStream.appendRecord`
-    :param inputRef: reference to the corresponding input (not applicable
-                     in case of a file storage)
     :param progressCB: (function) callback to report progress
     """
 
-    # input ref is not applicable in case of a file storage
-    inputRef = inputRef
-
     for record in records:
-      self.appendRecord(record, None)
+      self.appendRecord(record)
       if progressCB is not None:
         progressCB()
 
