@@ -29,6 +29,12 @@ StreamReader
 .. autoclass:: nupic.data.stream_reader.StreamReader
    :members:
 
+SensorInput
+^^^^^^^^^^^
+
+.. autoclass:: nupic.frameworks.opf.opf_utils.SensorInput
+   :members:
+
 Utilities
 ^^^^^^^^^
 
