@@ -552,6 +552,462 @@ information</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-nupic.data.record_stream">
+<span id="recordstream"></span><h2>RecordStream<a class="headerlink" href="#module-nupic.data.record_stream" title="Permalink to this headline">¶</a></h2>
+<p>Interface for different types of storages (file, hbase, rio, etc).</p>
+<dl class="class">
+<dt id="nupic.data.record_stream.RecordStreamIface">
+<em class="property">class </em><code class="descclassname">nupic.data.record_stream.</code><code class="descname">RecordStreamIface</code><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the interface for the record input/output storage classes.</p>
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.appendRecord">
+<code class="descname">appendRecord</code><span class="sig-paren">(</span><em>record</em>, <em>inputRef=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.appendRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the record in the underlying storage.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.appendRecords">
+<code class="descname">appendRecords</code><span class="sig-paren">(</span><em>records</em>, <em>inputRef=None</em>, <em>progressCB=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.appendRecords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves multiple records in the underlying storage.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.clearStats">
+<code class="descname">clearStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.clearStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets stats collected so far.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the stream</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flush the file to disk</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getAggregationMonthsAndSeconds">
+<code class="descname">getAggregationMonthsAndSeconds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getAggregationMonthsAndSeconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the aggregation period of the record stream as a dict
+containing &#8216;months&#8217; and &#8216;seconds&#8217;. The months is always an integer and
+seconds is a floating point. Only one is allowed to be non-zero.</p>
+<p>If there is no aggregation associated with the stream, returns None.</p>
+<p>Typically, a raw file or hbase stream will NOT have any aggregation info,
+but subclasses of RecordStreamIFace, like StreamReader, will and will
+return the aggregation period from this call. This call is used by the
+getNextRecordDict() method to assign a record number to a record given
+its timestamp and the aggregation interval</p>
+<dl class="docutils">
+<dt>retval: aggregationPeriod (as a dict) or None</dt>
+<dd>&#8216;months&#8217;: number of months in aggregation period
+&#8216;seconds&#8217;: number of seconds in aggregation period (as a float)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getBookmark">
+<code class="descname">getBookmark</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getBookmark" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an anchor to the current position in the data. Passing this
+anchor to the constructor makes the current position to be the first
+returned record. If record is no longer in the storage, the first available
+after it will be returned.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getCategoryFieldIdx">
+<code class="descname">getCategoryFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getCategoryFieldIdx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return index of the &#8216;category&#8217; field.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getError">
+<code class="descname">getError</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns errors saved in the storage.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getFieldMax">
+<code class="descname">getFieldMax</code><span class="sig-paren">(</span><em>fieldName</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getFieldMax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns current maximum value for the field &#8216;fieldName&#8217;.</p>
+<p>If underlying implementation does not support min/max stats collection,
+or if a field type does not support min/max (non scalars), the return
+value will be None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getFieldMin">
+<code class="descname">getFieldMin</code><span class="sig-paren">(</span><em>fieldName</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getFieldMin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns current minimum value for the field &#8216;fieldName&#8217;.</p>
+<p>If underlying implementation does not support min/max stats collection,
+or if a field type does not support min/max (non scalars), the return
+value will be None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getFieldNames">
+<code class="descname">getFieldNames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getFieldNames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an array of field names associated with the data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getFields">
+<code class="descname">getFields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getFields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a sequence of nupic.data.fieldmeta.FieldMetaInfo
+name/type/special tuples for each field in the stream. Might be None, if
+that information is provided externally (thru stream def, for example).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getLearningFieldIdx">
+<code class="descname">getLearningFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getLearningFieldIdx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return index of the &#8216;learning&#8217; field.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getNextRecord">
+<code class="descname">getNextRecord</code><span class="sig-paren">(</span><em>useCache=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getNextRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns next available data record from the storage. If useCache is
+False, then don&#8217;t read ahead and don&#8217;t cache any records.</p>
+<p>Raises nupic.support.exceptions.StreamDisappearedError if stream
+disappears (e.g., gets garbage-collected).</p>
+<dl class="docutils">
+<dt>retval: a data row (a list or tuple) if available; None, if no more records</dt>
+<dd>in the table (End of Stream - EOS); empty sequence (list or tuple)
+when timing out while waiting for the next record.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getNextRecordDict">
+<code class="descname">getNextRecordDict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getNextRecordDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns next available data record from the storage as a dict, with the
+keys being the field names. This also adds in some meta fields:</p>
+<blockquote>
+<div>&#8216;_category&#8217;: The value from the category field (if any)
+&#8216;_reset&#8217;: True if the reset field was True (if any)
+&#8216;_sequenceId&#8217;: the value from the sequenceId field (if any)</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getNextRecordIdx">
+<code class="descname">getNextRecordIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getNextRecordIdx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the index of the record that will be read next from
+getNextRecord()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getResetFieldIdx">
+<code class="descname">getResetFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getResetFieldIdx" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">index of the &#8216;reset&#8217; field; None if no such field.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getSequenceIdFieldIdx">
+<code class="descname">getSequenceIdFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getSequenceIdFieldIdx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return index of the &#8216;sequenceId&#8217; field.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getStats">
+<code class="descname">getStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns storage stats (like min and max values of the fields).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getTimestampFieldIdx">
+<code class="descname">getTimestampFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getTimestampFieldIdx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return index of the &#8216;timestamp&#8217; field.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.isCompleted">
+<code class="descname">isCompleted</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.isCompleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if all records are already in the storage or False
+if more records is expected.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.recordsExistAfter">
+<code class="descname">recordsExistAfter</code><span class="sig-paren">(</span><em>bookmark</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.recordsExistAfter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True iff there are records left after the  bookmark.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.rewind">
+<code class="descname">rewind</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.rewind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put us back at the beginning of the file again)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.seekFromEnd">
+<code class="descname">seekFromEnd</code><span class="sig-paren">(</span><em>numRecords</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.seekFromEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a bookmark numRecords from the end of the stream.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.setCompleted">
+<code class="descname">setCompleted</code><span class="sig-paren">(</span><em>completed</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.setCompleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marks the stream completed (True or False).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.setError">
+<code class="descname">setError</code><span class="sig-paren">(</span><em>error</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.setError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves specified error in the storage.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.setTimeout">
+<code class="descname">setTimeout</code><span class="sig-paren">(</span><em>timeout</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.setTimeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the read timeout in seconds (int or floating point)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.data.stream_reader">
+<span id="streamreader"></span><h2>StreamReader<a class="headerlink" href="#module-nupic.data.stream_reader" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.data.stream_reader.StreamReader">
+<em class="property">class </em><code class="descclassname">nupic.data.stream_reader.</code><code class="descname">StreamReader</code><span class="sig-paren">(</span><em>streamDef</em>, <em>bookmark=None</em>, <em>saveOutput=False</em>, <em>isBlocking=True</em>, <em>maxTimeout=0</em>, <em>eofOnTimeout=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements a stream reader. This is a high level class that owns one or more
+underlying implementations of a RecordStreamIFace. Each RecordStreamIFace
+implements the raw reading of records from the record store (which could be a
+file, hbase table or something else).</p>
+<p>In the future, we will support joining of two or more RecordStreamIface&#8217;s (
+which is why the streamDef accepts a list of &#8216;stream&#8217; elements), but for now
+only 1 source is supported.</p>
+<p>The class also implements aggregation of the (in the future) joined records
+from the sources.</p>
+<p>This module parses the stream definition (as defined in
+/nupic/frameworks/opf/jsonschema/stream_def.json), creates the
+RecordStreamIFace for each source (&#8216;stream&#8217;s element) defined in the stream
+def, performs aggregation, and returns each record in the correct format
+according to the desired column names specified in the streamDef.</p>
+<p>This class implements the RecordStreamIFace interface and thus can be used
+in place of a raw record stream.</p>
+<dl class="docutils">
+<dt>This is an example streamDef:</dt>
+<dd><dl class="first docutils">
+<dt>{</dt>
+<dd><p class="first">&#8216;version&#8217;: 1
+&#8216;info&#8217;: &#8216;test_hotgym&#8217;,</p>
+<dl class="docutils">
+<dt>&#8216;streams&#8217;: [</dt>
+<dd><dl class="first last docutils">
+<dt>{&#8216;columns&#8217;: [u&#8217;*&#8217;],</dt>
+<dd>&#8216;info&#8217;: u&#8217;hotGym.csv&#8217;,
+&#8216;last_record&#8217;: 4000,
+&#8216;source&#8217;: u&#8217;<a class="reference external" href="file://extra/hotgym/hotgym.csv">file://extra/hotgym/hotgym.csv</a>&#8216;}.</dd>
+</dl>
+</dd>
+</dl>
+<p>],</p>
+<p>&#8216;timeField&#8217;: &#8216;timestamp&#8217;,</p>
+<dl class="docutils">
+<dt>&#8216;aggregation&#8217;: {</dt>
+<dd><p class="first">&#8216;hours&#8217;: 1,
+&#8216;fields&#8217;: [</p>
+<blockquote>
+<div>(&#8216;timestamp&#8217;, &#8216;first&#8217;),
+(&#8216;gym&#8217;, &#8216;first&#8217;),
+(&#8216;consumption&#8217;, &#8216;sum&#8217;)</div></blockquote>
+<p class="last">],</p>
+</dd>
+</dl>
+<p class="last">}</p>
+</dd>
+</dl>
+<p class="last">}</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.appendRecord">
+<code class="descname">appendRecord</code><span class="sig-paren">(</span><em>record</em>, <em>inputRef=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.appendRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the record in the underlying storage.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.appendRecords">
+<code class="descname">appendRecords</code><span class="sig-paren">(</span><em>records</em>, <em>inputRef=None</em>, <em>progressCB=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.appendRecords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves multiple records in the underlying storage.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.clearStats">
+<code class="descname">clearStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.clearStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets stats collected so far.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the stream</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flush the file to disk</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getAggregationMonthsAndSeconds">
+<code class="descname">getAggregationMonthsAndSeconds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getAggregationMonthsAndSeconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the aggregation period of the record stream as a dict
+containing &#8216;months&#8217; and &#8216;seconds&#8217;. The months is always an integer and
+seconds is a floating point. Only one is allowed to be non-zero at a
+time.</p>
+<p>If there is no aggregation associated with the stream, returns None.</p>
+<p>Typically, a raw file or hbase stream will NOT have any aggregation info,
+but subclasses of RecordStreamIFace, like StreamReader, will and will
+return the aggregation period from this call. This call is used by the
+getNextRecordDict() method to assign a record number to a record given
+its timestamp and the aggregation interval</p>
+<dl class="docutils">
+<dt>retval: aggregationPeriod (as a dict) or None</dt>
+<dd>&#8216;months&#8217;: number of months in aggregation period
+&#8216;seconds&#8217;: number of seconds in aggregation period (as a float)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getBookmark">
+<code class="descname">getBookmark</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getBookmark" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a bookmark to the current position</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getDataRowCount">
+<code class="descname">getDataRowCount</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getDataRowCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates through stream to calculate total records after aggregation.
+This will alter the bookmark state.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getError">
+<code class="descname">getError</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns errors saved in the stream.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getFieldNames">
+<code class="descname">getFieldNames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getFieldNames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all fields in all inputs (list of plain names).
+NOTE: currently, only one input is supported</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getFields">
+<code class="descname">getFields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getFields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a sequence of nupic.data.fieldmeta.FieldMetaInfo
+name/type/special tuples for each field in the stream.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getNextRecord">
+<code class="descname">getNextRecord</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getNextRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns combined data from all sources (values only).
+Returns None on EOF; empty sequence on timeout.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getNextRecordIdx">
+<code class="descname">getNextRecordIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getNextRecordIdx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the index of the record that will be read next from
+getNextRecord()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getStats">
+<code class="descname">getStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns stats (like min and max values of the fields).</p>
+<p>TODO: This method needs to be enhanced to get the stats on the <em>aggregated</em>
+records.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.isCompleted">
+<code class="descname">isCompleted</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.isCompleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if all records have been read.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.recordsExistAfter">
+<code class="descname">recordsExistAfter</code><span class="sig-paren">(</span><em>bookmark</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.recordsExistAfter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True iff there are records left after the  bookmark.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.seekFromEnd">
+<code class="descname">seekFromEnd</code><span class="sig-paren">(</span><em>numRecords</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.seekFromEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Seeks to numRecords from the end and returns a bookmark to the new
+position.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.setCompleted">
+<code class="descname">setCompleted</code><span class="sig-paren">(</span><em>completed=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.setCompleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marks the stream completed (True or False)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.setError">
+<code class="descname">setError</code><span class="sig-paren">(</span><em>error</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.setError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves specified error in the stream.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.setTimeout">
+<code class="descname">setTimeout</code><span class="sig-paren">(</span><em>timeout</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.setTimeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the read timeout</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sensorinput">
+<h2>SensorInput<a class="headerlink" href="#sensorinput" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.frameworks.opf.opf_utils.SensorInput">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.opf_utils.</code><code class="descname">SensorInput</code><span class="sig-paren">(</span><em>dataRow=None</em>, <em>dataDict=None</em>, <em>dataEncodings=None</em>, <em>sequenceReset=None</em>, <em>category=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.opf_utils.SensorInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the mapping of a given inputRecord by the sensor region&#8217;s encoder.</p>
+<p>This represents the input record, as it appears right before it is encoded.
+This may differ from the raw input in that certain input fields (such as
+DateTime fields) may be split into multiple encoded fields.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataRow</strong> &#8211; A data row that is the sensor&#8217;s <code class="docutils literal"><span class="pre">sourceOut</span></code> mapping of the
+supplied inputRecord.</li>
+<li><strong>dataEncodings</strong> &#8211; A list of the corresponding bit-array encodings of each
+value in &#8220;dataRow&#8221;</li>
+<li><strong>sequenceReset</strong> &#8211; The sensor&#8217;s &#8220;resetOut&#8221; signal (0 or 1) emitted by the
+sensor&#8217;s compute logic on the supplied inputRecord; provided
+for analysis and diagnostics.</li>
+<li><strong>dataDict</strong> &#8211; The raw encoded input to the sensor</li>
+<li><strong>category</strong> &#8211; the categoryOut on the sensor region</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -590,6 +1046,9 @@ information</p>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-nupic.data.field_meta">Field Meta</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-nupic.data.file_record_stream">FileRecordStream</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-nupic.data.record_stream">RecordStream</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-nupic.data.stream_reader">StreamReader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sensorinput">SensorInput</a></li>
 </ul>
 </li>
 </ul>

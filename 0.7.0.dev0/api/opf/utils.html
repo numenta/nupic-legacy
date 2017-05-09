@@ -106,6 +106,32 @@ model.enableInference(params[&#8220;inferenceArgs&#8221;])</p>
 </dd></dl>
 
 </div>
+<div class="section" id="inferencetype">
+<h2>InferenceType<a class="headerlink" href="#inferencetype" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.frameworks.opf.opf_utils.InferenceType">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.opf_utils.</code><code class="descname">InferenceType</code><a class="headerlink" href="#nupic.frameworks.opf.opf_utils.InferenceType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">nupic.support.enum.Enum</span></code></p>
+<p>Enum: one of the following:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">TemporalNextStep</span></code></li>
+<li><code class="docutils literal"><span class="pre">TemporalClassification</span></code></li>
+<li><code class="docutils literal"><span class="pre">NontemporalClassification</span></code></li>
+<li><code class="docutils literal"><span class="pre">TemporalAnomaly</span></code></li>
+<li><code class="docutils literal"><span class="pre">NontemporalAnomaly</span></code></li>
+<li><code class="docutils literal"><span class="pre">TemporalMultiStep</span></code></li>
+<li><code class="docutils literal"><span class="pre">NontemporalMultiStep</span></code></li>
+</ul>
+<dl class="staticmethod">
+<dt id="nupic.frameworks.opf.opf_utils.InferenceType.isTemporal">
+<em class="property">static </em><code class="descname">isTemporal</code><span class="sig-paren">(</span><em>inferenceType</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.opf_utils.InferenceType.isTemporal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the inference type is &#8216;temporal&#8217;, i.e. requires a
+temporal memory in the network.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-nupic.frameworks.opf.opf_helpers">
 <span id="helpers"></span><h2>Helpers<a class="headerlink" href="#module-nupic.frameworks.opf.opf_helpers" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
@@ -182,6 +208,7 @@ directory.</p>
 <li class="toctree-l3"><a class="reference internal" href="results.html">Model Results</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Utilities</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#module-nupic.frameworks.opf.common_models.cluster_params">Common Models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#inferencetype">InferenceType</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-nupic.frameworks.opf.opf_helpers">Helpers</a></li>
 </ul>
 </li>
