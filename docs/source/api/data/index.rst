@@ -35,3 +35,11 @@ SensorInput
 .. autoclass:: nupic.frameworks.opf.opf_utils.SensorInput
    :members:
 
+Utilities
+^^^^^^^^^
+
+.. automodule:: nupic.data.utils
+   :members:
+
+.. autodata:: nupic.data.utils.DATETIME_FORMATS
+   :annotation:
