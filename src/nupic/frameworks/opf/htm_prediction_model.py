@@ -106,11 +106,19 @@ class NetworkInfo(object):
 class HTMPredictionModel(Model):
   """
 
-  This model is for temporal predictions multiple steps ahead.
+  This model is for temporal predictions multiple steps ahead. After creating
+  this model, you must call
+  :meth:`~nupic.frameworks.opf.model.Model.enableInference` to specify a
+  predicted field, like this:
+
+  .. code-block:: python
+
+     model.enableInference({"predictedField": "myPredictedField"})
+
+  Where ``myPredictedField`` is the field name in your data input that should be
+  predicted.
 
   :param inferenceType: (:class:`~nupic.frameworks.opf.opf_utils.InferenceType`)
-
-  :param predictedField: (string) The field to predict for multistep prediction.
 
   :param sensorParams: (dict) specifying the sensor parameters.
 
@@ -157,7 +165,6 @@ class HTMPredictionModel(Model):
   def __init__(self,
       sensorParams={},
       inferenceType=InferenceType.TemporalNextStep,
-      predictedField=None,
       spEnable=True,
       spParams={},
 
