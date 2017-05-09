@@ -297,35 +297,10 @@ class RecordStreamIface(object):
 
 
   @abstractmethod
-  def getRecordsRange(self, bookmark=None, range=None):
-    """Returns a range of records, starting from the bookmark. If 'bookmark'
-    is None, then records read from the first available. If 'range' is
-    None, all available records will be returned (caution: this could be
-    a lot of records and require a lot of memory).
-    """
-
-
-  @abstractmethod
   def getNextRecordIdx(self):
     """Returns the index of the record that will be read next from
     getNextRecord()
     """
-
-
-  @abstractmethod
-  def getLastRecords(self, numRecords):
-    """Returns a tuple (successCode, recordsArray), where
-    successCode - if the stream had enough records to return, True/False
-    recordsArray - an array of last numRecords records available when
-                   the call was made. Records appended while in the
-                   getLastRecords will be not returned until the next
-                   call to either getNextRecord() or getLastRecords()
-    """
-
-
-  @abstractmethod
-  def removeOldData(self):
-    """Deletes all rows from the table if any data was found."""
 
 
   @abstractmethod

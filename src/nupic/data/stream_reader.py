@@ -384,20 +384,6 @@ class StreamReader(RecordStreamIface):
         raise RuntimeError('No end of datastream found.')
 
 
-  def getLastRecords(self, numRecords):
-    """Saves the record in the underlying storage."""
-    raise RuntimeError("Not implemented in StreamReader")
-
-
-  def getRecordsRange(self, bookmark=None, range=None):
-    """ Returns a range of records, starting from the bookmark. If 'bookmark'
-    is None, then records read from the first available. If 'range' is
-    None, all available records will be returned (caution: this could be
-    a lot of records and require a lot of memory).
-    """
-    raise RuntimeError("Not implemented in StreamReader")
-
-
   def getNextRecordIdx(self):
     """Returns the index of the record that will be read next from
     getNextRecord()
@@ -440,10 +426,6 @@ class StreamReader(RecordStreamIface):
 
   def appendRecords(self, records, inputRef=None, progressCB=None):
     """Saves multiple records in the underlying storage."""
-    raise RuntimeError("Not implemented in StreamReader")
-
-
-  def removeOldData(self):
     raise RuntimeError("Not implemented in StreamReader")
 
 
