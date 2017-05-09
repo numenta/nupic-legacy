@@ -20,8 +20,8 @@
 # ----------------------------------------------------------------------
 
 """
-Encapsulation of HTM network that implements the base :class:`Model` to perform
-temporal prediction.
+Encapsulation of HTM network that implements the base
+:class:`~nupic.frameworks.opf.model.Model` to perform temporal prediction.
 """
 
 import copy
