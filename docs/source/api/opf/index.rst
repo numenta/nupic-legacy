@@ -20,6 +20,7 @@ algorithms and functionalities can be added with minimal code changes.
    models
    clients
    description-api
+   exp-runner
    metrics
    results
    utils
