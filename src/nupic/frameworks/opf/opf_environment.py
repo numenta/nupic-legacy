@@ -45,7 +45,7 @@ class PredictionLoggerIface(object):
   @abstractmethod
   def close(self):
     """ Closes connect to output store and cleans up any resources associated
-    with writing
+    with writing.
     """
 
   @abstractmethod

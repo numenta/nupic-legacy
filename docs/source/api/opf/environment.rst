@@ -33,15 +33,9 @@ OPF Basic Environment
 
 .. autoclass:: nupic.frameworks.opf.opf_basic_environment.PredictionMetricsLoggerIface
    :members:
-   :show-inheritance:
 
 .. autoclass:: nupic.frameworks.opf.opf_basic_environment.DatasetReaderIface
    :members:
-   :show-inheritance:
-
-.. autoclass:: nupic.frameworks.opf.opf_basic_environment.PredictionWriterIface
-   :members:
-   :show-inheritance:
 
 .. autoclass:: nupic.frameworks.opf.opf_basic_environment.BasicPredictionMetricsLogger
    :members:
@@ -53,11 +47,6 @@ OPF Basic Environment
 
 .. autoclass:: nupic.frameworks.opf.opf_basic_environment.NonTemporalPredictionLogAdapter
    :members:
-   :show-inheritance:
-
-.. autoclass:: nupic.frameworks.opf.opf_basic_environment.TemporalPredictionLogAdapter
-   :members:
-   :show-inheritance:
 
 .. autoclass:: nupic.frameworks.opf.opf_basic_environment.BasicPredictionLogger
    :members:
@@ -65,8 +54,3 @@ OPF Basic Environment
 
 .. autoclass:: nupic.frameworks.opf.opf_basic_environment.NonTemporalPredictionLogAdapter
    :members:
-   :show-inheritance:
-
-.. autoclass:: nupic.frameworks.opf.opf_basic_environment.NonTemporalPredictionLogAdapter
-   :members:
-   :show-inheritance:
