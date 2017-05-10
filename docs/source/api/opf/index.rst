@@ -18,6 +18,7 @@ algorithms and functionalities can be added with minimal code changes.
    :maxdepth: 3
 
    models
+   clients
    metrics
    results
    utils

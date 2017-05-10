@@ -118,9 +118,9 @@ nupic
 ├── frameworks
 │   ├── opf
 │   │   ├── htm_prediction_model.py [OK]
-│   │   ├── client.py [TODO]
+│   │   ├── client.py [OK]
 │   │   ├── common_models
-│   │   │   └── cluster_params.py [TODO]
+│   │   │   └── cluster_params.py [OK]
 │   │   ├── exceptions.py [OK]
 │   │   ├── exp_description_api.py [TODO]
 │   │   ├── exp_description_helpers.py [TODO]
