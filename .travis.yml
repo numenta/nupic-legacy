@@ -4,6 +4,9 @@ branches:
   except:
     - gh-pages
 
+git:
+  depth: 25
+
 language: cpp
 
 os:
