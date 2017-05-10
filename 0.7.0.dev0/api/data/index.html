@@ -1,0 +1,1570 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Data &#8212; NuPIC 0.7.0.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.7.0.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Contributing" href="../../contributing/index.html" />
+    <link rel="prev" title="Anomaly Detection" href="../algorithms/anomaly-detection.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="data">
+<h1>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h1>
+<p>Data wrappers and helpers.</p>
+<div class="section" id="module-nupic.data.field_meta">
+<span id="field-meta"></span><h2>Field Meta<a class="headerlink" href="#module-nupic.data.field_meta" title="Permalink to this headline">¶</a></h2>
+<p>This module defines the structure of meta-data that describes the field name,
+field type, special field attribute, etc. for a field in a dataset.</p>
+<dl class="class">
+<dt id="nupic.data.field_meta.FieldMetaInfo">
+<em class="property">class </em><code class="descclassname">nupic.data.field_meta.</code><code class="descname">FieldMetaInfo</code><span class="sig-paren">(</span><em>name</em>, <em>type</em>, <em>special</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.field_meta.FieldMetaInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class acts as a container of meta-data for a single field (column) of
+a dataset. Each instance of this class has <code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">type</span></code>, and <code class="docutils literal"><span class="pre">special</span></code>
+properties.</p>
+<p>Examples:</p>
+<ol class="arabic">
+<li><p class="first">Access a sub-element from an instance of FieldMetaInfo:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">metainfo.name</span></code></li>
+<li><code class="docutils literal"><span class="pre">metainfo.type</span></code></li>
+<li><code class="docutils literal"><span class="pre">metainfo.special</span></code></li>
+</ul>
+</li>
+<li><p class="first">Create a single element of <code class="docutils literal"><span class="pre">FieldMetaInfo</span></code> from a tuple of <code class="docutils literal"><span class="pre">name</span></code>,
+<code class="docutils literal"><span class="pre">type</span></code>, and <code class="docutils literal"><span class="pre">special</span></code>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;pounds&#39;</span><span class="p">,</span> <span class="n">FieldMetaType</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">FieldMetaSpecial</span><span class="o">.</span><span class="n">none</span><span class="p">)</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">FieldMetaInfo</span><span class="o">.</span><span class="n">createFromFileFieldElement</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; field name</li>
+<li><strong>type</strong> (<em>str</em>) &#8211; one of the values from FieldMetaType</li>
+<li><strong>special</strong> (<em>str</em>) &#8211; one of the values from FieldMetaSpecial</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if type or special arg values are invalid</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="staticmethod">
+<dt id="nupic.data.field_meta.FieldMetaInfo.createFromFileFieldElement">
+<em class="property">static </em><code class="descname">createFromFileFieldElement</code><span class="sig-paren">(</span><em>fieldInfoTuple</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.field_meta.FieldMetaInfo.createFromFileFieldElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a <code class="xref py py-class docutils literal"><span class="pre">fieldmeta.FieldMetaInfo</span></code> instance from a tuple containing
+<code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">type</span></code>, and <code class="docutils literal"><span class="pre">special</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fieldInfoTuple</strong> &#8211; Must contain <code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">type</span></code>, and <code class="docutils literal"><span class="pre">special</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">FieldMetaInfo</span></code> instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.data.field_meta.FieldMetaInfo.createListFromFileFieldList">
+<em class="property">classmethod </em><code class="descname">createListFromFileFieldList</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.field_meta.FieldMetaInfo.createListFromFileFieldList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a FieldMetaInfo list from the a list of tuples. Basically runs
+<code class="xref py py-meth docutils literal"><span class="pre">createFromFileFieldElement()</span></code> on each tuple.</p>
+<p><em>Example:</em></p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Create a list of FieldMetaInfo instances from a list of File meta-data</span>
+<span class="c1"># tuples</span>
+<span class="n">el</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;pounds&quot;</span><span class="p">,</span> <span class="n">FieldMetaType</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">FieldMetaSpecial</span><span class="o">.</span><span class="n">none</span><span class="p">),</span>
+      <span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">,</span> <span class="n">FieldMetaType</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">FieldMetaSpecial</span><span class="o">.</span><span class="n">none</span><span class="p">),</span>
+      <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">FieldMetaType</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">FieldMetaSpecial</span><span class="o">.</span><span class="n">sequence</span><span class="p">),</span>
+      <span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">FieldMetaType</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">FieldMetaSpecial</span><span class="o">.</span><span class="n">timestamp</span><span class="p">),</span>
+     <span class="p">]</span>
+<span class="n">ml</span> <span class="o">=</span> <span class="n">FieldMetaInfo</span><span class="o">.</span><span class="n">createListFromFileFieldList</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fields</strong> &#8211; a sequence of field attribute tuples conforming to the format
+of <code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">type</span></code>, and <code class="docutils literal"><span class="pre">special</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of <code class="xref py py-class docutils literal"><span class="pre">FieldMetaInfo</span></code> elements corresponding
+to the given &#8216;fields&#8217; list.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.data.field_meta.FieldMetaType">
+<em class="property">class </em><code class="descclassname">nupic.data.field_meta.</code><code class="descname">FieldMetaType</code><a class="headerlink" href="#nupic.data.field_meta.FieldMetaType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Public values for the field data types. Valid types are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">string</span></code></li>
+<li><code class="docutils literal"><span class="pre">datetime</span></code></li>
+<li><code class="docutils literal"><span class="pre">int</span></code></li>
+<li><code class="docutils literal"><span class="pre">float</span></code></li>
+<li><code class="docutils literal"><span class="pre">bool</span></code></li>
+<li><code class="docutils literal"><span class="pre">list</span></code></li>
+<li><code class="docutils literal"><span class="pre">sdr</span></code></li>
+</ul>
+</div></blockquote>
+<dl class="classmethod">
+<dt id="nupic.data.field_meta.FieldMetaType.isValid">
+<em class="property">classmethod </em><code class="descname">isValid</code><span class="sig-paren">(</span><em>fieldDataType</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.field_meta.FieldMetaType.isValid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check a candidate value whether it&#8217;s one of the valid field data types</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fieldDataType</strong> &#8211; (string) candidate field data type</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the candidate value is a legitimate field data type value;
+False if not</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.data.field_meta.FieldMetaSpecial">
+<em class="property">class </em><code class="descclassname">nupic.data.field_meta.</code><code class="descname">FieldMetaSpecial</code><a class="headerlink" href="#nupic.data.field_meta.FieldMetaSpecial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Public values for the &#8220;special&#8221; field attribute. Valid values are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">R</span></code>: reset</li>
+<li><code class="docutils literal"><span class="pre">S</span></code>: sequence</li>
+<li><code class="docutils literal"><span class="pre">T</span></code>: timestamp</li>
+<li><code class="docutils literal"><span class="pre">C</span></code>: category</li>
+<li><code class="docutils literal"><span class="pre">L</span></code>: learning</li>
+</ul>
+</div></blockquote>
+<dl class="classmethod">
+<dt id="nupic.data.field_meta.FieldMetaSpecial.isValid">
+<em class="property">classmethod </em><code class="descname">isValid</code><span class="sig-paren">(</span><em>attr</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.field_meta.FieldMetaSpecial.isValid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check a candidate value whether it&#8217;s one of the valid attributes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>attr</strong> &#8211; (string) candidate value</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the candidate value is a legitimate &#8220;special&#8221; field
+attribute; False if not</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.data.file_record_stream">
+<span id="filerecordstream"></span><h2>FileRecordStream<a class="headerlink" href="#module-nupic.data.file_record_stream" title="Permalink to this headline">¶</a></h2>
+<p>CSV file based implementation of a record stream</p>
+<p><a class="reference internal" href="#nupic.data.file_record_stream.FileRecordStream" title="nupic.data.file_record_stream.FileRecordStream"><code class="xref py py-class docutils literal"><span class="pre">FileRecordStream</span></code></a> is a class that can read and
+write <code class="docutils literal"><span class="pre">.csv</span></code> files that contain records. The file has 3 header lines that
+contain, for each field, the name (line 1), type (line 2), and a special
+indicator (line 3). The special indicator can indicate that the field specifies
+a reset, is a sequence ID, or is a timestamp for the record.</p>
+<p>You can see an example of a NuPIC data file formatted for
+<a class="reference internal" href="#nupic.data.file_record_stream.FileRecordStream" title="nupic.data.file_record_stream.FileRecordStream"><code class="xref py py-class docutils literal"><span class="pre">FileRecordStream</span></code></a>
+<a class="reference external" href="../../quick-start/example-data.html">in the quick start</a>.</p>
+<p>The header lines look like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">f1</span><span class="p">,</span><span class="n">f2</span><span class="p">,</span><span class="n">f3</span><span class="p">,</span><span class="o">....</span><span class="n">fN</span>
+<span class="nb">int</span><span class="p">,</span><span class="n">string</span><span class="p">,</span><span class="n">datetime</span><span class="p">,</span><span class="nb">bool</span><span class="p">,</span><span class="o">...</span>
+<span class="n">R</span><span class="p">,</span><span class="n">S</span><span class="p">,</span><span class="n">T</span><span class="p">,,,,</span><span class="o">....</span>
+</pre></div>
+</div>
+<p>The data lines are just comma separated values that match the types in the
+second header line. The supported types are: int, float, string, bool, datetime</p>
+<p>The format for datetime fields is <code class="docutils literal"><span class="pre">yyyy-mm-dd</span> <span class="pre">hh:mm:ss.us</span></code>
+The &#8216;us&#8217; component is microseconds.</p>
+<p>When reading a file the FileRecordStream will automatically read the header line
+and will figure out the type of each field and what are the timestamp, reset
+and sequenceId fields (if any).</p>
+<p><a class="reference internal" href="#nupic.data.file_record_stream.FileRecordStream" title="nupic.data.file_record_stream.FileRecordStream"><code class="xref py py-class docutils literal"><span class="pre">FileRecordStream</span></code></a> supports the context manager
+(<code class="docutils literal"><span class="pre">with</span></code> statement) protocol. That means you can do:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">FileRecordStream</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+  <span class="o">...</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+<p>When the control exits the <code class="docutils literal"><span class="pre">with</span></code> block the file will be closed automatically.
+You may still call the <a class="reference internal" href="#nupic.data.file_record_stream.FileRecordStream.close" title="nupic.data.file_record_stream.FileRecordStream.close"><code class="xref py py-meth docutils literal"><span class="pre">close()</span></code></a>
+method at any point (even multiple times).</p>
+<p><a class="reference internal" href="#nupic.data.file_record_stream.FileRecordStream" title="nupic.data.file_record_stream.FileRecordStream"><code class="xref py py-class docutils literal"><span class="pre">FileRecordStream</span></code></a> also supports the iteration
+protocol so you may read its contents using a for loop:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+  <span class="k">print</span> <span class="n">r</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="nupic.data.file_record_stream.FileRecordStream">
+<em class="property">class </em><code class="descclassname">nupic.data.file_record_stream.</code><code class="descname">FileRecordStream</code><span class="sig-paren">(</span><em>streamID</em>, <em>write=False</em>, <em>fields=None</em>, <em>missingValues=None</em>, <em>bookmark=None</em>, <em>includeMS=True</em>, <em>firstRecord=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream" title="Permalink to this definition">¶</a></dt>
+<dd><p>CSV file based RecordStream implementation</p>
+<p>Each field is a 3-tuple (<code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">type</span></code>, <code class="docutils literal"><span class="pre">special</span></code> or
+<code class="xref py py-class docutils literal"><span class="pre">FieldMetaSpecial</span></code>.none)</p>
+<p>The name is the name of the field. The type is one of the constants in
+<code class="xref py py-class docutils literal"><span class="pre">FieldMetaType</span></code>. The special is one of the
+<code class="xref py py-class docutils literal"><span class="pre">FieldMetaSpecial</span></code> values that designate their field as the
+sequenceId, reset, timestamp, or category. With exception of multiple
+categories, there can be at most one of each. There may be multiple fields of
+type datetime, but no more than one of them may be the timestamp field
+(<code class="xref py py-class docutils literal"><span class="pre">FieldMetaSpecial</span></code>.timestamp). The sequence id
+field must be either a string or an int. The reset field must be an int (and
+must contain 0 or 1).</p>
+<p>The category field must be an int or space-separated list of ints, where
+the former represents single-label classification and the latter is for
+multi-label classification (e.g. &#8220;1 3 4&#8221; designates a record for labels 1,
+3, and 4). The number of categories is allowed to vary record to record;
+sensor regions represent non-categories with -1, thus the category values
+must be &gt;= 0.</p>
+<p>The FileRecordStream iterates over the field names, types and specials and
+stores the information.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>streamID</strong> &#8211; CSV file name, input or output</li>
+<li><strong>write</strong> &#8211; True or False, open for writing if True</li>
+<li><strong>fields</strong> &#8211; a list of nupic.data.fieldmeta.FieldMetaInfo field descriptors, only
+applicable when write==True</li>
+<li><strong>missingValues</strong> &#8211; what missing values should be replaced with?</li>
+<li><strong>bookmark</strong> &#8211; a reference to the previous reader, if passed in, the records will be
+returned starting from the point where bookmark was requested. Either
+bookmark or firstRecord can be specified, not both. If bookmark is used,
+then firstRecord MUST be None.</li>
+<li><strong>includeMS</strong> &#8211; If false, the microseconds portion is not included in the
+generated output file timestamp fields. This makes it compatible
+with reading in from Excel.</li>
+<li><strong>firstRecord</strong> &#8211; 0-based index of the first record to start reading from. Either bookmark
+or firstRecord can be specified, not both. If bookmark is used, then
+firstRecord MUST be None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.appendRecord">
+<code class="descname">appendRecord</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.appendRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the record in the underlying csv file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>record</strong> &#8211; a list of Python objects that will be string-ified</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.appendRecords">
+<code class="descname">appendRecords</code><span class="sig-paren">(</span><em>records</em>, <em>progressCB=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.appendRecords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves multiple records in the underlying storage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>records</strong> &#8211; array of records as in
+<a class="reference internal" href="#nupic.data.file_record_stream.FileRecordStream.appendRecord" title="nupic.data.file_record_stream.FileRecordStream.appendRecord"><code class="xref py py-meth docutils literal"><span class="pre">appendRecord()</span></code></a></li>
+<li><strong>progressCB</strong> &#8211; (function) callback to report progress</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.clearStats">
+<code class="descname">clearStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.clearStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets stats collected so far.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the stream.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flushes the file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.getBookmark">
+<code class="descname">getBookmark</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.getBookmark" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a bookmark or anchor to the current position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">an anchor to the current position in the data. Passing this
+anchor to a constructor makes the current position to be the first
+returned record.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.getDataRowCount">
+<code class="descname">getDataRowCount</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.getDataRowCount" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) count of data rows in dataset (excluding header lines)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.getError">
+<code class="descname">getError</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.getError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not implemented. CSV file version does not provide storage for the error
+information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.getFieldNames">
+<code class="descname">getFieldNames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.getFieldNames" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) field names associated with the data.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.getFields">
+<code class="descname">getFields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.getFields" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a sequence of <a class="reference internal" href="#nupic.data.field_meta.FieldMetaInfo" title="nupic.data.field_meta.FieldMetaInfo"><code class="xref py py-class docutils literal"><span class="pre">FieldMetaInfo</span></code></a>
+<code class="docutils literal"><span class="pre">name</span></code>/<code class="docutils literal"><span class="pre">type</span></code>/<code class="docutils literal"><span class="pre">special</span></code> tuples for each field in the stream.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.getNextRecord">
+<code class="descname">getNextRecord</code><span class="sig-paren">(</span><em>useCache=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.getNextRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns next available data record from the file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a data row (a list or tuple) if available; None, if no more
+records in the table (End of Stream - EOS); empty sequence (list
+or tuple) when timing out while waiting for the next record.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.getNextRecordIdx">
+<code class="descname">getNextRecordIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.getNextRecordIdx" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) the index of the record that will be read next from
+<a class="reference internal" href="#nupic.data.file_record_stream.FileRecordStream.getNextRecord" title="nupic.data.file_record_stream.FileRecordStream.getNextRecord"><code class="xref py py-meth docutils literal"><span class="pre">getNextRecord()</span></code></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.getStats">
+<code class="descname">getStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.getStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the file using dedicated reader and collect fields stats. Never
+called if user of <a class="reference internal" href="#nupic.data.file_record_stream.FileRecordStream" title="nupic.data.file_record_stream.FileRecordStream"><code class="xref py py-class docutils literal"><span class="pre">FileRecordStream</span></code></a> does not invoke
+<a class="reference internal" href="#nupic.data.file_record_stream.FileRecordStream.getStats" title="nupic.data.file_record_stream.FileRecordStream.getStats"><code class="xref py py-meth docutils literal"><span class="pre">getStats()</span></code></a> method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a dictionary of stats. In the current implementation, min and max
+fields are supported. Example of the return dictionary is:<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;min&#39;</span> <span class="p">:</span> <span class="p">[</span><span class="n">f1_min</span><span class="p">,</span> <span class="n">f2_min</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">fn_min</span><span class="p">],</span>
+  <span class="s1">&#39;max&#39;</span> <span class="p">:</span> <span class="p">[</span><span class="n">f1_max</span><span class="p">,</span> <span class="n">f2_max</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">fn_max</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>(where fx_min/fx_max are set for scalar fields, or None if not)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.isCompleted">
+<code class="descname">isCompleted</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.isCompleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not implemented. CSV file is always considered completed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.next">
+<code class="descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement the iterator protocol</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.recordsExistAfter">
+<code class="descname">recordsExistAfter</code><span class="sig-paren">(</span><em>bookmark</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.recordsExistAfter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether there are more records from current position. <code class="docutils literal"><span class="pre">bookmark</span></code>
+is not used in this implementation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if there are records left after current position.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.rewind">
+<code class="descname">rewind</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.rewind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put us back at the beginning of the file again.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.seekFromEnd">
+<code class="descname">seekFromEnd</code><span class="sig-paren">(</span><em>numRecords</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.seekFromEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Seeks to <code class="docutils literal"><span class="pre">numRecords</span></code> from the end and returns a bookmark to the new
+position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>numRecords</strong> &#8211; how far to seek from end of file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">bookmark to desired location.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.setAutoRewind">
+<code class="descname">setAutoRewind</code><span class="sig-paren">(</span><em>autoRewind</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.setAutoRewind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Controls whether <a class="reference internal" href="#nupic.data.file_record_stream.FileRecordStream.getNextRecord" title="nupic.data.file_record_stream.FileRecordStream.getNextRecord"><code class="xref py py-meth docutils literal"><span class="pre">getNextRecord()</span></code></a> should
+automatically rewind the source when EOF is reached.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>autoRewind</strong> &#8211; <p>(bool)</p>
+<ul class="simple">
+<li>if True, <a class="reference internal" href="#nupic.data.file_record_stream.FileRecordStream.getNextRecord" title="nupic.data.file_record_stream.FileRecordStream.getNextRecord"><code class="xref py py-meth docutils literal"><span class="pre">getNextRecord()</span></code></a> will automatically rewind
+the source on EOF.</li>
+<li>if False, <a class="reference internal" href="#nupic.data.file_record_stream.FileRecordStream.getNextRecord" title="nupic.data.file_record_stream.FileRecordStream.getNextRecord"><code class="xref py py-meth docutils literal"><span class="pre">getNextRecord()</span></code></a> will not automatically
+rewind the source on EOF.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.setCompleted">
+<code class="descname">setCompleted</code><span class="sig-paren">(</span><em>completed=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.setCompleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not implemented: CSV file is always considered completed, nothing to do.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.file_record_stream.FileRecordStream.setError">
+<code class="descname">setError</code><span class="sig-paren">(</span><em>error</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.file_record_stream.FileRecordStream.setError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not implemented. CSV file version does not provide storage for the error
+information</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.data.record_stream">
+<span id="recordstream"></span><h2>RecordStream<a class="headerlink" href="#module-nupic.data.record_stream" title="Permalink to this headline">¶</a></h2>
+<p>Interface for different types of storages (file, hbase, rio, etc).</p>
+<dl class="class">
+<dt id="nupic.data.record_stream.RecordStreamIface">
+<em class="property">class </em><code class="descclassname">nupic.data.record_stream.</code><code class="descname">RecordStreamIface</code><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the interface for the record input/output storage classes.</p>
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.appendRecord">
+<code class="descname">appendRecord</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.appendRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the record in the underlying storage. Should be implemented in
+subclasses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>record</strong> &#8211; (object) to store</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.appendRecords">
+<code class="descname">appendRecords</code><span class="sig-paren">(</span><em>records</em>, <em>progressCB=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.appendRecords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves multiple records in the underlying storage. Should be implemented in
+subclasses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>records</strong> &#8211; (list) of objects to store</li>
+<li><strong>progressCB</strong> &#8211; (func) called after each appension</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.clearStats">
+<code class="descname">clearStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.clearStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets stats collected so far.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the stream</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flush the file to disk</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getAggregationMonthsAndSeconds">
+<code class="descname">getAggregationMonthsAndSeconds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getAggregationMonthsAndSeconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the aggregation period of the record stream as a dict
+containing &#8216;months&#8217; and &#8216;seconds&#8217;. The months is always an integer and
+seconds is a floating point. Only one is allowed to be non-zero.</p>
+<p>If there is no aggregation associated with the stream, returns None.</p>
+<p>Typically, a raw file or hbase stream will NOT have any aggregation info,
+but subclasses of <a class="reference internal" href="#nupic.data.record_stream.RecordStreamIface" title="nupic.data.record_stream.RecordStreamIface"><code class="xref py py-class docutils literal"><span class="pre">RecordStreamIface</span></code></a>, like
+<a class="reference internal" href="#nupic.data.stream_reader.StreamReader" title="nupic.data.stream_reader.StreamReader"><code class="xref py py-class docutils literal"><span class="pre">StreamReader</span></code></a>, will and will return the
+aggregation period from this call. This call is used by
+<a class="reference internal" href="#nupic.data.record_stream.RecordStreamIface.getNextRecordDict" title="nupic.data.record_stream.RecordStreamIface.getNextRecordDict"><code class="xref py py-meth docutils literal"><span class="pre">getNextRecordDict()</span></code></a> to assign a record number to a record given its
+timestamp and the aggregation interval.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">None</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getBookmark">
+<code class="descname">getBookmark</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getBookmark" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an anchor to the current position in the data. Passing this
+anchor to the constructor makes the current position to be the first
+returned record. If record is no longer in the storage, the first available
+after it will be returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">anchor to current position in the data.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getCategoryFieldIdx">
+<code class="descname">getCategoryFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getCategoryFieldIdx" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) index of <code class="docutils literal"><span class="pre">category</span></code> field</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getError">
+<code class="descname">getError</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getError" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">errors saved in the storage.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getFieldMax">
+<code class="descname">getFieldMax</code><span class="sig-paren">(</span><em>fieldName</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getFieldMax" title="Permalink to this definition">¶</a></dt>
+<dd><p>If underlying implementation does not support min/max stats collection,
+or if a field type does not support min/max (non scalars), the return
+value will be None.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fieldName</strong> &#8211; (string) name of field to get max</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">current maximum value for the field <code class="docutils literal"><span class="pre">fieldName</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getFieldMin">
+<code class="descname">getFieldMin</code><span class="sig-paren">(</span><em>fieldName</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getFieldMin" title="Permalink to this definition">¶</a></dt>
+<dd><p>If underlying implementation does not support min/max stats collection,
+or if a field type does not support min/max (non scalars), the return
+value will be None.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fieldName</strong> &#8211; (string) name of field to get min</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">current minimum value for the field <code class="docutils literal"><span class="pre">fieldName</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getFieldNames">
+<code class="descname">getFieldNames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getFieldNames" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) of field names associated with the data.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getFields">
+<code class="descname">getFields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getFields" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) of <code class="xref py py-class docutils literal"><span class="pre">nupic.data.fieldmeta.FieldMetaInfo</span></code> objects for
+each field in the stream. Might be None, if that information is provided
+externally (through stream def, for example).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getLearningFieldIdx">
+<code class="descname">getLearningFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getLearningFieldIdx" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) index of the <code class="docutils literal"><span class="pre">learning</span></code> field.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getNextRecord">
+<code class="descname">getNextRecord</code><span class="sig-paren">(</span><em>useCache=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getNextRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns next available data record from the storage. If <code class="docutils literal"><span class="pre">useCache</span></code> is
+<code class="docutils literal"><span class="pre">False</span></code>, then don&#8217;t read ahead and don&#8217;t cache any records.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a data row (a list or tuple) if available; None, if no more records
+in the table (End of Stream - EOS); empty sequence (list or tuple)
+when timing out while waiting for the next record.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getNextRecordDict">
+<code class="descname">getNextRecordDict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getNextRecordDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns next available data record from the storage as a dict, with the
+keys being the field names. This also adds in some meta fields:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">_category</span></code>: The value from the category field (if any)</li>
+<li><code class="docutils literal"><span class="pre">_reset</span></code>: True if the reset field was True (if any)</li>
+<li><code class="docutils literal"><span class="pre">_sequenceId</span></code>: the value from the sequenceId field (if any)</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getNextRecordIdx">
+<code class="descname">getNextRecordIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getNextRecordIdx" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) index of the record that will be read next from
+<a class="reference internal" href="#nupic.data.record_stream.RecordStreamIface.getNextRecord" title="nupic.data.record_stream.RecordStreamIface.getNextRecord"><code class="xref py py-meth docutils literal"><span class="pre">getNextRecord()</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getResetFieldIdx">
+<code class="descname">getResetFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getResetFieldIdx" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) index of the <code class="docutils literal"><span class="pre">reset</span></code> field; <code class="docutils literal"><span class="pre">None</span></code> if no such field.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getSequenceIdFieldIdx">
+<code class="descname">getSequenceIdFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getSequenceIdFieldIdx" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) index of the <code class="docutils literal"><span class="pre">sequenceId</span></code> field.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getStats">
+<code class="descname">getStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getStats" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">storage stats (like min and max values of the fields).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.getTimestampFieldIdx">
+<code class="descname">getTimestampFieldIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.getTimestampFieldIdx" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) index of the <code class="docutils literal"><span class="pre">timestamp</span></code> field.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.isCompleted">
+<code class="descname">isCompleted</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.isCompleted" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if all records are already in the storage or False
+if more records is expected.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.recordsExistAfter">
+<code class="descname">recordsExistAfter</code><span class="sig-paren">(</span><em>bookmark</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.recordsExistAfter" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bookmark</strong> &#8211; (int) where to start</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if there are records left after the  bookmark.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.rewind">
+<code class="descname">rewind</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.rewind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put us back at the beginning of the file again.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.seekFromEnd">
+<code class="descname">seekFromEnd</code><span class="sig-paren">(</span><em>numRecords</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.seekFromEnd" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>numRecords</strong> &#8211; (int) number of records from the end.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(int) a bookmark numRecords from the end of the stream.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.setCompleted">
+<code class="descname">setCompleted</code><span class="sig-paren">(</span><em>completed</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.setCompleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marks the stream completed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>completed</strong> &#8211; (bool) is completed?</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.setError">
+<code class="descname">setError</code><span class="sig-paren">(</span><em>error</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.setError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves specified error in the storage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>error</strong> &#8211; Error to store.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.record_stream.RecordStreamIface.setTimeout">
+<code class="descname">setTimeout</code><span class="sig-paren">(</span><em>timeout</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.record_stream.RecordStreamIface.setTimeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the read timeout in seconds</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>timeout</strong> &#8211; (int or floating point)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.data.stream_reader">
+<span id="streamreader"></span><h2>StreamReader<a class="headerlink" href="#module-nupic.data.stream_reader" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.data.stream_reader.StreamReader">
+<em class="property">class </em><code class="descclassname">nupic.data.stream_reader.</code><code class="descname">StreamReader</code><span class="sig-paren">(</span><em>streamDef</em>, <em>bookmark=None</em>, <em>saveOutput=False</em>, <em>isBlocking=True</em>, <em>maxTimeout=0</em>, <em>eofOnTimeout=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements a stream reader. This is a high level class that owns one or more
+underlying implementations of a
+<a class="reference internal" href="#nupic.data.record_stream.RecordStreamIface" title="nupic.data.record_stream.RecordStreamIface"><code class="xref py py-class docutils literal"><span class="pre">RecordStreamIface</span></code></a>. Each
+<a class="reference internal" href="#nupic.data.record_stream.RecordStreamIface" title="nupic.data.record_stream.RecordStreamIface"><code class="xref py py-class docutils literal"><span class="pre">RecordStreamIface</span></code></a> implements the raw
+reading of records from the record store (which could be a file, hbase table
+or something else).</p>
+<p>In the future, we will support joining of two or more
+<a class="reference internal" href="#nupic.data.record_stream.RecordStreamIface" title="nupic.data.record_stream.RecordStreamIface"><code class="xref py py-class docutils literal"><span class="pre">RecordStreamIface</span></code></a>&#8216;s (which is why the
+<code class="docutils literal"><span class="pre">streamDef</span></code> accepts a list of &#8216;stream&#8217; elements), but for now only 1 source
+is supported.</p>
+<p>The class also implements aggregation of the (in the future) joined records
+from the sources.</p>
+<p>This module parses the stream definition (as defined in
+<code class="docutils literal"><span class="pre">/src/nupic/frameworks/opf/jsonschema/stream_def.json</span></code>), creates the
+<a class="reference internal" href="#nupic.data.record_stream.RecordStreamIface" title="nupic.data.record_stream.RecordStreamIface"><code class="xref py py-class docutils literal"><span class="pre">RecordStreamIface</span></code></a> for each source
+(&#8216;stream&#8217; element) defined in the stream def, performs aggregation, and
+returns each record in the correct format according to the desired column
+names specified in the streamDef.</p>
+<p>This class implements the <a class="reference internal" href="#nupic.data.record_stream.RecordStreamIface" title="nupic.data.record_stream.RecordStreamIface"><code class="xref py py-class docutils literal"><span class="pre">RecordStreamIface</span></code></a>
+interface and thus can be used in place of a raw record stream.</p>
+<p>This is an example streamDef:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="mi">1</span>
+  <span class="s1">&#39;info&#39;</span><span class="p">:</span> <span class="s1">&#39;test_hotgym&#39;</span><span class="p">,</span>
+
+  <span class="s1">&#39;streams&#39;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span><span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="p">[</span><span class="sa">u</span><span class="s1">&#39;*&#39;</span><span class="p">],</span>
+       <span class="s1">&#39;info&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;hotGym.csv&#39;</span><span class="p">,</span>
+       <span class="s1">&#39;last_record&#39;</span><span class="p">:</span> <span class="mi">4000</span><span class="p">,</span>
+       <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;file://extra/hotgym/hotgym.csv&#39;</span><span class="p">}</span><span class="o">.</span>
+  <span class="p">],</span>
+
+  <span class="s1">&#39;timeField&#39;</span><span class="p">:</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">,</span>
+
+  <span class="s1">&#39;aggregation&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;hours&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="s1">&#39;first&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;gym&#39;</span><span class="p">,</span> <span class="s1">&#39;first&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;consumption&#39;</span><span class="p">,</span> <span class="s1">&#39;sum&#39;</span><span class="p">)</span>
+    <span class="p">],</span>
+  <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>streamDef</strong> &#8211; The stream definition, potentially containing multiple
+sources (not supported yet). See
+<code class="docutils literal"><span class="pre">src//nupic/frameworks/opf/jsonschema/stream_def.json</span></code> for the
+format of this dict</li>
+<li><strong>bookmark</strong> &#8211; Bookmark to start reading from. This overrides the
+first_record field of the streamDef if provided.</li>
+<li><strong>saveOutput</strong> &#8211; If true, save the output to a csv file in a temp
+directory. The path to the generated file can be found in the log
+output.</li>
+<li><strong>isBlocking</strong> &#8211; should read operation block <em>forever</em> if the next row of
+data is not available, but the stream is not marked as &#8216;completed&#8217;
+yet?</li>
+<li><strong>maxTimeout</strong> &#8211; if isBlocking is False, max seconds to wait for more data
+before timing out; ignored when isBlocking is True.</li>
+<li><strong>eofOnTimeout</strong> &#8211; If True and we get a read timeout (isBlocking must be
+False to get read timeouts), assume we&#8217;ve reached the end of the
+input and produce the last aggregated record, if one can be
+completed.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.clearStats">
+<code class="descname">clearStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.clearStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets stats collected so far.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the stream</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getAggregationMonthsAndSeconds">
+<code class="descname">getAggregationMonthsAndSeconds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getAggregationMonthsAndSeconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the aggregation period of the record stream as a dict
+containing &#8216;months&#8217; and &#8216;seconds&#8217;. The months is always an integer and
+seconds is a floating point. Only one is allowed to be non-zero at a
+time.</p>
+<p>Will return the aggregation period from this call. This call is
+used by the <code class="xref py py-meth docutils literal"><span class="pre">nupic.data.record_stream.RecordStream.getNextRecordDict()</span></code>
+method to assign a record number to a record given its timestamp and the
+aggregation interval.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">aggregationPeriod (as a dict) where:<ul class="simple">
+<li><code class="docutils literal"><span class="pre">months</span></code>: number of months in aggregation period</li>
+<li><code class="docutils literal"><span class="pre">seconds</span></code>: number of seconds in aggregation period
+(as a float)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getBookmark">
+<code class="descname">getBookmark</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getBookmark" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a bookmark to the current position</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getDataRowCount">
+<code class="descname">getDataRowCount</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getDataRowCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates through stream to calculate total records after aggregation.
+This will alter the bookmark state.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getError">
+<code class="descname">getError</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getError" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">errors saved in the stream.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getFieldNames">
+<code class="descname">getFieldNames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getFieldNames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all fields in all inputs (list of plain names).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">currently, only one input is supported</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getFields">
+<code class="descname">getFields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getFields" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a sequence of <code class="xref py py-class docutils literal"><span class="pre">nupic.data.fieldmeta.FieldMetaInfo</span></code> for each
+field in the stream.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getNextRecord">
+<code class="descname">getNextRecord</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getNextRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns combined data from all sources (values only).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None on EOF; empty sequence on timeout.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getNextRecordIdx">
+<code class="descname">getNextRecordIdx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getNextRecordIdx" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the index of the record that will be read next from
+<a class="reference internal" href="#nupic.data.stream_reader.StreamReader.getNextRecord" title="nupic.data.stream_reader.StreamReader.getNextRecord"><code class="xref py py-meth docutils literal"><span class="pre">getNextRecord()</span></code></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.getStats">
+<code class="descname">getStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.getStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: This method needs to be enhanced to get the stats on the <em>aggregated</em>
+records.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">stats (like min and max values of the fields).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.isCompleted">
+<code class="descname">isCompleted</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.isCompleted" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if all records have been read.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.recordsExistAfter">
+<code class="descname">recordsExistAfter</code><span class="sig-paren">(</span><em>bookmark</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.recordsExistAfter" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if there are records left after the  bookmark.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.setCompleted">
+<code class="descname">setCompleted</code><span class="sig-paren">(</span><em>completed=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.setCompleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marks the stream completed (True or False)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>completed</strong> &#8211; (bool) is completed or not</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.setError">
+<code class="descname">setError</code><span class="sig-paren">(</span><em>error</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.setError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves specified error in the stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>error</strong> &#8211; to save</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.data.stream_reader.StreamReader.setTimeout">
+<code class="descname">setTimeout</code><span class="sig-paren">(</span><em>timeout</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.stream_reader.StreamReader.setTimeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the read timeout.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>timeout</strong> &#8211; (float or int) timeout length</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sensorinput">
+<h2>SensorInput<a class="headerlink" href="#sensorinput" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.frameworks.opf.opf_utils.SensorInput">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.opf_utils.</code><code class="descname">SensorInput</code><span class="sig-paren">(</span><em>dataRow=None</em>, <em>dataDict=None</em>, <em>dataEncodings=None</em>, <em>sequenceReset=None</em>, <em>category=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.opf_utils.SensorInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the mapping of a given inputRecord by the sensor region&#8217;s encoder.</p>
+<p>This represents the input record, as it appears right before it is encoded.
+This may differ from the raw input in that certain input fields (such as
+DateTime fields) may be split into multiple encoded fields.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataRow</strong> &#8211; A data row that is the sensor&#8217;s <code class="docutils literal"><span class="pre">sourceOut</span></code> mapping of the
+supplied inputRecord.</li>
+<li><strong>dataEncodings</strong> &#8211; A list of the corresponding bit-array encodings of each
+value in &#8220;dataRow&#8221;</li>
+<li><strong>sequenceReset</strong> &#8211; The sensor&#8217;s &#8220;resetOut&#8221; signal (0 or 1) emitted by the
+sensor&#8217;s compute logic on the supplied inputRecord; provided
+for analysis and diagnostics.</li>
+<li><strong>dataDict</strong> &#8211; The raw encoded input to the sensor</li>
+<li><strong>category</strong> &#8211; the categoryOut on the sensor region</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.data.utils">
+<span id="utilities"></span><h2>Utilities<a class="headerlink" href="#module-nupic.data.utils" title="Permalink to this headline">¶</a></h2>
+<p>Collection of utilities to process input data</p>
+<dl class="data">
+<dt id="nupic.data.utils.DATETIME_FORMATS">
+<code class="descclassname">nupic.data.utils.</code><code class="descname">DATETIME_FORMATS</code><em class="property"> = ('%Y-%m-%d %H:%M:%S.%f', '%Y-%m-%d %H:%M:%S:%f', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d', '%m/%d/%Y %H:%M', '%m/%d/%y %H:%M', '%Y-%m-%dT%H:%M:%S.%fZ', '%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%dT%H:%M:%S')</em><a class="headerlink" href="#nupic.data.utils.DATETIME_FORMATS" title="Permalink to this definition">¶</a></dt>
+<dd><p>These are the supported timestamp formats to parse. The first is the format used
+by NuPIC when serializing datetimes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.data.utils.escape">
+<code class="descclassname">nupic.data.utils.</code><code class="descname">escape</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.utils.escape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Escape commas, tabs, newlines and dashes in a string</p>
+<p>Commas are encoded as tabs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> &#8211; (string) to escape</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(string) escaped string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.data.utils.floatOrNone">
+<code class="descclassname">nupic.data.utils.</code><code class="descname">floatOrNone</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.utils.floatOrNone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tries to convert input to a float input or returns <code class="docutils literal"><span class="pre">None</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> &#8211; (object) thing to convert to a float</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(float or <code class="docutils literal"><span class="pre">None</span></code>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.data.utils.intOrNone">
+<code class="descclassname">nupic.data.utils.</code><code class="descname">intOrNone</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.utils.intOrNone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tries to convert input to a int input or returns <code class="docutils literal"><span class="pre">None</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> &#8211; (object) thing to convert to a int</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(int or <code class="docutils literal"><span class="pre">None</span></code>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.data.utils.parseBool">
+<code class="descclassname">nupic.data.utils.</code><code class="descname">parseBool</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.utils.parseBool" title="Permalink to this definition">¶</a></dt>
+<dd><p>String to boolean</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> &#8211; (string)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.data.utils.parseSdr">
+<code class="descclassname">nupic.data.utils.</code><code class="descname">parseSdr</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.utils.parseSdr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a string containing only 0&#8217;s and 1&#8217;s and return a Python list object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> &#8211; (string) string to parse</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) SDR out</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.data.utils.parseStringList">
+<code class="descclassname">nupic.data.utils.</code><code class="descname">parseStringList</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.utils.parseStringList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a string of space-separated numbers, returning a Python list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> &#8211; (string) to parse</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) binary SDR</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.data.utils.parseTimestamp">
+<code class="descclassname">nupic.data.utils.</code><code class="descname">parseTimestamp</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.utils.parseTimestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a textual datetime format and return a Python datetime object.</p>
+<p>The supported format is: <code class="docutils literal"><span class="pre">yyyy-mm-dd</span> <span class="pre">h:m:s.ms</span></code></p>
+<p>The time component is optional.</p>
+<ul class="simple">
+<li>hours are 00..23 (no AM/PM)</li>
+<li>minutes are 00..59</li>
+<li>seconds are 00..59</li>
+<li>micro-seconds are 000000..999999</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> &#8211; (string) input time text</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(datetime.datetime)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.data.utils.serializeSdr">
+<code class="descclassname">nupic.data.utils.</code><code class="descname">serializeSdr</code><span class="sig-paren">(</span><em>sdr</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.utils.serializeSdr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize Python list object containing only 0&#8217;s and 1&#8217;s to string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sdr</strong> &#8211; (list) binary</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(string) SDR out</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.data.utils.serializeTimestamp">
+<code class="descclassname">nupic.data.utils.</code><code class="descname">serializeTimestamp</code><span class="sig-paren">(</span><em>t</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.utils.serializeTimestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turns a datetime object into a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>t</strong> &#8211; (datetime.datetime)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(string) in default format (see :const:<a href="#id1"><span class="problematic" id="id2">`</span></a>DATETIME_FORMATS`[0])</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.data.utils.serializeTimestampNoMS">
+<code class="descclassname">nupic.data.utils.</code><code class="descname">serializeTimestampNoMS</code><span class="sig-paren">(</span><em>t</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.utils.serializeTimestampNoMS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turns a datetime object into a string ignoring milliseconds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>t</strong> &#8211; (datetime.datetime)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(string) in default format (see :const:<a href="#id3"><span class="problematic" id="id4">`</span></a>DATETIME_FORMATS`[2])</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.data.utils.stripList">
+<code class="descclassname">nupic.data.utils.</code><code class="descname">stripList</code><span class="sig-paren">(</span><em>listObj</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.utils.stripList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a list of numbers to a string of space-separated values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>listObj</strong> &#8211; (list) to convert</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(string) of space-separated values</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.data.utils.unescape">
+<code class="descclassname">nupic.data.utils.</code><code class="descname">unescape</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.data.utils.unescape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unescapes a string that may contain commas, tabs, newlines and dashes</p>
+<p>Commas are decoded from tabs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> &#8211; (string) to unescape</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(string) unescaped string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<code class="descclassname">nupic.data.utils.</code><code class="descname">DATETIME_FORMATS</code></dt>
+<dd><p>These are the supported timestamp formats to parse. The first is the format used
+by NuPIC when serializing datetimes.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/index.html">Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../opf/index.html">Online Prediction Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../network/index.html">Network API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-nupic.data.field_meta">Field Meta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-nupic.data.file_record_stream">FileRecordStream</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-nupic.data.record_stream">RecordStream</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-nupic.data.stream_reader">StreamReader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sensorinput">SensorInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-nupic.data.utils">Utilities</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/data/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
