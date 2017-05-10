@@ -36,7 +36,7 @@ import random
 import numpy
 
 from nupic.data import jsonhelpers
-from nupic.frameworks.opf import opf_basic_environment, opf_helpers
+from nupic.frameworks.opf import opf_basic_environment, helpers
 from nupic.frameworks.opf.exp_description_api import OpfEnvironment
 from nupic.frameworks.opf.model_factory import ModelFactory
 from nupic.frameworks.opf.opf_task_driver import OPFTaskDriver
@@ -378,9 +378,9 @@ def _runExperimentImpl(options, model=None):
 
   # Load the experiment's description.py module
   experimentDir = options.experimentDir
-  descriptionPyModule = opf_helpers.loadExperimentDescriptionScriptFromDir(
+  descriptionPyModule = helpers.loadExperimentDescriptionScriptFromDir(
       experimentDir)
-  expIface = opf_helpers.getExperimentDescriptionInterfaceFromModule(
+  expIface = helpers.getExperimentDescriptionInterfaceFromModule(
       descriptionPyModule)
 
   # Handle "list checkpoints" request

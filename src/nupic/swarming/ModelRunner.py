@@ -34,7 +34,7 @@ from nupic.swarming.hypersearch import regression
 from nupic.swarming.hypersearch.errorcodes import ErrorCodes
 
 from nupic.database.ClientJobsDAO import ClientJobsDAO
-from nupic.frameworks.opf import opf_helpers
+from nupic.frameworks.opf import helpers
 from nupic.frameworks.opf.model_factory import ModelFactory
 from nupic.frameworks.opf.opf_basic_environment import BasicPredictionLogger
 from nupic.frameworks.opf.opf_utils import matchPatterns
@@ -217,9 +217,9 @@ class OPFModelRunner(object):
     """
     # -----------------------------------------------------------------------
     # Load the experiment's description.py module
-    descriptionPyModule = opf_helpers.loadExperimentDescriptionScriptFromDir(
+    descriptionPyModule = helpers.loadExperimentDescriptionScriptFromDir(
       self._experimentDir)
-    expIface = opf_helpers.getExperimentDescriptionInterfaceFromModule(
+    expIface = helpers.getExperimentDescriptionInterfaceFromModule(
       descriptionPyModule)
     expIface.normalizeStreamSources()
 

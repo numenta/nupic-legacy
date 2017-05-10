@@ -29,7 +29,7 @@ import sys
 import time
 
 from nupic.frameworks.opf.model_factory import ModelFactory
-from nupic.frameworks.opf import opf_helpers
+from nupic.frameworks.opf import helpers
 from nupic.frameworks.opf.opf_utils import ModelResult
 from nupic.swarming import utils
 from nupic.swarming.ModelRunner import OPFModelRunner
@@ -560,9 +560,9 @@ class OPFDummyModelRunner(OPFModelRunner):
   def __createModel(self, expDir):
     # -----------------------------------------------------------------------
     # Load the experiment's description.py module
-    descriptionPyModule = opf_helpers.loadExperimentDescriptionScriptFromDir(
+    descriptionPyModule = helpers.loadExperimentDescriptionScriptFromDir(
       expDir)
-    expIface = opf_helpers.getExperimentDescriptionInterfaceFromModule(
+    expIface = helpers.getExperimentDescriptionInterfaceFromModule(
       descriptionPyModule)
 
 
