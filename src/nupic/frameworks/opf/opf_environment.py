@@ -37,7 +37,8 @@ from collections import namedtuple
 
 
 class PredictionLoggerIface(object):
-  """ This class defines the interface for OPF prediction logger implementations.
+  """
+  This class defines the interface for OPF prediction logger implementations.
   """
   __metaclass__ = ABCMeta
 
@@ -52,29 +53,29 @@ class PredictionLoggerIface(object):
     """ Emits a set of inputs data, inferences, and metrics from a model
     resulting from a single record.
 
-    modelResult:    An opf_utils.ModelResult object that contains the model input
-                    and output for the current timestep.
+    :param modelResult: (:class:`nupic.frameworks.opf.opf_utils.ModelResult`)
+           contains the model input and output for the current timestep.
     """
 
 
   @abstractmethod
   def writeRecords(self, modelResults, progressCB=None):
-    """ Same as writeRecord above, but emits multiple rows in one shot.
+    """
+    Same as :meth:`writeRecord`, but emits multiple rows in one shot.
 
-    modelResults:  a list of opf_utils.ModelResult objects, Each dictionary
-                    represents one record.
-    progressCB: an optional callback method that will be called after each
-                  batch of records is written.
+    :param modelResults: (list) of
+           :class:`nupic.frameworks.opf.opf_utils.ModelResult` objects, each
+           represents one record.
+    :param progressCB: (func) optional callback method that will be called after
+           each batch of records is written.
 
     """
 
   @abstractmethod
   def setLoggedMetrics(self, metricNames):
-    """ Sets which metrics should be written to the prediction log
+    """ Sets which metrics should be written to the prediction log.
 
-    Parameters:
-    -----------------------------------------------------------------------
-    metricNames:      A list of metric names that match the labels of the
+    :param metricNames: (list) metric names that match the labels of the
                       metrics that should be written to the prediction log
     """
 
@@ -83,12 +84,10 @@ class PredictionLoggerIface(object):
     """ Save a checkpoint of the prediction output stream. The checkpoint
     comprises up to maxRows of the most recent inference records.
 
-    Parameters:
-    ----------------------------------------------------------------------
-    checkpointSink:     A File-like object where predictions checkpoint data, if
-                        any, will be stored.
-    maxRows:            Maximum number of most recent inference rows
-                        to checkpoint.
+    :param checkpointSink: A File-like object where predictions checkpoint data,
+           if any, will be stored.
+    :param maxRows: (int) Maximum number of most recent inference rows to
+           checkpoint.
     """
 
 

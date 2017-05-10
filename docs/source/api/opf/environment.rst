@@ -25,7 +25,6 @@ OPF Environment
 
 .. autoclass:: nupic.frameworks.opf.opf_environment.PredictionLoggerIface
    :members:
-   :show-inheritance:
 
 OPF Basic Environment
 ---------------------
