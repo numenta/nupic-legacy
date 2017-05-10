@@ -19,6 +19,7 @@ algorithms and functionalities can be added with minimal code changes.
 
    models
    clients
+   description-api
    metrics
    results
    utils
