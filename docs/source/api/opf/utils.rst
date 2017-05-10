@@ -32,7 +32,12 @@ Helpers
 ^^^^^^^
 
 .. automodule:: nupic.frameworks.opf.opf_helpers
-   :members:
+
+.. automethod:: nupic.frameworks.opf.opf_helpers.loadExperiment
+
+.. automethod:: nupic.frameworks.opf.opf_helpers.loadExperimentDescriptionScriptFromDir
+
+.. automethod:: nupic.frameworks.opf.opf_helpers.getExperimentDescriptionInterfaceFromModule
 
 .. automethod:: nupic.frameworks.opf.opf_utils.validateOpfJsonValue
 

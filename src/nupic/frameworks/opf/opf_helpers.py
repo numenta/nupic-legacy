@@ -19,12 +19,14 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# This file contains utility functions that are may be imported
-# by clients of the framework. Functions that are used only by
-# the prediction framework should be in opf_utils.py
-#
-# TODO: Rename as helpers.py once we're ready to replace the legacy
-#       helpers.py
+"""
+This file contains utility functions that may be imported
+by clients of the framework. Functions that are used only by
+the prediction framework should be in opf_utils.py
+
+TODO: Rename as helpers.py once we're ready to replace the legacy
+      helpers.py
+"""
 
 import imp
 import os
@@ -35,11 +37,9 @@ import exp_description_api
 def loadExperiment(path):
   """Loads the experiment description file from the path.
 
-  Args:
-    path: The path to a directory containing a description.py file or the file
-        itself.
-  Returns:
-    (config, control)
+  :param path: (string) The path to a directory containing a description.py file
+         or the file itself.
+  :returns: (config, control)
   """
   if not os.path.isdir(path):
     path = os.path.dirname(path)
@@ -52,9 +52,9 @@ def loadExperimentDescriptionScriptFromDir(experimentDir):
   """ Loads the experiment description python script from the given experiment
   directory.
 
-  experimentDir:  experiment directory path
+  :param experimentDir: (string) experiment directory path
 
-  Returns:        module of the loaded experiment description scripts
+  :returns:        module of the loaded experiment description scripts
   """
   descriptionScriptPath = os.path.join(experimentDir, "description.py")
   module = _loadDescriptionFile(descriptionScriptPath)
@@ -63,10 +63,10 @@ def loadExperimentDescriptionScriptFromDir(experimentDir):
 
 def getExperimentDescriptionInterfaceFromModule(module):
   """
-  module:     imported description.py module
+  :param module: imported description.py module
 
-  Returns:        An exp_description_api.DescriptionIface-based instance that
-                  represents the experiment description
+  :returns: (:class:`nupic.frameworks.opf.exp_description_api.DescriptionIface`)
+            represents the experiment description
   """
   result = module.descriptionInterface
   assert isinstance(result, exp_description_api.DescriptionIface), \
