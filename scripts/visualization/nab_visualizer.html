@@ -1,0 +1,42 @@
+<html>
+
+<head>
+  <script src="./external/dygraph/1.0.1/dygraph-combined.js"></script>
+  <script src="./external/moment.js/2.8.3/moment.min.js"></script>
+  <script src="./external/jquery/2.1.1/jquery.min.js"></script>
+  <script src="./external/jquery-csv/0.71/jquery.csv-0.71.min.js"></script>
+  <script src="./plot_htm_results.js"></script>
+
+  <style>
+
+    body{
+        font-family:"Helvetica";
+    }
+    .graph {
+        height: 500px;
+        width: 100%;
+    }
+
+    .graphContainer {
+        margin-left: 100px;
+        margin-right: 100px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="selectors">
+<button type="button" id="renderButton" onclick="render('data_file_paths.txt')">Look at Data</button><br>
+<button type="button" id="renderButton" onclick="render('results_file_paths.txt')">Look at Results</button><br>
+<input type="text", name="query", id="query", placeholder="type in query and press enter", onkeydown="render()",
+size="50">
+</div>
+
+<div class="graphContainer">
+</div>
+
+
+</body>
+</html>

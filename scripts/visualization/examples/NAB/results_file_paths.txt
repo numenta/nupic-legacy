@@ -1,0 +1,4 @@
+results/numenta/artificialNoAnomaly/numenta_art_daily_small_noise.csv
+results/numenta/realKnownCause/numenta_nyc_taxi.csv
+results/skyline/artificialNoAnomaly/skyline_art_daily_small_noise.csv
+results/skyline/realKnownCause/skyline_nyc_taxi.csv

@@ -1,0 +1,165 @@
+.viz-header {
+  background-color:#337ab7;
+  color:#fff;
+  padding:20px 20px 20px 85px;
+  margin:0 -15px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.3);
+}
+
+.viz-header button.ready {
+  animation-name: glowingButton;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+}
+
+.viz-header .errors {
+  float:right;
+  height:34px;
+  margin-left:15px;
+}
+
+.viz-header .errors .alert {
+  margin-bottom:0;
+  padding-top:6px;
+  padding-bottom:6px;
+}
+
+.viz-header .usage {
+  color: rgba(255,255,255,0.5);
+}
+
+.viz-header .usage:hover {
+  color: rgba(255,255,255,1);
+}
+
+.viz-header .usage ul {
+  padding:0;
+  margin:0;
+  padding-left:15px;
+}
+
+.title h1 {
+  float:left;
+}
+.title img {
+  float:left;
+  height:30px;
+  margin-right:15px;
+  margin-top:25px;
+}
+
+.file-name-label {
+  padding-left:70px;
+  margin-top:10px;
+}
+
+.options-toggle .glyphicon {
+  color:#999;
+}
+
+.options-toggle:hover .glyphicon {
+  color:#333;
+}
+
+.graphs {
+  padding-top:15px;
+}
+
+.graphs .graph {
+	height: 500px;
+  width:100%;
+}
+
+.graphs table.table {
+  margin-top:20px;
+}
+
+.graphs .fields {
+  position: relative;
+}
+
+.graphs .field-data {
+  padding-right:0;
+}
+
+.graphs .field-data .popover {
+  max-width:none;
+}
+
+.graphs .field-options {
+  padding-left:0;
+}
+
+.graphs .field-data td div.span-wrapper {
+  position:relative;
+  height:20px;
+}
+
+.graphs .field-data td span {
+  position: absolute;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.graphs .field-data tr td:first-child, .graphs .field-data tr th:first-child {
+  text-align:center;
+}
+
+.graphs .field-data tr td:nth-child(1) {
+  width:5%;
+}
+
+.graphs .field-data tr td:nth-child(2) {
+  width:25%;
+}
+
+.graphs .field-data tr td:nth-child(3) {
+  width:70% !important;
+}
+
+.graphs .field-options tr td, .graphs .field-options tr th {
+  text-align:center;
+}
+
+.btn-file {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-file input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  background: red;
+  cursor: inherit;
+  display: block;
+}
+
+input.file-name {
+  background-color: white !important;
+  cursor: text !important;
+  width: 25vw !important;
+}
+
+@keyframes glowingButton {
+  from {
+    border-color: #00a1e1;
+    box-shadow: 0 0 4px #00a1e1;
+  }
+  50% {
+    border-color: #00b6ff;
+    box-shadow: 0 0 9px #00b6ff;
+  }
+  to {
+    border-color: #00a1e1;
+    box-shadow: 0 0 4px #00a1e1;
+  }
+}

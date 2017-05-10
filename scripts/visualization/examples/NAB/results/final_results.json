@@ -1,0 +1,27 @@
+{
+    "null": {
+        "reward_low_FN_rate": 0.0,
+        "reward_low_FP_rate": 0.0,
+        "standard": 0.0
+    },
+    "numenta": {
+        "reward_low_FN_rate": 69.28308927558334,
+        "reward_low_FP_rate": 56.50002521814655,
+        "standard": 64.70049598232758
+    },
+    "random": {
+        "reward_low_FN_rate": 25.876351314080456,
+        "reward_low_FP_rate": 5.763682319827586,
+        "standard": 16.831768350517237
+    },
+    "skyline": {
+        "reward_low_FN_rate": 44.4810173429885,
+        "reward_low_FP_rate": 27.08121005969828,
+        "standard": 35.687043255862065
+    },
+    "twitterADVec": {
+        "reward_low_FN_rate": 53.501074951005741,
+        "reward_low_FP_rate": 33.610051641206894,
+        "standard": 47.061957254081889
+    }
+}

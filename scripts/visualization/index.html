@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:ng="http://angularjs.org" lang="en" ng-app="app" id="ng-app">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script type="text/javascript" src="./external/dygraph/1.0.1/dygraph-combined.js"></script>
+    <script type="text/javascript" src="./external/moment.js/2.8.3/moment.min.js"></script>
+    <script type="text/javascript" src="./external/angular.js/1.4.7/angular.min.js"></script>
+    <script type="text/javascript" src="./external/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
+    <script type="text/javascript" src="./external/PapaParse/4.1.2/papaparse.min.js"></script>
+    <script type="text/javascript" src="./opf_visualizer.js"></script>
+    <link rel="stylesheet" type="text/css" href="./external/twitter-bootstrap/3.3.5/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="./external/twitter-bootstrap/3.3.5/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" type="text/css" href="./opf_visualizer.css"/>
+    <link rel="shortcut icon" href="favicon.ico">
+    <title>NuPIC OPF Visualization</title>
+    <base href="/">
+  </head>
+  <body ng-controller="AppCtrl">
+    <div class="container-fluid">
+      <div class="viz-header">
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-md-12 title">
+                <img src="numenta_black.svg" alt="Numenta logo"><h1>NuPIC OPF Visualization</h1>
+              </div>
+            </div>
+            <p>Browse for a local file to render, then click "Render" to turn it into a graph.</p>
+            <div class="form-inline">
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-btn">
+                    <span class="btn btn-default btn-file">
+                      Browse&hellip; <input type="file" file-upload-change="uploadFile">
+                    </span>
+                  </span>
+                  <input type="text" class="form-control file-name" ng-model="view.loadedFileName" readonly="readonly">
+                </div>
+                <button id="renderButton" class="btn btn-primary" ng-class="{'ready' : view.canRender && view.loadedFileName !== view.renderedFileName}" ng-disabled="!view.canRender" ng-click="renderData()">Render</button>
+                <div class="errors">
+                  <div ng-repeat="error in view.errors track by $index" class="alert alert-{{error.type}} alert-dismissible" role="alert">
+                    <button type="button" class="close" aria-label="Close" ng-click="clearError($index)"><span aria-hidden="true">&times;</span></button>
+                    {{error.message}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 usage" ng-show="view.graph">
+            <h3>Graph Usage</h3>
+            <ul>
+              <li>Zoom in: use mouse to select desired range for zoom in the graph.</li>
+              <li>Zoom out: double click will restore you to 1:1 view.</li>
+              <li>To pan in a zoomed graph hold ALT+mouse drag (on Linux SHIFT instead).</li>
+              <li>To normalize/rescale some values, select a reference field in Data and then desired field(s) in Normalize.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="row graphs">
+        <div class="col-md-12">
+          <h3 class="file-name-label">{{view.renderedFileName}}</h3>
+          <div ng-class="{'col-md-6' : view.optionsVisible, 'col-md-8' : !view.optionsVisible}">
+            <div class="graph" id="dataContainer"></div>
+          </div>
+          <div class="fields" ng-class="{'col-md-6' : view.optionsVisible, 'col-md-4' : !view.optionsVisible}" ng-show="view.graph">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="btn-group">
+                  <button class="btn btn-default btn-sm" ng-click="showHideAll(true)">Show All</button>
+                  <button class="btn btn-default btn-sm" ng-click="showHideAll(false)">Hide All</button>
+                </div>
+                <button class="btn btn-default btn-sm pull-right options-toggle" ng-click="toggleOptions()"><span class="glyphicon glyphicon-triangle-left" ng-show="view.optionsVisible"></span> <span ng-hide="view.optionsVisible">Show</span><span ng-show="view.optionsVisible">Hide</span> Options <span class="glyphicon glyphicon-triangle-right" ng-show="!view.optionsVisible"></span></button>
+              </div>
+            </div>
+            <div class="field-data" ng-class="{'col-md-10' : view.optionsVisible, 'col-md-12' : !view.optionsVisible}">
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th>Visible</th>
+                    <th>Value</th>
+                    <th>Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="field in view.fieldState track by field.name">
+                    <td><input type="checkbox" ng-model="field.visible" ng-click="toggleVisibility(field)"></td>
+                    <td style="color:{{field.color}};">{{field.value}}</td>
+                    <td style="color:{{field.color}};"><div class="span-wrapper" uib-popover="{{field.name}}" popover-trigger="mouseenter" popover-animation="false"><span>{{field.name}}</span></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="field-options col-md-2" ng-show="view.optionsVisible">
+              <table class="table table-condensed" ng-show="view.optionsVisible">
+                <thead>
+                  <tr>
+                    <th uib-tooltip="Normalize this field with the selected data field" tooltip-placement="left" tooltip-append-to-body="true">Normalize</th>
+                    <th uib-tooltip="Data field to which other fields can be normalized" tooltip-placement="left" tooltip-append-to-body="true">Data</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr opf-field ng-repeat="field in view.fieldState track by field.name"></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
