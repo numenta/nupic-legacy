@@ -33,3 +33,9 @@ Helpers
 
 .. automodule:: nupic.frameworks.opf.opf_helpers
    :members:
+
+.. automethod:: nupic.frameworks.opf.opf_utils.validateOpfJsonValue
+
+.. automethod:: nupic.frameworks.opf.opf_utils.initLogger
+
+.. automethod:: nupic.frameworks.opf.opf_utils.matchPatterns

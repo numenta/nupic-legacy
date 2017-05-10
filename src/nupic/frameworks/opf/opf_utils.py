@@ -282,26 +282,26 @@ class ClassifierInput(object):
 
 
 
+# PredictionElement- represents a predicted record and its asssociated
+#                     bit-string encoding for a network's sensor region and/or
+#                     the classification of that input as produced by
+#                     a classifier.
+#
+# predictionRow:  A sequence of field values where each element is the predicted
+#                 value in the format specified by getDecodedFieldMetaInfo().
+#                 This is the output of topDownCompute() for each encoder
+#
+# predictionEncodings: A sequence of numpy arrays, where each element is the
+#                      binary representation of the corresponding predicted field
+#                      in "predictionRow".
+#
+# classification: The classification category of this input.
+#
+
 PredictionElement = namedtuple("PredictionElement",
                                 ("predictionRow",
                                  "predictionEncodings",
                                  "classification"))
-"""
-Represents a predicted record and its asssociated bit-string encoding for a
-network's sensor region and/or the classification of that input as produced by
-a classifier.
-
-- ``predictionRow``:  A sequence of field values where each element is the
-  predicted value in the format specified by getDecodedFieldMetaInfo(). This is
-  the output of topDownCompute() for each encoder.
-
-predictionEncodings: A sequence of numpy arrays, where each element is the
-                     binary representation of the corresponding predicted field
-                     in "predictionRow".
-
-classification: The classification category of this input.
-"""
-
 
 
 
@@ -323,16 +323,17 @@ class ModelResult(object):
          which corresponds to the type of prediction being made. Each value is
          a an element that corresponds to the actual prediction by the model,
          including auxillary information.
-  :param metrics: The metrics corresponding to the most-recent prediction/ground
-         truth pair
-  :param predictedFieldIdx: predicted field index
-  :param predictedFieldName: predicted field name
-  :param classifierInput: input from classifier
-
+  :param metrics: (:class:`~nupic.frameworks.opf.metrics.MetricsIface`)
+         The metrics corresponding to the most-recent prediction/ground truth
+         pair
+  :param predictedFieldIdx: (int) predicted field index
+  :param predictedFieldName: (string) predicted field name
+  :param classifierInput: (:class:`.ClassifierInput`) input from classifier
   """
 
   __slots__= ("predictionNumber", "rawInput", "sensorInput", "inferences",
-              "metrics", "predictedFieldIdx", "predictedFieldName", "classifierInput")
+              "metrics", "predictedFieldIdx", "predictedFieldName",
+              "classifierInput")
 
   def __init__(self,
                predictionNumber=None,
@@ -374,16 +375,13 @@ class ModelResult(object):
 
 
 def validateOpfJsonValue(value, opfJsonSchemaFilename):
-  """ Validate a python object against an OPF json schema file
+  """
+  Validate a python object against an OPF json schema file
 
-  target:   target python object to validate (typically a dictionary)
-
-  opfJsonSchemaFilename: OPF json schema filename containing the json schema
-                  object. (e.g., opfTaskControlSchema.json)
-
-  Returns: nothing
-
-  Raises: jsonhelpers.ValidationError when value fails json validation
+  :param value: target python object to validate (typically a dictionary)
+  :param opfJsonSchemaFilename: (string) OPF json schema filename containing the
+         json schema object. (e.g., opfTaskControlSchema.json)
+  :raises: jsonhelpers.ValidationError when value fails json validation
   """
 
   # Create a path by joining the filename with our local json schema root
@@ -399,8 +397,12 @@ def validateOpfJsonValue(value, opfJsonSchemaFilename):
 
 
 def initLogger(obj):
-  """Helper function to create a logger object for the current object with
-  the standard Numenta prefix """
+  """
+  Helper function to create a logger object for the current object with
+  the standard Numenta prefix.
+
+  :param obj: (object) to add a logger to
+  """
   if inspect.isclass(obj):
     myClass = obj
   else:
@@ -412,12 +414,11 @@ def initLogger(obj):
 
 
 def matchPatterns(patterns, keys):
-  """Returns a subset of the keys that match any of the given patterns
+  """
+  Returns a subset of the keys that match any of the given patterns
 
-  Parameters:
-  -----------------------------------------------------------------------
-  patterns:   A list of regular expressions to match
-  keys:       A list of keys to search for matches
+  :param patterns: (list) regular expressions to match
+  :param keys: (list) keys to search for matches
   """
   results = []
   if patterns:
