@@ -19,34 +19,35 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# This script is part of the Online Prediction Framework (OPF) suite.
-# It implements the TaskDriver for an OPF experiment.
-#
-# It's used by OPF RunExperiment and may also be useful for swarming's
-# HyperSearch Worker
-#
-# The TaskDriver is a simple state machine that:
-#
-#   1. Accepts incoming records from the client one data row at a time.
-#
-#   2. Cycles through phases in the requested iteration cycle; the phases may
-#      include any combination of learnOnly, inferOnly, and learnAndInfer.
-#
-#   3. For each data row, generates an OPF Model workflow that corresponds to
-#      the current phase in the iteration cycle and the requested inference types.
-#
-#   4. Emits inference results via user-supplied PredictionLogger
-#
-#   5. Gathers requested inference metrics.
-#
-#   6. Invokes user-proved callbaks (setup, postIter, finish)
-#
-# NOTE: For the purposes of testing predictions and generating metrics, it
-# assumes that all incoming dataset records are "sensor data" - i.e., ground
-# truth. However, if you're using OPFTaskDriver only to generate predictions,
-# and not for testing predictions/generating metrics, they don't need to be
-# "ground truth" records.
+"""
+This script is part of the Online Prediction Framework (OPF) suite.
+It implements the TaskDriver for an OPF experiment.
 
+It's used by OPF RunExperiment and may also be useful for swarming's
+HyperSearch Worker
+
+The TaskDriver is a simple state machine that:
+
+  1. Accepts incoming records from the client one data row at a time.
+
+  2. Cycles through phases in the requested iteration cycle; the phases may
+     include any combination of learnOnly, inferOnly, and learnAndInfer.
+
+  3. For each data row, generates an OPF Model workflow that corresponds to
+     the current phase in the iteration cycle and the requested inference types.
+
+  4. Emits inference results via user-supplied PredictionLogger
+
+  5. Gathers requested inference metrics.
+
+  6. Invokes user-proved callbaks (setup, postIter, finish)
+
+.. note:: For the purposes of testing predictions and generating metrics, it
+  assumes that all incoming dataset records are "sensor data" - i.e., ground
+  truth. However, if you're using OPFTaskDriver only to generate predictions,
+  and not for testing predictions/generating metrics, they don't need to be
+  "ground truth" records.
+"""
 
 from abc import (
   ABCMeta,
@@ -64,13 +65,13 @@ from prediction_metrics_manager import (
 class IterationPhaseSpecLearnOnly(object):
   """ This class represents the Learn-only phase of the Iteration Cycle in
   the TaskControl block of description.py
+
+  :param nIters: (int) iterations to remain in this phase. An iteration
+                 corresponds to a single :meth:`OPFTaskDriver.handleInputRecord`
+                 call.
   """
 
   def __init__(self, nIters):
-    """
-    nIters:       Number of iterations to remain in this phase. An iteration
-                  corresponds to a single OPFTaskDriver.handleInputRecord() call.
-    """
     assert nIters > 0, "nIter=%s" % nIters
 
     self.__nIters = nIters
@@ -95,17 +96,17 @@ class IterationPhaseSpecLearnOnly(object):
 class IterationPhaseSpecInferOnly(object):
   """ This class represents the Infer-only phase of the Iteration Cycle in
   the TaskControl block of description.py
+
+  :param nIters: (int) Number of iterations to remain in this phase. An
+         iteration corresponds to a single
+         :meth:`OPFTaskDriver.handleInputRecord` call.
+  :param inferenceArgs: (dict) A dictionary of arguments required for inference.
+         These depend on the
+         :class:`~nupic.frameworks.opf.opf_utils.InferenceType` of the current
+         model.
   """
 
   def __init__(self, nIters, inferenceArgs=None):
-    """
-    nIters:
-                  Number of iterations to remain in this phase. An iteration
-                  corresponds to a single OPFTaskDriver.handleInputRecord() call.
-    inferenceArgs:
-                  A dictionary of arguments required for inference. These
-                  depend on the InferenceType of the current model
-    """
     assert nIters > 0, "nIters=%s" % nIters
 
     self.__nIters = nIters
@@ -131,18 +132,17 @@ class IterationPhaseSpecInferOnly(object):
 class IterationPhaseSpecLearnAndInfer(object):
   """ This class represents the Learn-and-Infer phase of the Iteration Cycle in
   the TaskControl block of description.py
+
+  :param nIters: (int) Number of iterations to remain in this phase. An
+         iteration corresponds to a single
+         :meth:`OPFTaskDriver.handleInputRecord` call.
+  :param inferenceArgs: (dict) A dictionary of arguments required for inference.
+         These depend on the
+         :class:`~nupic.frameworks.opf.opf_utils.InferenceType` of the current
+         model.
   """
 
   def __init__(self, nIters, inferenceArgs=None):
-    """
-    nIter:
-                  Number of iterations to remain in this phase. An iteration
-                  corresponds to a single OPFTaskDriver.handleInputRecord() call.
-
-    inferenceArgs:
-                  A dictionary of arguments required for inference. These
-                  depend on the InferenceType of the current model
-    """
     assert nIters > 0, "nIters=%s" % nIters
 
     self.__nIters = nIters
@@ -167,24 +167,21 @@ class IterationPhaseSpecLearnAndInfer(object):
 
 
 class OPFTaskDriver(object):
-  """ Task Phase Driver implementation
+  """
+  Task Phase Driver implementation
 
   Conceptually, the client injects input records, one at a time, into
   an OPFTaskDriver instance for execution according to the
   current IterationPhase as maintained by the OPFTaskDriver instance.
+
+  :param taskControl: (dict) conforming to opfTaskControlSchema.json that
+         defines the actions to be performed on the given model.
+
+  :param model: (:class:`nupic.frameworks.opf.model.Model`) that this
+         OPFTaskDriver instance will drive.
   """
 
   def __init__(self, taskControl, model):
-    """ Constructor
-
-    taskControl:  dictionary conforming to opfTaskControlSchema.json that defines
-                  the actions to be performed on the given model.
-
-    model:        instance of Model that this OPFTaskDriver
-                  instance will drive.
-
-    """
-
     #validateOpfJsonValue(taskControl, "opfTaskControlSchema.json")
 
 
@@ -250,7 +247,7 @@ class OPFTaskDriver(object):
   def replaceIterationCycle(self, phaseSpecs):
     """ Replaces the Iteration Cycle phases
 
-    phaseSpecs:   Iteration cycle description consisting of a sequence of
+    :param phaseSpecs: Iteration cycle description consisting of a sequence of
                   IterationPhaseSpecXXXXX elements that are performed in the
                   given order
     """
@@ -267,9 +264,8 @@ class OPFTaskDriver(object):
 
   def setup(self):
     """ Performs initial setup activities, including 'setup' callbacks. This
-    method MUST be called once before the first call to handleInputRecord()
-
-    Returns:      nothing
+    method MUST be called once before the first call to
+    :meth:`handleInputRecord`.
     """
     # Execute task-setup callbacks
     for cb in self.__userCallbacks['setup']:
@@ -280,9 +276,7 @@ class OPFTaskDriver(object):
 
   def finalize(self):
     """ Perform final activities, including 'finish' callbacks. This
-    method MUST be called once after the last call to handleInputRecord()
-
-    Returns:      nothing
+    method MUST be called once after the last call to :meth:`handleInputRecord`.
     """
     # Execute task-finish callbacks
     for cb in self.__userCallbacks['finish']:
@@ -292,12 +286,13 @@ class OPFTaskDriver(object):
 
 
   def handleInputRecord(self, inputRecord):
-    """ Processes the given record according to the current iteration cycle phase
+    """
+    Processes the given record according to the current iteration cycle phase
 
-    inputRecord:  record object formatted according to
-                  nupic.data.FileSource.getNext() result format.
+    :param inputRecord: (object) record expected to be returned from
+           :meth:`nupic.data.record_stream.RecordStreamIface.getNextRecord`.
 
-    Returns:      An opf_utils.ModelResult object
+    :returns: :class:`nupic.frameworks.opf.opf_utils.ModelResult`
     """
     assert inputRecord, "Invalid inputRecord: %r" % inputRecord
 
@@ -317,16 +312,19 @@ class OPFTaskDriver(object):
   def getMetrics(self):
     """ Gets the current metric values
 
-    Returns:    A dictionary of metric values. The key for
-                each entry is the label for the metric spec, as generated by
-                MetricSpec.getLabel(). The value for each entry is a
-                dictonary containing the value of the metric as returned by the
-                metric module's getMetric() function (see metrics.py)
+    :returns: A dictionary of metric values. The key for each entry is the label
+              for the metric spec, as generated by
+              :meth:`nupic.frameworks.opf.metrics.MetricSpec.getLabel`. The
+              value for each entry is a dictionary containing the value of the
+              metric as returned by
+              :meth:`nupic.frameworks.opf.metrics.MetricsIface.getMetric`.
     """
     return self.__metricsMgr.getMetrics()
 
   def getMetricLabels(self):
-    """ Return the list of labels for the metrics that are being calculated"""
+    """
+    :returns: (list) labels for the metrics that are being calculated
+    """
     return self.__metricsMgr.getMetricLabels()
 
 

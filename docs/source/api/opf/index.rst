@@ -21,6 +21,7 @@ algorithms and functionalities can be added with minimal code changes.
    clients
    description-api
    exp-runner
+   environment
    metrics
    results
    utils

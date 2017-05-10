@@ -20,7 +20,8 @@
 # ----------------------------------------------------------------------
 
 """
-This file describes the interfaces for adapting OPFTaskDriver to specific
+This file describes the interfaces for adapting
+:class:`~nupic.frameworks.opf.opf_task_driver.OPFTaskDriver` to specific
 environments.
 
 These interfaces encapsulate external specifics, such as

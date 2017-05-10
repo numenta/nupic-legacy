@@ -20,16 +20,17 @@
 # ----------------------------------------------------------------------
 
 """
-This script provides a file-based implementation of the opf_environment
+This script provides a file-based implementation of the ``opf_environment``
 interfaces (OPF).
 
 This "basic" implementation of the interface (need a better name
 instead of "basic") uses files (.csv, etc.) versus Nupic's implementation
 that would use databases.
 
-This implementation is used by research tools, such as run_opf_experiment.
+This implementation is used by research tools, such as
+``scripts/run_opf_experiment.py``.
 
-The opf_environment interfaces encapsulate external specifics, such as
+The ``opf_environment`` interfaces encapsulate external specifics, such as
 data source (e.g., .csv file or database, etc.), prediction sink (.csv file or
 databse, etc.), report and serialization destination,  etc.
 """
@@ -66,9 +67,7 @@ class PredictionMetricsLoggerIface(object):
   def emitPeriodicMetrics(self, metrics):
     """ Emits periodic metrics
 
-    metrics:        A list of prediction_metrics_manager.MetricValueElement:
-
-    Returns:        nothing.
+    :param metrics: A list of prediction_metrics_manager.MetricValueElement:
     """
 
 
@@ -76,12 +75,10 @@ class PredictionMetricsLoggerIface(object):
   def emitFinalMetrics(self, metrics):
     """ Emits final metrics.
 
-    NOTE: the intention is that the final metrics may go to a different
+    .. note:: the intention is that the final metrics may go to a different
           place (e.g., csv file) versus emitPeriodicMetrics (e.g., stdout)
 
-    metrics:        A list of prediction_metrics_manager.MetricValueElement:
-
-    Returns:        nothing.
+    :param metrics: A list of prediction_metrics_manager.MetricValueElement:
     """
 
 
@@ -95,7 +92,7 @@ class DatasetReaderIface(object):
   @abstractmethod
   def getDatasetFieldMetaData(self):
     """
-    Returns:      a tuple of dataset field metadata descriptors that are
+    :returns:     a tuple of dataset field metadata descriptors that are
                   arranged in the same order as the columns in the dataset.
                   Each field metadata descriptor is of type
                   nupic.data.fieldmeta.FieldMetaInfo
@@ -105,13 +102,12 @@ class DatasetReaderIface(object):
   @abstractmethod
   def next(self):
     """
-    Returns:      The next record from the dataset.  The returned record object
+    :returns:     The next record from the dataset.  The returned record object
                   is of the same structure as returned by
                   RecordStreamIface.getNextRecord(). Returns None if
                   the next record is not available yet.
 
-    Exceptions:
-      StopIteration:  if a hard "end of file" has been reached
+    :raises: (StopIteration) if a hard "end of file" has been reached
                       and no more records will be forthcoming.
     """
 
