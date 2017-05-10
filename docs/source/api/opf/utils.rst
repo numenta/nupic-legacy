@@ -7,19 +7,29 @@ Common Models
 .. automodule:: nupic.frameworks.opf.common_models.cluster_params
    :members:
 
-InferenceType
-^^^^^^^^^^^^^
+Inference Utilities
+^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: nupic.frameworks.opf.opf_utils.InferenceType
    :members:
    :show-inheritance:
+
+.. autoclass:: nupic.frameworks.opf.opf_utils.InferenceElement
+   :members:
+   :show-inheritance:
+
+Input Utilities
+^^^^^^^^^^^^^^^
+
+.. autoclass:: nupic.frameworks.opf.opf_utils.SensorInput
+   :members:
+
+.. autoclass:: nupic.frameworks.opf.opf_utils.ClassifierInput
+   :members:
+
 
 Helpers
 ^^^^^^^
 
 .. automodule:: nupic.frameworks.opf.opf_helpers
    :members:
-
-.. autoclass:: nupic.frameworks.opf.opf_utils.InferenceType
-   :members:
-   :show-inheritance:
