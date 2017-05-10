@@ -281,30 +281,6 @@ class ClassifierInput(object):
                 bucketIndex=self.bucketIndex)
 
 
-
-# PredictionElement- represents a predicted record and its asssociated
-#                     bit-string encoding for a network's sensor region and/or
-#                     the classification of that input as produced by
-#                     a classifier.
-#
-# predictionRow:  A sequence of field values where each element is the predicted
-#                 value in the format specified by getDecodedFieldMetaInfo().
-#                 This is the output of topDownCompute() for each encoder
-#
-# predictionEncodings: A sequence of numpy arrays, where each element is the
-#                      binary representation of the corresponding predicted field
-#                      in "predictionRow".
-#
-# classification: The classification category of this input.
-#
-
-PredictionElement = namedtuple("PredictionElement",
-                                ("predictionRow",
-                                 "predictionEncodings",
-                                 "classification"))
-
-
-
 class ModelResult(object):
   """
   A structure that contains the input to a model and the resulting predictions

@@ -80,7 +80,7 @@ nupic
 │   ├── sdr_classifier_factory.py [OK]
 │   ├── backtracking_tm.py [TODO]
 │   ├── backtracking_tm_cpp.py [TODO]
-│   ├── tm_shim.py [TODO]
+│   ├── BacktrackingTM_shim.py [TODO]
 │   ├── connections.py [TODO]
 │   ├── fdrutilities.py [TODO]
 │   ├── monitor_mixin
