@@ -363,10 +363,10 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   to set the locations of log files. If this variable is not defined, logging to
   files will be disabled.
 
-  console:    Defines console output for the default "root" logging
+  :param console: Defines console output for the default "root" logging
               configuration; this may be one of 'stdout', 'stderr', or None;
               Use None to suppress console logging output
-  consoleLevel:
+  :param consoleLevel:
               Logging-level filter string for console output corresponding to
               logging levels in the logging module; may be one of:
               'DEBUG', 'INFO', 'WARNING', 'ERROR', or 'CRITICAL'.
