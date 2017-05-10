@@ -121,7 +121,7 @@ nupic
 │   │   ├── client.py [TODO]
 │   │   ├── common_models
 │   │   │   └── cluster_params.py [TODO]
-│   │   ├── exceptions.py [TODO]
+│   │   ├── exceptions.py [OK]
 │   │   ├── exp_description_api.py [TODO]
 │   │   ├── exp_description_helpers.py [TODO]
 │   │   ├── experiment_runner.py [TODO]

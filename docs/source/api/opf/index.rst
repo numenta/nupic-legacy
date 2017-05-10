@@ -21,3 +21,4 @@ algorithms and functionalities can be added with minimal code changes.
    metrics
    results
    utils
+   exceptions
