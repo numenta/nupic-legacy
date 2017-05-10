@@ -24,7 +24,14 @@ from mock import patch
 import unittest2 as unittest
 
 from nupic import engine
-from nupic.bindings.regions.TestNode import TestNode
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.bindings.regions.TestNode import TestNode
+
 from nupic.regions.SPRegion import SPRegion
 
 
@@ -451,6 +458,8 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(r2dims[1], 2)
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testGetRegion(self):
     n = engine.Network()
     n.addRegion("region1", "py.TestNode", "")
