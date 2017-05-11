@@ -31,7 +31,7 @@ import traceback
 import uuid
 
 from nupic.support.decorators import logExceptions #, logEntryExit
-from nupic.database.Connection import ConnectionFactory
+from nupic.database.connection import ConnectionFactory
 from nupic.support.configuration import Configuration
 from nupic.support import pymysqlhelpers
 

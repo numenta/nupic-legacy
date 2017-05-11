@@ -33,7 +33,7 @@ import numpy
 # This must be less than float32 size since storage is float32 size
 DUTY_CYCLE_UPDATE_INTERVAL = numpy.finfo(numpy.float32).max / (2 ** 20)
 
-g_debugPrefix = "CLAClassifier"
+g_debugPrefix = "cla_classifier"
 
 
 def _pFormatArray(array_, fmt="%.2f"):
@@ -249,8 +249,8 @@ class CLAClassifier(object):
   "activationPattern") and information from the sensor and encoders (the
   "classification") describing the input to the system at that time step.
 
-  When learning, for every bit in activation pattern, it records a history of 
-  the classification each time that bit was active. The history is weighted so 
+  When learning, for every bit in activation pattern, it records a history of
+  the classification each time that bit was active. The history is weighted so
   that more recent activity has a bigger impact than older activity. The alpha
   parameter controls this weighting.
 
@@ -382,7 +382,7 @@ class CLAClassifier(object):
     self._patternNZHistory.append((self._learnIteration, patternNZ))
 
     # To allow multi-class classification, we need to be able to run learning
-    # without inference being on. So initialize retval outside 
+    # without inference being on. So initialize retval outside
     # of the inference block.
     retval = None
 
@@ -392,7 +392,7 @@ class CLAClassifier(object):
     # votes
     if infer:
       retval = self.infer(patternNZ, classification)
-      
+
     # ------------------------------------------------------------------------
     # Learning:
     # For each active bit in the activationPattern, store the classification
@@ -468,13 +468,13 @@ class CLAClassifier(object):
       print
 
     return retval
-  
-  
+
+
   def infer(self, patternNZ, classification):
     """
-    Return the inference value from one input sample. The actual 
-    learning happens in compute(). The method customCompute() is here to 
-    maintain backward compatibility. 
+    Return the inference value from one input sample. The actual
+    learning happens in compute(). The method customCompute() is here to
+    maintain backward compatibility.
 
     Parameters:
     --------------------------------------------------------------------
@@ -493,7 +493,7 @@ class CLAClassifier(object):
                     1 : [0.1, 0.3, 0.2, 0.7]
                     4 : [0.2, 0.4, 0.3, 0.5]}
     """
-    
+
     # Return value dict. For buckets which we don't have an actual value
     # for yet, just plug in any valid actual value. It doesn't matter what
     # we use because that bucket won't have non-zero likelihood anyways.
@@ -540,9 +540,9 @@ class CLAClassifier(object):
           sumVotes /= sumVotes.size
 
       retval[nSteps] = sumVotes
-    
+
     return retval
-    
+
 
   def __getstate__(self):
     return self.__dict__

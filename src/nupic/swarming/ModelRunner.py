@@ -33,7 +33,7 @@ from collections import deque
 from nupic.swarming.hypersearch import regression
 from nupic.swarming.hypersearch.errorcodes import ErrorCodes
 
-from nupic.database.ClientJobsDAO import ClientJobsDAO
+from nupic.database.client_jobs_dao import ClientJobsDAO
 from nupic.frameworks.opf import helpers
 from nupic.frameworks.opf.model_factory import ModelFactory
 from nupic.frameworks.opf.opf_basic_environment import BasicPredictionLogger

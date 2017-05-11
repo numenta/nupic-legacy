@@ -24,7 +24,7 @@ import os
 from nupic.bindings.regions.PyRegion import PyRegion
 
 from nupic.algorithms import (anomaly, backtracking_tm, backtracking_tm_cpp,
-                              BacktrackingTM_shim)
+                              backtracking_tm_shim)
 from nupic.support import getArgumentDescriptions
 
 gDefaultTemporalImp = 'py'
@@ -40,13 +40,13 @@ def _getTPClass(temporalImp):
   elif temporalImp == 'cpp':
     return backtracking_tm_cpp.BacktrackingTMCPP
   elif temporalImp == 'tm_py':
-    return BacktrackingTM_shim.TMShim
+    return backtracking_tm_shim.TMShim
   elif temporalImp == 'tm_cpp':
-    return BacktrackingTM_shim.TMCPPShim
+    return backtracking_tm_shim.TMCPPShim
   elif temporalImp == 'tm_py_fast':
-    return BacktrackingTM_shim.FastTMShim
+    return backtracking_tm_shim.FastTMShim
   elif temporalImp == 'monitored_tm_py':
-    return BacktrackingTM_shim.MonitoredTMShim
+    return backtracking_tm_shim.MonitoredTMShim
   else:
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
               "'cpp', 'tm_py', 'monitored_tm_py'" % (temporalImp))

@@ -27,7 +27,7 @@ import shutil
 import tempfile
 
 from nupic.frameworks.opf import helpers
-from nupic.database.ClientJobsDAO import ClientJobsDAO
+from nupic.database.client_jobs_dao import ClientJobsDAO
 from nupic.support.configuration import Configuration
 
 
