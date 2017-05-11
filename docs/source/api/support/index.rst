@@ -2,6 +2,16 @@ Support
 -------
 
 .. automodule:: nupic.support
+   :members:
 
-.. automethod:: nupic.support.initLogging
+Configuration Base
+^^^^^^^^^^^^^^^^^^
 
+.. automodule:: nupic.support.configuration_base
+   :members:
+
+Configuration Custom
+^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: nupic.support.configuration_custom
+   :members:

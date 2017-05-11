@@ -176,9 +176,10 @@ nupic
 ├── serializable.py [TODO]
 ├── simple_server.py [TODO]
 ├── support
-│   ├── configuration.py [TODO]
-│   ├── configuration_base.py [TODO]
-│   ├── configuration_custom.py [TODO]
+│   ├── __init__ [OK]
+│   ├── configuration.py [OK]
+│   ├── configuration_base.py [OK]
+│   ├── configuration_custom.py [OK]
 │   ├── console_printer.py [TODO]
 │   ├── decorators.py [TODO]
 │   ├── enum.py [TODO]
