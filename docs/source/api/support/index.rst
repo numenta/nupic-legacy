@@ -21,3 +21,16 @@ Console Printer
 
 .. automodule:: nupic.support.console_printer
    :members:
+
+File System Helpers
+^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: nupic.support.fs_helpers
+   :members:
+
+Group By
+^^^^^^^^
+
+.. automodule:: nupic.support.group_by
+   :members:
+

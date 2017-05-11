@@ -182,11 +182,8 @@ nupic
 │   ├── configuration_custom.py [OK]
 │   ├── console_printer.py [OK]
 │   ├── exceptions.py [OK]
-│   ├── feature_groups.py [TODO]
-│   ├── features.py [TODO]
-│   ├── features_list.py [TODO]
-│   ├── fs_helpers.py [TODO]
-│   ├── group_by.py [TODO]
+│   ├── fs_helpers.py [OK]
+│   ├── group_by.py [OK]
 │   ├── lock_attributes.py [TODO]
 │   └── mysql_helpers.py [TODO]
 ├── swarming
