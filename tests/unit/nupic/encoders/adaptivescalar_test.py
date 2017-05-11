@@ -25,7 +25,7 @@ import unittest
 import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
+from nupic.encoders.adaptive_scalar import AdaptiveScalarEncoder
 from nupic.encoders.base import defaultDtype
 
 try:
@@ -33,7 +33,7 @@ try:
 except ImportError:
   capnp = None
 if capnp:
-  from nupic.encoders.adaptivescalar_capnp import AdaptiveScalarEncoderProto
+  from nupic.encoders.adaptive_scalar_capnp import AdaptiveScalarEncoderProto
 
 
 
