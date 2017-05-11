@@ -34,3 +34,14 @@ Group By
 .. automodule:: nupic.support.group_by
    :members:
 
+Lock Attributes
+^^^^^^^^^^^^^^^
+
+.. automodule:: nupic.support.lock_attributes
+   :members:
+
+PyMySQL Helpers
+^^^^^^^^^^^^^^^
+
+.. automodule:: nupic.support.pymysql_helpers
+.. automethod:: nupic.support.pymysql_helpers.retrySQL

@@ -184,8 +184,8 @@ nupic
 │   ├── exceptions.py [OK]
 │   ├── fs_helpers.py [OK]
 │   ├── group_by.py [OK]
-│   ├── lock_attributes.py [TODO]
-│   └── mysql_helpers.py [TODO]
+│   ├── lock_attributes.py [OK]
+│   └── pymysql_helpers.py [TODO]
 ├── swarming
 │   ├── DummyModelRunner.py [TODO]
 │   ├── HypersearchV2.py [TODO]

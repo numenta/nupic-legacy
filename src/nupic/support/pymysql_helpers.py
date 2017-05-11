@@ -19,7 +19,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# Helper utilities for python scripts that use pymysql
+"""
+Helper utilities for python scripts that use pymysql
+"""
 
 import inspect
 import logging
@@ -96,20 +98,24 @@ def retrySQL(timeoutSec=60*5, logger=None):
   e.g., RDS/MySQL server down temporarily, transaction deadlock, etc.).
   We share this function across multiple scripts (e.g., ClientJobsDAO,
   StreamMgr) for consitent behavior.
-  
-  NOTE: please ensure that the operation being retried is idempotent.
-  
-  timeoutSec:       How many seconds from time of initial call to stop retrying
-                     (floating point)
-  logger:           User-supplied logger instance.
+
+  .. note:: Please ensure that the operation being retried is idempotent.
+
+  .. note:: logging must be initialized *before* any loggers are created, else
+     there will be no output; see nupic.support.initLogging()
 
   Usage Example:
-    NOTE: logging must be initialized *before* any loggers are created, else
-      there will be no output; see nupic.support.initLogging()
+
+  .. code-block:: python
 
     @retrySQL()
     def jobInfo(self, jobID):
         ...
+
+  :param timeoutSec:       How many seconds from time of initial call to stop retrying
+                     (floating point)
+  :param logger:           User-supplied logger instance.
+
   """
 
   if logger is None:
