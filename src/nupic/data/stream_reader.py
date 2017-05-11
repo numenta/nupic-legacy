@@ -28,7 +28,7 @@ import pkg_resources
 from nupic.data.aggregator import Aggregator
 from nupic.data.field_meta import FieldMetaInfo, FieldMetaType, FieldMetaSpecial
 from nupic.data.file_record_stream import FileRecordStream
-from nupic.data import jsonhelpers
+from nupic.data import json_helpers
 from nupic.data.record_stream import RecordStreamIface
 from nupic.frameworks.opf import jsonschema
 import nupic.support
@@ -137,8 +137,8 @@ class StreamReader(RecordStreamIface):
 
     loggerPrefix = 'com.numenta.nupic.data.StreamReader'
     self._logger = logging.getLogger(loggerPrefix)
-    jsonhelpers.validate(streamDef,
-                         schemaPath=pkg_resources.resource_filename(
+    json_helpers.validate(streamDef,
+                          schemaPath=pkg_resources.resource_filename(
                              jsonschema.__name__, "stream_def.json"))
     assert len(streamDef['streams']) == 1, "Only 1 source stream is supported"
 
