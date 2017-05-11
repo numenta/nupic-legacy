@@ -159,79 +159,12 @@ def title(s=None, additional='', stream=sys.stdout, frame='-'):
     callable_name, file_name, class_name = getCallerInfo(2)
     s = callable_name
     if class_name is not None:
-      method_name = s
       s = class_name + '.' + callable_name
   lines = (s + additional).split('\n')
   length = max(len(line) for line in lines)
   print >> stream, '-' * length
   print >> stream, s + additional
   print >> stream, '-' * length
-
-
-
-def bringToFront(title):
-  """Bring a top-level window with a given title
-     to the front on Windows"""
-  if sys.platform != 'win32':
-    return
-
-  import ctypes
-  find_window = ctypes.windll.user32.FindWindowA
-  set_foreground_window = ctypes.windll.user32.SetForegroundWindow
-  hwnd = find_window(None, title)
-  if hwnd == 0:
-    raise Exception('There is no window titled: "%s"' % title)
-  set_foreground_window(hwnd)
-
-
-
-def getUserDocumentsPath():
-  """
-  Find the user's "Documents" directory (OS X), "My Documents" directory
-  (Windows), or home directory (Unix).
-  """
-
-  # OS X and Windows code from:
-  # http://www.blueskyonmars.com/2005/08/05
-  # /finding-a-users-my-documents-folder-on-windows/
-  # Alternate Windows code from:
-  # http://bugs.python.org/issue1763
-  if sys.platform.startswith('win'):
-    if sys.platform.startswith('win32'):
-      # Try the primary method on 32-bit windows
-      try:
-        from win32com.shell import shell
-        alt = False
-      except ImportError:
-        try:
-          import ctypes
-          dll = ctypes.windll.shell32
-          alt = True
-        except:
-          raise Exception("Could not find 'My Documents'")
-    else:
-      # Use the alternate method on 64-bit Windows
-      alt = True
-    if not alt:
-      # Primary method using win32com
-      df = shell.SHGetDesktopFolder()
-      pidl = df.ParseDisplayName(0, None,
-               "::{450d8fba-ad25-11d0-98a8-0800361b1103}")[1]
-      path = shell.SHGetPathFromIDList(pidl)
-    else:
-      # Alternate method using ctypes rather than win32com
-      buf = ctypes.create_string_buffer(300)
-      dll.SHGetSpecialFolderPathA(None, buf, 0x0005, False)
-      path = buf.value
-  elif sys.platform.startswith('darwin'):
-    from Carbon import Folder, Folders
-    folderref = Folder.FSFindFolder(Folders.kUserDomain,
-                                    Folders.kDocumentsFolderType,
-                                    False)
-    path = folderref.as_pathname()
-  else:
-    path = os.getenv('HOME')
-  return path
 
 
 
@@ -326,23 +259,6 @@ def getArgumentDescriptions(f):
       args.append((argName, descriptions.get(argName, "")))
 
   return args
-
-
-
-# TODO queryNumInwardIters appears to be unused and should probably be deleted
-#  from here altogether; it's likely an artifact of the legacy vision support.
-#def queryNumInwardIters(configPath, radialLength, numRepetitions=1):
-#  """
-#  Public utility API that accepts a config path and
-#  radial length, and determines the proper number of
-#  training iterations with which to invoke net.run()
-#  when running a PictureSensor in 'inward' mode.
-#  """
-#  numCats = queryNumCategories(configPath)
-#  sequenceLen = radialLength + 1
-#  numItersPerCat = (8 * radialLength) * sequenceLen
-#  numTrainingItersTP = numItersPerCat * numCats
-#  return numTrainingItersTP * numRepetitions
 
 
 
@@ -491,20 +407,6 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
 
 
 
-def reinitLoggingDir():
-  """ (Re-)Initialize the loging directory for the calling application that
-  uses initLogging() for logging configuration
-
-  NOTE: It's typially unnecessary to call this function directly since
-   initLogging takes care of it for you. This function is exposed primarily for
-   the benefit of nupic-services.py to allow it to restore its logging directory
-   after the hard-reset operation.
-  """
-  if gLoggingInitialized and 'NTA_LOG_DIR' in os.environ:
-    makeDirectoryFromAbsolutePath(os.path.dirname(_genLoggingFilePath()))
-
-
-
 def _genLoggingFilePath():
   """ Generate a filepath for the calling app """
   appName = os.path.splitext(os.path.basename(sys.argv[0]))[0] or 'UnknownApp'
@@ -515,122 +417,6 @@ def _genLoggingFilePath():
   appLogFileName = '%s-%s-%s.log' % (
     appName, long(time.mktime(time.gmtime())), os.getpid())
   return os.path.join(appLogDir, appLogFileName)
-
-
-
-def enableLoggingErrorDebugging():
-  """ Overrides the python logging facility's Handler.handleError function to
-  raise an exception instead of print and suppressing it.  This allows a deeper
-  stacktrace to be emitted that is very helpful for quickly finding the
-  file/line that initiated the invalidly-formatted logging operation.
-
-  NOTE: This is for debugging only - be sure to remove the call to this function
-   *before* checking in your changes to the source code repository, as it will
-   cause the application to fail if some invalidly-formatted logging statement
-   still exists in your code.
-
-  Example usage: enableLoggingErrorDebugging must be called *after*
-   initLogging()
-
-    import nupic.support
-    nupic.support.initLogging()
-    nupic.support.enableLoggingErrorDebugging()
-
-  "TypeError: not all arguments converted during string formatting" is an
-  example exception that might be output by the built-in handlers with the
-  following very shallow traceback that doesn't go deep enough to show the
-  source of the problem:
-
-  File ".../python2.6/logging/__init__.py", line 776, in emit
-    msg = self.format(record)
-  File ".../python2.6/logging/__init__.py", line 654, in format
-    return fmt.format(record)
-  File ".../python2.6/logging/__init__.py", line 436, in format
-    record.message = record.getMessage()
-  File ".../python2.6/logging/__init__.py", line 306, in getMessage
-    msg = msg % self.args
-  TypeError: not all arguments converted during string formatting
-  """
-
-  print >> sys.stderr, ("WARNING")
-  print >> sys.stderr, ("WARNING: "
-    "nupic.support.enableLoggingErrorDebugging() was "
-    "called to install a debugging patch into all logging handlers that "
-    "will cause the program to fail if a logging exception occurrs; this "
-    "call is for debugging only and MUST be removed before checking in code "
-    "into production system. Caller: %s") % (
-    traceback.format_stack(),)
-  print >> sys.stderr, ("WARNING")
-
-  def handleErrorPatch(*args, **kwargs):
-    if logging.raiseExceptions:
-      raise
-
-  for handler in logging._handlerList:
-    handler.handleError = handleErrorPatch
-
-  return
-
-
-
-def intTo8ByteArray(inValue):
-  """
-  Converts an int to a packed byte array, with left most significant byte
-  """
-
-  values = (
-    (inValue >> 56 ) & 0xff,
-    (inValue >> 48 ) & 0xff,
-    (inValue >> 40 ) & 0xff,
-    (inValue >> 32 ) & 0xff,
-    (inValue >> 24 ) & 0xff,
-    (inValue >> 16 ) & 0xff,
-    (inValue >> 8 ) & 0xff,
-    inValue & 0xff
-  )
-
-  s = struct.Struct('B B B B B B B B')
-  packed_data = s.pack(*values)
-
-  return packed_data
-
-
-
-def byteArrayToInt(packed_data):
-  """
-  Converts a byte array into an integer
-  """
-  value = struct.unpack('B B B B B B B B', packed_data)
-  return value[0] << 56 | \
-         value[1] << 48 | \
-         value[2] << 40 | \
-         value[3] << 32 | \
-         value[4] << 24 | \
-         value[5] << 16 | \
-         value[6] << 8 | \
-         value[7]
-
-
-
-def getSpecialRowID():
-  """
-  Special row id is 0xFF FFFF FFFF FFFF FFFF (9 bytes of 0xFF)
-  """
-  values = (0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)
-  s = struct.Struct('B B B B B B B B B')
-  packed_data = s.pack(*values)
-
-  return packed_data
-
-
-
-_FLOAT_SECONDS_IN_A_DAY = 24.0 * 60.0 * 60.0
-def floatSecondsFromTimedelta(td):
-  """ Convert datetime.timedelta to seconds in floating point """
-  sec = (td.days * _FLOAT_SECONDS_IN_A_DAY + td.seconds * 1.0 +
-         td.microseconds / 1E6)
-
-  return sec
 
 
 
