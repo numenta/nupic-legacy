@@ -2,7 +2,7 @@ from nupic.encoders import (LogEncoder, DateEncoder, MultiEncoder, ScalarEncoder
 
 from nupic.data import FunctionSource
 from nupic.frameworks.prediction.callbacks import displaySPCoincidences, printSPCoincidences
-from nupic.data.dictutils import DictObj
+from nupic.data.dict_utils import DictObj
 
 
 nCoincidences = 30

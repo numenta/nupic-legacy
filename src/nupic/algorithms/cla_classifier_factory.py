@@ -21,7 +21,7 @@
 
 """Module providing a factory for instantiating a CLA classifier."""
 
-from nupic.algorithms.CLAClassifier import CLAClassifier
+from nupic.algorithms.cla_classifier import CLAClassifier
 from nupic.algorithms.cla_classifier_diff import CLAClassifierDiff
 from nupic.bindings.algorithms import FastCLAClassifier
 from nupic.support.configuration import Configuration

@@ -30,7 +30,7 @@ import logging
 import re
 from collections import namedtuple
 
-import nupic.data.jsonhelpers as jsonhelpers
+import nupic.data.json_helpers as jsonhelpers
 from nupic.support.enum import Enum
 
 

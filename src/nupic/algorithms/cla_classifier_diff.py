@@ -29,7 +29,7 @@ classifiers and the results are checked for differences.
 import cPickle as pickle
 import numbers
 
-from nupic.algorithms.CLAClassifier import CLAClassifier
+from nupic.algorithms.cla_classifier import CLAClassifier
 from nupic.bindings.algorithms import FastCLAClassifier
 
 

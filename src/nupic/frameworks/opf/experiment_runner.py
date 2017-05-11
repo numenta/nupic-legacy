@@ -37,7 +37,7 @@ import sys
 import random
 import numpy
 
-from nupic.data import jsonhelpers
+from nupic.data import json_helpers
 from nupic.frameworks.opf import opf_basic_environment, opf_helpers
 from nupic.frameworks.opf.exp_description_api import OpfEnvironment
 from nupic.frameworks.opf.model_factory import ModelFactory
@@ -396,8 +396,8 @@ def _runExperimentImpl(options, model=None):
       is provided to aid with debugging) or None, if none was
       created.
   """
-  jsonhelpers.validate(options.privateOptions,
-                       schemaDict=g_parsedPrivateCommandLineOptionsSchema)
+  json_helpers.validate(options.privateOptions,
+                        schemaDict=g_parsedPrivateCommandLineOptionsSchema)
 
   # Load the experiment's description.py module
   experimentDir = options.experimentDir

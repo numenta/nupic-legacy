@@ -32,7 +32,7 @@ import subprocess
 
 from nupic.swarming.hypersearch import object_json as json
 
-import nupic.database.ClientJobsDAO as cjdao
+import nupic.database.client_jobs_dao as cjdao
 from nupic.swarming import HypersearchWorker
 from nupic.swarming.HypersearchV2 import HypersearchV2
 from nupic.swarming.exp_generator.ExpGenerator import expGenerator
@@ -1423,7 +1423,7 @@ class _NupicJob(object):
     """ @private
     Our Nupic Job Info abstraction class"""
 
-    # Job Status values (per ClientJobsDAO.py):
+    # Job Status values (per client_jobs_dao.py):
     __nupicJobStatus_NotStarted  = cjdao.ClientJobsDAO.STATUS_NOTSTARTED
     __nupicJobStatus_Starting    = cjdao.ClientJobsDAO.STATUS_STARTING
     __nupicJobStatus_running     = cjdao.ClientJobsDAO.STATUS_RUNNING

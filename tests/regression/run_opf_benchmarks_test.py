@@ -39,7 +39,7 @@ from multiprocessing import Process, Queue
 from Queue import Empty
 from collections import deque
 
-from nupic.database import ClientJobsDAO as cjdao
+from nupic.database import client_jobs_dao as cjdao
 from nupic.swarming.exp_generator import ExpGenerator
 from nupic.frameworks.opf.opf_utils import InferenceType
 from nupic.support.configuration import Configuration
