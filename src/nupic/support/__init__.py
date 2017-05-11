@@ -20,7 +20,6 @@
 # ----------------------------------------------------------------------
 
 """
-## @file
 Internal package.
 
 Package containing modules that are used internally by Numenta Python
@@ -363,16 +362,16 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   The logging configuration file can use the environment variable 'NTA_LOG_DIR'
   to set the locations of log files. If this variable is not defined, logging to
   files will be disabled.
-  
-  console:    Defines console output for the default "root" logging
+
+  :param console: Defines console output for the default "root" logging
               configuration; this may be one of 'stdout', 'stderr', or None;
               Use None to suppress console logging output
-  consoleLevel:
+  :param consoleLevel:
               Logging-level filter string for console output corresponding to
               logging levels in the logging module; may be one of:
               'DEBUG', 'INFO', 'WARNING', 'ERROR', or 'CRITICAL'.
               E.g.,  a value of'WARNING' suppresses DEBUG and INFO level output
-              to console, but allows WARNING, ERROR, and CRITICAL 
+              to console, but allows WARNING, ERROR, and CRITICAL
   """
 
   # NOTE: If you call this twice from the same process there seems to be a
@@ -383,18 +382,18 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
     if verbose:
       print >> sys.stderr, "Logging already initialized, doing nothing."
     return
-  
+
   consoleStreamMappings = {
     'stdout'  : 'stdoutConsoleHandler',
     'stderr'  : 'stderrConsoleHandler',
   }
-  
+
   consoleLogLevels = ['DEBUG', 'INFO', 'WARNING', 'WARN', 'ERROR', 'CRITICAL',
                       'FATAL']
-  
+
   assert console is None or console in consoleStreamMappings.keys(), (
     'Unexpected console arg value: %r') % (console,)
-  
+
   assert consoleLevel in consoleLogLevels, (
     'Unexpected consoleLevel arg value: %r') % (consoleLevel)
 
@@ -404,7 +403,7 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   #   module
   configFilename = 'nupic-logging.conf'
   configFilePath = resource_filename("nupic.support", configFilename)
-  
+
   configLogDir = os.environ.get('NTA_LOG_DIR', None)
 
   # Load in the logging configuration file
@@ -446,7 +445,7 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
 
   # Set up log file path for the default file handler and configure handlers
   handlers = list()
-  
+
   if configLogDir is not None:
     logFilePath = _genLoggingFilePath()
     makeDirectoryFromAbsolutePath(os.path.dirname(logFilePath))
@@ -495,7 +494,7 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
 def reinitLoggingDir():
   """ (Re-)Initialize the loging directory for the calling application that
   uses initLogging() for logging configuration
-  
+
   NOTE: It's typially unnecessary to call this function directly since
    initLogging takes care of it for you. This function is exposed primarily for
    the benefit of nupic-services.py to allow it to restore its logging directory
@@ -516,32 +515,32 @@ def _genLoggingFilePath():
   appLogFileName = '%s-%s-%s.log' % (
     appName, long(time.mktime(time.gmtime())), os.getpid())
   return os.path.join(appLogDir, appLogFileName)
-  
-  
+
+
 
 def enableLoggingErrorDebugging():
   """ Overrides the python logging facility's Handler.handleError function to
   raise an exception instead of print and suppressing it.  This allows a deeper
   stacktrace to be emitted that is very helpful for quickly finding the
   file/line that initiated the invalidly-formatted logging operation.
-  
+
   NOTE: This is for debugging only - be sure to remove the call to this function
    *before* checking in your changes to the source code repository, as it will
    cause the application to fail if some invalidly-formatted logging statement
    still exists in your code.
-  
+
   Example usage: enableLoggingErrorDebugging must be called *after*
    initLogging()
-   
+
     import nupic.support
     nupic.support.initLogging()
     nupic.support.enableLoggingErrorDebugging()
-  
+
   "TypeError: not all arguments converted during string formatting" is an
   example exception that might be output by the built-in handlers with the
   following very shallow traceback that doesn't go deep enough to show the
   source of the problem:
-  
+
   File ".../python2.6/logging/__init__.py", line 776, in emit
     msg = self.format(record)
   File ".../python2.6/logging/__init__.py", line 654, in format
@@ -552,7 +551,7 @@ def enableLoggingErrorDebugging():
     msg = msg % self.args
   TypeError: not all arguments converted during string formatting
   """
-  
+
   print >> sys.stderr, ("WARNING")
   print >> sys.stderr, ("WARNING: "
     "nupic.support.enableLoggingErrorDebugging() was "
@@ -562,14 +561,14 @@ def enableLoggingErrorDebugging():
     "into production system. Caller: %s") % (
     traceback.format_stack(),)
   print >> sys.stderr, ("WARNING")
-  
+
   def handleErrorPatch(*args, **kwargs):
     if logging.raiseExceptions:
       raise
-  
+
   for handler in logging._handlerList:
     handler.handleError = handleErrorPatch
-  
+
   return
 
 
@@ -637,11 +636,11 @@ def floatSecondsFromTimedelta(td):
 
 def aggregationToMonthsSeconds(interval):
   """
-  Return the number of months and seconds from an aggregation dict that 
-  represents a date and time. 
-  
+  Return the number of months and seconds from an aggregation dict that
+  represents a date and time.
+
   Interval is a dict that contain one or more of the following keys: 'years',
-  'months', 'weeks', 'days', 'hours', 'minutes', seconds', 'milliseconds', 
+  'months', 'weeks', 'days', 'hours', 'minutes', seconds', 'milliseconds',
   'microseconds'.
 
   Parameters:
@@ -650,25 +649,25 @@ def aggregationToMonthsSeconds(interval):
   retval:    number of months and seconds in the interval, as a dict:
                 {months': XX, 'seconds': XX}. The seconds is
                 a floating point that can represent resolutions down to a
-                microsecond. 
-  
+                microsecond.
+
   For example:
-  aggregationMicroseconds({'years': 1, 'hours': 4, 'microseconds':42}) == 
+  aggregationMicroseconds({'years': 1, 'hours': 4, 'microseconds':42}) ==
       {'months':12, 'seconds':14400.000042}
-  
+
   """
-  
+
   seconds = interval.get('microseconds', 0) * 0.000001
   seconds += interval.get('milliseconds', 0) * 0.001
-  seconds += interval.get('seconds', 0) 
+  seconds += interval.get('seconds', 0)
   seconds += interval.get('minutes', 0) * 60
   seconds += interval.get('hours', 0) * 60 * 60
   seconds += interval.get('days', 0) * 24 * 60 * 60
   seconds += interval.get('weeks', 0) * 7 * 24 * 60 * 60
-  
+
   months = interval.get('months', 0)
   months += 12 * interval.get('years', 0)
-  
+
   return {'months': months, 'seconds': seconds}
 
 
@@ -676,37 +675,37 @@ def aggregationToMonthsSeconds(interval):
 def aggregationDivide(dividend, divisor):
   """
   Return the result from dividing two dicts that represent date and time.
-  
+
   Both dividend and divisor are dicts that contain one or more of the following
   keys: 'years', 'months', 'weeks', 'days', 'hours', 'minutes', seconds',
   'milliseconds', 'microseconds'.
-  
+
   Parameters:
   ---------------------------------------------------------------------
   dividend:  The numerator, as a dict representing a date and time
   divisor:   the denominator, as a dict representing a date and time
   retval:    number of times divisor goes into dividend, as a floating point
-                number. 
-  
+                number.
+
   For example:
   aggregationDivide({'hours': 4}, {'minutes': 15}) == 16
-  
+
   """
-  
+
   # Convert each into microseconds
   dividendMonthSec = aggregationToMonthsSeconds(dividend)
   divisorMonthSec = aggregationToMonthsSeconds(divisor)
-  
+
   # It is a usage error to mix both months and seconds in the same operation
   if (dividendMonthSec['months'] != 0 and divisorMonthSec['seconds'] != 0) \
     or (dividendMonthSec['seconds'] != 0 and divisorMonthSec['months'] != 0):
     raise RuntimeError("Aggregation dicts with months/years can only be "
       "inter-operated with other aggregation dicts that contain "
       "months/years")
-    
-  
+
+
   if dividendMonthSec['months'] > 0:
     return float(dividendMonthSec['months']) / divisor['months']
-  
+
   else:
     return float(dividendMonthSec['seconds']) / divisorMonthSec['seconds']
