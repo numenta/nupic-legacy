@@ -180,7 +180,6 @@ nupic
 │   ├── configuration_base.py [TODO]
 │   ├── configuration_custom.py [TODO]
 │   ├── consoleprinter.py [TODO]
-│   ├── datafiles.py [TODO]
 │   ├── decorators.py [TODO]
 │   ├── enum.py [TODO]
 │   ├── exceptions.py [TODO]
@@ -190,8 +189,6 @@ nupic
 │   ├── fshelpers.py [TODO]
 │   ├── group_by.py [TODO]
 │   ├── lockattributes.py [TODO]
-│   ├── log_utils.py [TODO]
-│   ├── loophelpers.py [TODO]
 │   └── mysqlhelpers.py [TODO]
 ├── swarming
 │   ├── DummyModelRunner.py [TODO]
