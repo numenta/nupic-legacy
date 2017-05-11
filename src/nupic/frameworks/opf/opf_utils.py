@@ -30,7 +30,7 @@ import logging
 import re
 from collections import namedtuple
 
-import nupic.data.jsonhelpers as jsonhelpers
+import nupic.data.json_helpers as jsonhelpers
 from nupic.support.enum import Enum
 
 
@@ -47,6 +47,14 @@ class InferenceElement(Enum(
               multiStepBucketLikelihoods="multiStepBucketLikelihoods",
               multiStepBucketValues="multiStepBucketValues",
               )):
+  """
+  The concept of InferenceElements is a key part of the OPF. A model's inference
+  may have multiple parts to it. For example, a model may output both a
+  prediction and an anomaly score. Models output their set of inferences as a
+  dictionary that is keyed by the enumerated type InferenceElement. Each entry
+  in an inference dictionary is considered a separate inference element, and is
+  handled independently by the OPF.
+  """
 
   __inferenceInputMap = {
     "prediction":               "dataRow",
@@ -61,19 +69,26 @@ class InferenceElement(Enum(
 
   @staticmethod
   def getInputElement(inferenceElement):
-    """ Get the sensor input element that corresponds to the given inference
+    """
+    Get the sensor input element that corresponds to the given inference
     element. This is mainly used for metrics and prediction logging
+
+    :param inferenceElement: (:class:`.InferenceElement`)
+    :return: (string) name of sensor input element
     """
     return InferenceElement.__inferenceInputMap.get(inferenceElement, None)
 
   @staticmethod
   def isTemporal(inferenceElement):
-    """ Returns True if the inference from this timestep is predicted the input
-    for the NEXT timestep.
+    """
+    .. note:: This should only be checked IF THE MODEL'S INFERENCE TYPE IS ALSO
+       TEMPORAL. That is, a temporal model CAN have non-temporal inference
+       elements, but a non-temporal model CANNOT have temporal inference
+       elements.
 
-    NOTE: This should only be checked IF THE MODEL'S INFERENCE TYPE IS ALSO
-    TEMPORAL. That is, a temporal model CAN have non-temporal inference elements,
-    but a non-temporal model CANNOT have temporal inference elements
+    :param inferenceElement: (:class:`.InferenceElement`)
+    :return: (bool) ``True`` if the inference from this time step is predicted
+             the input for the NEXT time step.
     """
     if InferenceElement.__temporalInferenceElements is None:
       InferenceElement.__temporalInferenceElements = \
@@ -83,17 +98,14 @@ class InferenceElement(Enum(
 
   @staticmethod
   def getTemporalDelay(inferenceElement, key=None):
-    """ Returns the number of records that elapse between when an inference is
-    made and when the corresponding input record will appear. For example, a
-    multistep prediction for 3 timesteps out will have a delay of 3
-
-
-    Parameters:
-    -----------------------------------------------------------------------
-
-    inferenceElement:   The InferenceElement value being delayed
-    key:                If the inference is a dictionary type, this specifies
-                        key for the sub-inference that is being delayed
+    """
+    :param inferenceElement: (:class:`.InferenceElement`) value being delayed
+    :param key: (string) If the inference is a dictionary type, this specifies
+                key for the sub-inference that is being delayed.
+    :return: (int) the number of records that elapse between when an inference
+             is made and when the corresponding input record will appear. For
+             example, a multistep prediction for 3 timesteps out will have a
+             delay of 3.
     """
     # -----------------------------------------------------------------------
     # For next step prediction, we shift by 1
@@ -123,12 +135,9 @@ class InferenceElement(Enum(
   @staticmethod
   def getMaxDelay(inferences):
     """
-    Returns the maximum delay for the InferenceElements in the inference
-    dictionary
-
-    Parameters:
-    -----------------------------------------------------------------------
-    inferences:   A dictionary where the keys are InferenceElements
+    :param inferences: (dict) where the keys are :class:`.InferenceElement`s
+    :return: (int) the maximum delay for the :class:`.InferenceElement`s in
+             the inference dictionary
     """
     maxDelay = 0
     for inferenceElement, inference in inferences.iteritems():
@@ -168,8 +177,10 @@ class InferenceType(Enum("TemporalNextStep",
 
   @staticmethod
   def isTemporal(inferenceType):
-    """ Returns True if the inference type is 'temporal', i.e. requires a
-    temporal memory in the network.
+    """
+    :param inferenceType: (:class:`.InferenceType`)
+    :return: (bool) `True` if the inference type is 'temporal', i.e. requires a
+             temporal memory in the network.
     """
     if InferenceType.__temporalInferenceTypes is None:
       InferenceType.__temporalInferenceTypes = \
@@ -207,7 +218,9 @@ class SensorInput(object):
 
   """
 
-  __slots__ = ("dataRow", "dataDict", "dataEncodings", "sequenceReset", "category")
+  __slots__ = (
+    "dataRow", "dataDict", "dataEncodings", "sequenceReset", "category"
+  )
 
   def __init__(self, dataRow=None, dataDict=None, dataEncodings=None,
                sequenceReset=None, category=None):
@@ -238,17 +251,17 @@ class SensorInput(object):
                 category=self.category)
 
 
-# ClassifierInput - represents the mapping of a given inputRecord by the
-#   classifier input encoder.
-#
-# dataRow:        A data row that is the sensor's "sourceOut" mapping of the
-#                 supplied inputRecord. See SensorInput class for additional
-#                 details
-#
-# bucketIndex:    bucketIndex is the classifier input encoder's mapping of the
-#                 dataRow
 
 class ClassifierInput(object):
+  """
+  Represents the mapping of a given inputRecord by the classifier input encoder.
+
+  :param dataRow: A data row that is the sensor's "sourceOut" mapping of the
+                  supplied inputRecord. See :class:`.SensorInput` class for
+                  additional details.
+  :param bucketIndex: (int) the classifier input encoder's mapping of the
+                  dataRow.
+  """
 
   __slots__ = ("dataRow", "bucketIndex")
 
@@ -286,16 +299,17 @@ class ModelResult(object):
          which corresponds to the type of prediction being made. Each value is
          a an element that corresponds to the actual prediction by the model,
          including auxillary information.
-  :param metrics: The metrics corresponding to the most-recent prediction/ground
-         truth pair
-  :param predictedFieldIdx: predicted field index
-  :param predictedFieldName: predicted field name
-  :param classifierInput: input from classifier
-
+  :param metrics: (:class:`~nupic.frameworks.opf.metrics.MetricsIface`)
+         The metrics corresponding to the most-recent prediction/ground truth
+         pair
+  :param predictedFieldIdx: (int) predicted field index
+  :param predictedFieldName: (string) predicted field name
+  :param classifierInput: (:class:`.ClassifierInput`) input from classifier
   """
 
   __slots__= ("predictionNumber", "rawInput", "sensorInput", "inferences",
-              "metrics", "predictedFieldIdx", "predictedFieldName", "classifierInput")
+              "metrics", "predictedFieldIdx", "predictedFieldName",
+              "classifierInput")
 
   def __init__(self,
                predictionNumber=None,
@@ -337,16 +351,13 @@ class ModelResult(object):
 
 
 def validateOpfJsonValue(value, opfJsonSchemaFilename):
-  """ Validate a python object against an OPF json schema file
+  """
+  Validate a python object against an OPF json schema file
 
-  target:   target python object to validate (typically a dictionary)
-
-  opfJsonSchemaFilename: OPF json schema filename containing the json schema
-                  object. (e.g., opfTaskControlSchema.json)
-
-  Returns: nothing
-
-  Raises: jsonhelpers.ValidationError when value fails json validation
+  :param value: target python object to validate (typically a dictionary)
+  :param opfJsonSchemaFilename: (string) OPF json schema filename containing the
+         json schema object. (e.g., opfTaskControlSchema.json)
+  :raises: jsonhelpers.ValidationError when value fails json validation
   """
 
   # Create a path by joining the filename with our local json schema root
@@ -362,8 +373,12 @@ def validateOpfJsonValue(value, opfJsonSchemaFilename):
 
 
 def initLogger(obj):
-  """Helper function to create a logger object for the current object with
-  the standard Numenta prefix """
+  """
+  Helper function to create a logger object for the current object with
+  the standard Numenta prefix.
+
+  :param obj: (object) to add a logger to
+  """
   if inspect.isclass(obj):
     myClass = obj
   else:
@@ -375,12 +390,11 @@ def initLogger(obj):
 
 
 def matchPatterns(patterns, keys):
-  """Returns a subset of the keys that match any of the given patterns
+  """
+  Returns a subset of the keys that match any of the given patterns
 
-  Parameters:
-  -----------------------------------------------------------------------
-  patterns:   A list of regular expressions to match
-  keys:       A list of keys to search for matches
+  :param patterns: (list) regular expressions to match
+  :param keys: (list) keys to search for matches
   """
   results = []
   if patterns:

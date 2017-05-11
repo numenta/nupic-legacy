@@ -23,6 +23,8 @@
 This script provides the runExperiment() API function that is used
 by the command-line client run_opf_experiment.py of Online Prediction
 Framework (OPF). It executes a single experiment.
+
+This runner is generally run through `scripts/run_opf_experiment.py`.
 """
 
 from collections import namedtuple
@@ -35,7 +37,7 @@ import sys
 import random
 import numpy
 
-from nupic.data import jsonhelpers
+from nupic.data import json_helpers
 from nupic.frameworks.opf import opf_basic_environment, opf_helpers
 from nupic.frameworks.opf.exp_description_api import OpfEnvironment
 from nupic.frameworks.opf.model_factory import ModelFactory
@@ -128,22 +130,43 @@ g_parsedPrivateCommandLineOptionsSchema = {
 
 
 def runExperiment(args, model=None):
-  """Run a single OPF experiment
+  """
+  Run a single OPF experiment.
 
-  NOTE: The caller is resposible for initializing python logging before calling
-  this function (e.g., import nupic.support; nupic.support.initLogging())
+  .. note:: The caller is responsible for initializing python logging before
+     calling this function (e.g., import :mod:`nupic.support`;
+     :meth:`nupic.support.initLogging`)
 
-  see also initExperimentPrng()
+  See also: :meth:`.initExperimentPrng`.
 
-  Args:
-    args: Experiment command-line args list WITHOUT the
-        experiment_runner.py script path in argv[0]
-        (e.g., sys.argv[1:]). For supported options, see
-        _parseCommandLineOptions()
-    model: For testing: may pass in an existing OPF Model
-        to use instead of creating a new one.
+  :param args: (string) Experiment command-line args list. Too see all options,
+      run with ``--help``:
 
-  Returns:
+      .. code-block:: text
+
+        Options:
+          -h, --help           show this help message and exit
+          -c <CHECKPOINT>      Create a model and save it under the given <CHECKPOINT>
+                               name, but don't run it
+          --listCheckpoints    List all available checkpoints
+          --listTasks          List all task labels in description.py
+          --load=<CHECKPOINT>  Load a model from the given <CHECKPOINT> and run it.
+                               Run with --listCheckpoints flag for more details.
+          --newSerialization   Use new capnproto serialization
+          --tasks              Run the tasks with the given TASK LABELS in the order
+                               they are given.  Either end of arg-list, or a
+                               standalone dot ('.') arg or the next short or long
+                               option name (-a or --blah) terminates the list. NOTE:
+                               FAILS TO RECOGNIZE task label names with one or more
+                               leading dashes. [default: run all of the tasks in
+                               description.py]
+          --testMode           Reduce iteration count for testing
+          --noCheckpoint       Don't checkpoint the model after running each task.
+
+  :param model: (:class:`~nupic.frameworks.opf.model.Model`) For testing, may
+      pass in an existing OPF Model to use instead of creating a new one.
+
+  :returns: (:class:`~nupic.frameworks.opf.model.Model`)
     reference to OPF Model instance that was constructed (this
     is provided to aid with debugging) or None, if none was
     created.
@@ -162,9 +185,9 @@ def runExperiment(args, model=None):
 def initExperimentPrng():
   """Initialize PRNGs that may be used by other modules in the experiment stack.
 
-  NOTE: User may call this function to initialize PRNGs that are used by the
-  experiment stack before calling runExperiment(), unless user has its own
-  own logic for initializing these PRNGs
+  .. note:: User may call this function to initialize PRNGs that are used by the
+     experiment stack before calling runExperiment(), unless user has its own
+     own logic for initializing these PRNGs.
   """
   seed = 42
   random.seed(seed)
@@ -373,8 +396,8 @@ def _runExperimentImpl(options, model=None):
       is provided to aid with debugging) or None, if none was
       created.
   """
-  jsonhelpers.validate(options.privateOptions,
-                       schemaDict=g_parsedPrivateCommandLineOptionsSchema)
+  json_helpers.validate(options.privateOptions,
+                        schemaDict=g_parsedPrivateCommandLineOptionsSchema)
 
   # Load the experiment's description.py module
   experimentDir = options.experimentDir

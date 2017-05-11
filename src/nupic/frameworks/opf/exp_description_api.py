@@ -25,15 +25,14 @@ Framework (OPF).
 
 The Description API interface encapsulates the following two important sets of
 configuration parameters in OPF
-1) model creation parameters (via getDescription)
-2) task control parameters (via getExperimentTasks)
 
+1. model creation parameters (via getDescription)
+2. task control parameters (via getExperimentTasks)
 
-
-The description class objects instantiated in description.py
+The description class objects instantiated in ``description.py``
 implements the functionality by subclassing the Description API interface.
 
-This allows description.py to be generic and oblivious to the specific
+This allows ``description.py`` to be generic and oblivious to the specific
 experiments.
 """
 
@@ -60,35 +59,36 @@ OpfEnvironment = Enum(Nupic='nupic',
 
 
 class DescriptionIface(object):
-  """ This is the base interface class for description API classes which provide
+  """
+  This is the base interface class for description API classes which provide
   OPF configuration parameters.
 
   This mechanism abstracts description API from the specific description objects
-  created by the individiual users.
+  created by the individual users.
 
   TODO: logging interface?
+
+  :param modelConfig: (dict)
+      Holds user-defined settings for model creation.  See OPF
+      `here <description-template.html>`_ for config dict documentation.
+
+  :param control: (dict)
+      How the model is to be run. The schema of this dictionary depends on the
+      'environment' parameter, which specifies the context in which the model is
+      being run.
   """
   __metaclass__ = ABCMeta
 
 
   @abstractmethod
   def __init__(self, modelConfig, control):
-    """
-        modelConfig:
-            a dictionary object which holds user-defined settings for model
-            creation.  See OPF descriptionTemplate.tpl for config dict
-            documentation
-
-        control:
-            A dictionary describing how the model is to be run. The schema of
-            this dictionary depends on the 'environment' parameter, which
-            specifies the context in which the model is being run.
-    """
+    pass
 
 
   @abstractmethod
   def getModelDescription(self):
-    """ Returns the model creation parameters based on the settings in the config
+    """
+    :returns: the model creation parameters based on the settings in the config
     dictionary.
     """
 
@@ -97,7 +97,7 @@ class DescriptionIface(object):
   def getModelControl(self):
     """ Returns the task instances of the experiment description.
 
-    Returns: A python dict describing how the model is to be run
+    :returns: (dict) describing how the model is to be run
     """
 
 
@@ -117,26 +117,16 @@ class DescriptionIface(object):
     that you want to run both permutations on (which requires the Nupic
     environment format) and single OPF experiments on (which requires the
     OPF format).
-
-    Returns: None
     """
 
 
 
 class ExperimentDescriptionAPI(DescriptionIface):
+  """
+  TODO: Document this.
+  """
 
   def __init__(self, modelConfig, control):
-    """
-    modelConfig:
-        a dictionary object which holds user-defined settings for model
-        creation.  See OPF descriptionTemplate.tpl for config dict
-        documentation
-
-    control:
-        A dictionary describing how the model is to be run. The schema of
-        this dictionary depends on the 'environment' parameter, which
-        specifies the context in which the model is being run.
-    """
     environment = control['environment']
     if environment == OpfEnvironment.Experiment:
       self.__validateExperimentControl(control)
@@ -157,10 +147,6 @@ class ExperimentDescriptionAPI(DescriptionIface):
 
 
   def getModelControl(self):
-    """ Returns the task instances of the experiment description.
-
-    Returns: A python dict describing how the model is to be run
-    """
     return self.__control
 
 
@@ -197,6 +183,10 @@ class ExperimentDescriptionAPI(DescriptionIface):
 
 
   def normalizeStreamSource(self, stream):
+    """
+    TODO: document
+    :param stream:
+    """
     # The stream source in the task might be in several formats, so we need
     # to make sure it gets converted into an absolute path:
     source = stream['source'][len(FILE_SCHEME):]
@@ -216,6 +206,9 @@ class ExperimentDescriptionAPI(DescriptionIface):
 
 
   def normalizeStreamSources(self):
+    """
+    TODO: document
+    """
     task = dict(self.__control)
     if 'dataset' in task:
       for stream in task['dataset']['streams']:
@@ -227,6 +220,9 @@ class ExperimentDescriptionAPI(DescriptionIface):
 
 
   def convertNupicEnvToOPF(self):
+    """
+    TODO: document
+    """
 
     # We need to create a task structure, most of which is taken verbatim
     # from the Nupic control dict

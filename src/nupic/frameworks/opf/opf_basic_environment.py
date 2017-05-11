@@ -20,16 +20,17 @@
 # ----------------------------------------------------------------------
 
 """
-This script provides a file-based implementation of the opf_environment
+This script provides a file-based implementation of the ``opf_environment``
 interfaces (OPF).
 
 This "basic" implementation of the interface (need a better name
 instead of "basic") uses files (.csv, etc.) versus Nupic's implementation
 that would use databases.
 
-This implementation is used by research tools, such as run_opf_experiment.
+This implementation is used by research tools, such as
+``scripts/run_opf_experiment.py``.
 
-The opf_environment interfaces encapsulate external specifics, such as
+The ``opf_environment`` interfaces encapsulate external specifics, such as
 data source (e.g., .csv file or database, etc.), prediction sink (.csv file or
 databse, etc.), report and serialization destination,  etc.
 """
@@ -57,18 +58,17 @@ from opf_utils import InferenceType, InferenceElement
 
 
 class PredictionMetricsLoggerIface(object):
-  """ This is the interface for output of prediction metrics
+  """ This is the interface for output of prediction metrics.
   """
   __metaclass__ = ABCMeta
 
 
   @abstractmethod
   def emitPeriodicMetrics(self, metrics):
-    """ Emits periodic metrics
+    """ Emits periodic metrics to stdout in JSON.
 
-    metrics:        A list of prediction_metrics_manager.MetricValueElement:
-
-    Returns:        nothing.
+    :param metrics: A list of metrics as returned by
+          :meth:`nupic.frameworks.opf.opf_task_driver.OPFTaskDriver.getMetrics`.
     """
 
 
@@ -76,12 +76,12 @@ class PredictionMetricsLoggerIface(object):
   def emitFinalMetrics(self, metrics):
     """ Emits final metrics.
 
-    NOTE: the intention is that the final metrics may go to a different
-          place (e.g., csv file) versus emitPeriodicMetrics (e.g., stdout)
+    .. note:: the intention is that the final metrics may go to a different
+              place (e.g., csv file) versus :meth:`emitPeriodicMetrics`
+              (e.g., stdout)
 
-    metrics:        A list of prediction_metrics_manager.MetricValueElement:
-
-    Returns:        nothing.
+    :param metrics: A list of metrics as returned by
+          :meth:`nupic.frameworks.opf.opf_task_driver.OPFTaskDriver.getMetrics`.
     """
 
 
@@ -95,24 +95,23 @@ class DatasetReaderIface(object):
   @abstractmethod
   def getDatasetFieldMetaData(self):
     """
-    Returns:      a tuple of dataset field metadata descriptors that are
+    :returns:     a tuple of dataset field metadata descriptors that are
                   arranged in the same order as the columns in the dataset.
                   Each field metadata descriptor is of type
-                  nupic.data.fieldmeta.FieldMetaInfo
+                  :class:`nupic.data.field_meta.FieldMetaInfo`
     """
 
 
   @abstractmethod
   def next(self):
     """
-    Returns:      The next record from the dataset.  The returned record object
+    :returns:     The next record from the dataset.  The returned record object
                   is of the same structure as returned by
-                  RecordStreamIface.getNextRecord(). Returns None if
-                  the next record is not available yet.
+                  :meth:`nupic.data.record_stream.RecordStreamIface.getNextRecord`.
+                  Returns ``None`` if the next record is not available yet.
 
-    Exceptions:
-      StopIteration:  if a hard "end of file" has been reached
-                      and no more records will be forthcoming.
+    :raises: (StopIteration) if a hard "end of file" has been reached
+                  and no more records will be forthcoming.
     """
 
 
@@ -170,16 +169,14 @@ class BasicPredictionMetricsLogger(PredictionMetricsLoggerIface):
   prediction metrics
 
   TODO: where should periodic and final predictions go (versus stdout)
+
+  :param experimentDir: (string) path to directory for experiment to run.
+
+  :param label: (string) used to distinguish the output's container (e.g.,
+         filename, directory name, property key, etc.).
   """
 
   def __init__(self, experimentDir, label):
-    """ Constructor
-
-    label:        A distinguishing string that will be used to distinguish
-                  the output's container (e.g., filename, directory name,
-                  property key, etc.).
-    """
-
     self.__experimentDir = experimentDir
     self.__label = label
     return
@@ -192,13 +189,6 @@ class BasicPredictionMetricsLogger(PredictionMetricsLoggerIface):
 
 
   def emitPeriodicMetrics(self, metrics):
-    """ Emits periodic metrics
-
-    metrics:        A list of prediction_metrics_manager.MetricValueElement:
-
-    Returns:        nothing.
-    """
-
     jsonString = self._translateMetricsToJSON(metrics, label="PERIODIC")
 
     self._emitJSONStringToStdout(jsonString)
@@ -206,16 +196,6 @@ class BasicPredictionMetricsLogger(PredictionMetricsLoggerIface):
 
 
   def emitFinalMetrics(self, metrics):
-    """ Emits final metrics.
-
-    NOTE: the intention is that the final metrics may go to a different
-          place (e.g., csv file) versus emitPeriodicMetrics (e.g., stdout)
-
-    metrics:        A list of prediction_metrics_manager.MetricValueElement:
-
-    Returns:        nothing.
-    """
-
     jsonString = self._translateMetricsToJSON(metrics, label="FINAL")
     self._emitJSONStringToStdout(jsonString)
     return
@@ -265,16 +245,12 @@ class BasicPredictionMetricsLogger(PredictionMetricsLoggerIface):
 
 
 class BasicDatasetReader(DatasetReaderIface):
-  """ This is a CSV file-based implementation of DatasetReaderIface
+  """ This is a CSV file-based implementation of :class:`DatasetReaderIface`.
+
+  :param streamDefDict: stream definition, as defined `here <stream-def.html>`_.
   """
 
   def __init__(self, streamDefDict):
-    """ Constructor
-
-    streamDefDict:   stream definition, as defined in
-                     py/nupic/frameworks/opf/jsonschema/stream_def.json
-    """
-
     # Create the object to read from
     self._reader = StreamReader(streamDefDict, saveOutput=True)
     return
@@ -293,12 +269,6 @@ class BasicDatasetReader(DatasetReaderIface):
 
 
   def getDatasetFieldMetaData(self):
-    """ [virtual method override]
-    Returns:      a tuple of dataset field metadata descriptors that are
-                  arranged in the same order as the columns in the dataset.
-                  Each field metadata descriptor is of type
-                  nupic.data.fieldmeta.FieldMetaInfo
-    """
     return FieldMetaInfo.createListFromFileFieldList(self._reader.getFields())
 
 
@@ -722,12 +692,11 @@ class _BasicPredictionWriter(PredictionWriterIface):
 class NonTemporalPredictionLogAdapter(object):
   """ This class serves as an adapter for a client-instantiated Non-temporal log
   writer.
+
+  :param writer: (:class:`PredictionWriterIface`) Non-temporal prediction log
+         writer
   """
   def __init__(self, writer):
-    """
-    writer:       Non-temporal prediction log writer conforming to
-                  PredictionWriterIface interface.
-    """
     self.__writer = writer
     return
 
@@ -793,30 +762,24 @@ class TemporalPredictionLogAdapter(object):
 class BasicPredictionLogger(opfenv.PredictionLoggerIface):
   """ This class implements logging of predictions to files as actual vs
   predicted values.
+
+  :param fields: (list) of :class:`nupic.data.field_meta.FieldMetaInfo` objects
+         representing the encoder-mapped data row field value sequences that
+         will be emitted to this prediction logger.
+
+  :param experimentDir: (string) experiment directory path that contains
+         description.py
+
+  :param label: (string) to incorporate into the filename.
+
+  :param checkpointSource: If not None, a File-like object containing the
+         previously-checkpointed predictions for setting the initial contents of
+         this output stream.  Will be copied before returning, if
+         needed.
   """
 
   def __init__(self, fields, experimentDir, label, inferenceType,
                checkpointSource=None):
-    """ Constructor
-
-    fields:       A non-empty sequence of nupic.data.fieldmeta.FieldMetaInfo
-                  representing the encoder-mapped data row field value
-                  sequences that will be emitted to this prediction
-                  logger.
-
-    experimentDir:
-                  experiment directory path that contains description.py
-
-    label:        A label string to incorporate into the filename.
-
-    checkpointSource:
-                  If not None, a File-like object containing the
-                  previously-checkpointed predictions for setting the initial
-                  contents of this PredictionOutputStream.  Will be copied
-                  before returning, if needed.
-    """
-
-
     #assert len(fields) > 0
 
     self.__reprString = (
@@ -848,8 +811,6 @@ class BasicPredictionLogger(opfenv.PredictionLoggerIface):
 
 
   def close(self):
-    """ Called when the stream is completed
-    """
     if self.__logAdapter:
       self.__logAdapter.close()
     self.__logAdapter = None
@@ -857,28 +818,11 @@ class BasicPredictionLogger(opfenv.PredictionLoggerIface):
 
 
   def writeRecord(self, modelResult):
-    """ Emits a set of inputs data, inferences, and metrics from a model
-    resulting from a single record.
-
-    modelResult:    An opf_utils.ModelResult object that contains the model input
-                    and output for the current timestep.
-    """
-
     self.writeRecords([modelResult])
     return
 
 
   def writeRecords(self, modelResults, progressCB=None):
-    """ Same as writeRecord above, but emits multiple rows in one shot.
-
-    modelResults:  a list of opf_utils.ModelResult objects, Each dictionary
-                    represents one record.
-
-    progressCB: an optional callback method that will be called after each
-                  batch of records is written.
-
-    """
-
     # Instantiate the logger if it doesn't exist yet
     if self.__logAdapter is None and modelResults:
       self.__writer = _BasicPredictionWriter(
@@ -916,31 +860,11 @@ class BasicPredictionLogger(opfenv.PredictionLoggerIface):
     return
 
   def setLoggedMetrics(self, metricNames):
-    """ [virtual method override] Sets which metrics should be written to the
-    prediction log
-
-    Parameters:
-    -----------------------------------------------------------------------
-    metricNames:      A list of metric names that match the labels of the
-                      metrics that should be written to the prediction log
-    """
     self.__loggedMetricNames = metricNames
     if self.__writer is not None:
       self.__writer.setLoggedMetrics(metricNames)
 
   def checkpoint(self, checkpointSink, maxRows):
-    """ [virtual method override] Save a checkpoint of the prediction output
-    stream. The checkpoint comprises up to maxRows of the most recent inference
-    records.
-
-    Parameters:
-    ----------------------------------------------------------------------
-    checkpointSink:     A File-like object where predictions checkpoint data, if
-                        any, will be stored.
-    maxRows:            Maximum number of most recent inference rows
-                        to checkpoint.
-    """
-
     checkpointSink.truncate()
 
     if self.__writer is None:

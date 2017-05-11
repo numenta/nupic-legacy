@@ -26,7 +26,7 @@ This file tests the operation of the Previous Value Model.
 
 import unittest2 as unittest
 
-from nupic.data import dictutils
+from nupic.data import dict_utils
 from nupic.frameworks.opf import opf_utils, previous_value_model
 
 SEQUENCE_LENGTH = 100
@@ -56,7 +56,7 @@ class PreviousValueModelTest(unittest.TestCase):
     model = previous_value_model.PreviousValueModel(
       opf_utils.InferenceType.TemporalNextStep, predictedField ='a')
 
-    inputRecords = (dictutils.DictObj({'a' : d}) for d in data)
+    inputRecords = (dict_utils.DictObj({'a' : d}) for d in data)
 
     for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
                                                              data)):
@@ -74,7 +74,7 @@ class PreviousValueModelTest(unittest.TestCase):
       opf_utils.InferenceType.TemporalMultiStep, predictedField ='a',
       predictionSteps = [1, 3, 5])
 
-    inputRecords = (dictutils.DictObj({'a' : d}) for d in data)
+    inputRecords = (dict_utils.DictObj({'a' : d}) for d in data)
 
     for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
                                                              data)):

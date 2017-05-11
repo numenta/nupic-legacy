@@ -36,7 +36,7 @@ from nupic.support.configuration import Configuration
 from nupic.swarming.hypersearch.ExtendedLogger import ExtendedLogger
 from nupic.swarming.hypersearch.errorcodes import ErrorCodes
 from nupic.swarming.utils import clippedObj, validate
-from nupic.database.ClientJobsDAO import ClientJobsDAO
+from nupic.database.client_jobs_dao import ClientJobsDAO
 from HypersearchV2 import HypersearchV2
 
 
@@ -267,7 +267,7 @@ class HypersearchWorker(object):
       wID = options.workerID
     else:
       wID = self._workerID
-    
+
     buildID = Configuration.get('nupic.software.buildNumber', 'N/A')
     logPrefix = '<BUILDID=%s, WORKER=HW, WRKID=%s, JOBID=%s> ' % \
                 (buildID, wID, options.jobID)
@@ -332,7 +332,7 @@ class HypersearchWorker(object):
             # changed and new models, and sends those to the Hypersearch
             # implementation's self._hs.recordModelProgress() method.
             self._processUpdatedModels(cjDAO)
-  
+
             # --------------------------------------------------------------------
             # Create a new batch of models
             (exit, newModels) = self._hs.createModels(numModels = batchSize)
@@ -344,13 +344,13 @@ class HypersearchWorker(object):
             #  orphan if it detects one.
             if len(newModels) == 0:
               continue
-  
+
             # Try and insert one that we will run
             for (modelParams, modelParamsHash, particleHash) in newModels:
               jsonModelParams = json.dumps(modelParams)
               (modelID, ours) = cjDAO.modelInsertAndStart(options.jobID,
                                   jsonModelParams, modelParamsHash, particleHash)
-  
+
               # Some other worker is already running it, tell the Hypersearch object
               #  so that it doesn't try and insert it again
               if not ours:
@@ -359,16 +359,16 @@ class HypersearchWorker(object):
                 results = mResult.results
                 if results is not None:
                   results = json.loads(results)
-  
+
                 modelParams = json.loads(mParamsAndHash.params)
-                particleHash = cjDAO.modelsGetFields(modelID, 
+                particleHash = cjDAO.modelsGetFields(modelID,
                                   ['engParticleHash'])[0]
                 particleInst = "%s.%s" % (
                           modelParams['particleState']['id'],
                           modelParams['particleState']['genIdx'])
                 self.logger.info("Adding model %d to our internal DB " \
                       "because modelInsertAndStart() failed to insert it: " \
-                      "paramsHash=%s, particleHash=%s, particleId='%s'", modelID, 
+                      "paramsHash=%s, particleHash=%s, particleId='%s'", modelID,
                       mParamsAndHash.engParamsHash.encode('hex'),
                       particleHash.encode('hex'), particleInst)
                 self._hs.recordModelProgress(modelID = modelID,
@@ -382,14 +382,14 @@ class HypersearchWorker(object):
               else:
                 modelIDToRun = modelID
                 break
-  
+
           else:
             # A specific modelID was passed on the command line
             modelIDToRun = int(options.modelID)
             mParamsAndHash = cjDAO.modelsGetParams([modelIDToRun])[0]
             modelParams = json.loads(mParamsAndHash.params)
             modelParamsHash = mParamsAndHash.engParamsHash
-            
+
             # Make us the worker
             cjDAO.modelSetFields(modelIDToRun,
                                      dict(engWorkerConnId=self._workerID))
@@ -413,12 +413,12 @@ class HypersearchWorker(object):
               if not success:
                 raise RuntimeError("Unexpected failure to change paramsHash and "
                                    "particleHash of orphaned model")
-              
+
               (modelIDToRun, ours) = cjDAO.modelInsertAndStart(options.jobID,
                                   mParamsAndHash.params, modelParamsHash)
 
-            
-            
+
+
             # ^^^ end while modelIDToRun ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         # ---------------------------------------------------------------
@@ -597,7 +597,7 @@ if __name__ == "__main__":
   buildID = Configuration.get('nupic.software.buildNumber', 'N/A')
   logPrefix = '<BUILDID=%s, WORKER=HS, WRKID=N/A, JOBID=N/A> ' % buildID
   ExtendedLogger.setLogPrefix(logPrefix)
-  
+
   try:
     main(sys.argv)
   except:

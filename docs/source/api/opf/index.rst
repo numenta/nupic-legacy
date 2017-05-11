@@ -18,6 +18,11 @@ algorithms and functionalities can be added with minimal code changes.
    :maxdepth: 3
 
    models
+   clients
+   description-api
+   exp-runner
+   environment
    metrics
    results
    utils
+   exceptions

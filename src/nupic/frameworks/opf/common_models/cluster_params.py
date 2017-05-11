@@ -32,47 +32,54 @@ def getScalarMetricWithTimeOfDayAnomalyParams(metricData,
                                               minResolution=None,
                                               tmImplementation = "cpp"):
   """
-    Return a dict that can be used to create an anomaly model via OPF's
-    ModelFactory.
+  Return a dict that can be used to create an anomaly model via
+  :meth:`nupic.frameworks.opf.model_factory.ModelFactory.create`.
 
-    :param metricData: numpy array of metric data. Used to calculate minVal
-      and maxVal if either is unspecified
+  Example:
 
-    :param minVal: minimum value of metric. Used to set up encoders. If None
-      will be derived from metricData.
+  .. code-block:: python
 
-    :param maxVal: maximum value of metric. Used to set up input encoders. If
-      None will be derived from metricData
+    from nupic.frameworks.opf.model_factory import ModelFactory
+    from nupic.frameworks.opf.common_models.cluster_params import (
+      getScalarMetricWithTimeOfDayAnomalyParams)
 
-    :param minResolution: minimum resolution of metric. Used to set up
-      encoders.  If None, will use default value of 0.001.
+    params = getScalarMetricWithTimeOfDayAnomalyParams(
+      metricData=[0],
+      tmImplementation="cpp",
+      minVal=0.0,
+      maxVal=100.0)
 
-    :param tmImplementation: string specifying type of temporal memory implementation.
-      Valid strings : {"cpp", "tm_cpp"}
+    model = ModelFactory.create(modelConfig=params["modelConfig"])
+    model.enableLearning()
+    model.enableInference(params["inferenceArgs"])
 
-    :returns: a dict containing "modelConfig" and "inferenceArgs" top-level
-      properties. The value of the "modelConfig" property is for passing to
-      the OPF `ModelFactory.create()` method as the `modelConfig` parameter. The
-      "inferenceArgs" property is for passing to the resulting model's
-      `enableInference()` method as the inferenceArgs parameter. NOTE: the
-      timestamp field corresponds to input "c0"; the predicted field corresponds
-      to input "c1".
-    :rtype: dict
 
-    Example:
-      from nupic.frameworks.opf.model_factory import ModelFactory
-      from nupic.frameworks.opf.common_models.cluster_params import (
-        getScalarMetricWithTimeOfDayAnomalyParams)
+  :param metricData: numpy array of metric data. Used to calculate ``minVal``
+    and ``maxVal`` if either is unspecified
 
-      params = getScalarMetricWithTimeOfDayAnomalyParams(
-        metricData=[0],
-        tmImplementation="cpp",
-        minVal=0.0,
-        maxVal=100.0)
+  :param minVal: minimum value of metric. Used to set up encoders. If ``None``
+    will be derived from ``metricData``.
 
-      model = ModelFactory.create(modelConfig=params["modelConfig"])
-      model.enableLearning()
-      model.enableInference(params["inferenceArgs"])
+  :param maxVal: maximum value of metric. Used to set up input encoders. If
+    ``None`` will be derived from ``metricData``
+
+  :param minResolution: minimum resolution of metric. Used to set up
+    encoders.  If ``None``, will use default value of ``0.001``.
+
+  :param tmImplementation: (string) specifying type of temporal memory
+    implementation. Valid strings : ``["cpp", "tm_cpp"]``
+
+  :returns: (dict) containing ``modelConfig`` and ``inferenceArgs`` top-level
+    properties. The value of the ``modelConfig`` property is for passing to
+    :meth:`~nupic.frameworks.opf.model_factory.ModelFactory.create` method as
+    the ``modelConfig`` parameter. The ``inferenceArgs`` property is for passing
+    to the resulting model's
+    :meth:`~nupic.frameworks.opf.model.Model.enableInference` method as the
+    ``inferenceArgs`` parameter.
+
+    .. note:: The timestamp field corresponds to input ``c0``; the predicted
+       field corresponds to input ``c1``.
+
   """
   # Default values
   if minResolution is None:

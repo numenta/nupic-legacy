@@ -22,7 +22,7 @@
 import os
 import imp
 
-from nupic.data.dictutils import rUpdate
+from nupic.data.dict_utils import rUpdate
 
 
 # This file contains utility functions that are used

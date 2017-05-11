@@ -43,7 +43,7 @@ from nupic.swarming.experimentutils import InferenceType
 from nupic.swarming.utils import sortedJSONDumpS, rApply, rCopy
 from nupic.swarming.utils import clippedObj
 from nupic.swarming.utils import (runModelGivenBaseAndParams, runDummyModel)
-from nupic.database.ClientJobsDAO import (
+from nupic.database.client_jobs_dao import (
     ClientJobsDAO, InvalidConnectionException)
 from nupic.swarming.exp_generator.ExpGenerator import expGenerator
 

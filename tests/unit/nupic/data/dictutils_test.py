@@ -23,7 +23,7 @@
 
 import unittest2 as unittest
 
-from nupic.data import dictutils
+from nupic.data import dict_utils
 from nupic.swarming.utils import rCopy
 
 
@@ -35,22 +35,22 @@ class TestDictUtils(unittest.TestCase):
     d = {}
 
     # Both empty.
-    dictutils.rUpdate(d, {})
+    dict_utils.rUpdate(d, {})
     self.assertDictEqual(d, {})
 
     # Original empty.
-    dictutils.rUpdate(d, {"a": 1})
+    dict_utils.rUpdate(d, {"a": 1})
     self.assertDictEqual(d, {"a": 1})
 
     # Update empty.
-    dictutils.rUpdate(d, {})
+    dict_utils.rUpdate(d, {})
     self.assertDictEqual(d, {"a": 1})
 
 
   def testRUpdateBasic(self):
     d = {"a": {"b": 2, "e": 4},
          "c": {"d": 3}}
-    dictutils.rUpdate(d, {"a": {"b": 5}})
+    dict_utils.rUpdate(d, {"a": {"b": 5}})
     self.assertDictEqual(d, {"a": {"b": 5, "e": 4},
                              "c": {"d": 3}})
 

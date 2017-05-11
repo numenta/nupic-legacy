@@ -36,7 +36,7 @@ import signal
 import uuid
 import validictory
 
-from nupic.database.ClientJobsDAO import (
+from nupic.database.client_jobs_dao import (
     ClientJobsDAO, InvalidConnectionException)
 
 # TODO: Note the function 'rUpdate' is also duplicated in the

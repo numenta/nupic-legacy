@@ -121,7 +121,7 @@ def test():
   import sys
 
   schemaDict = {
-    "description":"JSON schema for jsonhelpers.py test code",
+    "description":"JSON schema for json_helpers.py test code",
     "type":"object",
     "additionalProperties":False,
     "properties":{
