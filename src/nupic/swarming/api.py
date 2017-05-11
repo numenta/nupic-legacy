@@ -26,7 +26,7 @@ import os
 import shutil
 import tempfile
 
-from nupic.frameworks.opf import opf_helpers
+from nupic.frameworks.opf import helpers
 from nupic.database.client_jobs_dao import ClientJobsDAO
 from nupic.support.configuration import Configuration
 
@@ -80,7 +80,7 @@ def getSwarmModelParams(modelID):
     JSON-encoded string containing Model Params
   """
 
-  # TODO: the use of opf_helpers.loadExperimentDescriptionScriptFromDir when
+  # TODO: the use of nupic.frameworks.opf.helpers.loadExperimentDescriptionScriptFromDir when
   #  retrieving module params results in a leakage of pf_base_descriptionNN and
   #  pf_descriptionNN module imports for every call to getSwarmModelParams, so
   #  the leakage is unlimited when getSwarmModelParams is called by a
@@ -96,7 +96,8 @@ def getSwarmModelParams(modelID):
   (baseDescription,) = cjDAO.jobGetFields(jobID, ["genBaseDescription"])
 
   # Construct a directory with base.py and description.py for loading model
-  # params, and use opf_helpers to extract model params from those files
+  # params, and use nupic.frameworks.opf.helpers to extract model params from
+  # those files
   descriptionDirectory = tempfile.mkdtemp()
   try:
     baseDescriptionFilePath = os.path.join(descriptionDirectory, "base.py")
@@ -107,8 +108,8 @@ def getSwarmModelParams(modelID):
     with open(descriptionFilePath, mode="wb") as f:
       f.write(description)
 
-    expIface = opf_helpers.getExperimentDescriptionInterfaceFromModule(
-      opf_helpers.loadExperimentDescriptionScriptFromDir(descriptionDirectory))
+    expIface = helpers.getExperimentDescriptionInterfaceFromModule(
+      helpers.loadExperimentDescriptionScriptFromDir(descriptionDirectory))
 
     return json.dumps(
       dict(
