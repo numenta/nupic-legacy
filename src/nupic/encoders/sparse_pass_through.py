@@ -21,11 +21,11 @@
 
 import numpy
 
-from nupic.encoders import pass_through_encoder
+from nupic.encoders import pass_through
 
 
 
-class SparsePassThroughEncoder(pass_through_encoder.PassThroughEncoder):
+class SparsePassThroughEncoder(pass_through.PassThroughEncoder):
   """
   Convert a bitmap encoded as array indices to an SDR.
 

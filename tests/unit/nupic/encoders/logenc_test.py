@@ -28,7 +28,7 @@ from nupic.data.field_meta import FieldMetaType
 import tempfile
 import unittest
 
-from nupic.encoders.logenc import LogEncoder
+from nupic.encoders.logarithm import LogEncoder
 from nupic.encoders.scalar import ScalarEncoder
 
 try:
@@ -36,7 +36,7 @@ try:
 except ImportError:
   capnp = None
 if capnp:
-  from nupic.encoders.log_capnp import LogEncoderProto
+  from nupic.encoders.logarithm_capnp import LogEncoderProto
 
 
 

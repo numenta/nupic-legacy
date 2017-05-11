@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 from nupic.encoders.base import Encoder
 from nupic.encoders.delta import DeltaEncoder
-from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
+from nupic.encoders.adaptive_scalar import AdaptiveScalarEncoder
 
 
 class ScalarSpaceEncoder(Encoder):

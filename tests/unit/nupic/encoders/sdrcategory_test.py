@@ -26,7 +26,7 @@ from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 import tempfile
 import unittest
 
-from nupic.encoders.sdrcategory import SDRCategoryEncoder
+from nupic.encoders.sdr_category import SDRCategoryEncoder
 
 
 try:
@@ -34,7 +34,7 @@ try:
 except ImportError:
   capnp = None
 if capnp:
-  from nupic.encoders.sdrcategory_capnp import SDRCategoryEncoderProto
+  from nupic.encoders.sdr_category_capnp import SDRCategoryEncoderProto
 
 
 
