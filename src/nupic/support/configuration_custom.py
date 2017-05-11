@@ -29,7 +29,7 @@ import sys
 import traceback
 from xml.etree import ElementTree
 
-from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
+from nupic.support.fs_helpers import makeDirectoryFromAbsolutePath
 from nupic.support.configuration_base import Configuration as ConfigurationBase
 
 
@@ -86,13 +86,13 @@ class Configuration(ConfigurationBase):
     """
     _getLogger().info("Setting custom configuration properties=%r; caller=%r",
                       properties, traceback.format_stack())
-    
+
     _CustomConfigurationFileWrapper.edit(properties)
-      
+
     for propertyName, value in properties.iteritems():
       cls.set(propertyName, value)
 
-  
+
   @classmethod
   def clear(cls):
     """ Clear all configuration properties from in-memory cache, but do NOT
@@ -104,8 +104,8 @@ class Configuration(ConfigurationBase):
 
     # Reset in-memory custom configuration info.
     _CustomConfigurationFileWrapper.clear(persistent=False)
-    
-  
+
+
   @classmethod
   def resetCustomConfig(cls):
     """ Clear all custom configuration settings and delete the persistent
@@ -128,7 +128,7 @@ class Configuration(ConfigurationBase):
     """ Loads custom configuration settings from their persistent storage.
     DO NOT CALL THIS: It's typically not necessary to call this method
     directly - see NOTE below.
-    
+
     NOTE: this method exists *solely* for the benefit of prepare_conf.py, which
     needs to load configuration files selectively.
     """
@@ -273,7 +273,7 @@ class _CustomConfigurationFileWrapper(object):
       newProp.append(valueTag)
 
       elements.append(newProp)
-    
+
     try:
       makeDirectoryFromAbsolutePath(os.path.dirname(configFilePath))
       with open(configFilePath,'w') as fp:

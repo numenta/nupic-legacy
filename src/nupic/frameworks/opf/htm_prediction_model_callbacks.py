@@ -25,7 +25,7 @@
 
 import os
 
-from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
+from nupic.support.fs_helpers import makeDirectoryFromAbsolutePath
 from htm_prediction_model import HTMPredictionModel
 
 

@@ -22,7 +22,7 @@
 import os
 import unittest2 as unittest
 
-from nupic.support.consoleprinter import ConsolePrinterMixin, Tee
+from nupic.support.console_printer import ConsolePrinterMixin, Tee
 
 
 
