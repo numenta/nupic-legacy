@@ -41,7 +41,7 @@ from pkg_resources import resource_filename
 from optparse import OptionParser
 
 
-from nupic.database.ClientJobsDAO import ClientJobsDAO
+from nupic.database.client_jobs_dao import ClientJobsDAO
 from nupic.support import configuration, initLogging
 from nupic.support.unittesthelpers.testcasebase import (unittest,
     TestCaseBase as HelperTestCaseBase)
