@@ -33,7 +33,7 @@ import uuid
 from nupic.support.decorators import logExceptions #, logEntryExit
 from nupic.database.connection import ConnectionFactory
 from nupic.support.configuration import Configuration
-from nupic.support import pymysqlhelpers
+from nupic.support import pymysql_helpers
 
 
 _MODULE_NAME = "nupic.database.ClientJobsDAO"
@@ -55,7 +55,7 @@ class InvalidConnectionException(Exception):
 #  insertions, etc.
 # NOTE: having this as a global permits us to switch parameters wholesale (e.g.,
 #  timeout)
-g_retrySQL = pymysqlhelpers.retrySQL(logger=_LOGGER)
+g_retrySQL = pymysql_helpers.retrySQL(logger=_LOGGER)
 
 
 

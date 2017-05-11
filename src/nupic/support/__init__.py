@@ -81,7 +81,7 @@ import traceback
 from pkg_resources import resource_string, resource_filename
 
 from configuration import Configuration
-from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
+from nupic.support.fs_helpers import makeDirectoryFromAbsolutePath
 
 
 # Local imports
