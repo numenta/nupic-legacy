@@ -22,7 +22,7 @@
 import numpy as np
 import unittest
 
-from nupic.algorithms.KNNClassifier import KNNClassifier
+from nupic.algorithms.knn_classifier import KNNClassifier
 
 
 
