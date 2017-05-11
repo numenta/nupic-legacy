@@ -22,7 +22,7 @@
 import numbers
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
+from nupic.encoders.adaptive_scalar import AdaptiveScalarEncoder
 from nupic.encoders.base import EncoderResult
 
 

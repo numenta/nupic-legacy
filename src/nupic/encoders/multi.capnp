@@ -1,17 +1,17 @@
 @0xf07c1f24bf12fe13;
 
-using import "/nupic/encoders/adaptivescalar.capnp".AdaptiveScalarEncoderProto;
+using import "/nupic/encoders/adaptive_scalar.capnp".AdaptiveScalarEncoderProto;
 using import "/nupic/encoders/category.capnp".CategoryEncoderProto;
 using import "/nupic/encoders/coordinate.capnp".CoordinateEncoderProto;
 using import "/nupic/encoders/date.capnp".DateEncoderProto;
 using import "/nupic/encoders/delta.capnp".DeltaEncoderProto;
 using import "/nupic/encoders/geospatial_coordinate.capnp".GeospatialCoordinateEncoderProto;
-using import "/nupic/encoders/log.capnp".LogEncoderProto;
+using import "/nupic/encoders/logarithm.capnp".LogEncoderProto;
 using import "/nupic/encoders/pass_through.capnp".PassThroughEncoderProto;
 using import "/nupic/encoders/random_distributed_scalar.capnp".RandomDistributedScalarEncoderProto;
 using import "/nupic/encoders/scalar.capnp".ScalarEncoderProto;
-using import "/nupic/encoders/sdrcategory.capnp".SDRCategoryEncoderProto;
-using import "/nupic/encoders/sparse_pass_through_encoder.capnp".SparsePassThroughEncoderProto;
+using import "/nupic/encoders/sdr_category.capnp".SDRCategoryEncoderProto;
+using import "/nupic/encoders/sparse_pass_through.capnp".SparsePassThroughEncoderProto;
 
 # Next ID: 3
 struct MultiEncoderProto {

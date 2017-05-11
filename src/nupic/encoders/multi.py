@@ -21,15 +21,15 @@
 
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder
-from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
+from nupic.encoders.adaptive_scalar import AdaptiveScalarEncoder
 from nupic.encoders.date import DateEncoder
-from nupic.encoders.logenc import LogEncoder
+from nupic.encoders.logarithm import LogEncoder
 from nupic.encoders.category import CategoryEncoder
-from nupic.encoders.sdrcategory import SDRCategoryEncoder
+from nupic.encoders.sdr_category import SDRCategoryEncoder
 from nupic.encoders.delta import DeltaEncoder
-from nupic.encoders.scalarspace import ScalarSpaceEncoder
-from nupic.encoders.pass_through_encoder import PassThroughEncoder
-from nupic.encoders.sparse_pass_through_encoder import SparsePassThroughEncoder
+from nupic.encoders.scalar_space import ScalarSpaceEncoder
+from nupic.encoders.pass_through import PassThroughEncoder
+from nupic.encoders.sparse_pass_through import SparsePassThroughEncoder
 from nupic.encoders.coordinate import CoordinateEncoder
 from nupic.encoders.geospatial_coordinate import GeospatialCoordinateEncoder
 # multiencoder must be imported last because it imports * from this module!

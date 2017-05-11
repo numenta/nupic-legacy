@@ -20,7 +20,7 @@ Category Encoders
 .. autoclass:: nupic.encoders.category.CategoryEncoder
    :show-inheritance:
 
-.. autoclass:: nupic.encoders.sdrcategory.SDRCategoryEncoder
+.. autoclass:: nupic.encoders.sdr_category.SDRCategoryEncoder
    :show-inheritance:
 
 Scalar Encoders
@@ -29,7 +29,7 @@ Scalar Encoders
 .. autoclass:: nupic.encoders.scalar.ScalarEncoder
    :show-inheritance:
 
-.. autoclass:: nupic.encoders.adaptivescalar.AdaptiveScalarEncoder
+.. autoclass:: nupic.encoders.adaptive_scalar.AdaptiveScalarEncoder
    :show-inheritance:
 
 .. autoclass:: nupic.encoders.random_distributed_scalar.RandomDistributedScalarEncoder
@@ -42,7 +42,7 @@ Scalar Encoders
 .. autoclass:: nupic.encoders.delta.DeltaEncoder
    :show-inheritance:
 
-.. autoclass:: nupic.encoders.logenc.LogEncoder
+.. autoclass:: nupic.encoders.logarithm.LogEncoder
    :show-inheritance:
 
 
@@ -75,9 +75,9 @@ Pass Through Encoders
 
 Used to pass raw SDRs through to the algorithms when data is already encoded.
 
-.. autoclass:: nupic.encoders.pass_through_encoder.PassThroughEncoder
+.. autoclass:: nupic.encoders.pass_through.PassThroughEncoder
    :members: closenessScores
    :show-inheritance:
 
-.. autoclass:: nupic.encoders.sparse_pass_through_encoder.SparsePassThroughEncoder
+.. autoclass:: nupic.encoders.sparse_pass_through.SparsePassThroughEncoder
    :show-inheritance:
