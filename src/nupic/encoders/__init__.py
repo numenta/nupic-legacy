@@ -26,7 +26,7 @@ from logarithm import LogEncoder
 from category import CategoryEncoder
 from sdr_category import SDRCategoryEncoder
 from delta import DeltaEncoder
-from scalarspace import ScalarSpaceEncoder
+from scalar_space import ScalarSpaceEncoder
 from coordinate import CoordinateEncoder
 from geospatial_coordinate import GeospatialCoordinateEncoder
 from nupic.encoders.pass_through import PassThroughEncoder

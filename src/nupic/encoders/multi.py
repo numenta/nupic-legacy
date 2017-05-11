@@ -27,7 +27,7 @@ from nupic.encoders.logarithm import LogEncoder
 from nupic.encoders.category import CategoryEncoder
 from nupic.encoders.sdr_category import SDRCategoryEncoder
 from nupic.encoders.delta import DeltaEncoder
-from nupic.encoders.scalarspace import ScalarSpaceEncoder
+from nupic.encoders.scalar_space import ScalarSpaceEncoder
 from nupic.encoders.pass_through import PassThroughEncoder
 from nupic.encoders.sparse_pass_through import SparsePassThroughEncoder
 from nupic.encoders.coordinate import CoordinateEncoder
