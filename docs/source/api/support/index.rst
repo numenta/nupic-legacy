@@ -15,3 +15,9 @@ Configuration Custom
 
 .. automodule:: nupic.support.configuration_custom
    :members:
+
+Console Printer
+^^^^^^^^^^^^^^^
+
+.. automodule:: nupic.support.console_printer
+   :members:
