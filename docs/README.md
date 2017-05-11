@@ -164,8 +164,8 @@ nupic
 │   ├── PluggableEncoderSensor.py [TODO]
 │   ├── RecordSensor.py [TODO]
 │   ├── RecordSensorFilters
-│   │   ├── AddNoise.py [TODO]
-│   │   └── ModifyFields.py [TODO]
+│   │   ├── add_noise.py [TODO]
+│   │   └── modify_fields.py [TODO]
 │   ├── SDRClassifierRegion.py [TODO]
 │   ├── SPRegion.py [TODO]
 │   ├── SVMClassifierNode.py [TODO]
