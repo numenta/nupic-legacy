@@ -19,9 +19,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-
-# This script contains file-system helper functions
-
+"""
+This module contains file-system helper functions.
+"""
 
 import os
 
@@ -31,11 +31,9 @@ def makeDirectoryFromAbsolutePath(absDirPath):
   """ Makes directory for the given directory path with default permissions.
   If the directory already exists, it is treated as success.
 
-  absDirPath:   absolute path of the directory to create.
-
-  Returns:      absDirPath arg
-
-  Exceptions:         OSError if directory creation fails
+  :param absDirPath: (string) absolute path of the directory to create.
+  :raises: OSError if directory creation fails
+  :returns: (string) absolute path provided
   """
 
   assert os.path.isabs(absDirPath)
