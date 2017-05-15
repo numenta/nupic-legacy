@@ -21,16 +21,18 @@
 
 """
 This module analyzes and estimates the distribution of averaged anomaly scores
-from a given model. Given a new anomaly score `s`, estimates `P(score >= s)`.
+from a given model. Given a new anomaly score ``s``, estimates
+``P(score >= s)``.
 
-The number `P(score >= s)` represents the likelihood of the current state of
+The number ``P(score >= s)`` represents the likelihood of the current state of
 predictability. For example, a likelihood of 0.01 or 1% means we see this much
 predictability about one out of every 100 records. The number is not as unusual
 as it seems. For records that arrive every minute, this means once every hour
 and 40 minutes. A likelihood of 0.0001 or 0.01% means we see it once out of
 10,000 records, or about once every 7 days.
 
-**USAGE**
+USAGE
++++++
 
 There are two ways to use the code: using the
 :class:`.anomaly_likelihood.AnomalyLikelihood` helper class or using the raw
@@ -38,39 +40,39 @@ individual functions :func:`~.anomaly_likelihood.estimateAnomalyLikelihoods` and
 :func:`~.anomaly_likelihood.updateAnomalyLikelihoods`.
 
 
-**Low-Level Function Usage**
+Low-Level Function Usage
+++++++++++++++++++++++++
 
-
-There are two primary interface routines:
+There are two primary interface routines.
 
 - :func:`~.anomaly_likelihood.estimateAnomalyLikelihoods`: batch routine, called
-    initially and once in a while
+  initially and once in a while
 - :func:`~.anomaly_likelihood.updateAnomalyLikelihoods`: online routine, called
-    for every new data point
+  for every new data point
 
-1. Initially::
+Initially:
 
 .. code-block:: python
 
    likelihoods, avgRecordList, estimatorParams = \\
      estimateAnomalyLikelihoods(metric_data)
 
-2. Whenever you get new data::
+Whenever you get new data:
 
 .. code-block:: python
 
    likelihoods, avgRecordList, estimatorParams = \\
      updateAnomalyLikelihoods(data2, estimatorParams)
 
-3. And again (make sure you use the new estimatorParams returned in the above
-  call to updateAnomalyLikelihoods!)::
+And again (make sure you use the new estimatorParams returned in the above call
+to updateAnomalyLikelihoods!).
 
 .. code-block:: python
 
    likelihoods, avgRecordList, estimatorParams = \\
      updateAnomalyLikelihoods(data3, estimatorParams)
 
-4. Every once in a while update estimator with a lot of recent data::
+Every once in a while update estimator with a lot of recent data.
 
 .. code-block:: python
 
@@ -78,7 +80,8 @@ There are two primary interface routines:
      estimateAnomalyLikelihoods(lots_of_metric_data)
 
 
-**PARAMS**
+PARAMS
+++++++
 
 The parameters dict returned by the above functions has the following
 structure. Note: the client does not need to know the details of this.
