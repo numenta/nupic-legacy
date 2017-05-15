@@ -33,9 +33,9 @@ import subprocess
 from nupic.swarming.hypersearch import object_json as json
 
 import nupic.database.client_jobs_dao as cjdao
-from nupic.swarming import HypersearchWorker
-from nupic.swarming.HypersearchV2 import HypersearchV2
-from nupic.swarming.exp_generator.ExpGenerator import expGenerator
+from nupic.swarming import hypersearch_worker
+from nupic.swarming.hypersearch_v2 import HypersearchV2
+from nupic.swarming.exp_generator.experiment_generator import expGenerator
 from nupic.swarming.utils import *
 
 
@@ -653,7 +653,7 @@ class _HyperSearchRunner(object):
       print "=================================================================="
       print "RUNNING PERMUTATIONS INLINE as \"DRY RUN\"..."
       print "=================================================================="
-      jobID = HypersearchWorker.main(args)
+      jobID = hypersearch_worker.main(args)
 
     else:
       cmdLine = _setUpExports(self._options["exports"])

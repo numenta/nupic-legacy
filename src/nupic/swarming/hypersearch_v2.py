@@ -33,19 +33,19 @@ import copy
 import pprint
 
 from nupic.swarming.hypersearch.permutation_helpers import *
-from nupic.swarming.hypersearch.Particle import Particle
-from nupic.swarming.hypersearch.errorcodes import ErrorCodes
-from nupic.swarming.hypersearch.SwarmTerminator import SwarmTerminator
-from nupic.swarming.hypersearch.HsState import HsState, HsSearchType
+from nupic.swarming.hypersearch.particle import Particle
+from nupic.swarming.hypersearch.error_codes import ErrorCodes
+from nupic.swarming.hypersearch.swarm_terminator import SwarmTerminator
+from nupic.swarming.hypersearch.hs_state import HsState, HsSearchType
 
 from nupic.frameworks.opf import helpers
-from nupic.swarming.experimentutils import InferenceType
+from nupic.swarming.experiment_utils import InferenceType
 from nupic.swarming.utils import sortedJSONDumpS, rApply, rCopy
 from nupic.swarming.utils import clippedObj
 from nupic.swarming.utils import (runModelGivenBaseAndParams, runDummyModel)
 from nupic.database.client_jobs_dao import (
     ClientJobsDAO, InvalidConnectionException)
-from nupic.swarming.exp_generator.ExpGenerator import expGenerator
+from nupic.swarming.exp_generator.experiment_generator import expGenerator
 
 
 def _flattenKeys(keys):
