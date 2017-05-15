@@ -144,7 +144,7 @@ class TemporalMemoryPerformanceBenchmark(object):
         reader.next()
         reader.next()
 
-        encodedValue = numpy.zeros(2048, dtype=numpy.int32)
+        encodedValue = numpy.zeros(2048, dtype=numpy.uint32)
 
         for timeStr, valueStr in reader:
           value = float(valueStr)
@@ -221,24 +221,24 @@ def tmParamsFn(cellsPerColumn):
     "initialPermanence": 0.5,
     "connectedPermanence": 0.8,
     "minThreshold": 10,
-    "maxNewSynapseCount": 12,
+    "maxNewSynapseCount": 20,
     "permanenceIncrement": 0.1,
     "permanenceDecrement": 0.05,
-    "activationThreshold": 15
+    "activationThreshold": 13
   }
 
 
-def tmParamsFn(cellsPerColumn):
+def backtrackingParamsFn(cellsPerColumn):
   return {
     "numberOfCols": 2048,
     "cellsPerColumn": cellsPerColumn,
     "initialPerm": 0.5,
     "connectedPerm": 0.8,
     "minThreshold": 10,
-    "newSynapseCount": 12,
+    "newSynapseCount": 20,
     "permanenceInc": 0.1,
     "permanenceDec": 0.05,
-    "activationThreshold": 15,
+    "activationThreshold": 13,
     "globalDecay": 0,
     "burnIn": 1,
     "checkSynapseConsistency": False,
@@ -250,7 +250,7 @@ def tmComputeFn(instance, encoding, activeBits):
   instance.compute(activeBits, learn=True)
 
 
-def tpComputeFn(instance, encoding, activeBits):
+def backtrackingComputeFn(instance, encoding, activeBits):
   instance.compute(encoding, enableLearn=True, computeInfOutput=True)
 
 
@@ -265,6 +265,9 @@ if __name__ == "__main__":
                "20_simple_sequence", "20_simple_sequence_no_resets",
                "20_hotgym", "20_hotgym_1_cell"]
 
+  defaultTests = ["simple_sequence", "simple_sequence_no_resets",
+                  "hotgym", "hotgym_1_cell", "random", "5_random"]
+
   parser.add_argument("-i", "--implementations",
                       nargs="*",
                       type=str,
@@ -277,7 +280,7 @@ if __name__ == "__main__":
                       type=str,
                       help=("The tests to run. Options: %s"
                             % ", ".join(testNames)),
-                      default=testNames)
+                      default=defaultTests)
 
   parser.add_argument("--pause",
                       help="Pause before each test.",
@@ -319,16 +322,16 @@ if __name__ == "__main__":
     import nupic.algorithms.backtracking_tm
     benchmark.addContestant(
       nupic.algorithms.backtracking_tm.BacktrackingTM,
-      paramsFn=tmParamsFn,
-      computeFn=tpComputeFn,
+      paramsFn=backtrackingParamsFn,
+      computeFn=backtrackingComputeFn,
       name="tp_py")
 
   if "tp_cpp" in args.implementations:
     import nupic.algorithms.backtracking_tm_cpp
     benchmark.addContestant(
       nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP,
-      paramsFn=tmParamsFn,
-      computeFn=tpComputeFn,
+      paramsFn=backtrackingParamsFn,
+      computeFn=backtrackingComputeFn,
       name="tp_cpp")
 
 
