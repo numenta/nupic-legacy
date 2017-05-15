@@ -438,7 +438,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     else:
       envStr = ''
 
-    cmdLine = '%s python -m nupic.swarming.HypersearchWorker ' \
+    cmdLine = '%s python -m nupic.swarming.hypersearch_worker ' \
                           '--jobID={JOBID} --logLevel=%d' \
                           % (envStr, loggingLevel)
 
@@ -449,7 +449,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
             jobType = cjDAO.JOB_TYPE_HS)
 
     # Launch the workers ourself if necessary (no nupic engine running).
-    workerCmdLine = '%s python -m nupic.swarming.HypersearchWorker ' \
+    workerCmdLine = '%s python -m nupic.swarming.hypersearch_worker ' \
                           '--jobID=%d --logLevel=%d' \
                           % (envStr, jobID, loggingLevel)
     workers = self._launchWorkers(cmdLine=workerCmdLine, numWorkers=maxNumWorkers)

@@ -670,7 +670,7 @@ class _HyperSearchRunner(object):
         maximumWorkers=maxWorkers,
         jobType=self.__cjDAO.JOB_TYPE_HS)
 
-      cmdLine = "python -m nupic.swarming.HypersearchWorker" \
+      cmdLine = "python -m nupic.swarming.hypersearch_worker" \
                  " --jobID=%d" % (jobID)
       self._launchWorkers(cmdLine, maxWorkers)
 
