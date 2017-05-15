@@ -19,15 +19,15 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import os
-
 import numpy
-from nupic.bindings.math import GetNTAReal
+import os
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
-from nupic.research.spatial_pooler import SpatialPooler as PYSpatialPooler
-import nupic.research.fdrutilities as fdru
-from nupic.support import getArgumentDescriptions
+from nupic.bindings.math import GetNTAReal
 from nupic.bindings.regions.PyRegion import PyRegion
+
+import nupic.algorithms.fdrutilities as fdru
+from nupic.algorithms.spatial_pooler import SpatialPooler as PYSpatialPooler
+from nupic.support import getArgumentDescriptions
 
 try:
   import capnp
@@ -84,7 +84,7 @@ def _buildArgs(f, self=None, kwargs={}):
   init = SPRegion.__init__
   ourArgNames = [t[0] for t in getArgumentDescriptions(init)]
   # Also remove a few other names that aren't in our constructor but are
-  #  computed automatically (e.g. numberOfCols for the TP)
+  #  computed automatically (e.g. numberOfCols for the TM)
   # TODO: where does numberOfCols come into SPRegion?
   ourArgNames += [
     'numberOfCols',
@@ -222,7 +222,7 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
 
     spatialImp=dict(
         description="""Which spatial pooler implementation to use. Set to either
-                      'py', or 'cpp'. The 'cpp' implementation is optimized for 
+                      'py', or 'cpp'. The 'cpp' implementation is optimized for
                       speed in C++.""",
         accessMode='ReadWrite',
         dataType='Byte',
@@ -434,16 +434,14 @@ class SPRegion(PyRegion):
     self._checkEphemeralMembers()
 
 
-  def initialize(self, dims, splitterMaps):
-    """"""
-
+  def initialize(self):
     # Zero out the spatial output in case it is requested
     self._spatialPoolerOutput = numpy.zeros(self.columnCount,
                                             dtype=GetNTAReal())
 
-
     # Zero out the rfInput in case it is requested
-    self._spatialPoolerInput = numpy.zeros((1,self.inputWidth), dtype=GetNTAReal())
+    self._spatialPoolerInput = numpy.zeros((1, self.inputWidth),
+                                           dtype=GetNTAReal())
 
     # Allocate the spatial pooler
     self._allocateSpatialFDR(None)
@@ -457,19 +455,19 @@ class SPRegion(PyRegion):
     # Retrieve the necessary extra arguments that were handled automatically
     autoArgs = dict((name, getattr(self, name))
                      for name in self._spatialArgNames)
-    
+
     # Instantiate the spatial pooler class.
     if ( (self.SpatialClass == CPPSpatialPooler) or
          (self.SpatialClass == PYSpatialPooler) ):
-      
+
       autoArgs['columnDimensions'] = [self.columnCount]
       autoArgs['inputDimensions'] = [self.inputWidth]
       autoArgs['potentialRadius'] = self.inputWidth
-    
+
       self._sfdr = self.SpatialClass(
         **autoArgs
       )
-  
+
 
   #############################################################################
   #
@@ -593,7 +591,7 @@ class SPRegion(PyRegion):
     # if we are in learning mode and trainingStep is set appropriately.
 
     # Run SFDR bottom-up compute and cache output in self._spatialPoolerOutput
-    
+
     inputVector = numpy.array(rfInput[0]).astype('uint32')
     outputVector = numpy.zeros(self._sfdr.getNumColumns()).astype('uint32')
 
@@ -712,7 +710,7 @@ class SPRegion(PyRegion):
         spatialTopDownOut = dict(
           description="""The top-down output, generated only from the current
                          SP output. This can be used to evaluate how well the
-                         SP is representing the inputs independent of the TP.""",
+                         SP is representing the inputs independent of the TM.""",
           dataType='Real32',
           count=0,
           regionLevel=True,
@@ -720,7 +718,7 @@ class SPRegion(PyRegion):
 
         temporalTopDownOut = dict(
           description="""The top-down output, generated only from the current
-                         TP output feedback down through the SP.""",
+                         TM output feedback down through the SP.""",
           dataType='Real32',
           count=0,
           regionLevel=True,

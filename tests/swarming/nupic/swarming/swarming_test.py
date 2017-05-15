@@ -41,7 +41,7 @@ from pkg_resources import resource_filename
 from optparse import OptionParser
 
 
-from nupic.database.ClientJobsDAO import ClientJobsDAO
+from nupic.database.client_jobs_dao import ClientJobsDAO
 from nupic.support import configuration, initLogging
 from nupic.support.unittesthelpers.testcasebase import (unittest,
     TestCaseBase as HelperTestCaseBase)
@@ -127,32 +127,32 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
   def _setDataPath(self, env):
     """ Put the path to our datasets int the NTA_DATA_PATH variable which
     will be used to set the environment for each of the workers
-    
+
     Parameters:
     ---------------------------------------------------------------------
     env: The current environment dict
     """
-    
+
     assert env is not None
-    
+
     # If already have a path, concatenate to it
     if "NTA_DATA_PATH" in env:
       newPath = "%s%s%s" % (env["NTA_DATA_PATH"], os.pathsep, g_myEnv.testSrcDataDir)
     else:
       newPath = g_myEnv.testSrcDataDir
-      
+
     env["NTA_DATA_PATH"] = newPath
 
 
   def _launchWorkers(self, cmdLine, numWorkers):
     """ Launch worker processes to execute the given command line
-    
+
     Parameters:
     -----------------------------------------------
     cmdLine: The command line for each worker
     numWorkers: number of workers to launch
-    retval: list of workers 
-    
+    retval: list of workers
+
     """
 
     workers = []
@@ -162,35 +162,35 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       p = subprocess.Popen(cmdLine, bufsize=1, env=os.environ, shell=True,
                            stdin=None, stdout=stdout, stderr=stderr)
       workers.append(p)
-      
+
     return workers
 
 
   def _getJobInfo(self, cjDAO, workers, jobID):
     """ Return the job info for a job
-    
+
     Parameters:
     -----------------------------------------------
     cjDAO:   client jobs database instance
     workers: list of workers for this job
     jobID:   which job ID
-    
+
     retval: job info
     """
 
     # Get the job info
     jobInfo = cjDAO.jobInfo(jobID)
 
-    # Since we're running outside of the Nupic engine, we launched the workers 
-    #  ourself, so see how many are still running and jam the correct status 
+    # Since we're running outside of the Nupic engine, we launched the workers
+    #  ourself, so see how many are still running and jam the correct status
     #  into the job info. When using the Nupic engine, it would do this
-    #  for us. 
+    #  for us.
     runningCount = 0
     for worker in workers:
       retCode = worker.poll()
       if retCode is None:
         runningCount += 1
-        
+
     if runningCount > 0:
       status = ClientJobsDAO.STATUS_RUNNING
     else:
@@ -249,7 +249,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
         dataPath = resource_filename("nupic.data",
                                      os.path.join("extra", "qa", "hotgym",
                                                   "qa_hotgym.csv"))
-        
+
       streamDef = dict(
         version = 1,
         info = "TestHypersearch",
@@ -448,7 +448,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
             minimumWorkers=1, maximumWorkers=maxNumWorkers,
             jobType = cjDAO.JOB_TYPE_HS)
 
-    # Launch the workers ourself if necessary (no nupic engine running). 
+    # Launch the workers ourself if necessary (no nupic engine running).
     workerCmdLine = '%s python -m nupic.swarming.HypersearchWorker ' \
                           '--jobID=%d --logLevel=%d' \
                           % (envStr, jobID, loggingLevel)
@@ -635,16 +635,16 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     predictionCacheMaxRecords:
                       If specified, determine the maximum number of records in
                       the prediction cache.
-                
+
     retval:          (jobID, jobInfo, resultsInfoForAllModels, metricResults,
                         minErrScore)
     """
-    
+
     # Put in the path to our datasets
     if env is None:
       env = dict()
     self._setDataPath(env)
-    
+
     # ----------------------------------------------------------------
     # Prepare the jobParams
     jobParams = self._generateHSJobParams(expDirectory=expDirectory,
@@ -733,7 +733,7 @@ class OneNodeTests(ExperimentTestBaseClass):
 
 
   def testSimpleV2(self, onCluster=False, env=None, **kwargs):
-    """ 
+    """
     Try running simple permutations
     """
     self._printTestHeader()
@@ -825,7 +825,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     return
 
 
-  def testCLAModelV2(self, onCluster=False, env=None, maxModels=2,
+  def testHTMPredictionModelV2(self, onCluster=False, env=None, maxModels=2,
                       **kwargs):
     """ Try running a simple permutations using an actual CLA model, not
     a dummy
@@ -883,7 +883,7 @@ class OneNodeTests(ExperimentTestBaseClass):
                       **kwargs):
     """ Try running a simple permutations using an actual CLA model, not
     a dummy. This is a legacy CLA multi-step model that doesn't declare a
-    separate 'classifierOnly' encoder for the predicted field. 
+    separate 'classifierOnly' encoder for the predicted field.
     """
 
     self._printTestHeader()
@@ -1198,16 +1198,16 @@ class OneNodeTests(ExperimentTestBaseClass):
     jobResults = json.loads(jobResultsStr)
     bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
     params = json.loads(bestModel.params)
-    
+
     prefix = 'modelParams|sensorParams|encoders|'
     expectedSwarmId = prefix + ('.' + prefix).join([
-            'attendance', 
+            'attendance',
             'visitor_winloss'])
 
-    self.assertEqual(params["particleState"]["swarmId"], 
+    self.assertEqual(params["particleState"]["swarmId"],
                      expectedSwarmId,
                      "Actual swarm id = %s\nExpcted swarm id = %s" \
-                     % (params["particleState"]["swarmId"], 
+                     % (params["particleState"]["swarmId"],
                         expectedSwarmId))
     self.assertEqual( bestModel.optimizedMetric, 75)
 
@@ -1235,13 +1235,13 @@ class OneNodeTests(ExperimentTestBaseClass):
 
     prefix = 'modelParams|sensorParams|encoders|'
     expectedSwarmId = prefix + ('.' + prefix).join([
-            'attendance', 
-            'home_winloss', 
+            'attendance',
+            'home_winloss',
             'visitor_winloss'])
-    self.assertEqual(params["particleState"]["swarmId"], 
+    self.assertEqual(params["particleState"]["swarmId"],
                      expectedSwarmId,
                      "Actual swarm id = %s\nExpcted swarm id = %s" \
-                     % (params["particleState"]["swarmId"], 
+                     % (params["particleState"]["swarmId"],
                         expectedSwarmId))
     assert bestModel.optimizedMetric == 55, bestModel.optimizedMetric
 
@@ -1271,23 +1271,23 @@ class OneNodeTests(ExperimentTestBaseClass):
 
     prefix = 'modelParams|sensorParams|encoders|'
     expectedSwarmId = prefix + ('.' + prefix).join([
-            'attendance', 
-            'home_winloss', 
-            'precip', 
+            'attendance',
+            'home_winloss',
+            'precip',
             'timestamp_dayOfWeek',
-            'timestamp_timeOfDay', 
+            'timestamp_timeOfDay',
             'visitor_winloss'])
-    self.assertEqual(params["particleState"]["swarmId"], 
+    self.assertEqual(params["particleState"]["swarmId"],
                      expectedSwarmId,
                      "Actual swarm id = %s\nExpcted swarm id = %s" \
-                     % (params["particleState"]["swarmId"], 
+                     % (params["particleState"]["swarmId"],
                         expectedSwarmId))
 
     assert bestModel.optimizedMetric == 25, bestModel.optimizedMetric
 
 
   def testSpatialClassification(self, onCluster=False, env=None, **kwargs):
-    """ 
+    """
     Try running a spatial classification swarm
     """
     self._printTestHeader()
@@ -1325,36 +1325,36 @@ class OneNodeTests(ExperimentTestBaseClass):
                               pprint.pformat(actualFieldContributions)
     expectedFieldContributions = {
                       'address': 100 * (90.0-30)/90.0,
-                      'gym': 100 * (90.0-40)/90.0,  
+                      'gym': 100 * (90.0-40)/90.0,
                       'timestamp_dayOfWeek': 100 * (90.0-80.0)/90.0,
                       'timestamp_timeOfDay': 100 * (90.0-90.0)/90.0,
                       }
 
     for key, value in expectedFieldContributions.items():
-      self.assertEqual(actualFieldContributions[key], value, 
+      self.assertEqual(actualFieldContributions[key], value,
                        "actual field contribution from field '%s' does not "
                        "match the expected value of %f" % (key, value))
 
-      
+
     # Check the expected best encoder combination
     prefix = 'modelParams|sensorParams|encoders|'
     expectedSwarmId = prefix + ('.' + prefix).join([
-            'address', 
+            'address',
             'gym'])
 
-    self.assertEqual(params["particleState"]["swarmId"], 
+    self.assertEqual(params["particleState"]["swarmId"],
                      expectedSwarmId,
                      "Actual swarm id = %s\nExpcted swarm id = %s" \
-                     % (params["particleState"]["swarmId"], 
+                     % (params["particleState"]["swarmId"],
                         expectedSwarmId))
 
 
     return
 
 
-  def testAlwaysInputPredictedField(self, onCluster=False, env=None, 
+  def testAlwaysInputPredictedField(self, onCluster=False, env=None,
                                       **kwargs):
-    """ 
+    """
     Run a swarm where 'inputPredictedField' is set in the permutations
     file. The dummy model for this swarm is designed to give the lowest
     error when the predicted field is INCLUDED, so make sure we don't get
@@ -1415,9 +1415,9 @@ class OneNodeTests(ExperimentTestBaseClass):
 
 
   def testFieldThresholdNoPredField(self, onCluster=False, env=None, **kwargs):
-    """ Test minimum field contribution threshold for a field to be included 
+    """ Test minimum field contribution threshold for a field to be included
     in further sprints when doing a temporal search that does not require
-    the predicted field. 
+    the predicted field.
     """
 
 
@@ -1450,59 +1450,59 @@ class OneNodeTests(ExperimentTestBaseClass):
                                     maxModels=None,
                                     dummyModel={'iterations':200},
                                     **kwargs)
-  
-      # Verify the best model and check the field contributions. 
+
+      # Verify the best model and check the field contributions.
       cjDAO = ClientJobsDAO.get()
       jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
       jobResults = json.loads(jobResultsStr)
       bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
       params = json.loads(bestModel.params)
-      
+
       prefix = 'modelParams|sensorParams|encoders|'
       expectedSwarmId = prefix + ('.' + prefix).join([
-              'address', 
+              'address',
               'gym',
-              'timestamp_dayOfWeek', 
+              'timestamp_dayOfWeek',
               'timestamp_timeOfDay'])
-  
-      self.assertEqual(params["particleState"]["swarmId"], 
+
+      self.assertEqual(params["particleState"]["swarmId"],
                        expectedSwarmId,
                        "Actual swarm id = %s\nExpcted swarm id = %s" \
-                       % (params["particleState"]["swarmId"], 
+                       % (params["particleState"]["swarmId"],
                           expectedSwarmId))
       self.assertEqual( bestModel.optimizedMetric, -50)
-  
-  
+
+
       # Check the field contributions
       actualFieldContributions = jobResults['fieldContributions']
       print "Actual field contributions:", \
                                 pprint.pformat(actualFieldContributions)
-      
+
       expectedFieldContributions = {
-                        'consumption': 0.0, 
+                        'consumption': 0.0,
                         'address': 100 * (60.0-40.0)/60.0,
                         'timestamp_timeOfDay': 100 * (60.0-20.0)/60.0,
                         'timestamp_dayOfWeek': 100 * (60.0-10.0)/60.0,
                         'gym': 100 * (60.0-30.0)/60.0}
-      
-      
+
+
       for key, value in expectedFieldContributions.items():
-        self.assertEqual(actualFieldContributions[key], value, 
+        self.assertEqual(actualFieldContributions[key], value,
                          "actual field contribution from field '%s' does not "
                          "match the expected value of %f" % (key, value))
-      
-  
+
+
     if True:
       #==========================================================================
-      # Now test ignoring all fields that contribute less than 55% to the 
+      # Now test ignoring all fields that contribute less than 55% to the
       #   error score. This means we can only use the timestamp_timeOfDay and
-      #   timestamp_dayOfWeek fields. 
-      # This should bring our best error score up to 50-30-40 = -20  
+      #   timestamp_dayOfWeek fields.
+      # This should bring our best error score up to 50-30-40 = -20
       env["NTA_CONF_PROP_nupic_hypersearch_min_field_contribution"] = \
                            '%f' % (55)
       env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
                          '%d' % (5)
-  
+
       (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
              = self.runPermutations(expDir,
                                     hsImp='v2',
@@ -1512,53 +1512,53 @@ class OneNodeTests(ExperimentTestBaseClass):
                                     maxModels=None,
                                     dummyModel={'iterations':200},
                                     **kwargs)
-  
+
       # Get the best model
       cjDAO = ClientJobsDAO.get()
       jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
       jobResults = json.loads(jobResultsStr)
       bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
       params = json.loads(bestModel.params)
-  
+
       prefix = 'modelParams|sensorParams|encoders|'
       expectedSwarmId = prefix + ('.' + prefix).join([
-              'timestamp_dayOfWeek', 
+              'timestamp_dayOfWeek',
               'timestamp_timeOfDay'])
-      self.assertEqual(params["particleState"]["swarmId"], 
+      self.assertEqual(params["particleState"]["swarmId"],
                        expectedSwarmId,
                        "Actual swarm id = %s\nExpcted swarm id = %s" \
-                       % (params["particleState"]["swarmId"], 
+                       % (params["particleState"]["swarmId"],
                           expectedSwarmId))
       self.assertEqual( bestModel.optimizedMetric, -20)
 
-      # Check field contributions returned  
+      # Check field contributions returned
       actualFieldContributions = jobResults['fieldContributions']
       print "Actual field contributions:", \
                                 pprint.pformat(actualFieldContributions)
 
       expectedFieldContributions = {
-                        'consumption': 0.0, 
+                        'consumption': 0.0,
                         'address': 100 * (60.0-40.0)/60.0,
                         'timestamp_timeOfDay': 100 * (60.0-20.0)/60.0,
                         'timestamp_dayOfWeek': 100 * (60.0-10.0)/60.0,
                         'gym': 100 * (60.0-30.0)/60.0}
-      
+
       for key, value in expectedFieldContributions.items():
-        self.assertEqual(actualFieldContributions[key], value, 
+        self.assertEqual(actualFieldContributions[key], value,
                          "actual field contribution from field '%s' does not "
                          "match the expected value of %f" % (key, value))
 
-    if True:  
+    if True:
       #==========================================================================
       # Now, test using maxFieldBranching to limit the max number of fields to
       #  3. This means we can only use the timestamp_timeOfDay, timestamp_dayOfWeek,
-      # gym fields. 
+      # gym fields.
       # This should bring our error score to 50-30-40-20 = -40
       env["NTA_CONF_PROP_nupic_hypersearch_min_field_contribution"] = \
                            '%f' % (0)
       env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
                            '%d' % (3)
-  
+
       (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
              = self.runPermutations(expDir,
                                     hsImp='v2',
@@ -1568,23 +1568,23 @@ class OneNodeTests(ExperimentTestBaseClass):
                                     maxModels=None,
                                     dummyModel={'iterations':200},
                                     **kwargs)
-  
+
       # Get the best model
       cjDAO = ClientJobsDAO.get()
       jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
       jobResults = json.loads(jobResultsStr)
       bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
       params = json.loads(bestModel.params)
-  
+
       prefix = 'modelParams|sensorParams|encoders|'
       expectedSwarmId = prefix + ('.' + prefix).join([
               'gym',
-              'timestamp_dayOfWeek', 
+              'timestamp_dayOfWeek',
               'timestamp_timeOfDay'])
-      self.assertEqual(params["particleState"]["swarmId"], 
+      self.assertEqual(params["particleState"]["swarmId"],
                        expectedSwarmId,
                        "Actual swarm id = %s\nExpcted swarm id = %s" \
-                       % (params["particleState"]["swarmId"], 
+                       % (params["particleState"]["swarmId"],
                           expectedSwarmId))
       self.assertEqual( bestModel.optimizedMetric, -40)
 
@@ -1595,14 +1595,14 @@ class OneNodeTests(ExperimentTestBaseClass):
       # Make sure we get the expected field contributions
       env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = \
                            '%d' % (g_repeatableSwarmMaturityWindow)
-  
+
       env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
                            '%d' % (0)
       env["NTA_CONF_PROP_nupic_hypersearch_minParticlesPerSwarm"] = \
                            '%d' % (5)
       env["NTA_CONF_PROP_nupic_hypersearch_min_field_contribution"] = \
                            '%f' % (0)
-  
+
       (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
              = self.runPermutations(expDir,
                                     hsImp='v2',
@@ -1612,31 +1612,31 @@ class OneNodeTests(ExperimentTestBaseClass):
                                     maxModels=10,
                                     dummyModel={'iterations':200},
                                     **kwargs)
-  
+
       # Get the best model
       cjDAO = ClientJobsDAO.get()
       jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
       jobResults = json.loads(jobResultsStr)
       bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
       params = json.loads(bestModel.params)
-  
+
       prefix = 'modelParams|sensorParams|encoders|'
       expectedSwarmId = prefix + ('.' + prefix).join([
               'timestamp_dayOfWeek'])
-      self.assertEqual(params["particleState"]["swarmId"], 
+      self.assertEqual(params["particleState"]["swarmId"],
                        expectedSwarmId,
                        "Actual swarm id = %s\nExpcted swarm id = %s" \
-                       % (params["particleState"]["swarmId"], 
+                       % (params["particleState"]["swarmId"],
                           expectedSwarmId))
       self.assertEqual( bestModel.optimizedMetric, 10)
 
-      # Check field contributions returned  
+      # Check field contributions returned
       actualFieldContributions = jobResults['fieldContributions']
       print "Actual field contributions:", \
                                 pprint.pformat(actualFieldContributions)
 
       expectedFieldContributions = {
-                        'consumption': 0.0, 
+                        'consumption': 0.0,
                         'address': 100 * (60.0-40.0)/60.0,
                         'timestamp_timeOfDay': 100 * (60.0-20.0)/60.0,
                         'timestamp_dayOfWeek': 100 * (60.0-10.0)/60.0,
@@ -1709,7 +1709,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     jobResults = json.loads(jobResultsStr)
     bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
     params = json.loads(bestModel.params)
-    
+
     # Make sure that the only nonkilled models are the ones that would have been
     # run without speculation
     prefix = 'modelParams|sensorParams|encoders|'
@@ -1719,9 +1719,9 @@ class MultiNodeTests(ExperimentTestBaseClass):
       if swarms[swarm]["status"] == 'killed':
         swarmId = swarm.split(".")
         if(len(swarmId)>1):
-          # Make sure that something before the last two encoders is in the 
+          # Make sure that something before the last two encoders is in the
           # wrong sprint progression, hence why it was killed
-          # The last encoder is the predicted field and the second to last is 
+          # The last encoder is the predicted field and the second to last is
           # the current new addition
           wrong=0
           for i in range(len(swarmId)-2):
@@ -1729,13 +1729,13 @@ class MultiNodeTests(ExperimentTestBaseClass):
               wrong=1
           assert wrong==1, "Some of the killed swarms should not have been " \
                             + "killed as they are a legal combination."
-                            
+
       if swarms[swarm]["status"] == 'completed':
           swarmId = swarm.split(".")
           if(len(swarmId)>3):
-            # Make sure that the completed swarms are all swarms that should 
+            # Make sure that the completed swarms are all swarms that should
             # have been run.
-            # The last encoder is the predicted field and the second to last is 
+            # The last encoder is the predicted field and the second to last is
             # the current new addition
             for i in range(len(swarmId)-3):
               if correctOrder[i] != swarmId[i]:
@@ -1747,16 +1747,16 @@ class MultiNodeTests(ExperimentTestBaseClass):
     pass
 
 
-  def testSmartSpeculationSpatialClassification(self, onCluster=True, 
+  def testSmartSpeculationSpatialClassification(self, onCluster=True,
                                                 env=None, **kwargs):
     """ Test that smart speculation does the right thing with spatial
     classification models. This also applies to temporal models where the
     predicted field is optional (or excluded) since Hypersearch treats them
-    the same. 
+    the same.
     """
 
     self._printTestHeader()
-    expDir = os.path.join(g_myEnv.testSrcExpDir, 
+    expDir = os.path.join(g_myEnv.testSrcExpDir,
                           'smart_speculation_spatial_classification')
 
     # Test it out
@@ -1791,8 +1791,8 @@ class MultiNodeTests(ExperimentTestBaseClass):
     jobResults = json.loads(jobResultsStr)
     bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
     params = json.loads(bestModel.params)
-    
-    
+
+
     # Make sure that the only non-killed models are the ones that would have been
     # run without speculation
     prefix = 'modelParams|sensorParams|encoders|'
@@ -1806,17 +1806,17 @@ class MultiNodeTests(ExperimentTestBaseClass):
           if correctOrder[0] in swarmId:
             raise RuntimeError("Some of the killed swarms should not have been "
                             "killed as they are a legal combination.")
-                            
+
       elif swarms[swarm]["status"] == 'completed':
         swarmId = swarm.split(".")
         if(len(swarmId) >= 2):
-          # Make sure that the completed swarms are all swarms that should 
+          # Make sure that the completed swarms are all swarms that should
           # have been run.
           for i in range(len(swarmId)-1):
             if correctOrder[i] != swarmId[i]:
               raise RuntimeError("Some of the completed swarms should not have "
                         "finished as they are illegal combinations")
-      
+
       elif swarms[swarm]["status"] == 'active':
         raise RuntimeError("Some swarms are still active at the end of "
                            "hypersearch")
@@ -1860,7 +1860,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     jobResults = json.loads(jobResultsStr)
     bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
     params = json.loads(bestModel.params)
-    
+
     prefix = 'modelParams|sensorParams|encoders|'
     expectedSwarmId = prefix + ('.' + prefix).join([
             'attendance', 'home_winloss', 'timestamp_dayOfWeek',
@@ -1891,7 +1891,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
     prefix = 'modelParams|sensorParams|encoders|'
     expectedSwarmId = prefix + ('.' + prefix).join([
-            'attendance', 'home_winloss', 'timestamp_timeOfDay', 
+            'attendance', 'home_winloss', 'timestamp_timeOfDay',
             'visitor_winloss'])
     assert params["particleState"]["swarmId"] == expectedSwarmId, \
                   params["particleState"]["swarmId"]
@@ -1967,7 +1967,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
     self._printTestHeader()
     inst = OneNodeTests(self._testMethodName)
-    return inst.testFieldThreshold(onCluster=True) 
+    return inst.testFieldThreshold(onCluster=True)
 
 
   def testFieldContributions(self, onCluster=True, env=None, **kwargs):
@@ -2000,28 +2000,28 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
     actualFieldContributions = jobResults['fieldContributions']
     print "Actual field contributions:", actualFieldContributions
-    
-    expectedFieldContributions = {'consumption': 0.0, 
+
+    expectedFieldContributions = {'consumption': 0.0,
                                   'address': 0.0,
                                   'timestamp_timeOfDay': 20.0,
                                   'timestamp_dayOfWeek': 50.0,
                                   'gym': 10.0}
-    
-    
+
+
     for key, value in expectedFieldContributions.items():
-      self.assertEqual(actualFieldContributions[key], value, 
+      self.assertEqual(actualFieldContributions[key], value,
                        "actual field contribution from field '%s' does not "
                        "match the expected value of %f" % (key, value))
     return
 
 
-  def testCLAModelV2(self):
+  def testHTMPredictionModelV2(self):
     """ Try running a simple permutations through a real CLA model
     """
 
     self._printTestHeader()
     inst = OneNodeTests(self._testMethodName)
-    return inst.testCLAModelV2(onCluster=True, maxModels=4)
+    return inst.testHTMPredictionModelV2(onCluster=True, maxModels=4)
 
 
   def testCLAMultistepModel(self):
@@ -2100,7 +2100,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
 
   def testTwoOrphanedModels(self, modelRange=(0,2)):
-    """ Test behavior when a worker marks 2 models orphaned at the same time. 
+    """ Test behavior when a worker marks 2 models orphaned at the same time.
     """
 
     self._printTestHeader()
@@ -2269,14 +2269,14 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
     self._printTestHeader()
     inst = OneNodeTests(self._testMethodName)
-    return inst.testAlwaysInputPredictedField(onCluster=True) 
+    return inst.testAlwaysInputPredictedField(onCluster=True)
 
 
   def testFieldThresholdNoPredField(self):
 
     self._printTestHeader()
     inst = OneNodeTests(self._testMethodName)
-    return inst.testFieldThresholdNoPredField(onCluster=True) 
+    return inst.testFieldThresholdNoPredField(onCluster=True)
 
 
 
@@ -2502,10 +2502,10 @@ def getHypersearchWinningModelID(jobID):
   Parameters:
   -------------------------------------------------------------------
   jobID:            jobID of successfully-completed Hypersearch job
-  
+
   retval:           modelID of the winning model
   """
-  
+
   cjDAO = ClientJobsDAO.get()
   jobResults = cjDAO.jobGetFields(jobID, ['results'])[0]
   print "Hypersearch job results: %r" % (jobResults,)
@@ -2567,12 +2567,12 @@ def _getTestList():
   """ Get the list of tests that can be run from this module"""
 
   suiteNames = [
-                'OneNodeTests', 
+                'OneNodeTests',
                 'MultiNodeTests',
                 'ModelMaturityTests',
                 'SwarmTerminatorTests',
                ]
-		
+
   testNames = []
   for suite in suiteNames:
     for f in dir(eval(suite)):
@@ -2585,10 +2585,10 @@ class _ArgParser(object):
   """Class which handles command line arguments and arguments passed to the test
   """
   args = []
-  
+
   @classmethod
   def _processArgs(cls):
-    """ 
+    """
     Parse our command-line args/options and strip them from sys.argv
     Returns the tuple (parsedOptions, remainingArgs)
     """
@@ -2636,10 +2636,10 @@ class _ArgParser(object):
 
   @classmethod
   def parseArgs(cls):
-    """ Returns the test arguments after parsing 
+    """ Returns the test arguments after parsing
     """
     return cls._processArgs()[0]
-  
+
   @classmethod
   def consumeArgs(cls):
     """ Consumes the test arguments and returns the remaining arguments meant
@@ -2653,7 +2653,7 @@ def setUpModule():
   print "\nCURRENT DIRECTORY:", os.getcwd()
 
   initLogging(verbose=True)
-  
+
   global g_myEnv
   # Setup our environment
   g_myEnv = MyTestEnvironment()
@@ -2661,7 +2661,7 @@ def setUpModule():
 if __name__ == '__main__':
   # Form the command line for the unit test framework
   # Consume test specific arguments and pass remaining to unittest.main
-  _ArgParser.args = sys.argv[1:] 
+  _ArgParser.args = sys.argv[1:]
   args = [sys.argv[0]] + _ArgParser.consumeArgs()
 
   # Run the tests if called using python

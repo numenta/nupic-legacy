@@ -12,6 +12,9 @@ test.out
 *.swp
 *.coverage*
 
+# virtual environments
+venv/
+
 # build
 build/
 
@@ -68,3 +71,4 @@ dist/
 nupic.egg-info/
 nupic/*py_region.*
 temp/
+docs/_build_html

@@ -23,8 +23,8 @@
 
 import unittest
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
-from nupic.frameworks.opf.modelfactory import ModelFactory
-from nupic.frameworks.opf.clamodel import CLAModel
+from nupic.frameworks.opf.model_factory import ModelFactory
+from nupic.frameworks.opf.htm_prediction_model import HTMPredictionModel
 from nupic.frameworks.opf.common_models.cluster_params import (
   getScalarMetricWithTimeOfDayAnomalyParams)
 
@@ -36,7 +36,7 @@ class ClusterParamsTest(TestCaseBase):
   def testModelParams(self):
     """
     Test that clusterParams loads returns a valid dict that can be instantiated
-    as a CLAModel.
+    as a HTMPredictionModel.
     """
     params = getScalarMetricWithTimeOfDayAnomalyParams([0],
                                                        minVal=23.42,
@@ -47,7 +47,7 @@ class ClusterParamsTest(TestCaseBase):
 
     model = ModelFactory.create(modelConfig=params['modelConfig'])
     self.assertIsInstance(model,
-                          CLAModel,
+                          HTMPredictionModel,
                           "JSON returned cannot be used to create a model")
 
     # Ensure we have a time of day field
@@ -60,7 +60,7 @@ class ClusterParamsTest(TestCaseBase):
 
     # Ensure tm_cpp returns correct json file
     params = getScalarMetricWithTimeOfDayAnomalyParams([0], tmImplementation="tm_cpp")
-    self.assertEqual(params['modelConfig']['modelParams']['tpParams']['temporalImp'], "tm_cpp",
+    self.assertEqual(params['modelConfig']['modelParams']['tmParams']['temporalImp'], "tm_cpp",
                      "Incorrect json for tm_cpp tmImplementation")
 
     # Ensure incorrect tmImplementation throws exception

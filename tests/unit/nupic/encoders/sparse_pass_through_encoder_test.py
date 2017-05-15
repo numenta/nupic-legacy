@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2017, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -28,7 +28,7 @@ import unittest2 as unittest
 
 import numpy
 
-from nupic.encoders.sparse_pass_through_encoder import SparsePassThroughEncoder
+from nupic.encoders.sparse_pass_through import SparsePassThroughEncoder
 
 
 try:
@@ -36,7 +36,7 @@ try:
 except ImportError:
   capnp = None
 if capnp:
-  from nupic.encoders.sparse_pass_through_encoder_capnp import (
+  from nupic.encoders.sparse_pass_through_capnp import (
       SparsePassThroughEncoderProto)
 
 
@@ -61,6 +61,14 @@ class SparsePassThroughEncoderTest(unittest.TestCase):
     x = e.decode(out)
     self.assertIsInstance(x[0], dict)
     self.assertTrue(self.name in x[0])
+
+
+  def testEncodeArrayInvalidType(self):
+    e = self._encoder(self.n, 1)
+    v = numpy.zeros(self.n)
+    v[0] = 12
+    with self.assertRaises(ValueError):
+      e.encode(v)
 
 
   def testEncodeArrayInvalidW(self):

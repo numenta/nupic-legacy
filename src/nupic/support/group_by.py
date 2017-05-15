@@ -31,20 +31,19 @@ def groupby2(*args):
   - It treats the value `None` as an empty sequence. So you can make subsequent
     calls to groupby2 on any `g` value.
 
-  @param args (list) Parameters alternating between sorted lists and their
-                     respective key functions. The lists should be sorted with
-                     respect to their key function.
+  .. note:: Read up on groupby here:
+         https://docs.python.org/dev/library/itertools.html#itertools.groupby
 
-  @return (tuple) A n + 1 dimensional tuple, where the first element is the
+  :param args: (list) Parameters alternating between sorted lists and their
+                      respective key functions. The lists should be sorted with
+                      respect to their key function.
+
+  :returns: (tuple) A n + 1 dimensional tuple, where the first element is the
                   key of the iteration, and the other n entries are groups of
                   objects that share this key. Each group corresponds to the an
                   input sequence. `groupby2` is a generator that returns a tuple
                   for every iteration. If an input sequence has no members with
                   the current key, None is returned in place of a generator.
-
-  Notes: Read up on groupby here:
-         https://docs.python.org/dev/library/itertools.html#itertools.groupby
-
   """
   generatorList = [] # list of each list's (k, group) tuples
 

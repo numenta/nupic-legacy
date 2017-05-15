@@ -25,20 +25,20 @@ description.py file by replacing $XXXXXXXX tokens with desired values.
 
 """
 
-from nupic.frameworks.opf.expdescriptionapi import ExperimentDescriptionAPI
+from nupic.frameworks.opf.exp_description_api import ExperimentDescriptionAPI
 
-from nupic.frameworks.opf.expdescriptionhelpers import (
+from nupic.frameworks.opf.exp_description_helpers import (
   updateConfigFromSubConfig,
   applyValueGettersToContainer,
   DeferredDictLookup)
 
-from nupic.frameworks.opf.clamodelcallbacks import *
+from nupic.frameworks.opf.htm_prediction_model_callbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                                           InferenceElement)
+from nupic.frameworks.opf.opf_utils import (InferenceType,
+                                            InferenceElement)
 from nupic.support import aggregationDivide
 
-from nupic.frameworks.opf.opftaskdriver import (
+from nupic.frameworks.opf.opf_task_driver import (
                                             IterationPhaseSpecLearnOnly,
                                             IterationPhaseSpecInferOnly,
                                             IterationPhaseSpecLearnAndInfer)
@@ -85,7 +85,7 @@ from nupic.frameworks.opf.opftaskdriver import (
 #      applyValueGettersToContainer(config)
 config = {
     # Type of model that the rest of these parameters apply to.
-    'model': "CLA",
+    'model': "HTMPrediction",
 
     # Version that specifies the format of the config.
     'version': 1,
@@ -102,7 +102,7 @@ config = {
         'seconds': 0,
         'weeks': 0,
         'years': 0},
-    
+
     'predictAheadTime': None,
 
     # Model parameter dictionary.
@@ -124,14 +124,14 @@ config = {
             #
             # (value generated from DS_ENCODER_SCHEMA)
             'encoders': {
-                u'field1':     {   
+                u'field1':     {
                   'fieldname': u'field1',
                   'n': 121,
                   'name': u'field1',
                   'type': 'SDRCategoryEncoder',
                   'w': 21},
-                u'classification':     {  
-                  'classifierOnly': True, 
+                u'classification':     {
+                  'classifierOnly': True,
                   'fieldname': u'classification',
                   'n': 121,
                   'name': u'classification',
@@ -165,7 +165,7 @@ config = {
             'globalInhibition': 1,
 
             # Number of cell columns in the cortical region (same number for
-            # SP and TP)
+            # SP and TM)
             # (see also tpNCellsPerCol)
             'columnCount': 2048,
 
@@ -191,7 +191,7 @@ config = {
             # level before inhibition falls below minDutyCycleBeforeInh
             # will have their own internal synPermConnectedCell
             # threshold set below this default value.
-            # (This concept applies to both SP and TP and so 'cells'
+            # (This concept applies to both SP and TM and so 'cells'
             # is correct here as opposed to 'columns')
             'synPermConnected': 0.1,
 
@@ -200,20 +200,20 @@ config = {
             'synPermInactiveDec': 0.01,
         },
 
-        # Controls whether TP is enabled or disabled;
-        # TP is necessary for making temporal predictions, such as predicting
-        # the next inputs.  Without TP, the model is only capable of
+        # Controls whether TM is enabled or disabled;
+        # TM is necessary for making temporal predictions, such as predicting
+        # the next inputs.  Without TM, the model is only capable of
         # reconstructing missing sensor inputs (via SP).
-        'tpEnable' : False,
+        'tmEnable' : False,
 
-        'tpParams': {
-            # TP diagnostic output verbosity control;
+        'tmParams': {
+            # TM diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
-            # (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)
+            # (see verbosity in nupic/trunk/py/nupic/research/backtracking_tm.py and backtracking_tm_cpp.py)
             'verbosity': 0,
 
             # Number of cell columns in the cortical region (same number for
-            # SP and TP)
+            # SP and TM)
             # (see also tpNCellsPerCol)
             'columnCount': 2048,
 
@@ -238,7 +238,7 @@ config = {
             #  > 0 for fixed-size CLA
             # -1 for non-fixed-size CLA
             #
-            # TODO: for Ron: once the appropriate value is placed in TP
+            # TODO: for Ron: once the appropriate value is placed in TM
             # constructor, see if we should eliminate this parameter from
             # description.py.
             'maxSynapsesPerSegment': 32,
@@ -247,7 +247,7 @@ config = {
             #  > 0 for fixed-size CLA
             # -1 for non-fixed-size CLA
             #
-            # TODO: for Ron: once the appropriate value is placed in TP
+            # TODO: for Ron: once the appropriate value is placed in TM
             # constructor, see if we should eliminate this parameter from
             # description.py.
             'maxSegmentsPerCell': 128,
@@ -283,7 +283,7 @@ config = {
 
             'outputType': 'normal',
 
-            # "Pay Attention Mode" length. This tells the TP how many new
+            # "Pay Attention Mode" length. This tells the TM how many new
             # elements to append to the end of a learned sequence at a time.
             # Smaller values are better for datasets with short sequences,
             # higher values are better for datasets with long sequences.
@@ -293,7 +293,7 @@ config = {
         'clParams': {
             # Classifier implementation selection.
             'implementation': 'py',
-            
+
             'regionName' : 'SDRClassifierRegion',
 
             # Classifier diagnostic output verbosity control;
@@ -309,7 +309,7 @@ config = {
             'steps': '0',
         },
 
-        'anomalyParams': {   
+        'anomalyParams': {
           u'anomalyCacheRecords': None,
           u'autoDetectThreshold': None,
           u'autoDetectWaitRecords': None
@@ -317,8 +317,8 @@ config = {
 
         'trainSPNetOnlyIfRequested': False,
     },
-          
-  
+
+
   'dataSource': 'fillInBySubExperiment',
   'errorMetric': 'fillInBySubExperiment'
 }
@@ -374,9 +374,9 @@ control = {
   # Metrics: A list of MetricSpecs that instantiate the metrics that are
   # computed for this experiment
   'metrics':[
-    MetricSpec(field='classification', metric='multiStep', 
-               inferenceElement='multiStepBestPredictions', 
-               params={'errorMetric': config['errorMetric'], 
+    MetricSpec(field='classification', metric='multiStep',
+               inferenceElement='multiStepBestPredictions',
+               params={'errorMetric': config['errorMetric'],
                        'window': 100,
                        'steps': 0}),
   ],

@@ -24,11 +24,11 @@
 import numpy
 import math
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.data.fieldmeta import FieldMetaType
+from nupic.data.field_meta import FieldMetaType
 import tempfile
 import unittest
 
-from nupic.encoders.logenc import LogEncoder
+from nupic.encoders.logarithm import LogEncoder
 from nupic.encoders.scalar import ScalarEncoder
 
 try:
@@ -36,7 +36,7 @@ try:
 except ImportError:
   capnp = None
 if capnp:
-  from nupic.encoders.log_capnp import LogEncoderProto
+  from nupic.encoders.logarithm_capnp import LogEncoderProto
 
 
 
@@ -76,10 +76,10 @@ class LogEncoderTest(unittest.TestCase):
                   ([1], [1000], 0.25),
                   ([1], [1], 1.0),
                   ([1], [-200], 1.0)]
-    for tp in testTuples:
-      expected = tp[0]
-      actual = tp[1]
-      expectedResult = tp[2]
+    for tm in testTuples:
+      expected = tm[0]
+      actual = tm[1]
+      expectedResult = tm[2]
       self.assertEqual(le.closenessScores(expected, actual),
                        expectedResult,
                        "exp: %s act: %s expR: %s" % (str(expected),

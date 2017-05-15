@@ -22,7 +22,7 @@
 ## This file defines parameters for a prediction experiment.
 
 import os
-from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
+from nupic.frameworks.opf.exp_description_helpers import importBaseDescription
 
 # the sub-experiment configuration
 config = \
@@ -43,7 +43,7 @@ config = \
                                                    'timestamp_weekend': None},
                                      'verbosity': 0},
                    'spParams': { 'spVerbosity': 0},
-                   'tpParams': { 'activationThreshold': 14,
+                   'tmParams': { 'activationThreshold': 14,
                                  'minThreshold': 12,
                                  'verbosity': 1}},
   'numRecords': 16000}

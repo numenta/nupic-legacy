@@ -32,9 +32,9 @@ def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
 
   The raw anomaly score is the fraction of active columns not predicted.
 
-  @param activeColumns: array of active column indices
-  @param prevPredictedColumns: array of columns indices predicted in prev step
-  @return anomaly score 0..1 (float)
+  :param activeColumns: array of active column indices
+  :param prevPredictedColumns: array of columns indices predicted in prev step
+  :returns: anomaly score 0..1 (float)
   """
   nActiveColumns = len(activeColumns)
   if nActiveColumns > 0:
@@ -56,48 +56,53 @@ def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
 class Anomaly(object):
   """Utility class for generating anomaly scores in different ways.
 
-  Supported modes:
-    MODE_PURE - the raw anomaly score as computed by computeRawAnomalyScore
-    MODE_LIKELIHOOD - uses the AnomalyLikelihood class on top of the raw
-        anomaly scores
-    MODE_WEIGHTED - multiplies the likelihood result with the raw anomaly score
-        that was used to generate the likelihood
+  :param slidingWindowSize: [optional] - how many elements are summed up;
+      enables moving average on final anomaly score; int >= 0
+
+  :param mode: (string) [optional] how to compute anomaly, one of:
+
+      - :const:`nupic.algorithms.anomaly.Anomaly.MODE_PURE`
+      - :const:`nupic.algorithms.anomaly.Anomaly.MODE_LIKELIHOOD`
+      - :const:`nupic.algorithms.anomaly.Anomaly.MODE_WEIGHTED`
+
+  :param binaryAnomalyThreshold: [optional] if set [0,1] anomaly score
+       will be discretized to 1/0 (1 if >= binaryAnomalyThreshold)
+       The transformation is applied after moving average is computed.
+
   """
 
 
   # anomaly modes supported
   MODE_PURE = "pure"
+  """
+  Default mode. The raw anomaly score as computed by
+  :func:`~.anomaly_likelihood.computeRawAnomalyScore`
+  """
   MODE_LIKELIHOOD = "likelihood"
+  """
+  Uses the :class:`~.anomaly_likelihood.AnomalyLikelihood` class, which models
+  probability of receiving this value and anomalyScore
+  """
   MODE_WEIGHTED = "weighted"
+  """
+  Multiplies the likelihood result with the raw anomaly score that was used to
+  generate the likelihood (anomaly * likelihood)
+  """
+
   _supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
 
 
-  def __init__(self, 
-               slidingWindowSize=None, 
-               mode=MODE_PURE, 
+  def __init__(self,
+               slidingWindowSize=None,
+               mode=MODE_PURE,
                binaryAnomalyThreshold=None):
-    """
-    @param slidingWindowSize (optional) - how many elements are summed up;
-        enables moving average on final anomaly score; int >= 0
-    @param mode (optional) - (string) how to compute anomaly;
-        possible values are:
-          - "pure" - the default, how much anomal the value is;
-              float 0..1 where 1=totally unexpected
-          - "likelihood" - uses the anomaly_likelihood code;
-              models probability of receiving this value and anomalyScore
-          - "weighted" - "pure" anomaly weighted by "likelihood"
-              (anomaly * likelihood)
-    @param binaryAnomalyThreshold (optional) - if set [0,1] anomaly score
-         will be discretized to 1/0 (1 if >= binaryAnomalyThreshold)
-         The transformation is applied after moving average is computed.
-    """
     self._mode = mode
     if slidingWindowSize is not None:
       self._movingAverage = MovingAverage(windowSize=slidingWindowSize)
     else:
       self._movingAverage = None
 
-    if (self._mode == Anomaly.MODE_LIKELIHOOD or 
+    if (self._mode == Anomaly.MODE_LIKELIHOOD or
         self._mode == Anomaly.MODE_WEIGHTED):
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
     else:
@@ -109,27 +114,27 @@ class Anomaly(object):
                        "Anomaly.MODE_WEIGHTED; you used: %r" % self._mode)
 
     self._binaryThreshold = binaryAnomalyThreshold
-    if binaryAnomalyThreshold is not None and ( 
+    if binaryAnomalyThreshold is not None and (
           not isinstance(binaryAnomalyThreshold, float) or
-          binaryAnomalyThreshold >= 1.0  or 
+          binaryAnomalyThreshold >= 1.0  or
           binaryAnomalyThreshold <= 0.0 ):
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
                        "or None if disabled.")
 
 
-  def compute(self, activeColumns, predictedColumns, 
+  def compute(self, activeColumns, predictedColumns,
               inputValue=None, timestamp=None):
     """Compute the anomaly score as the percent of active columns not predicted.
 
-    @param activeColumns: array of active column indices
-    @param predictedColumns: array of columns indices predicted in this step
+    :param activeColumns: array of active column indices
+    :param predictedColumns: array of columns indices predicted in this step
                              (used for anomaly in step T+1)
-    @param inputValue: (optional) value of current input to encoders 
+    :param inputValue: (optional) value of current input to encoders
                                   (eg "cat" for category encoder)
                                   (used in anomaly-likelihood)
-    @param timestamp: (optional) date timestamp when the sample occured
+    :param timestamp: (optional) date timestamp when the sample occured
                                  (used in anomaly-likelihood)
-    @return the computed anomaly score; float 0..1
+    :returns: the computed anomaly score; float 0..1
     """
     # Start by computing the raw anomaly score.
     anomalyScore = computeRawAnomalyScore(activeColumns, predictedColumns)

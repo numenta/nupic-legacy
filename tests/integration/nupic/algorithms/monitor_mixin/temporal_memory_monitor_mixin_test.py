@@ -21,11 +21,11 @@
 
 import unittest
 
+from nupic.algorithms.monitor_mixin.temporal_memory_monitor_mixin import (
+  TemporalMemoryMonitorMixin)
+from nupic.algorithms.temporal_memory import TemporalMemory
 from nupic.data.generators.pattern_machine import ConsecutivePatternMachine
 from nupic.data.generators.sequence_machine import SequenceMachine
-from nupic.research.temporal_memory import TemporalMemory
-from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
-  TemporalMemoryMonitorMixin)
 class MonitoredTemporalMemory(TemporalMemoryMonitorMixin, TemporalMemory): pass
 
 

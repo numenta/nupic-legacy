@@ -26,7 +26,7 @@ This file defines the k Nearest Neighbor classifier region.
 """
 import numpy
 from nupic.bindings.regions.PyRegion import PyRegion
-from nupic.algorithms import KNNClassifier
+from nupic.algorithms import knn_classifier
 from nupic.bindings.math import Random
 
 
@@ -423,7 +423,7 @@ class KNNClassifierRegion(PyRegion):
 
           cellsPerCol=dict(
             description='If >= 1, we assume the input is organized into columns, '
-                        'in the same manner as the temporal pooler AND '
+                        'in the same manner as the temporal memory AND '
                         'whenever we store a new prototype, we only store the '
                         'start cell (first cell) in any column which is bursting.'
               'colum ',
@@ -574,7 +574,7 @@ class KNNClassifierRegion(PyRegion):
     self._protoScores = None
     self._categoryDistances = None
 
-    self._knn = KNNClassifier.KNNClassifier(**self.knnParams)
+    self._knn = knn_classifier.KNNClassifier(**self.knnParams)
 
     for x in ('_partitions', '_useAuxiliary', '_doSphering',
               '_scanInfo', '_protoScores'):
@@ -617,8 +617,8 @@ class KNNClassifierRegion(PyRegion):
     return state
 
 
-  def initialize(self, dims, splitterMaps):
-    assert tuple(dims) == (1,) * len(dims)
+  def initialize(self):
+    pass
 
 
   def _getActiveOutputCount(self):

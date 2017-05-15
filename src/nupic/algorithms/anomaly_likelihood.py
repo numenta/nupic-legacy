@@ -30,37 +30,90 @@ as it seems. For records that arrive every minute, this means once every hour
 and 40 minutes. A likelihood of 0.0001 or 0.01% means we see it once out of
 10,000 records, or about once every 7 days.
 
-USAGE
------
+**USAGE**
 
-There are two ways to use the code: using the AnomalyLikelihood helper class or
-using the raw individual functions.
-
-
-Helper Class
-------------
-The helper class AnomalyLikelihood is the easiest to use.  To use it simply
-create an instance and then feed it successive anomaly scores:
-
-anomalyLikelihood = AnomalyLikelihood()
-while still_have_data:
-  # Get anomaly score from model
-
-  # Compute probability that an anomaly has ocurred
-  anomalyProbability = anomalyLikelihood.anomalyProbability(
-      value, anomalyScore, timestamp)
+There are two ways to use the code: using the
+:class:`.anomaly_likelihood.AnomalyLikelihood` helper class or using the raw
+individual functions :func:`~.anomaly_likelihood.estimateAnomalyLikelihoods` and
+:func:`~.anomaly_likelihood.updateAnomalyLikelihoods`.
 
 
-Raw functions
--------------
+**Low-Level Function Usage**
 
-There are two lower level functions, estimateAnomalyLikelihoods and
-updateAnomalyLikelihoods. The details of these are described below.
+
+There are two primary interface routines:
+
+- :func:`~.anomaly_likelihood.estimateAnomalyLikelihoods`: batch routine, called
+    initially and once in a while
+- :func:`~.anomaly_likelihood.updateAnomalyLikelihoods`: online routine, called
+    for every new data point
+
+1. Initially::
+
+.. code-block:: python
+
+   likelihoods, avgRecordList, estimatorParams = \\
+     estimateAnomalyLikelihoods(metric_data)
+
+2. Whenever you get new data::
+
+.. code-block:: python
+
+   likelihoods, avgRecordList, estimatorParams = \\
+     updateAnomalyLikelihoods(data2, estimatorParams)
+
+3. And again (make sure you use the new estimatorParams returned in the above
+  call to updateAnomalyLikelihoods!)::
+
+.. code-block:: python
+
+   likelihoods, avgRecordList, estimatorParams = \\
+     updateAnomalyLikelihoods(data3, estimatorParams)
+
+4. Every once in a while update estimator with a lot of recent data::
+
+.. code-block:: python
+
+   likelihoods, avgRecordList, estimatorParams = \\
+     estimateAnomalyLikelihoods(lots_of_metric_data)
+
+
+**PARAMS**
+
+The parameters dict returned by the above functions has the following
+structure. Note: the client does not need to know the details of this.
+
+::
+
+ {
+   "distribution":               # describes the distribution
+     {
+       "name": STRING,           # name of the distribution, such as 'normal'
+       "mean": SCALAR,           # mean of the distribution
+       "variance": SCALAR,       # variance of the distribution
+
+       # There may also be some keys that are specific to the distribution
+     },
+
+   "historicalLikelihoods": []   # Contains the last windowSize likelihood
+                                 # values returned
+
+   "movingAverage":              # stuff needed to compute a rolling average
+                                 # of the anomaly scores
+     {
+       "windowSize": SCALAR,     # the size of the averaging window
+       "historicalValues": [],   # list with the last windowSize anomaly
+                                 # scores
+       "total": SCALAR,          # the total of the values in historicalValues
+     },
+
+ }
 
 """
 
 import collections
 import math
+import numbers
 import numpy
 
 from nupic.utils import MovingAverage
@@ -68,7 +121,19 @@ from nupic.utils import MovingAverage
 
 class AnomalyLikelihood(object):
   """
-  Helper class for running anomaly likelihood computation.
+  Helper class for running anomaly likelihood computation. To use it simply
+  create an instance and then feed it successive anomaly scores:
+
+  .. code-block:: python
+
+      anomalyLikelihood = AnomalyLikelihood()
+      while still_have_data:
+        # Get anomaly score from model
+
+        # Compute probability that an anomaly has ocurred
+        anomalyProbability = anomalyLikelihood.anomalyProbability(
+            value, anomalyScore, timestamp)
+
   """
 
 
@@ -85,25 +150,25 @@ class AnomalyLikelihood(object):
     claLearningPeriod and learningPeriod are specifying the same variable,
     although claLearningPeriod is a deprecated name for it.
 
-    @param learningPeriod (claLeraningPeriod: deprecated) - (int) the number of
+    :param learningPeriod: (claLearningPeriod: deprecated) - (int) the number of
       iterations required for the algorithm to learn the basic patterns in the
       dataset and for the anomaly score to 'settle down'. The default is based
       on empirical observations but in reality this could be larger for more
       complex domains. The downside if this is too large is that real anomalies
       might get ignored and not flagged.
 
-    @param estimationSamples - (int) the number of reasonable anomaly scores
+    :param estimationSamples: (int) the number of reasonable anomaly scores
       required for the initial estimate of the Gaussian. The default of 100
       records is reasonable - we just need sufficient samples to get a decent
       estimate for the Gaussian. It's unlikely you will need to tune this since
       the Gaussian is re-estimated every 10 iterations by default.
 
-    @param historicWindowSize - (int) size of sliding window of historical
+    :param historicWindowSize: (int) size of sliding window of historical
       data points to maintain for periodic reestimation of the Gaussian. Note:
       the default of 8640 is based on a month's worth of history at 5-minute
       intervals.
 
-    @param reestimationPeriod - (int) how often we re-estimate the Gaussian
+    :param reestimationPeriod: (int) how often we re-estimate the Gaussian
       distribution. The ideal is to re-estimate every iteration but this is a
       performance hit. In general the system is not very sensitive to this
       number as long as it is small relative to the total number of records
@@ -172,10 +237,10 @@ class AnomalyLikelihood(object):
     into account as well so we return the `learningPeriod` minus the number
     shifted out.
 
-    @param numIngested - (int) number of data points that have been added to the
+    :param numIngested - (int) number of data points that have been added to the
       sliding window of historical data points.
-    @param windowSize - (int) size of sliding window of historical data points.
-    @param learningPeriod - (int) the number of iterations required for the
+    :param windowSize - (int) size of sliding window of historical data points.
+    :param learningPeriod - (int) the number of iterations required for the
       algorithm to learn the basic patterns in the dataset and for the anomaly
       score to 'settle down'.
     """
@@ -187,10 +252,10 @@ class AnomalyLikelihood(object):
   def read(cls, proto):
     """ capnp deserialization method for the anomaly likelihood object
 
-    @param proto (Object) capnp proto object specified in
+    :param proto: (Object) capnp proto object specified in
                           nupic.regions.AnomalyLikelihoodRegion.capnp
 
-    @return (Object) the deserialized AnomalyLikelihood object
+    :returns: (Object) the deserialized AnomalyLikelihood object
     """
     # pylint: disable=W0212
     anomalyLikelihood = object.__new__(cls)
@@ -236,7 +301,7 @@ class AnomalyLikelihood(object):
   def write(self, proto):
     """ capnp serialization method for the anomaly likelihood object
 
-    @param proto (Object) capnp proto object specified in
+    :param proto: (Object) capnp proto object specified in
                           nupic.regions.AnomalyLikelihoodRegion.capnp
     """
     proto.iteration = self._iteration
@@ -288,12 +353,12 @@ class AnomalyLikelihood(object):
     an anomaly given the historical distribution of anomaly scores. The closer
     the number is to 1, the higher the chance it is an anomaly.
 
-    @param value - the current metric ("raw") input value, eg. "orange", or
+    :param value: the current metric ("raw") input value, eg. "orange", or
                    '21.2' (deg. Celsius), ...
-    @param anomalyScore - the current anomaly score
-    @param timestamp - (optional) timestamp of the ocurrence,
+    :param anomalyScore: the current anomaly score
+    :param timestamp: [optional] timestamp of the ocurrence,
                        default (None) results in using iteration step.
-    @return the anomalyLikelihood for this record.
+    :returns: the anomalyLikelihood for this record.
     """
     if timestamp is None:
       timestamp = self._iteration
@@ -328,70 +393,6 @@ class AnomalyLikelihood(object):
 
     return likelihood
 
-
-#
-# USAGE FOR LOW-LEVEL FUNCTIONS
-# -----------------------------
-#
-# There are two primary interface routines:
-#
-# estimateAnomalyLikelihoods: batch routine, called initially and once in a
-#                                while
-# updateAnomalyLikelihoods: online routine, called for every new data point
-#
-# 1. Initially::
-#
-#    likelihoods, avgRecordList, estimatorParams = \
-# estimateAnomalyLikelihoods(metric_data)
-#
-# 2. Whenever you get new data::
-#
-#    likelihoods, avgRecordList, estimatorParams = \
-# updateAnomalyLikelihoods(data2, estimatorParams)
-#
-# 3. And again (make sure you use the new estimatorParams returned in the above
-#   call to updateAnomalyLikelihoods!)::
-#
-#    likelihoods, avgRecordList, estimatorParams = \
-# updateAnomalyLikelihoods(data3, estimatorParams)
-#
-# 4. Every once in a while update estimator with a lot of recent data::
-#
-#    likelihoods, avgRecordList, estimatorParams = \
-# estimateAnomalyLikelihoods(lots_of_metric_data)
-#
-#
-# PARAMS
-# ~~~~~~
-#
-# The parameters dict returned by the above functions has the following
-# structure. Note: the client does not need to know the details of this.
-#
-# ::
-#
-#  {
-#    "distribution":               # describes the distribution
-#      {
-#        "name": STRING,           # name of the distribution, such as 'normal'
-#        "mean": SCALAR,           # mean of the distribution
-#        "variance": SCALAR,       # variance of the distribution
-#
-#        # There may also be some keys that are specific to the distribution
-#      },
-#
-#    "historicalLikelihoods": []   # Contains the last windowSize likelihood
-#                                  # values returned
-#
-#    "movingAverage":              # stuff needed to compute a rolling average
-#                                  # of the anomaly scores
-#      {
-#        "windowSize": SCALAR,     # the size of the averaging window
-#        "historicalValues": [],   # list with the last windowSize anomaly
-#                                  # scores
-#        "total": SCALAR,          # the total of the values in historicalValues
-#      },
-#
-#  }
 
 
 def estimateAnomalyLikelihoods(anomalyScores,
@@ -462,18 +463,20 @@ def estimateAnomalyLikelihoods(anomalyScores,
   else:
     distributionParams = estimateNormal(dataValues[skipRecords:])
 
-    # HACK ALERT! The CLA model currently does not handle constant metric values
-    # very well (time of day encoder changes sometimes lead to unstable SDR's
-    # even though the metric is constant). Until this is resolved, we explicitly
-    # detect and handle completely flat metric values by reporting them as not
-    # anomalous.
+    # HACK ALERT! The HTMPredictionModel currently does not handle constant
+    # metric values very well (time of day encoder changes sometimes lead to
+    # unstable SDR's even though the metric is constant). Until this is
+    # resolved, we explicitly detect and handle completely flat metric values by
+    # reporting them as not anomalous.
     s = [r[1] for r in aggRecordList]
-    metricValues = numpy.array(s)
-    metricDistribution = estimateNormal(metricValues[skipRecords:],
-                                        performLowerBoundCheck=False)
+    # Only do this if the values are numeric
+    if all([isinstance(r[1], numbers.Number) for r in aggRecordList]):
+      metricValues = numpy.array(s)
+      metricDistribution = estimateNormal(metricValues[skipRecords:],
+                                          performLowerBoundCheck=False)
 
-    if metricDistribution["variance"] < 1.5e-5:
-      distributionParams = nullDistribution(verbosity = verbosity)
+      if metricDistribution["variance"] < 1.5e-5:
+        distributionParams = nullDistribution(verbosity = verbosity)
 
   # Estimate likelihoods based on this distribution
   likelihoods = numpy.array(dataValues, dtype=float)

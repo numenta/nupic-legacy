@@ -17,7 +17,7 @@
       "minutes": 0,
       "milliseconds": 0
     },
-    "model": "CLA",
+    "model": "HTMPrediction",
     "version": 1,
     "predictAheadTime": null,
     "modelParams": {
@@ -63,8 +63,8 @@
         "synPermInactiveDec": 0.0005
       },
       "trainSPNetOnlyIfRequested": false,
-      "tpEnable": true,
-      "tpParams": {
+      "tmEnable": true,
+      "tmParams": {
         "activationThreshold":20,
         "cellsPerColumn": 32,
         "columnCount": 2048,

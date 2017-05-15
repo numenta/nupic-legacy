@@ -205,7 +205,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
             }
       },
 
-      { 'experimentDir': 'experiments/classification/category_TP_0',
+      { 'experimentDir': 'experiments/classification/category_TM_0',
         'results': {
             ('OnlineLearning.TemporalClassification.predictionLog.csv',
              'classification:avg_err:window=200'): (0.0, 0.045),
@@ -215,7 +215,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
             }
       },
 
-      { 'experimentDir': 'experiments/classification/category_TP_1',
+      { 'experimentDir': 'experiments/classification/category_TM_1',
         'results': {
             ('OnlineLearning.TemporalClassification.predictionLog.csv',
              'classification:avg_err:window=200'): (0.0, 0.005),

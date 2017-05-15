@@ -23,8 +23,8 @@
 
 import unittest2 as unittest
 
-from nupic.data import dictutils
-from nupic.frameworks.opf import opfutils, two_gram_model
+from nupic.data import dict_utils
+from nupic.frameworks.opf import opf_utils, two_gram_model
 
 
 
@@ -41,19 +41,19 @@ class TwoGramModelTest(unittest.TestCase):
                       "clipInput": True,
 		      "forced": True,
                       "type": "ScalarEncoder"}}
-    inferenceType = opfutils.InferenceType.TemporalNextStep
+    inferenceType = opf_utils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
-    inputRecords = (dictutils.DictObj(d) for d in ({"a": 5},
-                                                   {"a": 6},
-                                                   {"a": 5},
-                                                   {"a": 6}))
+    inputRecords = (dict_utils.DictObj(d) for d in ({"a": 5},
+                                                    {"a": 6},
+                                                    {"a": 5},
+                                                    {"a": 6}))
     inferences = ((0,), (0,), (6,), (5,))
     for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
                                                              inferences)):
       results = twoGramModel.run(inputRecord)
       self.assertEqual(results.predictionNumber, i)
       self.assertSequenceEqual(
-          results.inferences[opfutils.InferenceElement.prediction],
+          results.inferences[opf_utils.InferenceElement.prediction],
           expectedInference)
 
 
@@ -66,12 +66,12 @@ class TwoGramModelTest(unittest.TestCase):
                       "clipInput": True,
 		      "forced": True,
                       "type": "ScalarEncoder"}}
-    inferenceType = opfutils.InferenceType.TemporalNextStep
+    inferenceType = opf_utils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
-    inputRecords = (dictutils.DictObj(d) for d in ({"a": 5},
-                                                   {"a": 6},
-                                                   {"a": 5},
-                                                   {"a": 6}))
+    inputRecords = (dict_utils.DictObj(d) for d in ({"a": 5},
+                                                    {"a": 6},
+                                                    {"a": 5},
+                                                    {"a": 6}))
     inferences = ((0,), (0,), (6,), (0,))
     resets = (False, False, True, False)
     for i, (inputRecord, expectedInference, reset) in enumerate(
@@ -81,7 +81,7 @@ class TwoGramModelTest(unittest.TestCase):
       results = twoGramModel.run(inputRecord)
       self.assertEqual(results.predictionNumber, i)
       self.assertSequenceEqual(
-          results.inferences[opfutils.InferenceElement.prediction],
+          results.inferences[opf_utils.InferenceElement.prediction],
           expectedInference)
 
 
@@ -102,19 +102,19 @@ class TwoGramModelTest(unittest.TestCase):
                       "clipInput": True,
 		      "forced": True,
                       "type": "ScalarEncoder"}}
-    inferenceType = opfutils.InferenceType.TemporalNextStep
+    inferenceType = opf_utils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
-    inputRecords = (dictutils.DictObj(d) for d in ({"a": 5, "b": 1},
-                                                   {"a": 6, "b": 2},
-                                                   {"a": 5, "b": 3},
-                                                   {"a": 6, "b": 2}))
+    inputRecords = (dict_utils.DictObj(d) for d in ({"a": 5, "b": 1},
+                                                    {"a": 6, "b": 2},
+                                                    {"a": 5, "b": 3},
+                                                    {"a": 6, "b": 2}))
     inferences = ((0, 0), (0, 0), (6, 0), (5, 3))
     for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
                                                              inferences)):
       results = twoGramModel.run(inputRecord)
       self.assertEqual(results.predictionNumber, i)
       self.assertSequenceEqual(
-          results.inferences[opfutils.InferenceElement.prediction],
+          results.inferences[opf_utils.InferenceElement.prediction],
           expectedInference)
 
 
@@ -124,19 +124,19 @@ class TwoGramModelTest(unittest.TestCase):
                       "w": 3,
 		      "forced": True,
                       "type": "SDRCategoryEncoder"}}
-    inferenceType = opfutils.InferenceType.TemporalNextStep
+    inferenceType = opf_utils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
-    inputRecords = (dictutils.DictObj(d) for d in ({"a": "A"},
-                                                   {"a": "B"},
-                                                   {"a": "A"},
-                                                   {"a": "B"}))
+    inputRecords = (dict_utils.DictObj(d) for d in ({"a": "A"},
+                                                    {"a": "B"},
+                                                    {"a": "A"},
+                                                    {"a": "B"}))
     inferences = (("",), ("",), ("B",), ("A",))
     for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
                                                              inferences)):
       results = twoGramModel.run(inputRecord)
       self.assertEqual(results.predictionNumber, i)
       self.assertSequenceEqual(
-          results.inferences[opfutils.InferenceElement.prediction],
+          results.inferences[opf_utils.InferenceElement.prediction],
           expectedInference)
 
 
@@ -149,22 +149,22 @@ class TwoGramModelTest(unittest.TestCase):
                       "clipInput": True,
 		      "forced": True,
                       "type": "ScalarEncoder"}}
-    inferenceType = opfutils.InferenceType.TemporalNextStep
+    inferenceType = opf_utils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
-    inputRecords = (dictutils.DictObj(d) for d in ({"a": 5},
-                                                   {"a": 6},
-                                                   {"a": 5},
-                                                   {"a": 4},
-                                                   {"a": 6},
-                                                   {"a": 7},
-                                                   {"a": 3}))
+    inputRecords = (dict_utils.DictObj(d) for d in ({"a": 5},
+                                                    {"a": 6},
+                                                    {"a": 5},
+                                                    {"a": 4},
+                                                    {"a": 6},
+                                                    {"a": 7},
+                                                    {"a": 3}))
     inferences = ((0,), (6,), (5,), (0,), (6,), (7,), (7,))
     for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
                                                              inferences)):
       results = twoGramModel.run(inputRecord)
       self.assertEqual(results.predictionNumber, i)
       self.assertSequenceEqual(
-          results.inferences[opfutils.InferenceElement.prediction],
+          results.inferences[opf_utils.InferenceElement.prediction],
           expectedInference)
 
 

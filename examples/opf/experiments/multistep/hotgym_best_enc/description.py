@@ -22,7 +22,7 @@
 ## This file defines parameters for a prediction experiment.
 
 import os
-from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
+from nupic.frameworks.opf.exp_description_helpers import importBaseDescription
 
 # the sub-experiment configuration
 config = \
@@ -51,8 +51,8 @@ config = \
                                      'verbosity': 0},
                    'spEnable': False,
                    'spParams': { },
-                   'tpEnable': False,
-                   'tpParams': { 'activationThreshold': 14,
+                   'tmEnable': False,
+                   'tmParams': { 'activationThreshold': 14,
                                  'minThreshold': 12,
                                  'verbosity': 0}}}
 

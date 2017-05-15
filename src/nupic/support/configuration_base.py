@@ -19,6 +19,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+"""
+This is the base Configuration implementation. It provides for reading
+configuration parameters from ``nupic-site.xml`` and ``nupic-default.xml``.
+"""
+
 
 from __future__ import with_statement
 
@@ -47,16 +52,16 @@ class Configuration(object):
   """ This class can be used to fetch NuPic configuration settings which are
   stored in one or more XML files.
 
-  If the environment variable 'NTA_CONF_PATH' is defined, then the configuration
-  files are expected to be in the NTA_CONF_PATH search path, which is a ':'
-  separated list of directories (on Windows the seperator is a ';').
-  If NTA_CONF_PATH is not defined, then it is loaded via pkg_resources.
-
+  If the environment variable ``NTA_CONF_PATH`` is defined, then the
+  configuration files are expected to be in the ``NTA_CONF_PATH`` search path,
+  which is a ':' separated list of directories (on Windows the separator is a
+  ';'). If ``NTA_CONF_PATH`` is not defined, then it is loaded via
+  pkg_resources.
   """
 
   # Once we read in the properties, they are stored in this dict
   _properties = None
-  
+
   # This stores the paths we search for config files. It can be modified through
   # the setConfigPaths() method.
   _configPaths = None
@@ -70,11 +75,10 @@ class Configuration(object):
   def getString(cls, prop):
     """ Retrieve the requested property as a string. If property does not exist,
     then KeyError will be raised.
-    
-    Parameters:
-    ----------------------------------------------------------------
-    prop:        name of the property
-    retval:      property value as a string
+
+    :param prop: (string) name of the property
+    :raises: KeyError
+    :returns: (string) property value
     """
     if cls._properties is None:
       cls._readStdConfigFiles()
@@ -84,7 +88,7 @@ class Configuration(object):
                                         prop.replace('.', '_')), None)
     if envValue is not None:
       return envValue
-    
+
     return cls._properties[prop]
 
 
@@ -93,19 +97,18 @@ class Configuration(object):
     """ Retrieve the requested property and return it as a bool. If property
     does not exist, then KeyError will be raised. If the property value is
     neither 0 nor 1, then ValueError will be raised
-    
-    Parameters:
-    ----------------------------------------------------------------
-    prop:        name of the property
-    retval:      property value as bool
+
+    :param prop: (string) name of the property
+    :raises: KeyError, ValueError
+    :returns: (bool) property value
     """
-    
+
     value = cls.getInt(prop)
-    
+
     if value not in (0, 1):
       raise ValueError("Expected 0 or 1, but got %r in config property %s" % (
         value, prop))
-    
+
     return bool(value)
 
 
@@ -113,13 +116,11 @@ class Configuration(object):
   def getInt(cls, prop):
     """ Retrieve the requested property and return it as an int. If property
     does not exist, then KeyError will be raised.
-    
-    Parameters:
-    ----------------------------------------------------------------
-    prop:        name of the property
-    retval:      property value as int
+
+    :param prop: (string) name of the property
+    :returns: (int) property value
     """
-    
+
     return int(cls.getString(prop))
 
 
@@ -127,36 +128,31 @@ class Configuration(object):
   def getFloat(cls, prop):
     """ Retrieve the requested property and return it as a float. If property
     does not exist, then KeyError will be raised.
-    
-    Parameters:
-    ----------------------------------------------------------------
-    prop:        name of the property
-    retval:      property value as float
+
+    :param prop: (string) name of the property
+    :returns: (float) property value
     """
-    
+
     return float(cls.getString(prop))
 
 
   @classmethod
   def get(cls, prop, default=None):
     """ Get the value of the given configuration property as string. This
-    returns a string which is the property value, or the value of "default" arg
-    if the property is not found. Use Configuration.getString() instead.
-    
-    NOTE: it's atypical for our configuration properties to be missing - a
-     missing configuration property is usually a very serious error. Because
-     of this, it's preferable to use one of the getString, getInt, getFloat,
-     etc. variants instead of get(). Those variants will raise KeyError when
-     an expected property is missing.
+    returns a string which is the property value, or the value of "default" arg.
+    If the property is not found, use :meth:`getString` instead.
 
-    Parameters:
-    ----------------------------------------------------------------
-    prop:        name of the property
-    default:     default value to return if property does not exist
-    retval:      property value (as a string), or default if the property does
-                  not exist.
+    .. note:: it's atypical for our configuration properties to be missing - a
+     missing configuration property is usually a very serious error. Because
+     of this, it's preferable to use one of the :meth:`getString`,
+     :meth:`getInt`, :meth:`getFloat`, etc. variants instead of :meth:`get`.
+     Those variants will raise KeyError when an expected property is missing.
+
+    :param prop: (string) name of the property
+    :param default: default value to return if property does not exist
+    :returns: (string) property value, or default if the property does not exist
     """
-    
+
     try:
       return cls.getString(prop)
     except KeyError:
@@ -167,10 +163,8 @@ class Configuration(object):
   def set(cls, prop, value):
     """ Set the value of the given configuration property.
 
-    Parameters:
-    ----------------------------------------------------------------
-    prop:        name of the property
-    value:       value to set
+    :param prop: (string) name of the property
+    :param value: (object) value to set
     """
 
     if cls._properties is None:
@@ -183,9 +177,7 @@ class Configuration(object):
   def dict(cls):
     """ Return a dict containing all of the configuration properties
 
-    Parameters:
-    ----------------------------------------------------------------
-    retval:      dict containing all configuration properties.
+    :returns: (dict) containing all configuration properties.
     """
 
     if cls._properties is None:
@@ -209,10 +201,8 @@ class Configuration(object):
   def readConfigFile(cls, filename, path=None):
     """ Parse the given XML file and store all properties it describes.
 
-    Parameters:
-    ----------------------------------------------------------------
-    filename:  name of XML file to parse (no path)
-    path:      path of the XML file. If None, then use the standard
+    :param filename: (string) name of XML file to parse (no path)
+    :param path: (string) path of the XML file. If None, then use the standard
                   configuration search path.
     """
     properties = cls._readConfigFile(filename, path)
@@ -230,13 +220,11 @@ class Configuration(object):
   def _readConfigFile(cls, filename, path=None):
     """ Parse the given XML file and return a dict describing the file.
 
-    Parameters:
-    ----------------------------------------------------------------
-    filename:  name of XML file to parse (no path)
-    path:      path of the XML file. If None, then use the standard
-                  configuration search path.
-    retval:    returns a dict with each property as a key and a dict of all
-               the property's attributes as value
+    :param filename: (string) name of XML file to parse (no path)
+    :param path: (string) path of the XML file. If None, then use the standard
+           configuration search path.
+    :returns: (dict) with each property as a key and a dict of all the
+           property's attributes as value
     """
 
     outputProperties = dict()
@@ -308,7 +296,7 @@ class Configuration(object):
             else:
               raise RuntimeError("Missing 'value' element within the property "
                                  "element: => %s " % (str(propInfo)))
-        
+
         # The value is allowed to contain substitution tags of the form
         # ${env.VARNAME}, which should be substituted with the corresponding
         # environment variable values
@@ -373,9 +361,7 @@ class Configuration(object):
     environment variable) for the given filename. If found, return the complete
     path to the file.
 
-    Parameters:
-    ----------------------------------------------------------------
-    filename:  name of file to locate
+    :param filename: (string) name of file to locate
     """
 
     paths = cls.getConfigPaths()
@@ -389,14 +375,12 @@ class Configuration(object):
   def getConfigPaths(cls):
     """ Return the list of paths to search for configuration files.
 
-    Parameters:
-    ----------------------------------------------------------------
-    retval:    list of paths.
+    :returns: (list) of paths
     """
     configPaths = []
     if cls._configPaths is not None:
       return cls._configPaths
-      
+
     else:
       if 'NTA_CONF_PATH' in os.environ:
         configVar = os.environ['NTA_CONF_PATH']
@@ -410,13 +394,11 @@ class Configuration(object):
   def setConfigPaths(cls, paths):
     """ Modify the paths we use to search for configuration files.
 
-    Parameters:
-    ----------------------------------------------------------------
-    paths:   list of paths to search for config files.
+    :param paths: (list) of paths to search for config files.
     """
 
     cls._configPaths = list(paths)
-    
+
 
   @classmethod
   def _readStdConfigFiles(cls):

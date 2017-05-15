@@ -26,8 +26,8 @@ This file tests the operation of the Previous Value Model.
 
 import unittest2 as unittest
 
-from nupic.data import dictutils
-from nupic.frameworks.opf import opfutils, previousvaluemodel
+from nupic.data import dict_utils
+from nupic.frameworks.opf import opf_utils, previous_value_model
 
 SEQUENCE_LENGTH = 100
 
@@ -53,44 +53,44 @@ class PreviousValueModelTest(unittest.TestCase):
 
 
   def _runNextStep(self, data):
-    model = previousvaluemodel.PreviousValueModel(
-      opfutils.InferenceType.TemporalNextStep, predictedField = 'a')
+    model = previous_value_model.PreviousValueModel(
+      opf_utils.InferenceType.TemporalNextStep, predictedField ='a')
 
-    inputRecords = (dictutils.DictObj({'a' : d}) for d in data)
+    inputRecords = (dict_utils.DictObj({'a' : d}) for d in data)
 
     for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
                                                              data)):
       results = model.run(inputRecord)
       self.assertEqual(results.predictionNumber, i)
       self.assertEqual(results.inferences[
-        opfutils.InferenceElement.prediction], expectedInference)
+        opf_utils.InferenceElement.prediction], expectedInference)
       self.assertEqual(results.inferences[
-        opfutils.InferenceElement.multiStepBestPredictions][1],
-        expectedInference)
+        opf_utils.InferenceElement.multiStepBestPredictions][1],
+                       expectedInference)
 
 
   def _runMultiStep(self, data):
-    model = previousvaluemodel.PreviousValueModel(
-      opfutils.InferenceType.TemporalMultiStep, predictedField = 'a',
+    model = previous_value_model.PreviousValueModel(
+      opf_utils.InferenceType.TemporalMultiStep, predictedField ='a',
       predictionSteps = [1, 3, 5])
 
-    inputRecords = (dictutils.DictObj({'a' : d}) for d in data)
+    inputRecords = (dict_utils.DictObj({'a' : d}) for d in data)
 
     for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
                                                              data)):
       results = model.run(inputRecord)
       self.assertEqual(results.predictionNumber, i)
       self.assertEqual(results.inferences[
-        opfutils.InferenceElement.prediction], expectedInference)
+        opf_utils.InferenceElement.prediction], expectedInference)
       self.assertEqual(results.inferences[
-        opfutils.InferenceElement.multiStepBestPredictions][1],
-        expectedInference)
+        opf_utils.InferenceElement.multiStepBestPredictions][1],
+                       expectedInference)
       self.assertEqual(results.inferences[
-        opfutils.InferenceElement.multiStepBestPredictions][3],
-        expectedInference)
+        opf_utils.InferenceElement.multiStepBestPredictions][3],
+                       expectedInference)
       self.assertEqual(results.inferences[
-        opfutils.InferenceElement.multiStepBestPredictions][5],
-        expectedInference)
+        opf_utils.InferenceElement.multiStepBestPredictions][5],
+                       expectedInference)
 
 
   def testNextStepIncreasing(self):

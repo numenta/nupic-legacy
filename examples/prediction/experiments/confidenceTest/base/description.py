@@ -81,7 +81,7 @@ config = dict(
   spCoincCount = 200,
   spNumActivePerInhArea = 3,
 
-  # TP params
+  # TM params
   tpNCellsPerCol = 20,
   tpInitialPerm = 0.6,
   tpPermanenceInc = 0.1,
@@ -265,7 +265,7 @@ def getDescription(datasets):
     printPeriodicStats = int(config['spPrintPeriodicStats']),
 
 
-    # TP params
+    # TM params
     tpSeed = 1,
     disableTemporal = 0 if config['trainTP'] else 1,
     temporalImp = config['temporalImp'],
@@ -359,7 +359,7 @@ def getDescription(datasets):
           )
       )
 
-    # Testing the training set on both the TP and n-grams. 
+    # Testing the training set on both the TM and n-grams.
     inferSteps.append(
       dict(name = 'confidenceTrain_nonoise', 
              iterationCount = min(config['evalTrainingSetNumIterations'], 

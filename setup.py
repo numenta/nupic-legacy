@@ -59,14 +59,6 @@ def nupicBindingsPrereleaseInstalled():
     pass  # Silently ignore.  The absence of nupic.bindings will be handled by
     # setuptools by default
 
-  # Also check for nupic.research.bindings
-  try:
-    nupicDistribution = pkg_resources.get_distribution("nupic.research.bindings")
-    return True
-  except pkg_resources.DistributionNotFound:
-    pass  # Silently ignore.  The absence of nupic.bindings will be handled by
-    # setuptools by default
-
   return False
 
 

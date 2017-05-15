@@ -22,17 +22,17 @@
 ## This file defines parameters for a prediction experiment.
 
 import os
-from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
+from nupic.frameworks.opf.exp_description_helpers import importBaseDescription
 
 # the sub-experiment configuration
 config = \
-{ 
-  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
+{
+  'dataSource': 'file://' + os.path.join(os.path.dirname(__file__),
                                          '../datasets/simple_3.csv'),
   'modelParams': { 'clParams': { 'verbosity': 0, 'steps': '1,3'},
                    'sensorParams': { 'encoders': { }, 'verbosity': 0},
                    'spParams': { },
-                   'tpParams': { }},
+                   'tmParams': { }},
   'predictionSteps': [1, 3]}
 
 mod = importBaseDescription('../base/description.py', config)

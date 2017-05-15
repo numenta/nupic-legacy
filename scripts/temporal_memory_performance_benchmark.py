@@ -29,11 +29,9 @@ import numpy
 import random
 import sys
 import time
-
 from pkg_resources import resource_filename
 
 from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
-
 
 HOTGYM_PATH = resource_filename(
   "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
@@ -230,7 +228,7 @@ def tmParamsFn(cellsPerColumn):
   }
 
 
-def tpParamsFn(cellsPerColumn):
+def tmParamsFn(cellsPerColumn):
   return {
     "numberOfCols": 2048,
     "cellsPerColumn": cellsPerColumn,
@@ -313,26 +311,26 @@ if __name__ == "__main__":
       name="tm_cpp")
 
   if "tm_py" in args.implementations:
-    import nupic.research.temporal_memory
+    import nupic.algorithms.temporal_memory
     benchmark.addContestant(
-      nupic.research.temporal_memory.TemporalMemory,
+      nupic.algorithms.temporal_memory.TemporalMemory,
       paramsFn=tmParamsFn,
       computeFn=tmComputeFn,
       name="tm_py")
 
   if "tp_py" in args.implementations:
-    import nupic.research.TP
+    import nupic.algorithms.backtracking_tm
     benchmark.addContestant(
-      nupic.research.TP.TP,
-      paramsFn=tpParamsFn,
+      nupic.algorithms.backtracking_tm.BacktrackingTM,
+      paramsFn=tmParamsFn,
       computeFn=tpComputeFn,
       name="tp_py")
 
   if "tp_cpp" in args.implementations:
-    import nupic.research.TP10X2
+    import nupic.algorithms.backtracking_tm_cpp
     benchmark.addContestant(
-      nupic.research.TP10X2.TP10X2,
-      paramsFn=tpParamsFn,
+      nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP,
+      paramsFn=tmParamsFn,
       computeFn=tpComputeFn,
       name="tp_cpp")
 

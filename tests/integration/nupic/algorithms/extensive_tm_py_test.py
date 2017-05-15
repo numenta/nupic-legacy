@@ -21,14 +21,14 @@
 
 import unittest
 
-import nupic.research.temporal_memory
+import nupic.algorithms.temporal_memory
 from extensive_tm_test_base import ExtensiveTemporalMemoryTest
 
 
 
 class ExtensiveTemporalMemoryTestPY(ExtensiveTemporalMemoryTest, unittest.TestCase):
   def getTMClass(self):
-    return nupic.research.temporal_memory.TemporalMemory
+    return nupic.algorithms.temporal_memory.TemporalMemory
 
 
 if __name__ == "__main__":

@@ -21,17 +21,17 @@
 
 ## run python -m cProfile --sort cumtime $NUPIC/scripts/profiling/sp_profile.py [nColumns nEpochs]
 
-import sys
 import numpy
-# chose desired SP implementation to compare:
-from nupic.research.spatial_pooler import SpatialPooler as PySP
+import sys
 from nupic.bindings.algorithms import SpatialPooler as CppSP
+
+from nupic.algorithms.spatial_pooler import SpatialPooler as PySP
 
 
 def profileSP(spClass, spDim, nRuns):
   """
   profiling performance of SpatialPooler (SP)
-  using the python cProfile module and ordered by cumulative time, 
+  using the python cProfile module and ordered by cumulative time,
   see how to run on command-line above.
 
   @param spClass implementation of SP (cpp, py, ..)
