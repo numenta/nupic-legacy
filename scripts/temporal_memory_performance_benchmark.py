@@ -149,7 +149,7 @@ class TemporalMemoryPerformanceBenchmark(object):
         for timeStr, valueStr in reader:
           value = float(valueStr)
           scalarEncoder.encodeIntoArray(value, output=encodedValue)
-          activeBits = numpy.flatnonzero(encodedValue)
+          activeBits = encodedValue.nonzero()[0]
 
           for i in xrange(len(self.contestants)):
             tmInstance = instances[i]
@@ -228,7 +228,7 @@ def tmParamsFn(cellsPerColumn):
   }
 
 
-def tmParamsFn(cellsPerColumn):
+def backtrackingParamsFn(cellsPerColumn):
   return {
     "numberOfCols": 2048,
     "cellsPerColumn": cellsPerColumn,
@@ -250,7 +250,7 @@ def tmComputeFn(instance, encoding, activeBits):
   instance.compute(activeBits, learn=True)
 
 
-def tpComputeFn(instance, encoding, activeBits):
+def backtrackingComputeFn(instance, encoding, activeBits):
   instance.compute(encoding, enableLearn=True, computeInfOutput=True)
 
 
@@ -322,16 +322,16 @@ if __name__ == "__main__":
     import nupic.algorithms.backtracking_tm
     benchmark.addContestant(
       nupic.algorithms.backtracking_tm.BacktrackingTM,
-      paramsFn=tmParamsFn,
-      computeFn=tpComputeFn,
+      paramsFn=backtrackingParamsFn,
+      computeFn=backtrackingComputeFn,
       name="tp_py")
 
   if "tp_cpp" in args.implementations:
     import nupic.algorithms.backtracking_tm_cpp
     benchmark.addContestant(
       nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP,
-      paramsFn=tmParamsFn,
-      computeFn=tpComputeFn,
+      paramsFn=backtrackingParamsFn,
+      computeFn=backtrackingComputeFn,
       name="tp_cpp")
 
 
