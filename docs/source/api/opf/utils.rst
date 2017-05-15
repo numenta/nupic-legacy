@@ -31,13 +31,13 @@ Input Utilities
 Helpers
 ^^^^^^^
 
-.. automodule:: nupic.frameworks.opf.opf_helpers
+.. automodule:: nupic.frameworks.opf.helpers
 
-.. automethod:: nupic.frameworks.opf.opf_helpers.loadExperiment
+.. automethod:: nupic.frameworks.opf.helpers.loadExperiment
 
-.. automethod:: nupic.frameworks.opf.opf_helpers.loadExperimentDescriptionScriptFromDir
+.. automethod:: nupic.frameworks.opf.helpers.loadExperimentDescriptionScriptFromDir
 
-.. automethod:: nupic.frameworks.opf.opf_helpers.getExperimentDescriptionInterfaceFromModule
+.. automethod:: nupic.frameworks.opf.helpers.getExperimentDescriptionInterfaceFromModule
 
 .. automethod:: nupic.frameworks.opf.opf_utils.validateOpfJsonValue
 

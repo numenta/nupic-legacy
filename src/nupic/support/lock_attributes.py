@@ -18,16 +18,20 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+
+"""
+The lock attributes machinery is engaged by default. To deactivate it
+define the ``NTA_DONT_USE_LOCK_ATTRIBUTES`` environment variable. The benefit is
+that there will be no runtime overhead (Except for a one-time check when classes
+that derive from :class:`LockAttributesMixin` are defined or methods decorated
+with ``_canAddAttributes`` are defined).
+"""
+
+
 import os
 
 # This is the environment variable that controls the lock attributes
 # enforcement.
-#
-# The lock attributes machinery is engaged by default. To deactivate it
-# define this environment variabe. The benefit is that there will be no runtime
-# overhead (Except for a one-time check when classes that derive from
-# LockAttributesMixin are defined or methods decorated with
-# _canAddAttributes are defined).
 deactivation_key = 'NTA_DONT_USE_LOCK_ATTRIBUTES'
 
 def _allow_new_attributes(f):
@@ -85,21 +89,20 @@ def _simple_init(self, *args, **kw):
 
 class LockAttributesMetaclass(type):
   """This metaclass makes objects attribute-locked by decorating their
-  __init__() and __setstate__() methods with the _allow_new_attributes
+  ``__init__`` and ``__setstate__`` methods with the ``_allow_new_attributes``
   decorator.
 
   It doesn't do anything unless the environment variable
-  'NTA_USE_LOCK_ATTRIBUTES' is defined.
-  That allows for verifying proper usage during testing and skipping
-  it in production code (that was verified during testing) to avoid the cost
-  of verifying every attribute setting.
+  ``NTA_USE_LOCK_ATTRIBUTES`` is defined. That allows for verifying proper usage
+  during testing and skipping it in production code (that was verified during
+  testing) to avoid the cost of verifying every attribute setting.
 
-  It also replaces the __setattr__ magic method with a custom one that verifies
-  new attributes are set only in code that originates from a decorated method
-  (normally __init__() or __setstate__()).
+  It also replaces the ``__setattr__`` magic method with a custom one that
+  verifies new attributes are set only in code that originates from a decorated
+  method (normally ``__init__`` or ``__setstate__``).
 
-  If the target class has no __init__() method it adds a trivial __init__()
-  method to provide a hook for the decorator (the _simple_init()
+  If the target class has no ``__init__`` method it adds a trivial ``__init__``
+  method to provide a hook for the decorator (the ``_simple_init``
   function defined above)
   """
   def __init__(cls, name, bases, dict):
@@ -158,8 +161,8 @@ class LockAttributesMetaclass(type):
 
 class LockAttributesMixin(object):
   """This class serves as a base (or mixin) for classes that want to enforce
-  the locked attributes pattern (all attributes should be defined in __init__()
-  or __setstate__().
+  the locked attributes pattern (all attributes should be defined in
+  ``__init__`` or ``__setstate__``.
 
   All the target class has to do add LockAttributesMixin as one of its bases
   (inherit from it).

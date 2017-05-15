@@ -19,13 +19,14 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""This file defines the ConsolePrinterMixin class and the Tee class.
+"""
+This module defines :class:`ConsolePrinterMixin` and :class:`Tee`.
 
-The ConsolePrinterMixin is used by objects that need to print to the screen
-under the control of a verbosity level.
+The :class:`ConsolePrinterMixin` is used by objects that need to print to the
+screen under the control of a verbosity level.
 
-The Tee class is used to redirect standard output to a file in addition to
-sending it to the console.
+The :class:`Tee` class is used to redirect standard output to a file in addition
+to sending it to the console.
 """
 
 import sys
@@ -33,20 +34,14 @@ import sys
 class ConsolePrinterMixin(object):
   """Mixin class for printing to the console with different verbosity levels.
 
-
-  """
-
-  def __init__(self, verbosity=1):
-    """Initialize console printer functionality.
-
-    verbosity (int)
+    :param verbosity: (int)
         0: don't print anything to stdout
         1: normal (production-level) printing
         2: extra debug information
-        3: lost of debug information
-        values higher than 3 are possible, but shouldn't normally be used
-    """
+        3: lots of debug information
+  """
 
+  def __init__(self, verbosity=1):
     # The internal attribute is consolePrinterVerbosity to make it
     # more clear where it comes from (without having to trace back
     # through the class hierarchy). This attribute is normally
@@ -61,16 +56,16 @@ class ConsolePrinterMixin(object):
     Printing with level 0 is equivalent to using a print statement,
     and should normally be avoided.
 
-    level is an integer indicating the urgency of the message with
-    lower values meaning more urgent (messages at level 0  are the
-    most urgent and are always printed)
+    :param level: (int) indicating the urgency of the message with
+           lower values meaning more urgent (messages at level 0  are the most
+           urgent and are always printed)
 
-    message is a string, possibly with format specifiers
+    :param message: (string) possibly with format specifiers
 
-    args speficies the values for any format specifiers in message
+    :param args: specifies the values for any format specifiers in message
 
-    newline is the only keyword argument. True (default) if a newline should
-    be printed
+    :param kw: newline is the only keyword argument. True (default) if a newline
+           should be printed
     """
 
     if level > self.consolePrinterVerbosity:

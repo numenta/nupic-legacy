@@ -20,47 +20,9 @@
 # ----------------------------------------------------------------------
 
 """
-Internal package.
-
 Package containing modules that are used internally by Numenta Python
 tools and plugins to extend standard library functionality.
 These modules should NOT be used by client applications.
-
-The following modules are included:
-
-nupic.support.paths
-Module containing filesystem path manipulation utilities.
-
-nupic.support.serialization
-Module containing Python object serialization (pickling and unpickling) and
-versioning utilities.
-
-nupic.support.compress
-Module containing Python object encoding and compression utilities.
-
-nupic.support.processes
-Module containing operating system process management utilities and wrappers.
-
-nupic.support.output
-Module containing operating system interprocess communication utilities and
-wrappers.
-
-nupic.support.diff
-Module containing file difference calculation wrappers.
-
-nupic.support.vision
-Temporary location for vision framework before the move to nupic.vision.
-
-nupic.support.deprecate
-Contains the deprecate decorator used for automatic handling of deprecated
-methods.
-
-nupic.support.memchecker
-Contains the MemChecker class, for checking physical memory and monitoring
-memory usage.
-
-nupic.support.imagesearch
-Contains functions for searching for images on the web and downloading them.
 """
 
 from __future__ import with_statement
@@ -95,7 +57,8 @@ def getCallerInfo(depth=2):
   The class will be None if the caller is just a function and not an object
   method.
 
-  depth: how far back in the callstack to go to extract the caller info
+  :param depth: (int) how far back in the callstack to go to extract the caller
+         info
 
   """
   f = sys._getframe(depth)
@@ -111,7 +74,7 @@ def getCallerInfo(depth=2):
 
 
 
-def title(s=None, additional='', stream=sys.stdout, frame='-'):
+def title(s=None, additional='', stream=sys.stdout):
   """Utility function to display nice titles
 
   It automatically extracts the name of the function/method it is called from
@@ -120,40 +83,54 @@ def title(s=None, additional='', stream=sys.stdout, frame='-'):
   of dashes. If you don't want the name of the function, you can provide
   alternative text (regardless of the additional text)
 
-  @param s - text to display, uses the function name and arguments by default
-  @param additional - extra text to display (not needed if s is not None)
-  @param stream - the stream to print to. Ny default goes to standard output
-  @param frame - the character used for the over and under line. Default is '-'
+  :param s: (string) text to display, uses the function name and arguments by
+         default
+  :param additional: (string) extra text to display (not needed if s is not
+         None)
+  :param stream: (stream) the stream to print to. Ny default goes to standard
+         output
 
   Examples:
 
-  def foo():
-    title()
+  .. code-block:: python
+
+    def foo():
+      title()
 
   will display:
 
-  ---
-  foo
-  ---
+  .. code-block:: text
 
-  def foo():
-    title(additional='(), this is cool!!!')
+    ---
+    foo
+    ---
 
-  will display:
+  .. code-block:: python
 
-  ----------------------
-  foo(), this is cool!!!
-  ----------------------
-
-
-  def foo():
-    title('No function name here!')
+    def foo():
+      title(additional='(), this is cool!!!')
 
   will display:
 
-  ----------------------
-  No function name here!
-  ----------------------
+  .. code-block:: text
+
+    ----------------------
+    foo(), this is cool!!!
+    ----------------------
+
+  .. code-block:: python
+
+    def foo():
+      title('No function name here!')
+
+  will display:
+
+  .. code-block:: text
+
+    ----------------------
+    No function name here!
+    ----------------------
+
   """
   if s is None:
     callable_name, file_name, class_name = getCallerInfo(2)
@@ -172,24 +149,27 @@ def getArgumentDescriptions(f):
   """
   Get the arguments, default values, and argument descriptions for a function.
 
-  Returns a list of tuples: (argName, argDescription, defaultValue). If an
-    argument has no default value, the tuple is only two elements long (as None
-    cannot be used, since it could be a default value itself).
-
   Parses the argument descriptions out of the function docstring, using a
   format something lke this:
 
-  [junk]
-  argument_name:     description...
-    description...
-    description...
-  [junk]
-  [more arguments]
+  ::
+
+    [junk]
+    argument_name:     description...
+      description...
+      description...
+    [junk]
+    [more arguments]
 
   It will find an argument as long as the exact argument name starts the line.
   It will then strip a trailing colon, if present, then strip the rest of the
   line and use it to start the description. It will then strip and append any
   subsequent lines with a greater indent level than the original argument name.
+
+  :param f: (function) to inspect
+  :returns: (list of tuples) (``argName``, ``argDescription``, ``defaultValue``)
+    If an argument has no default value, the tuple is only two elements long (as
+    ``None`` cannot be used, since it could be a default value itself).
   """
 
   # Get the argument names and default values
@@ -266,18 +246,18 @@ gLoggingInitialized = False
 def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   """
   Initilize NuPic logging by reading in from the logging configuration file. The
-  logging configuration file is named 'nupic-logging.conf' and is expected to be
-  in the format defined by the python logging module.
+  logging configuration file is named ``nupic-logging.conf`` and is expected to
+  be in the format defined by the python logging module.
 
-  If the environment variable 'NTA_CONF_PATH' is defined, then the logging
-  configuration file is expected to be in the NTA_CONF_PATH directory. If
-  NTA_CONF_PATH is not defined, then it is found in the 'conf/default'
+  If the environment variable ``NTA_CONF_PATH`` is defined, then the logging
+  configuration file is expected to be in the ``NTA_CONF_PATH`` directory. If
+  ``NTA_CONF_PATH`` is not defined, then it is found in the 'conf/default'
   subdirectory of the NuPic installation directory (typically
   ~/nupic/current/conf/default)
 
-  The logging configuration file can use the environment variable 'NTA_LOG_DIR'
-  to set the locations of log files. If this variable is not defined, logging to
-  files will be disabled.
+  The logging configuration file can use the environment variable
+  ``NTA_LOG_DIR`` to set the locations of log files. If this variable is not
+  defined, logging to files will be disabled.
 
   :param console: Defines console output for the default "root" logging
               configuration; this may be one of 'stdout', 'stderr', or None;
@@ -429,17 +409,18 @@ def aggregationToMonthsSeconds(interval):
   'months', 'weeks', 'days', 'hours', 'minutes', seconds', 'milliseconds',
   'microseconds'.
 
-  Parameters:
-  ---------------------------------------------------------------------
-  interval:  The aggregation interval, as a dict representing a date and time
-  retval:    number of months and seconds in the interval, as a dict:
-                {months': XX, 'seconds': XX}. The seconds is
-                a floating point that can represent resolutions down to a
-                microsecond.
-
   For example:
-  aggregationMicroseconds({'years': 1, 'hours': 4, 'microseconds':42}) ==
-      {'months':12, 'seconds':14400.000042}
+
+  ::
+
+    aggregationMicroseconds({'years': 1, 'hours': 4, 'microseconds':42}) ==
+        {'months':12, 'seconds':14400.000042}
+
+  :param interval: (dict) The aggregation interval representing a date and time
+  :returns: (dict) number of months and seconds in the interval:
+            ``{months': XX, 'seconds': XX}``. The seconds is
+            a floating point that can represent resolutions down to a
+            microsecond.
 
   """
 
@@ -466,15 +447,15 @@ def aggregationDivide(dividend, divisor):
   keys: 'years', 'months', 'weeks', 'days', 'hours', 'minutes', seconds',
   'milliseconds', 'microseconds'.
 
-  Parameters:
-  ---------------------------------------------------------------------
-  dividend:  The numerator, as a dict representing a date and time
-  divisor:   the denominator, as a dict representing a date and time
-  retval:    number of times divisor goes into dividend, as a floating point
-                number.
-
   For example:
-  aggregationDivide({'hours': 4}, {'minutes': 15}) == 16
+
+  ::
+
+    aggregationDivide({'hours': 4}, {'minutes': 15}) == 16
+
+  :param dividend: (dict) The numerator, as a dict representing a date and time
+  :param divisor: (dict) the denominator, as a dict representing a date and time
+  :returns: (float) number of times divisor goes into dividend
 
   """
 

@@ -19,6 +19,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+"""
+This Configuration implementation allows for persistent configuration updates
+stored in ``nupic-custom.xml`` in the site conf folder.
+"""
+
+
 from __future__ import with_statement
 
 from copy import copy
