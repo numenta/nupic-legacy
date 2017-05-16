@@ -156,8 +156,8 @@ nupic
 │   ├── stats.py [TODO]
 │   └── topology.py [TODO]
 ├── regions
-│   ├── AnomalyLikelihoodRegion.py [TODO]
-│   ├── AnomalyRegion.py [TODO]
+│   ├── AnomalyLikelihoodRegion.py [OK]
+│   ├── AnomalyRegion.py [OK]
 │   ├── CLAClassifierRegion.py [TODO]
 │   ├── KNNAnomalyClassifierRegion.py [TODO]
 │   ├── KNNClassifierRegion.py [TODO]
