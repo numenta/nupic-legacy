@@ -30,7 +30,7 @@ import numpy
 import unittest2 as unittest
 from pkg_resources import resource_filename
 
-from nupic.regions.RecordSensor import RecordSensor
+from nupic.regions.record_sensor import RecordSensor
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.encoders import MultiEncoder
 from nupic.data.filters import DeltaFilter
