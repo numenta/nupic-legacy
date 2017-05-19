@@ -25,7 +25,7 @@ import numbers
 import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.data.fieldmeta import FieldMetaType
+from nupic.data.field_meta import FieldMetaType
 from nupic.bindings.math import SM32, GetNTAReal
 from nupic.encoders.base import Encoder, EncoderResult
 
@@ -60,30 +60,36 @@ class ScalarEncoder(Encoder):
 
   :param minval: The minimum value of the input signal.
 
-  :param maxval: The upper bound of the input signal. (input is strictly less if periodic == True)
+  :param maxval: The upper bound of the input signal. (input is strictly less if
+              ``periodic == True``)
 
-  :param periodic: If true, then the input value "wraps around" such that minval = maxval
-              For a periodic value, the input must be strictly less than maxval,
-              otherwise maxval is a true upper bound.
+  :param periodic: If true, then the input value "wraps around" such that
+              ``minval`` = ``maxval``. For a periodic value, the input must be
+              strictly less than ``maxval``, otherwise ``maxval`` is a true
+              upper bound.
 
-  :param n: The number of bits in the output. Must be greater than or equal to w
-  :param radius: Two inputs separated by more than the radius have non-overlapping
-                  representations. Two inputs separated by less than the radius will
-                  in general overlap in at least some of their bits. You can think
-                  of this as the radius of the input.
-  :param resolution: Two inputs separated by greater than, or equal to the resolution are guaranteed
-                  to have different representations.
+  :param n: The number of bits in the output. Must be greater than or equal to
+            ``w``
+
+  :param radius: Two inputs separated by more than the radius have
+                 non-overlapping representations. Two inputs separated by less
+                 than the radius will in general overlap in at least some of
+                 their bits. You can think of this as the radius of the input.
+
+  :param resolution: Two inputs separated by greater than, or equal to the
+                     resolution are guaranteed to have different
+                     representations.
 
   :param name: an optional string which will become part of the description
 
   :param clipInput: if true, non-periodic inputs smaller than minval or greater
             than maxval will be clipped to minval/maxval
 
-  :param forced: if true, skip some safety checks (for compatibility reasons), default false
+  :param forced: if true, skip some safety checks (for compatibility reasons),
+                 default false
 
-
-  .. note:: Radius and resolution are specified with respect to the input, not output. w
-     is specified with respect to the output.
+  .. note:: ``radius`` and ``resolution`` are specified with respect to the
+     input, not output. ``w`` is specified with respect to the output.
 
   **Example: day of week**
 
@@ -699,18 +705,19 @@ class ScalarEncoder(Encoder):
     return numpy.array([closeness])
 
 
-  def dump(self):
-    print "ScalarEncoder:"
-    print "  min: %f" % self.minval
-    print "  max: %f" % self.maxval
-    print "  w:   %d" % self.w
-    print "  n:   %d" % self.n
-    print "  resolution: %f" % self.resolution
-    print "  radius:     %f" % self.radius
-    print "  periodic: %s" % self.periodic
-    print "  nInternal: %d" % self.nInternal
-    print "  rangeInternal: %f" % self.rangeInternal
-    print "  padding: %d" % self.padding
+  def __str__(self):
+    string = "ScalarEncoder:"
+    string += "  min: {minval}".format(minval = self.minval)
+    string += "  max: {maxval}".format(maxval = self.maxval)
+    string += "  w:   {w}".format(w = self.w)
+    string += "  n:   {n}".format(n = self.n)
+    string += "  resolution: {resolution}".format(resolution = self.resolution)
+    string += "  radius:     {radius}".format(radius = self.radius)
+    string += "  periodic: {periodic}".format(periodic = self.periodic)
+    string += "  nInternal: {nInternal}".format(nInternal = self.nInternal)
+    string += "  rangeInternal: {rangeInternal}".format(rangeInternal = self.rangeInternal)
+    string += "  padding: {padding}".format(padding = self.padding)
+    return string
 
 
   @classmethod

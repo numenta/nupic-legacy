@@ -60,19 +60,22 @@ _ATTR_CLASS_MAP = {value:key for key, value in _CLASS_ATTR_MAP.items()}
 
 
 class MultiEncoder(Encoder):
-  """A MultiEncoder encodes a dictionary or object with
-  multiple components. A MultiEncode contains a number
-  of sub-encoders, each of which encodes a separate component."""
-  # TODO expand this docstring to explain how the multiple encoders are combined
+  """
+  A MultiEncoder encodes a dictionary or object with multiple components. A
+  MultiEncoder contains a number of sub-encoders, each of which encodes a
+  separate component.
 
+  :param encoderDefinitions: a dict of dicts, mapping field names to the field
+         params dict. Sent directly to :meth:`.addMultipleEncoders`.
+  """
 
-  def __init__(self, encoderDescriptions=None):
+  def __init__(self, encoderDefinitions=None):
     self.width = 0
     self.encoders = []
     self.description = []
     self.name = ''
-    if encoderDescriptions is not None:
-      self.addMultipleEncoders(encoderDescriptions)
+    if encoderDefinitions is not None:
+      self.addMultipleEncoders(encoderDefinitions)
 
 
   def setFieldStats(self, fieldName, fieldStatistics ):
@@ -81,6 +84,12 @@ class MultiEncoder(Encoder):
 
 
   def addEncoder(self, name, encoder):
+    """
+    Adds one encoder.
+
+    :param name: (string) name of encoder, should be unique
+    :param encoder: (:class:`.Encoder`) the encoder to add
+    """
     self.encoders.append((name, encoder, self.width))
     for d in encoder.getDescription():
       self.description.append((d[0], d[1] + self.width))
@@ -125,30 +134,36 @@ class MultiEncoder(Encoder):
 
   def addMultipleEncoders(self, fieldEncodings):
     """
-    fieldEncodings -- a dict of dicts, mapping field names to the field params
-                        dict.
 
-    Each field params dict has the following keys
-    1) data fieldname that matches the key ('fieldname')
-    2) an encoder type ('type')
-    3) and the encoder params (all other keys)
+    :param fieldEncodings: dict of dicts, mapping field names to the field
+           params dict.
+
+           Each field params dict has the following keys:
+
+           1. ``fieldname``: data field name
+           2. ``type`` an encoder type
+           3. All other keys are encoder parameters
 
     For example,
-    fieldEncodings={
-        'dateTime': dict(fieldname='dateTime', type='DateEncoder',
-                         timeOfDay=(5,5)),
-        'attendeeCount': dict(fieldname='attendeeCount', type='ScalarEncoder',
-                              name='attendeeCount', minval=0, maxval=250,
-                              clipInput=True, w=5, resolution=10),
-        'consumption': dict(fieldname='consumption',type='ScalarEncoder',
-                            name='consumption', minval=0,maxval=110,
-                            clipInput=True, w=5, resolution=5),
-    }
-    
-    would yield a vector with a part encoded by the DateEncoder, 
-    and to parts seperately taken care of by the ScalarEncoder with the specified parameters. 
-    The three seperate encodings are then merged together to the final vector, in such a way that
-    they are always at the same location within the vector.
+
+    .. code-block:: python
+
+      fieldEncodings={
+          'dateTime': dict(fieldname='dateTime', type='DateEncoder',
+                           timeOfDay=(5,5)),
+          'attendeeCount': dict(fieldname='attendeeCount', type='ScalarEncoder',
+                                name='attendeeCount', minval=0, maxval=250,
+                                clipInput=True, w=5, resolution=10),
+          'consumption': dict(fieldname='consumption',type='ScalarEncoder',
+                              name='consumption', minval=0,maxval=110,
+                              clipInput=True, w=5, resolution=5),
+      }
+
+    would yield a vector with a part encoded by the :class:`.DateEncoder`, and
+    to parts seperately taken care of by the :class:`.ScalarEncoder` with the
+    specified parameters. The three seperate encodings are then merged together
+    to the final vector, in such a way that they are always at the same location
+    within the vector.
     """
 
     # Sort the encoders so that they end up in a controlled order

@@ -4,7 +4,7 @@
 
 The Network API provides an interface for defining regions that have named
 inputs and outputs and linking the regions together. The API automates the
-process of propogating the data from one region to another. The API also
+process of propagating the data from one region to another. The API also
 allows regions to specify how they should be serialized so that you can
 serialize an entire network easily.
 

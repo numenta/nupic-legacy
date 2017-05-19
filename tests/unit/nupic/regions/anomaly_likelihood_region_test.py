@@ -33,7 +33,7 @@ if capnp:
   from nupic.regions.AnomalyLikelihoodRegion_capnp import\
     AnomalyLikelihoodRegionProto
 
-from nupic.regions.AnomalyLikelihoodRegion import AnomalyLikelihoodRegion
+from nupic.regions.anomaly_likelihood_region import AnomalyLikelihoodRegion
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
 from pkg_resources import resource_filename
 

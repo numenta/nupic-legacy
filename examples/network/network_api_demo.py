@@ -30,7 +30,7 @@ from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
 from nupic.encoders import MultiEncoder, ScalarEncoder, DateEncoder
 from nupic.regions.SPRegion import SPRegion
-from nupic.regions.TPRegion import TPRegion
+from nupic.regions.TMRegion import TMRegion
 
 _VERBOSITY = 0  # how chatty the demo should be
 _SEED = 1956  # the random seed used throughout
@@ -57,8 +57,8 @@ SP_PARAMS = {
     "boostStrength": 0.0,
 }
 
-# Config field for TPRegion
-TP_PARAMS = {
+# Config field for TMRegion
+TM_PARAMS = {
     "verbosity": _VERBOSITY,
     "columnCount": 2048,
     "cellsPerColumn": 32,
@@ -100,7 +100,7 @@ def createNetwork(dataSource):
 
   The network has a sensor region reading data from `dataSource` and passing
   the encoded representation to an SPRegion. The SPRegion output is passed to
-  a TPRegion.
+  a TMRegion.
 
   :param dataSource: a RecordStream instance to get data from
   :returns: a Network instance ready to run
@@ -131,15 +131,15 @@ def createNetwork(dataSource):
   network.link("spatialPoolerRegion", "sensor", "UniformLink", "",
                srcOutput="temporalTopDownOut", destInput="temporalTopDownIn")
 
-  # Add the TPRegion on top of the SPRegion
-  network.addRegion("temporalPoolerRegion", "py.TPRegion",
-                    json.dumps(TP_PARAMS))
+  # Add the TMRegion on top of the SPRegion
+  network.addRegion("temporalPoolerRegion", "py.TMRegion",
+                    json.dumps(TM_PARAMS))
 
   network.link("spatialPoolerRegion", "temporalPoolerRegion", "UniformLink", "")
   network.link("temporalPoolerRegion", "spatialPoolerRegion", "UniformLink", "",
                srcOutput="topDownOut", destInput="topDownIn")
 
-  # Add the AnomalyLikelihoodRegion on top of the TPRegion
+  # Add the AnomalyLikelihoodRegion on top of the TMRegion
   network.addRegion("anomalyLikelihoodRegion", "py.AnomalyLikelihoodRegion",
     json.dumps({}))
   
@@ -210,7 +210,7 @@ if __name__ == "__main__":
   print "# spatial pooler columns: {0}".format(sp.getNumColumns())
   print
 
-  tmRegion = network.getRegionsByType(TPRegion)[0]
+  tmRegion = network.getRegionsByType(TMRegion)[0]
   tm = tmRegion.getSelf().getAlgorithmInstance()
   print "temporal memory region inputs: {0}".format(tmRegion.getInputNames())
   print "temporal memory region outputs: {0}".format(tmRegion.getOutputNames())

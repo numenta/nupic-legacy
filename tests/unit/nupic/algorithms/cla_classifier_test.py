@@ -30,7 +30,7 @@ import unittest2 as unittest
 import numpy
 import tempfile
 
-from nupic.algorithms.CLAClassifier import CLAClassifier
+from nupic.algorithms.cla_classifier import CLAClassifier
 
 try:
   import capnp
@@ -67,7 +67,7 @@ class CLAClassifierTest(unittest.TestCase):
 
 
   def testSingleValue0Steps(self):
-    """Send same value 10 times and expect 100% likelihood for prediction 
+    """Send same value 10 times and expect 100% likelihood for prediction
     using 0-step ahead prediction"""
     classifier = self._classifier([0])
 
@@ -528,7 +528,7 @@ class CLAClassifierTest(unittest.TestCase):
 
 
   def test_pFormatArray(self):
-    from nupic.algorithms.CLAClassifier import _pFormatArray
+    from nupic.algorithms.cla_classifier import _pFormatArray
     pretty = _pFormatArray(range(10))
     self.assertIsInstance(pretty, basestring)
     self.assertEqual(pretty[0], "[")

@@ -21,12 +21,12 @@
 
 import os
 import random
-from nupic.frameworks.prediction.helpers import (updateConfigFromSubConfig, 
+from nupic.frameworks.prediction.helpers import (updateConfigFromSubConfig,
                                                  getSubExpDir)
 from nupic.encoders import (LogEncoder,
                                                   DateEncoder,
-                                                  MultiEncoder, 
-                                                  CategoryEncoder, 
+                                                  MultiEncoder,
+                                                  CategoryEncoder,
                                                   ScalarEncoder,
                                                   SDRCategoryEncoder)
 #from nupic.data import TextFileSource
@@ -35,7 +35,7 @@ from nupic.frameworks.prediction.callbacks import (printSPCoincidences,
                                                    displaySPCoincidences,
                                                    setAttribute,
                                                    sensorOpen)
-from nupic.regions.RecordSensorFilters.ModifyFields import ModifyFields
+from nupic.regions.RecordSensorFilters.modify_fields import ModifyFields
 
 
 
@@ -43,7 +43,7 @@ from nupic.regions.RecordSensorFilters.ModifyFields import ModifyFields
 
 # ========================================================================
 # Define this experiment's base configuration, and adjust for any modifications
-# if imported from a sub-experiment. 
+# if imported from a sub-experiment.
 config = dict(
   sensorVerbosity = 0,
   spVerbosity = 0,
@@ -54,7 +54,7 @@ config = dict(
   spSynPermInactiveDec = 0.005,
   spCoincCount = 300,
   spMinPctDutyCycleAfterInh = 0.001,
-  
+
   tpActivationThresholds = None,
 
   trainSP = True,
@@ -63,14 +63,14 @@ config = dict(
 
   trainingSet = "trainingData.csv",
   testingSet = "testingData.csv",
-  
-  # Data set and encoding 
+
+  # Data set and encoding
   numAValues = 25,
   numBValues = 25,
   b0Likelihood = 0.90,    # Likelihood of getting 0 out of field B. None means
-                          #  not any more likely than any other B value. 
+                          #  not any more likely than any other B value.
   testSetPct = 0.0,       # What percent of unique combinations to reserve
-  
+
   encodingFieldStyleA = 'sdr',   # contiguous, sdr
   encodingFieldWidthA = 50,
   encodingOnBitsA = 21,
@@ -83,9 +83,9 @@ config = dict(
 updateConfigFromSubConfig(config)
 
 if config['encodingFieldWidthB'] is None:
-  config['encodingFieldWidthB'] = config['encodingFieldWidthA'] 
+  config['encodingFieldWidthB'] = config['encodingFieldWidthA']
 if config['encodingOnBitsB'] is None:
-  config['encodingOnBitsB'] = config['encodingOnBitsA'] 
+  config['encodingOnBitsB'] = config['encodingOnBitsA']
 
 if config['tpActivationThresholds'] is None:
   config['tpActivationThresholds'] = range(8, config['spNumActivePerInhArea']+1)
@@ -97,7 +97,7 @@ def getBaseDatasets():
 
 def getDatasets(baseDatasets, generate=False):
   # We're going to put datasets in data/dutyCycle/expname_<file>.csv
-  
+
   expDir = getSubExpDir()
   if expDir is None:
     name = "base"
@@ -110,14 +110,14 @@ def getDatasets(baseDatasets, generate=False):
   datasets = dict(trainingFilename=trainingFilename)
 
   numUnique = config['numAValues'] * config['numBValues']
-  testSetSize = int(config['testSetPct'] * numUnique)    
+  testSetSize = int(config['testSetPct'] * numUnique)
   if testSetSize > 0:
     testingFilename = os.path.join(dataDir, config['testingSet'])
     datasets['testingFilename'] = testingFilename
   else:
     testingFilename = None
 
-  
+
   if not generate:
     return datasets
 
@@ -126,7 +126,7 @@ def getDatasets(baseDatasets, generate=False):
   #  testing set contains combinations of A and B that do not appear in the
   #  training set
   #
-  
+
   if not os.path.exists(dataDir):
     os.makedirs(dataDir)
 
@@ -191,7 +191,7 @@ def getDatasets(baseDatasets, generate=False):
     print "Creating training set: %s..." % (trainingFilename)
     if len(testSet) > 0:
       print "Contains %d samples, chosen from %d of the possible %d combinations " \
-            "that are not in the test set" % (config['iterationCount'], 
+            "that are not in the test set" % (config['iterationCount'],
             numUnique - testSetSize, numUnique)
     else:
       print "Contains %d samples" % (config['iterationCount'])
@@ -205,7 +205,7 @@ def getDatasets(baseDatasets, generate=False):
         #print >>fd, "%d, %d" % (sample[0], sample[1])
         o.appendRecord(list(sample))
         numSamples += 1
- 
+
   return datasets
 
 def getDescription(datasets):
@@ -227,12 +227,12 @@ def getDescription(datasets):
 
 
   if config['encodingFieldStyleB'] == 'contiguous':
-    encoder.addEncoder('fieldB', ScalarEncoder(w=config['encodingOnBitsB'], 
-                      n=config['encodingFieldWidthB'], minval=0, 
+    encoder.addEncoder('fieldB', ScalarEncoder(w=config['encodingOnBitsB'],
+                      n=config['encodingFieldWidthB'], minval=0,
                       maxval=config['numBValues'], periodic=True, name='fieldB'))
   elif config['encodingFieldStyleB'] == 'sdr':
-    encoder.addEncoder('fieldB', SDRCategoryEncoder(w=config['encodingOnBitsB'], 
-                      n=config['encodingFieldWidthB'], 
+    encoder.addEncoder('fieldB', SDRCategoryEncoder(w=config['encodingOnBitsB'],
+                      n=config['encodingFieldWidthB'],
                       categoryList=range(config['numBValues']), name='fieldB'))
   else:
     assert False
@@ -249,7 +249,7 @@ def getDescription(datasets):
   inputDimensions = (1, encoder.getWidth())
 
   # Layout the coincidences vertically stacked on top of each other, each
-  # looking at the entire input field. 
+  # looking at the entire input field.
   columnDimensions = (config['spCoincCount'], 1)
 
   sensorParams = dict(
@@ -264,7 +264,7 @@ def getDescription(datasets):
     potentialPct = 1.0,
     gaussianDist = 0,
     commonDistributions = 0,    # should be False if possibly not training
-    localAreaDensity = -1, #0.05, 
+    localAreaDensity = -1, #0.05,
     numActiveColumnsPerInhArea = config['spNumActivePerInhArea'],
     dutyCyclePeriod = 1000,
     stimulusThreshold = 1,
@@ -280,7 +280,7 @@ def getDescription(datasets):
     spSeed = 1,
     printPeriodicStats = int(config['spPeriodicStats']),
 
-    # TP params
+    # TM params
     disableTemporal = 1,
 
     # General params
@@ -297,7 +297,7 @@ def getDescription(datasets):
 
     network = dict(
       sensorDataSource = trainingDataSource,
-      sensorEncoder = encoder, 
+      sensorEncoder = encoder,
       sensorParams = sensorParams,
 
       CLAType = 'py.CLARegion',
@@ -310,7 +310,7 @@ def getDescription(datasets):
 
   if config['trainSP']:
     description['spTrain'] = dict(
-      iterationCount=config['iterationCount'], 
+      iterationCount=config['iterationCount'],
       #iter=displaySPCoincidences(50),
       finish=printSPCoincidences()
       ),
@@ -330,7 +330,7 @@ def getDescription(datasets):
   if True:
     datasetName = 'bothTraining'
     inferSteps.append(
-      dict(name = '%s_baseline' % datasetName, 
+      dict(name = '%s_baseline' % datasetName,
            iterationCount = config['iterationCount'],
            setup = [sensorOpen(datasets['trainingFilename'])],
            ppOptions = dict(printLearnedCoincidences=True),
@@ -338,7 +338,7 @@ def getDescription(datasets):
       )
 
     inferSteps.append(
-      dict(name = '%s_acc' % datasetName, 
+      dict(name = '%s_acc' % datasetName,
            iterationCount = config['iterationCount'],
            setup = [sensorOpen(datasets['trainingFilename'])],
            ppOptions = dict(onlyClassificationAcc=True,
@@ -353,7 +353,7 @@ def getDescription(datasets):
   if 'testingFilename' in datasets:
     datasetName = 'bothTesting'
     inferSteps.append(
-      dict(name = '%s_baseline' % datasetName, 
+      dict(name = '%s_baseline' % datasetName,
            iterationCount = config['iterationCount'],
            setup = [sensorOpen(datasets['testingFilename'])],
            ppOptions = dict(printLearnedCoincidences=False),
@@ -361,7 +361,7 @@ def getDescription(datasets):
       )
 
     inferSteps.append(
-      dict(name = '%s_acc' % datasetName, 
+      dict(name = '%s_acc' % datasetName,
            iterationCount = config['iterationCount'],
            setup = [sensorOpen(datasets['testingFilename'])],
            ppOptions = dict(onlyClassificationAcc=True,

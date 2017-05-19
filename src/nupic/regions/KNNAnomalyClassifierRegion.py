@@ -31,20 +31,20 @@ from nupic.algorithms import anomaly
 from nupic.bindings.regions.PyRegion import PyRegion
 from KNNClassifierRegion import KNNClassifierRegion
 from nupic.bindings.math import Random
-from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError,
-                                             CLAModelInvalidArgument)
+from nupic.frameworks.opf.exceptions import (HTMPredictionModelInvalidRangeError,
+                                             HTMPredictionModelInvalidArgument)
 
 
 
 class KNNAnomalyClassifierRegion(PyRegion):
   """
-  KNNAnomalyClassifierRegion wraps the KNNClassifierRegion to classify clamodel
+  KNNAnomalyClassifierRegion wraps the KNNClassifierRegion to classify htm_prediction_model
   state.  It allows for individual records to be classified as anomalies and
   supports anomaly detection even after the model has learned the anomalous
   sequence.
 
   Methods:
-    compute() - called by clamodel during record processing
+    compute() - called by htm_prediction_model during record processing
     getLabels() - return points with classification records
     addLabel() - add a set label to a given set of points
     removeLabels() - remove labels from a given set of points
@@ -85,7 +85,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
             requireSplitterMap=False),
 
           tpLrnActiveStateT=dict(
-            description="""Active cells in the learn state at time T from TP.
+            description="""Active cells in the learn state at time T from TM.
                         This is used to classify on.""",
             dataType='Real32',
             count=0,
@@ -135,7 +135,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
 
           classificationVectorType=dict(
             description="""Vector type to use when classifying.
-              1 - Vector Column with Difference (TP and SP)
+              1 - Vector Column with Difference (TM and SP)
             """,
             dataType='UInt32',
             count=1,
@@ -234,8 +234,8 @@ class KNNAnomalyClassifierRegion(PyRegion):
     self._version = KNNAnomalyClassifierRegion.__VERSION__
 
 
-  def initialize(self, dims, splitterMaps):
-    assert tuple(dims) == (1,) * len(dims)
+  def initialize(self):
+    pass
 
 
   def getParameter(self, name, index=-1):
@@ -271,11 +271,11 @@ class KNNAnomalyClassifierRegion(PyRegion):
       # Ensure that the trainRecords can only be set to minimum of the ROWID in
       # the saved states
       if not (isinstance(value, float) or isinstance(value, int)):
-        raise CLAModelInvalidArgument("Invalid argument type \'%s\'. threshold "
+        raise HTMPredictionModelInvalidArgument("Invalid argument type \'%s\'. threshold "
           "must be a number." % (type(value)))
 
       if len(self._recordsCache) > 0 and value < self._recordsCache[0].ROWID:
-        raise CLAModelInvalidArgument("Invalid value. autoDetectWaitRecord "
+        raise HTMPredictionModelInvalidArgument("Invalid value. autoDetectWaitRecord "
           "value must be valid record within output stream. Current minimum "
           " ROWID in output stream is %d." % (self._recordsCache[0].ROWID))
 
@@ -286,13 +286,13 @@ class KNNAnomalyClassifierRegion(PyRegion):
       self.classifyStates()
     elif name == "anomalyThreshold":
       if not (isinstance(value, float) or isinstance(value, int)):
-        raise CLAModelInvalidArgument("Invalid argument type \'%s\'. threshold "
+        raise HTMPredictionModelInvalidArgument("Invalid argument type \'%s\'. threshold "
           "must be a number." % (type(value)))
       self.anomalyThreshold = value
       self.classifyStates()
     elif name == "classificationMaxDist":
       if not (isinstance(value, float) or isinstance(value, int)):
-        raise CLAModelInvalidArgument("Invalid argument type \'%s\'. "
+        raise HTMPredictionModelInvalidArgument("Invalid argument type \'%s\'. "
           "classificationMaxDist must be a number." % (type(value)))
       self._classificationMaxDist = value
       self.classifyStates()
@@ -396,12 +396,12 @@ class KNNAnomalyClassifierRegion(PyRegion):
 
   def constructClassificationRecord(self, inputs):
     """
-    Construct a _CLAClassificationRecord based on the state of the model
+    Construct a _HTMClassificationRecord based on the state of the model
     passed in through the inputs.
 
     Types for self.classificationVectorType:
-      1 - TP active cells in learn state
-      2 - SP columns concatenated with error from TP column predictions and SP
+      1 - TM active cells in learn state
+      2 - SP columns concatenated with error from TM column predictions and SP
     """
     # Count the number of unpredicted columns
     allSPColumns = inputs["spBottomUpOut"]
@@ -419,14 +419,14 @@ class KNNAnomalyClassifierRegion(PyRegion):
     classificationVector = numpy.array([])
 
     if self.classificationVectorType == 1:
-      # Classification Vector: [---TP Cells---]
+      # Classification Vector: [---TM Cells---]
       classificationVector = numpy.zeros(tpSize)
       activeCellMatrix = inputs["tpLrnActiveStateT"].reshape(tpSize, 1)
       activeCellIdx = numpy.where(activeCellMatrix > 0)[0]
       if activeCellIdx.shape[0] > 0:
         classificationVector[numpy.array(activeCellIdx, dtype=numpy.uint16)] = 1
     elif self.classificationVectorType == 2:
-      # Classification Vecotr: [---SP---|---(TP-SP)----]
+      # Classification Vecotr: [---SP---|---(TM-SP)----]
       classificationVector = numpy.zeros(spSize+spSize)
       if activeSPColumns.shape[0] > 0:
         classificationVector[activeSPColumns] = 1.0
@@ -651,8 +651,8 @@ class KNNAnomalyClassifierRegion(PyRegion):
       end = self._recordsCache[-1].ROWID
 
     if end <= start:
-      raise CLAModelInvalidRangeError("Invalid supplied range for 'getLabels'.",
-        debugInfo={
+      raise HTMPredictionModelInvalidRangeError("Invalid supplied range for 'getLabels'.",
+                                                debugInfo={
           'requestRange': {
             'startRecordID': start,
             'endRecordID': end
@@ -687,7 +687,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
     internal cache of this classifier.
     """
     if len(self._recordsCache) == 0:
-      raise CLAModelInvalidRangeError("Invalid supplied range for 'addLabel'. "
+      raise HTMPredictionModelInvalidRangeError("Invalid supplied range for 'addLabel'. "
         "Model has no saved records.")
 
     try:
@@ -706,8 +706,8 @@ class KNNAnomalyClassifierRegion(PyRegion):
     clippedEnd = max(0, min( len( self._recordsCache) , end - startID))
 
     if clippedEnd <= clippedStart:
-      raise CLAModelInvalidRangeError("Invalid supplied range for 'addLabel'.",
-        debugInfo={
+      raise HTMPredictionModelInvalidRangeError("Invalid supplied range for 'addLabel'.",
+                                                debugInfo={
           'requestRange': {
             'startRecordID': start,
             'endRecordID': end
@@ -747,7 +747,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
     internal cache of this classifier.
     """
     if len(self._recordsCache) == 0:
-      raise CLAModelInvalidRangeError("Invalid supplied range for "
+      raise HTMPredictionModelInvalidRangeError("Invalid supplied range for "
         "'removeLabels'. Model has no saved records.")
 
     try:
@@ -767,7 +767,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
       max(0, min( len( self._recordsCache) , end - startID))
 
     if clippedEnd <= clippedStart:
-      raise CLAModelInvalidRangeError("Invalid supplied range for "
+      raise HTMPredictionModelInvalidRangeError("Invalid supplied range for "
         "'removeLabels'.", debugInfo={
           'requestRange': {
             'startRecordID': start,

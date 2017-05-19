@@ -14,6 +14,7 @@
 
 import os
 import sys
+import datetime
 
 sourcePath = os.path.abspath(os.path.join('..', 'src'))
 rootPath = os.path.abspath('../..')
@@ -69,11 +70,16 @@ version = nextVersion
 # The full version, including alpha/beta/rc tags.
 release = devVersion
 
+buildDate = datetime.datetime.now().strftime(
+  "Documentation built on %B %d, %Y at %H:%M:%S"
+)
+
 # Ensures release version is included in output
 rst_epilog_pre = """
 .. |release| replace:: {}
+.. |buildDate| replace:: {}
 """
-rst_epilog = rst_epilog_pre.format(release)
+rst_epilog = rst_epilog_pre.format(release, buildDate)
 
 # Adds markdown support (pip install recommonmark)
 source_parsers = {
@@ -123,6 +129,14 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 html_logo = 'numenta-logo.png'
+
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'searchbox.html'
+    ]
+}
 
 # -- Options for HTMLHelp output ------------------------------------------
 

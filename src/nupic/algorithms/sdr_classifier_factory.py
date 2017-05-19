@@ -39,7 +39,7 @@ class SDRClassifierFactory(object):
     the "implementation" keyword argument.
 
     The SDRClassifierFactory uses the implementation as specified in
-     src/nupic/support/nupic-default.xml
+     `Default NuPIC Configuration <default-config.html>`_.
     """
     impl = kwargs.pop('implementation', None)
     if impl is None:
@@ -56,7 +56,7 @@ class SDRClassifierFactory(object):
   @staticmethod
   def read(proto):
     """
-    proto: SDRClassifierRegionProto capnproto object
+    :param proto: SDRClassifierRegionProto capnproto object
     """
     impl = proto.implementation
     if impl == 'py':

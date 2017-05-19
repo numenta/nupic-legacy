@@ -27,7 +27,7 @@ from abc import ABCMeta, abstractmethod
 
 from nupic.bindings.regions.PyRegion import PyRegion
 
-from nupic.data.dictutils import DictObj
+from nupic.data.dict_utils import DictObj
 
 
 
@@ -132,15 +132,12 @@ class TestRegion(PyRegion):
   #############################################################################
 
 
-  def initialize(self, dims, splitterMaps):
+  def initialize(self):
     """ Called by network after all links have been set up
-
-    dims, splitterMaps:   Unused legacy args
     """
     self.identityPolicy.initialize(self)
 
     _debugOut(self.identityPolicy.getName())
-    return
 
 
   #############################################################################

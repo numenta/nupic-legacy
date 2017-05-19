@@ -36,7 +36,7 @@ import signal
 import uuid
 import validictory
 
-from nupic.database.ClientJobsDAO import (
+from nupic.database.client_jobs_dao import (
     ClientJobsDAO, InvalidConnectionException)
 
 # TODO: Note the function 'rUpdate' is also duplicated in the
@@ -97,7 +97,7 @@ def _paramsFileHead():
 ###############################################################################
 
 
-from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
+from nupic.frameworks.opf.exp_description_helpers import importBaseDescription
 
 # the sub-experiment configuration
 config ={
@@ -453,7 +453,7 @@ def runModelGivenBaseAndParams(modelID, jobID, baseDescription, params,
 
 def runDummyModel(modelID, jobID, params, predictedField, reportKeys,
                   optimizeKey, jobsDAO, modelCheckpointGUID, logLevel=None, predictionCacheMaxRecords=None):
-  from nupic.swarming.DummyModelRunner import OPFDummyModelRunner
+  from nupic.swarming.dummy_model_runner import OPFDummyModelRunner
 
   # The logger for this method
   logger = logging.getLogger('com.numenta.nupic.hypersearch.utils')

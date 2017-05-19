@@ -74,6 +74,8 @@ build_script:
   - python setup.py bdist_wheel
 
   - ps: ls -l dist
+  - 7z a nupic-%APPVEYOR_REPO_COMMIT%.zip .\dist\nupic-%NUPIC_VERSION%-py2-none-any.whl
+  - ps: ls -l .
   - ps: move .\dist\nupic-$env:NUPIC_VERSION-py2-none-any.whl .\dist\nupic-$env:NUPIC_VERSION-cp27-none-win_amd64.whl
 
 test_script:
@@ -103,6 +105,8 @@ test_script:
 
 artifacts:
   - path: 'dist\*.whl' # Find all wheel files in project root only (non-recusive)
+  - path: nupic-$(APPVEYOR_REPO_COMMIT).zip
+    name: appveyor
 
 deploy:
   # Amazon S3 deployment provider settings
@@ -115,5 +119,16 @@ deploy:
     set_public: true
     artifact: "nupic-$(NUPIC_VERSION)-cp27-none-win_amd64.whl"
     folder: "numenta/nupic/$(APPVEYOR_REPO_COMMIT)"
+    on:
+      branch: master
+  - provider: S3
+    access_key_id: AKIAIGHYSEHV3WFKOWNQ
+    secret_access_key:
+      secure: /8wO17Gir0XAiecJkHeE3jxOJzvyl0+uWcl7BKCuN0FC795golsL8905VmNuRl1o
+    bucket: "artifacts.numenta.org"
+    region: us-west-2
+    set_public: true
+    artifact: appveyor
+    folder: "numenta/nupic/appveyor"
     on:
       branch: master

@@ -21,7 +21,7 @@
 
 import random as rand
 
-from nupic.encoders import adaptivescalar, sdrcategory, date
+from nupic.encoders import adaptive_scalar, sdr_category, date
 from nupic.bindings.math import GetNTAReal
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.generators.distributions import *
@@ -33,7 +33,7 @@ class DataGenerator():
   """The DataGenerator provides a framework for generating, encoding, saving
   and exporting records. Each column of the output contains records with a
   specific set of parameters such as encoderType, n, w, etc. This interface
-  is intended to be used for testing the spatial pooler, temporal pooler and
+  is intended to be used for testing the spatial pooler, temporal memory and
   for generating artificial datasets.
   """
 
@@ -484,13 +484,13 @@ class _field():
       if 'maxval' in encoderSpec:
         self.maxval = encoderSpec.pop('maxval')
       else: self.maxval = None
-      self.encoder=adaptivescalar.AdaptiveScalarEncoder(name='AdaptiveScalarEncoder',\
-        w=self.w, n=self.n, minval=self.minval, maxval=self.maxval, periodic=False, forced=True)
+      self.encoder=adaptive_scalar.AdaptiveScalarEncoder(name='AdaptiveScalarEncoder', \
+                                                         w=self.w, n=self.n, minval=self.minval, maxval=self.maxval, periodic=False, forced=True)
 
     #Initializing category encoder
     elif self.encoderType=='category':
-      self.encoder=sdrcategory.SDRCategoryEncoder(name='categoryEncoder', \
-                                                  w=self.w, n=self.n)
+      self.encoder=sdr_category.SDRCategoryEncoder(name='categoryEncoder', \
+                                                   w=self.w, n=self.n)
 
     #Initializing date encoder
     elif self.encoderType in ['date', 'datetime']:

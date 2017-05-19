@@ -40,6 +40,10 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
   Given a GPS coordinate and a speed reading, the
   Geospatial Coordinate Encoder returns an SDR representation
   of that position.
+
+  :param: scale (int) Scale of the map, as measured by distance between two
+          coordinates (in meters per dimensional unit)
+  :param: timestep (int) Time between readings (in seconds)
   """
 
   def __init__(self,
@@ -49,14 +53,6 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
                n=1000,
                name=None,
                verbosity=0):
-    """
-    See `nupic.encoders.base.Encoder` for more information.
-
-    @param scale (int) Scale of the map, as measured by
-                       distance between two coordinates
-                       (in meters per dimensional unit)
-    @param timestep (int) Time between readings (in seconds)
-    """
     super(GeospatialCoordinateEncoder, self).__init__(w=w,
                                                       n=n,
                                                       name=name,
@@ -80,9 +76,9 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
     """
     See `nupic.encoders.base.Encoder` for more information.
 
-    @param inputData (tuple) Contains speed (float), longitude (float),
+    :param: inputData (tuple) Contains speed (float), longitude (float),
                              latitude (float), altitude (float)
-    @param output (numpy.array) Stores encoded SDR in this numpy array
+    :param: output (numpy.array) Stores encoded SDR in this numpy array
     """
     altitude = None
     if len(inputData) == 4:
@@ -99,10 +95,10 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
     """
     Returns coordinate for given GPS position.
 
-    @param longitude (float) Longitude of position
-    @param latitude (float) Latitude of position
-    @param altitude (float) Altitude of position
-    @return (numpy.array) Coordinate that the given GPS position
+    :param: longitude (float) Longitude of position
+    :param: latitude (float) Latitude of position
+    :param: altitude (float) Altitude of position
+    :returns: (numpy.array) Coordinate that the given GPS position
                           maps to
     """
     coords = PROJ(longitude, latitude)
@@ -122,8 +118,8 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
     Tries to get the encodings of consecutive readings to be
     adjacent with some overlap.
 
-    @param speed (float) Speed (in meters per second)
-    @return (int) Radius for given speed
+    :param: speed (float) Speed (in meters per second)
+    :returns: (int) Radius for given speed
     """
     overlap = 1.5
     coordinatesPerTimestep = speed * self.timestep / self.scale
@@ -132,10 +128,11 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
     return max(radius, minRadius)
 
 
-  def dump(self):
-    print "GeospatialCoordinateEncoder:"
-    print "  w:   %d" % self.w
-    print "  n:   %d" % self.n
+  def __str__(self):
+    string = "GeospatialCoordinateEncoder:"
+    string += "\n  w:   {w}".format(w=self.w)
+    string += "\n  n:   {n}".format(n=self.n)
+    return string
 
 
   @classmethod

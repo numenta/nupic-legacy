@@ -23,7 +23,7 @@
 
 import unittest2 as unittest
 
-from nupic.data.fieldmeta import FieldMetaInfo, FieldMetaType, FieldMetaSpecial
+from nupic.data.field_meta import FieldMetaInfo, FieldMetaType, FieldMetaSpecial
 
 
 

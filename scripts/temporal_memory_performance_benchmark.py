@@ -29,11 +29,9 @@ import numpy
 import random
 import sys
 import time
-
 from pkg_resources import resource_filename
 
 from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
-
 
 HOTGYM_PATH = resource_filename(
   "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
@@ -146,7 +144,7 @@ class TemporalMemoryPerformanceBenchmark(object):
         reader.next()
         reader.next()
 
-        encodedValue = numpy.zeros(2048, dtype=numpy.int32)
+        encodedValue = numpy.zeros(2048, dtype=numpy.uint32)
 
         for timeStr, valueStr in reader:
           value = float(valueStr)
@@ -223,24 +221,24 @@ def tmParamsFn(cellsPerColumn):
     "initialPermanence": 0.5,
     "connectedPermanence": 0.8,
     "minThreshold": 10,
-    "maxNewSynapseCount": 12,
+    "maxNewSynapseCount": 20,
     "permanenceIncrement": 0.1,
     "permanenceDecrement": 0.05,
-    "activationThreshold": 15
+    "activationThreshold": 13
   }
 
 
-def tpParamsFn(cellsPerColumn):
+def backtrackingParamsFn(cellsPerColumn):
   return {
     "numberOfCols": 2048,
     "cellsPerColumn": cellsPerColumn,
     "initialPerm": 0.5,
     "connectedPerm": 0.8,
     "minThreshold": 10,
-    "newSynapseCount": 12,
+    "newSynapseCount": 20,
     "permanenceInc": 0.1,
     "permanenceDec": 0.05,
-    "activationThreshold": 15,
+    "activationThreshold": 13,
     "globalDecay": 0,
     "burnIn": 1,
     "checkSynapseConsistency": False,
@@ -252,7 +250,7 @@ def tmComputeFn(instance, encoding, activeBits):
   instance.compute(activeBits, learn=True)
 
 
-def tpComputeFn(instance, encoding, activeBits):
+def backtrackingComputeFn(instance, encoding, activeBits):
   instance.compute(encoding, enableLearn=True, computeInfOutput=True)
 
 
@@ -267,6 +265,9 @@ if __name__ == "__main__":
                "20_simple_sequence", "20_simple_sequence_no_resets",
                "20_hotgym", "20_hotgym_1_cell"]
 
+  defaultTests = ["simple_sequence", "simple_sequence_no_resets",
+                  "hotgym", "hotgym_1_cell", "random", "5_random"]
+
   parser.add_argument("-i", "--implementations",
                       nargs="*",
                       type=str,
@@ -279,7 +280,7 @@ if __name__ == "__main__":
                       type=str,
                       help=("The tests to run. Options: %s"
                             % ", ".join(testNames)),
-                      default=testNames)
+                      default=defaultTests)
 
   parser.add_argument("--pause",
                       help="Pause before each test.",
@@ -310,27 +311,27 @@ if __name__ == "__main__":
       name="tm_cpp")
 
   if "tm_py" in args.implementations:
-    import nupic.research.temporal_memory
+    import nupic.algorithms.temporal_memory
     benchmark.addContestant(
-      nupic.research.temporal_memory.TemporalMemory,
+      nupic.algorithms.temporal_memory.TemporalMemory,
       paramsFn=tmParamsFn,
       computeFn=tmComputeFn,
       name="tm_py")
 
   if "tp_py" in args.implementations:
-    import nupic.research.TP
+    import nupic.algorithms.backtracking_tm
     benchmark.addContestant(
-      nupic.research.TP.TP,
-      paramsFn=tpParamsFn,
-      computeFn=tpComputeFn,
+      nupic.algorithms.backtracking_tm.BacktrackingTM,
+      paramsFn=backtrackingParamsFn,
+      computeFn=backtrackingComputeFn,
       name="tp_py")
 
   if "tp_cpp" in args.implementations:
-    import nupic.research.TP10X2
+    import nupic.algorithms.backtracking_tm_cpp
     benchmark.addContestant(
-      nupic.research.TP10X2.TP10X2,
-      paramsFn=tpParamsFn,
-      computeFn=tpComputeFn,
+      nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP,
+      paramsFn=backtrackingParamsFn,
+      computeFn=backtrackingComputeFn,
       name="tp_cpp")
 
 

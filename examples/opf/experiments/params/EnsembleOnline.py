@@ -1,7 +1,7 @@
 import random
 import multiprocessing
 import numpy as np
-from nupic.frameworks.opf import opfhelpers
+from nupic.frameworks.opf import helpers
 from nupic.frameworks.opf.client import Client
 from random import shuffle
 from random import randrange, uniform
@@ -9,14 +9,14 @@ import copy
 
 windowSize=36
 r=30
-predictedField='pounds' 
+predictedField='pounds'
 inertia=0.25
 socRate=1.0
 class Worker(multiprocessing.Process):
 
   def __init__(self, work_queue, result_queue, stableSize, windowSize, predictedField, modeldata, iden):
     multiprocessing.Process.__init__(self)
-    # job management 
+    # job management
     self.work_queue = work_queue
     self.result_queue = result_queue
     self.kill_received = False
@@ -35,8 +35,8 @@ class Worker(multiprocessing.Process):
     self.median=True
     self.index=-1
     self.modelCapacity=len(modelData)
-      
- 
+
+
   def run(self):
       self.initM(modelData)
       while not self.kill_received:
@@ -78,14 +78,14 @@ class Worker(multiprocessing.Process):
               self.Scores[name]=10000
               self.predictionStreams[name]=[0,]
               print "added new model "+str(name)+" to process"+str(self.iden)
-            
-       
- 
+
+
+
         # store the result
-        
+
   def getModelState(self, d):
     return d['x'], d['v']
-          
+
   def initM(self, modelDatList):
     for modelData in modelDatList:
         name=modelData[0]
@@ -98,8 +98,8 @@ class Worker(multiprocessing.Process):
           if encoder['name']==predictedField:
             n=encoder['n']
         synPermInactiveDec=modelData[1]['modelConfig']['modelParams']['spParams']['synPermInactiveDec']
-        activationThreshold=modelData[1]['modelConfig']['modelParams']['tpParams']['activationThreshold']
-        pamLength=modelData[1]['modelConfig']['modelParams']['tpParams']['pamLength']
+        activationThreshold=modelData[1]['modelConfig']['modelParams']['tmParams']['activationThreshold']
+        pamLength=modelData[1]['modelConfig']['modelParams']['tmParams']['pamLength']
         self.M[name]['x']=np.array([alpha, n,synPermInactiveDec,activationThreshold,  pamLength ])
 
         vAlpha=uniform(0.01, 0.15)
@@ -114,23 +114,23 @@ class Worker(multiprocessing.Process):
         self.Scores[name]=10000
         self.predictionStreams[name]=[0,]
 
-        
-      
+
+
   def updateModelStats(self):
     updatedTruth=False
     for m in self.M.keys():
       truth, prediction=self.M[m]['client'].nextTruthPrediction(self.predictedField)
       if(not updatedTruth):
         self.truth.append(truth)
-        updatedTruth=True      
+        updatedTruth=True
       self.predictionStreams[m].append(prediction)
       self.Scores[m]=computeAAE(self.truth, self.predictionStreams[m],windowSize)
-      
 
 
 
 
-     
+
+
 def getStableVote(scores, stableSize, votes, currModel):
   scores = sorted(scores, key=lambda t: t[0])[:stableSize]
   median=True
@@ -138,7 +138,7 @@ def getStableVote(scores, stableSize, votes, currModel):
     for s in scores:
       if s[3]==currModel:
         print [(score[0], score[3]) for score in scores]
-      
+
         return s[1], currModel
     print [(s[0], s[3]) for s in scores], "switching voting Model!"
     return scores[0][1], scores[0][3]
@@ -149,8 +149,8 @@ def getStableVote(scores, stableSize, votes, currModel):
       votes[voter[3]]=votes[voter[3]]+1
     vote=voters[int(stableSize/2)][1]
     return vote, currModel
-  
-        
+
+
 def getFieldPermutations(config, predictedField):
   encoders=config['modelParams']['sensorParams']['encoders']
   encoderList=[]
@@ -165,17 +165,17 @@ def getFieldPermutations(config, predictedField):
         if e['name'] != predictedField:
           encoderList.append([encoder, e])
   return encoderList
-              
-        
+
+
 def getModelDescriptionLists(numProcesses, experiment):
-    config, control = opfhelpers.loadExperiment(experiment)
+    config, control = helpers.loadExperiment(experiment)
     encodersList=getFieldPermutations(config, 'pounds')
     ns=range(50, 140, 120)
     clAlphas=np.arange(0.01, 0.16, 0.104)
     synPermInactives=np.arange(0.01, 0.16, 0.105)
     tpPamLengths=range(5, 8, 2)
     tpSegmentActivations=range(13, 17, 12)
-    
+
     if control['environment'] == 'opfExperiment':
       experimentTasks = control['tasks']
       task = experimentTasks[0]
@@ -189,7 +189,7 @@ def getModelDescriptionLists(numProcesses, experiment):
     datasetPath = datasetURI[len("file://"):]
     ModelSetUpData=[]
     name=0
-    
+
     for n in ns:
       for clAlpha in clAlphas:
         for synPermInactive in synPermInactives:
@@ -201,23 +201,23 @@ def getModelDescriptionLists(numProcesses, experiment):
                 configmod['modelParams']['sensorParams']['encoders']=encodersmod
                 configmod['modelParams']['clParams']['alpha']=clAlpha
                 configmod['modelParams']['spParams']['synPermInactiveDec']=synPermInactive
-                configmod['modelParams']['tpParams']['pamLength']=tpPamLength
-                configmod['modelParams']['tpParams']['activationThreshold']=tpSegmentActivation
+                configmod['modelParams']['tmParams']['pamLength']=tpPamLength
+                configmod['modelParams']['tmParams']['activationThreshold']=tpSegmentActivation
                 for encoder in encodersmod:
                   if encoder['name']==predictedField:
                     encoder['n']=n
-                
+
                 ModelSetUpData.append((name,{'modelConfig':configmod, 'inferenceArgs':control['inferenceArgs'], 'metricSpecs':metricSpecs, 'sourceSpec':datasetPath,'sinkSpec':None,}))
                 name=name+1
-              #print modelInfo['modelConfig']['modelParams']['tpParams']
+              #print modelInfo['modelConfig']['modelParams']['tmParams']
               #print modelInfo['modelConfig']['modelParams']['sensorParams']['encoders'][4]['n']
     print "num Models"+str( len(ModelSetUpData))
-    
+
     shuffle(ModelSetUpData)
-    #print [ (m[1]['modelConfig']['modelParams']['tpParams']['pamLength'], m[1]['modelConfig']['modelParams']['sensorParams']['encoders']) for m in ModelSetUpData]       
+    #print [ (m[1]['modelConfig']['modelParams']['tmParams']['pamLength'], m[1]['modelConfig']['modelParams']['sensorParams']['encoders']) for m in ModelSetUpData]
     return list(chunk(ModelSetUpData,numProcesses))
 
-    
+
 def chunk(l, n):
     """ Yield n successive chunks from l.
     """
@@ -245,13 +245,13 @@ def getDuplicateList(streams, delta):
             delList.append(key2)
             del streams[key2]
   return delList
-    
+
 def slice_sampler(px, N = 1, x = None):
     """
     Provides samples from a user-defined distribution.
-    
+
     slice_sampler(px, N = 1, x = None)
-    
+
     Inputs:
     px = A discrete probability distribution.
     N  = Number of samples to return, default is 1
@@ -260,7 +260,7 @@ def slice_sampler(px, N = 1, x = None):
     Outputs:
     If x=None (default) or if len(x) != len(px), it will return an array of integers
     between 0 and len(px)-1. If x is supplied, it will return the
-    samples from x according to the distribution px.    
+    samples from x according to the distribution px.
     """
     values = np.zeros(N, dtype=np.int)
     samples = np.arange(len(px))
@@ -277,14 +277,14 @@ def slice_sampler(px, N = 1, x = None):
             values = x[values]
         else:
             print "px and x are different lengths. Returning index locations for px."
-    
+
     return values
-    
-    
+
+
 def getPSOVariants(modelInfos, votes, n):
-  # get x, px lists for sampling 
+  # get x, px lists for sampling
   norm=sum(votes.values())
-  xpx =[(m, float(votes[m])/norm) for m in votes.keys()] 
+  xpx =[(m, float(votes[m])/norm) for m in votes.keys()]
   x,px = [[z[i] for z in xpx] for i in (0,1)]
   #sample form set of models
   variantIDs=slice_sampler(px, n, x)
@@ -305,26 +305,26 @@ def getPSOVariants(modelInfos, votes, n):
     v=inertia*v+socRate*np.random.random_sample(len(v))*(x_best-x)
     x=x+v
     print "new x"
-    print x    
+    print x
     configmod['modelParams']['clParams']['alpha']=max(0.01, x[0])
     configmod['modelParams']['spParams']['synPermInactiveDec']=max(0.01, x[2])
-    configmod['modelParams']['tpParams']['pamLength']=int(round(max(1, x[4])))
-    configmod['modelParams']['tpParams']['activationThreshold']=int(round(max(1, x[3])))
+    configmod['modelParams']['tmParams']['pamLength']=int(round(max(1, x[4])))
+    configmod['modelParams']['tmParams']['activationThreshold']=int(round(max(1, x[3])))
     for encoder in configmod['modelParams']['sensorParams']['encoders']:
       if encoder['name']==predictedField:
         encoder['n']=int(round(max(encoder['w']+1, x[1]) ))
     modelDescriptions.append((modelDescriptionMod, x, v))
-  return modelDescriptions 
-            
-    
+  return modelDescriptions
+
+
 def computeAAE(truth, predictions, windowSize):
   windowSize=min(windowSize, len(truth))
   zipped=zip(truth[-windowSize:], predictions[-windowSize-1:])
   AAE=sum([abs(a - b) for a, b in zipped])/windowSize
   return AAE
- 
-    
-              
+
+
+
 if __name__ == "__main__":
     cutPercentage=0.1
     currModel=0
@@ -336,13 +336,13 @@ if __name__ == "__main__":
     divisor=4
     ModelSetUpData=getModelDescriptionLists(divisor, './')
     num_processes=len(ModelSetUpData)
-    print num_processes 
+    print num_processes
     work_queues=[]
     votes={}
-    votingParameterStats={"tpSegmentActivationThreshold":[], "tpPamLength":[], "synPermInactiveDec":[], "clAlpha":[], "numBuckets":[]}  
+    votingParameterStats={"tpSegmentActivationThreshold":[], "tpPamLength":[], "synPermInactiveDec":[], "clAlpha":[], "numBuckets":[]}
     # create a queue to pass to workers to store the results
     result_queue = multiprocessing.Queue(len(ModelSetUpData))
- 
+
     # spawn workers
     workerName=0
     modelNameCount=0
@@ -354,15 +354,15 @@ if __name__ == "__main__":
         worker = Worker(work_queue, result_queue, stableSize, windowSize, predictedField, modelData, workerName)
         worker.start()
         workerName=workerName+1
-        
+
     #init votes dict
     for dataList in ModelSetUpData:
       for data in dataList:
         votes[data[0]]=0
-      
-    
+
+
     for i in range(2120):
-      
+
       command('predict', work_queues, i)
       scores=[]
       for j in range(num_processes):
@@ -392,8 +392,8 @@ if __name__ == "__main__":
         #add bottom models to delList
         print "Vote counts"
         print votes
-        delList=[t[0] for t in AAEs[-numToDelete:]]   
-        print "delList"     
+        delList=[t[0] for t in AAEs[-numToDelete:]]
+        print "delList"
         print delList
         #find duplicate models(now unnecessary)
         #command('getPredictionStreams', work_queues, None)
@@ -406,7 +406,7 @@ if __name__ == "__main__":
         command('delete', work_queues, delList)
         for iden in delList:
           del votes[iden]
-        print votes  
+        print votes
         #wait for deletion to finish and collect processIndices for addition
         processIndices=[]
         for j in range(num_processes):
@@ -420,18 +420,18 @@ if __name__ == "__main__":
           votes[modelNameCount]=0
           aux.append((processIndices[i],newModelDescriptions[i],modelNameCount) )
           modelNameCount=modelNameCount+1
-        
+
         command('addPSOVariants', work_queues, aux)
         #set votes to 0
         for key in votes.keys():
           votes[key]=0
-                
-        
-      
- 
+
+
+
+
     print "AAE over full stream"
     print computeAAE(truth, ensemblePredictions, len(truth))
     print "AAE1000"
     print computeAAE(truth, ensemblePredictions, 1000)
- 
-    
+
+

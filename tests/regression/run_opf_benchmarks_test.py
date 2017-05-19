@@ -39,9 +39,9 @@ from multiprocessing import Process, Queue
 from Queue import Empty
 from collections import deque
 
-from nupic.database import ClientJobsDAO as cjdao
-from nupic.swarming.exp_generator import ExpGenerator
-from nupic.frameworks.opf.opfutils import InferenceType
+from nupic.database import client_jobs_dao as cjdao
+from nupic.swarming.exp_generator import experiment_generator
+from nupic.frameworks.opf.opf_utils import InferenceType
 from nupic.support.configuration import Configuration
 from nupic.support.unittesthelpers.testcasebase import unittest
 from nupic.swarming import permutations_runner
@@ -1084,21 +1084,21 @@ class OPFBenchmarkRunner(unittest.TestCase):
 
     if self.__doV2Term:
       # TODO BUG: args passed to expGenerator is not defined yet
-      ExpGenerator.expGenerator(args)
+      experiment_generator.expGenerator(args)
     args = [
       "--description=%s" % (json.dumps(expDesc)),
       "--version=v2",
       "--outDir=%s" % (outdirv2noterm)
     ]
     if self.__doV2noTerm:
-      ExpGenerator.expGenerator(args)
+      experiment_generator.expGenerator(args)
     args = [
       "--description=%s" % (json.dumps(expDesc)),
       "--version=v2",
       "--outDir=%s" % (outdirdef)
     ]
     if self.__doClusterDef:
-      ExpGenerator.expGenerator(args)
+      experiment_generator.expGenerator(args)
 
 
   def runV2noTerm(self, basedir, expname, searchtype, exportdict):

@@ -22,7 +22,7 @@
 import numpy as np
 import unittest
 
-from nupic.algorithms.KNNClassifier import KNNClassifier
+from nupic.algorithms.knn_classifier import KNNClassifier
 
 
 
@@ -353,9 +353,9 @@ class KNNClassifierTest(unittest.TestCase):
     self.assertEquals(classifier.getNumPartitionIds(), 3)
 
     # Check that the full set of partition ids is what we expect
-    self.assertItemsEqual(classifier.getPartitionIdPerPattern(),
+    self.assertItemsEqual(classifier.getPartitionIdList(),
                           [433, 213, np.inf, 433, 413])
-    self.assertItemsEqual(classifier.getPartitionIdList(),[433, 413, 213])
+    self.assertItemsEqual(classifier.getPartitionIdKeys(), [433, 413, 213])
 
     # Remove two rows - all indices shift down
     self.assertEquals(classifier._removeRows([0,2]), 2)
@@ -369,8 +369,8 @@ class KNNClassifierTest(unittest.TestCase):
     self.assertEquals(classifier.getNumPartitionIds(), 2)
 
     # Check that the full set of partition ids is what we expect
-    self.assertItemsEqual(classifier.getPartitionIdPerPattern(), [433, 413])
-    self.assertItemsEqual(classifier.getPartitionIdList(),[433, 413])
+    self.assertItemsEqual(classifier.getPartitionIdList(), [433, 413])
+    self.assertItemsEqual(classifier.getPartitionIdKeys(), [433, 413])
 
 
 

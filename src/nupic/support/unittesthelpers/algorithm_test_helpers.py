@@ -21,14 +21,13 @@
 
 """This script contains helper routines for testing algorithms"""
 
+import numpy
 import time
 import traceback
-
-import numpy
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 from nupic.bindings.math import GetNTAReal, Random as NupicRandom
-from nupic.research.spatial_pooler import SpatialPooler as PySpatialPooler
 
+from nupic.algorithms.spatial_pooler import SpatialPooler as PySpatialPooler
 
 realType = GetNTAReal()
 uintType = "uint32"
@@ -65,7 +64,7 @@ def convertPermanences(sourceSP, destSP):
     sourceSP.getPermanence(i, perm)
     destSP.setPermanence(i, perm)
 
-  
+
 
 def getSeed():
   """Generate and log a 32-bit compatible seed value."""
@@ -75,8 +74,8 @@ def getSeed():
   print callStack[0][2], "line", callStack[0][1], "->", callStack[1][2]
   return seed
 
-  
-  
+
+
 def convertSP(pySp, newSeed):
   """
   Given an instance of a python spatial_pooler return an instance of the CPP
@@ -147,14 +146,14 @@ def convertSP(pySp, newSeed):
 def CreateSP(imp, params):
   """
   Helper class for creating an instance of the appropriate spatial pooler using
-  given parameters. 
+  given parameters.
 
   Parameters:
   ----------------------------
   imp:       Either 'py' or 'cpp' for creating the appropriate instance.
   params:    A dict for overriding constructor parameters. The keys must
              correspond to contructor parameter names.
-  
+
   Returns the SP object.
   """
   if (imp == "py"):
@@ -166,6 +165,6 @@ def CreateSP(imp, params):
 
   print params
   sp = spClass(**params)
-  
+
   return sp
 

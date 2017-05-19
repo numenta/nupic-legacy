@@ -1,0 +1,18 @@
+# List of encoders and their parameters.
+encoders:
+  consumption:
+    fieldname: consumption
+    name: consumption
+    resolution: 0.88
+    seed: 1
+    type: RandomDistributedScalarEncoder
+  timestamp_timeOfDay:
+    fieldname: timestamp
+    name: timestamp_timeOfDay
+    timeOfDay: [21, 1]
+    type: DateEncoder
+  timestamp_weekend:
+    fieldname: timestamp
+    name: timestamp_weekend
+    type: DateEncoder
+    weekend: 21
