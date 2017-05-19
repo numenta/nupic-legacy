@@ -453,7 +453,7 @@ def runModelGivenBaseAndParams(modelID, jobID, baseDescription, params,
 
 def runDummyModel(modelID, jobID, params, predictedField, reportKeys,
                   optimizeKey, jobsDAO, modelCheckpointGUID, logLevel=None, predictionCacheMaxRecords=None):
-  from nupic.swarming.DummyModelRunner import OPFDummyModelRunner
+  from nupic.swarming.dummy_model_runner import OPFDummyModelRunner
 
   # The logger for this method
   logger = logging.getLogger('com.numenta.nupic.hypersearch.utils')

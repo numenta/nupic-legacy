@@ -29,7 +29,7 @@ $EXP_GENERATOR_PROGRAM_PATH
 
 import os
 
-from nupic.swarming.permutationhelpers import *
+from nupic.swarming.permutation_helpers import *
 
 # The name of the field being predicted.  Any allowed permutation MUST contain
 # the prediction field.
