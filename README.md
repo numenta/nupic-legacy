@@ -52,7 +52,7 @@ Live Community Chat: [![Gitter](https://img.shields.io/badge/gitter-join_chat-bl
 
 ### Building NuPIC From Source Code
 
-For details about checking out this repository and building in your local environment, see the [Installing and Building NuPIC](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC) wiki page.
+For details about checking out this repository and building in your local environment, see the [Installing and Building NuPIC](https://discourse.numenta.org/t/building-nupic/2192) wiki page.
 
 - Build:
 [![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
