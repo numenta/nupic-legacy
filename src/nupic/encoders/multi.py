@@ -33,7 +33,7 @@ from nupic.encoders import SparsePassThroughEncoder
 from nupic.encoders import CoordinateEncoder
 from nupic.encoders import GeospatialCoordinateEncoder
 # multiencoder must be imported last because it imports * from this module!
-from nupic.encoders import bitsToString
+from nupic.encoders.utils import bitsToString
 from nupic.encoders import RandomDistributedScalarEncoder
 
 
