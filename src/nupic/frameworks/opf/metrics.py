@@ -343,9 +343,14 @@ class MetricsIface(object):
     :param prediction:
       The value predicted by the network at the current timestep
 
-    :param record: ?
+    :param record: the raw input record as fed to 
+           :meth:`~nupic.frameworks.opf.model.Model.run` by the user. The 
+           typical usage is to feed a record to that method and get a 
+           :class:`~nupic.frameworks.opf.opf_utils.ModelResult`. Then you pass 
+           :class:`~nupic.frameworks.opf.opf_utils.ModelResult`.rawInput into 
+           this function as the record parameter.
 
-    :param result: (:class:`nupic.frameworks.opf.opf_utils.ModelResult`) the
+    :param result: (:class:`~nupic.frameworks.opf.opf_utils.ModelResult`) the
            result of running a row of data through an OPF model
 
     :returns:
@@ -355,12 +360,12 @@ class MetricsIface(object):
   @abstractmethod
   def getMetric(self):
     """
-    Metric name is defined by the MetricIface implementation. ``stats`` is 
-    expected to contain further information relevant to the given metric, for 
-    example the number of timesteps represented in the current measurement. 
-    All stats are implementation defined, and ``stats`` can be ``None``.
+    ``stats`` is expected to contain further information relevant to the given 
+    metric, for example the number of timesteps represented in the current 
+    measurement. All stats are implementation defined, and ``stats`` can be 
+    ``None``.
 
-    :returns: (object) representing data from the metric
+    :returns: (dict) representing data from the metric
        ::
        
            {value : <current measurement>, "stats" : {<stat> : <value> ...}}
