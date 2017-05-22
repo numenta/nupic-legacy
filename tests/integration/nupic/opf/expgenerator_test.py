@@ -38,11 +38,11 @@ from nupic.database.client_jobs_dao import ClientJobsDAO
 from nupic.support import aggregationDivide
 from nupic.support.unittesthelpers.testcasebase import (
   TestCaseBase as HelperTestCaseBase)
-from nupic.swarming import HypersearchWorker
-from nupic.swarming.permutationhelpers import PermuteChoices
+from nupic.swarming import hypersearch_worker
+from nupic.swarming.permutation_helpers import PermuteChoices
 from nupic.swarming.utils import generatePersistentJobGUID, rCopy
 from nupic.frameworks.opf.exp_description_api import OpfEnvironment
-from nupic.swarming.exp_generator import ExpGenerator
+from nupic.swarming.exp_generator import experiment_generator
 from nupic.frameworks.opf.opf_utils import (InferenceType,
                                             InferenceElement)
 
@@ -181,7 +181,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       "--version=%s" % (hsVersion)
     ]
     self.addExtraLogItem({'args':args})
-    ExpGenerator.expGenerator(args)
+    experiment_generator.expGenerator(args)
 
 
     #----------------------------------------
@@ -250,7 +250,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     LOGGER.info("RUNNING PERMUTATIONS")
     LOGGER.info("============================================================")
 
-    jobID = HypersearchWorker.main(args)
+    jobID = hypersearch_worker.main(args)
 
     # Make sure all models completed successfully
     cjDAO = ClientJobsDAO.get()
@@ -399,7 +399,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     #----------------------------------------
     # Run it
-    ExpGenerator.expGenerator(args)
+    experiment_generator.expGenerator(args)
     return
 
 
@@ -449,10 +449,10 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Make sure we have the right optimization designation
     self.assertEqual(perms.minimize,
-        ("multiStepBestPredictions:multiStep:errorMetric='altMAPE':"
+                     ("multiStepBestPredictions:multiStep:errorMetric='altMAPE':"
          "steps=\\[1\\]:window=%d:field=consumption")
-          % ExpGenerator.METRIC_WINDOW,
-          msg="got: %s" % perms.minimize)
+                     % experiment_generator.METRIC_WINDOW,
+                     msg="got: %s" % perms.minimize)
 
     # Should not have any classifier info to permute over
     self.assertNotIn('clAlpha', perms.permutations)
@@ -498,7 +498,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     optimizeString = ("multiStepBestPredictions:multiStep:"
                      "errorMetric='%s':steps=\[1\]"
                      ":window=%d:field=%s" % \
-                                (optimizeMetric, ExpGenerator.METRIC_WINDOW,
+                                (optimizeMetric, experiment_generator.METRIC_WINDOW,
                                  predictedField))
     print "perm.minimize=",perm.minimize
     print "optimizeString=",optimizeString

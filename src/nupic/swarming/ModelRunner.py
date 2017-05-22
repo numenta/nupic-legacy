@@ -31,7 +31,7 @@ import traceback
 from collections import deque
 
 from nupic.swarming.hypersearch import regression
-from nupic.swarming.hypersearch.errorcodes import ErrorCodes
+from nupic.swarming.hypersearch.error_codes import ErrorCodes
 
 from nupic.database.client_jobs_dao import ClientJobsDAO
 from nupic.frameworks.opf import helpers
@@ -42,7 +42,7 @@ from nupic.frameworks.opf.periodic import (PeriodicActivityMgr,
                                            PeriodicActivityRequest)
 from nupic.frameworks.opf.prediction_metrics_manager import MetricsManager
 from nupic.support.configuration import Configuration
-from nupic.swarming.experimentutils import InferenceElement
+from nupic.swarming.experiment_utils import InferenceElement
 from nupic.swarming import utils
 
 

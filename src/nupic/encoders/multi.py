@@ -20,22 +20,18 @@
 # ----------------------------------------------------------------------
 
 from nupic.encoders.base import Encoder
-from nupic.encoders.scalar import ScalarEncoder
-from nupic.encoders.adaptive_scalar import AdaptiveScalarEncoder
-from nupic.encoders.date import DateEncoder
-from nupic.encoders.logarithm import LogEncoder
-from nupic.encoders.category import CategoryEncoder
-from nupic.encoders.sdr_category import SDRCategoryEncoder
-from nupic.encoders.delta import DeltaEncoder
-from nupic.encoders.scalar_space import ScalarSpaceEncoder
-from nupic.encoders.pass_through import PassThroughEncoder
-from nupic.encoders.sparse_pass_through import SparsePassThroughEncoder
-from nupic.encoders.coordinate import CoordinateEncoder
-from nupic.encoders.geospatial_coordinate import GeospatialCoordinateEncoder
-# multiencoder must be imported last because it imports * from this module!
-from nupic.encoders.utils import bitsToString
-from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
-
+from nupic.encoders import (ScalarEncoder,
+                            AdaptiveScalarEncoder,
+                            DateEncoder,LogEncoder,
+                            CategoryEncoder,
+                            SDRCategoryEncoder,
+                            DeltaEncoder,
+                            ScalarSpaceEncoder,
+                            PassThroughEncoder,
+                            SparsePassThroughEncoder,
+                            CoordinateEncoder,
+                            GeospatialCoordinateEncoder,
+                            RandomDistributedScalarEncoder)
 
 
 # Map class to Cap'n Proto schema union attribute
@@ -50,13 +46,13 @@ _CLASS_ATTR_MAP = {
   DeltaEncoder: "deltaEncoder",
   PassThroughEncoder: "passThroughEncoder",
   SparsePassThroughEncoder: "sparsePassThroughEncoder",
+  GeospatialCoordinateEncoder: "geospatialCoordinateEncoder",
+  ScalarSpaceEncoder: "scalarSpaceEncoder",
   RandomDistributedScalarEncoder: "randomDistributedScalarEncoder"
 }
 
 # Invert for fast lookup in MultiEncoder.read()
-_ATTR_CLASS_MAP = {value:key for key, value in _CLASS_ATTR_MAP.items()}
-
-
+_ATTR_CLASS_MAP = {value: key for key, value in _CLASS_ATTR_MAP.items()}
 
 
 class MultiEncoder(Encoder):

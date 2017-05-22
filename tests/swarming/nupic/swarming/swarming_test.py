@@ -45,10 +45,10 @@ from nupic.database.client_jobs_dao import ClientJobsDAO
 from nupic.support import configuration, initLogging
 from nupic.support.unittesthelpers.testcasebase import (unittest,
     TestCaseBase as HelperTestCaseBase)
-from nupic.swarming import HypersearchWorker
+from nupic.swarming import hypersearch_worker
 from nupic.swarming.api import getSwarmModelParams, createAndStartSwarm
 from nupic.swarming.utils import generatePersistentJobGUID
-from nupic.swarming.DummyModelRunner import OPFDummyModelRunner
+from nupic.swarming.dummy_model_runner import OPFDummyModelRunner
 
 DEFAULT_JOB_TIMEOUT_SEC = 60 * 2
 
@@ -355,7 +355,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
     # Run it in the current process
     try:
-      HypersearchWorker.main(args)
+      hypersearch_worker.main(args)
 
     # The dummy model runner will call sys.exit(0) when
     #  NTA_TEST_sysExitAfterNIterations is set
@@ -438,7 +438,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     else:
       envStr = ''
 
-    cmdLine = '%s python -m nupic.swarming.HypersearchWorker ' \
+    cmdLine = '%s python -m nupic.swarming.hypersearch_worker ' \
                           '--jobID={JOBID} --logLevel=%d' \
                           % (envStr, loggingLevel)
 
@@ -449,7 +449,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
             jobType = cjDAO.JOB_TYPE_HS)
 
     # Launch the workers ourself if necessary (no nupic engine running).
-    workerCmdLine = '%s python -m nupic.swarming.HypersearchWorker ' \
+    workerCmdLine = '%s python -m nupic.swarming.hypersearch_worker ' \
                           '--jobID=%d --logLevel=%d' \
                           % (envStr, jobID, loggingLevel)
     workers = self._launchWorkers(cmdLine=workerCmdLine, numWorkers=maxNumWorkers)
