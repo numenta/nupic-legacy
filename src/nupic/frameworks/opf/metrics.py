@@ -319,22 +319,18 @@ def _isNumber(value):
 
 class MetricsIface(object):
   """
-  A Metrics module compares a prediction Y to corresponding ground truth X and returns a single
-  measure representing the "goodness" of the prediction. It is up to the implementation to
-  determine how this comparison is made.
+  A Metrics module compares a prediction Y to corresponding ground truth X and 
+  returns a single measure representing the "goodness" of the prediction. It is 
+  up to the implementation to determine how this comparison is made.
 
+  :param metricSpec: (:class:`MetricSpec`) spec used to created the metric
   """
 
   __metaclass__ = ABCMeta
 
   @abstractmethod
   def __init__(self, metricSpec):
-    """
-        instantiate a MetricsIface-based module.
-
-        :param metricSpec: is an instance of MetricSpec
-
-    """
+    pass
 
   @abstractmethod
   def addInstance(self, groundTruth, prediction, record = None, result = None):
@@ -359,25 +355,26 @@ class MetricsIface(object):
   @abstractmethod
   def getMetric(self):
     """
-    :returns:
-        {value : <current measurement>, "stats" : {<stat> : <value> ...}}
-        metric name is defined by the MetricIface implementation. 
-        stats is expected to contain further
-            information relevant to the given metric, for example the number of 
-            timesteps represented in
-            the current measurement. all stats are implementation defined, and 
-            "stats" can be None
+    Metric name is defined by the MetricIface implementation. ``stats`` is 
+    expected to contain further information relevant to the given metric, for 
+    example the number of timesteps represented in the current measurement. 
+    All stats are implementation defined, and ``stats`` can be ``None``.
 
+    :returns: (object) representing data from the metric
+       ::
+       
+           {value : <current measurement>, "stats" : {<stat> : <value> ...}}
+      
     """
 
 
 
 class AggregateMetric(MetricsIface):
   """
-      Partial implementation of Metrics Interface for metrics that
-      accumulate an error and compute an aggregate score, potentially
-      over some window of previous data. This is a convenience class that
-      can serve as the base class for a wide variety of metrics
+  Partial implementation of Metrics Interface for metrics that accumulate an 
+  error and compute an aggregate score, potentially over some window of previous 
+  data. This is a convenience class that can serve as the base class for a wide 
+  variety of metrics.
   """
   ___metaclass__ = ABCMeta
 
@@ -431,8 +428,7 @@ class AggregateMetric(MetricsIface):
            have been passed to the metric. This does not include pairs where 
            ``groundTruth = SENTINEL_VALUE_FOR_MISSING_DATA``
 
-    :returns:
-      The new aggregate (final) error measure.
+    :returns: The new aggregate (final) error measure.
     """
 
   def __init__(self, metricSpec):
@@ -558,7 +554,7 @@ class AggregateMetric(MetricsIface):
     return self._compute()
 
   def getMetric(self):
-    return {'value': self.aggregateError, "stats" : {"steps" : self.steps}}
+    return {"value": self.aggregateError, "stats" : {"steps" : self.steps}}
 
   def _compute(self):
     self.aggregateError = self.aggregate(self.accumulatedError, self.history,
@@ -1315,7 +1311,7 @@ class MetricNegAUC(AggregateMetric):
   """ 
   Computes -1 * AUC (Area Under the Curve) of the ROC (Receiver Operator
   Characteristics) curve. We compute -1 * AUC because metrics are optimized to 
-  be LOWER when running hypersearch.
+  be LOWER when swarming.
 
   For this, we assuming that category 1 is the "positive" category and we are 
   generating an ROC curve with the TPR (True Positive Rate) of category 1 on the 
