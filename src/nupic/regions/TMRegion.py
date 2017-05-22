@@ -43,8 +43,6 @@ def _getTPClass(temporalImp):
     return backtracking_tm_shim.TMShim
   elif temporalImp == 'tm_cpp':
     return backtracking_tm_shim.TMCPPShim
-  elif temporalImp == 'tm_py_fast':
-    return backtracking_tm_shim.FastTMShim
   elif temporalImp == 'monitored_tm_py':
     return backtracking_tm_shim.MonitoredTMShim
   else:
@@ -422,8 +420,8 @@ class TMRegion(PyRegion):
       tpClass = _getTPClass(self.temporalImp)
 
       if self.temporalImp in ['py', 'cpp', 'r',
-                              'tm_py', 'tm_cpp', 'tm_py_fast',
-                              'monitored_tm_py', 'monitored_tm_py_fast']:
+                              'tm_py', 'tm_cpp',
+                              'monitored_tm_py',]:
         self._tfdr = tpClass(
              numberOfCols=self.columnCount,
              cellsPerColumn=self.cellsPerColumn,
