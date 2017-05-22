@@ -67,7 +67,6 @@ def registerBuiltInRegions():
   # Initialize nupic regions
   if not registeredRegions:
     for module, className in pyRegions:
-      print "ZZZ Registering builtin python region:", module, className
       engine_internal.Network.registerPyRegion(module, className)
   registeredRegions = True
 
