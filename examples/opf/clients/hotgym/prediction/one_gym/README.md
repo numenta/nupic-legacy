@@ -8,11 +8,11 @@ The program in this folder is the complete source code for the "One Hot Gym Pred
 
 The "hot gym" sample application has been around for a long time, and was one of the first real-world applications of NuPIC that actually worked. The data used is real energy consumption data from a gym in Australia. It is aggregated hourly already, so the input file at [rec-center-hourly.csv](rec-center-hourly.csv) simply contains a timestamp and float value for energy consumption during that hour.
 
-This tutorial shows how to take that data file, create a [swarm](https://github.com/numenta/nupic/wiki/Running-Swarms) to find the best NuPIC Model parameters, then use those Model parameters to create a NuPIC Model and feed the data into it, getting 1-step-ahead predictions for each row of data being fed into NuPIC. Essentially, this example shows how NuPIC can prediction the energy consumption of a building one hour into the future.
+This tutorial shows how to take that data file, create a [swarm](http://nupic.docs.numenta.org/0.7.0.dev0/guides/swarming/index.html) to find the best NuPIC Model parameters, then use those Model parameters to create a NuPIC Model and feed the data into it, getting 1-step-ahead predictions for each row of data being fed into NuPIC. Essentially, this example shows how NuPIC can prediction the energy consumption of a building one hour into the future.
 
 ## Program Description
 
-This is a program consisting of a simple collection of Python scripts using NuPIC's [Online Prediction Framework](https://github.com/numenta/nupic/wiki/Online-Prediction-Framework). Program execution is described in the [Running the Program](#running-the-program) section below. There are two steps this program performs to get predictions for the input data from the [rec-center-hourly.csv](rec-center-hourly.csv) file, which are described below. There is also an optional step ([Cleanup](#cleanup)), which removes artifacts from the files system after the previous steps have run.
+This is a program consisting of a simple collection of Python scripts using NuPIC's [Online Prediction Framework](http://nupic.docs.numenta.org/0.7.0.dev0/guides/opf.html). Program execution is described in the [Running the Program](#running-the-program) section below. There are two steps this program performs to get predictions for the input data from the [rec-center-hourly.csv](rec-center-hourly.csv) file, which are described below. There is also an optional step ([Cleanup](#cleanup)), which removes artifacts from the files system after the previous steps have run.
 
 ## Program Phases
 
@@ -79,7 +79,7 @@ The swarming process requires an initial _swarm description_, which defines the 
 #### Results of the Swarm
 
 ##### Working files (junk)
-Once the swarm is complete, you'll see a `swarm` folder within your working directory. It contains the internal workings of the swarm, which includes utilities you can use for advanced swarming (out of scope for this tutorial). This tutorial application places all the swarming junk into the `swarm` folder mostly just to keep the working directory uncluttered. When you [run swarms](https://github.com/numenta/nupic/wiki/Running-Swarms) through the swarming CLI, all this cruft is dumped into your current working directory.
+Once the swarm is complete, you'll see a `swarm` folder within your working directory. It contains the internal workings of the swarm, which includes utilities you can use for advanced swarming (out of scope for this tutorial). This tutorial application places all the swarming junk into the `swarm` folder mostly just to keep the working directory uncluttered. When you [run swarms](http://nupic.docs.numenta.org/0.7.0.dev0/guides/swarming/index.html) through the swarming CLI, all this cruft is dumped into your current working directory.
 
 ##### Model Params (GOLD!)
 Within the `model_params` directory, you'll also see a python file appear called `rec-center-hourly_model_params.py`. This file contains a configuration object for the **best model** the swarm found for the input data. This config object is used to create the NuPIC Model in the next step.
