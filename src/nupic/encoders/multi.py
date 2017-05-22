@@ -20,22 +20,18 @@
 # ----------------------------------------------------------------------
 
 from nupic.encoders.base import Encoder
-from nupic.encoders import ScalarEncoder
-from nupic.encoders import AdaptiveScalarEncoder
-from nupic.encoders import DateEncoder
-from nupic.encoders import LogEncoder
-from nupic.encoders import CategoryEncoder
-from nupic.encoders import SDRCategoryEncoder
-from nupic.encoders import DeltaEncoder
-from nupic.encoders import ScalarSpaceEncoder
-from nupic.encoders import PassThroughEncoder
-from nupic.encoders import SparsePassThroughEncoder
-from nupic.encoders import CoordinateEncoder
-from nupic.encoders import GeospatialCoordinateEncoder
-# multiencoder must be imported last because it imports * from this module!
-from nupic.encoders.utils import bitsToString
-from nupic.encoders import RandomDistributedScalarEncoder
-
+from nupic.encoders import (ScalarEncoder,
+                            AdaptiveScalarEncoder,
+                            DateEncoder,LogEncoder,
+                            CategoryEncoder,
+                            SDRCategoryEncoder,
+                            DeltaEncoder,
+                            ScalarSpaceEncoder,
+                            PassThroughEncoder,
+                            SparsePassThroughEncoder,
+                            CoordinateEncoder,
+                            GeospatialCoordinateEncoder,
+                            RandomDistributedScalarEncoder)
 
 
 # Map class to Cap'n Proto schema union attribute
@@ -50,13 +46,13 @@ _CLASS_ATTR_MAP = {
   DeltaEncoder: "deltaEncoder",
   PassThroughEncoder: "passThroughEncoder",
   SparsePassThroughEncoder: "sparsePassThroughEncoder",
+  GeospatialCoordinateEncoder: "geospatialCoordinateEncoder",
+  ScalarSpaceEncoder: "scalarSpaceEncoder",
   RandomDistributedScalarEncoder: "randomDistributedScalarEncoder"
 }
 
 # Invert for fast lookup in MultiEncoder.read()
-_ATTR_CLASS_MAP = {value:key for key, value in _CLASS_ATTR_MAP.items()}
-
-
+_ATTR_CLASS_MAP = {value: key for key, value in _CLASS_ATTR_MAP.items()}
 
 
 class MultiEncoder(Encoder):
