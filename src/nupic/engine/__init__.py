@@ -49,7 +49,7 @@ pyRegions = (
     ("nupic.regions.KNNClassifierRegion", "KNNClassifierRegion"),
     ("nupic.regions.PluggableEncoderSensor", "PluggableEncoderSensor"),
     ("nupic.regions.PyRegion", "PyRegion"),
-    ("nupic.regions.RecordSensor", "RecordSensor"),
+    ("nupic.regions.record_sensor", "RecordSensor"),
     ("nupic.regions.SDRClassifierRegion", "SDRClassifierRegion"),
     ("nupic.regions.SPRegion", "SPRegion"),
     ("nupic.regions.SVMClassifierNode", "SVMClassifierNode"),
@@ -67,6 +67,7 @@ def registerBuiltInRegions():
   # Initialize nupic regions
   if not registeredRegions:
     for module, className in pyRegions:
+      print "ZZZ Registering builtin python region:", module, className
       engine_internal.Network.registerPyRegion(module, className)
   registeredRegions = True
 
