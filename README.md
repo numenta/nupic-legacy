@@ -50,9 +50,15 @@ For any other installation issues, please see our [search our forums](https://di
 
 Live Community Chat: [![Gitter](https://img.shields.io/badge/gitter-join_chat-blue.svg?style=flat)](https://gitter.im/numenta/public?utm_source=badge)
 
-### Building NuPIC From Source Code
+### Installing NuPIC From Source
 
-For details about checking out this repository and building in your local environment, see [Building NuPIC](https://discourse.numenta.org/t/building-nupic/2192).
+To install from local source code, run from the repository root:
+
+    pip install .
+
+Use the optional `-e` argument for a developer install.
+
+If you want to build the dependent `nupic.bindings` from source, you should build and install from [`nupic.core`](https://github.com/numenta/nupic.core) prior to installing nupic (since a PyPI release will be installed if `nupic.bindings` isn't yet installed).
 
 - Build:
 [![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
