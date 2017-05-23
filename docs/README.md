@@ -163,7 +163,7 @@ nupic
 │   ├── KNNClassifierRegion.py [TODO]
 │   ├── PluggableEncoderSensor.py [TODO]
 │   ├── RecordSensor.py [TODO]
-│   ├── RecordSensorFilters
+│   ├── record_sensor_filters
 │   │   ├── add_noise.py [TODO]
 │   │   └── modify_fields.py [TODO]
 │   ├── SDRClassifierRegion.py [TODO]
