@@ -47,7 +47,7 @@ CLAClassifierRegion
 KNNAnomalyClassifierRegion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.KNNAnomalyClassifierRegion.KNNAnomalyClassifierRegion
+.. autoclass:: nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion
    :members:
    :show-inheritance:
 

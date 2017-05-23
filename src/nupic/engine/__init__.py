@@ -45,7 +45,7 @@ pyRegions = (
     ("nupic.regions.AnomalyLikelihoodRegion", "AnomalyLikelihoodRegion"),
     ("nupic.regions.anomaly_region", "AnomalyRegion"),
     ("nupic.regions.cla_classifier_region", "CLAClassifierRegion"),
-    ("nupic.regions.KNNAnomalyClassifierRegion", "KNNAnomalyClassifierRegion"),
+    ("nupic.regions.knn_anomaly_classifier_region", "KNNAnomalyClassifierRegion"),
     ("nupic.regions.KNNClassifierRegion", "KNNClassifierRegion"),
     ("nupic.regions.PluggableEncoderSensor", "PluggableEncoderSensor"),
     ("nupic.regions.PyRegion", "PyRegion"),

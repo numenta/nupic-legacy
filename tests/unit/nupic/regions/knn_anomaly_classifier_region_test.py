@@ -32,7 +32,7 @@ from nupic.support.unittesthelpers.testcasebase import (unittest,
                                                         TestOptionParser)
 from nupic.frameworks.opf.opf_utils import InferenceType
 
-from nupic.regions.KNNAnomalyClassifierRegion import (
+from nupic.regions.knn_anomaly_classifier_region import (
     KNNAnomalyClassifierRegion,
     _CLAClassificationRecord)
 
