@@ -40,7 +40,7 @@ AnomalyLikelihoodRegion
 CLAClassifierRegion
 ^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.CLAClassifierRegion.CLAClassifierRegion
+.. autoclass:: nupic.regions.cla_classifier_region.CLAClassifierRegion
    :members:
    :show-inheritance:
 
