@@ -43,7 +43,7 @@ arrayTypes = ['ByteArray',
 pyRegions = (
     ("nupic.bindings.regions.TestNode", "TestNode"),
     ("nupic.regions.AnomalyLikelihoodRegion", "AnomalyLikelihoodRegion"),
-    ("nupic.regions.AnomalyRegion", "AnomalyRegion"),
+    ("nupic.regions.anomaly_region", "AnomalyRegion"),
     ("nupic.regions.CLAClassifierRegion", "CLAClassifierRegion"),
     ("nupic.regions.KNNAnomalyClassifierRegion", "KNNAnomalyClassifierRegion"),
     ("nupic.regions.KNNClassifierRegion", "KNNClassifierRegion"),

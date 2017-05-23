@@ -12,7 +12,7 @@ PyRegion
 AnomalyRegion
 ^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.AnomalyRegion.AnomalyRegion
+.. autoclass:: nupic.regions.anomaly_region.AnomalyRegion
    :members:
    :show-inheritance:
 
