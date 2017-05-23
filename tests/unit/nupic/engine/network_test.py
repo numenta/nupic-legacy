@@ -25,7 +25,7 @@ import unittest2 as unittest
 
 from nupic import engine
 from nupic.bindings.regions.TestNode import TestNode
-from nupic.regions.SPRegion import SPRegion
+from nupic.regions.sp_region import SPRegion
 
 
 

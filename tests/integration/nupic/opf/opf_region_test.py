@@ -53,8 +53,8 @@ from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.encoders import MultiEncoder
 from nupic.engine import Network
-from nupic.regions.SPRegion import SPRegion
-from nupic.regions.TMRegion import TMRegion
+from nupic.regions.sp_region import SPRegion
+from nupic.regions.tm_region import TMRegion
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 
 _VERBOSITY = 0         # how chatty the unit tests should be

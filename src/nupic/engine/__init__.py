@@ -51,10 +51,10 @@ pyRegions = (
     ("nupic.regions.PyRegion", "PyRegion"),
     ("nupic.regions.record_sensor", "RecordSensor"),
     ("nupic.regions.sdr_classifier_region", "SDRClassifierRegion"),
-    ("nupic.regions.SPRegion", "SPRegion"),
+    ("nupic.regions.sp_region", "SPRegion"),
     ("nupic.regions.SVMClassifierNode", "SVMClassifierNode"),
     ("nupic.regions.TestRegion", "TestRegion"),
-    ("nupic.regions.TMRegion", "TMRegion"),
+    ("nupic.regions.tm_region", "TMRegion"),
     ("nupic.regions.UnimportableNode", "UnimportableNode"),
 )
 
@@ -727,7 +727,7 @@ class Network(engine_internal.Network):
   def getRegionsByType(self, regionClass):
     """
     Gets all region instances of a given class
-    (for example, nupic.regions.SPRegion.SPRegion).
+    (for example, nupic.regions.sp_region.SPRegion).
     """
     regions = []
 

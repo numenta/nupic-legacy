@@ -22,7 +22,7 @@
 import unittest
 import numpy
 
-from nupic.regions.SPRegion import SPRegion
+from nupic.regions.sp_region import SPRegion
 from nupic.regions.record_sensor import RecordSensor
 
 from network_creation_common import createAndRunNetwork

@@ -23,7 +23,7 @@ import json
 import unittest
 import numpy
 
-from nupic.regions.TMRegion import TMRegion
+from nupic.regions.tm_region import TMRegion
 
 from network_creation_common import createAndRunNetwork
 
