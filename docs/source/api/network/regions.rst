@@ -55,7 +55,7 @@ KNNAnomalyClassifierRegion
 KNNClassifierRegion
 ^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.KNNClassifierRegion.KNNClassifierRegion
+.. autoclass:: nupic.regions.knn_classifier_region.KNNClassifierRegion
    :members:
    :show-inheritance:
 
@@ -63,6 +63,6 @@ KNNClassifierRegion
 SDRClassifierRegion
 ^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.SDRClassifierRegion.SDRClassifierRegion
+.. autoclass:: nupic.regions.sdr_classifier_region.SDRClassifierRegion
    :members:
    :show-inheritance:
