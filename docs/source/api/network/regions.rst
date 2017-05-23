@@ -33,7 +33,7 @@ TMRegion
 AnomalyLikelihoodRegion
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.AnomalyLikelihoodRegion.AnomalyLikelihoodRegion
+.. autoclass:: nupic.regions.anomaly_likelihood_region.AnomalyLikelihoodRegion
    :members:
    :show-inheritance:
 
