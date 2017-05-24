@@ -19,12 +19,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-""" @file backtracking_tm.py
-
+"""
 Temporal memory implementation.
 
 This is the Python implementation and is used as the base class for the C++
-implementation.
+implementation in :class:`BacktrackingTMCPP`.
 """
 
 import copy
@@ -51,14 +50,117 @@ dtype = GetNTAReal()
 
 class BacktrackingTM(ConsolePrinterMixin):
   """
-  Class implementing the temporal memory algorithm as described in the
-  published Cortical Learning Algorithm documentation.  The implementation here
-  attempts to closely match the pseudocode in the documentation. This
-  implementation does contain several additional bells and whistles such as
-  a column confidence measure.
+  Class implementing the temporal memory algorithm as described in
+  `BAMI <https://numenta.com/biological-and-machine-intelligence/>`_.  The 
+  implementation here attempts to closely match the pseudocode in the 
+  documentation. This implementation does contain several additional bells and 
+  whistles such as a column confidence measure.
 
-  @todo Document other constructor parameters.
-  @todo Have some higher level flags for fast learning, HiLo, Pooling, etc.
+  :param numberOfCols: (int) Number of mini-columns in the region. This values 
+         needs to be the same as the number of columns in the SP, if one is 
+         used.
+
+  :param cellsPerColumn: (int) The number of cells per mini-column.
+
+  :param initialPerm: (float) Initial permanence for newly created synapses.
+
+  :param connectedPerm: TODO  
+  
+  :param minThreshold: (int)  Minimum number of active synapses for a segment to 
+         be considered during search for the best-matching segments.
+
+  :param newSynapseCount: (int) The max number of synapses added to a segment 
+         during learning. 
+
+  :param permanenceInc: (float) Active synapses get their permanence counts 
+         incremented by this value.
+
+  :param permanenceDec: (float) All other synapses get their permanence counts 
+         decremented by this value.
+
+  :param permanenceMax: TODO
+
+  :param maxAge: (int) Number of iterations before global decay takes effect.
+         Also the global decay execution interval. After global decay starts, it
+         will will run again every ``maxAge`` iterations. If ``maxAge==1``, 
+         global decay is applied to every iteration to every segment.
+         
+         .. note:: Using ``maxAge > 1`` can significantly speed up the TM when 
+                   global decay is used.
+  
+  :param globalDecay: (float) Value to decrease permanences when the global 
+         decay process runs. Global decay will remove synapses if their 
+         permanence value reaches 0. It will also remove segments when they no
+         longer have synapses.
+         
+         .. note:: Global decay is applied after ``maxAge`` iterations, after 
+                   which it will run every ``maxAge`` iterations.
+
+  :param activationThreshold: (int) Number of synapses that must be active to 
+         activate a segment.
+
+  :param doPooling: (bool) If True, pooling is enabled. False is the default. 
+
+  :param segUpdateValidDuration: TODO
+
+  :param burnIn: (int) Used for evaluating the prediction score. Default is 2. 
+
+  :param collectStats: (bool) If True, collect training / inference stats. 
+         Default is False. 
+
+  :param seed: (int)  Random number generator seed. The seed affects the random 
+         aspects of initialization like the initial permanence values. A fixed 
+         value ensures a reproducible result.
+
+  :param verbosity: (int) Controls the verbosity of the TM diagnostic output:
+    
+         - verbosity == 0: silent
+         - verbosity in [1..6]: increasing levels of verbosity
+
+  :param pamLength: Number of time steps to remain in "Pay Attention Mode" after
+         we detect we've reached the end of a learned sequence. Setting this to 
+         0 disables PAM mode. When we are in PAM mode, we do not burst 
+         unpredicted columns during learning, which in turn prevents us from 
+         falling into a previously learned sequence for a while (until we run 
+         through another 'pamLength' steps). The advantge of PAM mode is that it 
+         requires fewer presentations to learn a set of sequences which share 
+         elements. The disadvantage of PAM mode is that if a learned sequence is 
+         immediately followed by set set of elements that should be learned as a 
+         2nd sequence, the first pamLength elements of that sequence will not be 
+         learned as part of that 2nd sequence.
+
+  :param maxInfBacktrack: (int) How many previous inputs to keep in a buffer for
+         inference backtracking.
+
+  :param maxLrnBacktrack: (int) How many previous inputs to keep in a buffer for
+         learning backtracking.
+
+  :param maxSeqLength: (int) If not 0, we will never learn more than 
+         ``maxSeqLength`` inputs in a row without starting over at start cells. 
+         This sets an upper bound on the length of learned sequences and thus is
+         another means (besides ``maxAge`` and ``globalDecay``) by which to 
+         limit how much the TM tries to learn. 
+
+  :param maxSegmentsPerCell: (int) The maximum number of segments allowed on a 
+         cell. This is used to turn on "fixed size CLA" mode. When in effect, 
+         ``globalDecay`` is not applicable and must be set to 0 and ``maxAge`` 
+         must be set to 0. When this is used (> 0), ``maxSynapsesPerSegment`` 
+         must also be > 0. 
+
+  :param maxSynapsesPerSegment: (int) The maximum number of synapses allowed in 
+         a segment. This is used to turn on "fixed size CLA" mode. When in 
+         effect, ``globalDecay`` is not applicable and must be set to 0, and 
+         ``maxAge`` must be set to 0. When this is used (> 0), 
+         ``maxSegmentsPerCell`` must also be > 0. 
+
+  :param outputType: (string) Can be one of the following (default ``normal``):
+
+         - ``normal``: output the OR of the active and predicted state.
+         - ``activeState``: output only the active state.
+         - ``activeState1CellPerCol``: output only the active state, and at most 
+           1 cell/column. If more than 1 cell is active in a column, the one 
+           with the highest confidence is sent up.  
+
   """
 
   def __init__(self,
@@ -89,67 +191,7 @@ class BacktrackingTM(ConsolePrinterMixin):
                maxSynapsesPerSegment=-1,
                outputType='normal',
               ):
-    """
-    Construct the TM
 
-    @param pamLength Number of time steps to remain in "Pay Attention Mode" after
-                  we detect we've reached the end of a learned sequence. Setting
-                  this to 0 disables PAM mode. When we are in PAM mode, we do
-                  not burst unpredicted columns during learning, which in turn
-                  prevents us from falling into a previously learned sequence
-                  for a while (until we run through another 'pamLength' steps).
-                  The advantge of PAM mode is that it requires fewer
-                  presentations to learn a set of sequences which share
-                  elements. The disadvantage of PAM mode is that if a learned
-                  sequence is immediately followed by set set of elements that
-                  should be learned as a 2nd sequence, the first pamLength
-                  elements of that sequence will not be learned as part of that
-                  2nd sequence.
-
-    @param maxAge Controls global decay. Global decay will only decay segments
-                  that have not been activated for maxAge iterations, and will
-                  only do the global decay loop every maxAge iterations. The
-                  default (maxAge=1) reverts to the behavior where global decay
-                  is applied every iteration to every segment. Using maxAge > 1
-                  can significantly speed up the TM when global decay is used.
-
-    @param maxSeqLength If not 0, we will never learn more than maxSeqLength inputs
-                  in a row without starting over at start cells. This sets an
-                  upper bound on the length of learned sequences and thus is
-                  another means (besides maxAge and globalDecay) by which to
-                  limit how much the TM tries to learn.
-
-    @param maxSegmentsPerCell The maximum number of segments allowed on a cell. This
-                  is used to turn on "fixed size CLA" mode. When in effect,
-                  globalDecay is not applicable and must be set to 0 and
-                  maxAge must be set to 0. When this is used (> 0),
-                  maxSynapsesPerSegment must also be > 0.
-
-    @param maxSynapsesPerSegment The maximum number of synapses allowed in a segment.
-                  This is used to turn on "fixed size CLA" mode. When in effect,
-                  globalDecay is not applicable and must be set to 0 and maxAge
-                  must be set to 0. When this is used (> 0), maxSegmentsPerCell
-                  must also be > 0.
-
-    @param outputType Can be one of the following: 'normal', 'activeState',
-                  'activeState1CellPerCol'.
-                  'normal': output the OR of the active and predicted state.
-                  'activeState': output only the active state.
-                  'activeState1CellPerCol': output only the active state, and at
-                  most 1 cell/column. If more than 1 cell is active in a column,
-                  the one with the highest confidence is sent up.
-                  Default is 'normal'.
-
-    @param doPooling If True, pooling is enabled. False is the default.
-
-    @param burnIn Used for evaluating the prediction score. Default is 2.
-
-    @param collectStats If True, collect training / inference stats. Default is
-                        False.
-
-    """
-
-    ## @todo document
     self.version = TM_VERSION
 
     ConsolePrinterMixin.__init__(self, verbosity)
@@ -174,57 +216,35 @@ class BacktrackingTM(ConsolePrinterMixin):
       self._random = Random(numpy.random.randint(256))
 
     # Store creation parameters
-    ## @todo document
     self.numberOfCols = numberOfCols
-    ## @todo document
     self.cellsPerColumn = cellsPerColumn
     self._numberOfCells = numberOfCols * cellsPerColumn
-    ## @todo document
     self.initialPerm = numpy.float32(initialPerm)
-    ## @todo document
     self.connectedPerm = numpy.float32(connectedPerm)
-    ## @todo document
     self.minThreshold = minThreshold
-    ## @todo document
     self.newSynapseCount = newSynapseCount
-    ## @todo document
     self.permanenceInc = numpy.float32(permanenceInc)
-    ## @todo document
     self.permanenceDec = numpy.float32(permanenceDec)
-    ## @todo document
     self.permanenceMax = numpy.float32(permanenceMax)
-    ## @todo document
     self.globalDecay = numpy.float32(globalDecay)
-    ## @todo document
     self.activationThreshold = activationThreshold
     ## Allows to turn off pooling
     self.doPooling = doPooling
-    ## @todo document
     self.segUpdateValidDuration = segUpdateValidDuration
     ## Used for evaluating the prediction score
     self.burnIn = burnIn
     ## If true, collect training/inference stats
     self.collectStats = collectStats
-    ## @todo document
     self.seed = seed
-    ## @todo document
     self.verbosity = verbosity
-    ## @todo document
     self.pamLength = pamLength
-    ## @todo document
     self.maxAge = maxAge
-    ## @todo document
     self.maxInfBacktrack = maxInfBacktrack
-    ## @todo document
     self.maxLrnBacktrack = maxLrnBacktrack
-    ## @todo document
     self.maxSeqLength = maxSeqLength
-    ## @todo document
     self.maxSegmentsPerCell = maxSegmentsPerCell
-    ## @todo document
     self.maxSynapsesPerSegment = maxSynapsesPerSegment
     assert outputType in ('normal', 'activeState', 'activeState1CellPerCol')
-    ## @todo document
     self.outputType = outputType
 
     # No point having larger expiration if we are not doing pooling
@@ -232,7 +252,6 @@ class BacktrackingTM(ConsolePrinterMixin):
       self.segUpdateValidDuration = 1
 
     # Create data structures
-    ## @todo document
     self.activeColumns = [] # list of indices of active columns
 
     ## Cells are indexed by column and index in the column
@@ -244,13 +263,10 @@ class BacktrackingTM(ConsolePrinterMixin):
       for _ in xrange(self.cellsPerColumn):
         self.cells[c].append([])
 
-    ## @todo document
     self.lrnIterationIdx = 0
-    ## @todo document
     self.iterationIdx = 0
     ## unique segment id, so we can put segments in hashes
     self.segID = 0
-    ## @todo document
     self.currentOutput = None # for checkPrediction
 
     ## pamCounter gets reset to pamLength whenever we detect that the learning
@@ -283,17 +299,11 @@ class BacktrackingTM(ConsolePrinterMixin):
 
     # Set attributes that are initialized in _initEphemerals.
     self._stats = None
-    ## @todo document
     self.cellConfidence = None
-    ## @todo document
     self.colConfidence = None
-    ## @todo document
     self.lrnActiveState = None
-    ## @todo document
     self.infActiveState = None
-    ## @todo document
     self.lrnPredictedState = None
-    ## @todo document
     self.infPredictedState = None
     self._internalStats = None
 
@@ -486,40 +496,33 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def saveToFile(self, filePath):
     """
-    Implemented in BacktrackingTMCPP.BacktrackingTMCPP.saveToFile
+    Implemented in :meth:`backtracking_tm_cpp.BacktrackingTMCPP.saveToFile`.
     """
     pass
 
 
   def loadFromFile(self, filePath):
     """
-    Implemented in BacktrackingTMCPP.BacktrackingTMCPP.loadFromFile
+    Implemented in :meth:`backtracking_tm_cpp.BacktrackingTMCPP.loadFromFile`.
     """
     pass
 
 
   def setRandomSeed(self, seed):
-    """ @internal
-    Seed the random number generator.
-    This is used during unit testing to generate repeatable results.
-    """
+    # Seed the random number generator.
+    # This is used during unit testing to generate repeatable results.
     self._random = Random(seed)
 
 
   def getRandomState(self):
-    """ @internal
-    Return the random number state.
-
-    This is used during unit testing to generate repeatable results.
-    """
+    # Return the random number state.
+    # This is used during unit testing to generate repeatable results.
     return pickle.dumps(self._random)
 
 
   def setRandomState(self, state):
-    """ @internal Set the random number state.
-
-    This is used during unit testing to generate repeatable results.
-    """
+    # Set the random number state.
+    # This is used during unit testing to generate repeatable results.
     self._random = pickle.loads(state)
 
 
@@ -618,37 +621,28 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Return the current learning and inference stats. This returns a dict
     containing all the learning and inference stats we have collected since the
-    last resetStats(). If @ref collectStats is False, then None is returned.
+    last :meth:`resetStats` call. If :class:`BacktrackingTM` ``collectStats`` 
+    parameter is False, then None is returned.
 
-    @returns dict
+    :returns: (dict) The following keys are returned in the dict when 
+        ``collectStats`` is True:
 
-    The following keys are returned in the dict when @ref collectStats is True:
-
-      @retval nPredictions the number of predictions. This is the total
-                              number of inferences excluding burn-in and the
-                              last inference.
-
-      @retval curPredictionScore the score for predicting the current input
-                              (predicted during the previous inference)
-
-      @retval curMissing the number of bits in the current input that were
-                              not predicted to be on.
-
-      @retval curExtra the number of bits in the predicted output that
-                              are not in the next input
-
-      @retval predictionScoreTotal the sum of every prediction score to date
-
-      @retval predictionScoreAvg predictionScoreTotal / nPredictions
-
-      @retval pctMissingTotal the total number of bits that were missed over all
-                              predictions
-
-      @retval pctMissingAvg pctMissingTotal / nPredictions
-
-      @retval prevSequenceSignature signature for the sequence immediately preceding
-                              the last reset. 'None' if collectSequenceStats is
-                              False
+          - ``nPredictions``: the number of predictions. This is the total 
+                number of inferences excluding burn-in and the last inference.
+          - ``curPredictionScore``: the score for predicting the current input
+                (predicted during the previous inference)
+          - ``curMissing``: the number of bits in the current input that were 
+                not predicted to be on.
+          - ``curExtra``: the number of bits in the predicted output that are 
+                not in the next input
+          - ``predictionScoreTotal``: the sum of every prediction score to date
+          - ``predictionScoreAvg``: ``predictionScoreTotal / nPredictions ``
+          - ``pctMissingTotal``: the total number of bits that were missed over 
+                all predictions
+          - ``pctMissingAvg``: ``pctMissingTotal / nPredictions``
+          - ``prevSequenceSignature``: signature for the sequence immediately 
+                preceding the last reset. 'None' if ``collectSequenceStats`` is 
+                False.
     """
     if not self.collectStats:
       return None
@@ -694,11 +688,11 @@ class BacktrackingTM(ConsolePrinterMixin):
     a number of stats in our _internalStats dictionary, including our computed
     prediction score.
 
-    @param stats            internal stats dictionary
-    @param bottomUpNZ       list of the active bottom-up inputs
-    @param predictedState   The columns we predicted on the last time step (should
+    :param stats            internal stats dictionary
+    :param bottomUpNZ       list of the active bottom-up inputs
+    :param predictedState   The columns we predicted on the last time step (should
                             match the current bottomUpNZ in the best case)
-    @param colConfidence    Column confidences we determined on the last time step
+    :param colConfidence    Column confidences we determined on the last time step
     """
     # Return if not collecting stats
     if not self.collectStats:
@@ -759,7 +753,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Print an integer array that is the same shape as activeState.
 
-    @param aState TODO: document
+    :param aState: TODO
     """
     def formatRow(var, i):
       s = ''
@@ -778,8 +772,8 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Print a floating point array that is the same shape as activeState.
 
-    @param aState TODO: document
-    @param maxCols TODO: document
+    :param aState: TODO
+    :param maxCols: TODO
     """
     def formatFPRow(var, i):
       s = ''
@@ -798,8 +792,8 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Print up to maxCols number from a flat floating point array.
 
-    @param aState TODO: document
-    @param maxCols TODO: document
+    :param aState: TODO
+    :param maxCols: TODO
     """
     def formatFPRow(var):
       s = ''
@@ -814,7 +808,10 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printStates(self, printPrevious = True, printLearnState = True):
     """
-    @todo document
+    TODO
+    :param printPrevious: 
+    :param printLearnState: 
+    :return: 
     """
     def formatRow(var, i):
       s = ''
@@ -853,7 +850,9 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printOutput(self, y):
     """
-    @todo document
+    TODO
+    :param y: 
+    :return: 
     """
     print "Output"
     for i in xrange(self.cellsPerColumn):
@@ -864,7 +863,9 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printInput(self, x):
     """
-    @todo document
+    TODO
+    :param x: 
+    :return: 
     """
     print "Input"
     for c in xrange(self.numberOfCols):
@@ -899,8 +900,8 @@ class BacktrackingTM(ConsolePrinterMixin):
     Print the list of [column, cellIdx] indices for each of the active
     cells in state.
 
-    @param state TODO: document
-    @param andValues TODO: document
+    :param state: TODO
+    :param andValues: TODO
     """
     if len(state.shape) == 2:
       (cols, cellIdxs) = state.nonzero()
@@ -936,8 +937,8 @@ class BacktrackingTM(ConsolePrinterMixin):
     Called at the end of inference to print out various diagnostic
     information based on the current verbosity level.
 
-    @param output TODO: document
-    @param learn TODO: document
+    :param output: TODO
+    :param learn: TODO
     """
     if self.verbosity >= 3:
       print "----- computeEnd summary: "
@@ -1007,7 +1008,8 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printSegmentUpdates(self):
     """
-    @todo document
+    TODO
+    :return: 
     """
     print "=== SEGMENT UPDATES ===, Num = ", len(self.segmentUpdates)
     for key, updateList in self.segmentUpdates.iteritems():
@@ -1017,7 +1019,11 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printCell(self, c, i, onlyActiveSegments=False):
     """
-    @todo document
+    TODO
+    :param c: 
+    :param i: 
+    :param onlyActiveSegments: 
+    :return: 
     """
 
     if len(self.cells[c][i]) > 0:
@@ -1033,7 +1039,9 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printCells(self, predictedOnly=False):
     """
-    @todo document
+    TODO
+    :param predictedOnly: 
+    :return: 
     """
     if predictedOnly:
       print "--- PREDICTED CELLS ---"
@@ -1051,16 +1059,16 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def getNumSegmentsInCell(self, c, i):
     """
-    @param c column index
-    @param i cell index within column
-    @returns the total number of synapses in cell (c, i)
+    :param c: (int) column index
+    :param i: (int) cell index within column
+    :returns: (int) the total number of synapses in cell (c, i)
     """
     return len(self.cells[c][i])
 
 
   def getNumSynapses(self):
     """
-    @returns the total number of synapses
+    :returns: (int) the total number of synapses
     """
     nSyns = self.getSegmentInfo()[1]
     return nSyns
@@ -1089,14 +1097,14 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def getNumSynapsesPerSegmentAvg(self):
     """
-    @returns the average number of synapses per segment
+    :returns: (int) the average number of synapses per segment
     """
     return float(self.getNumSynapses()) / max(1, self.getNumSegments())
 
 
   def getNumSegments(self):
     """
-    @returns the total number of segments
+    :returns: (int) the total number of segments
     """
     nSegs = self.getSegmentInfo()[0]
     return nSegs
@@ -1104,36 +1112,28 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def getNumCells(self):
     """
-    @returns the total number of cells
+    :returns: (int) the total number of cells
     """
     return self.numberOfCols * self.cellsPerColumn
 
 
   def getSegmentOnCell(self, c, i, segIdx):
     """
-    @param c column index
-    @param i cell index in column
-    @param segIdx TODO: document
+    :param c: (int) column index
+    :param i: (int) cell index in column
+    :param segIdx: (int) segment index to match
 
-    @returns list representing the the segment on cell (c, i) with index sidx.
+    :returns: (list) representing the the segment on cell (c, i) with index 
+        ``segIdx``.
+        ::
 
-    Returns the segment as following list:
+          [  [segmentID, sequenceSegmentFlag, positiveActivations,
+              totalActivations, lastActiveIteration,
+              lastPosDutyCycle, lastPosDutyCycleIteration],
+             [col1, idx1, perm1],
+             [col2, idx2, perm2], ...
+          ]
 
-        [  [segmentID, sequenceSegmentFlag, positiveActivations,
-            totalActivations, lastActiveIteration,
-            lastPosDutyCycle, lastPosDutyCycleIteration],
-           [col1, idx1, perm1],
-           [col2, idx2, perm2], ...
-        ]
-
-    @retval segmentId TODO: document
-    @retval sequenceSegmentFlag TODO: document
-    @retval positiveActivations TODO: document
-    @retval totalActivations TODO: document
-    @retval lastActiveIteration TODO: document
-    @retval lastPosDutyCycle TODO: document
-    @retval lastPosDutyCycleIteration TODO: document
-    @retval [col1, idx1, perm1] TODO: document
     """
     seg = self.cells[c][i][segIdx]
     retlist = [[seg.segID, seg.isSequenceSeg, seg.positiveActivations,
@@ -1143,7 +1143,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     return retlist
 
 
-  class SegmentUpdate(object):
+  class _SegmentUpdate(object):
     """
     Class used to carry instructions for updating a segment.
     """
@@ -1183,11 +1183,11 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Store a dated potential segment update. The "date" (iteration index) is used
     later to determine whether the update is too old and should be forgotten.
-    This is controlled by parameter segUpdateValidDuration.
+    This is controlled by parameter ``segUpdateValidDuration``.
 
-    @param c TODO: document
-    @param i TODO: document
-    @param segUpdate TODO: document
+    :param c: TODO
+    :param i: TODO
+    :param segUpdate: TODO
     """
     # Sometimes we might be passed an empty update
     if segUpdate is None or len(segUpdate.activeSynapses) == 0:
@@ -1207,7 +1207,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Remove a segment update (called when seg update expires or is processed)
 
-    @param updateInfo tuple (creationDate, SegmentUpdate)
+    :param updateInfo: (tuple) (creationDate, SegmentUpdate)
     """
     # An updateInfo contains (creationDate, SegmentUpdate)
     (creationDate, segUpdate) = updateInfo
@@ -1219,9 +1219,14 @@ class BacktrackingTM(ConsolePrinterMixin):
 
 
   def computeOutput(self):
-    """Computes output for both learning and inference. In both cases, the
-    output is the boolean OR of activeState and predictedState at t.
-    Stores currentOutput for checkPrediction."""
+    """
+    Computes output for both learning and inference. In both cases, the
+    output is the boolean OR of ``activeState`` and ``predictedState`` at ``t``.
+    Stores ``currentOutput`` for ``checkPrediction``.
+    
+    :returns: TODO
+    """
+
     # TODO: This operation can be sped up by:
     #  1.)  Pre-allocating space for the currentOutput
     #  2.)  Making predictedState and activeState of type 'float32' up front
@@ -1262,8 +1267,11 @@ class BacktrackingTM(ConsolePrinterMixin):
 
 
   def getActiveState(self):
-    """ Return the current active state. This is called by the node to
+    """ 
+    Return the current active state. This is called by the node to
     obtain the sequence output of the TM.
+    
+    :returns: TODO
     """
     # TODO: This operation can be sped up by making  activeState of
     #         type 'float32' up front.
@@ -1278,9 +1286,9 @@ class BacktrackingTM(ConsolePrinterMixin):
     predictedCells[c][i] represents the state of the i'th cell in the c'th
     column.
 
-    @returns numpy array of predicted cells, representing the current predicted
-    state. predictedCells[c][i] represents the state of the i'th cell in the c'th
-    column.
+    :returns: numpy array of predicted cells, representing the current predicted
+      state. predictedCells[c][i] represents the state of the i'th cell in the 
+      c'th column.
     """
     return self.infPredictedState['t']
 
@@ -1291,19 +1299,20 @@ class BacktrackingTM(ConsolePrinterMixin):
     from the current TM state. The TM is returned to its original state at the
     end before returning.
 
-    -# We save the TM state.
-    -# Loop for nSteps
-      -# Turn-on with lateral support from the current active cells
-      -# Set the predicted cells as the next step's active cells. This step
-         in learn and infer methods use input here to correct the predictions.
-         We don't use any input here.
-    -# Revert back the TM state to the time before prediction
+    1. We save the TM state.
+    2. Loop for nSteps
 
-    @param nSteps The number of future time steps to be predicted
-    @returns      all the future predictions - a numpy array of type "float32" and
-                  shape (nSteps, numberOfCols).
-                  The ith row gives the tm prediction for each column at
-                  a future timestep (t+i+1).
+       a. Turn-on with lateral support from the current active cells
+       b. Set the predicted cells as the next step's active cells. This step
+          in learn and infer methods use input here to correct the predictions.
+          We don't use any input here.
+
+    3. Revert back the TM state to the time before prediction
+
+    :param nSteps: (int) The number of future time steps to be predicted
+    :returns: all the future predictions - a numpy array of type "float32" and
+          shape (nSteps, numberOfCols). The ith row gives the tm prediction for 
+          each column at a future timestep (t+i+1).
     """
     # Save the TM dynamic state, we will use to revert back in the end
     pristineTPDynamicState = self._getTPDynamicState()
@@ -1340,7 +1349,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       # Predicted state and confidence are set in phase2.
       self.infPredictedState['t'].fill(0)
       self.cellConfidence['t'].fill(0.0)
-      self.inferPhase2()
+      self._inferPhase2()
 
     # Revert the dynamic state to the saved state
     self._setTPDynamicState(pristineTPDynamicState)
@@ -1404,7 +1413,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def getAvgLearnedSeqLength(self):
     """
-    @returns Moving average of learned sequence length
+    :returns: Moving average of learned sequence length
     """
     return self.avgLearnedSeqLength
 
@@ -1415,29 +1424,27 @@ class BacktrackingTM(ConsolePrinterMixin):
     the current set of inputs by assuming the sequence started up to N steps
     ago on start cells.
 
-    @param activeColumns The list of active column indices
-
     This will adjust @ref infActiveState['t'] if it does manage to lock on to a
     sequence that started earlier. It will also compute infPredictedState['t']
     based on the possibly updated @ref infActiveState['t'], so there is no need to
     call inferPhase2() after calling inferBacktrack().
 
     This looks at:
-        - @ref infActiveState['t']
+        - ``infActiveState['t']``
 
     This updates/modifies:
-        - @ref infActiveState['t']
-        - @ref infPredictedState['t']
-        - @ref colConfidence['t']
-        - @ref cellConfidence['t']
+        - ``infActiveState['t']``
+        - ``infPredictedState['t']``
+        - ``colConfidence['t']``
+        - ``cellConfidence['t']``
 
     How it works:
-    -------------------------------------------------------------------
-    This method gets called from updateInferenceState when we detect either of
-    the following two conditions:
 
-    -# The current bottom-up input had too many un-expected columns
-    -# We fail to generate a sufficient number of predicted columns for the
+    This method gets called from :meth:`updateInferenceState` when we detect 
+    either of the following two conditions:
+
+    #. The current bottom-up input had too many un-expected columns
+    #. We fail to generate a sufficient number of predicted columns for the
        next time step.
 
     Either of these two conditions indicate that we have fallen out of a
@@ -1462,18 +1469,20 @@ class BacktrackingTM(ConsolePrinterMixin):
     following example, where you have learned the following sub-sequences which
     have the given frequencies:
 
-                      ? - Q - C - D - E      10X      seq 0
-                      ? - B - C - D - F      1X       seq 1
-                      ? - B - C - H - I      2X       seq 2
-                      ? - B - C - D - F      3X       seq 3
-              ? - Z - A - B - C - D - J      2X       seq 4
-              ? - Z - A - B - C - H - I      1X       seq 5
-              ? - Y - A - B - C - D - F      3X       seq 6
+    ::
 
-            ----------------------------------------
-          W - X - Z - A - B - C - D          <= input history
-                                  ^
-                                  current time step
+                  ? - Q - C - D - E      10X      seq 0
+                  ? - B - C - D - F      1X       seq 1
+                  ? - B - C - H - I      2X       seq 2
+                  ? - B - C - D - F      3X       seq 3
+          ? - Z - A - B - C - D - J      2X       seq 4
+          ? - Z - A - B - C - H - I      1X       seq 5
+          ? - Y - A - B - C - D - F      3X       seq 6
+  
+        ----------------------------------------
+      W - X - Z - A - B - C - D          <= input history
+                              ^
+                              current time step
 
     Suppose, in the current time step, the input pattern is D and you have not
     predicted D, so you need to backtrack. Suppose we can backtrack up to 6
@@ -1482,12 +1491,12 @@ class BacktrackingTM(ConsolePrinterMixin):
     implement the backtrack to give us this right answer? The current
     implementation takes the following approach:
 
-    -# Start from the farthest point in the past.
-    -# For each starting point S, calculate the confidence of the current
+    #. Start from the farthest point in the past.
+    #. For each starting point S, calculate the confidence of the current
        input, conf(startingPoint=S), assuming we followed that sequence.
        Note that we must have learned at least one sequence that starts at
        point S.
-    -# If conf(startingPoint=S) is significantly different from
+    #. If conf(startingPoint=S) is significantly different from
        conf(startingPoint=S-1), then choose S-1 as the starting point.
 
     The assumption here is that starting point S-1 is the starting point of
@@ -1498,10 +1507,12 @@ class BacktrackingTM(ConsolePrinterMixin):
     From the statistics in the above table, we can compute what the confidences
     will be for each possible starting point:
 
-        startingPoint           confidence of D
-        -----------------------------------------
-        B (t-2)               4/6  = 0.667   (seq 1,3)/(seq 1,2,3)
-        Z (t-4)               2/3  = 0.667   (seq 4)/(seq 4,5)
+    ::
+  
+      startingPoint           confidence of D
+      -----------------------------------------
+      B (t-2)               4/6  = 0.667   (seq 1,3)/(seq 1,2,3)
+      Z (t-4)               2/3  = 0.667   (seq 4)/(seq 4,5)
 
     First of all, we do not compute any confidences at starting points t-1, t-3,
     t-5, t-6 because there are no learned sequences that start at those points.
@@ -1511,6 +1522,9 @@ class BacktrackingTM(ConsolePrinterMixin):
     give the same confidence value, we choose the sequence starting at t-4
     because it gives the most context, and it mirrors the way that learning
     extends sequences.
+
+    :param activeColumns: (list) of active column indices
+
     """
     # How much input history have we accumulated?
     # The current input is always at the end of self._prevInfPatterns (at
@@ -1583,8 +1597,8 @@ class BacktrackingTM(ConsolePrinterMixin):
 
         # Compute activeState[t] given bottom-up and predictedState[t-1]
         self.infPredictedState['t-1'][:, :] = self.infPredictedState['t'][:, :]
-        inSequence = self.inferPhase1(self._prevInfPatterns[offset],
-                         useStartCells = (offset == startOffset))
+        inSequence = self._inferPhase1(self._prevInfPatterns[offset],
+                                       useStartCells = (offset == startOffset))
         if not inSequence:
           break
 
@@ -1592,7 +1606,7 @@ class BacktrackingTM(ConsolePrinterMixin):
         if self.verbosity >= 3:
           print ("  backtrack: computing predictions from ",
                  self._prevInfPatterns[offset])
-        inSequence = self.inferPhase2()
+        inSequence = self._inferPhase2()
         if not inSequence:
           break
 
@@ -1628,7 +1642,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       if self.verbosity >= 3:
         print "Failed to lock on. Falling back to bursting all unpredicted."
       self.infActiveState['t'][:, :] = self.infActiveState['backup'][:, :]
-      self.inferPhase2()
+      self._inferPhase2()
 
     else:
       if self.verbosity >= 3:
@@ -1659,23 +1673,22 @@ class BacktrackingTM(ConsolePrinterMixin):
     self.infPredictedState['t-1'][:, :] = self.infPredictedState['backup'][:, :]
 
 
-  def inferPhase1(self, activeColumns, useStartCells):
+  def _inferPhase1(self, activeColumns, useStartCells):
     """
     Update the inference active state from the last set of predictions
     and the current bottom-up.
 
     This looks at:
-        - @ref infPredictedState['t-1']
+        - ``infPredictedState['t-1']``
     This modifies:
-        - @ref infActiveState['t']
+        - ``infActiveState['t']``
 
-    @param activeColumns  list of active bottom-ups
-    @param useStartCells  If true, ignore previous predictions and simply turn on
-                      the start cells in the active columns
-    @returns        True if the current input was sufficiently predicted, OR
-                    if we started over on startCells.
-                    False indicates that the current input was NOT predicted,
-                    and we are now bursting on most columns.
+    :param activeColumns: (list) active bottom-ups
+    :param useStartCells: (bool) If true, ignore previous predictions and simply 
+           turn on the start cells in the active columns
+    :returns: (bool) True if the current input was sufficiently predicted, OR if 
+           we started over on startCells. False indicates that the current input 
+           was NOT predicted, and we are now bursting on most columns.
     """
     # Init to zeros to start
     self.infActiveState['t'].fill(0)
@@ -1709,7 +1722,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       return False
 
 
-  def inferPhase2(self):
+  def _inferPhase2(self):
     """
     Phase 2 for the inference state. The computes the predicted state, then
     checks to insure that the predicted state is not over-saturated, i.e.
@@ -1720,17 +1733,17 @@ class BacktrackingTM(ConsolePrinterMixin):
     we detect this situation, we instead turn on only the start cells in the
     current active columns and re-generate the predicted state from those.
 
-    @returns True if we have a decent guess as to the next input.
-             Returing False from here indicates to the caller that we have
-             reached the end of a learned sequence.
-
     This looks at:
-        - @ref infActiveState['t']
+        - `` infActiveState['t']``
 
     This modifies:
-        - @ref infPredictedState['t']
-        - @ref colConfidence['t']
-        - @ref cellConfidence['t']
+        - `` infPredictedState['t']``
+        - `` colConfidence['t']``
+        - `` cellConfidence['t']``
+
+    :returns: (bool) True if we have a decent guess as to the next input.
+              Returning False from here indicates to the caller that we have
+              reached the end of a learned sequence.
     """
     # Init to zeros to start
     self.infPredictedState['t'].fill(0)
@@ -1782,8 +1795,9 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def updateInferenceState(self, activeColumns):
     """
-    Update the inference state. Called from compute() on every iteration.
-    @param activeColumns The list of active column indices.
+    Update the inference state. Called from :meth:`compute` on every iteration.
+
+    :param activeColumns: (list) active column indices.
     """
     # Copy t to t-1
     self.infActiveState['t-1'][:, :] = self.infActiveState['t'][:, :]
@@ -1801,7 +1815,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
     # Compute the active state given the predictions from last time step and
     # the current bottom-up
-    inSequence = self.inferPhase1(activeColumns, self.resetCalled)
+    inSequence = self._inferPhase1(activeColumns, self.resetCalled)
 
     # If this input was considered unpredicted, let's go back in time and
     # replay the recent inputs from start cells and see if we can lock onto
@@ -1815,7 +1829,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       return
 
     # Compute the predicted cells and the cell and column confidences
-    inSequence = self.inferPhase2()
+    inSequence = self._inferPhase2()
     if not inSequence:
       if self.verbosity >= 3:
         print ("Not enough predictions going forward, "
@@ -1824,8 +1838,8 @@ class BacktrackingTM(ConsolePrinterMixin):
       self.inferBacktrack(activeColumns)
 
 
-  def learnBacktrackFrom(self, startOffset, readOnly=True):
-    """ @internal
+  def _learnBacktrackFrom(self, startOffset, readOnly=True):
+    """ 
     A utility method called from learnBacktrack. This will backtrack
     starting from the given startOffset in our prevLrnPatterns queue.
 
@@ -1843,8 +1857,8 @@ class BacktrackingTM(ConsolePrinterMixin):
         - lrnPredictedState['t-1']
         - lrnActiveState['t-1']
 
-    @param startOffset Start offset within the prevLrnPatterns input history
-    @returns           True if we managed to lock on to a sequence that started
+    :param startOffset Start offset within the prevLrnPatterns input history
+    :returns:           True if we managed to lock on to a sequence that started
                        earlier.
                        If False, we lost predictions somewhere along the way
                        leading up to the current time.
@@ -1902,7 +1916,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       else:
         # Uses lrnActiveState['t-1'] and lrnPredictedState['t-1']
         # computes lrnActiveState['t']
-        inSequence = self.learnPhase1(inputColumns, readOnly=readOnly)
+        inSequence = self._learnPhase1(inputColumns, readOnly=readOnly)
 
       # Break out immediately if we fell out of sequence or reached the current
       # time step
@@ -1914,12 +1928,12 @@ class BacktrackingTM(ConsolePrinterMixin):
       # up active segments into self.segmentUpdates, unless this is readOnly
       if self.verbosity >= 3:
         print "  backtrack: computing predictions from ", inputColumns
-      self.learnPhase2(readOnly=readOnly)
+      self._learnPhase2(readOnly=readOnly)
 
     # Return whether or not this starting point was valid
     return inSequence
 
-  def learnBacktrack(self):
+  def _learnBacktrack(self):
     """
     This "backtracks" our learning state, trying to see if we can lock onto
     the current set of inputs by assuming the sequence started up to N steps
@@ -1928,7 +1942,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     This will adjust @ref lrnActiveState['t'] if it does manage to lock on to a
     sequence that started earlier.
 
-    @returns          >0 if we managed to lock on to a sequence that started
+    :returns:          >0 if we managed to lock on to a sequence that started
                       earlier. The value returned is how many steps in the
                       past we locked on.
                       If 0 is returned, the caller needs to change active
@@ -1939,8 +1953,8 @@ class BacktrackingTM(ConsolePrinterMixin):
     This method gets called from updateLearningState when we detect either of
     the following two conditions:
 
-    -# Our PAM counter (@ref pamCounter) expired
-    -# We reached the max allowed learned sequence length
+    #. Our PAM counter (@ref pamCounter) expired
+    #. We reached the max allowed learned sequence length
 
     Either of these two conditions indicate that we want to start over on start
     cells.
@@ -1985,7 +1999,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     inSequence = False
     for startOffset in range(0, numPrevPatterns):
       # Can we backtrack from startOffset?
-      inSequence = self.learnBacktrackFrom(startOffset, readOnly=True)
+      inSequence = self._learnBacktrackFrom(startOffset, readOnly=True)
 
       # Done playing through the sequence from starting point startOffset
       # Break out as soon as we find a good path
@@ -2014,7 +2028,7 @@ class BacktrackingTM(ConsolePrinterMixin):
              "steps ago:" % (numPrevPatterns - startOffset),
              self._prevLrnPatterns[startOffset])
 
-    self.learnBacktrackFrom(startOffset, readOnly=False)
+    self._learnBacktrackFrom(startOffset, readOnly=False)
 
     # Remove any useless patterns at the head of the input pattern history
     # queue.
@@ -2030,16 +2044,16 @@ class BacktrackingTM(ConsolePrinterMixin):
     return numPrevPatterns - startOffset
 
 
-  def learnPhase1(self, activeColumns, readOnly=False):
+  def _learnPhase1(self, activeColumns, readOnly=False):
     """
     Compute the learning active state given the predicted state and
     the bottom-up input.
 
-    @param activeColumns list of active bottom-ups
-    @param readOnly      True if being called from backtracking logic.
+    :param activeColumns list of active bottom-ups
+    :param readOnly      True if being called from backtracking logic.
                          This tells us not to increment any segment
                          duty cycles or queue up any updates.
-    @returns True if the current input was sufficiently predicted, OR
+    :returns: True if the current input was sufficiently predicted, OR
              if we started over on startCells. False indicates that the current
              input was NOT predicted, well enough to consider it as "inSequence"
 
@@ -2113,11 +2127,11 @@ class BacktrackingTM(ConsolePrinterMixin):
       return False  # out of sequence
 
 
-  def learnPhase2(self, readOnly=False):
+  def _learnPhase2(self, readOnly=False):
     """
     Compute the predicted segments given the current set of active cells.
 
-    @param readOnly       True if being called from backtracking logic.
+    :param readOnly       True if being called from backtracking logic.
                           This tells us not to increment any segment
                           duty cycles or queue up any updates.
 
@@ -2171,10 +2185,10 @@ class BacktrackingTM(ConsolePrinterMixin):
         self.addToSegmentUpdates(c, i, segUpdate)
 
 
-  def updateLearningState(self, activeColumns):
+  def _updateLearningState(self, activeColumns):
     """
     Update the learning state. Called from compute() on every iteration
-    @param activeColumns List of active column indices
+    :param activeColumns List of active column indices
     """
     # Copy predicted and active states into t-1
     self.lrnPredictedState['t-1'][:, :] = self.lrnPredictedState['t'][:, :]
@@ -2205,7 +2219,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     if not self.resetCalled:
       # Uses lrnActiveState['t-1'] and lrnPredictedState['t-1']
       # computes lrnActiveState['t']
-      inSequence = self.learnPhase1(activeColumns)
+      inSequence = self._learnPhase1(activeColumns)
 
       # Reset our PAM counter if we are in sequence
       if inSequence:
@@ -2251,7 +2265,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       # Backtrack to an earlier starting point, if we find one
       backSteps = 0
       if not self.resetCalled:
-        backSteps = self.learnBacktrack()
+        backSteps = self._learnBacktrack()
 
       # Start over in the current time step if reset was called, or we couldn't
       # backtrack.
@@ -2273,27 +2287,29 @@ class BacktrackingTM(ConsolePrinterMixin):
     # Phase 2 - Compute new predicted state. When computing predictions for
     # phase 2, we predict at  most one cell per column (the one with the best
     # matching segment).
-    self.learnPhase2()
+    self._learnPhase2()
 
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """
     Handle one compute, possibly learning.
 
-    @param bottomUpInput     The bottom-up input, typically from a spatial pooler
-    @param enableLearn       If true, perform learning
-    @param computeInfOutput  If None, default behavior is to disable the inference
-                             output when enableLearn is on.
-                             If true, compute the inference output
-                             If false, do not compute the inference output
+    .. note::  It is an error to have both ``enableLearn`` and 
+               ``computeInfOutput`` set to False
 
-    @returns TODO: document
+    .. note:: By default, we don't compute the inference output when learning 
+              because it slows things down, but you can override this by passing 
+              in True for ``computeInfOutput``.
 
-    It is an error to have both enableLearn and computeInfOutput set to False
+    :param bottomUpInput: The bottom-up input as numpy list, typically from a 
+           spatial pooler.
+    :param enableLearn: (bool) If true, perform learning
+    :param computeInfOutput: (bool) If None, default behavior is to disable the 
+           inference output when ``enableLearn`` is on. If true, compute the 
+           inference output. If false, do not compute the inference output.
 
-    By default, we don't compute the inference output when learning because it
-    slows things down, but you can override this by passing in True for
-    computeInfOutput
+    :returns: TODO
+
     """
     # As a speed optimization for now (until we need online learning), skip
     # computing the inference output while learning
@@ -2341,7 +2357,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
     # Next, update the learning state
     if enableLearn:
-      self.updateLearningState(activeColumns)
+      self._updateLearningState(activeColumns)
 
       # Apply global decay, and remove synapses and/or segments.
       # Synapses are removed if their permanence value is <= 0.
@@ -2403,14 +2419,19 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def infer(self, bottomUpInput):
     """
-    @todo document
+    TODO
+    :param bottomUpInput: 
+    :return: 
     """
     return self.compute(bottomUpInput, enableLearn=False)
 
 
   def learn(self, bottomUpInput, computeInfOutput=None):
     """
-    @todo document
+    TODO
+    :param bottomUpInput: 
+    :param computeInfOutput: 
+    :return: 
     """
     return self.compute(bottomUpInput, enableLearn=True,
                         computeInfOutput=computeInfOutput)
@@ -2434,14 +2455,9 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def columnConfidences(self, cellConfidences=None):
     """
-    Compute the column confidences given the cell confidences. If
-    None is passed in for cellConfidences, it uses the stored cell confidences
-    from the last compute.
+    Gets the stored cell confidences from the last compute.
 
-    @param cellConfidences Cell confidences to use, or None to use the
-                           the current cell confidences.
-
-    @returns Column confidence scores
+    :returns: Column confidence scores
     """
     return self.colConfidence['t']
 
@@ -2450,9 +2466,9 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Top-down compute - generate expected input given output of the TM
 
-    @param topDownIn top down input from the level above us
+    :param topDownIn top down input from the level above us
 
-    @returns best estimate of the TM input that would have generated bottomUpOut.
+    :returns: best estimate of the TM input that would have generated bottomUpOut.
     """
     # For now, we will assume there is no one above us and that bottomUpOut is
     # simply the output that corresponds to our currently stored column
@@ -2469,15 +2485,15 @@ class BacktrackingTM(ConsolePrinterMixin):
     deletes all synapses whose permanence is less than minPermanence and deletes
     any segments that have less than minNumSyns synapses remaining.
 
-    @param colIdx        Column index
-    @param cellIdx       Cell index within the column
-    @param segList       List of segment references
-    @param minPermanence Any syn whose permamence is 0 or < minPermanence will
+    :param colIdx        Column index
+    :param cellIdx       Cell index within the column
+    :param segList       List of segment references
+    :param minPermanence Any syn whose permamence is 0 or < minPermanence will
                          be deleted.
-    @param minNumSyns    Any segment with less than minNumSyns synapses remaining
+    :param minNumSyns    Any segment with less than minNumSyns synapses remaining
                          in it will be deleted.
 
-    @returns tuple (numSegsRemoved, numSynsRemoved)
+    :returns: tuple (numSegsRemoved, numSynsRemoved)
     """
     # Fill in defaults
     if minPermanence is None:
@@ -2520,13 +2536,13 @@ class BacktrackingTM(ConsolePrinterMixin):
     minPermanence and deletes any segments that have less than
     minNumSyns synapses remaining.
 
-    @param minPermanence Any syn whose permamence is 0 or < minPermanence will
+    :param minPermanence Any syn whose permamence is 0 or < minPermanence will
                          be deleted. If None is passed in, then
                          self.connectedPerm is used.
-    @param minNumSyns    Any segment with less than minNumSyns synapses remaining
+    :param minNumSyns    Any segment with less than minNumSyns synapses remaining
                          in it will be deleted. If None is passed in, then
                          self.activationThreshold is used.
-    @returns             tuple (numSegsRemoved, numSynsRemoved)
+    :returns:             tuple (numSegsRemoved, numSynsRemoved)
     """
     # Fill in defaults
     if minPermanence is None:
@@ -2608,19 +2624,19 @@ class BacktrackingTM(ConsolePrinterMixin):
     confidence scores for each input pattern, and (if requested) the
     bits in each input pattern that were not present in the TM's prediction.
 
-    @param patternNZs a list of input patterns that we want to check for. Each
+    :param patternNZs a list of input patterns that we want to check for. Each
                       element is a list of the non-zeros in that pattern.
-    @param output     The output of the TM. If not specified, then use the
+    :param output     The output of the TM. If not specified, then use the
                       TM's current output. This can be specified if you are
                       trying to check the prediction metric for an output from
                       the past.
-    @param colConfidence The column confidences. If not specified, then use the
+    :param colConfidence The column confidences. If not specified, then use the
                          TM's current self.colConfidence. This can be specified if you
                          are trying to check the prediction metrics for an output
                          from the past.
-    @param details    if True, also include details of missing bits per pattern.
+    :param details    if True, also include details of missing bits per pattern.
 
-    @returns  list containing:
+    :returns:  list containing:
 
               [
                 totalExtras,
@@ -2730,8 +2746,8 @@ class BacktrackingTM(ConsolePrinterMixin):
     Notes: studied various cutoffs, none of which seem to be worthwhile
            list comprehension didn't help either
 
-    @param seg TODO: document
-    @param activeState TODO: document
+    :param seg TODO: document
+    :param activeState TODO: document
     """
     # Computing in C - *much* faster
     return isSegmentActive(seg.syns, activeState,
@@ -2745,9 +2761,9 @@ class BacktrackingTM(ConsolePrinterMixin):
     It can tally up only connected synapses (permanence >= connectedPerm), or
     all the synapses of the segment, at either t or t-1.
 
-    @param seg TODO: document
-    @param activeState TODO: document
-    @param connectedSynapsesOnly TODO: document
+    :param seg TODO: document
+    :param activeState TODO: document
+    :param connectedSynapsesOnly TODO: document
     """
     # Computing in C - *much* faster
     return getSegmentActivityLevel(seg.syns, activeState, connectedSynapsesOnly,
@@ -2759,11 +2775,11 @@ class BacktrackingTM(ConsolePrinterMixin):
     Find weakly activated cell in column with at least minThreshold active
     synapses.
 
-    @param c            which column to look at
-    @param activeState  the active cells
-    @param minThreshold minimum number of synapses required
+    :param c            which column to look at
+    :param activeState  the active cells
+    :param minThreshold minimum number of synapses required
 
-    @returns tuple (cellIdx, segment, numActiveSynapses)
+    :returns: tuple (cellIdx, segment, numActiveSynapses)
     """
     # Collect all cells in column c that have at least minThreshold in the most
     # activated segment
@@ -2805,9 +2821,9 @@ class BacktrackingTM(ConsolePrinterMixin):
     above minThreshold. The routine returns the segment index. If no segments are
     found, then an index of -1 is returned.
 
-    @param c TODO: document
-    @param i TODO: document
-    @param activeState TODO: document
+    :param c TODO: document
+    :param i TODO: document
+    :param activeState TODO: document
     """
     maxActivity, which = self.minThreshold, -1
 
@@ -2833,8 +2849,8 @@ class BacktrackingTM(ConsolePrinterMixin):
     cell which does not already have the max number of allowed segments. If
     none exists, we choose the least used segment in the column to re-allocate.
 
-    @param colIdx which column to look at
-    @returns cell index
+    :param colIdx which column to look at
+    :returns: cell index
     """
     # Not fixed size CLA, just choose a cell randomly
     if self.maxSegmentsPerCell < 0:
@@ -2910,11 +2926,11 @@ class BacktrackingTM(ConsolePrinterMixin):
     activeSynapses. These synapses are randomly chosen from the set of cells
     that have learnState = 1 at timeStep.
 
-    @param c TODO: document
-    @param i TODO: document
-    @param s TODO: document
-    @param activeState TODO: document
-    @param newSynapses TODO: document
+    :param c TODO: document
+    :param i TODO: document
+    :param s TODO: document
+    :param activeState TODO: document
+    :param newSynapses TODO: document
     """
     activeSynapses = []
 
@@ -2939,7 +2955,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     #   that we will need to update.
     # - pairs represent source (colIdx, cellIdx) of new synapses to create on
     #   the segment
-    update = BacktrackingTM.SegmentUpdate(c, i, s, activeSynapses)
+    update = BacktrackingTM._SegmentUpdate(c, i, s, activeSynapses)
 
     return update
 
@@ -2952,7 +2968,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     we cache the set of candidates for that case. It's also called once with
     timeStep = t, and we cache that set of candidates.
 
-    @returns tuple (column index, cell index).
+    :returns: tuple (column index, cell index).
     """
     if n <= 0:
       return []
@@ -2999,7 +3015,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     else if it's still being predicted, leave it in the queue
     else remove it.
 
-    @param activeColumns TODO: document
+    :param activeColumns TODO: document
     """
     # The segmentUpdates dict has keys which are the column,cellIdx of the
     # owner cell. The values are lists of segment updates for that cell
@@ -3072,8 +3088,8 @@ class BacktrackingTM(ConsolePrinterMixin):
 
     We also increment the positiveActivations count of the segment.
 
-    @param segUpdate SegmentUpdate instance
-    @returns True if some synapses were decremented to 0 and the segment is a
+    :param segUpdate SegmentUpdate instance
+    :returns: True if some synapses were decremented to 0 and the segment is a
              candidate for trimming
     """
     # This will be set to True if detect that any syapses were decremented to
@@ -3162,7 +3178,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     permanence values in the current TM. If requested, also returns information
     regarding the number of currently active segments and synapses.
 
-    @returns tuple described below:
+    :returns: tuple described below:
 
         (
           nSegments,
@@ -3302,12 +3318,12 @@ class Segment(object):
     this segment. This is a measure of how often this segment is
     providing good predictions.
 
-    @param active   True if segment just provided a good prediction
+    :param active   True if segment just provided a good prediction
 
-    @param readOnly If True, compute the updated duty cycle, but don't change
+    :param readOnly If True, compute the updated duty cycle, but don't change
                the cached value. This is used by debugging print statements.
 
-    @returns The duty cycle, a measure of how often this segment is
+    :returns: The duty cycle, a measure of how often this segment is
     providing good predictions.
 
     **NOTE:** This method relies on different schemes to compute the duty cycle
@@ -3428,8 +3444,8 @@ class Segment(object):
     synapses (lowest permanence freed up first) before we start to free up
     active ones.
 
-    @param numToFree              number of synapses to free up
-    @param inactiveSynapseIndices list of the inactive synapse indices.
+    :param numToFree              number of synapses to free up
+    :param inactiveSynapseIndices list of the inactive synapse indices.
     """
     # Make sure numToFree isn't larger than the total number of syns we have
     assert (numToFree <= len(self.syns))
@@ -3479,9 +3495,9 @@ class Segment(object):
   def addSynapse(self, srcCellCol, srcCellIdx, perm):
     """Add a new synapse
 
-    @param srcCellCol source cell column
-    @param srcCellIdx source cell index within the column
-    @param perm       initial permanence
+    :param srcCellCol source cell column
+    :param srcCellIdx source cell index within the column
+    :param perm       initial permanence
     """
     self.syns.append([int(srcCellCol), int(srcCellIdx), numpy.float32(perm)])
 
@@ -3489,11 +3505,11 @@ class Segment(object):
   def updateSynapses(self, synapses, delta):
     """Update a set of synapses in the segment.
 
-    @param tm       The owner TM
-    @param synapses List of synapse indices to update
-    @param delta    How much to add to each permanence
+    :param tm       The owner TM
+    :param synapses List of synapse indices to update
+    :param delta    How much to add to each permanence
 
-    @returns   True if synapse reached 0
+    :returns:   True if synapse reached 0
     """
     reached0 = False
 
@@ -3521,4 +3537,4 @@ class Segment(object):
 # This is necessary for unpickling objects that have instances of the nested
 # class since the loading process looks for the class at the top level of the
 # module.
-SegmentUpdate = BacktrackingTM.SegmentUpdate
+SegmentUpdate = BacktrackingTM._SegmentUpdate

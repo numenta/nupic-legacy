@@ -19,6 +19,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+"""
+Temporal memory implementation in C++ wrapped by a Python class.
+
+:class:`BacktrackingTMCPP` wraps the C++ algorithm execution by extending 
+:class:`BacktrackingTM` and overriding :meth:`BacktrackingTM.compute`.
+"""
+
 import numpy
 from numpy import *
 from nupic.bindings.algorithms import Cells4
@@ -59,12 +66,6 @@ def _extractCallingMethodArgs():
 
 
 class BacktrackingTMCPP(BacktrackingTM):
-  """Class implementing the temporal memory algorithm as described in the
-  published Cortical Learning Algorithm documentation.  The implementation here
-  attempts to closely match the pseudocode in the documentation. This
-  implementation does contain several additional bells and whistles such as
-  a column confidence measure.
-  """
 
 
   # We use the same keyword arguments as TM()
@@ -337,7 +338,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     self.resetCalled = False
     return output
 
-  def inferPhase2(self):
+  def _inferPhase2(self):
     """
     This calls phase 2 of inference (used in multistep prediction).
     """
