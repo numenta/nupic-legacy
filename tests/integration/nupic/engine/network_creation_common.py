@@ -29,9 +29,9 @@ from pkg_resources import resource_filename
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
 from nupic.encoders import MultiEncoder, ScalarEncoder, DateEncoder
-from nupic.regions.RecordSensor import RecordSensor
-from nupic.regions.SPRegion import SPRegion
-from nupic.regions.TMRegion import TMRegion
+from nupic.regions.record_sensor import RecordSensor
+from nupic.regions.sp_region import SPRegion
+from nupic.regions.tm_region import TMRegion
 
 try:
   import capnp

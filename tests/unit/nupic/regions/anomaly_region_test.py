@@ -24,7 +24,7 @@ import unittest
 
 import numpy
 
-from nupic.regions.AnomalyRegion import AnomalyRegion
+from nupic.regions.anomaly_region import AnomalyRegion
 
 try:
   import capnp
