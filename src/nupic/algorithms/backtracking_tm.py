@@ -23,7 +23,7 @@
 Temporal memory implementation.
 
 This is the Python implementation and is used as the base class for the C++
-implementation in :class:`BacktrackingTMCPP`.
+implementation in :class:`~nupic.algorithms.backtracking_tm.BacktrackingTMCPP`.
 """
 
 import copy
@@ -64,7 +64,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   :param initialPerm: (float) Initial permanence for newly created synapses.
 
-  :param connectedPerm: TODO  
+  :param connectedPerm: TODO: document  
   
   :param minThreshold: (int)  Minimum number of active synapses for a segment to 
          be considered during search for the best-matching segments.
@@ -78,7 +78,7 @@ class BacktrackingTM(ConsolePrinterMixin):
   :param permanenceDec: (float) All other synapses get their permanence counts 
          decremented by this value.
 
-  :param permanenceMax: TODO
+  :param permanenceMax: TODO: document
 
   :param maxAge: (int) Number of iterations before global decay takes effect.
          Also the global decay execution interval. After global decay starts, it
@@ -101,7 +101,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   :param doPooling: (bool) If True, pooling is enabled. False is the default. 
 
-  :param segUpdateValidDuration: TODO
+  :param segUpdateValidDuration: TODO: document
 
   :param burnIn: (int) Used for evaluating the prediction score. Default is 2. 
 
@@ -117,17 +117,19 @@ class BacktrackingTM(ConsolePrinterMixin):
          - verbosity == 0: silent
          - verbosity in [1..6]: increasing levels of verbosity
 
-  :param pamLength: Number of time steps to remain in "Pay Attention Mode" after
-         we detect we've reached the end of a learned sequence. Setting this to 
-         0 disables PAM mode. When we are in PAM mode, we do not burst 
+  :param pamLength: (int) Number of time steps to remain in "Pay Attention Mode" 
+         after we detect we've reached the end of a learned sequence. Setting 
+         this to 0 disables PAM mode. When we are in PAM mode, we do not burst 
          unpredicted columns during learning, which in turn prevents us from 
          falling into a previously learned sequence for a while (until we run 
-         through another 'pamLength' steps). The advantge of PAM mode is that it 
-         requires fewer presentations to learn a set of sequences which share 
-         elements. The disadvantage of PAM mode is that if a learned sequence is 
-         immediately followed by set set of elements that should be learned as a 
-         2nd sequence, the first pamLength elements of that sequence will not be 
-         learned as part of that 2nd sequence.
+         through another 'pamLength' steps). 
+         
+         The advantage of PAM mode is that it requires fewer presentations to 
+         learn a set of sequences which share elements. The disadvantage of PAM 
+         mode is that if a learned sequence is immediately followed by set set 
+         of elements that should be learned as a 2nd sequence, the first 
+         ``pamLength`` elements of that sequence will not be learned as part of 
+         that 2nd sequence.
 
   :param maxInfBacktrack: (int) How many previous inputs to keep in a buffer for
          inference backtracking.
@@ -752,7 +754,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Print an integer array that is the same shape as activeState.
 
-    :param aState: TODO
+    :param aState: TODO: document
     """
     def formatRow(var, i):
       s = ''
@@ -771,8 +773,8 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Print a floating point array that is the same shape as activeState.
 
-    :param aState: TODO
-    :param maxCols: TODO
+    :param aState: TODO: document
+    :param maxCols: TODO: document
     """
     def formatFPRow(var, i):
       s = ''
@@ -791,8 +793,8 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Print up to maxCols number from a flat floating point array.
 
-    :param aState: TODO
-    :param maxCols: TODO
+    :param aState: TODO: document
+    :param maxCols: TODO: document
     """
     def formatFPRow(var):
       s = ''
@@ -807,7 +809,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printStates(self, printPrevious = True, printLearnState = True):
     """
-    TODO
+    TODO: document
     :param printPrevious: 
     :param printLearnState: 
     :return: 
@@ -849,7 +851,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printOutput(self, y):
     """
-    TODO
+    TODO: document
     :param y: 
     :return: 
     """
@@ -862,7 +864,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printInput(self, x):
     """
-    TODO
+    TODO: document
     :param x: 
     :return: 
     """
@@ -899,8 +901,8 @@ class BacktrackingTM(ConsolePrinterMixin):
     Print the list of [column, cellIdx] indices for each of the active
     cells in state.
 
-    :param state: TODO
-    :param andValues: TODO
+    :param state: TODO: document
+    :param andValues: TODO: document
     """
     if len(state.shape) == 2:
       (cols, cellIdxs) = state.nonzero()
@@ -936,8 +938,8 @@ class BacktrackingTM(ConsolePrinterMixin):
     Called at the end of inference to print out various diagnostic
     information based on the current verbosity level.
 
-    :param output: TODO
-    :param learn: TODO
+    :param output: TODO: document
+    :param learn: TODO: document
     """
     if self.verbosity >= 3:
       print "----- computeEnd summary: "
@@ -1007,7 +1009,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printSegmentUpdates(self):
     """
-    TODO
+    TODO: document
     :return: 
     """
     print "=== SEGMENT UPDATES ===, Num = ", len(self.segmentUpdates)
@@ -1018,7 +1020,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printCell(self, c, i, onlyActiveSegments=False):
     """
-    TODO
+    TODO: document
     :param c: 
     :param i: 
     :param onlyActiveSegments: 
@@ -1038,7 +1040,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printCells(self, predictedOnly=False):
     """
-    TODO
+    TODO: document
     :param predictedOnly: 
     :return: 
     """
@@ -1163,9 +1165,9 @@ class BacktrackingTM(ConsolePrinterMixin):
     later to determine whether the update is too old and should be forgotten.
     This is controlled by parameter ``segUpdateValidDuration``.
 
-    :param c: TODO
-    :param i: TODO
-    :param segUpdate: TODO
+    :param c: TODO: document
+    :param i: TODO: document
+    :param segUpdate: TODO: document
     """
     # Sometimes we might be passed an empty update
     if segUpdate is None or len(segUpdate.activeSynapses) == 0:
@@ -1202,7 +1204,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     output is the boolean OR of ``activeState`` and ``predictedState`` at ``t``.
     Stores ``currentOutput`` for ``checkPrediction``.
     
-    :returns: TODO
+    :returns: TODO: document
     """
     # TODO: This operation can be sped up by:
     #  1.)  Pre-allocating space for the currentOutput
@@ -1248,7 +1250,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     Return the current active state. This is called by the node to
     obtain the sequence output of the TM.
     
-    :returns: TODO
+    :returns: TODO: document
     """
     # TODO: This operation can be sped up by making  activeState of
     #         type 'float32' up front.
@@ -2288,7 +2290,7 @@ class BacktrackingTM(ConsolePrinterMixin):
            inference output when ``enableLearn`` is on. If true, compute the 
            inference output. If false, do not compute the inference output.
 
-    :returns: TODO
+    :returns: TODO: document
 
     """
     # As a speed optimization for now (until we need online learning), skip
@@ -2399,7 +2401,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def infer(self, bottomUpInput):
     """
-    TODO
+    TODO: document
     :param bottomUpInput: 
     :return: 
     """
@@ -2408,7 +2410,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def learn(self, bottomUpInput, computeInfOutput=None):
     """
-    TODO
+    TODO: document
     :param bottomUpInput: 
     :param computeInfOutput: 
     :return: 
@@ -2421,7 +2423,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Returns the stored cell confidences from the last compute.
 
-    :returns: Column confidence scores TODO in what format?
+    :returns: (TODO: format?) Column confidence scores 
     """
     return self.colConfidence['t']
 
@@ -2553,7 +2555,7 @@ class BacktrackingTM(ConsolePrinterMixin):
   def finishLearning(self):
     """
     Called when learning has been completed. This method just calls
-    trimSegments(). (finishLearning is here for backward compatibility)
+    :meth:`trimSegments` and then clears out caches.
     """
     # Keep weakly formed synapses around because they contain confidence scores
     # for paths out of learned sequenced and produce a better prediction than
@@ -3139,6 +3141,8 @@ class BacktrackingTM(ConsolePrinterMixin):
 
     :returns: tuple described below:
 
+      ::
+
         (
           nSegments,
           nSynapses,
@@ -3150,16 +3154,16 @@ class BacktrackingTM(ConsolePrinterMixin):
           distAges
         )
 
-    @retval nSegments        total number of segments
-    @retval nSynapses        total number of synapses
-    @retval nActiveSegs      total no. of active segments (0 if collectActiveData
-                             is False)
-    @retval nActiveSynapses  total no. of active synapses 0 if collectActiveData
-                             is False
-    @retval distSegSizes     a dict where d[n] = number of segments with n synapses
-    @retval distNSegsPerCell a dict where d[n] = number of cells with n segments
-    @retval distPermValues   a dict where d[p] = number of synapses with perm = p/10
-    @retval distAges         a list of tuples (ageRange, numSegments)
+    - ``nSegments``: (int) total number of segments
+    - ``nSynapses``: (int) total number of synapses
+    - ``nActiveSegs``: (int) total number of active segments (0 if 
+          ``collectActiveData`` is False)
+    - ``nActiveSynapses``: (int) total number of active synapses 0 if 
+          ``collectActiveData`` is False
+    - ``distSegSizes``: (dict) where d[n] = number of segments with n synapses
+    - ``distNSegsPerCell``: (dict) where d[n] = number of cells with n segments
+    - ``distPermValues``: (dict) where d[p] = number of synapses with perm = p/10
+    - ``distAges``: (list) of tuples (``ageRange``, ``numSegments``)
     """
     nSegments, nSynapses = 0, 0
     nActiveSegs, nActiveSynapses = 0, 0
