@@ -382,8 +382,8 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
       print "Calling trim segments"
 
     if cppTM is not None:
-      nSegsRemovedCPP, nSynsRemovedCPP = cppTM._trimSegments()
-    nSegsRemoved, nSynsRemoved = pyTM._trimSegments()
+      nSegsRemovedCPP, nSynsRemovedCPP = cppTM.trimSegments()
+    nSegsRemoved, nSynsRemoved = pyTM.trimSegments()
     if cppTM is not None:
       assert nSegsRemovedCPP == nSegsRemoved
       assert nSynsRemovedCPP == nSynsRemoved

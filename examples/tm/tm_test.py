@@ -1639,7 +1639,7 @@ def TestH2a(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2
           print segmentInfo1
           print segmentInfo2
           print tm3._getSegmentInfo()
-          tm3._trimSegments()
+          tm3.trimSegments()
           print tm3._getSegmentInfo()
 
           print "Failures for 1, 2, and N reps"
@@ -1756,7 +1756,7 @@ def TestHL0a(numOnes = 5):
                             doPooling = False,
                             testSequences = testSet)
 
-  tm._trimSegments()
+  tm.trimSegments()
   retAfter = tm._getSegmentInfo()
   print retAfter[0], retAfter[1]
   if retAfter[0] > 20:
@@ -1807,7 +1807,7 @@ def TestHL0b(numOnes = 5):
                             doPooling = False,
                             testSequences = testSet)
 
-  tm._trimSegments()
+  tm.trimSegments()
   retAfter = tm._getSegmentInfo()
   tm.printCells()
 

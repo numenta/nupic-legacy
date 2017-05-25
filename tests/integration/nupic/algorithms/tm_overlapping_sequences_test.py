@@ -468,7 +468,7 @@ def evalSequences(tms,
     print "Calling trim segments"
   prevResult = None
   for tm in tms.itervalues():
-    nSegsRemoved, nSynsRemoved = tm._trimSegments()
+    nSegsRemoved, nSynsRemoved = tm.trimSegments()
     if prevResult is None:
       prevResult = (nSegsRemoved, nSynsRemoved)
     else:

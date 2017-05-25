@@ -411,10 +411,10 @@ class BacktrackingTMCPP(BacktrackingTM):
     # Keep weakly formed synapses around because they contain confidence scores
     #  for paths out of learned sequenced and produce a better prediction than
     #  chance.
-    self._trimSegments(minPermanence=0.0001)
+    self.trimSegments(minPermanence=0.0001)
 
 
-  def _trimSegments(self, minPermanence=None, minNumSyns=None):
+  def trimSegments(self, minPermanence=None, minNumSyns=None):
     """This method deletes all synapses where permanence value is strictly
     less than self.connectedPerm. It also deletes all segments where the
     number of connected synapses is strictly less than self.activationThreshold.

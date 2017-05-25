@@ -158,8 +158,8 @@ class BacktrackingTMCPP2Test(unittest.TestCase):
           tm.cells4.rebuildOutSynapses()
 
         if testTrimming:
-          tm._trimSegments()
-          tmPy._trimSegments()
+          tm.trimSegments()
+          tmPy.trimSegments()
 
         if verbosity > 2:
           print "\n   ------  CPP states  ------ ",
@@ -199,8 +199,8 @@ class BacktrackingTMCPP2Test(unittest.TestCase):
     self.assertTrue(fdrutils.tmDiff2(tm, tmPy, VERBOSITY))
 
     print "Trimming segments"
-    tm._trimSegments()
-    tmPy._trimSegments()
+    tm.trimSegments()
+    tmPy.trimSegments()
     self.assertTrue(fdrutils.tmDiff2(tm, tmPy, VERBOSITY))
 
     # Save and reload after learning

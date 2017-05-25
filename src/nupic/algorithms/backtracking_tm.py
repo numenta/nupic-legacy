@@ -2461,7 +2461,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     return nSegsRemoved, nSynsRemoved
 
 
-  def _trimSegments(self, minPermanence=None, minNumSyns=None):
+  def trimSegments(self, minPermanence=None, minNumSyns=None):
     """
     This method deletes all synapses whose permanence is less than
     minPermanence and deletes any segments that have less than
@@ -2528,7 +2528,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     # Keep weakly formed synapses around because they contain confidence scores
     # for paths out of learned sequenced and produce a better prediction than
     # chance.
-    self._trimSegments(minPermanence=0.0001)
+    self.trimSegments(minPermanence=0.0001)
 
     # Update all cached duty cycles for better performance right after loading
     # in the trained network.
