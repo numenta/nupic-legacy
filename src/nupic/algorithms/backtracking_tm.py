@@ -1054,7 +1054,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     @returns the total number of synapses
     """
-    nSyns = self._getSegmentInfo()[1]
+    nSyns = self.getSegmentInfo()[1]
     return nSyns
 
 
@@ -1069,7 +1069,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     @returns the total number of segments
     """
-    nSegs = self._getSegmentInfo()[0]
+    nSegs = self.getSegmentInfo()[0]
     return nSegs
 
 
@@ -3102,7 +3102,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     return trimSegment
 
 
-  def _getSegmentInfo(self, collectActiveData = False):
+  def getSegmentInfo(self, collectActiveData = False):
     """Returns information about the distribution of segments, synapses and
     permanence values in the current TM. If requested, also returns information
     regarding the number of currently active segments and synapses.

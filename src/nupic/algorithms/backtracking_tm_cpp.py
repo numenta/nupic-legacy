@@ -636,7 +636,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     return self.cells4.nSegmentsOnCell(c,i)
 
 
-  def _getSegmentInfo(self, collectActiveData = False):
+  def getSegmentInfo(self, collectActiveData = False):
     """Returns information about the distribution of segments, synapses and
     permanence values in the current TM. If requested, also returns information
     regarding the number of currently active segments and synapses.

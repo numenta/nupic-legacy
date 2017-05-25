@@ -393,7 +393,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
       assert fdrutils.tmDiff2(cppTM, pyTM, g_options.verbosity) == True
 
     print "Training completed. Stats:"
-    info = pyTM._getSegmentInfo()
+    info = pyTM.getSegmentInfo()
     print "  nSegments:", info[0]
     print "  nSynapses:", info[1]
     if g_options.verbosity > 3:
