@@ -329,7 +329,7 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
     # Finally return the TM output
-    output = self.computeOutput()
+    output = self._computeOutput()
 
     # Print diagnostic information based on the current verbosity level
     self.printComputeEnd(output, learn=enableLearn)
@@ -337,7 +337,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     self.resetCalled = False
     return output
 
-  def inferPhase2(self):
+  def _inferPhase2(self):
     """
     This calls phase 2 of inference (used in multistep prediction).
     """
@@ -347,7 +347,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     self._copyAllocatedStates()
 
 
-  def getLearnActiveStateT(self):
+  def _getLearnActiveStateT(self):
     if self.verbosity > 1 or self.retrieveLearningStates:
       return self.lrnActiveState['t']
     else:
@@ -411,10 +411,10 @@ class BacktrackingTMCPP(BacktrackingTM):
     # Keep weakly formed synapses around because they contain confidence scores
     #  for paths out of learned sequenced and produce a better prediction than
     #  chance.
-    self.trimSegments(minPermanence=0.0001)
+    self._trimSegments(minPermanence=0.0001)
 
 
-  def trimSegments(self, minPermanence=None, minNumSyns=None):
+  def _trimSegments(self, minPermanence=None, minNumSyns=None):
     """This method deletes all synapses where permanence value is strictly
     less than self.connectedPerm. It also deletes all segments where the
     number of connected synapses is strictly less than self.activationThreshold.
@@ -456,8 +456,8 @@ class BacktrackingTMCPP(BacktrackingTM):
     # TODO: need to add C++ accessors to get segment details
     assert False
 
-    prevAct = self.getSegmentActivityLevel(s, 't-1')
-    currAct = self.getSegmentActivityLevel(s, 't')
+    prevAct = self._getSegmentActivityLevel(s, 't-1')
+    currAct = self._getSegmentActivityLevel(s, 't')
 
     # Sequence segment or pooling segment
     if s[0][1] == True:
@@ -468,12 +468,12 @@ class BacktrackingTMCPP(BacktrackingTM):
     # Frequency count
     print s[0][2],
 
-    if self.isSegmentActive(s, 't'):
+    if self._isSegmentActive(s, 't'):
       ss = '[' + str(currAct) + ']'
     else:
       ss = str(currAct)
     ss = ss + '/'
-    if self.isSegmentActive(s,'t-1'):
+    if self._isSegmentActive(s, 't-1'):
       ss = ss + '[' + str(prevAct) + ']'
     else:
       ss = ss + str(prevAct)
@@ -499,17 +499,17 @@ class BacktrackingTMCPP(BacktrackingTM):
       print ss,
 
     if self.verbosity > 3:
-      if self.isSegmentActive(s, 't') and \
+      if self._isSegmentActive(s, 't') and \
              prevAct < self.activationThreshold and currAct >= self.activationThreshold:
         print "reached activation",
       if prevAct < self.minThreshold and currAct >= self.minThreshold:
         print "reached min threshold",
-      if self.isSegmentActive(s, 't-1') and \
+      if self._isSegmentActive(s, 't-1') and \
              prevAct >= self.activationThreshold and currAct < self.activationThreshold:
         print "dropped below activation",
       if prevAct >= self.minThreshold and currAct < self.minThreshold:
         print "dropped below min",
-      if self.isSegmentActive(s, 't') and self.isSegmentActive(s, 't-1') and \
+      if self._isSegmentActive(s, 't') and self._isSegmentActive(s, 't-1') and \
              prevAct >= self.activationThreshold and currAct >= self.activationThreshold:
         print "maintained activation",
 
@@ -636,7 +636,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     return self.cells4.nSegmentsOnCell(c,i)
 
 
-  def getSegmentInfo(self, collectActiveData = False):
+  def _getSegmentInfo(self, collectActiveData = False):
     """Returns information about the distribution of segments, synapses and
     permanence values in the current TM. If requested, also returns information
     regarding the number of currently active segments and synapses.
@@ -723,7 +723,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     assert False
 
 
-  def getBestMatchingCell(self, c, timeStep, learnState = False):
+  def _getBestMatchingCell(self, c, timeStep, learnState = False):
     """Find weakly activated cell in column. Returns index and segment of most
     activated segment above minThreshold.
     """
@@ -745,14 +745,14 @@ class BacktrackingTMCPP(BacktrackingTM):
   ################################################################################
 
 
-  def isSegmentActive(self, seg, timeStep):
+  def _isSegmentActive(self, seg, timeStep):
     """    """
     # Should never be called in this subclass
     assert False
 
 
-  def getSegmentActivityLevel(self, seg, timeStep, connectedSynapsesOnly =False,
-                              learnState = False):
+  def _getSegmentActivityLevel(self, seg, timeStep, connectedSynapsesOnly =False,
+                               learnState = False):
     """   """
     # Should never be called in this subclass
     assert False
@@ -764,13 +764,13 @@ class BacktrackingTMCPP(BacktrackingTM):
     assert False
 
 
-  def getBestMatchingSegment(self, c, i, timeStep, learnState = False):
+  def _getBestMatchingSegment(self, c, i, timeStep, learnState = False):
     """     """
     # Should never be called in this subclass
     assert False
 
 
-  def getSegmentActiveSynapses(self, c,i,s, timeStep, newSynapses =False):
+  def _getSegmentActiveSynapses(self, c, i, s, timeStep, newSynapses =False):
     """  """
     # Should never be called in this subclass
     assert False
@@ -782,7 +782,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     assert False
 
 
-  def adaptSegment(self, update, positiveReinforcement):
+  def _adaptSegment(self, update, positiveReinforcement):
     """    """
     # Should never be called in this subclass
     assert False

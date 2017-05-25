@@ -646,12 +646,12 @@ class CLAClassifierHelperTest(unittest.TestCase):
     tm.getParameter.side_effect = tpVals['params'].get
     tm.getOutputData.side_effect = tpVals['output'].get
 
-    tpImp.getLearnActiveStateT.return_value = tpVals['output']['lrnActive']
+    tpImp._getLearnActiveStateT.return_value = tpVals['output']['lrnActive']
 
     # Test TM Cell vector
     self.helper._vectorType = 'tpc'
     vector = self.helper._constructClassificationRecord()
-    self.assertEqual(vector.anomalyVector, tpImp.getLearnActiveStateT().nonzero()[0].tolist())
+    self.assertEqual(vector.anomalyVector, tpImp._getLearnActiveStateT().nonzero()[0].tolist())
 
     # Test SP and TM Column Error vector
     self.helper._vectorType = 'sp_tpe'

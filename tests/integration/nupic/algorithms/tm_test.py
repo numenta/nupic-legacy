@@ -821,7 +821,7 @@ def basicTest():
     x = numpy.array(xi, dtype="uint32")
     y = tm.infer(x)
     if i > 0:
-        p = tm.checkPrediction2([pattern.nonzero()[0] for pattern in patterns])
+        p = tm._checkPrediction([pattern.nonzero()[0] for pattern in patterns])
 
   print "basicTest ok"
 
@@ -1132,8 +1132,8 @@ def _testSequence(trainingSequences,
             acceptablePatterns = findAcceptablePatterns(tm, t, s, testSequences,
                                                         nAcceptable)
 
-        scores = tm.checkPrediction2([pattern.nonzero()[0] \
-                                     for pattern in acceptablePatterns])
+        scores = tm._checkPrediction([pattern.nonzero()[0] \
+                                      for pattern in acceptablePatterns])
 
         falsePositives, falseNegatives = scores[0], scores[1]
 
@@ -1335,8 +1335,8 @@ def TestB2(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B2"):
                                  activationThreshold = 8)
 
       # Check that training with a second pass did not result in more synapses
-      segmentInfo1 = tm1.getSegmentInfo()
-      segmentInfo2 = tm2.getSegmentInfo()
+      segmentInfo1 = tm1._getSegmentInfo()
+      segmentInfo2 = tm2._getSegmentInfo()
       if (segmentInfo1[0] != segmentInfo2[0]) or \
          (segmentInfo1[1] != segmentInfo2[1]) :
           print "Training twice incorrectly resulted in more segments or synapses"
@@ -1629,16 +1629,16 @@ def TestH2a(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2
                                  shouldFail = shouldFail)
 
       # Check that training with a second pass did not result in more synapses
-      segmentInfo1 = tm1.getSegmentInfo()
-      segmentInfo2 = tm2.getSegmentInfo()
+      segmentInfo1 = tm1._getSegmentInfo()
+      segmentInfo2 = tm2._getSegmentInfo()
       if (abs(segmentInfo1[0] - segmentInfo2[0]) > 3) or \
          (abs(segmentInfo1[1] - segmentInfo2[1]) > 3*15) :
           print "Training twice incorrectly resulted in too many segments or synapses"
           print segmentInfo1
           print segmentInfo2
-          print tm3.getSegmentInfo()
-          tm3.trimSegments()
-          print tm3.getSegmentInfo()
+          print tm3._getSegmentInfo()
+          tm3._trimSegments()
+          print tm3._getSegmentInfo()
 
           print "Failures for 1, 2, and N reps"
           print numFailures1, numStrictErrors1, numPerfect1
@@ -1754,8 +1754,8 @@ def TestHL0a(numOnes = 5):
                              doPooling = False,
                              testSequences = testSet)
 
-  tm.trimSegments()
-  retAfter = tm.getSegmentInfo()
+  tm._trimSegments()
+  retAfter = tm._getSegmentInfo()
   print retAfter[0], retAfter[1]
   if retAfter[0] > 20:
     print "Too many segments"
@@ -1805,8 +1805,8 @@ def TestHL0b(numOnes = 5):
                              doPooling = False,
                              testSequences = testSet)
 
-  tm.trimSegments()
-  retAfter = tm.getSegmentInfo()
+  tm._trimSegments()
+  retAfter = tm._getSegmentInfo()
   tm.printCells()
 
   if numFailures == 0:

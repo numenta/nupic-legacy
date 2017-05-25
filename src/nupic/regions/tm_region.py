@@ -534,7 +534,7 @@ class TMRegion(PyRegion):
 
     # Set output for use with anomaly classification region if in anomalyMode
     if self.anomalyMode:
-      activeLearnCells = self._tfdr.getLearnActiveStateT()
+      activeLearnCells = self._tfdr._getLearnActiveStateT()
       size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
 
@@ -544,7 +544,7 @@ class TMRegion(PyRegion):
 
     if self.computePredictedActiveCellIndices:
       # Reshape so we are dealing with 1D arrays
-      activeState = self._tfdr.getActiveState().reshape(-1).astype('float32')
+      activeState = self._tfdr._getActiveState().reshape(-1).astype('float32')
       activeIndices = numpy.where(activeState != 0)[0]
       predictedIndices= numpy.where(prevPredictedState != 0)[0]
       predictedActiveIndices = numpy.intersect1d(activeIndices, predictedIndices)

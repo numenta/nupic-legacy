@@ -382,8 +382,8 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
       print "Calling trim segments"
 
     if cppTM is not None:
-      nSegsRemovedCPP, nSynsRemovedCPP = cppTM.trimSegments()
-    nSegsRemoved, nSynsRemoved = pyTM.trimSegments()
+      nSegsRemovedCPP, nSynsRemovedCPP = cppTM._trimSegments()
+    nSegsRemoved, nSynsRemoved = pyTM._trimSegments()
     if cppTM is not None:
       assert nSegsRemovedCPP == nSegsRemoved
       assert nSynsRemovedCPP == nSynsRemoved
@@ -392,7 +392,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
       assert fdrutils.tmDiff2(cppTM, pyTM, g_options.verbosity) == True
 
     print "Training completed. Stats:"
-    info = pyTM.getSegmentInfo()
+    info = pyTM._getSegmentInfo()
     print "  nSegments:", info[0]
     print "  nSynapses:", info[1]
     if g_options.verbosity > 3:

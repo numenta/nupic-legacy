@@ -98,7 +98,7 @@ class BacktrackingTMCPP2Test(unittest.TestCase):
       _RGEN.initializeUInt32Array(x, 2)
       tm.infer(x)
       if i > 0:
-        tm.checkPrediction2(patterns)
+        tm._checkPrediction(patterns)
 
 
   def basicTest2(self, tm, numPatterns=100, numRepetitions=3, activity=15,
@@ -158,8 +158,8 @@ class BacktrackingTMCPP2Test(unittest.TestCase):
           tm.cells4.rebuildOutSynapses()
 
         if testTrimming:
-          tm.trimSegments()
-          tmPy.trimSegments()
+          tm._trimSegments()
+          tmPy._trimSegments()
 
         if verbosity > 2:
           print "\n   ------  CPP states  ------ ",
@@ -199,8 +199,8 @@ class BacktrackingTMCPP2Test(unittest.TestCase):
     self.assertTrue(fdrutils.tmDiff2(tm, tmPy, VERBOSITY))
 
     print "Trimming segments"
-    tm.trimSegments()
-    tmPy.trimSegments()
+    tm._trimSegments()
+    tmPy._trimSegments()
     self.assertTrue(fdrutils.tmDiff2(tm, tmPy, VERBOSITY))
 
     # Save and reload after learning
@@ -236,8 +236,8 @@ class BacktrackingTMCPP2Test(unittest.TestCase):
         assert False
 
       if i > 0:
-        tm.checkPrediction2(patterns)
-        tmPy.checkPrediction2(patterns)
+        tm._checkPrediction(patterns)
+        tmPy._checkPrediction(patterns)
 
     print "Inference completed"
     print "===================================="
