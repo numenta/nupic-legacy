@@ -480,7 +480,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     return diff
 
 
-  def _getLearnActiveStateT(self):
+  def getLearnActiveStateT(self):
     return self.lrnActiveState['t']
 
 

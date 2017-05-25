@@ -347,7 +347,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     self._copyAllocatedStates()
 
 
-  def _getLearnActiveStateT(self):
+  def getLearnActiveStateT(self):
     if self.verbosity > 1 or self.retrieveLearningStates:
       return self.lrnActiveState['t']
     else:

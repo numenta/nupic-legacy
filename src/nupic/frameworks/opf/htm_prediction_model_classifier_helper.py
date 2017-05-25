@@ -462,7 +462,7 @@ class HTMPredictionModelClassifierHelper(object):
     if self._vectorType == 'tpc':
       # Classification Vector: [---TM Cells---]
       classificationVector = numpy.zeros(tpSize)
-      activeCellMatrix = tpImp._getLearnActiveStateT().reshape(tpSize, 1)
+      activeCellMatrix = tpImp.getLearnActiveStateT().reshape(tpSize, 1)
       activeCellIdx = numpy.where(activeCellMatrix > 0)[0]
       if activeCellIdx.shape[0] > 0:
         classificationVector[numpy.array(activeCellIdx, dtype=numpy.uint16)] = 1

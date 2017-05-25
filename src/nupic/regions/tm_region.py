@@ -534,7 +534,7 @@ class TMRegion(PyRegion):
 
     # Set output for use with anomaly classification region if in anomalyMode
     if self.anomalyMode:
-      activeLearnCells = self._tfdr._getLearnActiveStateT()
+      activeLearnCells = self._tfdr.getLearnActiveStateT()
       size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
 
