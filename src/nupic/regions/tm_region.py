@@ -237,14 +237,6 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
       defaultValue=0,
       constraints='bool'),
 
-    topDownMode=dict(
-      description='1 if the node should do top down compute on the next call '
-                  'to compute into topDownOut (default 0).',
-      accessMode='ReadWrite',
-      dataType='UInt32',
-      count=1,
-      constraints='bool'),
-
     activeOutputCount=dict(
       description='Number of active elements in bottomUpOut output.',
       accessMode='Read',
@@ -334,7 +326,6 @@ class TMRegion(PyRegion):
     self.inferenceMode  = False
     self.anomalyMode    = anomalyMode
     self.computePredictedActiveCellIndices = computePredictedActiveCellIndices
-    self.topDownMode    = False
     self.columnCount    = columnCount
     self.inputWidth     = inputWidth
     self.outputWidth    = columnCount * cellsPerColumn
@@ -480,10 +471,6 @@ class TMRegion(PyRegion):
     Run one iteration of TMRegion's compute
     """
 
-    #if self.topDownMode and (not 'topDownIn' in inputs):
-    # raise RuntimeError("The input topDownIn must be linked in if "
-    #                    "topDownMode is True")
-
     if self._tfdr is None:
       raise RuntimeError("TM has not been initialized")
 
@@ -527,10 +514,6 @@ class TMRegion(PyRegion):
 
     # Write the bottom up out to our node outputs
     outputs['bottomUpOut'][:] = tpOutput.flat
-
-    if self.topDownMode:
-      # Top-down compute
-      outputs['topDownOut'][:] = self._tfdr.topDownCompute().copy()
 
     # Set output for use with anomaly classification region if in anomalyMode
     if self.anomalyMode:
