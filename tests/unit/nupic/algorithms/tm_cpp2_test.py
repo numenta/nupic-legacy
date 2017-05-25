@@ -98,7 +98,7 @@ class BacktrackingTMCPP2Test(unittest.TestCase):
       _RGEN.initializeUInt32Array(x, 2)
       tm.infer(x)
       if i > 0:
-        tm.checkPrediction2(patterns)
+        tm._checkPrediction(patterns)
 
 
   def basicTest2(self, tm, numPatterns=100, numRepetitions=3, activity=15,
@@ -236,8 +236,8 @@ class BacktrackingTMCPP2Test(unittest.TestCase):
         assert False
 
       if i > 0:
-        tm.checkPrediction2(patterns)
-        tmPy.checkPrediction2(patterns)
+        tm._checkPrediction(patterns)
+        tmPy._checkPrediction(patterns)
 
     print "Inference completed"
     print "===================================="

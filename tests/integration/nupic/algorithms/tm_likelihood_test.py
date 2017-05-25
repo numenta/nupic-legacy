@@ -336,7 +336,7 @@ class TMLikelihoodTest(testcasebase.TestCaseBase):
       # We will exit with the confidence score for the last element
       if t == slen-2:
         tmNonZeros = [pattern.nonzero()[0] for pattern in allTrainingPatterns]
-        predictionScore2 = tm.checkPrediction2(tmNonZeros)[2]
+        predictionScore2 = tm._checkPrediction(tmNonZeros)[2]
 
     if VERBOSITY > 0:
       print "predictionScore:", predictionScore2

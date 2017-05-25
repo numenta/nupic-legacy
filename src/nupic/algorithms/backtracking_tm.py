@@ -384,7 +384,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     for ephemeralMemberName in self._getEphemeralMembers():
       state.pop(ephemeralMemberName, None)
 
-    state['_random'] = self.getRandomState()
+    state['_random'] = self._getRandomState()
 
     return state
 
@@ -393,7 +393,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     """ @internal
     Set the state of ourself from a serialized state.
     """
-    self.setRandomState(state['_random'])
+    self._setRandomState(state['_random'])
     del state['_random']
     self.__dict__.update(state)
     # Check the version of the checkpointed TM and update it to the current
@@ -498,15 +498,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     pass
 
 
-  def setRandomSeed(self, seed):
-    """ @internal
-    Seed the random number generator.
-    This is used during unit testing to generate repeatable results.
-    """
-    self._random = Random(seed)
-
-
-  def getRandomState(self):
+  def _getRandomState(self):
     """ @internal
     Return the random number state.
 
@@ -515,7 +507,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     return pickle.dumps(self._random)
 
 
-  def setRandomState(self, state):
+  def _setRandomState(self, state):
     """ @internal Set the random number state.
 
     This is used during unit testing to generate repeatable results.
@@ -707,7 +699,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
     # Compute the prediction score, how well the prediction from the last
     # time step predicted the current bottom-up input
-    (numExtra2, numMissing2, confidences2) = self.checkPrediction2(
+    (numExtra2, numMissing2, confidences2) = self._checkPrediction(
         patternNZs=[bottomUpNZ], output=predictedState,
         colConfidence=colConfidence)
     predictionScore, positivePredictionScore, negativePredictionScore = (
@@ -1024,7 +1016,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       print "Column", c, "Cell", i, ":",
       print len(self.cells[c][i]), "segment(s)"
       for j, s in enumerate(self.cells[c][i]):
-        isActive = self.isSegmentActive(s, self.infActiveState['t'])
+        isActive = self._isSegmentActive(s, self.infActiveState['t'])
         if not onlyActiveSegments or isActive:
           isActiveStr = "*" if isActive else " "
           print "  %sSeg #%-3d" % (isActiveStr, j),
@@ -1064,27 +1056,6 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     nSyns = self.getSegmentInfo()[1]
     return nSyns
-
-
-  def getNumStrongSynapses(self):
-    """
-    @todo implement this, it is used by the node's getParameter() call
-    """
-    return 0
-
-
-  def getNumStrongSynapsesPerTimeSlot(self):
-    """
-    @todo implement this, it is used by the node's getParameter() call
-    """
-    return 0
-
-
-  def getNumSynapsesPerSegmentMax(self):
-    """
-    @todo implement this, it is used by the node's getParameter() call, it should return the max # of synapses seen in any one segment.
-    """
-    return 0
 
 
   def getNumSynapsesPerSegmentAvg(self):
@@ -1179,7 +1150,7 @@ class BacktrackingTM(ConsolePrinterMixin):
               ", synapses=" + str(self.activeSynapses))
 
 
-  def addToSegmentUpdates(self, c, i, segUpdate):
+  def _addToSegmentUpdates(self, c, i, segUpdate):
     """
     Store a dated potential segment update. The "date" (iteration index) is used
     later to determine whether the update is too old and should be forgotten.
@@ -1203,7 +1174,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       self.segmentUpdates[key] = [(self.lrnIterationIdx, segUpdate)]
 
 
-  def removeSegmentUpdate(self, updateInfo):
+  def _removeSegmentUpdate(self, updateInfo):
     """
     Remove a segment update (called when seg update expires or is processed)
 
@@ -1218,7 +1189,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     self.segmentUpdates[key].remove(updateInfo)
 
 
-  def computeOutput(self):
+  def _computeOutput(self):
     """Computes output for both learning and inference. In both cases, the
     output is the boolean OR of activeState and predictedState at t.
     Stores currentOutput for checkPrediction."""
@@ -1261,7 +1232,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     return self.currentOutput.reshape(-1).astype('float32')
 
 
-  def getActiveState(self):
+  def _getActiveState(self):
     """ Return the current active state. This is called by the node to
     obtain the sequence output of the TM.
     """
@@ -1340,7 +1311,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       # Predicted state and confidence are set in phase2.
       self.infPredictedState['t'].fill(0)
       self.cellConfidence['t'].fill(0.0)
-      self.inferPhase2()
+      self._inferPhase2()
 
     # Revert the dynamic state to the saved state
     self._setTPDynamicState(pristineTPDynamicState)
@@ -1409,7 +1380,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     return self.avgLearnedSeqLength
 
 
-  def inferBacktrack(self, activeColumns):
+  def _inferBacktrack(self, activeColumns):
     """
     This "backtracks" our inference state, trying to see if we can lock onto
     the current set of inputs by assuming the sequence started up to N steps
@@ -1583,8 +1554,8 @@ class BacktrackingTM(ConsolePrinterMixin):
 
         # Compute activeState[t] given bottom-up and predictedState[t-1]
         self.infPredictedState['t-1'][:, :] = self.infPredictedState['t'][:, :]
-        inSequence = self.inferPhase1(self._prevInfPatterns[offset],
-                         useStartCells = (offset == startOffset))
+        inSequence = self._inferPhase1(self._prevInfPatterns[offset],
+                                       useStartCells = (offset == startOffset))
         if not inSequence:
           break
 
@@ -1592,7 +1563,7 @@ class BacktrackingTM(ConsolePrinterMixin):
         if self.verbosity >= 3:
           print ("  backtrack: computing predictions from ",
                  self._prevInfPatterns[offset])
-        inSequence = self.inferPhase2()
+        inSequence = self._inferPhase2()
         if not inSequence:
           break
 
@@ -1628,7 +1599,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       if self.verbosity >= 3:
         print "Failed to lock on. Falling back to bursting all unpredicted."
       self.infActiveState['t'][:, :] = self.infActiveState['backup'][:, :]
-      self.inferPhase2()
+      self._inferPhase2()
 
     else:
       if self.verbosity >= 3:
@@ -1659,7 +1630,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     self.infPredictedState['t-1'][:, :] = self.infPredictedState['backup'][:, :]
 
 
-  def inferPhase1(self, activeColumns, useStartCells):
+  def _inferPhase1(self, activeColumns, useStartCells):
     """
     Update the inference active state from the last set of predictions
     and the current bottom-up.
@@ -1709,7 +1680,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       return False
 
 
-  def inferPhase2(self):
+  def _inferPhase2(self):
     """
     Phase 2 for the inference state. The computes the predicted state, then
     checks to insure that the predicted state is not over-saturated, i.e.
@@ -1748,7 +1719,7 @@ class BacktrackingTM(ConsolePrinterMixin):
         for s in self.cells[c][i]:
 
           # See if it has the min number of active synapses
-          numActiveSyns = self.getSegmentActivityLevel(
+          numActiveSyns = self._getSegmentActivityLevel(
               s, self.infActiveState['t'], connectedSynapsesOnly=False)
           if numActiveSyns < self.activationThreshold:
             continue
@@ -1763,7 +1734,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
           # If we reach threshold on the connected synapses, predict it
           # If not active, skip over it
-          if self.isSegmentActive(s, self.infActiveState['t']):
+          if self._isSegmentActive(s, self.infActiveState['t']):
             self.infPredictedState['t'][c, i] = 1
 
     # Normalize column and cell confidences
@@ -1780,7 +1751,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       return False
 
 
-  def updateInferenceState(self, activeColumns):
+  def _updateInferenceState(self, activeColumns):
     """
     Update the inference state. Called from compute() on every iteration.
     @param activeColumns The list of active column indices.
@@ -1801,7 +1772,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
     # Compute the active state given the predictions from last time step and
     # the current bottom-up
-    inSequence = self.inferPhase1(activeColumns, self.resetCalled)
+    inSequence = self._inferPhase1(activeColumns, self.resetCalled)
 
     # If this input was considered unpredicted, let's go back in time and
     # replay the recent inputs from start cells and see if we can lock onto
@@ -1811,20 +1782,20 @@ class BacktrackingTM(ConsolePrinterMixin):
         print ("Too much unpredicted input, re-tracing back to try and lock on "
                "at an earlier timestep.")
       # inferBacktrack() will call inferPhase2() for us.
-      self.inferBacktrack(activeColumns)
+      self._inferBacktrack(activeColumns)
       return
 
     # Compute the predicted cells and the cell and column confidences
-    inSequence = self.inferPhase2()
+    inSequence = self._inferPhase2()
     if not inSequence:
       if self.verbosity >= 3:
         print ("Not enough predictions going forward, "
                "re-tracing back to try and lock on at an earlier timestep.")
       # inferBacktrack() will call inferPhase2() for us.
-      self.inferBacktrack(activeColumns)
+      self._inferBacktrack(activeColumns)
 
 
-  def learnBacktrackFrom(self, startOffset, readOnly=True):
+  def _learnBacktrackFrom(self, startOffset, readOnly=True):
     """ @internal
     A utility method called from learnBacktrack. This will backtrack
     starting from the given startOffset in our prevLrnPatterns queue.
@@ -1890,7 +1861,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
       # Apply segment updates from the last set of predictions
       if not readOnly:
-        self.processSegmentUpdates(inputColumns)
+        self._processSegmentUpdates(inputColumns)
 
       # Phase 1:
       # Compute activeState[t] given bottom-up and predictedState[t-1]
@@ -1902,7 +1873,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       else:
         # Uses lrnActiveState['t-1'] and lrnPredictedState['t-1']
         # computes lrnActiveState['t']
-        inSequence = self.learnPhase1(inputColumns, readOnly=readOnly)
+        inSequence = self._learnPhase1(inputColumns, readOnly=readOnly)
 
       # Break out immediately if we fell out of sequence or reached the current
       # time step
@@ -1914,12 +1885,12 @@ class BacktrackingTM(ConsolePrinterMixin):
       # up active segments into self.segmentUpdates, unless this is readOnly
       if self.verbosity >= 3:
         print "  backtrack: computing predictions from ", inputColumns
-      self.learnPhase2(readOnly=readOnly)
+      self._learnPhase2(readOnly=readOnly)
 
     # Return whether or not this starting point was valid
     return inSequence
 
-  def learnBacktrack(self):
+  def _learnBacktrack(self):
     """
     This "backtracks" our learning state, trying to see if we can lock onto
     the current set of inputs by assuming the sequence started up to N steps
@@ -1985,7 +1956,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     inSequence = False
     for startOffset in range(0, numPrevPatterns):
       # Can we backtrack from startOffset?
-      inSequence = self.learnBacktrackFrom(startOffset, readOnly=True)
+      inSequence = self._learnBacktrackFrom(startOffset, readOnly=True)
 
       # Done playing through the sequence from starting point startOffset
       # Break out as soon as we find a good path
@@ -2014,7 +1985,7 @@ class BacktrackingTM(ConsolePrinterMixin):
              "steps ago:" % (numPrevPatterns - startOffset),
              self._prevLrnPatterns[startOffset])
 
-    self.learnBacktrackFrom(startOffset, readOnly=False)
+    self._learnBacktrackFrom(startOffset, readOnly=False)
 
     # Remove any useless patterns at the head of the input pattern history
     # queue.
@@ -2030,7 +2001,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     return numPrevPatterns - startOffset
 
 
-  def learnPhase1(self, activeColumns, readOnly=False):
+  def _learnPhase1(self, activeColumns, readOnly=False):
     """
     Compute the learning active state given the predicted state and
     the bottom-up input.
@@ -2075,34 +2046,34 @@ class BacktrackingTM(ConsolePrinterMixin):
 
       # If no predicted cell, pick the closest matching one to reinforce, or
       # if none exists, create a new segment on a cell in that column
-      i, s, numActive = self.getBestMatchingCell(
+      i, s, numActive = self._getBestMatchingCell(
           c, self.lrnActiveState['t-1'], self.minThreshold)
       if s is not None and s.isSequenceSegment():
         if self.verbosity >= 4:
           print "Learn branch 0, found segment match. Learning on col=", c
         self.lrnActiveState['t'][c, i] = 1
-        segUpdate = self.getSegmentActiveSynapses(
+        segUpdate = self._getSegmentActiveSynapses(
             c, i, s, self.lrnActiveState['t-1'], newSynapses = True)
         s.totalActivations += 1
         # This will update the permanences, posActivationsCount, and the
         # lastActiveIteration (age).
-        trimSegment = self.adaptSegment(segUpdate)
+        trimSegment = self._adaptSegment(segUpdate)
         if trimSegment:
-          self.trimSegmentsInCell(c, i, [s], minPermanence = 0.00001,
-              minNumSyns = 0)
+          self._trimSegmentsInCell(c, i, [s], minPermanence = 0.00001,
+                                   minNumSyns = 0)
 
       # If no close match exists, create a new one
       else:
         # Choose a cell in this column to add a new segment to
-        i = self.getCellForNewSegment(c)
+        i = self._getCellForNewSegment(c)
         if (self.verbosity >= 4):
           print "Learn branch 1, no match. Learning on col=", c,
           print ", newCellIdxInCol=", i
         self.lrnActiveState['t'][c, i] = 1
-        segUpdate = self.getSegmentActiveSynapses(
+        segUpdate = self._getSegmentActiveSynapses(
             c, i, None, self.lrnActiveState['t-1'], newSynapses=True)
         segUpdate.sequenceSegment = True # Make it a sequence segment
-        self.adaptSegment(segUpdate)  # No need to check whether perm reached 0
+        self._adaptSegment(segUpdate)  # No need to check whether perm reached 0
 
     # Determine if we are out of sequence or not and reset our PAM counter
     # if we are in sequence
@@ -2113,7 +2084,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       return False  # out of sequence
 
 
-  def learnPhase2(self, readOnly=False):
+  def _learnPhase2(self, readOnly=False):
     """
     Compute the predicted segments given the current set of active cells.
 
@@ -2141,7 +2112,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     for c in xrange(self.numberOfCols):
 
       # Is there a cell predicted to turn on in this column?
-      i, s, numActive = self.getBestMatchingCell(
+      i, s, numActive = self._getBestMatchingCell(
           c, self.lrnActiveState['t'], minThreshold = self.activationThreshold)
       if i is None:
         continue
@@ -2154,24 +2125,24 @@ class BacktrackingTM(ConsolePrinterMixin):
         continue
 
       # Queue up this segment for updating
-      segUpdate = self.getSegmentActiveSynapses(
+      segUpdate = self._getSegmentActiveSynapses(
           c, i, s, activeState=self.lrnActiveState['t'],
           newSynapses=(numActive < self.newSynapseCount))
 
       s.totalActivations += 1    # increment totalActivations
-      self.addToSegmentUpdates(c, i, segUpdate)
+      self._addToSegmentUpdates(c, i, segUpdate)
 
       if self.doPooling:
         # creates a new pooling segment if no best matching segment found
         # sum(all synapses) >= minThreshold, "weak" activation
-        predSegment = self.getBestMatchingSegment(c, i,
-                                self.lrnActiveState['t-1'])
-        segUpdate = self.getSegmentActiveSynapses(c, i, predSegment,
-                          self.lrnActiveState['t-1'], newSynapses=True)
-        self.addToSegmentUpdates(c, i, segUpdate)
+        predSegment = self._getBestMatchingSegment(c, i,
+                                                   self.lrnActiveState['t-1'])
+        segUpdate = self._getSegmentActiveSynapses(c, i, predSegment,
+                                                   self.lrnActiveState['t-1'], newSynapses=True)
+        self._addToSegmentUpdates(c, i, segUpdate)
 
 
-  def updateLearningState(self, activeColumns):
+  def _updateLearningState(self, activeColumns):
     """
     Update the learning state. Called from compute() on every iteration
     @param activeColumns List of active column indices
@@ -2192,7 +2163,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     # Process queued up segment updates, now that we have bottom-up, we
     # can update the permanences on the cells that we predicted to turn on
     # and did receive bottom-up
-    self.processSegmentUpdates(activeColumns)
+    self._processSegmentUpdates(activeColumns)
 
     # Decrement the PAM counter if it is running and increment our learned
     # sequence length
@@ -2205,7 +2176,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     if not self.resetCalled:
       # Uses lrnActiveState['t-1'] and lrnPredictedState['t-1']
       # computes lrnActiveState['t']
-      inSequence = self.learnPhase1(activeColumns)
+      inSequence = self._learnPhase1(activeColumns)
 
       # Reset our PAM counter if we are in sequence
       if inSequence:
@@ -2251,7 +2222,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       # Backtrack to an earlier starting point, if we find one
       backSteps = 0
       if not self.resetCalled:
-        backSteps = self.learnBacktrack()
+        backSteps = self._learnBacktrack()
 
       # Start over in the current time step if reset was called, or we couldn't
       # backtrack.
@@ -2273,7 +2244,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     # Phase 2 - Compute new predicted state. When computing predictions for
     # phase 2, we predict at  most one cell per column (the one with the best
     # matching segment).
-    self.learnPhase2()
+    self._learnPhase2()
 
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
@@ -2337,11 +2308,11 @@ class BacktrackingTM(ConsolePrinterMixin):
     # As a speed optimization for now (until we need online learning), skip
     # computing the inference output while learning
     if computeInfOutput:
-      self.updateInferenceState(activeColumns)
+      self._updateInferenceState(activeColumns)
 
     # Next, update the learning state
     if enableLearn:
-      self.updateLearningState(activeColumns)
+      self._updateLearningState(activeColumns)
 
       # Apply global decay, and remove synapses and/or segments.
       # Synapses are removed if their permanence value is <= 0.
@@ -2376,7 +2347,7 @@ class BacktrackingTM(ConsolePrinterMixin):
                 segment.syns.remove(syn)
 
           for seg in segsToDel: # remove some segments of this cell
-            self.cleanUpdatesList(c, i, seg)
+            self._cleanUpdatesList(c, i, seg)
             self.cells[c][i].remove(seg)
 
     # Update the prediction score stats
@@ -2392,7 +2363,7 @@ class BacktrackingTM(ConsolePrinterMixin):
                                 self.colConfidence['t-1'])
 
     # Finally return the TM output
-    output = self.computeOutput()
+    output = self._computeOutput()
 
     # Print diagnostic information based on the current verbosity level
     self.printComputeEnd(output, learn=enableLearn)
@@ -2416,54 +2387,30 @@ class BacktrackingTM(ConsolePrinterMixin):
                         computeInfOutput=computeInfOutput)
 
 
-  def updateSegmentDutyCycles(self):
+  def _columnConfidences(self):
     """
-    This gets called on every compute. It determines if it's time to
-    update the segment duty cycles. Since the duty cycle calculation is a
-    moving average based on a tiered alpha, it is important that we update
-    all segments on each tier boundary.
-    """
-    if self.lrnIterationIdx not in [100, 1000, 10000]:
-      return
+    Returns the stored cell confidences from the last compute.
 
-    for c, i in itertools.product(xrange(self.numberOfCols),
-                                  xrange(self.cellsPerColumn)):
-      for segment in self.cells[c][i]:
-        segment.dutyCycle()
-
-
-  def columnConfidences(self, cellConfidences=None):
-    """
-    Compute the column confidences given the cell confidences. If
-    None is passed in for cellConfidences, it uses the stored cell confidences
-    from the last compute.
-
-    @param cellConfidences Cell confidences to use, or None to use the
-                           the current cell confidences.
-
-    @returns Column confidence scores
+    :returns: Column confidence scores TODO in what format?
     """
     return self.colConfidence['t']
 
 
-  def topDownCompute(self, topDownIn=None):
+  def topDownCompute(self):
     """
-    Top-down compute - generate expected input given output of the TM
-
-    @param topDownIn top down input from the level above us
-
-    @returns best estimate of the TM input that would have generated bottomUpOut.
+    For now, we will assume there is no one above us and that bottomUpOut is
+    simply the output that corresponds to our currently stored column
+    confidences.
+    
+    :returns: the same damn thing as :meth:`columnConfidences`
     """
-    # For now, we will assume there is no one above us and that bottomUpOut is
-    # simply the output that corresponds to our currently stored column
-    # confidences.
 
     # Simply return the column confidences
-    return self.columnConfidences()
+    return self._columnConfidences()
 
 
-  def trimSegmentsInCell(self, colIdx, cellIdx, segList, minPermanence,
-                         minNumSyns):
+  def _trimSegmentsInCell(self, colIdx, cellIdx, segList, minPermanence,
+                          minNumSyns):
     """
     This method goes through a list of segments for a given cell and
     deletes all synapses whose permanence is less than minPermanence and deletes
@@ -2507,7 +2454,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     # out of the segment update list, if they are in there
     nSegsRemoved += len(segsToDel)
     for seg in segsToDel: # remove some segments of this cell
-      self.cleanUpdatesList(colIdx, cellIdx, seg)
+      self._cleanUpdatesList(colIdx, cellIdx, seg)
       self.cells[colIdx][cellIdx].remove(seg)
       nSynsRemoved += len(seg.syns)
 
@@ -2539,7 +2486,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     for c, i in itertools.product(xrange(self.numberOfCols),
                                   xrange(self.cellsPerColumn)):
 
-      (segsRemoved, synsRemoved) = self.trimSegmentsInCell(
+      (segsRemoved, synsRemoved) = self._trimSegmentsInCell(
           colIdx=c, cellIdx=i, segList=self.cells[c][i],
           minPermanence=minPermanence, minNumSyns=minNumSyns)
       totalSegsRemoved += segsRemoved
@@ -2553,7 +2500,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     return totalSegsRemoved, totalSynsRemoved
 
 
-  def cleanUpdatesList(self, col, cellIdx, seg):
+  def _cleanUpdatesList(self, col, cellIdx, seg):
     """
     Removes any update that would be for the given col, cellIdx, segIdx.
 
@@ -2570,7 +2517,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       if c == col and i == cellIdx:
         for update in updateList:
           if update[1].segment == seg:
-            self.removeSegmentUpdate(update)
+            self._removeSegmentUpdate(update)
 
 
   def finishLearning(self):
@@ -2597,11 +2544,9 @@ class BacktrackingTM(ConsolePrinterMixin):
         assert self.getNumSegmentsInCell(c, 0) == 0
 
 
-  def checkPrediction2(self, patternNZs, output=None, colConfidence=None,
+  def _checkPrediction(self, patternNZs, output=None, colConfidence=None,
                        details=False):
     """
-    This function will replace checkPrediction.
-
     This function produces goodness-of-match scores for a set of input patterns,
     by checking for their presence in the current and predicted output of the
     TM. Returns a global count of the number of extra and missing bits, the
@@ -2722,7 +2667,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       return (totalExtras, totalMissing, confidences)
 
 
-  def isSegmentActive(self, seg, activeState):
+  def _isSegmentActive(self, seg, activeState):
     """
     A segment is active if it has >= activationThreshold connected
     synapses that are active due to activeState.
@@ -2738,8 +2683,8 @@ class BacktrackingTM(ConsolePrinterMixin):
                            self.connectedPerm, self.activationThreshold)
 
 
-  def getSegmentActivityLevel(self, seg, activeState,
-                              connectedSynapsesOnly=False):
+  def _getSegmentActivityLevel(self, seg, activeState,
+                               connectedSynapsesOnly=False):
     """
     This routine computes the activity level of a segment given activeState.
     It can tally up only connected synapses (permanence >= connectedPerm), or
@@ -2754,7 +2699,7 @@ class BacktrackingTM(ConsolePrinterMixin):
                                    self.connectedPerm)
 
 
-  def getBestMatchingCell(self, c, activeState, minThreshold):
+  def _getBestMatchingCell(self, c, activeState, minThreshold):
     """
     Find weakly activated cell in column with at least minThreshold active
     synapses.
@@ -2778,7 +2723,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
       for j, s in enumerate(self.cells[c][i]):
 
-        activity = self.getSegmentActivityLevel(s, activeState)
+        activity = self._getSegmentActivityLevel(s, activeState)
 
         if activity > maxSegActivity:
           maxSegActivity = activity
@@ -2796,7 +2741,7 @@ class BacktrackingTM(ConsolePrinterMixin):
                 bestActivityInCol)
 
 
-  def getBestMatchingSegment(self, c, i, activeState):
+  def _getBestMatchingSegment(self, c, i, activeState):
     """
     For the given cell, find the segment with the largest number of active
     synapses. This routine is aggressive in finding the best match. The
@@ -2812,8 +2757,8 @@ class BacktrackingTM(ConsolePrinterMixin):
     maxActivity, which = self.minThreshold, -1
 
     for j, s in enumerate(self.cells[c][i]):
-      activity = self.getSegmentActivityLevel(s, activeState,
-                                              connectedSynapsesOnly=False)
+      activity = self._getSegmentActivityLevel(s, activeState,
+                                               connectedSynapsesOnly=False)
 
       if activity >= maxActivity:
         maxActivity, which = activity, j
@@ -2824,7 +2769,7 @@ class BacktrackingTM(ConsolePrinterMixin):
       return self.cells[c][i][which]
 
 
-  def getCellForNewSegment(self, colIdx):
+  def _getCellForNewSegment(self, colIdx):
     """
     Return the index of a cell in this column which is a good candidate
     for adding a new segment.
@@ -2894,12 +2839,12 @@ class BacktrackingTM(ConsolePrinterMixin):
       print ("Deleting segment #%d for cell[%d,%d] to make room for new "
              "segment" % (candidateSegment.segID, colIdx, candidateCellIdx))
       candidateSegment.debugPrint()
-    self.cleanUpdatesList(colIdx, candidateCellIdx, candidateSegment)
+    self._cleanUpdatesList(colIdx, candidateCellIdx, candidateSegment)
     self.cells[colIdx][candidateCellIdx].remove(candidateSegment)
     return candidateCellIdx
 
 
-  def getSegmentActiveSynapses(self, c, i, s, activeState, newSynapses=False):
+  def _getSegmentActiveSynapses(self, c, i, s, activeState, newSynapses=False):
     """
     Return a segmentUpdate data structure containing a list of proposed
     changes to segment s. Let activeSynapses be the list of active synapses
@@ -2928,8 +2873,8 @@ class BacktrackingTM(ConsolePrinterMixin):
       nSynapsesToAdd = self.newSynapseCount - len(activeSynapses)
 
       # Here we add *pairs* (colIdx, cellIdx) to activeSynapses
-      activeSynapses += self.chooseCellsToLearnFrom(c, i, s, nSynapsesToAdd,
-                                                    activeState)
+      activeSynapses += self._chooseCellsToLearnFrom(c, i, s, nSynapsesToAdd,
+                                                     activeState)
 
     # It's still possible that activeSynapses is empty, and this will
     # be handled in addToSegmentUpdates
@@ -2944,7 +2889,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     return update
 
 
-  def chooseCellsToLearnFrom(self, c, i, s, n, activeState):
+  def _chooseCellsToLearnFrom(self, c, i, s, n, activeState):
     """
     Choose n random cells to learn from.
 
@@ -2989,7 +2934,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     return sorted([cands[j] for j in tmp])
 
 
-  def processSegmentUpdates(self, activeColumns):
+  def _processSegmentUpdates(self, activeColumns):
     """
     Go through the list of accumulated segment updates and process them
     as follows:
@@ -3038,7 +2983,7 @@ class BacktrackingTM(ConsolePrinterMixin):
             continue
 
           if action == 'update':
-            trimSegment = self.adaptSegment(segUpdate)
+            trimSegment = self._adaptSegment(segUpdate)
             if trimSegment:
               trimSegments.append((segUpdate.columnIdx, segUpdate.cellIdx,
                                         segUpdate.segment))
@@ -3057,11 +3002,11 @@ class BacktrackingTM(ConsolePrinterMixin):
 
     # Trim segments that had synapses go to 0
     for (c, i, segment) in trimSegments:
-      self.trimSegmentsInCell(c, i, [segment], minPermanence = 0.00001,
-              minNumSyns = 0)
+      self._trimSegmentsInCell(c, i, [segment], minPermanence = 0.00001,
+                               minNumSyns = 0)
 
 
-  def adaptSegment(self, segUpdate):
+  def _adaptSegment(self, segUpdate):
     """
     This function applies segment update information to a segment in a
     cell.
@@ -3230,7 +3175,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
             # Get active synapse statistics if requested
             if collectActiveData:
-              if self.isSegmentActive(seg, self.infActiveState['t']):
+              if self._isSegmentActive(seg, self.infActiveState['t']):
                 nActiveSegs += 1
               for syn in seg.syns:
                 if self.activeState['t'][syn[0]][syn[1]] == 1:
