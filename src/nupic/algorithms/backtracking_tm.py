@@ -35,6 +35,7 @@ import numpy
 from nupic.bindings.math import Random
 from nupic.bindings.algorithms import getSegmentActivityLevel, isSegmentActive
 from nupic.math import GetNTAReal
+from nupic.regions.tm_region import TemporalMemoryImplementation
 from nupic.support.console_printer import ConsolePrinterMixin
 
 
@@ -2247,13 +2248,13 @@ class BacktrackingTM(ConsolePrinterMixin):
     self._learnPhase2()
 
 
-  def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
+  def compute(self, bottomUpInput, enableLearn, enableInference=None):
     """
     Handle one compute, possibly learning.
 
     @param bottomUpInput     The bottom-up input, typically from a spatial pooler
     @param enableLearn       If true, perform learning
-    @param computeInfOutput  If None, default behavior is to disable the inference
+    @param enableInference  If None, default behavior is to disable the inference
                              output when enableLearn is on.
                              If true, compute the inference output
                              If false, do not compute the inference output
@@ -2268,13 +2269,13 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     # As a speed optimization for now (until we need online learning), skip
     # computing the inference output while learning
-    if computeInfOutput is None:
+    if enableInference is None:
       if enableLearn:
-        computeInfOutput = False
+        enableInference = False
       else:
-        computeInfOutput = True
+        enableInference = True
 
-    assert (enableLearn or computeInfOutput)
+    assert (enableLearn or enableInference)
 
     # Get the list of columns that have bottom-up
     activeColumns = bottomUpInput.nonzero()[0]
@@ -2307,7 +2308,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     # First, update the inference state
     # As a speed optimization for now (until we need online learning), skip
     # computing the inference output while learning
-    if computeInfOutput:
+    if enableInference:
       self._updateInferenceState(activeColumns)
 
     # Next, update the learning state
@@ -2353,7 +2354,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     # Update the prediction score stats
     # Learning always includes inference
     if self.collectStats:
-      if computeInfOutput:
+      if enableInference:
         predictedState = self.infPredictedState['t-1']
       else:
         predictedState = self.lrnPredictedState['t-1']
@@ -2384,7 +2385,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     @todo document
     """
     return self.compute(bottomUpInput, enableLearn=True,
-                        computeInfOutput=computeInfOutput)
+                        enableInference=computeInfOutput)
 
 
   def _columnConfidences(self):
@@ -3184,6 +3185,8 @@ class BacktrackingTM(ConsolePrinterMixin):
     return (nSegments, nSynapses, nActiveSegs, nActiveSynapses,
             distSegSizes, distNSegsPerCell, distPermValues, distAges)
 
+
+TemporalMemoryImplementation.register(BacktrackingTM)
 
 
 class Segment(object):

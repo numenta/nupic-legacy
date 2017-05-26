@@ -19,13 +19,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import numpy
 import os
-from nupic.bindings.regions.PyRegion import PyRegion
+import abc
+import numpy
 
-from nupic.algorithms import (anomaly, backtracking_tm, backtracking_tm_cpp,
-                              backtracking_tm_shim)
+from nupic.bindings.regions.PyRegion import PyRegion
 from nupic.support import getArgumentDescriptions
+from nupic.support.console_printer import ConsolePrinterMixin
 
 gDefaultTemporalImp = 'py'
 
@@ -35,16 +35,23 @@ def _getTPClass(temporalImp):
   """ Return the class corresponding to the given temporalImp string
   """
 
+  # Importing these here prevents circular dependencies, because they all derive
+  # from the TemporalMemoryImplementation base class defined in this file.
   if temporalImp == 'py':
-    return backtracking_tm.BacktrackingTM
+    from nupic.algorithms.backtracking_tm import BacktrackingTM
+    return BacktrackingTM
   elif temporalImp == 'cpp':
-    return backtracking_tm_cpp.BacktrackingTMCPP
+    from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
+    return BacktrackingTMCPP
   elif temporalImp == 'tm_py':
-    return backtracking_tm_shim.TMShim
+    from nupic.algorithms.backtracking_tm_shim import TMShim
+    return TMShim
   elif temporalImp == 'tm_cpp':
-    return backtracking_tm_shim.TMCPPShim
+    from nupic.algorithms.backtracking_tm_shim import TMCPPShim
+    return TMCPPShim
   elif temporalImp == 'monitored_tm_py':
-    return backtracking_tm_shim.MonitoredTMShim
+    from nupic.algorithms.backtracking_tm_shim import MonitoredTMShim
+    return MonitoredTMShim
   else:
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
               "'cpp', 'tm_py', 'monitored_tm_py'" % (temporalImp))
@@ -271,6 +278,100 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
   )
 
   return temporalSpec, otherSpec
+
+
+
+class TemporalMemoryImplementation(ConsolePrinterMixin):
+  __metaclass__ = abc.ABCMeta
+
+  @abc.abstractmethod
+  def reset(self):
+    """
+    Reset the state of all cells.
+
+    This is normally used between sequences while training. All internal states
+    are reset to 0.
+    """
+    pass
+
+  @abc.abstractmethod
+  def getPredictedState(self):
+    """
+    Return a numpy array, predictedCells, representing the current predicted
+    state.
+
+    predictedCells[c][i] represents the state of the i'th cell in the c'th
+    column.
+
+    @returns numpy array of predicted cells, representing the current predicted
+    state. predictedCells[c][i] represents the state of the i'th cell in the c'th
+    column.
+    """
+    pass
+
+  @abc.abstractmethod
+  def topDownCompute(self, topDownIn=None):
+    """
+    Top-down compute - generate expected input given output of the TM
+
+    @param topDownIn top down input from the level above us
+
+    @returns best estimate of the TM input that would have generated bottomUpOut.
+    """
+    pass
+
+  @abc.abstractmethod
+  def compute(self, bottomUpInput, learningMode, inferenceMode):
+    """
+    (From `backtracking_tm.py`)
+    Handle one compute, possibly learning.
+
+    @param bottomUpInput     The bottom-up input, typically from a spatial pooler
+    @param enableLearn       If true, perform learning
+    """
+    pass
+
+  @abc.abstractmethod
+  def getLearnActiveStateT(self):
+    """
+    No clue what this does.
+    :return: 
+    """
+    pass
+
+  @abc.abstractmethod
+  def getActiveState(self):
+    """
+    No clue what this does.
+    :return: 
+    """
+    pass
+
+  @abc.abstractmethod
+  def finishLearning(self):
+    """Perform an internal optimization step that speeds up inference if we know
+    learning will not be performed anymore. This call may, for example, remove
+    all potential inputs to each column.
+    """
+    pass
+
+  @abc.abstractmethod
+  def saveToFile(self, filePath):
+    """
+    Save to a file location.
+    :param filePath: (string) file path
+    """
+    pass
+
+  @abc.abstractmethod
+  def loadFromFile(self, filePath):
+    """
+    Load from a file location.
+    :param filePath: (string) file path
+    :return: 
+    """
+    pass
+
 
 
 
@@ -544,7 +645,7 @@ class TMRegion(PyRegion):
 
     if self.computePredictedActiveCellIndices:
       # Reshape so we are dealing with 1D arrays
-      activeState = self._tfdr._getActiveState().reshape(-1).astype('float32')
+      activeState = self._tfdr.getActiveState().reshape(-1).astype('float32')
       activeIndices = numpy.where(activeState != 0)[0]
       predictedIndices= numpy.where(prevPredictedState != 0)[0]
       predictedActiveIndices = numpy.intersect1d(activeIndices, predictedIndices)
@@ -682,7 +783,7 @@ class TMRegion(PyRegion):
     """Return the Spec for TMRegion.
 
     The parameters collection is constructed based on the parameters specified
-    by the variosu components (spatialSpec, temporalSpec and otherSpec)
+    by the various components (spatialSpec, temporalSpec and otherSpec)
     """
     spec = cls.getBaseSpec()
     t, o = _getAdditionalSpecs(temporalImp=gDefaultTemporalImp)
