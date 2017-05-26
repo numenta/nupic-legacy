@@ -1132,30 +1132,52 @@ class TemporalMemory(object):
     proto.permanenceDecrement = self.permanenceDecrement
     proto.predictedSegmentDecrement = self.predictedSegmentDecrement
 
+    proto.maxSegmentsPerCell = self.maxSegmentsPerCell
+    proto.maxSynapsesPerSegment = self.maxSynapsesPerSegment
+
     self.connections.write(proto.connections)
     self._random.write(proto.random)
 
     proto.activeCells = list(self.activeCells)
     proto.winnerCells = list(self.winnerCells)
-    activeSegmentOverlaps = \
-        proto.init('activeSegmentOverlaps', len(self.activeSegments))
-    for i, segment in enumerate(self.activeSegments):
-      activeSegmentOverlaps[i].cell = segment.cell
-      idx = self.connections.segmentsForCell(segment.cell).index(segment)
-      activeSegmentOverlaps[i].segment = idx
-      activeSegmentOverlaps[i].overlap = (
-        self.numActiveConnectedSynapsesForSegment[segment.flatIdx]
-      )
 
-    matchingSegmentOverlaps = \
-        proto.init('matchingSegmentOverlaps', len(self.matchingSegments))
-    for i, segment in enumerate(self.matchingSegments):
-      matchingSegmentOverlaps[i].cell = segment.cell
+    protoActiveSegments = proto.init("activeSegments", len(self.activeSegments))
+    for i, segment in enumerate(self.activeSegments):
+      protoActiveSegments[i].cell = segment.cell
       idx = self.connections.segmentsForCell(segment.cell).index(segment)
-      matchingSegmentOverlaps[i].segment = idx
-      matchingSegmentOverlaps[i].overlap = (
-        self.numActivePotentialSynapsesForSegment[segment.flatIdx]
-      )
+      protoActiveSegments[i].idxOnCell = idx
+
+    protoMatchingSegments = proto.init("matchingSegments",
+                                       len(self.matchingSegments))
+    for i, segment in enumerate(self.matchingSegments):
+      protoMatchingSegments[i].cell = segment.cell
+      idx = self.connections.segmentsForCell(segment.cell).index(segment)
+      protoMatchingSegments[i].idxOnCell = idx
+
+    protoNumActivePotential = proto.init(
+      "numActivePotentialSynapsesForSegment",
+      len(self.numActivePotentialSynapsesForSegment))
+    for i, numActivePotentialSynapses in enumerate(
+        self.numActivePotentialSynapsesForSegment):
+      segment = self.connections.segmentForFlatIdx(i)
+      if segment is not None:
+        protoNumActivePotential[i].cell = segment.cell
+        idx = self.connections.segmentsForCell(segment.cell).index(segment)
+        protoNumActivePotential[i].idxOnCell = idx
+        protoNumActivePotential[i].number = numActivePotentialSynapses
+
+    proto.iteration = self.iteration
+
+    protoLastUsedIteration = proto.init(
+      "lastUsedIterationForSegment",
+      len(self.numActivePotentialSynapsesForSegment))
+    for i, lastUsed in enumerate(self.lastUsedIterationForSegment):
+      segment = self.connections.segmentForFlatIdx(i)
+      if segment is not None:
+        protoLastUsedIteration[i].cell = segment.cell
+        idx = self.connections.segmentsForCell(segment.cell).index(segment)
+        protoLastUsedIteration[i].idxOnCell = idx
+        protoLastUsedIteration[i].number = lastUsed
 
 
   @classmethod
@@ -1183,6 +1205,9 @@ class TemporalMemory(object):
     tm.permanenceDecrement = proto.permanenceDecrement
     tm.predictedSegmentDecrement = proto.predictedSegmentDecrement
 
+    tm.maxSegmentsPerCell = int(proto.maxSegmentsPerCell)
+    tm.maxSynapsesPerSegment = int(proto.maxSynapsesPerSegment)
+
     tm.connections = Connections.read(proto.connections)
     #pylint: disable=W0212
     tm._random = Random()
@@ -1195,29 +1220,36 @@ class TemporalMemory(object):
     flatListLength = tm.connections.segmentFlatListLength()
     tm.numActiveConnectedSynapsesForSegment = [0] * flatListLength
     tm.numActivePotentialSynapsesForSegment = [0] * flatListLength
+    tm.lastUsedIterationForSegment = [0] * flatListLength
 
     tm.activeSegments = []
     tm.matchingSegments = []
 
-    for i in xrange(len(proto.activeSegmentOverlaps)):
-      protoSegmentOverlap = proto.activeSegmentOverlaps[i]
+    for protoSegment in proto.activeSegments:
+      tm.activeSegments.append(
+        tm.connections.getSegment(protoSegment.cell,
+                                  protoSegment.idxOnCell))
 
-      segment = tm.connections.getSegment(protoSegmentOverlap.cell,
-                                          protoSegmentOverlap.segment)
-      tm.activeSegments.append(segment)
+    for protoSegment in proto.matchingSegments:
+      tm.matchingSegments.append(
+        tm.connections.getSegment(protoSegment.cell,
+                                  protoSegment.idxOnCell))
 
-      overlap = protoSegmentOverlap.overlap
-      tm.numActiveConnectedSynapsesForSegment[segment.flatIdx] = overlap
+    for protoSegment in proto.numActivePotentialSynapsesForSegment:
+      segment = tm.connections.getSegment(protoSegment.cell,
+                                          protoSegment.idxOnCell)
 
-    for i in xrange(len(proto.matchingSegmentOverlaps)):
-      protoSegmentOverlap = proto.matchingSegmentOverlaps[i]
+      tm.numActivePotentialSynapsesForSegment[segment.flatIdx] = (
+        int(protoSegment.number))
 
-      segment = tm.connections.getSegment(protoSegmentOverlap.cell,
-                                          protoSegmentOverlap.segment)
-      tm.matchingSegments.append(segment)
+    tm.iteration = long(proto.iteration)
 
-      overlap = protoSegmentOverlap.overlap
-      tm.numActivePotentialSynapsesForSegment[segment.flatIdx] = overlap
+    for protoSegment in proto.lastUsedIterationForSegment:
+      segment = tm.connections.getSegment(protoSegment.cell,
+                                          protoSegment.idxOnCell)
+
+      tm.lastUsedIterationForSegment[segment.flatIdx] = (
+        long(protoSegment.number))
 
     return tm
 

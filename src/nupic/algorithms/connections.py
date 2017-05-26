@@ -431,12 +431,10 @@ class Connections(object):
       for j, segment in enumerate(segments):
         synapses = segment._synapses
         protoSynapses = protoSegments[j].init('synapses', len(synapses))
-        protoSegments[j].destroyed = False
 
         for k, synapse in enumerate(sorted(synapses, key=lambda s: s._ordinal)):
           protoSynapses[k].presynapticCell = synapse.presynapticCell
           protoSynapses[k].permanence = synapse.permanence
-          protoSynapses[k].destroyed = False
 
 
   @classmethod
@@ -458,9 +456,6 @@ class Connections(object):
       segments = connections._cells[cellIdx]._segments
 
       for segmentIdx, protoSegment in enumerate(protoSegments):
-        if protoSegment.destroyed:
-          continue
-
         segment = Segment(cellIdx, connections._nextFlatIdx,
                           connections._nextSegmentOrdinal)
 
@@ -473,9 +468,6 @@ class Connections(object):
         protoSynapses = protoSegment.synapses
 
         for synapseIdx, protoSynapse in enumerate(protoSynapses):
-          if protoSynapse.destroyed:
-            continue
-
           presynapticCell = protoSynapse.presynapticCell
           synapse = Synapse(segment, presynapticCell, protoSynapse.permanence,
                             ordinal=connections._nextSynapseOrdinal)
