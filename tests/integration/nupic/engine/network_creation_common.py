@@ -161,8 +161,6 @@ def createNetwork(dataSource, enableTP=False, temporalImp="py"):
   if enableTP:
     temporalPoolerRegion = network.regions["temporalPoolerRegion"]
 
-    # Enable topDownMode to get the predicted columns output
-    temporalPoolerRegion.setParameter("topDownMode", True)
     # Make sure learning is enabled (this is the default)
     temporalPoolerRegion.setParameter("learningMode", True)
     # Enable inference mode so we get predictions

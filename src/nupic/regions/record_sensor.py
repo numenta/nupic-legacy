@@ -217,13 +217,6 @@ class RecordSensor(PyRegion):
           count=1,
           defaultValue=-1,
           constraints=""),
-        topDownMode=dict(
-          description="1 if the node should do top down compute on the next "
-                      "call to compute into topDownOut (default 0).",
-          accessMode="ReadWrite",
-          dataType="UInt32",
-          count=1,
-          constraints="bool"),
       ),
       commands=dict())
 
@@ -241,7 +234,6 @@ class RecordSensor(PyRegion):
 
     self.preEncodingFilters = []
     self.postEncodingFilters = []
-    self.topDownMode = False
     self.verbosity = verbosity
     self.numCategories = numCategories
     self._iterNum = 0
@@ -367,138 +359,94 @@ class RecordSensor(PyRegion):
 
   def compute(self, inputs, outputs):
     """Get a record from the dataSource and encode it."""
-    if not self.topDownMode:
-      data = self.getNextRecord()
+    data = self.getNextRecord()
 
-      # The private keys in data are standard of RecordStreamIface objects. Any
-      # add'l keys are column headers from the data source.
-      reset = data["_reset"]
-      sequenceId = data["_sequenceId"]
-      categories = data["_category"]
+    # The private keys in data are standard of RecordStreamIface objects. Any
+    # add'l keys are column headers from the data source.
+    reset = data["_reset"]
+    sequenceId = data["_sequenceId"]
+    categories = data["_category"]
 
-      # Encode the processed records; populate outputs["dataOut"] in place
-      self.encoder.encodeIntoArray(data, outputs["dataOut"])
+    # Encode the processed records; populate outputs["dataOut"] in place
+    self.encoder.encodeIntoArray(data, outputs["dataOut"])
 
-      # If there is a field to predict, set bucketIdxOut and actValueOut.
-      if self.predictedFieldIdx > 0:
-        fields = self.dataSource.getFieldNames()
-        if self.predictedFieldIdx >= len(fields):
-          raise ValueError("predictedFieldIdx (%s) must be strictly less than "
-                           "the number of fields (%s). Fields: %s."
-                           % (self.predictedFieldIdx, len(fields), fields))
-        predictedField = fields[self.predictedFieldIdx]
-        encoders = [e for e in self.encoder.encoders if e[0] == predictedField]
-        if len(encoders) == 0:
-          raise ValueError("There is no encoder for set for the predicted "
-                           "field: %s" % predictedField)
-        elif len(encoders) > 1:
-          raise ValueError("There cant' be more than 1 encoder for the "
-                           "predicted field: %s" % predictedField)
-        else:
-          encoder = encoders[0][1]
+    # If there is a field to predict, set bucketIdxOut and actValueOut.
+    if self.predictedFieldIdx > 0:
+      fields = self.dataSource.getFieldNames()
+      if self.predictedFieldIdx >= len(fields):
+        raise ValueError("predictedFieldIdx (%s) must be strictly less than "
+                         "the number of fields (%s). Fields: %s."
+                         % (self.predictedFieldIdx, len(fields), fields))
+      predictedField = fields[self.predictedFieldIdx]
+      encoders = [e for e in self.encoder.encoders if e[0] == predictedField]
+      if len(encoders) == 0:
+        raise ValueError("There is no encoder for set for the predicted "
+                         "field: %s" % predictedField)
+      elif len(encoders) > 1:
+        raise ValueError("There cant' be more than 1 encoder for the "
+                         "predicted field: %s" % predictedField)
+      else:
+        encoder = encoders[0][1]
 
-        actualValue = data[predictedField]
-        outputs["bucketIdxOut"][:] = encoder.getBucketIndices(actualValue)
-        outputs["actValueOut"][:] = actualValue
+      actualValue = data[predictedField]
+      outputs["bucketIdxOut"][:] = encoder.getBucketIndices(actualValue)
+      outputs["actValueOut"][:] = actualValue
 
-      # Write out the scalar values obtained from they data source.
-      outputs["sourceOut"][:] = self.encoder.getScalars(data)
-      self._outputValues["sourceOut"] = self.encoder.getEncodedValues(data)
+    # Write out the scalar values obtained from they data source.
+    outputs["sourceOut"][:] = self.encoder.getScalars(data)
+    self._outputValues["sourceOut"] = self.encoder.getEncodedValues(data)
 
-      # -----------------------------------------------------------------------
-      # Get the encoded bit arrays for each field
-      encoders = self.encoder.getEncoderList()
-      prevOffset = 0
-      sourceEncodings = []
-      bitData = outputs["dataOut"]
-      for encoder in encoders:
-        nextOffset = prevOffset + encoder.getWidth()
-        sourceEncodings.append(bitData[prevOffset:nextOffset])
-        prevOffset = nextOffset
-      self._outputValues['sourceEncodings'] = sourceEncodings
+    # -----------------------------------------------------------------------
+    # Get the encoded bit arrays for each field
+    encoders = self.encoder.getEncoderList()
+    prevOffset = 0
+    sourceEncodings = []
+    bitData = outputs["dataOut"]
+    for encoder in encoders:
+      nextOffset = prevOffset + encoder.getWidth()
+      sourceEncodings.append(bitData[prevOffset:nextOffset])
+      prevOffset = nextOffset
+    self._outputValues['sourceEncodings'] = sourceEncodings
 
-      # Execute post-encoding filters, if any
-      for filter in self.postEncodingFilters:
-        filter.process(encoder=self.encoder, data=outputs['dataOut'])
+    # Execute post-encoding filters, if any
+    for filter in self.postEncodingFilters:
+      filter.process(encoder=self.encoder, data=outputs['dataOut'])
 
-      # Populate the output numpy arrays; must assign by index.
-      outputs['resetOut'][0] = reset
-      outputs['sequenceIdOut'][0] = sequenceId
-      self.populateCategoriesOut(categories, outputs['categoryOut'])
+    # Populate the output numpy arrays; must assign by index.
+    outputs['resetOut'][0] = reset
+    outputs['sequenceIdOut'][0] = sequenceId
+    self.populateCategoriesOut(categories, outputs['categoryOut'])
 
-      # ------------------------------------------------------------------------
-      # Verbose print?
-      if self.verbosity >= 1:
-        if self._iterNum == 0:
-          self.encoder.pprintHeader(prefix="sensor:")
-        if reset:
-          print "RESET - sequenceID:%d" % sequenceId
-        if self.verbosity >= 2:
-          print
-
-      # If verbosity >=2, print the record fields
-      if self.verbosity >= 1:
-        self.encoder.pprint(outputs["dataOut"], prefix="%7d:" % (self._iterNum))
-        scalarValues = self.encoder.getScalars(data)
-        nz = outputs["dataOut"].nonzero()[0]
-        print "     nz: (%d)" % (len(nz)), nz
-        print "  encIn:", self.encoder.scalarsToStr(scalarValues)
+    # ------------------------------------------------------------------------
+    # Verbose print?
+    if self.verbosity >= 1:
+      if self._iterNum == 0:
+        self.encoder.pprintHeader(prefix="sensor:")
+      if reset:
+        print "RESET - sequenceID:%d" % sequenceId
       if self.verbosity >= 2:
-        # if hasattr(data, 'header'):
-        #  header = data.header()
-        # else:
-        #  header = '     '.join(self.dataSource.names)
-        # print "        ", header
-        print "   data:", str(data)
-      if self.verbosity >= 3:
-        decoded = self.encoder.decode(outputs["dataOut"])
-        print "decoded:", self.encoder.decodedToStr(decoded)
+        print
 
-      self._iterNum += 1
+    # If verbosity >=2, print the record fields
+    if self.verbosity >= 1:
+      self.encoder.pprint(outputs["dataOut"], prefix="%7d:" % (self._iterNum))
+      scalarValues = self.encoder.getScalars(data)
+      nz = outputs["dataOut"].nonzero()[0]
+      print "     nz: (%d)" % (len(nz)), nz
+      print "  encIn:", self.encoder.scalarsToStr(scalarValues)
+    if self.verbosity >= 2:
+      # if hasattr(data, 'header'):
+      #  header = data.header()
+      # else:
+      #  header = '     '.join(self.dataSource.names)
+      # print "        ", header
+      print "   data:", str(data)
+    if self.verbosity >= 3:
+      decoded = self.encoder.decode(outputs["dataOut"])
+      print "decoded:", self.encoder.decodedToStr(decoded)
 
-    else:
+    self._iterNum += 1
 
-      # ========================================================================
-      # Spatial
-      # ========================================================================
-      # This is the top down compute in sensor
-
-      # We get the spatial pooler's topDownOut as spatialTopDownIn
-      spatialTopDownIn = inputs['spatialTopDownIn']
-      spatialTopDownOut = self.encoder.topDownCompute(spatialTopDownIn)
-
-      # -----------------------------------------------------------------------
-      # Split topDownOutput into seperate outputs
-      values = [elem.value for elem in spatialTopDownOut]
-      scalars = [elem.scalar for elem in spatialTopDownOut]
-      encodings = [elem.encoding for elem in spatialTopDownOut]
-      self._outputValues['spatialTopDownOut'] = values
-      outputs['spatialTopDownOut'][:] = numpy.array(scalars)
-      self._outputValues['spatialTopDownEncodings'] = encodings
-
-      # ========================================================================
-      # Temporal
-      # ========================================================================
-
-      ## TODO: Add temporal top-down loop
-      # We get the temporal memory's topDownOut passed through the spatial
-      # pooler as temporalTopDownIn
-      temporalTopDownIn = inputs['temporalTopDownIn']
-      temporalTopDownOut = self.encoder.topDownCompute(temporalTopDownIn)
-
-      # -----------------------------------------------------------------------
-      # Split topDownOutput into separate outputs
-
-      values = [elem.value for elem in temporalTopDownOut]
-      scalars = [elem.scalar for elem in temporalTopDownOut]
-      encodings = [elem.encoding for elem in temporalTopDownOut]
-      self._outputValues['temporalTopDownOut'] = values
-      outputs['temporalTopDownOut'][:] = numpy.array(scalars)
-      self._outputValues['temporalTopDownEncodings'] = encodings
-
-      assert len(spatialTopDownOut) == len(temporalTopDownOut), (
-        "Error: spatialTopDownOut and temporalTopDownOut should be the same "
-        "size")
 
 
   def _convertNonNumericData(self, spatialOutput, temporalOutput, output):
@@ -592,9 +540,7 @@ class RecordSensor(PyRegion):
       automatically by PyRegion's parameter set mechanism. The ones that need
       special treatment are explicitly handled here.
     """
-    if parameterName == 'topDownMode':
-      self.topDownMode = parameterValue
-    elif parameterName == 'predictedFieldIdx':
+    if parameterName == 'predictedFieldIdx':
       self.predictedFieldIdx = parameterValue
     else:
       raise Exception('Unknown parameter: ' + parameterName)
@@ -614,7 +560,6 @@ class RecordSensor(PyRegion):
     self.encoder.write(proto.encoder)
     if self.disabledEncoder is not None:
       self.disabledEncoder.write(proto.disabledEncoder)
-    proto.topDownMode = int(self.topDownMode)
     proto.verbosity = self.verbosity
     proto.numCategories = self.numCategories
 
@@ -630,7 +575,6 @@ class RecordSensor(PyRegion):
     instance.encoder = MultiEncoder.read(proto.encoder)
     if proto.disabledEncoder is not None:
       instance.disabledEncoder = MultiEncoder.read(proto.disabledEncoder)
-    instance.topDownMode = bool(proto.topDownMode)
     instance.verbosity = proto.verbosity
     instance.numCategories = proto.numCategories
 

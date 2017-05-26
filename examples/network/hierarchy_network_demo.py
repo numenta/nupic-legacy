@@ -170,8 +170,6 @@ def createSpatialPooler(network, name, inputWidth):
 def createTemporalMemory(network, name):
   temporalMemoryRegion = network.addRegion(name, "py.TMRegion",
                                            json.dumps(TM_PARAMS))
-  # Enable topDownMode to get the predicted columns output
-  temporalMemoryRegion.setParameter("topDownMode", True)
   # Make sure learning is enabled (this is the default)
   temporalMemoryRegion.setParameter("learningMode", True)
   # Enable inference mode so we get predictions
