@@ -199,6 +199,7 @@ class SDRClassifier(object):
                    }
     """
     if self.verbosity >= 1:
+      print "  learn:", learn
       print "  recordNum:", recordNum
       print "  patternNZ (%d):" % len(patternNZ), patternNZ
       print "  classificationIn:", classification

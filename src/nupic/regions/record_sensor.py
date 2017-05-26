@@ -380,7 +380,7 @@ class RecordSensor(PyRegion):
       self.encoder.encodeIntoArray(data, outputs["dataOut"])
 
       # If there is a field to predict, set bucketIdxOut and actValueOut.
-      if self.predictedFieldIdx > 0:
+      if self.predictedFieldIdx >= 0:
         fields = self.dataSource.getFieldNames()
         if self.predictedFieldIdx >= len(fields):
           raise ValueError("predictedFieldIdx (%s) must be strictly less than "
