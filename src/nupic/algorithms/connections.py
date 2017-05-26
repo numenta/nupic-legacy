@@ -30,9 +30,9 @@ EPSILON = 0.00001 # constant error threshold to check equality of permanences to
 class Segment(object):
   """ Class containing minimal information to identify a unique segment """
 
-  __slots__ = ["cell", "flatIdx", "_synapses", "_lastUsedIteration", "_ordinal"]
+  __slots__ = ["cell", "flatIdx", "_synapses", "_ordinal"]
 
-  def __init__(self, cell, flatIdx, lastUsedIteration, ordinal):
+  def __init__(self, cell, flatIdx, ordinal):
     """
     @param cell (int)
     Index of the cell that this segment is on.
@@ -48,7 +48,6 @@ class Segment(object):
     self.cell = cell
     self.flatIdx = flatIdx
     self._synapses = set()
-    self._lastUsedIteration = lastUsedIteration
     self._ordinal = ordinal
 
 
@@ -60,7 +59,6 @@ class Segment(object):
     """
 
     return (self.cell == other.cell and
-            self._lastUsedIteration == other._lastUsedIteration and
             (sorted(self._synapses, key=lambda x: x._ordinal) ==
              sorted(other._synapses, key=lambda x: x._ordinal)))
 
@@ -134,18 +132,11 @@ class Connections(object):
   """ Class to hold data representing the connectivity of a
       collection of cells. """
 
-  def __init__(self,
-               numCells,
-               maxSegmentsPerCell=255,
-               maxSynapsesPerSegment=255):
+  def __init__(self, numCells):
     """ @param numCells (int) Number of cells in collection """
 
     # Save member variables
     self.numCells = numCells
-    assert maxSegmentsPerCell > 0
-    assert maxSynapsesPerSegment > 0
-    self.maxSegmentsPerCell = maxSegmentsPerCell
-    self.maxSynapsesPerSegment = maxSynapsesPerSegment
 
     self._cells = [CellData() for _ in xrange(numCells)]
     self._synapsesForPresynapticCell = defaultdict(set)
@@ -154,7 +145,6 @@ class Connections(object):
     self._numSynapses = 0
     self._freeFlatIdxs = []
     self._nextFlatIdx = 0
-    self._iteration = 0
 
     # Whenever creating a new Synapse or Segment, give it a unique ordinal.
     # These can be used to sort synapses or segments by age.
@@ -226,57 +216,6 @@ class Connections(object):
     return self._cells[cell]._segments[idx]
 
 
-  def _leastRecentlyUsedSegment(self, cell):
-    """ Find this cell's segment that was least recently used.
-
-    Implement this explicitly to make sure that tie-breaking is consistent.
-    When there's a tie, choose the oldest segment.
-
-    @param cell (int) Cell to query.
-
-    @return (Object) Least recently used segment.
-
-    """
-    minSegment = None
-    minIteration = float("inf")
-
-    for segment in self.segmentsForCell(cell):
-      if segment._lastUsedIteration < minIteration:
-        minSegment = segment
-        minIteration = segment._lastUsedIteration
-
-    assert minSegment is not None
-
-    return minSegment
-
-
-  def _minPermanenceSynapse(self, segment):
-    """ Find this segment's synapse with the smallest permanence.
-
-    This method is NOT equivalent to a simple min() call. It uses an EPSILON to
-    account for floating point differences between C++ and Python.
-
-    @param segment (Object) Segment to query.
-
-    @return (Object) Synapse with the minimal permanence
-
-    Note: On ties it will choose the first occurrence of the minimum permanence.
-
-    """
-    minSynapse = None
-    minPermanence = float("inf")
-
-    for synapse in sorted(self.synapsesForSegment(segment),
-                          key=lambda s: s._ordinal):
-      if synapse.permanence < minPermanence - EPSILON:
-        minSynapse = synapse
-        minPermanence = synapse.permanence
-
-    assert minSynapse is not None
-
-    return minSynapse
-
-
   def segmentForFlatIdx(self, flatIdx):
     """ Get the segment with the specified flatIdx.
 
@@ -313,9 +252,6 @@ class Connections(object):
 
     @return (int) New segment index
     """
-    while self.numSegments(cell) >= self.maxSegmentsPerCell:
-      self.destroySegment(self._leastRecentlyUsedSegment(cell))
-
     cellData = self._cells[cell]
 
     if len(self._freeFlatIdxs) > 0:
@@ -328,7 +264,7 @@ class Connections(object):
     ordinal = self._nextSegmentOrdinal
     self._nextSegmentOrdinal += 1
 
-    segment = Segment(cell, flatIdx,  self._iteration, ordinal)
+    segment = Segment(cell, flatIdx, ordinal)
     cellData._segments.append(segment)
     self._segmentForFlatIdx[flatIdx] = segment
 
@@ -366,10 +302,6 @@ class Connections(object):
 
     @return (Object) created Synapse object
     """
-
-    while self.numSynapses(segment) >= self.maxSynapsesPerSegment:
-      self.destroySynapse(self._minPermanenceSynapse(segment))
-
     idx = len(segment._synapses)
     synapse = Synapse(segment, presynapticCell, permanence,
                       self._nextSynapseOrdinal)
@@ -444,22 +376,6 @@ class Connections(object):
             numActivePotentialSynapsesForSegment)
 
 
-  def recordSegmentActivity(self, segment):
-    """ Record the fact that a segment had some activity. This information is
-        used during segment cleanup.
-
-        @param segment The segment that had some activity.
-    """
-    segment._lastUsedIteration = self._iteration
-
-
-  def startNewIteration(self):
-    """ Mark the passage of time. This information is used during segment
-    cleanup.
-    """
-    self._iteration += 1
-
-
   def numSegments(self, cell=None):
     """ Returns the number of segments.
 
@@ -516,16 +432,11 @@ class Connections(object):
         synapses = segment._synapses
         protoSynapses = protoSegments[j].init('synapses', len(synapses))
         protoSegments[j].destroyed = False
-        protoSegments[j].lastUsedIteration = segment._lastUsedIteration
 
         for k, synapse in enumerate(sorted(synapses, key=lambda s: s._ordinal)):
           protoSynapses[k].presynapticCell = synapse.presynapticCell
           protoSynapses[k].permanence = synapse.permanence
           protoSynapses[k].destroyed = False
-
-    proto.maxSegmentsPerCell = self.maxSegmentsPerCell
-    proto.maxSynapsesPerSegment = self.maxSynapsesPerSegment
-    proto.iteration = self._iteration
 
 
   @classmethod
@@ -538,9 +449,7 @@ class Connections(object):
     """
     #pylint: disable=W0212
     protoCells = proto.cells
-    connections = cls(len(protoCells),
-                      proto.maxSegmentsPerCell,
-                      proto.maxSynapsesPerSegment)
+    connections = cls(len(protoCells))
 
     for cellIdx, protoCell in enumerate(protoCells):
       protoCell = protoCells[cellIdx]
@@ -553,7 +462,6 @@ class Connections(object):
           continue
 
         segment = Segment(cellIdx, connections._nextFlatIdx,
-                          protoSegment.lastUsedIteration,
                           connections._nextSegmentOrdinal)
 
         segments.append(segment)
@@ -577,7 +485,6 @@ class Connections(object):
 
           connections._numSynapses += 1
 
-    connections._iteration = proto.iteration
     #pylint: enable=W0212
     return connections
 
@@ -589,11 +496,6 @@ class Connections(object):
     @param other (Connections) Connections instance to compare to
     """
     #pylint: disable=W0212
-    if self.maxSegmentsPerCell != other.maxSegmentsPerCell:
-      return False
-    if self.maxSynapsesPerSegment != other.maxSynapsesPerSegment:
-      return False
-
     for i in xrange(self.numCells):
       segments = self._cells[i]._segments
       otherSegments = other._cells[i]._segments
@@ -607,8 +509,6 @@ class Connections(object):
         synapses = segment._synapses
         otherSynapses = otherSegment._synapses
 
-        if segment._lastUsedIteration != otherSegment._lastUsedIteration:
-          return False
         if len(synapses) != len(otherSynapses):
           return False
 
@@ -643,8 +543,6 @@ class Connections(object):
           return False
 
     if self._numSynapses != other._numSynapses:
-      return False
-    if self._iteration != other._iteration:
       return False
 
     #pylint: enable=W0212
