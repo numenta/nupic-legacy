@@ -11,5 +11,4 @@ struct SPRegionProto {
   learningMode @4 :UInt32;
   inferenceMode @5 :UInt32;
   anomalyMode @6 :UInt32;
-  topDownMode @7 :UInt32;
 }

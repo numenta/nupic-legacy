@@ -6,7 +6,6 @@ using import "/nupic/encoders/multi.capnp".MultiEncoderProto;
 struct RecordSensorProto {
   encoder @0 :MultiEncoderProto;
   disabledEncoder @1 :MultiEncoderProto;
-  topDownMode @2 :UInt32;
-  verbosity @3 :UInt32;
-  numCategories @4 :UInt32;
+  verbosity @2 :UInt32;
+  numCategories @3 :UInt32;
 }

@@ -490,7 +490,6 @@ class HTMPredictionModel(Model):
   def _sensorCompute(self, inputRecord):
     sensor = self._getSensorRegion()
     self._getDataSource().push(inputRecord)
-    sensor.setParameter('topDownMode', False)
     sensor.prepareInputs()
     try:
       sensor.compute()
@@ -504,7 +503,6 @@ class HTMPredictionModel(Model):
     if sp is None:
       return
 
-    sp.setParameter('topDownMode', False)
     sp.setParameter('inferenceMode', self.isInferenceEnabled())
     sp.setParameter('learningMode', self.isLearningEnabled())
     sp.prepareInputs()
@@ -517,14 +515,7 @@ class HTMPredictionModel(Model):
     if tm is None:
       return
 
-    if (self.getInferenceType() == InferenceType.TemporalAnomaly or
-        self._isReconstructionModel()):
-      topDownCompute = True
-    else:
-      topDownCompute = False
-
     tm = self._getTPRegion()
-    tm.setParameter('topDownMode', topDownCompute)
     tm.setParameter('inferenceMode', self.isInferenceEnabled())
     tm.setParameter('learningMode', self.isLearningEnabled())
     tm.prepareInputs()
@@ -608,15 +599,8 @@ class HTMPredictionModel(Model):
     sp = self._getSPRegion()
     sensor = self._getSensorRegion()
 
-    #--------------------------------------------------
-    # SP Top-down flow
-    sp.setParameter('topDownMode', True)
     sp.prepareInputs()
     sp.compute()
-
-    #--------------------------------------------------
-    # Sensor Top-down flow
-    sensor.setParameter('topDownMode', True)
     sensor.prepareInputs()
     sensor.compute()
 

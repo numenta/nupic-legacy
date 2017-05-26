@@ -1291,9 +1291,7 @@ class BacktrackingTM(ConsolePrinterMixin):
 
     step = 0
     while True:
-      # We get the prediction for the columns in the next time step from
-      # the topDownCompute method. It internally uses confidences.
-      multiStepColumnPredictions[step, :] = self.topDownCompute()
+      multiStepColumnPredictions[step, :] = self._columnConfidences()
 
       # Cleanest way in python to handle one and half loops
       if step == nSteps-1:
@@ -2391,22 +2389,9 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     Returns the stored cell confidences from the last compute.
 
-    :returns: Column confidence scores TODO in what format?
+    :returns: Column confidence scores
     """
     return self.colConfidence['t']
-
-
-  def topDownCompute(self):
-    """
-    For now, we will assume there is no one above us and that bottomUpOut is
-    simply the output that corresponds to our currently stored column
-    confidences.
-    
-    :returns: the same damn thing as :meth:`columnConfidences`
-    """
-
-    # Simply return the column confidences
-    return self._columnConfidences()
 
 
   def _trimSegmentsInCell(self, colIdx, cellIdx, segList, minPermanence,
