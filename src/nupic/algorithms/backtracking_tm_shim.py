@@ -52,7 +52,7 @@ class TMShimMixin(object):
                permanenceDec=0.10,
                permanenceMax=1.0,
                activationThreshold=12,
-               predictedSegmentDecrement=0,
+               predictedSegmentDecrement=0.0,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255,
                globalDecay=0.10,
@@ -80,6 +80,21 @@ class TMShimMixin(object):
       seed=seed)
 
     self.infActiveState = {"t": None}
+
+
+  @classmethod
+  def read(cls, proto):
+    """
+    Intercepts TemporalMemory deserialization request in order to initialize
+    `self.infActiveState`
+
+    @param proto (DynamicStructBuilder) Proto object
+
+    @return (TemporalMemory) TemporalMemory shim instance
+    """
+    tm = super(TMShimMixin, cls).read(proto)
+    tm.infActiveState = {"t": None}
+    return tm
 
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
@@ -171,7 +186,7 @@ class MonitoredTMShim(MonitoredTemporalMemory):
                permanenceDec=0.10,
                permanenceMax=1.0,
                activationThreshold=12,
-               predictedSegmentDecrement=0,
+               predictedSegmentDecrement=0.0,
                maxSegmentsPerCell=255,
                maxSynapsesPerSegment=255,
                globalDecay=0.10,
