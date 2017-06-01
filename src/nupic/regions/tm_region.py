@@ -24,6 +24,7 @@ import abc
 import numpy
 
 from nupic.bindings.regions.PyRegion import PyRegion
+from nupic.algorithms import anomaly
 from nupic.support import getArgumentDescriptions
 from nupic.support.console_printer import ConsolePrinterMixin
 
