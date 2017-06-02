@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Anomaly Detection &#8212; NuPIC 0.7.0.dev0
+    <title>Anomaly Detection &#8212; NuPIC 0.7.1.dev0
  documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.7.0.dev0',
+        VERSION:     '0.7.1.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -151,65 +151,54 @@ generate the likelihood (anomaly * likelihood)</p>
 <div class="section" id="module-nupic.algorithms.anomaly_likelihood">
 <span id="anomalylikelihood"></span><h2>AnomalyLikelihood<a class="headerlink" href="#module-nupic.algorithms.anomaly_likelihood" title="Permalink to this headline">¶</a></h2>
 <p>This module analyzes and estimates the distribution of averaged anomaly scores
-from a given model. Given a new anomaly score <cite>s</cite>, estimates <cite>P(score &gt;= s)</cite>.</p>
-<p>The number <cite>P(score &gt;= s)</cite> represents the likelihood of the current state of
+from a given model. Given a new anomaly score <code class="docutils literal"><span class="pre">s</span></code>, estimates
+<code class="docutils literal"><span class="pre">P(score</span> <span class="pre">&gt;=</span> <span class="pre">s)</span></code>.</p>
+<p>The number <code class="docutils literal"><span class="pre">P(score</span> <span class="pre">&gt;=</span> <span class="pre">s)</span></code> represents the likelihood of the current state of
 predictability. For example, a likelihood of 0.01 or 1% means we see this much
 predictability about one out of every 100 records. The number is not as unusual
 as it seems. For records that arrive every minute, this means once every hour
 and 40 minutes. A likelihood of 0.0001 or 0.01% means we see it once out of
 10,000 records, or about once every 7 days.</p>
-<p><strong>USAGE</strong></p>
+<div class="section" id="usage">
+<h3>USAGE<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
 <p>There are two ways to use the code: using the
 <a class="reference internal" href="#nupic.algorithms.anomaly_likelihood.AnomalyLikelihood" title="nupic.algorithms.anomaly_likelihood.AnomalyLikelihood"><code class="xref py py-class docutils literal"><span class="pre">anomaly_likelihood.AnomalyLikelihood</span></code></a> helper class or using the raw
 individual functions <a class="reference internal" href="#nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods" title="nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods"><code class="xref py py-func docutils literal"><span class="pre">estimateAnomalyLikelihoods()</span></code></a> and
 <a class="reference internal" href="#nupic.algorithms.anomaly_likelihood.updateAnomalyLikelihoods" title="nupic.algorithms.anomaly_likelihood.updateAnomalyLikelihoods"><code class="xref py py-func docutils literal"><span class="pre">updateAnomalyLikelihoods()</span></code></a>.</p>
-<p><strong>Low-Level Function Usage</strong></p>
-<p>There are two primary interface routines:</p>
-<ul>
-<li><dl class="first docutils">
-<dt><a class="reference internal" href="#nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods" title="nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods"><code class="xref py py-func docutils literal"><span class="pre">estimateAnomalyLikelihoods()</span></code></a>: batch routine, called</dt>
-<dd><p class="first last">initially and once in a while</p>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt><a class="reference internal" href="#nupic.algorithms.anomaly_likelihood.updateAnomalyLikelihoods" title="nupic.algorithms.anomaly_likelihood.updateAnomalyLikelihoods"><code class="xref py py-func docutils literal"><span class="pre">updateAnomalyLikelihoods()</span></code></a>: online routine, called</dt>
-<dd><p class="first last">for every new data point</p>
-</dd>
-</dl>
-</li>
+</div>
+<div class="section" id="low-level-function-usage">
+<h3>Low-Level Function Usage<a class="headerlink" href="#low-level-function-usage" title="Permalink to this headline">¶</a></h3>
+<p>There are two primary interface routines.</p>
+<ul class="simple">
+<li><a class="reference internal" href="#nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods" title="nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods"><code class="xref py py-func docutils literal"><span class="pre">estimateAnomalyLikelihoods()</span></code></a>: batch routine, called
+initially and once in a while</li>
+<li><a class="reference internal" href="#nupic.algorithms.anomaly_likelihood.updateAnomalyLikelihoods" title="nupic.algorithms.anomaly_likelihood.updateAnomalyLikelihoods"><code class="xref py py-func docutils literal"><span class="pre">updateAnomalyLikelihoods()</span></code></a>: online routine, called
+for every new data point</li>
 </ul>
-<ol class="arabic simple">
-<li>Initially:</li>
-</ol>
+<p>Initially:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">likelihoods</span><span class="p">,</span> <span class="n">avgRecordList</span><span class="p">,</span> <span class="n">estimatorParams</span> <span class="o">=</span> \
   <span class="n">estimateAnomalyLikelihoods</span><span class="p">(</span><span class="n">metric_data</span><span class="p">)</span>
 </pre></div>
 </div>
-<ol class="arabic simple" start="2">
-<li>Whenever you get new data:</li>
-</ol>
+<p>Whenever you get new data:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">likelihoods</span><span class="p">,</span> <span class="n">avgRecordList</span><span class="p">,</span> <span class="n">estimatorParams</span> <span class="o">=</span> \
   <span class="n">updateAnomalyLikelihoods</span><span class="p">(</span><span class="n">data2</span><span class="p">,</span> <span class="n">estimatorParams</span><span class="p">)</span>
 </pre></div>
 </div>
-<ol class="arabic simple" start="3">
-<li>And again (make sure you use the new estimatorParams returned in the above</li>
-</ol>
-<blockquote>
-<div>call to updateAnomalyLikelihoods!):</div></blockquote>
+<p>And again (make sure you use the new estimatorParams returned in the above call
+to updateAnomalyLikelihoods!).</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">likelihoods</span><span class="p">,</span> <span class="n">avgRecordList</span><span class="p">,</span> <span class="n">estimatorParams</span> <span class="o">=</span> \
   <span class="n">updateAnomalyLikelihoods</span><span class="p">(</span><span class="n">data3</span><span class="p">,</span> <span class="n">estimatorParams</span><span class="p">)</span>
 </pre></div>
 </div>
-<ol class="arabic simple" start="4">
-<li>Every once in a while update estimator with a lot of recent data:</li>
-</ol>
+<p>Every once in a while update estimator with a lot of recent data.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">likelihoods</span><span class="p">,</span> <span class="n">avgRecordList</span><span class="p">,</span> <span class="n">estimatorParams</span> <span class="o">=</span> \
   <span class="n">estimateAnomalyLikelihoods</span><span class="p">(</span><span class="n">lots_of_metric_data</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>PARAMS</strong></p>
+</div>
+<div class="section" id="params">
+<h3>PARAMS<a class="headerlink" href="#params" title="Permalink to this headline">¶</a></h3>
 <p>The parameters dict returned by the above functions has the following
 structure. Note: the client does not need to know the details of this.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -236,6 +225,7 @@ structure. Note: the client does not need to know the details of this.</p>
 
 <span class="p">}</span>
 </pre></div>
+</div>
 </div>
 <dl class="class">
 <dt id="nupic.algorithms.anomaly_likelihood.AnomalyLikelihood">
