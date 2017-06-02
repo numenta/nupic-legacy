@@ -81,10 +81,10 @@ import numpy
 from prettytable import PrettyTable
 
 from nupic.algorithms.monitor_mixin.plot import Plot
+from nupic.support.console_printer import ConsolePrinterMixin
 
 
-
-class MonitorMixinBase(object):
+class MonitorMixinBase(ConsolePrinterMixin):
   """
   Base class for MonitorMixin. Each subclass will be a mixin for a particular
   algorithm.

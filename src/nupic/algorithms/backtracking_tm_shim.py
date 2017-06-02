@@ -20,8 +20,8 @@
 # ----------------------------------------------------------------------
 
 """
-A shim for the TM class that transparently implements TemporalMemory,
-for use with OPF.
+A shim for the TM class that transparently implements TemporalMemory as a 
+:class:TemporalMemoryImplementation
 """
 
 import numpy
@@ -30,10 +30,12 @@ from nupic.bindings.algorithms import TemporalMemory as TemporalMemoryCPP
 from nupic.algorithms.monitor_mixin.temporal_memory_monitor_mixin import (
   TemporalMemoryMonitorMixin)
 from nupic.algorithms.temporal_memory import TemporalMemory
+from nupic.regions.tm_region import TemporalMemoryImplementation
 
 
 class MonitoredTemporalMemory(TemporalMemoryMonitorMixin,
-                              TemporalMemory): pass
+                              TemporalMemory):
+  pass
 
 
 
@@ -82,17 +84,13 @@ class TMShimMixin(object):
     self.infActiveState = {"t": None}
 
 
-  def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
+  def compute(self, bottomUpInput, enableLearn, enableInference=None):
     """
     (From `backtracking_tm.py`)
     Handle one compute, possibly learning.
 
     @param bottomUpInput     The bottom-up input, typically from a spatial pooler
     @param enableLearn       If true, perform learning
-    @param computeInfOutput  If None, default behavior is to disable the inference
-                             output when enableLearn is on.
-                             If true, compute the inference output
-                             If false, do not compute the inference output
     """
     super(TMShimMixin, self).compute(set(bottomUpInput.nonzero()[0]),
                                      learn=enableLearn)
@@ -141,15 +139,25 @@ class TMShimMixin(object):
     return state
 
 
+  def saveToFile(self, filePath):
+    pass
+
+
+  def loadFromFile(self, filePath):
+    pass
+
+
 
 class TMShim(TMShimMixin, TemporalMemory):
   pass
 
+TemporalMemoryImplementation.register(TMShim)
 
 
 class TMCPPShim(TMShimMixin, TemporalMemoryCPP):
   pass
 
+TemporalMemoryImplementation.register(TMCPPShim)
 
 
 class MonitoredTMShim(MonitoredTemporalMemory):
@@ -201,18 +209,19 @@ class MonitoredTMShim(MonitoredTemporalMemory):
     self.infActiveState = {"t": None}
 
 
-  def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
+  def compute(self, bottomUpInput, enableLearn, enableInference=None):
     """
     (From `backtracking_tm.py`)
     Handle one compute, possibly learning.
 
     @param bottomUpInput     The bottom-up input, typically from a spatial pooler
     @param enableLearn       If true, perform learning
-    @param computeInfOutput  If None, default behavior is to disable the inference
+    @param enableInference  If None, default behavior is to disable the inference
                              output when enableLearn is on.
                              If true, compute the inference output
                              If false, do not compute the inference output
     """
+    # This calls compute on the the TM instance itself.
     super(MonitoredTMShim, self).compute(set(bottomUpInput.nonzero()[0]),
                                          learn=enableLearn)
     numberOfCells = self.numberOfCells()
@@ -257,5 +266,5 @@ class MonitoredTMShim(MonitoredTemporalMemory):
     state = numpy.zeros([self.numberOfColumns(), self.cellsPerColumn])
     return state
 
-
+TemporalMemoryImplementation.register(MonitoredTMShim)
 
