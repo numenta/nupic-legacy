@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Quick Start &#8212; NuPIC 0.7.0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.7.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Online Prediction Framework (OPF)" href="opf.html" />
+    <link rel="prev" title="NuPIC 0.7.0 API Documentation" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <img alt="../_images/quickstart.png" class="align-right" src="../_images/quickstart.png" />
+<div class="section" id="quick-start">
+<h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="install-nupic">
+<h2>Install NuPIC<a class="headerlink" href="#install-nupic" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>pip install nupic <span class="o">[</span>--user<span class="o">]</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">--user</span></code> is in brackets because it is optional. See the
+<a class="reference external" href="https://pip.pypa.io/en/stable/reference/pip_install/#cmdoption-user">pip reference guide</a>
+for details.</p>
+<p>The output of this command should end with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Successfully</span> <span class="n">installed</span> <span class="n">nupic</span><span class="o">-</span><span class="n">X</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">X</span> <span class="n">nupic</span><span class="o">.</span><span class="n">bindings</span><span class="o">-</span><span class="n">X</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">X</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">X.X.X</span></code> represents the most recent versions shown for each project at:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://pypi.python.org/pypi/nupic">https://pypi.python.org/pypi/nupic</a></li>
+<li><a class="reference external" href="https://pypi.python.org/pypi/nupic.bindings">https://pypi.python.org/pypi/nupic.bindings</a></li>
+</ul>
+<p>If your installation was unsuccessful, you can find help on
+<a class="reference external" href="https://discourse.numenta.org/c/nupic/">NuPIC Forums</a> and on
+<a class="reference external" href="https://github.com/numenta/nupic/issues/">Github</a>.</p>
+</div>
+<div class="section" id="choose-your-api">
+<h2>Choose Your API<a class="headerlink" href="#choose-your-api" title="Permalink to this headline">¶</a></h2>
+<p>You can choose to construct an HTM several ways with NuPIC. See the
+<a class="reference external" href="../guides/network.html">Network Guide</a> and
+<a class="reference external" href="../api/network/">Network API Docs</a> for more details. Below are Quick Start
+guides for each interface:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="opf.html">Online Prediction Framework (OPF)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opf.html#model-parameters">Model Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opf.html#create-an-opf-model">Create an OPF Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opf.html#feed-the-model-data">Feed the Model Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opf.html#extract-the-results">Extract the results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="network.html">Network API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="network.html#network-parameters">Network Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#create-a-network">Create a Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#add-a-sensor-region">Add a Sensor Region</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#add-a-data-source-to-the-sensor-region">Add a Data Source to the Sensor Region</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#add-an-encoder-to-the-sensor-region">Add an Encoder to the Sensor Region</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#add-a-spatial-pooler-region">Add a Spatial Pooler Region</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#add-a-temporal-memory-region">Add a Temporal Memory Region</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#add-a-classifier-region">Add a Classifier Region</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#link-all-regions">Link all Regions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#set-the-predicted-field-index">Set the Predicted Field Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#enable-learning-and-inference">Enable Learning and Inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#run-the-network">Run the Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html#getting-predictions">Getting Predictions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms.html">Algorithms API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#encoding-data">Encoding Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#one-row-of-data">One Row Of Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#creating-encoders">Creating Encoders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#id2">Encoding Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#spatial-pooling">Spatial Pooling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#creating-the-sp">Creating the SP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#running-the-sp">Running the SP</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#temporal-memory">Temporal Memory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#creating-the-tm">Creating the TM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#running-the-tm">Running the TM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#predictive-cells">Predictive Cells</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html#getting-predictions">Getting Predictions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#creating-an-sdr-classifier">Creating an SDR Classifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html#running-the-classifier">Running the Classifier</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#install-nupic">Install NuPIC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#choose-your-api">Choose Your API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opf.html">Online Prediction Framework (OPF)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html">Network API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms.html">Algorithms API</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/index.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/quick-start/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

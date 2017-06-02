@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Sensors &#8212; NuPIC 0.7.0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.7.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Algorithms" href="../algorithms/index.html" />
+    <link rel="prev" title="Regions" href="regions.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sensors">
+<h1>Sensors<a class="headerlink" href="#sensors" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pluggableencodersensor">
+<h2>PluggableEncoderSensor<a class="headerlink" href="#pluggableencodersensor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.regions.pluggable_encoder_sensor.PluggableEncoderSensor">
+<em class="property">class </em><code class="descclassname">nupic.regions.pluggable_encoder_sensor.</code><code class="descname">PluggableEncoderSensor</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.pluggable_encoder_sensor.PluggableEncoderSensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regions.html#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion</span></code></a></p>
+<p>A PluggableEncoderSensor holds a value and encodes it into network output.</p>
+<p>It requires you to reach in and insert an encoder.</p>
+<dl class="method">
+<dt id="nupic.regions.pluggable_encoder_sensor.PluggableEncoderSensor.setSensedValue">
+<code class="descname">setSensedValue</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.pluggable_encoder_sensor.PluggableEncoderSensor.setSensedValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the value that will be encoded when this region does a compute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="recordsensor">
+<h2>RecordSensor<a class="headerlink" href="#recordsensor" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/index.html">Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../opf/index.html">Online Prediction Framework</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Network API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="network.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html">Regions</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Sensors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pluggableencodersensor">PluggableEncoderSensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#recordsensor">RecordSensor</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data/index.html">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support/index.html">Support</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/network/sensors.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -4,7 +4,7 @@ Sensors
 PluggableEncoderSensor
 ^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.pluggable_encoder_sensor.PluggableEncoderSensor
+.. autoclass:: nupic.regions.PluggableEncoderSensor.PluggableEncoderSensor
    :members:
    :show-inheritance:
 

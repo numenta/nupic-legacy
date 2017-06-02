@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Temporal Memory &#8212; NuPIC 0.7.1.dev0
+    <title>Temporal Memory &#8212; NuPIC 0.7.0.dev0
  documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.7.1.dev0',
+        VERSION:     '0.7.0.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -174,18 +174,6 @@ method to choose a different Connections implementation, or to augment the
 instance otherwise returned by the default Connections implementation.</p>
 <p>See Connections for constructor signature and usage.</p>
 <p>&#64;return: Connections instance</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="nupic.algorithms.temporal_memory.TemporalMemory.createSegment">
-<code class="descname">createSegment</code><span class="sig-paren">(</span><em>cell</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.createSegment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a segment on the specified cell. This method calls createSegment
-on the underlying connections, and it does some extra bookkeeping. Unit
-tests should call this method, and not connections.createSegment().</p>
-<p>&#64;param cell (int)
-Index of cell to create a segment on.</p>
-<p>&#64;return (Segment)
-The created segment.</p>
 </dd></dl>
 
 <dl class="method">

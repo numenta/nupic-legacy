@@ -12,42 +12,42 @@ PyRegion
 AnomalyRegion
 ^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.anomaly_region.AnomalyRegion
+.. autoclass:: nupic.regions.AnomalyRegion.AnomalyRegion
    :members:
    :show-inheritance:
 
 SPRegion
 ^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.sp_region.SPRegion
+.. autoclass:: nupic.regions.SPRegion.SPRegion
    :members:
    :show-inheritance:
 
 TMRegion
 ^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.tm_region.TMRegion
+.. autoclass:: nupic.regions.TMRegion.TMRegion
    :members:
    :show-inheritance:
 
 AnomalyLikelihoodRegion
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.anomaly_likelihood_region.AnomalyLikelihoodRegion
+.. autoclass:: nupic.regions.AnomalyLikelihoodRegion.AnomalyLikelihoodRegion
    :members:
    :show-inheritance:
 
 CLAClassifierRegion
 ^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.cla_classifier_region.CLAClassifierRegion
+.. autoclass:: nupic.regions.CLAClassifierRegion.CLAClassifierRegion
    :members:
    :show-inheritance:
 
 KNNAnomalyClassifierRegion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion
+.. autoclass:: nupic.regions.KNNAnomalyClassifierRegion.KNNAnomalyClassifierRegion
    :members:
    :show-inheritance:
 
@@ -55,7 +55,7 @@ KNNAnomalyClassifierRegion
 KNNClassifierRegion
 ^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.knn_classifier_region.KNNClassifierRegion
+.. autoclass:: nupic.regions.KNNClassifierRegion.KNNClassifierRegion
    :members:
    :show-inheritance:
 
@@ -63,6 +63,6 @@ KNNClassifierRegion
 SDRClassifierRegion
 ^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.sdr_classifier_region.SDRClassifierRegion
+.. autoclass:: nupic.regions.SDRClassifierRegion.SDRClassifierRegion
    :members:
    :show-inheritance:
