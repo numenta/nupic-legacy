@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Network API &#8212; NuPIC 0.7.0.dev0
+    <title>Network API &#8212; NuPIC 0.7.0
  documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.7.0.dev0',
+        VERSION:     '0.7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -252,7 +252,7 @@ create regions with the right parameters and how to link them.</p>
 </div>
 <div class="section" id="add-a-sensor-region">
 <h2>Add a Sensor Region<a class="headerlink" href="#add-a-sensor-region" title="Permalink to this headline">¶</a></h2>
-<p>Let&#8217;s add a region of type <a class="reference internal" href="../api/network/sensors.html#nupic.regions.RecordSensor.RecordSensor" title="nupic.regions.RecordSensor.RecordSensor"><code class="xref py py-class docutils literal"><span class="pre">RecordSensor</span></code></a>.</p>
+<p>Let&#8217;s add a region of type <code class="xref py py-class docutils literal"><span class="pre">RecordSensor</span></code>.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">network</span><span class="o">.</span><span class="n">addRegion</span><span class="p">(</span><span class="s2">&quot;sensor&quot;</span><span class="p">,</span> <span class="s2">&quot;py.RecordSensor&quot;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -474,7 +474,7 @@ classifier region. In our case, we are interested in:</p>
 <span class="n">probabilities</span> <span class="o">=</span> <span class="n">classifierRegion</span><span class="o">.</span><span class="n">getOutputData</span><span class="p">(</span><span class="s2">&quot;probabilities&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Refer to the documentation of <a class="reference internal" href="../api/network/regions.html#nupic.regions.SDRClassifierRegion.SDRClassifierRegion" title="nupic.regions.SDRClassifierRegion.SDRClassifierRegion"><code class="xref py py-class docutils literal"><span class="pre">SDRClassifierRegion</span></code></a> for
+<p>Refer to the documentation of <a class="reference internal" href="../api/network/regions.html#nupic.regions.sdr_classifier_region.SDRClassifierRegion" title="nupic.regions.sdr_classifier_region.SDRClassifierRegion"><code class="xref py py-class docutils literal"><span class="pre">SDRClassifierRegion</span></code></a> for
 more information about output values and their structure.</p>
 <p>We&#8217;ll use the helper function below to extract predictions more easily from
 the classifier region:</p>
