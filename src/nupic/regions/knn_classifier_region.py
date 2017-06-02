@@ -982,7 +982,7 @@ class KNNClassifierRegion(PyRegion):
             confusion = numpy.zeros((dims, dims))
             confusion[0:oldDims, 0:oldDims] = self.confusion
             self.confusion = confusion
-          self.confusion[inference.argmax(), category] += 1
+          self.confusion[inference.argmax(), int(category)] += 1
 
       # Calculate the best prototype indices
       if nPrototypes > 1:

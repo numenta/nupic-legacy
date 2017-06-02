@@ -74,7 +74,7 @@ class KNNClassifierTest(unittest.TestCase):
       patternDict[i]['pattern'] = patterns[i]
       patternDict[i]['category'] = numpy.random.randint(0, numClasses-1)
       testDict[i] = copy.deepcopy(patternDict[i])
-      testDict[i]['pattern'][:0.02*patternSize] = numpy.random.rand()
+      testDict[i]['pattern'][:int(0.02*patternSize)] = numpy.random.rand()
       testDict[i]['category'] = None
 
     LOGGER.info("\nTesting KNN Classifier with L2 norm")
