@@ -1,5 +1,84 @@
 # Changelog
 
+## 0.7.0
+
+**WARNING**: This release contains breaking changes described in
+https://discourse.numenta.org/t/warning-0-7-0-breaking-changes/2200
+
+* Stop calling the backtracking_tm tests "tm tests" (#3650)
+* Update hierarchy demo to fix regression
+* Clean up BacktrackingTM's public API (#3645)
+* Make region file names snake_case (part 7) (#3640)
+* Removed references to obsolete tm_py_fast shim (#3639)
+* Updated OPF Metric API docs (#3638)
+* updated __init__.py to include missing encoders (#3487)
+* Fixed anomaly likelihood doc problems. (#3629)
+* Updates swarming, some region code to snake_case (part 6) (#3627)
+* Fixed OPF util helpers module names. (#3625)
+* Complete RST docs for nupic.support (#3624)
+* Deleted nupic.support.features* (unused) (#3622)
+* Removed nupic.support.exceptions (unused) (#3620)
+* Proper snake_case for nupic.support (part 5) (#3618)
+* Snake case nupic.encoders (part 4) (#3614)
+* Moved opf_helpers module to helpers (#3610)
+* Removes unused code from nupic.support (#3616)
+* Applying snake_case module name standards (PART 3) (#3611)
+* Fixed support initLogging docstring params
+* Finished OPF utils and env docs
+* Documented OPF Basic Env
+* Documented OPF ENv
+* Documenting OPF Task Driver
+* Documenting OPF experiment runner
+* Removed OPF utils PredictionElement (#3604)
+* Partial doc of experiment description api
+* NUP-2429 Add .gitignore with first_order_0.csv to prevent accedental commits of this generated file.
+* Documented cluster_params canned model config
+* Documented OPF model exceptions
+* Finished doccing opf_utils
+* Documenting OPF utils
+* Removed predictedField from HTMPredictionModel constructor (#3600)
+* NUP-2420 Renamed tm_shim.py to BacktrackingTM_shim.py
+* Removes inputRef / bookmark params from appendRecord (#3597)
+* Documented nupic.data (#3593)
+* OPF Model docstrings (#3589)
+* Remove obsolete nupic.research.bindings check
+* Removed unimplemented abstract methods (#3596)
+* Removed WeatherJoiner code from old example (#3595)
+* Updated snakecase opf_utils in RST docs (#3585)
+* Renamed tm_ccp test so it runs
+* Moved research tm_cpp_test.py back into nupic.research
+* Removed base.Encoder.formatBits() (#3582)
+* Replace dump() with define __str__ in Encoders. Issue #1518 (#3559)
+* Complete encoder docstrings (#3579)
+* Removed nupic.research, moved contents to nupic.algorithms
+* move zip logic into 'build_script'
+* Add support for artifacts deployed to S3 named according to sha
+* Snake case module names PART 2 (#3561)
+* Remove old examples Part 2 (#3562)
+* NUP-2401: Check for prediction results discrepancies (#3558)
+* NUP-2397: rename TP* to TM* (#3555)
+* NUP-2405: quick-start guide for the Network API (#3557)
+* Snake case module names PART 1 (#3550)
+* NUP-2394: network API code example (#3520)
+* Remove old examples Part 1 (#3551)
+* Docs: InferenceShifter,ModelResult,SensorInput,InferenceType (#3549)
+* CLAModel name changed to HTMPredictionModel (#3516)
+* Updating FileRecordStream docstrings (#3545)
+* Fieldmeta docstrings (#3541)
+* Update KNNClassifier docstrings (#3535)
+* SDRClassifier docs, default config docs
+* Updates anomaly docstrings (#3537)
+* [NUP-2399] Added style guides to new guide (#3528)
+* NUP-2396 Allow SensorRegion to pass actValue and bucketIdx to SDRClassifierRegion
+* Added anomaly detection guide (#3521)
+* NUP-2389 Upgrade nupic.bindings dependency to 0.6.1 which has the requisite changes.
+* name change tpParams/tmEnable => tmParams/tmEnable (#3514)
+* NUP-2391: packages to document & progress tracking (#3517)
+* Quick Start Algorithms Section (#3512)
+* Quick Start
+* NUP-2389 Remove calls to Region::purgeInputLinkBufferHeads. Since we only support delay=0 in CLA models, we no longer need `purgeInputLinkBufferHeads`, because the new Link::compute logic in nupic.core now performs direct copy from src to dest for links with delay of 0.
+* Disable flatline hack in anomaly likelihood
+
 ## 0.6.0
 
 * Touch init even if model params dir exists

@@ -41,7 +41,7 @@ VERBOSITY = 0
 
 
 
-class TMTest(unittest.TestCase):
+class BacktrackingTMTest(unittest.TestCase):
   """Unit tests for the TM class."""
 
 
@@ -199,7 +199,8 @@ class TMTest(unittest.TestCase):
   @staticmethod
   def generateSequence(n=10, numCols=100, minOnes=21, maxOnes=25):
     """Generates a sequence of n patterns."""
-    return [None] + [TMTest.generatePattern(numCols, minOnes, maxOnes)
+    return [None] + [BacktrackingTMTest.generatePattern(numCols, minOnes,
+                                                        maxOnes)
                      for _ in xrange(n)]
 
 
