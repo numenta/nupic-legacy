@@ -976,7 +976,7 @@ class KNNClassifierRegion(PyRegion):
       # Update the stored confusion matrix.
       for category in categories:
         if category >= 0:
-          dims = max(category+1, len(inference))
+          dims = max(int(category)+1, len(inference))
           oldDims = len(self.confusion)
           if oldDims < dims:
             confusion = numpy.zeros((dims, dims))
