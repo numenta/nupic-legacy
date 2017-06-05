@@ -37,13 +37,6 @@ AnomalyLikelihoodRegion
    :members:
    :show-inheritance:
 
-CLAClassifierRegion
-^^^^^^^^^^^^^^^^^^^
-
-.. autoclass:: nupic.regions.cla_classifier_region.CLAClassifierRegion
-   :members:
-   :show-inheritance:
-
 KNNAnomalyClassifierRegion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
