@@ -125,7 +125,7 @@ nupic
 │   │   ├── exp_description_api.py [OK]
 │   │   │   └── ExperimentDescriptionAPI [TODO]
 │   │   ├── experiment_runner.py [OK]
-│   │   ├── metrics.py [TODO]
+│   │   ├── metrics.py [OK]
 │   │   ├── model.py [OK]
 │   │   ├── model_factory.py [OK]
 │   │   ├── opf_basic_environment.py [OK]
