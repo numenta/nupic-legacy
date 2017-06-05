@@ -364,47 +364,28 @@ class SDRClassifierRegion(PyRegion):
     # when network.run() is called
     self._computeFlag = True
 
-    # An input can potentially belong to multiple categories.
-    # If a category value is < 0, it means that the input does not belong to
-    # that category.
-    categories = [category for category in inputs["categoryIn"]
-                  if category >= 0]
-
     patternNZ = inputs["bottomUpIn"].nonzero()[0]
 
-    # ==========================================================================
-    # Allow to train on multiple input categories.
-    # Do inference first, and then train on all input categories.
-
-    # --------------------------------------------------------------------------
-    #   1. Call classifier. Don't train. Just inference. Train after.
-
-    # Use Dummy classification input, because this param is required even for
-    # inference mode. Because learning is off, the classifier is not learning
-    # this dummy input. Inference only here.
-    classificationIn = {"actValue": 0, "bucketIdx": 0}
-    clResults = self._sdrClassifier.compute(recordNum=self.recordNum,
-                                            patternNZ=patternNZ,
-                                            classification=classificationIn,
-                                            learn=False,
-                                            infer=self.inferenceMode)
-
-    # ------------------------------------------------------------------------
-    #   2. Train classifier, no inference
     if self.learningMode:
-      for category in categories:
-        classificationIn = {"bucketIdx": int(category),
-                            "actValue": int(category)}
+      # An input can potentially belong to multiple categories.
+      # If a category value is < 0, it means that the input does not belong to
+      # that category.
+      categories = [category for category in inputs["categoryIn"]
+                    if category >= 0]
 
-        self._sdrClassifier.compute(recordNum=self.recordNum,
-                                    patternNZ=patternNZ,
-                                    classification=classificationIn,
-                                    learn=self.learningMode,
-                                    infer=False)
+      if len(categories) > 0:
+        # Allow to train on multiple input categories.
+        bucketIdxList = []
+        actValueList = []
+        for category in categories:
+          bucketIdxList.append(int(category))
+          actValueList.append(int(category))
 
-      # If the input does not belong to a category, i.e. len(categories) == 0,
-      # then look for bucketIdx and actValueIn.
-      if len(categories) == 0:
+        classificationIn = {"bucketIdx": bucketIdxList,
+                            "actValue": actValueList}
+      else:
+        # If the input does not belong to a category, i.e. len(categories) == 0,
+        # then look for bucketIdx and actValueIn.
         if "bucketIdxIn" not in inputs:
           raise KeyError("Network link missing: bucketIdxOut -> bucketIdxIn")
         if "actValueIn" not in inputs:
@@ -412,11 +393,19 @@ class SDRClassifierRegion(PyRegion):
 
         classificationIn = {"bucketIdx": int(inputs["bucketIdxIn"]),
                             "actValue": float(inputs["actValueIn"])}
-        self._sdrClassifier.compute(recordNum=self.recordNum,
-                                    patternNZ=patternNZ,
-                                    classification=classificationIn,
-                                    learn=self.learningMode,
-                                    infer=False)
+    else:
+      # Use Dummy classification input, because this param is required even for
+      # inference mode. Because learning is off, the classifier is not learning
+      # this dummy input. Inference only here.
+      classificationIn = {"actValue": 0, "bucketIdx": 0}
+
+    # Perform inference if self.inferenceMode is True
+    # Train classifier if self.learningMode is True
+    clResults = self._sdrClassifier.compute(recordNum=self.recordNum,
+                                            patternNZ=patternNZ,
+                                            classification=classificationIn,
+                                            learn=self.learningMode,
+                                            infer=self.inferenceMode)
 
     # fill outputs with clResults
     if clResults is not None and len(clResults) > 0:
