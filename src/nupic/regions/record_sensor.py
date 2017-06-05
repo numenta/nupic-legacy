@@ -207,8 +207,8 @@ class RecordSensor(PyRegion):
           count=1,
           constraints=""),
         predictedField=dict(
-          description="The field to be predicted. This will result in the "
-                      "outputs actValueOut and bucketIdxOut not being "
+          description="The name of the field to be predicted. This will result "
+                      "in the outputs actValueOut and bucketIdxOut not being "
                       "populated.",
           dataType="Byte",
           accessMode="ReadWrite",
