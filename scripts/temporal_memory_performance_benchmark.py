@@ -251,7 +251,7 @@ def tmComputeFn(instance, encoding, activeBits):
 
 
 def backtrackingComputeFn(instance, encoding, activeBits):
-  instance.compute(encoding, enableLearn=True, computeInfOutput=True)
+  instance.compute(encoding, enableLearn=True, enableInference=True)
 
 
 if __name__ == "__main__":

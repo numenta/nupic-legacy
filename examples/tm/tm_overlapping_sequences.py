@@ -413,7 +413,7 @@ def evalSequences(tms,
         # Train in this element
         x = numpy.array(x).astype('float32')
         for tm in tms.itervalues():
-          tm.learn(x, computeInfOutput=True)
+          tm.learn(x, enableInference=True)
 
         # Print the input and output states
         if VERBOSITY >= 3:

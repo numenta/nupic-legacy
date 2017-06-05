@@ -498,14 +498,16 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def saveToFile(self, filePath):
     """
-    Implemented in :meth:`backtracking_tm_cpp.BacktrackingTMCPP.saveToFile`.
+    Implemented in 
+    :meth:`nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.saveToFile`.
     """
     pass
 
 
   def loadFromFile(self, filePath):
     """
-    Implemented in :meth:`backtracking_tm_cpp.BacktrackingTMCPP.loadFromFile`.
+    Implemented in 
+    :meth:`nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.loadFromFile`.
     """
     pass
 
@@ -810,6 +812,7 @@ class BacktrackingTM(ConsolePrinterMixin):
   def printStates(self, printPrevious = True, printLearnState = True):
     """
     TODO: document
+    
     :param printPrevious: 
     :param printLearnState: 
     :return: 
@@ -852,6 +855,7 @@ class BacktrackingTM(ConsolePrinterMixin):
   def printOutput(self, y):
     """
     TODO: document
+    
     :param y: 
     :return: 
     """
@@ -865,6 +869,7 @@ class BacktrackingTM(ConsolePrinterMixin):
   def printInput(self, x):
     """
     TODO: document
+    
     :param x: 
     :return: 
     """
@@ -898,8 +903,8 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def printActiveIndices(self, state, andValues=False):
     """
-    Print the list of [column, cellIdx] indices for each of the active
-    cells in state.
+    Print the list of ``[column, cellIdx]`` indices for each of the active cells 
+    in state.
 
     :param state: TODO: document
     :param andValues: TODO: document
@@ -1010,6 +1015,7 @@ class BacktrackingTM(ConsolePrinterMixin):
   def printSegmentUpdates(self):
     """
     TODO: document
+    
     :return: 
     """
     print "=== SEGMENT UPDATES ===, Num = ", len(self.segmentUpdates)
@@ -1021,6 +1027,7 @@ class BacktrackingTM(ConsolePrinterMixin):
   def printCell(self, c, i, onlyActiveSegments=False):
     """
     TODO: document
+    
     :param c: 
     :param i: 
     :param onlyActiveSegments: 
@@ -1041,6 +1048,7 @@ class BacktrackingTM(ConsolePrinterMixin):
   def printCells(self, predictedOnly=False):
     """
     TODO: document
+    
     :param predictedOnly: 
     :return: 
     """
@@ -1259,15 +1267,9 @@ class BacktrackingTM(ConsolePrinterMixin):
 
   def getPredictedState(self):
     """
-    Return a numpy array, predictedCells, representing the current predicted
-    state.
-
-    predictedCells[c][i] represents the state of the i'th cell in the c'th
-    column.
-
     :returns: numpy array of predicted cells, representing the current predicted
-      state. predictedCells[c][i] represents the state of the i'th cell in the 
-      c'th column.
+      state. ``predictedCells[c][i]`` represents the state of the i'th cell in 
+      the c'th column.
     """
     return self.infPredictedState['t']
 
@@ -2272,21 +2274,21 @@ class BacktrackingTM(ConsolePrinterMixin):
     self._learnPhase2()
 
 
-  def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
+  def compute(self, bottomUpInput, enableLearn, enableInference=None):
     """
     Handle one compute, possibly learning.
 
     .. note::  It is an error to have both ``enableLearn`` and 
-               ``computeInfOutput`` set to False
+               ``enableInference`` set to False
 
     .. note:: By default, we don't compute the inference output when learning 
               because it slows things down, but you can override this by passing 
-              in True for ``computeInfOutput``.
+              in True for ``enableInference``.
 
     :param bottomUpInput: The bottom-up input as numpy list, typically from a 
            spatial pooler.
     :param enableLearn: (bool) If true, perform learning
-    :param computeInfOutput: (bool) If None, default behavior is to disable the 
+    :param enableInference: (bool) If None, default behavior is to disable the 
            inference output when ``enableLearn`` is on. If true, compute the 
            inference output. If false, do not compute the inference output.
 
@@ -2295,13 +2297,13 @@ class BacktrackingTM(ConsolePrinterMixin):
     """
     # As a speed optimization for now (until we need online learning), skip
     # computing the inference output while learning
-    if computeInfOutput is None:
+    if enableInference is None:
       if enableLearn:
-        computeInfOutput = False
+        enableInference = False
       else:
-        computeInfOutput = True
+        enableInference = True
 
-    assert (enableLearn or computeInfOutput)
+    assert (enableLearn or enableInference)
 
     # Get the list of columns that have bottom-up
     activeColumns = bottomUpInput.nonzero()[0]
@@ -2334,7 +2336,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     # First, update the inference state
     # As a speed optimization for now (until we need online learning), skip
     # computing the inference output while learning
-    if computeInfOutput:
+    if enableInference:
       self._updateInferenceState(activeColumns)
 
     # Next, update the learning state
@@ -2380,7 +2382,7 @@ class BacktrackingTM(ConsolePrinterMixin):
     # Update the prediction score stats
     # Learning always includes inference
     if self.collectStats:
-      if computeInfOutput:
+      if enableInference:
         predictedState = self.infPredictedState['t-1']
       else:
         predictedState = self.lrnPredictedState['t-1']
@@ -2402,28 +2404,30 @@ class BacktrackingTM(ConsolePrinterMixin):
   def infer(self, bottomUpInput):
     """
     TODO: document
+
     :param bottomUpInput: 
     :return: 
     """
     return self.compute(bottomUpInput, enableLearn=False)
 
 
-  def learn(self, bottomUpInput, computeInfOutput=None):
+  def learn(self, bottomUpInput, enableInference=None):
     """
     TODO: document
+
     :param bottomUpInput: 
-    :param computeInfOutput: 
+    :param enableInference: 
     :return: 
     """
     return self.compute(bottomUpInput, enableLearn=True,
-                        computeInfOutput=computeInfOutput)
+                        enableInference=enableInference)
 
 
   def _columnConfidences(self):
     """
     Returns the stored cell confidences from the last compute.
 
-    :returns: (TODO: format?) Column confidence scores 
+    :returns: Column confidence scores 
     """
     return self.colConfidence['t']
 
@@ -2499,13 +2503,13 @@ class BacktrackingTM(ConsolePrinterMixin):
     minPermanence and deletes any segments that have less than
     minNumSyns synapses remaining.
 
-    :param minPermanence Any syn whose permamence is 0 or < minPermanence will
-                         be deleted. If None is passed in, then
-                         self.connectedPerm is used.
-    :param minNumSyns    Any segment with less than minNumSyns synapses remaining
-                         in it will be deleted. If None is passed in, then
-                         self.activationThreshold is used.
-    :returns:             tuple (numSegsRemoved, numSynsRemoved)
+    :param minPermanence Any syn whose permanence is 0 or < ``minPermanence`` 
+           will be deleted. If None is passed in, then ``self.connectedPerm`` is 
+           used.
+    :param minNumSyns Any segment with less than ``minNumSyns`` synapses 
+           remaining in it will be deleted. If None is passed in, then 
+           ``self.activationThreshold`` is used.
+    :returns: (tuple) ``numSegsRemoved``, ``numSynsRemoved``
     """
     # Fill in defaults
     if minPermanence is None:
