@@ -54,8 +54,7 @@ def _createNetwork():
   sensorRegion.dataSource = dataSource
 
   # Get and set what field index we want to predict.
-  predictedIdx = dataSource.getFieldNames().index('consumption')
-  network.regions['sensor'].setParameter('predictedFieldIdx', predictedIdx)
+  network.regions['sensor'].setParameter('predictedField', 'consumption')
 
   return network
 

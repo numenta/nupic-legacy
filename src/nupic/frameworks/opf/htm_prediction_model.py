@@ -309,6 +309,13 @@ class HTMPredictionModel(Model):
     encoder.setFieldStats('',fieldStats)
 
 
+  def enableInference(self, inferenceArgs=None):
+    super(HTMPredictionModel, self).enableInference(inferenceArgs)
+    if inferenceArgs is not None and "predictedField" in inferenceArgs:
+      self._getSensorRegion().setParameter("predictedField",
+                                           inferenceArgs["predictedField"])
+
+
   def enableLearning(self):
     super(HTMPredictionModel, self).enableLearning()
     self.setEncoderLearning(True)
@@ -1165,6 +1172,10 @@ class HTMPredictionModel(Model):
                                                       clParams))
       n.addRegion("Classifier", "py.%s" % str(clRegionName), json.dumps(clParams))
 
+      n.link("sensor", "Classifier", "UniformLink", "", srcOutput="actValueOut",
+             destInput="actValueIn")
+      n.link("sensor", "Classifier", "UniformLink", "", srcOutput="bucketIdxOut",
+             destInput="bucketIdxIn")
       n.link("sensor", "Classifier", "UniformLink", "", srcOutput="categoryOut",
              destInput="categoryIn")
 

@@ -118,9 +118,8 @@ def runHotgym(numRecords):
   numRecords = min(numRecords, dataSource.getDataRowCount())
   network = createNetwork(dataSource)
 
-  # Set predicted field index. It needs to be the same index as the data source.
-  predictedIdx = dataSource.getFieldNames().index("consumption")
-  network.regions["sensor"].setParameter("predictedFieldIdx", predictedIdx)
+  # Set predicted field
+  network.regions["sensor"].setParameter("predictedField", "consumption")
 
   # Enable learning for all regions.
   network.regions["SP"].setParameter("learningMode", 1)
