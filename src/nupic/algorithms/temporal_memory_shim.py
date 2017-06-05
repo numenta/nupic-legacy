@@ -90,7 +90,7 @@ class TemporalMemoryShim(TMClass):
     bottomUpInput[list(activeColumns)] = 1
     super(TemporalMemoryShim, self).compute(bottomUpInput,
                                             enableLearn=learn,
-                                            computeInfOutput=True)
+                                            enableInference=True)
 
     predictedState = self.getPredictedState()
     self.predictiveCells = set(numpy.flatnonzero(predictedState))

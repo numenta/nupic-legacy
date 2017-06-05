@@ -19,6 +19,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+"""
+Temporal memory implementation in C++ wrapped by a Python class.
+
+:class:`BacktrackingTMCPP` wraps the C++ algorithm execution by extending 
+:class:`BacktrackingTM` and overriding :meth:`BacktrackingTM.compute`.
+"""
+
 import numpy
 from numpy import *
 from nupic.bindings.algorithms import Cells4
@@ -59,12 +66,6 @@ def _extractCallingMethodArgs():
 
 
 class BacktrackingTMCPP(BacktrackingTM):
-  """Class implementing the temporal memory algorithm as described in the
-  published Cortical Learning Algorithm documentation.  The implementation here
-  attempts to closely match the pseudocode in the documentation. This
-  implementation does contain several additional bells and whistles such as
-  a column confidence measure.
-  """
 
 
   # We use the same keyword arguments as TM()
@@ -276,7 +277,7 @@ class BacktrackingTMCPP(BacktrackingTM):
       raise AttributeError("'TM' object has no attribute '%s'" % name)
 
 
-  def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
+  def compute(self, bottomUpInput, enableLearn, enableInference=None):
     """ Handle one compute, possibly learning.
 
     By default, we don't compute the inference output when learning because it
@@ -297,16 +298,16 @@ class BacktrackingTMCPP(BacktrackingTM):
 
     # As a speed optimization for now (until we need online learning), skip
     #  computing the inference output while learning
-    if computeInfOutput is None:
+    if enableInference is None:
       if enableLearn:
-        computeInfOutput = False
+        enableInference = False
       else:
-        computeInfOutput = True
+        enableInference = True
 
     # ====================================================================
     # Run compute and retrieve selected state and member variables
     self._setStatePointers()
-    y = self.cells4.compute(bottomUpInput, computeInfOutput, enableLearn)
+    y = self.cells4.compute(bottomUpInput, enableInference, enableLearn)
     self.currentOutput = y.reshape((self.numberOfCols, self.cellsPerColumn))
     self.avgLearnedSeqLength = self.cells4.getAvgLearnedSeqLength()
     self._copyAllocatedStates()
@@ -317,7 +318,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     # Learning always includes inference
     if self.collectStats:
       activeColumns = bottomUpInput.nonzero()[0]
-      if computeInfOutput:
+      if enableInference:
         predictedState = self.infPredictedState['t-1']
       else:
         predictedState = self.lrnPredictedState['t-1']
