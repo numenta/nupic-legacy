@@ -21,11 +21,22 @@
 
 import numpy
 import os
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+
 from nupic.bindings.regions.PyRegion import PyRegion
 
 from nupic.algorithms import (anomaly, backtracking_tm, backtracking_tm_cpp,
                               backtracking_tm_shim)
+if capnp:
+  from nupic.regions.tm_region_capnp import TMRegionProto
+
 from nupic.support import getArgumentDescriptions
+
+
 
 gDefaultTemporalImp = 'py'
 
@@ -183,7 +194,7 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
       cells per column must also be specified and the output size of the region
       should be set the same as columnCount""",
       accessMode='Read',
-      dataType='UInt32',
+      dataType='Bool',
       count=1,
       constraints='bool'),
 
@@ -208,41 +219,44 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
   # The last group is for parameters that aren't strictly spatial or temporal
   otherSpec = dict(
     learningMode=dict(
-      description='1 if the node is learning (default 1).',
+      description='True if the node is learning (default True).',
       accessMode='ReadWrite',
-      dataType='UInt32',
+      dataType='Bool',
       count=1,
+      defaultValue=True,
       constraints='bool'),
 
     inferenceMode=dict(
-      description='1 if the node is inferring (default 0).',
+      description='True if the node is inferring (default False).',
       accessMode='ReadWrite',
-      dataType='UInt32',
+      dataType='Bool',
       count=1,
+      defaultValue=False,
       constraints='bool'),
 
     computePredictedActiveCellIndices=dict(
-      description='1 if active and predicted active indices should be computed',
+      description='True if active and predicted active indices should be computed',
       accessMode='Create',
-      dataType='UInt32',
+      dataType='Bool',
       count=1,
-      defaultValue=0,
+      defaultValue=False,
       constraints='bool'),
 
     anomalyMode=dict(
-      description='1 if an anomaly score is being computed',
+      description='True if an anomaly score is being computed',
       accessMode='Create',
-      dataType='UInt32',
+      dataType='Bool',
       count=1,
-      defaultValue=0,
+      defaultValue=False,
       constraints='bool'),
 
     topDownMode=dict(
-      description='1 if the node should do top down compute on the next call '
-                  'to compute into topDownOut (default 0).',
+      description='True if the node should do top down compute on the next call '
+                  'to compute into topDownOut (default False).',
       accessMode='ReadWrite',
-      dataType='UInt32',
+      dataType='Bool',
       count=1,
+      defaultValue=False,
       constraints='bool'),
 
     activeOutputCount=dict(
@@ -319,7 +333,6 @@ class TMRegion(PyRegion):
                computePredictedActiveCellIndices=False,
 
                **kwargs):
-
     # Which Temporal implementation?
     TemporalClass = _getTPClass(temporalImp)
 
@@ -362,7 +375,7 @@ class TMRegion(PyRegion):
     self._fpLogTPOutput = None
 
     # Variables set up in initInNetwork()
-    self._tfdr                = None  # FDRTemporal instance
+    self._tfdr = None  # FDRTemporal instance
 
 
   #############################################################################
@@ -716,7 +729,6 @@ class TMRegion(PyRegion):
       automatically by PyRegion's parameter set mechanism. The ones that need
       special treatment are explicitly handled here.
     """
-
     if parameterName in self._temporalArgNames:
       setattr(self._tfdr, parameterName, parameterValue)
 
@@ -736,6 +748,7 @@ class TMRegion(PyRegion):
 
     else:
       raise Exception('Unknown parameter: ' + parameterName)
+
 
   #############################################################################
   #
@@ -771,6 +784,54 @@ class TMRegion(PyRegion):
   # Methods to support serialization
   #
   #############################################################################
+
+
+  @staticmethod
+  def getProtoType():
+    """Return the pycapnp proto type that the class uses for serialization."""
+    return TMRegionProto
+
+
+  def writeToProto(self, proto):
+    """Write state to proto object.
+
+    proto: TMRegionProto capnproto object
+    """
+    proto.temporalImp = self.temporalImp
+    proto.columnCount = self.columnCount
+    proto.inputWidth = self.inputWidth
+    proto.cellsPerColumn = self.cellsPerColumn
+    proto.learningMode = self.learningMode
+    proto.inferenceMode = self.inferenceMode
+    proto.anomalyMode = self.anomalyMode
+    proto.topDownMode = self.topDownMode
+    proto.computePredictedActiveCellIndices = (
+      self.computePredictedActiveCellIndices)
+    proto.orColumnOutputs = self.orColumnOutputs
+
+    self._tfdr.write(proto.temporalMemory)
+
+
+  @classmethod
+  def readFromProto(cls, proto):
+    """Read state from proto object.
+
+    proto: TMRegionProto capnproto object
+    """
+    instance = cls(proto.columnCount, proto.inputWidth, proto.cellsPerColumn)
+
+    instance.temporalImp = proto.temporalImp
+    instance.learningMode = proto.learningMode
+    instance.inferenceMode = proto.inferenceMode
+    instance.anomalyMode = proto.anomalyMode
+    instance.topDownMode = proto.topDownMode
+    instance.computePredictedActiveCellIndices = (
+      proto.computePredictedActiveCellIndices)
+    instance.orColumnOutputs = proto.orColumnOutputs
+
+    instance._tfdr = _getTPClass(proto.temporalImp).read(proto.temporalMemory)
+
+    return instance
 
 
   def __getstate__(self):

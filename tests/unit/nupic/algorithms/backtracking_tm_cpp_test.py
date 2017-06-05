@@ -24,11 +24,11 @@
 import unittest2 as unittest
 
 from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
-from tests.unit.nupic.algorithms import tm_test
+from tests.unit.nupic.algorithms import backtracking_tm_test
 
 # Run the Python TM test against the BacktrackingTMCPP.
-tm_test.BacktrackingTM = BacktrackingTMCPP
-TMTest = tm_test.TMTest
+backtracking_tm_test.BacktrackingTM = BacktrackingTMCPP
+BacktrackingTMTest = backtracking_tm_test.BacktrackingTMTest
 
 
 
