@@ -19,15 +19,18 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from operator import itemgetter
 import os
 import tempfile
 import unittest
+
+import numpy as np
 
 from datetime import datetime
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.encoders import MultiEncoder, ScalarEncoder
 from nupic.engine import Network
-
+from nupic.frameworks.opf.model_factory import ModelFactory
 
 
 def _getTempFileName():
@@ -128,7 +131,7 @@ class SingleStepSDRClassifierTest(unittest.TestCase):
     dataSource.close()
     os.remove(filename)
 
-
+  @unittest.skip("Skip test until we updated SDR classifier in nupic.core")
   def testSimpleMulticlassNetworkCPP(self):
     # Setup data record stream of fake data (with three categories)
     filename = _getTempFileName()
@@ -204,12 +207,103 @@ class SingleStepSDRClassifierTest(unittest.TestCase):
       net.run(1)
       inferredCats = classifier.getOutputData("categoriesOut")
       self.assertSequenceEqual(expectedCats[i], inferredCats.tolist(),
-                               "Classififer did not infer expected category "
+                               "Classifier did not infer expected category "
                                "for record number {}.".format(i))
 
     # Close data stream, delete file.
     dataSource.close()
     os.remove(filename)
+
+
+  def testHelloWorldPrediction(self):
+    text = 'hello world.'
+    categories = list("abcdefghijklmnopqrstuvwxyz 1234567890.")
+    colsPerChar = 11
+    numColumns = (len(categories) + 1) * colsPerChar
+
+    MODEL_PARAMS = {
+      "model": "HTMPrediction",
+      "version": 1,
+      "predictAheadTime": None,
+      "modelParams": {
+        "inferenceType": "TemporalMultiStep",
+        "sensorParams": {
+          "verbosity": 0,
+          "encoders": {
+            "token": {
+              "fieldname": u"token",
+              "name": u"token",
+              "type": "CategoryEncoder",
+              "categoryList": categories,
+              "w": colsPerChar,
+              "forced": True,
+            }
+          },
+          "sensorAutoReset": None,
+        },
+        "spEnable": False,
+        "spParams": {
+          "spVerbosity": 0,
+          "globalInhibition": 1,
+          "columnCount": 2048,
+          "inputWidth": 0,
+          "numActiveColumnsPerInhArea": 40,
+          "seed": 1956,
+          "columnDimensions": 0.5,
+          "synPermConnected": 0.1,
+          "synPermActiveInc": 0.1,
+          "synPermInactiveDec": 0.01,
+          "boostStrength": 0.0,
+        },
+
+        "tmEnable": True,
+        "tmParams": {
+          "verbosity": 0,
+          "columnCount": numColumns,
+          "cellsPerColumn": 16,
+          "inputWidth": numColumns,
+          "seed": 1960,
+          "temporalImp": "tm_cpp",
+          "newSynapseCount": 6,
+          "maxSynapsesPerSegment": 11,
+          "maxSegmentsPerCell": 32,
+          "initialPerm": 0.21,
+          "permanenceInc": 0.1,
+          "permanenceDec": 0.05,
+          "globalDecay": 0.0,
+          "maxAge": 0,
+          "minThreshold": 3,
+          "activationThreshold": 5,
+          "outputType": "normal",
+        },
+        "clParams": {
+          "implementation": "py",
+          "regionName": "SDRClassifierRegion",
+          "verbosity": 0,
+          "alpha": 0.1,
+          "steps": "1",
+        },
+        "trainSPNetOnlyIfRequested": False,
+      },
+    }
+
+    model = ModelFactory.create(MODEL_PARAMS)
+    model.enableInference({"predictedField": "token"})
+    model.enableLearning()
+
+    # train
+    prediction = None
+    for rpt in xrange(20):
+      for token in text:
+        if prediction is not None:
+          if rpt > 15:
+            self.assertEqual(prediction, token)
+        modelInput = {"token": token}
+        result = model.run(modelInput)
+        prediction = sorted(result.inferences["multiStepPredictions"][1].items(),
+                       key=itemgetter(1), reverse=True)[0][0]
+      model.resetSequenceStates()
+      prediction = None
 
 
 

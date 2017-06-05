@@ -174,8 +174,8 @@ class SDRClassifier(object):
 
     :param classification: Dict of the classification information where:
 
-      - bucketIdx: index of the encoder bucket
-      - actValue: actual value going into the encoder
+      - bucketIdx: list of indices of the encoder bucket
+      - actValue: list of actual values going into the encoder
 
       Classification could be None for inference mode.
     :param learn: (bool) if true, learn this sample
@@ -229,25 +229,25 @@ class SDRClassifier(object):
                              self._maxBucketIdx+1))), axis=0)
       self._maxInputIdx = int(newMaxInputIdx)
 
+    # Get classification info
+    if type(classification["bucketIdx"]) is not list:
+      bucketIdxList = [classification["bucketIdx"]]
+      actValueList = [classification["actValue"]]
+      numCategory = 1
+    else:
+      bucketIdxList = classification["bucketIdx"]
+      actValueList = classification["actValue"]
+      numCategory = len(classification["bucketIdx"])
+
     # ------------------------------------------------------------------------
     # Inference:
     # For each active bit in the activationPattern, get the classification
     # votes
     if infer:
-      retval = self.infer(patternNZ, classification)
+      retval = self.infer(patternNZ, actValueList)
 
 
     if learn and classification["bucketIdx"] is not None:
-      # Get classification info
-      if type(classification["bucketIdx"]) is not list:
-        bucketIdxList = [classification["bucketIdx"]]
-        actValueList = [classification["actValue"]]
-        numCategory = 1
-      else:
-        bucketIdxList = classification["bucketIdx"]
-        actValueList = classification["actValue"]
-        numCategory = len(classification["bucketIdx"])
-
       for categoryI in range(numCategory):
         bucketIdx = bucketIdxList[categoryI]
         actValue = actValueList[categoryI]
@@ -306,7 +306,7 @@ class SDRClassifier(object):
 
 
 
-  def infer(self, patternNZ, classification):
+  def infer(self, patternNZ, actValueList):
     """
     Return the inference value from one input sample. The actual
     learning happens in compute().
@@ -336,10 +336,10 @@ class SDRClassifier(object):
 
     # NOTE: If doing 0-step prediction, we shouldn't use any knowledge
     #  of the classification input during inference.
-    if self.steps[0] == 0 or classification is None:
+    if self.steps[0] == 0:
       defaultValue = 0
     else:
-      defaultValue = classification["actValue"]
+      defaultValue = actValueList[0]
     actValues = [x if x is not None else defaultValue
                  for x in self._actualValues]
     retval = {"actualValues": actValues}
