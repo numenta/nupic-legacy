@@ -976,13 +976,13 @@ class KNNClassifierRegion(PyRegion):
       # Update the stored confusion matrix.
       for category in categories:
         if category >= 0:
-          dims = max(category+1, len(inference))
+          dims = max(int(category)+1, len(inference))
           oldDims = len(self.confusion)
           if oldDims < dims:
             confusion = numpy.zeros((dims, dims))
             confusion[0:oldDims, 0:oldDims] = self.confusion
             self.confusion = confusion
-          self.confusion[inference.argmax(), category] += 1
+          self.confusion[inference.argmax(), int(category)] += 1
 
       # Calculate the best prototype indices
       if nPrototypes > 1:

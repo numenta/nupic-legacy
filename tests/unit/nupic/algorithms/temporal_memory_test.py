@@ -69,7 +69,7 @@ class TemporalMemoryTest(unittest.TestCase):
     previousActiveCells = [0,1,2,3]
     expectedActiveCells = [4]
 
-    activeSegment = tm.connections.createSegment(expectedActiveCells[0])
+    activeSegment = tm.createSegment(expectedActiveCells[0])
     tm.connections.createSynapse(activeSegment, previousActiveCells[0], .5)
     tm.connections.createSynapse(activeSegment, previousActiveCells[1], .5)
     tm.connections.createSynapse(activeSegment, previousActiveCells[2], .5)
@@ -121,7 +121,7 @@ class TemporalMemoryTest(unittest.TestCase):
     previousActiveCells = [0, 1, 2, 3]
     expectedActiveCells = [4]
 
-    segment = tm.connections.createSegment(expectedActiveCells[0])
+    segment = tm.createSegment(expectedActiveCells[0])
     tm.connections.createSynapse(segment, previousActiveCells[0], .5)
     tm.connections.createSynapse(segment, previousActiveCells[1], .5)
     tm.connections.createSynapse(segment, previousActiveCells[2], .5)
@@ -159,12 +159,12 @@ class TemporalMemoryTest(unittest.TestCase):
     previousActiveCells = [0, 1, 2, 3]
     expectedWinnerCells = [4, 6]
 
-    activeSegment1 = tm.connections.createSegment(expectedWinnerCells[0])
+    activeSegment1 = tm.createSegment(expectedWinnerCells[0])
     tm.connections.createSynapse(activeSegment1, previousActiveCells[0], .5)
     tm.connections.createSynapse(activeSegment1, previousActiveCells[1], .5)
     tm.connections.createSynapse(activeSegment1, previousActiveCells[2], .5)
 
-    activeSegment2 = tm.connections.createSegment(expectedWinnerCells[1])
+    activeSegment2 = tm.createSegment(expectedWinnerCells[1])
     tm.connections.createSynapse(activeSegment2, previousActiveCells[0], .5)
     tm.connections.createSynapse(activeSegment2, previousActiveCells[1], .5)
     tm.connections.createSynapse(activeSegment2, previousActiveCells[2], .5)
@@ -194,7 +194,7 @@ class TemporalMemoryTest(unittest.TestCase):
     activeColumns = [1]
     activeCell = 5
 
-    activeSegment = tm.connections.createSegment(activeCell)
+    activeSegment = tm.createSegment(activeCell)
     as1 = tm.connections.createSynapse(activeSegment, prevActiveCells[0], .5)
     as2 = tm.connections.createSynapse(activeSegment, prevActiveCells[1], .5)
     as3 = tm.connections.createSynapse(activeSegment, prevActiveCells[2], .5)
@@ -228,7 +228,7 @@ class TemporalMemoryTest(unittest.TestCase):
     activeColumns = [1]
     burstingCells = [4,5,6,7]
 
-    selectedMatchingSegment = tm.connections.createSegment(burstingCells[0])
+    selectedMatchingSegment = tm.createSegment(burstingCells[0])
     as1 = tm.connections.createSynapse(selectedMatchingSegment,
                                        previousActiveCells[0], .3)
     as2 = tm.connections.createSynapse(selectedMatchingSegment,
@@ -237,7 +237,7 @@ class TemporalMemoryTest(unittest.TestCase):
                                        previousActiveCells[2], .3)
     is1 = tm.connections.createSynapse(selectedMatchingSegment, 81, .3)
 
-    otherMatchingSegment = tm.connections.createSegment(burstingCells[1])
+    otherMatchingSegment = tm.createSegment(burstingCells[1])
     tm.connections.createSynapse(otherMatchingSegment,
                                  previousActiveCells[0], .3)
     tm.connections.createSynapse(otherMatchingSegment,
@@ -272,7 +272,7 @@ class TemporalMemoryTest(unittest.TestCase):
     activeColumns = [1]
     burstingCells = [4,5,6,7]
 
-    selectedMatchingSegment = tm.connections.createSegment(burstingCells[0])
+    selectedMatchingSegment = tm.createSegment(burstingCells[0])
     tm.connections.createSynapse(selectedMatchingSegment,
                                  previousActiveCells[0], .3)
     tm.connections.createSynapse(selectedMatchingSegment,
@@ -281,7 +281,7 @@ class TemporalMemoryTest(unittest.TestCase):
                                  previousActiveCells[2], .3)
     tm.connections.createSynapse(selectedMatchingSegment, 81, .3)
 
-    otherMatchingSegment = tm.connections.createSegment(burstingCells[1])
+    otherMatchingSegment = tm.createSegment(burstingCells[1])
     as1 = tm.connections.createSynapse(otherMatchingSegment,
                                        previousActiveCells[0], .3)
     as2 = tm.connections.createSynapse(otherMatchingSegment,
@@ -316,20 +316,20 @@ class TemporalMemoryTest(unittest.TestCase):
     expectedActiveCells = [4]
     otherburstingCells = [5,6,7]
 
-    activeSegment = tm.connections.createSegment(expectedActiveCells[0])
+    activeSegment = tm.createSegment(expectedActiveCells[0])
     tm.connections.createSynapse(activeSegment, previousActiveCells[0], .5)
     tm.connections.createSynapse(activeSegment, previousActiveCells[1], .5)
     tm.connections.createSynapse(activeSegment, previousActiveCells[2], .5)
     tm.connections.createSynapse(activeSegment, previousActiveCells[3], .5)
 
-    matchingSegmentOnSameCell = tm.connections.createSegment(
+    matchingSegmentOnSameCell = tm.createSegment(
       expectedActiveCells[0])
     s1 = tm.connections.createSynapse(matchingSegmentOnSameCell,
                                       previousActiveCells[0], .3)
     s2 = tm.connections.createSynapse(matchingSegmentOnSameCell,
                                       previousActiveCells[1], .3)
 
-    matchingSegmentOnOtherCell = tm.connections.createSegment(
+    matchingSegmentOnOtherCell = tm.createSegment(
       otherburstingCells[0])
     s3 = tm.connections.createSynapse(matchingSegmentOnOtherCell,
                                       previousActiveCells[0], .3)
@@ -465,7 +465,7 @@ class TemporalMemoryTest(unittest.TestCase):
     prevWinnerCells = [0, 1, 2, 3]
     activeColumns = [4]
 
-    matchingSegment = tm.connections.createSegment(4)
+    matchingSegment = tm.createSegment(4)
     tm.connections.createSynapse(matchingSegment, 0, .5)
 
     tm.compute(previousActiveColumns, True)
@@ -502,7 +502,7 @@ class TemporalMemoryTest(unittest.TestCase):
     prevWinnerCells = [0, 1]
     activeColumns = [4]
 
-    matchingSegment = tm.connections.createSegment(4)
+    matchingSegment = tm.createSegment(4)
     tm.connections.createSynapse(matchingSegment, 0, .5)
 
     tm.compute(previousActiveColumns, True)
@@ -545,7 +545,7 @@ class TemporalMemoryTest(unittest.TestCase):
     prevWinnerCells = [0, 1, 2, 3, 4]
     activeColumns = [5]
 
-    activeSegment = tm.connections.createSegment(5)
+    activeSegment = tm.createSegment(5)
     tm.connections.createSynapse(activeSegment, 0, .5)
     tm.connections.createSynapse(activeSegment, 1, .5)
     tm.connections.createSynapse(activeSegment, 2, .2)
@@ -579,7 +579,7 @@ class TemporalMemoryTest(unittest.TestCase):
     activeColumns = [2]
     expectedActiveCells = [5]
 
-    activeSegment = tm.connections.createSegment(expectedActiveCells[0])
+    activeSegment = tm.createSegment(expectedActiveCells[0])
     tm.connections.createSynapse(activeSegment, previousActiveCells[0], .5)
     tm.connections.createSynapse(activeSegment, previousActiveCells[1], .5)
     tm.connections.createSynapse(activeSegment, previousActiveCells[2], .5)
@@ -612,7 +612,7 @@ class TemporalMemoryTest(unittest.TestCase):
     activeColumns = [2]
     activeCell = 5
 
-    activeSegment = tm.connections.createSegment(activeCell)
+    activeSegment = tm.createSegment(activeCell)
     tm.connections.createSynapse(activeSegment, previousActiveCells[0], .5)
     tm.connections.createSynapse(activeSegment, previousActiveCells[1], .5)
     tm.connections.createSynapse(activeSegment, previousActiveCells[2], .5)
@@ -639,25 +639,33 @@ class TemporalMemoryTest(unittest.TestCase):
       permanenceDecrement=.02,
       predictedSegmentDecrement=0.0,
       seed=42,
-      maxSynapsesPerSegment=3)
+      maxSynapsesPerSegment=4)
 
-    prevActiveColumns = [0, 1, 2]
-    prevWinnerCells = [0, 1, 2]
+    prevActiveColumns = [1, 2, 3]
+    prevWinnerCells = [1, 2, 3]
     activeColumns = [4]
 
-    matchingSegment = tm.connections.createSegment(4)
+    matchingSegment = tm.createSegment(4)
     tm.connections.createSynapse(matchingSegment, 81, .6)
 
-    weakestSynapse = tm.connections.createSynapse(matchingSegment, 0, .11)
+    # Create a weak synapse. Make sure it's not so weak that permanenceIncrement
+    # destroys it.
+    tm.connections.createSynapse(matchingSegment, 0, .11)
+
+    # Create a synapse that will match.
+    tm.connections.createSynapse(matchingSegment, 1, .20)
+
+    # Create a synapse with a high permanence
+    tm.connections.createSynapse(matchingSegment, 31, .60)
 
     tm.compute(prevActiveColumns)
     self.assertEqual(prevWinnerCells, tm.getWinnerCells())
     tm.compute(activeColumns)
 
     synapses = tm.connections.synapsesForSegment(matchingSegment)
-    self.assertEqual(3, len(synapses))
+    self.assertEqual(4, len(synapses))
     presynapticCells = set(synapse.presynapticCell for synapse in synapses)
-    self.assertFalse(0 in presynapticCells)
+    self.assertEqual(set([1, 2, 3, 31]), presynapticCells)
 
 
   def testRecycleLeastRecentlyActiveSegmentToMakeRoomForNewSegment(self):
@@ -729,7 +737,7 @@ class TemporalMemoryTest(unittest.TestCase):
     activeColumns = [2]
     expectedActiveCell = 5
 
-    matchingSegment = tm.connections.createSegment(expectedActiveCell)
+    matchingSegment = tm.createSegment(expectedActiveCell)
     tm.connections.createSynapse(matchingSegment, prevActiveCells[0], .015)
     tm.connections.createSynapse(matchingSegment, prevActiveCells[1], .015)
     tm.connections.createSynapse(matchingSegment, prevActiveCells[2], .015)
@@ -760,7 +768,7 @@ class TemporalMemoryTest(unittest.TestCase):
     activeColumns = [1]
     previousInactiveCell = 81
 
-    activeSegment = tm.connections.createSegment(42)
+    activeSegment = tm.createSegment(42)
     as1 = tm.connections.createSynapse(activeSegment,
                                        previousActiveCells[0], .5)
     as2 = tm.connections.createSynapse(activeSegment,
@@ -770,7 +778,7 @@ class TemporalMemoryTest(unittest.TestCase):
     is1 = tm.connections.createSynapse(activeSegment,
                                        previousInactiveCell, .5)
 
-    matchingSegment = tm.connections.createSegment(43)
+    matchingSegment = tm.createSegment(43)
     as4 = tm.connections.createSynapse(matchingSegment,
                                        previousActiveCells[0], .5)
     as5 = tm.connections.createSynapse(matchingSegment,
@@ -813,9 +821,9 @@ class TemporalMemoryTest(unittest.TestCase):
       nonMatchingCells = [0, 3]
       activeCells = [0, 1, 2, 3]
 
-      segment1 = tm.connections.createSegment(nonMatchingCells[0])
+      segment1 = tm.createSegment(nonMatchingCells[0])
       tm.connections.createSynapse(segment1, prevActiveCells[0], .5)
-      segment2 = tm.connections.createSegment(nonMatchingCells[1])
+      segment2 = tm.createSegment(nonMatchingCells[1])
       tm.connections.createSynapse(segment2, prevActiveCells[1], .5)
 
       tm.compute(prevActiveColumns, True)
@@ -877,12 +885,12 @@ class TemporalMemoryTest(unittest.TestCase):
     prevInactiveCell = 81
     expectedActiveCells = [4]
 
-    correctActiveSegment = tm.connections.createSegment(expectedActiveCells[0])
+    correctActiveSegment = tm.createSegment(expectedActiveCells[0])
     tm.connections.createSynapse(correctActiveSegment, prevActiveCells[0], .5)
     tm.connections.createSynapse(correctActiveSegment, prevActiveCells[1], .5)
     tm.connections.createSynapse(correctActiveSegment, prevActiveCells[2], .5)
 
-    wrongMatchingSegment = tm.connections.createSegment(43)
+    wrongMatchingSegment = tm.createSegment(43)
     tm.connections.createSynapse(wrongMatchingSegment, prevActiveCells[0], .5)
     tm.connections.createSynapse(wrongMatchingSegment, prevActiveCells[1], .5)
     tm.connections.createSynapse(wrongMatchingSegment, prevInactiveCell, .5)
@@ -893,6 +901,69 @@ class TemporalMemoryTest(unittest.TestCase):
     tm.compute(activeColumns, False)
 
     self.assertEqual(before, tm.connections)
+
+
+  def testDestroySegmentsThenReachLimit(self):
+    """ Destroy some segments then verify that the maxSegmentsPerCell is still
+        correctly applied.
+    """
+    tm = TemporalMemory(
+      columnDimensions=[32],
+      cellsPerColumn=1,
+      activationThreshold=3,
+      initialPermanence=.50,
+      connectedPermanence=.50,
+      minThreshold=2,
+      maxNewSynapseCount=3,
+      permanenceIncrement=.02,
+      permanenceDecrement=.02,
+      predictedSegmentDecrement=0.0,
+      seed=42,
+      maxSegmentsPerCell=2)
+
+    segment1 = tm.createSegment(11)
+    segment2 = tm.createSegment(11)
+
+    self.assertEqual(2, tm.connections.numSegments())
+    tm.connections.destroySegment(segment1)
+    tm.connections.destroySegment(segment2)
+    self.assertEqual(0, tm.connections.numSegments())
+
+    tm.createSegment(11)
+    self.assertEqual(1, tm.connections.numSegments())
+    tm.createSegment(11)
+    self.assertEqual(2, tm.connections.numSegments())
+    segment3 = tm.createSegment(11)
+    self.assertEqual(2, tm.connections.numSegments(11))
+    self.assertEqual(2, tm.connections.numSegments())
+
+
+  def testReachSegmentLimitMultipleTimes(self):
+    """ Hit the maxSegmentsPerCell threshold multiple times. Make sure it
+        works more than once.
+    """
+    tm = TemporalMemory(
+      columnDimensions=[32],
+      cellsPerColumn=1,
+      activationThreshold=3,
+      initialPermanence=.50,
+      connectedPermanence=.50,
+      minThreshold=2,
+      maxNewSynapseCount=3,
+      permanenceIncrement=.02,
+      permanenceDecrement=.02,
+      predictedSegmentDecrement=0.0,
+      seed=42,
+      maxSegmentsPerCell=2)
+
+    tm.createSegment(10)
+    self.assertEqual(1, tm.connections.numSegments())
+    tm.createSegment(10)
+    self.assertEqual(2, tm.connections.numSegments())
+    tm.createSegment(10)
+    self.assertEqual(2, tm.connections.numSegments())
+    tm.createSegment(10)
+    self.assertEqual(2, tm.connections.numSegments())
 
 
   def testColumnForCell1D(self):
@@ -1019,10 +1090,10 @@ class TemporalMemoryTest(unittest.TestCase):
   def serializationTestPrepare(self, tm):
     # Create an active segment and two matching segments.
     # Destroy a few to exercise the code.
-    destroyMe1 = tm.connections.createSegment(4)
+    destroyMe1 = tm.createSegment(4)
     tm.connections.destroySegment(destroyMe1)
 
-    activeSegment = tm.connections.createSegment(4)
+    activeSegment = tm.createSegment(4)
     tm.connections.createSynapse(activeSegment, 0, 0.5)
     tm.connections.createSynapse(activeSegment, 1, 0.5)
     destroyMe2 = tm.connections.createSynapse(activeSegment, 42, 0.5)
@@ -1030,12 +1101,12 @@ class TemporalMemoryTest(unittest.TestCase):
     tm.connections.createSynapse(activeSegment, 2, 0.5)
     tm.connections.createSynapse(activeSegment, 3, 0.5)
 
-    matchingSegment1 = tm.connections.createSegment(8)
+    matchingSegment1 = tm.createSegment(8)
     tm.connections.createSynapse(matchingSegment1, 0, 0.4)
     tm.connections.createSynapse(matchingSegment1, 1, 0.4)
     tm.connections.createSynapse(matchingSegment1, 2, 0.4)
 
-    matchingSegment2 = tm.connections.createSegment(9)
+    matchingSegment2 = tm.createSegment(9)
     tm.connections.createSynapse(matchingSegment2, 0, 0.4)
     tm.connections.createSynapse(matchingSegment2, 1, 0.4)
     tm.connections.createSynapse(matchingSegment2, 2, 0.4)
