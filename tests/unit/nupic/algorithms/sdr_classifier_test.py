@@ -520,15 +520,17 @@ class SDRClassifierTest(unittest.TestCase):
       recordNum += 1
 
     result1 = c.compute(
-        recordNum=2, patternNZ=SDR1, classification=None,
+        recordNum=recordNum, patternNZ=SDR1, classification=None,
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result1[0][0], 0.3, places=1)
     self.assertAlmostEqual(result1[0][1], 0.3, places=1)
     self.assertAlmostEqual(result1[0][2], 0.4, places=1)
 
     result2 = c.compute(
-        recordNum=2, patternNZ=SDR2, classification=None,
+        recordNum=recordNum, patternNZ=SDR2, classification=None,
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result2[0][1], 0.5, places=1)
     self.assertAlmostEqual(result2[0][3], 0.5, places=1)
 
@@ -582,16 +584,61 @@ class SDRClassifierTest(unittest.TestCase):
       recordNum += 1
 
     result1 = c.compute(
-        recordNum=2, patternNZ=SDR1, classification=None,
+        recordNum=recordNum, patternNZ=SDR1, classification=None,
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result1[0][0], 0.3, places=1)
     self.assertAlmostEqual(result1[0][1], 0.3, places=1)
     self.assertAlmostEqual(result1[0][2], 0.4, places=1)
 
     result2 = c.compute(
-        recordNum=2, patternNZ=SDR2, classification=None,
+        recordNum=recordNum, patternNZ=SDR2, classification=None,
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result2[0][1], 0.5, places=1)
+    self.assertAlmostEqual(result2[0][3], 0.5, places=1)
+
+
+  def testPredictionMultipleCategories(self):
+    """ Test the distribution of predictions.
+
+    Here, we intend the classifier to learn the associations:
+      [1,3,5] => bucketIdx 0 & 1
+      [2,4,6] => bucketIdx 2 & 3
+
+    The classifier should get the distribution almost right given enough
+    repetitions and a small learning rate
+    """
+
+    c = self._classifier([0], 0.001, 0.1, 0)
+
+    SDR1 = [1, 3, 5]
+    SDR2 = [2, 4, 6]
+    recordNum = 0
+    random.seed(42)
+    for _ in xrange(5000):
+      c.compute(recordNum=recordNum, patternNZ=SDR1,
+                classification={"bucketIdx": [0, 1], "actValue": [0, 1]},
+                learn=True, infer=False)
+      recordNum += 1
+
+      c.compute(recordNum=recordNum, patternNZ=SDR2,
+                classification={"bucketIdx": [2, 3], "actValue": [2, 3]},
+                learn=True, infer=False)
+      recordNum += 1
+
+    result1 = c.compute(
+        recordNum=recordNum, patternNZ=SDR1, classification=None,
+        learn=False, infer=True)
+    recordNum += 1
+    self.assertAlmostEqual(result1[0][0], 0.5, places=1)
+    self.assertAlmostEqual(result1[0][1], 0.5, places=1)
+
+    result2 = c.compute(
+        recordNum=recordNum, patternNZ=SDR2, classification=None,
+        learn=False, infer=True)
+    recordNum += 1
+    self.assertAlmostEqual(result2[0][2], 0.5, places=1)
     self.assertAlmostEqual(result2[0][3], 0.5, places=1)
 
 
@@ -648,17 +695,19 @@ class SDRClassifierTest(unittest.TestCase):
       recordNum += 1
 
     result1 = c.compute(
-        recordNum=2, patternNZ=SDR1,
+        recordNum=recordNum, patternNZ=SDR1,
         classification={"bucketIdx": 0, "actValue": 0},
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result1[0][0], 0.3, places=1)
     self.assertAlmostEqual(result1[0][1], 0.3, places=1)
     self.assertAlmostEqual(result1[0][2], 0.4, places=1)
 
     result2 = c.compute(
-        recordNum=2, patternNZ=SDR2,
+        recordNum=recordNum, patternNZ=SDR2,
         classification={"bucketIdx": 0, "actValue": 0},
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result2[0][1], 0.5, places=1)
     self.assertAlmostEqual(result2[0][3], 0.5, places=1)
 
@@ -676,15 +725,17 @@ class SDRClassifierTest(unittest.TestCase):
       recordNum += 1
 
     result1new = c.compute(
-        recordNum=2, patternNZ=SDR1, classification=None,
+        recordNum=recordNum, patternNZ=SDR1, classification=None,
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result1new[0][0], 0.3, places=1)
     self.assertAlmostEqual(result1new[0][1], 0.3, places=1)
     self.assertAlmostEqual(result1new[0][3], 0.4, places=1)
 
     result2new = c.compute(
-        recordNum=2, patternNZ=SDR2, classification=None,
+        recordNum=recordNum, patternNZ=SDR2, classification=None,
         learn=False, infer=True)
+    recordNum += 1
     self.assertSequenceEqual(list(result2[0]), list(result2new[0]))
 
 
