@@ -444,29 +444,29 @@ class TemporalMemory(object):
                                permanenceIncrement, permanenceDecrement,
                                maxSynapsesPerSegment, learn):
     """
-    :param connections (Object)
+    :param connections: (Object)
     Connections for the TM. Gets mutated.
 
-    :param random (Object)
+    :param random: (Object)
     Random number generator. Gets mutated.
 
-    :param columnActiveSegments (iter)
+    :param columnActiveSegments: (iter)
     Active segments in this column.
 
-    :param prevActiveCells (list)
+    :param prevActiveCells: (list)
     Active cells in `t-1`.
 
-    :param prevWinnerCells (list)
+    :param prevWinnerCells: (list)
     Winner cells in `t-1`.
 
-    :param numActivePotentialSynapsesForSegment (list)
+    :param numActivePotentialSynapsesForSegment: (list)
     Number of active potential synapses per segment, indexed by the segment's
     flatIdx.
 
-    :param maxNewSynapseCount (int)
+    :param maxNewSynapseCount: (int)
     The maximum number of synapses added to a segment during learning
 
-    :param initialPermanence (float)
+    :param initialPermanence: (float)
     Initial permanence of a new synapse.
 
     @permanenceIncrement (float)
@@ -475,10 +475,10 @@ class TemporalMemory(object):
     @permanenceDecrement (float)
     Amount by which permanences of synapses are decremented during learning.
 
-    :param maxSynapsesPerSegment (int)
+    :param maxSynapsesPerSegment: (int)
     The maximum number of synapses per segment.
 
-    :param learn (bool)
+    :param learn: (bool)
     If true, grow and reinforce synapses.
 
     :returns: cellsToAdd (list)
@@ -526,57 +526,57 @@ class TemporalMemory(object):
                    permanenceDecrement, maxSegmentsPerCell,
                    maxSynapsesPerSegment, learn):
     """
-    :param connections (Object)
+    :param connections: (Object)
     Connections for the TM. Gets mutated.
 
-    :param random (Object)
+    :param random: (Object)
     Random number generator. Gets mutated.
 
-    :param lastUsedIterationForSegment (list)
+    :param lastUsedIterationForSegment: (list)
     Last used iteration for each segment, indexed by the segment's flatIdx.
     Gets mutated.
 
-    :param column (int)
+    :param column: (int)
     Index of bursting column.
 
-    :param columnMatchingSegments (iter)
+    :param columnMatchingSegments: (iter)
     Matching segments in this column.
 
-    :param prevActiveCells (list)
+    :param prevActiveCells: (list)
     Active cells in `t-1`.
 
-    :param prevWinnerCells (list)
+    :param prevWinnerCells: (list)
     Winner cells in `t-1`.
 
-    :param cellsForColumn (sequence)
+    :param cellsForColumn: (sequence)
     Range of cell indices on which to operate.
 
-    :param numActivePotentialSynapsesForSegment (list)
+    :param numActivePotentialSynapsesForSegment: (list)
     Number of active potential synapses per segment, indexed by the segment's
     flatIdx.
 
-    :param iteration (int)
+    :param iteration: (int)
     The current timestep.
 
-    :param maxNewSynapseCount (int)
+    :param maxNewSynapseCount: (int)
     The maximum number of synapses added to a segment during learning.
 
-    :param initialPermanence (float)
+    :param initialPermanence: (float)
     Initial permanence of a new synapse.
 
-    :param permanenceIncrement (float)
+    :param permanenceIncrement: (float)
     Amount by which permanences of synapses are incremented during learning.
 
-    :param permanenceDecrement (float)
+    :param permanenceDecrement: (float)
     Amount by which permanences of synapses are decremented during learning.
 
-    :param maxSegmentsPerCell (int)
+    :param maxSegmentsPerCell: (int)
     The maximum number of segments per cell.
 
-    :param maxSynapsesPerSegment (int)
+    :param maxSynapsesPerSegment: (int)
     The maximum number of synapses per segment.
 
-    :param learn (bool)
+    :param learn: (bool)
     Whether or not learning is enabled.
 
     :returns: (tuple) Contains:
@@ -631,16 +631,16 @@ class TemporalMemory(object):
   def _punishPredictedColumn(cls, connections, columnMatchingSegments,
                              prevActiveCells, predictedSegmentDecrement):
     """
-    :param connections (Object)
+    :param connections: (Object)
     Connections for the TM. Gets mutated.
 
-    :param columnMatchingSegments (iter)
+    :param columnMatchingSegments: (iter)
     Matching segments for this column.
 
-    :param prevActiveCells (list)
+    :param prevActiveCells: (list)
     Active cells in `t-1`.
 
-    :param predictedSegmentDecrement (float)
+    :param predictedSegmentDecrement: (float)
     Amount by which segments are punished for incorrect predictions.
 
     Pseudocode:
@@ -720,13 +720,13 @@ class TemporalMemory(object):
     Gets the cell with the smallest number of segments.
     Break ties randomly.
 
-    :param random (Object)
+    :param random: (Object)
     Random number generator. Gets mutated.
 
-    :param cells (list)
+    :param cells: (list)
     Indices of cells.
 
-    :param connections (Object)
+    :param connections: (Object)
     Connections instance for the TM.
 
     :returns: (int) Cell index.
@@ -755,13 +755,13 @@ class TemporalMemory(object):
     possible, choosing random cells from the previous winner cells that are
     not already on the segment.
 
-    :param  connections        (Object) Connections instance for the tm
-    :param  random             (Object) TM object used to generate random
+    :param connections:        (Object) Connections instance for the tm
+    :param random:             (Object) TM object used to generate random
                                         numbers
-    :param  segment            (int)    Segment to grow synapses on.
-    :params nDesiredNewSynapes (int)    Desired number of synapses to grow
-    :params prevWinnerCells    (list)   Winner cells in `t-1`
-    :param  initialPermanence  (float)  Initial permanence of a new synapse.
+    :param segment:            (int)    Segment to grow synapses on.
+    :param nDesiredNewSynapes: (int)    Desired number of synapses to grow
+    :param prevWinnerCells:    (list)   Winner cells in `t-1`
+    :param initialPermanence:  (float)  Initial permanence of a new synapse.
 
     """
     candidates = list(prevWinnerCells)
@@ -796,11 +796,11 @@ class TemporalMemory(object):
     Updates synapses on segment.
     Strengthens active synapses; weakens inactive synapses.
 
-    :param connections          (Object) Connections instance for the tm
-    :param segment              (int)    Segment to adapt
-    :param prevActiveCells      (list)   Active cells in `t-1`
-    :param permanenceIncrement  (float)  Amount to increment active synapses
-    :param permanenceDecrement  (float)  Amount to decrement inactive synapses
+    :param connections:          (Object) Connections instance for the tm
+    :param segment:              (int)    Segment to adapt
+    :param prevActiveCells:      (list)   Active cells in `t-1`
+    :param permanenceIncrement:  (float)  Amount to increment active synapses
+    :param permanenceDecrement:  (float)  Amount to decrement inactive synapses
     """
 
     # Destroying a synapse modifies the set that we're iterating through.
@@ -1269,7 +1269,7 @@ class TemporalMemory(object):
     Checks if two instances are functionally identical
     (might have different internal state).
 
-    :param other (TemporalMemory) TemporalMemory instance to compare to
+    :param other: (TemporalMemory) TemporalMemory instance to compare to
     """
     if self.columnDimensions != other.columnDimensions:
       return False
@@ -1314,7 +1314,7 @@ class TemporalMemory(object):
     Checks if two instances are not functionally identical
     (might have different internal state).
 
-    :param other (TemporalMemory) TemporalMemory instance to compare to
+    :param other: (TemporalMemory) TemporalMemory instance to compare to
     """
     return not self.__eq__(other)
 
@@ -1323,7 +1323,7 @@ class TemporalMemory(object):
     """
     Raises an error if column index is invalid.
 
-    :param column (int) Column index
+    :param column: (int) Column index
     """
     if column >= self.numberOfColumns() or column < 0:
       raise IndexError("Invalid column")
@@ -1333,7 +1333,7 @@ class TemporalMemory(object):
     """
     Raises an error if cell index is invalid.
 
-    :param cell (int) Cell index
+    :param cell: (int) Cell index
     """
     if cell >= self.numberOfCells() or cell < 0:
       raise IndexError("Invalid cell")
