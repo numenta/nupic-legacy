@@ -230,15 +230,20 @@ class SDRClassifier(object):
       self._maxInputIdx = int(newMaxInputIdx)
 
     # Get classification info
-    if type(classification["bucketIdx"]) is not list:
-      bucketIdxList = [classification["bucketIdx"]]
-      actValueList = [classification["actValue"]]
-      numCategory = 1
+    if classification is not None:
+      if type(classification["bucketIdx"]) is not list:
+        bucketIdxList = [classification["bucketIdx"]]
+        actValueList = [classification["actValue"]]
+        numCategory = 1
+      else:
+        bucketIdxList = classification["bucketIdx"]
+        actValueList = classification["actValue"]
+        numCategory = len(classification["bucketIdx"])
     else:
-      bucketIdxList = classification["bucketIdx"]
-      actValueList = classification["actValue"]
-      numCategory = len(classification["bucketIdx"])
-
+      if learn:
+        raise ValueError("classification cannot be None when learn=True")
+      actValueList = [0]
+      bucketIdxList = [0]
     # ------------------------------------------------------------------------
     # Inference:
     # For each active bit in the activationPattern, get the classification
