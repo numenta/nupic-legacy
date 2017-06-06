@@ -280,6 +280,9 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def compute(self, bottomUpInput, enableLearn, enableInference=None):
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.compute`.
+    """
     # The C++ TM takes 32 bit floats as input. uint32 works as well since the
     # code only checks whether elements are non-zero
     assert (bottomUpInput.dtype == numpy.dtype('float32')) or \
@@ -386,6 +389,9 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def reset(self):
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.reset`.
+    """
     if self.verbosity >= 3:
       print "TM Reset"
     self._setStatePointers()
@@ -394,6 +400,9 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def finishLearning(self):
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.finishLearning`.
+    """
     # Keep weakly formed synapses around because they contain confidence scores
     #  for paths out of learned sequenced and produce a better prediction than
     #  chance.
@@ -401,6 +410,9 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def trimSegments(self, minPermanence=None, minNumSyns=None):
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.trimSegments`.
+    """
     # Fill in defaults
     if minPermanence is None:
       minPermanence = 0.0
@@ -482,6 +494,9 @@ class BacktrackingTMCPP(BacktrackingTM):
         print "maintained activation",
 
   def printSegmentUpdates(self):
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.printSegmentUpdates`.
+    """
     # TODO: need to add C++ accessors to implement this method
     assert False
     print "=== SEGMENT UPDATES ===, Num = ", len(self.segmentUpdates)
@@ -512,7 +527,9 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def printCell(self, c, i, onlyActiveSegments=False):
-
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.printCell`.
+    """
     nSegs = self.cells4.nSegmentsOnCell(c,i)
     if nSegs > 0:
       segList = self.cells4.getNonEmptySegList(c,i)
@@ -544,6 +561,9 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def getAvgLearnedSeqLength(self):
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.getAvgLearnedSeqLength`.
+    """
     return self.cells4.getAvgLearnedSeqLength()
 
 
@@ -561,6 +581,9 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def getSegmentOnCell(self, c, i, segIdx):
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentOnCell`.
+    """
     segList = self.cells4.getNonEmptySegList(c,i)
     seg = self.cells4.getSegment(c, i, segList[segIdx])
     numSyn = seg.size()
@@ -582,18 +605,30 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def getNumSegments(self):
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegments`.
+    """
     return self.cells4.nSegments()
 
 
   def getNumSynapses(self):
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSynapses`.
+    """
     return self.cells4.nSynapses()
 
 
   def getNumSegmentsInCell(self, c, i):
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegmentsInCell`.
+    """
     return self.cells4.nSegmentsOnCell(c,i)
 
 
   def getSegmentInfo(self, collectActiveData = False):
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentInfo`.
+    """
     # Requires appropriate accessors in C++ cells4 (currently unimplemented)
     assert collectActiveData == False
 
