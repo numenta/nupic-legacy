@@ -1172,10 +1172,14 @@ class HTMPredictionModel(Model):
                                                       clParams))
       n.addRegion("Classifier", "py.%s" % str(clRegionName), json.dumps(clParams))
 
-      n.link("sensor", "Classifier", "UniformLink", "", srcOutput="actValueOut",
-             destInput="actValueIn")
-      n.link("sensor", "Classifier", "UniformLink", "", srcOutput="bucketIdxOut",
-             destInput="bucketIdxIn")
+      # SDR Classifier-specific links
+      if str(clRegionName) == "SDRClassifierRegion":
+        n.link("sensor", "Classifier", "UniformLink", "", srcOutput="actValueOut",
+               destInput="actValueIn")
+        n.link("sensor", "Classifier", "UniformLink", "", srcOutput="bucketIdxOut",
+               destInput="bucketIdxIn")
+
+      # This applies to all (SDR and KNN) classifiers
       n.link("sensor", "Classifier", "UniformLink", "", srcOutput="categoryOut",
              destInput="categoryIn")
 

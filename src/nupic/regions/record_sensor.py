@@ -386,10 +386,12 @@ class RecordSensor(PyRegion):
                     if e[0] == self.predictedField]
         if len(encoders) == 0:
           raise ValueError("There is no encoder for set for the predicted "
-                           "field: %s" % predictedField)
-        elif len(encoders) > 1:
-          raise ValueError("There cant' be more than 1 encoder for the "
-                           "predicted field: %s" % predictedField)
+                           "field: %s" % self.predictedField)
+        # TODO: Figure out why there are sometimes multiple encoders with the
+        # same name.
+        #elif len(encoders) > 1:
+        #  raise ValueError("There cant' be more than 1 encoder for the "
+        #                   "predicted field: %s" % self.predictedField)
         else:
           encoder = encoders[0][1]
 
