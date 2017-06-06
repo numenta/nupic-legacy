@@ -23,7 +23,7 @@ between the cells in the Temporal Memory representation.
    :caption: Contents:
 
    encoders
-   spatial-pooler
+   spatial-pooling
    sequence-memory
    classifiers
    anomaly-detection
