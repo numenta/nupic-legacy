@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Description API &#8212; NuPIC 0.8.0.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8.0.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Experiment Runner" href="exp-runner.html" />
+    <link rel="prev" title="Clients" href="clients.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-nupic.frameworks.opf.exp_description_api">
+<span id="description-api"></span><h1>Description API<a class="headerlink" href="#module-nupic.frameworks.opf.exp_description_api" title="Permalink to this headline">¶</a></h1>
+<p>This file describes the Description API interface of the Online Prediction
+Framework (OPF).</p>
+<p>The Description API interface encapsulates the following two important sets of
+configuration parameters in OPF</p>
+<ol class="arabic simple">
+<li>model creation parameters (via getDescription)</li>
+<li>task control parameters (via getExperimentTasks)</li>
+</ol>
+<p>The description class objects instantiated in <code class="docutils literal"><span class="pre">description.py</span></code>
+implements the functionality by subclassing the Description API interface.</p>
+<p>This allows <code class="docutils literal"><span class="pre">description.py</span></code> to be generic and oblivious to the specific
+experiments.</p>
+<dl class="class">
+<dt id="nupic.frameworks.opf.exp_description_api.DescriptionIface">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.exp_description_api.</code><code class="descname">DescriptionIface</code><span class="sig-paren">(</span><em>modelConfig</em>, <em>control</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.exp_description_api.DescriptionIface" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the base interface class for description API classes which provide
+OPF configuration parameters.</p>
+<p>This mechanism abstracts description API from the specific description objects
+created by the individual users.</p>
+<p>TODO: logging interface?</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>modelConfig</strong> &#8211; (dict)
+Holds user-defined settings for model creation.  See OPF
+<a class="reference external" href="description-template.html">here</a> for config dict documentation.</li>
+<li><strong>control</strong> &#8211; (dict)
+How the model is to be run. The schema of this dictionary depends on the
+&#8216;environment&#8217; parameter, which specifies the context in which the model is
+being run.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.frameworks.opf.exp_description_api.DescriptionIface.convertNupicEnvToOPF">
+<code class="descname">convertNupicEnvToOPF</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.exp_description_api.DescriptionIface.convertNupicEnvToOPF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the control element from Nupic format to a default OPF
+format with 1 task. This is useful when you have a base description file
+that you want to run both permutations on (which requires the Nupic
+environment format) and single OPF experiments on (which requires the
+OPF format).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.exp_description_api.DescriptionIface.getModelControl">
+<code class="descname">getModelControl</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.exp_description_api.DescriptionIface.getModelControl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the task instances of the experiment description.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(dict) describing how the model is to be run</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.exp_description_api.DescriptionIface.getModelDescription">
+<code class="descname">getModelDescription</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.exp_description_api.DescriptionIface.getModelDescription" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the model creation parameters based on the settings in the config</td>
+</tr>
+</tbody>
+</table>
+<p>dictionary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.exp_description_api.DescriptionIface.normalizeStreamSources">
+<code class="descname">normalizeStreamSources</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.exp_description_api.DescriptionIface.normalizeStreamSources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inspects the control task and updates any stream sources it finds that are
+not absolute paths into paths generated by pkg_resources relative to
+nupic.datafiles.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.exp_description_api.ExperimentDescriptionAPI">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.exp_description_api.</code><code class="descname">ExperimentDescriptionAPI</code><span class="sig-paren">(</span><em>modelConfig</em>, <em>control</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.exp_description_api.ExperimentDescriptionAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.exp_description_api.DescriptionIface" title="nupic.frameworks.opf.exp_description_api.DescriptionIface"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.exp_description_api.DescriptionIface</span></code></a></p>
+<p>TODO: Document this.</p>
+<dl class="method">
+<dt id="nupic.frameworks.opf.exp_description_api.ExperimentDescriptionAPI.convertNupicEnvToOPF">
+<code class="descname">convertNupicEnvToOPF</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.exp_description_api.ExperimentDescriptionAPI.convertNupicEnvToOPF" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: document</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.exp_description_api.ExperimentDescriptionAPI.normalizeStreamSource">
+<code class="descname">normalizeStreamSource</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.exp_description_api.ExperimentDescriptionAPI.normalizeStreamSource" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: document
+:param stream:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.exp_description_api.ExperimentDescriptionAPI.normalizeStreamSources">
+<code class="descname">normalizeStreamSources</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.exp_description_api.ExperimentDescriptionAPI.normalizeStreamSources" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: document</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/index.html">Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Online Prediction Framework</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clients.html">Clients</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Description API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="exp-runner.html">Experiment Runner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="environment.html">Environments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metrics.html">Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="results.html">Model Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="exceptions.html">Exceptions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../network/index.html">Network API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data/index.html">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support/index.html">Support</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/opf/description-api.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
