@@ -90,8 +90,7 @@ nupic
 │   │   ├── temporal_memory_monitor_mixin.py [TODO]
 │   │   └── trace.py [TODO]
 │   ├── spatial_pooler.py [OK]
-│   ├── temporal_memory.py [TODO]
-│   └── temporal_memory_shim.py [TODO]
+│   └── temporal_memory.py [OK]
 ├── data
 │   ├── fieldmeta.py [OK]
 │   ├── file_record_stream.py [OK]

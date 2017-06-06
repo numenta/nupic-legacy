@@ -26,3 +26,8 @@ C++ Backtracking Temporal Memory
    :show-inheritance:
    :members:
 
+Connections
++++++++++++
+
+.. automodule:: nupic.algorithms.connections
+   :members:
