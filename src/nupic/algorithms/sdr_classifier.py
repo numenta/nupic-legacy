@@ -242,8 +242,8 @@ class SDRClassifier(object):
     else:
       if learn:
         raise ValueError("classification cannot be None when learn=True")
-      actValueList = [0]
-      bucketIdxList = [0]
+      actValueList = None
+      bucketIdxList = None
     # ------------------------------------------------------------------------
     # Inference:
     # For each active bit in the activationPattern, get the classification
@@ -341,7 +341,7 @@ class SDRClassifier(object):
 
     # NOTE: If doing 0-step prediction, we shouldn't use any knowledge
     #  of the classification input during inference.
-    if self.steps[0] == 0:
+    if self.steps[0] == 0 or actValueList is None:
       defaultValue = 0
     else:
       defaultValue = actValueList[0]
