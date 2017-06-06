@@ -82,12 +82,7 @@ nupic
 │   ├── backtracking_tm_cpp.py [OK]
 │   ├── connections.py [TODO]
 │   ├── fdrutilities.py [TODO]
-│   ├── monitor_mixin
-│   │   ├── metric.py [TODO]
-│   │   ├── monitor_mixin_base.py [TODO]
-│   │   ├── plot.py [TODO]
-│   │   ├── temporal_memory_monitor_mixin.py [TODO]
-│   │   └── trace.py [TODO]
+│   ├── monitor_mixin [DEFER]
 │   ├── spatial_pooler.py [OK]
 │   └── temporal_memory.py [OK]
 ├── data
@@ -184,31 +179,7 @@ nupic
 │   ├── group_by.py [OK]
 │   ├── lock_attributes.py [OK]
 │   └── pymysql_helpers.py [TODO]
-├── swarming
-│   ├── DummyModelRunner.py [TODO]
-│   ├── HypersearchV2.py [TODO]
-│   ├── HypersearchWorker.py [TODO]
-│   ├── ModelRunner.py [TODO]
-│   ├── api.py [TODO]
-│   ├── exp_generator
-│   │   └── ExpGenerator.py [TODO]
-│   ├── experimentutils.py [TODO]
-│   ├── hypersearch
-│   │   ├── ExtendedLogger.py [TODO]
-│   │   ├── HsState.py [TODO]
-│   │   ├── ModelTerminator.py [TODO]
-│   │   ├── Particle.py [TODO]
-│   │   ├── SwarmTerminator.py [TODO]
-│   │   ├── errorcodes.py [TODO]
-│   │   ├── object_json.py [TODO]
-│   │   ├── permutation_helpers.py [TODO]
-│   │   ├── regression.py [TODO]
-│   │   └── support.py [TODO]
-│   ├── jsonschema
-│   ├── modelchooser.py [TODO]
-│   ├── permutationhelpers.py [TODO]
-│   ├── permutations_runner.py [TODO]
-│   └── utils.py [TODO]
+├── swarming [DEFER]
 └── utils.py [TODO]
 
 ```
