@@ -379,7 +379,8 @@ class RecordSensor(PyRegion):
 
       # If there is a field to predict, set bucketIdxOut and actValueOut.
       if self.predictedField is not None:
-        encoders = [e for e in self.encoder.encoders if e[0] == self.predictedField]
+        encoders = [e for e in (self.encoder.encoders + self.disabledEncoder.encoders)
+                    if e[0] == self.predictedField]
         if len(encoders) == 0:
           raise ValueError("There is no encoder for set for the predicted "
                            "field: %s" % predictedField)
