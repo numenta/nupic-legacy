@@ -78,9 +78,8 @@ nupic
 │   ├── anomaly_likelihood.py [OK]
 │   ├── sdr_classifier.py [OK]
 │   ├── sdr_classifier_factory.py [OK]
-│   ├── backtracking_tm.py [TODO]
-│   ├── backtracking_tm_cpp.py [TODO]
-│   ├── backtracking_tm_shim.py [TODO]
+│   ├── backtracking_tm.py [OK]
+│   ├── backtracking_tm_cpp.py [OK]
 │   ├── connections.py [TODO]
 │   ├── fdrutilities.py [TODO]
 │   ├── monitor_mixin
