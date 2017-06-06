@@ -313,7 +313,7 @@ class HTMPredictionModel(Model):
     super(HTMPredictionModel, self).enableInference(inferenceArgs)
     if inferenceArgs is not None and "predictedField" in inferenceArgs:
       self._getSensorRegion().setParameter("predictedField",
-                                           inferenceArgs["predictedField"])
+                                           str(inferenceArgs["predictedField"]))
 
 
   def enableLearning(self):
