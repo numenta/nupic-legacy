@@ -28,23 +28,21 @@ EPSILON = 0.00001 # constant error threshold to check equality of permanences to
 
 
 class Segment(object):
-  """ Class containing minimal information to identify a unique segment """
+  """
+  Class containing minimal information to identify a unique segment.
+  
+  :param cell: (int) Index of the cell that this segment is on.
+
+  :param flatIdx: (int) The segment's flattened list index.
+
+  :param ordinal: (long) Used to sort segments. The sort order needs to be 
+         consistent between implementations so that tie-breaking is consistent 
+         when finding the best matching segment.
+  """
 
   __slots__ = ["cell", "flatIdx", "_synapses", "_ordinal"]
 
   def __init__(self, cell, flatIdx, ordinal):
-    """
-    @param cell (int)
-    Index of the cell that this segment is on.
-
-    @param flatIdx (int)
-    The segment's flattened list index.
-
-    @param ordinal (long)
-    Used to sort segments. The sort order needs to be consistent between
-    implementations so that tie-breaking is consistent when finding the best
-    matching segment.
-    """
     self.cell = cell
     self.flatIdx = flatIdx
     self._synapses = set()
@@ -55,7 +53,6 @@ class Segment(object):
     """ Explicitly implement this for unit testing. The flatIdx is not designed
     to be consistent after serialize / deserialize, and the synapses might not
     enumerate in the same order.
-
     """
 
     return (self.cell == other.cell and
@@ -65,26 +62,24 @@ class Segment(object):
 
 
 class Synapse(object):
-  """ Class containing minimal information to identify a unique synapse """
+  """
+  Class containing minimal information to identify a unique synapse.
+
+  :param segment: (Object) Segment object that the synapse is synapsed to.
+
+  :param presynapticCell: (int) The index of the presynaptic cell of the 
+         synapse.
+
+  :param permanence: (float) Permanence of the synapse from 0.0 to 1.0.
+
+  :param ordinal: (long) Used to sort synapses. The sort order needs to be 
+         consistent between implementations so that tie-breaking is consistent 
+         when finding the min permanence synapse.
+  """
 
   __slots__ = ["segment", "presynapticCell", "permanence", "_ordinal"]
 
   def __init__(self, segment, presynapticCell, permanence, ordinal):
-    """
-    @param segment
-    (Object) Segment object that the synapse is synapsed to.
-
-    @param presynapticCell (int)
-    The index of the presynaptic cell of the synapse.
-
-    @param permanence (float)
-    Permanence of the synapse from 0.0 to 1.0.
-
-    @param ordinal (long)
-    Used to sort synapses. The sort order needs to be consistent between
-    implementations so that tie-breaking is consistent when finding the min
-    permanence synapse.
-    """
     self.segment = segment
     self.presynapticCell = presynapticCell
     self.permanence = permanence
@@ -103,7 +98,7 @@ class Synapse(object):
 
 
 class CellData(object):
-  """ Class containing cell information. Internal to the Connections. """
+  # Class containing cell information. Internal to the Connections
 
   __slots__ = ["_segments"]
 
@@ -113,13 +108,12 @@ class CellData(object):
 
 
 def binSearch(arr, val):
-  """ function for running binary search on a sorted list.
+  """ 
+  Function for running binary search on a sorted list.
 
-  @param arr (list) a sorted list of integers to search
-  @param val (int)  a integer to search for in the sorted array
-
-  @return (int) the index of the element if it is found and -1 otherwise.
-
+  :param arr: (list) a sorted list of integers to search
+  :param val: (int)  a integer to search for in the sorted array
+  :returns: (int) the index of the element if it is found and -1 otherwise.
   """
   i = bisect_left(arr, val)
   if i != len(arr) and arr[i] == val:
@@ -129,11 +123,13 @@ def binSearch(arr, val):
 
 
 class Connections(object):
-  """ Class to hold data representing the connectivity of a
-      collection of cells. """
+  """ 
+  Class to hold data representing the connectivity of a collection of cells. 
+  
+  :param numCells: (int) Number of cells in collection. 
+  """
 
   def __init__(self, numCells):
-    """ @param numCells (int) Number of cells in collection """
 
     # Save member variables
     self.numCells = numCells
@@ -153,104 +149,106 @@ class Connections(object):
 
 
   def segmentsForCell(self, cell):
-    """ Returns the segments that belong to a cell.
+    """ 
+    Returns the segments that belong to a cell.
 
-    @param cell (int) Cell index
-
-    @return (list)
-    Segment objects representing segments on the given cell.
+    :param cell: (int) Cell index
+    :returns: (list) Segment objects representing segments on the given cell.
     """
 
     return self._cells[cell]._segments
 
 
   def synapsesForSegment(self, segment):
-    """ Returns the synapses on a segment.
+    """ 
+    Returns the synapses on a segment.
 
-    @param segment (int) Segment index
-
-    @return (set)
-    Synapse objects representing synapses on the given segment.
+    :param segment: (int) Segment index
+    :returns: (set) Synapse objects representing synapses on the given segment.
     """
 
     return segment._synapses
 
 
   def dataForSynapse(self, synapse):
-    """ Returns the data for a synapse.
+    """ 
+    Returns the data for a synapse.
 
-    This method exists to match the interface of the C++ Connections. This
-    allows tests and tools to inspect the connections using a common interface.
+    .. note:: This method exists to match the interface of the C++ Connections. 
+       This allows tests and tools to inspect the connections using a common 
+       interface.
 
-    @param synapse (Object) Synapse object
-
-    @return Synapse data
+    :param synapse: (:class:`Synapse`)
+    :returns: Synapse data
     """
     return synapse
 
 
   def dataForSegment(self, segment):
-    """ Returns the data for a segment.
+    """ 
+    Returns the data for a segment.
 
-    This method exists to match the interface of the C++ Connections. This
-    allows tests and tools to inspect the connections using a common interface.
+    .. note:: This method exists to match the interface of the C++ Connections. 
+       This allows tests and tools to inspect the connections using a common 
+       interface.
 
-    @param synapse (Object) Segment object
-
-    @return segment data
+    :param segment (:class:`Segment`)
+    :returns: segment data
     """
     return segment
 
 
   def getSegment(self, cell, idx):
-    """ Returns a Segment object of the specified segment using data from the
-        self._cells array.
+    """ 
+    Returns a :class:`Segment` object of the specified segment using data from 
+    the ``self._cells`` array.
 
-    @param cell (int) cell index
-    @param idx  (int) segment index on a cell
-
-    @return (Segment) Segment object with index idx on the specified cell
-
+    :param cell: (int) cell index
+    :param idx:  (int) segment index on a cell
+    :returns: (:class:`Segment`) Segment object with index idx on the specified cell
     """
 
     return self._cells[cell]._segments[idx]
 
 
   def segmentForFlatIdx(self, flatIdx):
-    """ Get the segment with the specified flatIdx.
+    """ 
+    Get the segment with the specified flatIdx.
 
-    @param flatIdx (int) The segment's flattened list index.
+    :param flatIdx: (int) The segment's flattened list index.
 
-    @return (Segment) segment object
+    :returns: (:class:`Segment`)
     """
     return self._segmentForFlatIdx[flatIdx]
 
 
   def segmentFlatListLength(self):
-    """ Get the needed length for a list to hold a value for every segment's
+    """ 
+    Get the needed length for a list to hold a value for every segment's 
     flatIdx.
 
-    @return (int) Required list length
+    :returns: (int) Required list length
     """
     return self._nextFlatIdx
 
 
   def synapsesForPresynapticCell(self, presynapticCell):
-    """ Returns the synapses for the source cell that they synapse on.
+    """ 
+    Returns the synapses for the source cell that they synapse on.
 
-    @param presynapticCell (int) Source cell index
+    :param presynapticCell: (int) Source cell index
 
-    @return (set) Synapse objects
+    :returns: (set) :class:`Synapse` objects
     """
     return self._synapsesForPresynapticCell[presynapticCell]
 
 
   def createSegment(self, cell):
-    """ Adds a new segment on a cell.
+    """ 
+    Adds a new segment on a cell.
 
-    @param cell (int) Cell index
-
-    @return (int) New segment index
+    :param cell: (int) Cell index
+    :returns: (int) New segment index
     """
     cellData = self._cells[cell]
 
@@ -272,10 +270,10 @@ class Connections(object):
 
 
   def destroySegment(self, segment):
-    """ Destroys a segment.
+    """
+    Destroys a segment.
 
-    @param segment (Object) Segment object representing the segment to be
-                            destroyed
+    :param segment: (:class:`Segment`) representing the segment to be destroyed.
     """
     # Remove the synapses from all data structures outside this Segment.
     for synapse in segment._synapses:
@@ -294,13 +292,14 @@ class Connections(object):
 
 
   def createSynapse(self, segment, presynapticCell, permanence):
-    """ Creates a new synapse on a segment.
+    """ 
+    Creates a new synapse on a segment.
 
-    @param segment         (Object) Segment object for synapse to be synapsed to
-    @param presynapticCell (int)    Source cell index
-    @param permanence      (float)  Initial permanence
-
-    @return (Object) created Synapse object
+    :param segment: (:class:`Segment`) Segment object for synapse to be synapsed 
+           to.
+    :param presynapticCell: (int) Source cell index.
+    :param permanence: (float) Initial permanence of synapse.
+    :returns: (:class:`Synapse`) created synapse
     """
     idx = len(segment._synapses)
     synapse = Synapse(segment, presynapticCell, permanence,
@@ -325,9 +324,10 @@ class Connections(object):
 
 
   def destroySynapse(self, synapse):
-    """ Destroys a synapse.
+    """
+    Destroys a synapse.
 
-    @param synapse (Object) Synapse object to destroy
+    :param synapse: (:class:`Synapse`) synapse to destroy
     """
 
     self._numSynapses -= 1
@@ -338,26 +338,28 @@ class Connections(object):
 
 
   def updateSynapsePermanence(self, synapse, permanence):
-    """ Updates the permanence for a synapse.
-    @param synapse    (Object) Synapse object to be updated
-    @param permanence (float)  New permanence
+    """ 
+    Updates the permanence for a synapse.
+    
+    :param synapse: (class:`Synapse`) to be updated.
+    :param permanence: (float) New permanence.
     """
 
     synapse.permanence = permanence
 
 
   def computeActivity(self, activePresynapticCells, connectedPermanence):
-    """ Compute each segment's number of active synapses for a given input.
+    """ 
+    Compute each segment's number of active synapses for a given input.
     In the returned lists, a segment's active synapse count is stored at index
-    `segment.flatIdx`.
+    ``segment.flatIdx``.
 
-    @param activePresynapticCells (iter)  active cells
-    @param connectedPermanence    (float) permanence threshold for a synapse
-                                          to be considered connected
+    :param activePresynapticCells: (iter) Active cells.
+    :param connectedPermanence: (float) Permanence threshold for a synapse to be 
+           considered connected
 
-    @return (tuple) Contains:
-                      `numActiveConnectedSynapsesForSegment`  (list),
-                      `numActivePotentialSynapsesForSegment`  (list)
+    :returns: (tuple) (``numActiveConnectedSynapsesForSegment`` [list],
+                      ``numActivePotentialSynapsesForSegment`` [list])
     """
 
     numActiveConnectedSynapsesForSegment = [0] * self._nextFlatIdx
@@ -377,12 +379,13 @@ class Connections(object):
 
 
   def numSegments(self, cell=None):
-    """ Returns the number of segments.
+    """ 
+    Returns the number of segments.
 
-    @param cell (int) optional parameter to get the number of segments on a cell
-
-    @retval (int) number of segments on all cells if cell is not specified,
-                  or on a specific specified cell
+    :param cell: (int) Optional parameter to get the number of segments on a 
+           cell.
+    :returns: (int) Number of segments on all cells if cell is not specified, or 
+              on a specific specified cell
     """
     if cell is not None:
       return len(self._cells[cell]._segments)
@@ -391,13 +394,14 @@ class Connections(object):
 
 
   def numSynapses(self, segment=None):
-    """ Returns the number of Synapses.
+    """ 
+    Returns the number of Synapses.
 
-    @param segment (Object) optional parameter to get the number of synapses on
-                            a segment
+    :param segment: (:class:`Segment`) Optional parameter to get the number of 
+           synapses on a segment.
 
-    @retval (int) number of synapses on all segments if segment is not
-                  specified, or on a specified segment
+    :returns: (int) Number of synapses on all segments if segment is not 
+              specified, or on a specified segment.
     """
     if segment is not None:
       return len(segment._synapses)
@@ -405,22 +409,22 @@ class Connections(object):
 
 
   def segmentPositionSortKey(self, segment):
-    """ Return a numeric key for sorting this segment.
+    """ 
+    Return a numeric key for sorting this segment. This can be used with the 
+    python built-in ``sorted()`` function.
 
-    This can be used with `sorted`.
-
-    @param segment
-    A Segment within this Connections.
-
-    @retval (float) A numeric key for sorting.
+    :param segment: (:class:`Segment`) within this :class:`Connections` 
+           instance.
+    :returns: (float) A numeric key for sorting.
     """
     return segment.cell + (segment._ordinal / float(self._nextSegmentOrdinal))
 
 
   def write(self, proto):
-    """ Writes serialized data to proto object
+    """ 
+    Writes serialized data to proto object.
 
-    @param proto (DynamicStructBuilder) Proto object
+    :param proto: (DynamicStructBuilder) Proto object
     """
     protoCells = proto.init('cells', self.numCells)
 
@@ -439,11 +443,12 @@ class Connections(object):
 
   @classmethod
   def read(cls, proto):
-    """ Reads deserialized data from proto object
+    """ 
+    Reads deserialized data from proto object
 
-    @param proto (DynamicStructBuilder) Proto object
+    :param proto: (DynamicStructBuilder) Proto object
 
-    @return (Connections) Connections instance
+    :returns: (:class:`Connections`) instance
     """
     #pylint: disable=W0212
     protoCells = proto.cells
@@ -485,7 +490,7 @@ class Connections(object):
     """ Equality operator for Connections instances.
     Checks if two instances are functionally identical
 
-    @param other (Connections) Connections instance to compare to
+    :param other: (:class:`Connections`) Connections instance to compare to
     """
     #pylint: disable=W0212
     for i in xrange(self.numCells):
@@ -542,9 +547,10 @@ class Connections(object):
 
 
   def __ne__(self, other):
-    """ Non-equality operator for Connections instances.
+    """ 
+    Non-equality operator for Connections instances.
     Checks if two instances are not functionally identical
 
-    @param other (Connections) Connections instance to compare to
+    :param other: (:Connections) Connections instance to compare to
     """
     return not self.__eq__(other)
