@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The Swarming Algorithm &#8212; NuPIC 0.8.0.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8.0.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Anomaly Detection" href="../anomaly-detection.html" />
+    <link rel="prev" title="Guide to Running Swarms" href="running.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="the-swarming-algorithm">
+<span id="the-swarming-algorithm"></span><h1>The Swarming Algorithm<a class="headerlink" href="#the-swarming-algorithm" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<span id="overview"></span><h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>This document describes the algorithm used by swarming to determine the best model for a given dataset. Please see the document <a class="reference external" href="Running-Swarms">Running Swarms</a> for detailed instructions on how to configure and run swarms.</p>
+<p>Swarming works by creating and trying multiple different models on a dataset and outputting the parameters for the one model that performed the best (generated the lowest error score). There are a number of factors that swarming considers when creating potential models to evaluate, including which fields from the dataset should be included, which model components should be used (encoders, spatial &amp; temporal poolers, classifier, etc.), and what parameter values should be chosen for each component.</p>
+<p>The potential search space for a model is typically huge. For example, you might have a swarm that has 5 potential fields to include, 3 model component choices, and a dozen parameters to optimize. Trying out all possible models from this space is prohibitively expensive, so swarming takes a dynamic approach and intelligently narrows down the search space as it progresses in order to zero in on a good performing model as quickly as possible.</p>
+<p>Swarming can run across multiple processes. With N available processes, swarming can run N models simultaneously and make the swarm run that much faster. Swarming uses a de-centralized approach to managing the worker processes: there is no central controller process. Rather, each worker process reads and writes to a central database in order to publish the results on its models and get the results on all other models that were evaluated by other workers. This design is fault tolerant in that any worker can die or come online in the middle of a swarm and the swarm will continue running seamlessly. It thus enables high availability if the workers are spread across multiple machines and the database configured with a live backup.</p>
+</div>
+<div class="section" id="field-search-logic">
+<span id="field-search-logic"></span><h2>Field Search Logic<a class="headerlink" href="#field-search-logic" title="Permalink to this headline">¶</a></h2>
+<p>The field search logic is the outer loop of the swarming process. Swarming takes a somewhat greedy approach to selecting fields to include in the model. The overall search is organized into “sprints”. Each sprint corresponds to the number of fields that are included in the model minus 1. For sprint #0, which runs first, we try all possible single field models (A, B, C, D, …). From the best performing field in sprint #0, we build up and generate the 2-field models for sprint #1 (BA, BC, BD, BE, … if the best field from sprint #0 was field B). This process is continued to generate subsequent sprints until the error rate stops improving, at which point the swarm ends.</p>
+<p>For sprint #0, all possible single fields are evaluated. For sprint #1 and subsequent sprints, only the top N (the default is 5, set via a configuration variable) fields from sprint #0 are considered. This keeps the swarm to a manageable size even if the dataset contains many, many fields.</p>
+<p>Each sprint contains one or more “mini-swarms” (MS). There is one MS for each field combination in the sprint. For each MS, we evaluate multiple models (typically dozens) and eventually settle in on the best model found for that particular field combination.  Within an MS, swarming will search over the parameter space and determine which model components to include in the model as well as the optimal values for each of the parameters in each component. The logic used within an MS is described below in the sections entitled “Choosing Scalar Parameter Values” and “Choosing Enumerated Parameter Values”.</p>
+<p>For prediction or anomaly detection models, the predicted field is always a member of the set of fields evaluated during the sprints, but its ultimate selection is optional and it may or may not end up being present in the best model. The fields evaluated during the sprints are fed into the bottom of the network (typically they end up going directly into the Spatial Pooler (SP) after being encoded). Regardless if the predicted field ends up being one of the fields ultimately chosen to enter the bottom of the network, it is <em>always</em> sent through a separate pathway directly to the classifier’s classifier input. This pathway is used for training the classifier only (it provides the “expected output” value for the classifier) and makes use of a separate, dedicated encoder. Since this pathway is required, it is outside of the field search logic.</p>
+<p>For spatial classification models, the only difference in the field search logic is that the predicted field is <em>not</em> included in the list of fields to evaluate. Since we are trying to produce the predicted field at time t given the other inputs at time t, the predicted field is not known yet and can not be fed into the bottom of the network. It is still fed into the classifier’s classifier input though through the dedicated pathway described in the previous paragraph so that the classifier can learn. During inference, the classifier ignores this input.</p>
+</div>
+<div class="section" id="choosing-scalar-parameter-values">
+<span id="choosing-scalar-parameter-values"></span><h2>Choosing Scalar Parameter Values<a class="headerlink" href="#choosing-scalar-parameter-values" title="Permalink to this headline">¶</a></h2>
+<p>This section describes the logic used within an MS to settle in on the best values for the scalar parameters of a model. This includes both integer and floating-point parameters.</p>
+<p>Each MS uses a Particle Swarm Optimization (PSO) algorithm to find the optimal values for the scalar parameters. In a particle swarm, a number of particles (in this case models) are created initially. They are initially placed spread out within the parameter space and given random velocities. Each particle then evaluates its position with the parameter space (runs the model) and produces a fitness score (the result on the model’s error metric). From this fitness score and the fitness scores of the other particles, the particle then chooses a new position and the process is repeated. Once all particles have settled in and the global best fitness score stops improving, the MS ends.</p>
+<p>When choosing a new position, a particle considers both the global best position discovered so far (from among all particles in that MS) and the local best position (the best position seen by itself) discovered so far. It then moves to a new position that is a blend of the global and local best. The farther a particle is from the local or global best, the faster it will move. There is also a random component introduced to help alleviate the chance of a particle getting stuck in a local minimum.</p>
+<p>The full expression of the particle position update logic is as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">vi</span> <span class="o">=</span> <span class="n">vi</span> <span class="o">+</span> <span class="n">ϕ1</span><span class="o">*</span><span class="n">rnd</span><span class="p">()</span><span class="o">*</span><span class="p">(</span><span class="n">pi</span><span class="o">-</span><span class="n">xi</span><span class="p">)</span><span class="o">+</span> <span class="n">ϕ2</span><span class="o">*</span><span class="n">rnd</span><span class="p">()</span><span class="o">*</span><span class="p">(</span><span class="n">gbest</span><span class="o">-</span><span class="n">xi</span><span class="p">)</span>
+<span class="n">xi</span> <span class="o">=</span> <span class="n">xi</span> <span class="o">+</span> <span class="n">vi</span>
+</pre></div>
+</div>
+<p>Here, vi and xi represent the velocity and position of particle i. The new velocity of the particle is based on the old velocity, plus a weighted contribution of its distance from the local best (pi) and a weighted contribution from the global best (gbest). The new position is then computed as the old position plus the velocity.</p>
+<p>In the PSO logic, each particle is initially assigned a unique ID, which stays with it for the lifetime of the particle as it moves around the parameter space. A particle’s initial position is labeled generation 0. Each time the particle chooses a new position; its generation index is incremented. The MS continues to evaluate new generations until the global best stops improving, at which point the MS ends.</p>
+<p>When a user launches a swarm, they can set the swarm size to either “small”, “medium” or “large”. Currently, a “small” swarm creates just one particle per MS, a “medium” swarm creates 5 particles per MS, and a “large” swarm creates 15 particles per MS. Having more particles in an MS allows the logic to search the space more completely and can often yield a better performing model.</p>
+</div>
+<div class="section" id="choosing-enumerated-parameter-values">
+<span id="choosing-enumerated-parameter-values"></span><h2>Choosing Enumerated Parameter Values<a class="headerlink" href="#choosing-enumerated-parameter-values" title="Permalink to this headline">¶</a></h2>
+<p>This section describes the logic used within an MS to settle in on the best values for the enumerated parameters of a model. An example of an enumerate parameter is a Boolean parameter whose possible values are just true and false. Another example is a parameter that could take one of a list of possible values such as: [“scalar”, “delta”, “adaptive”].</p>
+<p>Enumerated parameters are also used to represent high-level component choices in the model. For example, there could be a parameter called “includeSP” with possible values of true and false that drives whether or not a spatial pooler is included in the model. Or, you could have an enumerate parameter which decides which type of classifier to use (for example: [“knn”, “svm”]).</p>
+<p>For each enumerated parameter value, swarming keeps track of the average error score seen when that particular value has been chosen. For example, if a parameter has possible values of [“A”, “B”, “C”], we might have seen an average error score of 0.2 when “A” was chosen, 0.1 when “B” was chosen, and 0.5 when “C” was chosen. When choosing a value for a new candidate model, we choose a new value using a weighted probability: the value choice with the lowest error score (in this case “A”) is given the highest probability of being chosen. The probability assigned to each choice is inversely proportional to its average error score.</p>
+</div>
+<div class="section" id="speculative-execution">
+<span id="speculative-execution"></span><h2>Speculative Execution<a class="headerlink" href="#speculative-execution" title="Permalink to this headline">¶</a></h2>
+<p>In order to fully utilize all of the worker processes provided to a swarm, swarm workers may occasionally make use of “speculative execution”. By default, speculative execution is enabled but it can be turned off via a configuration setting.</p>
+<p>Say for example you are running a medium swarm on a dataset with 3 fields. In a medium swarm, 5 particles are created per MS. In this example, there are 3 MS’s in sprint #0 and each will be running 5 particles. If you are given more than 15 processes to use, what should the extra processes do? If speculative execution is off, they will simply be wasted because they don’t know what to do: we don’t yet know the global best position of each particle in generation 0 of each MS, so we can’t generate a particle in the next generation. In addition, we don’t yet know the best field from sprint 0, so we can’t build the field combinations for sprint 1.</p>
+<p>With speculative execution, if extra workers are available, those workers will speculate and create new particles even before we know the final results from earlier sprints or generations.</p>
+<p>When an extra worker is trying to create a new model, it first tries to generate the next generation of a particle that has completed in the current sprint. If at least one particle has completed generation N, then that particle will be moved to a new position (generation N+1) even if we don’t yet have the results from all the other particles from generation N. In this case, we are updating the particle’s position to generation N+1 before we have knowledge of the final global best for generation N.</p>
+<p>If no particles have completed yet in the current sprint, then the worker will jump ahead and start creating particles in the next sprint. Since we don’t yet know the best field combination from current sprint, the logic generates new field combinations based on <em>all</em> the field combinations from the current sprint. For example, if sprint 0 has single field MS’s [“A”, “B”, “C”], then new field combinations will be generated for sprint 1 of [“AB”, “AC”, “BC”]. Without speculative execution, we would first wait to determine the best single field from sprint 0 and only build up 2-field combinations that include that field (for example, if “A” was the best, we would have only “AB” and “AC” in sprint 1).</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../opf.html">OPF Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../network.html">Network API Guide</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Swarming</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="running.html">Guide to Running Swarms</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">The Swarming Algorithm</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#field-search-logic">Field Search Logic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#choosing-scalar-parameter-values">Choosing Scalar Parameter Values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#choosing-enumerated-parameter-values">Choosing Enumerated Parameter Values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#speculative-execution">Speculative Execution</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../anomaly-detection.html">Anomaly Detection</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/guides/swarming/algorithm.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
