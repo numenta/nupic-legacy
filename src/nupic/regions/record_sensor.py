@@ -111,7 +111,7 @@ class RecordSensor(PyRegion):
         actValueOut=dict(
           description="Actual value of the field to predict. The index of the "
                       "field to predict must be specified via the parameter "
-                      "predictedFieldIdx. If this parameter is not set, then "
+                      "predictedField. If this parameter is not set, then "
                       "actValueOut won't be populated.",
           dataType="Real32",
           count=0,
@@ -121,7 +121,7 @@ class RecordSensor(PyRegion):
           description="Active index of the encoder bucket for the "
                       "actual value of the field to predict. The index of the "
                       "field to predict must be specified via the parameter "
-                      "predictedFieldIdx. If this parameter is not set, then "
+                      "predictedField. If this parameter is not set, then "
                       "actValueOut won't be populated.",
           dataType="UInt64",
           count=0,
@@ -206,15 +206,13 @@ class RecordSensor(PyRegion):
           accessMode="ReadWrite",
           count=1,
           constraints=""),
-        predictedFieldIdx=dict(
-          description="Index of the field to be predicted. Needs to be "
-                      "consistent with the data source indexing. "
-                      "Default value is < 0 which means that no particular "
-                      "field is selected. This will result in the outputs "
-                      "actValueOut and bucketIdxOut not being populated.",
-          dataType="UInt32",
+        predictedField=dict(
+          description="The name of the field to be predicted. This will result "
+                      "in the outputs actValueOut and bucketIdxOut not being "
+                      "populated.",
+          dataType="Byte",
           accessMode="ReadWrite",
-          count=1,
+          count=0,
           defaultValue=-1,
           constraints=""),
         topDownMode=dict(
@@ -246,10 +244,10 @@ class RecordSensor(PyRegion):
     self.numCategories = numCategories
     self._iterNum = 0
 
-    # Optional index of the field for which we want to populate bucketIdxOut
-    # and actValueOut. If predictedFieldIdx < 0, then bucketIdxOut and
+    # Optional field for which we want to populate bucketIdxOut
+    # and actValueOut. If predictedField is None, then bucketIdxOut and
     # actValueOut won't be populated.
-    self.predictedFieldIdx = -1
+    self.predictedField = None
 
     # lastRecord is the last record returned. Used for debugging only
     self.lastRecord = None
@@ -380,26 +378,29 @@ class RecordSensor(PyRegion):
       self.encoder.encodeIntoArray(data, outputs["dataOut"])
 
       # If there is a field to predict, set bucketIdxOut and actValueOut.
-      if self.predictedFieldIdx >= 0:
-        fields = self.dataSource.getFieldNames()
-        if self.predictedFieldIdx >= len(fields):
-          raise ValueError("predictedFieldIdx (%s) must be strictly less than "
-                           "the number of fields (%s). Fields: %s."
-                           % (self.predictedFieldIdx, len(fields), fields))
-        predictedField = fields[self.predictedFieldIdx]
-        encoders = [e for e in self.encoder.encoders if e[0] == predictedField]
+      if self.predictedField is not None:
+        allEncoders = list(self.encoder.encoders)
+        if self.disabledEncoder is not None:
+          allEncoders.extend(self.disabledEncoder.encoders)
+        encoders = [e for e in allEncoders
+                    if e[0] == self.predictedField]
         if len(encoders) == 0:
           raise ValueError("There is no encoder for set for the predicted "
-                           "field: %s" % predictedField)
-        elif len(encoders) > 1:
-          raise ValueError("There cant' be more than 1 encoder for the "
-                           "predicted field: %s" % predictedField)
+                           "field: %s" % self.predictedField)
+        # TODO: Figure out why there are sometimes multiple encoders with the
+        # same name.
+        #elif len(encoders) > 1:
+        #  raise ValueError("There cant' be more than 1 encoder for the "
+        #                   "predicted field: %s" % self.predictedField)
         else:
           encoder = encoders[0][1]
 
-        actualValue = data[predictedField]
+        actualValue = data[self.predictedField]
         outputs["bucketIdxOut"][:] = encoder.getBucketIndices(actualValue)
-        outputs["actValueOut"][:] = actualValue
+        if isinstance(actualValue, str):
+          outputs["actValueOut"][:] = encoder.getBucketIndices(actualValue)
+        else:
+          outputs["actValueOut"][:] = actualValue
 
       # Write out the scalar values obtained from they data source.
       outputs["sourceOut"][:] = self.encoder.getScalars(data)
@@ -594,8 +595,8 @@ class RecordSensor(PyRegion):
     """
     if parameterName == 'topDownMode':
       self.topDownMode = parameterValue
-    elif parameterName == 'predictedFieldIdx':
-      self.predictedFieldIdx = parameterValue
+    elif parameterName == 'predictedField':
+      self.predictedField = parameterValue
     else:
       raise Exception('Unknown parameter: ' + parameterName)
 

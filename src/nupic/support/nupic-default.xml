@@ -8,14 +8,6 @@
 <configuration>
 
 <property>
-  <name>nupic.opf.claClassifier.implementation</name>
-  <value>cpp</value>
-  <description>The classifier implementation to use by default. The current
-  options are 'py', 'cpp', and 'diff'.
-  </description>
-</property>
-
-<property>
   <name>nupic.opf.sdrClassifier.implementation</name>
   <value>cpp</value>
   <description>The SDR classifier implementation to use by default. The current

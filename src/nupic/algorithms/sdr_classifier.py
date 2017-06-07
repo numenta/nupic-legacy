@@ -49,9 +49,6 @@ class SDRClassifier(object):
   During learning, the connection weights between input units and output units
   are adjusted to maximize the likelihood of the model
 
-  The SDR Classifier is a variation of the previous CLAClassifier which was
-  not based on the references below.
-
   Example Usage:
 
   .. code-block:: python

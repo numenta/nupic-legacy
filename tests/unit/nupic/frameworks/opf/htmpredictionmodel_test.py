@@ -99,7 +99,7 @@ class HTMPredictionModelTest(unittest.TestCase):
                         u'clEnable': False,
                         u'clParams': {u'alpha': 0.035828933612158,
                                       u'verbosity': 0,
-                                      u'regionName': u'CLAClassifierRegion',
+                                      u'regionName': u'SDRClassifierRegion',
                                       u'steps': u'1'},
                         u'inferenceType': u'TemporalAnomaly',
                         u'sensorParams': {u'encoders': {u'c0_dayOfWeek': None,
