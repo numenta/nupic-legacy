@@ -171,8 +171,8 @@ class SDRClassifier(object):
 
     :param classification: Dict of the classification information where:
 
-      - bucketIdx: index of the encoder bucket
-      - actValue: actual value going into the encoder
+      - bucketIdx: list of indices of the encoder bucket
+      - actValue: list of actual values going into the encoder
 
       Classification could be None for inference mode.
     :param learn: (bool) if true, learn this sample
@@ -201,8 +201,15 @@ class SDRClassifier(object):
       print "  patternNZ (%d):" % len(patternNZ), patternNZ
       print "  classificationIn:", classification
 
-    # Store pattern in our history
-    self._patternNZHistory.append((recordNum, patternNZ))
+    # ensures that recordNum increases monotonically
+    if len(self._patternNZHistory) > 0:
+      if recordNum < self._patternNZHistory[-1][0]:
+        raise ValueError("the record number has to increase monotonically")
+
+    # Store pattern in our history if this is a new record
+    if len(self._patternNZHistory) == 0 or \
+                    recordNum > self._patternNZHistory[-1][0]:
+      self._patternNZHistory.append((recordNum, patternNZ))
 
     # To allow multi-class classification, we need to be able to run learning
     # without inference being on. So initialize retval outside
@@ -219,48 +226,63 @@ class SDRClassifier(object):
                              self._maxBucketIdx+1))), axis=0)
       self._maxInputIdx = int(newMaxInputIdx)
 
+    # Get classification info
+    if classification is not None:
+      if type(classification["bucketIdx"]) is not list:
+        bucketIdxList = [classification["bucketIdx"]]
+        actValueList = [classification["actValue"]]
+        numCategory = 1
+      else:
+        bucketIdxList = classification["bucketIdx"]
+        actValueList = classification["actValue"]
+        numCategory = len(classification["bucketIdx"])
+    else:
+      if learn:
+        raise ValueError("classification cannot be None when learn=True")
+      actValueList = None
+      bucketIdxList = None
     # ------------------------------------------------------------------------
     # Inference:
     # For each active bit in the activationPattern, get the classification
     # votes
     if infer:
-      retval = self.infer(patternNZ, classification)
+      retval = self.infer(patternNZ, actValueList)
 
 
     if learn and classification["bucketIdx"] is not None:
-      # Get classification info
-      bucketIdx = classification["bucketIdx"]
-      actValue = classification["actValue"]
+      for categoryI in range(numCategory):
+        bucketIdx = bucketIdxList[categoryI]
+        actValue = actValueList[categoryI]
 
-      # Update maxBucketIndex and augment weight matrix with zero padding
-      if bucketIdx > self._maxBucketIdx:
-        for nSteps in self.steps:
-          self._weightMatrix[nSteps] = numpy.concatenate((
-            self._weightMatrix[nSteps],
-            numpy.zeros(shape=(self._maxInputIdx+1,
-                               bucketIdx-self._maxBucketIdx))), axis=1)
+        # Update maxBucketIndex and augment weight matrix with zero padding
+        if bucketIdx > self._maxBucketIdx:
+          for nSteps in self.steps:
+            self._weightMatrix[nSteps] = numpy.concatenate((
+              self._weightMatrix[nSteps],
+              numpy.zeros(shape=(self._maxInputIdx+1,
+                                 bucketIdx-self._maxBucketIdx))), axis=1)
 
-        self._maxBucketIdx = int(bucketIdx)
+          self._maxBucketIdx = int(bucketIdx)
 
-      # Update rolling average of actual values if it's a scalar. If it's
-      # not, it must be a category, in which case each bucket only ever
-      # sees one category so we don't need a running average.
-      while self._maxBucketIdx > len(self._actualValues) - 1:
-        self._actualValues.append(None)
-      if self._actualValues[bucketIdx] is None:
-        self._actualValues[bucketIdx] = actValue
-      else:
-        if (isinstance(actValue, int) or
-              isinstance(actValue, float) or
-              isinstance(actValue, long)):
-          self._actualValues[bucketIdx] = ((1.0 - self.actValueAlpha)
-                                           * self._actualValues[bucketIdx]
-                                           + self.actValueAlpha * actValue)
-        else:
+        # Update rolling average of actual values if it's a scalar. If it's
+        # not, it must be a category, in which case each bucket only ever
+        # sees one category so we don't need a running average.
+        while self._maxBucketIdx > len(self._actualValues) - 1:
+          self._actualValues.append(None)
+        if self._actualValues[bucketIdx] is None:
           self._actualValues[bucketIdx] = actValue
+        else:
+          if (isinstance(actValue, int) or
+                isinstance(actValue, float) or
+                isinstance(actValue, long)):
+            self._actualValues[bucketIdx] = ((1.0 - self.actValueAlpha)
+                                             * self._actualValues[bucketIdx]
+                                             + self.actValueAlpha * actValue)
+          else:
+            self._actualValues[bucketIdx] = actValue
 
       for (learnRecordNum, learnPatternNZ) in self._patternNZHistory:
-        error = self._calculateError(recordNum, classification)
+        error = self._calculateError(recordNum, bucketIdxList)
 
         nSteps = recordNum - learnRecordNum
         if nSteps in self.steps:
@@ -286,7 +308,7 @@ class SDRClassifier(object):
 
 
 
-  def infer(self, patternNZ, classification):
+  def infer(self, patternNZ, actValueList):
     """
     Return the inference value from one input sample. The actual
     learning happens in compute().
@@ -316,10 +338,10 @@ class SDRClassifier(object):
 
     # NOTE: If doing 0-step prediction, we shouldn't use any knowledge
     #  of the classification input during inference.
-    if self.steps[0] == 0 or classification is None:
+    if self.steps[0] == 0 or actValueList is None:
       defaultValue = 0
     else:
-      defaultValue = classification["actValue"]
+      defaultValue = actValueList[0]
     actValues = [x if x is not None else defaultValue
                  for x in self._actualValues]
     retval = {"actualValues": actValues}
@@ -433,19 +455,20 @@ class SDRClassifier(object):
     proto.verbosity = self.verbosity
 
 
-  def _calculateError(self, recordNum, classification):
+  def _calculateError(self, recordNum, bucketIdxList):
     """
     Calculate error signal
 
-    :param classification: dict of the classification information:
-                    bucketIdx: index of the encoder bucket
-                    actValue:  actual value going into the encoder
+    :param bucketIdxList: list of encoder buckets
+
     :return: dict containing error. The key is the number of steps
              The value is a numpy array of error at the output layer
     """
     error = dict()
     targetDist = numpy.zeros(self._maxBucketIdx + 1)
-    targetDist[classification["bucketIdx"]] = 1.0
+    numCategories = len(bucketIdxList)
+    for bucketIdx in bucketIdxList:
+      targetDist[bucketIdx] = 1.0/numCategories
 
     for (learnRecordNum, learnPatternNZ) in self._patternNZHistory:
       nSteps = recordNum - learnRecordNum

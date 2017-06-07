@@ -1,5 +1,5 @@
-Spatial Pooler
-^^^^^^^^^^^^^^
+Spatial Pooling
+^^^^^^^^^^^^^^^
 
 .. automodule:: nupic.algorithms.spatial_pooler
 
