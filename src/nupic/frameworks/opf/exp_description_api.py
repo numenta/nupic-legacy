@@ -122,8 +122,39 @@ class DescriptionIface(object):
 
 
 class ExperimentDescriptionAPI(DescriptionIface):
-  """
-  TODO: Document this.
+  """Interface for specifying OPF experiments.
+
+  This class is used to specify the model and control parameters for an OPF
+  experiment. The model config includes the necessary information for
+  constructing an OPF model and the control includes information about the
+  environment, where to get the data from, etc.
+
+  The experiment_runner takes an instance of this class as the description
+  of the experiment to run. Similarly, scripts/run_opf_experiment.py looks
+  for an instance of this class in a variable called `descriptionInterface`
+  in the experiment files that are passed to it.
+
+  :param modelConfig: (dict) a specification of the model to use, including
+      the following keys:
+          model: the name of the OPF model to create
+          version: the config format version to use
+          modelParams: parameters to pass to the OPF model
+      There may be other required fields such as predictionSteps,
+      predictedField, and numRecords
+  :param control: (dict): a specification of the experimental setup,
+      including the following keys:
+          environment: the environment that the model will be run in
+          dataset: input specification as defined in
+              `src/nupic/frameworks/opf/jsonschema/stream_def.json`
+          iterationCount: maximum number of iterations, or -1 to iterate
+              until the data source is exhausted
+          inferenceArgs: a dict containing all the supplementary parameters
+              for inference, including "predictedField" and "predictionSteps"
+          metrics: a list of MetricSpec instances that specify the metrics to
+              compute during this experiment
+          loggedMetrics: a sequence of regular expression strings that specify
+              which metrics should be logged at each iteration of the
+              experiment
   """
 
   def __init__(self, modelConfig, control):
