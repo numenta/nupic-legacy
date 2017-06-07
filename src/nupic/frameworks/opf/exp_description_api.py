@@ -136,23 +136,27 @@ class ExperimentDescriptionAPI(DescriptionIface):
 
   :param modelConfig: (dict) a specification of the model to use, including
       the following keys:
-          model: the name of the OPF model to create
-          version: the config format version to use
-          modelParams: parameters to pass to the OPF model
+
+          - **model**: the name of the OPF model to create
+          - **version**: the config format version to use
+          - **modelParams**: parameters to pass to the OPF model
+
       There may be other required fields such as predictionSteps,
       predictedField, and numRecords
+
   :param control: (dict): a specification of the experimental setup,
       including the following keys:
-          environment: the environment that the model will be run in
-          dataset: input specification as defined in
+
+          - **environment**: the environment that the model will be run in
+          - **dataset**: input specification as defined in
               `src/nupic/frameworks/opf/jsonschema/stream_def.json`
-          iterationCount: maximum number of iterations, or -1 to iterate
+          - **iterationCount**: maximum number of iterations, or -1 to iterate
               until the data source is exhausted
-          inferenceArgs: a dict containing all the supplementary parameters
+          - **inferenceArgs**: a dict containing all the supplementary parameters
               for inference, including "predictedField" and "predictionSteps"
-          metrics: a list of MetricSpec instances that specify the metrics to
+          - **metrics**: a list of MetricSpec instances that specify the metrics to
               compute during this experiment
-          loggedMetrics: a sequence of regular expression strings that specify
+          - **loggedMetrics**: a sequence of regular expression strings that specify
               which metrics should be logged at each iteration of the
               experiment
   """
