@@ -551,6 +551,6 @@ class Connections(object):
     Non-equality operator for Connections instances.
     Checks if two instances are not functionally identical
 
-    :param other: (:Connections) Connections instance to compare to
+    :param other: (:class:`Connections`) Connections instance to compare to
     """
     return not self.__eq__(other)
