@@ -129,10 +129,11 @@ class ExperimentDescriptionAPI(DescriptionIface):
   constructing an OPF model and the control includes information about the
   environment, where to get the data from, etc.
 
-  The experiment_runner takes an instance of this class as the description
-  of the experiment to run. Similarly, scripts/run_opf_experiment.py looks
-  for an instance of this class in a variable called `descriptionInterface`
-  in the experiment files that are passed to it.
+  The :mod:`~nupic.frameworks.opf.experiment_runner` takes an instance of
+  this class as the description of the experiment to run. Similarly,
+  `scripts/run_opf_experiment.py` looks for an instance of this class in a
+  variable called "descriptionInterface" in the experiment files that are
+  passed to it.
 
   :param modelConfig: (dict) a specification of the model to use, including
       the following keys:
@@ -156,8 +157,8 @@ class ExperimentDescriptionAPI(DescriptionIface):
               for inference, including "predictedField" and "predictionSteps"
           - **metrics**: a list of MetricSpec instances that specify the metrics to
               compute during this experiment
-          - **loggedMetrics**: a sequence of regular expression strings that specify
-              which metrics should be logged at each iteration of the
+          - **loggedMetrics**: a sequence of regular expression strings that
+              specify which metrics should be logged at each iteration of the
               experiment
   """
 
