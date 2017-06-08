@@ -2,11 +2,14 @@
 
 ## 0.8.0
 
-* Fix HTMPredictionModel prediction using SDRClassifier (#3665)
+* Document ExperimentDescriptionAPI (#3679)
+* Update nupic.math API docs (#3677)
+* SP docs cleanup (#3671)
 * Allow multiple classifications for each record to SDRClassifier (#3669)
+* Updated BacktrackingTMCPP compute parameter name (#3667)
+* Fix HTMPredictionModel prediction using SDRClassifier (#3665)
 * Remove CLAClassifier (#3665)
 * Add capnp serialization to TMRegion (#3657)
-* Document ExperimentDescriptionAPI (#3679)
 
 ## 0.7.0
 
