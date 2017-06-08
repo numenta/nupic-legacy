@@ -127,7 +127,6 @@ nupic
 │   ├── test_region.py [TODO]
 │   └─── unimportable_node.py [TODO]
 ├── serializable.py [TODO]
-├── simple_server.py [TODO]
 ├── support [OK]
 ├── swarming [DEFER]
 └── utils.py [TODO]
