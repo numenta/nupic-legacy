@@ -83,9 +83,9 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
         params['classificationVectorType'])
 
 
-  @patch.object(KNNAnomalyClassifierRegion, 'classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_classifyState')
   @patch.object(KNNAnomalyClassifierRegion, 'getParameter')
-  @patch.object(KNNAnomalyClassifierRegion, 'constructClassificationRecord')
+  @patch.object(KNNAnomalyClassifierRegion, '_constructClassificationRecord')
   def testCompute(self, constructRecord, getParam, classifyState):
     params = {
       'trainRecords': 0
@@ -145,8 +145,8 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
 
 
   @patch.object(KNNAnomalyClassifierRegion, '_getStateAnomalyVector')
-  @patch.object(KNNAnomalyClassifierRegion, 'constructClassificationRecord')
-  @patch.object(KNNAnomalyClassifierRegion, 'classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_constructClassificationRecord')
+  @patch.object(KNNAnomalyClassifierRegion, '_classifyState')
   def testAddLabel(self, classifyState, constructVector, getVector):
     # Setup Mocks
     getVector.return_value = numpy.array([0, 0, 0, 1, 0, 0, 1])
@@ -189,8 +189,8 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     classifyState.assert_called_once_with(self.helper._recordsCache[2])
 
 
-  @patch.object(KNNAnomalyClassifierRegion, 'constructClassificationRecord')
-  @patch.object(KNNAnomalyClassifierRegion, 'classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_constructClassificationRecord')
+  @patch.object(KNNAnomalyClassifierRegion, '_classifyState')
   def testRemoveLabel(self, classifyState, constructClassificationRecord):
     knn = self.helper._knnclassifier._knn
     knn._numPatterns = 3
@@ -231,8 +231,8 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     classifyState.assert_called_once_with(self.helper._recordsCache[2])
 
 
-  @patch.object(KNNAnomalyClassifierRegion, 'constructClassificationRecord')
-  @patch.object(KNNAnomalyClassifierRegion, 'classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_constructClassificationRecord')
+  @patch.object(KNNAnomalyClassifierRegion, '_classifyState')
   def testRemoveLabelNoFilter(self, classifyState,
       constructClassificationRecord):
     knn = self.helper._knnclassifier._knn
@@ -257,7 +257,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     classifyState.assert_called_once_with(self.helper._recordsCache[2])
 
 
-  @patch.object(KNNAnomalyClassifierRegion, 'classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_classifyState')
   def testSetGetThreshold(self, classifyState):
     self.helper._recordsCache = [Mock(), Mock(), Mock()]
 
@@ -273,7 +273,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
         'anomalyThreshold', None, 'invalid')
 
 
-  @patch.object(KNNAnomalyClassifierRegion, 'classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_classifyState')
   def testSetGetWaitRecords(self, classifyState):
     self.helper._recordsCache = [
       Mock(ROWID=10, anomalyLabel=["Test"], setByUser=False),
@@ -305,7 +305,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
       'trainRecords', None, 0)
 
 
-  @patch.object(KNNAnomalyClassifierRegion, 'constructClassificationRecord')
+  @patch.object(KNNAnomalyClassifierRegion, '_constructClassificationRecord')
   def testSetGetWaitRecordsRecalculate(self, getRecord):
     """
     This test ensures that records in classifier are removed when they are no
@@ -631,8 +631,8 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
                       inputs)
 
 
-  @patch.object(KNNAnomalyClassifierRegion ,'classifyState')
-  @patch.object(KNNAnomalyClassifierRegion, 'constructClassificationRecord')
+  @patch.object(KNNAnomalyClassifierRegion ,'_classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_constructClassificationRecord')
   def testCompute(self, createRecord, updateState):
     state = {
       "ROWID": 0,
