@@ -17,14 +17,14 @@ AnomalyRegion
    :show-inheritance:
 
 SPRegion
-^^^^^^^^^^^^^
+^^^^^^^^
 
 .. autoclass:: nupic.regions.sp_region.SPRegion
    :members:
    :show-inheritance:
 
 TMRegion
-^^^^^^^^^^^^^
+^^^^^^^^
 
 .. autoclass:: nupic.regions.tm_region.TMRegion
    :members:

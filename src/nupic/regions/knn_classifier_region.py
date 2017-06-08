@@ -750,10 +750,7 @@ class KNNClassifierRegion(PyRegion):
 
   def setParameter(self, name, index, value):
     """
-    Set the value of the parameter.
-
-    :param name: (string) the name of the parameter to update.
-    :param value: (object) the value to which the parameter is to be set.
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.setParameter`.
     """
     if name == "learningMode":
       self.learningMode = bool(int(value))

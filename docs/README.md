@@ -120,7 +120,6 @@ nupic
 │   │   └── modify_fields.py [TODO]
 │   ├── sdr_classifier_region.py [TODO]
 │   ├── sp_region.py [TODO]
-│   ├── svm_classifier_node.py [TODO]
 │   ├── spec.py [TODO]
 │   ├── tm_region.py [TODO]
 │   ├── test_region.py [TODO]
