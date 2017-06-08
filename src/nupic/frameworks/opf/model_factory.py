@@ -59,7 +59,7 @@ class ModelFactory(object):
 
     :param modelConfig: (dict)
            A dictionary describing the current model,
-           `described here <../../quick-start/example-model-params.html>`_.
+           `described here <../../docs/quick-start/example-model-params.rst>`_.
 
     :param logLevel: (int) The level of logging output that should be generated
 
