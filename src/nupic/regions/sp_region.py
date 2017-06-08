@@ -467,8 +467,9 @@ class SPRegion(PyRegion):
     """
     Run one iteration, profiling it if requested.
 
-    :param inputs: TODO: I need help with this. -- Matt 
-    :param outputs: TODO: I need help with this. -- Matt 
+    :param inputs: (dict) mapping region input names to numpy.array values
+    :param outputs: (dict) mapping region output names to numpy.arrays that 
+           should be populated with output values by this method
     """
 
     # Uncomment this to find out who is generating divide by 0, or other numpy warnings
