@@ -63,10 +63,10 @@ class SDRClassifierRegion(PyRegion):
   Any number of different K's can be specified, allowing the classifier to learn
   and infer multi-step predictions for a number of steps in advance.
   
-  :param steps: (int) default=1,
-  :param alpha: (float) default=0.001,
-  :param verbosity: (int) default=0,
-  :param implementation: (string) default=None,
+  :param steps: (int) default=1
+  :param alpha: (float) default=0.001
+  :param verbosity: (int) How verbose to log, default=0
+  :param implementation: (string) default=None
   :param maxCategoryCount: (int) default=None
 
   """
