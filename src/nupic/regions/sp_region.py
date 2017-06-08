@@ -313,9 +313,9 @@ class SPRegion(PyRegion):
   """
 
   def __init__(self,
-               columnCount,   #
-               inputWidth,    #
-               spatialImp=getDefaultSPImp(),   #'py', 'cpp'
+               columnCount,
+               inputWidth,
+               spatialImp=getDefaultSPImp(),
                **kwargs):
     if columnCount <= 0 or inputWidth <=0:
       raise TypeError("Parameters columnCount and inputWidth must be > 0")
