@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0
+
+* Fix HTMPredictionModel prediction using SDRClassifier (#3665)
+* Allow multiple classifications for each record to SDRClassifier (#3669)
+* Remove CLAClassifier (#3665)
+* Add capnp serialization to TMRegion (#3657)
+* Document ExperimentDescriptionAPI (#3679)
+
 ## 0.7.0
 
 **WARNING**: This release contains breaking changes described in
