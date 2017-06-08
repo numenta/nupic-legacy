@@ -1,0 +1,1134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Spatial Pooling &#8212; NuPIC 0.8.0.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8.0.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Sequence Memory" href="sequence-memory.html" />
+    <link rel="prev" title="Encoders" href="encoders.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-nupic.algorithms.spatial_pooler">
+<span id="spatial-pooling"></span><h1>Spatial Pooling<a class="headerlink" href="#module-nupic.algorithms.spatial_pooler" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler">
+<em class="property">class </em><code class="descclassname">nupic.algorithms.spatial_pooler.</code><code class="descname">SpatialPooler</code><span class="sig-paren">(</span><em>inputDimensions=(32</em>, <em>32)</em>, <em>columnDimensions=(64</em>, <em>64)</em>, <em>potentialRadius=16</em>, <em>potentialPct=0.5</em>, <em>globalInhibition=False</em>, <em>localAreaDensity=-1.0</em>, <em>numActiveColumnsPerInhArea=10.0</em>, <em>stimulusThreshold=0</em>, <em>synPermInactiveDec=0.008</em>, <em>synPermActiveInc=0.05</em>, <em>synPermConnected=0.1</em>, <em>minPctOverlapDutyCycle=0.001</em>, <em>dutyCyclePeriod=1000</em>, <em>boostStrength=0.0</em>, <em>seed=-1</em>, <em>spVerbosity=0</em>, <em>wrapAround=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class implements the spatial pooler. It is in charge of handling the
+relationships between the columns of a region and the inputs bits. The
+primary public interface to this function is the &#8220;compute&#8221; method, which
+takes in an input vector and returns a list of activeColumns columns.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">sp</span> <span class="o">=</span> <span class="n">SpatialPooler</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">file</span><span class="p">:</span>
+  <span class="n">inputVector</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+  <span class="n">sp</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">inputVector</span><span class="p">)</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inputDimensions</strong> &#8211; (iter)
+A sequence representing the dimensions of the input vector. Format is
+(height, width, depth, ...), where each value represents the size of the
+dimension.  For a topology of one dimension with 100 inputs use 100, or
+(100,). For a two dimensional topology of 10x5 use (10,5). 
+Default <code class="docutils literal"><span class="pre">(32,</span> <span class="pre">32)</span></code>.</li>
+<li><strong>columnDimensions</strong> &#8211; (iter)
+A sequence representing the dimensions of the columns in the region.
+Format is (height, width, depth, ...), where each value represents the
+size of the dimension.  For a topology of one dimension with 2000 columns
+use 2000, or (2000,). For a three dimensional topology of 32x64x16 use
+(32, 64, 16). Default <a href="#id1"><span class="problematic" id="id2">``</span></a><cite>(64, 64)</cite>.</li>
+<li><strong>potentialRadius</strong> &#8211; (int)
+This parameter determines the extent of the input that each column can
+potentially be connected to.  This can be thought of as the input bits
+that are visible to each column, or a &#8216;receptiveField&#8217; of the field of
+vision. A large enough value will result in &#8216;global coverage&#8217;, meaning
+that each column can potentially be connected to every input bit. This
+parameter defines a square (or hyper
+square) area: a column will have a max square potential pool with sides of
+length 2 * potentialRadius + 1. Default <code class="docutils literal"><span class="pre">16</span></code>.</li>
+<li><strong>potentialPct</strong> &#8211; (float)
+The percent of the inputs, within a column&#8217;s potential radius, that a
+column can be connected to.  If set to 1, the column will be connected
+to every input within its potential radius. This parameter is used to
+give each column a unique potential pool when a large potentialRadius
+causes overlap between the columns. At initialization time we choose
+((2*potentialRadius + 1)^(# inputDimensions) * potentialPct) input bits
+to comprise the column&#8217;s potential pool. Default <code class="docutils literal"><span class="pre">0.5</span></code>.</li>
+<li><strong>globalInhibition</strong> &#8211; (bool)
+If true, then during inhibition phase the winning columns are selected
+as the most active columns from the region as a whole. Otherwise, the
+winning columns are selected with respect to their local neighborhoods.
+Using global inhibition boosts performance x60. Default <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>localAreaDensity</strong> &#8211; (float)
+The desired density of active columns within a local inhibition area
+(the size of which is set by the internally calculated inhibitionRadius,
+which is in turn determined from the average size of the connected
+potential pools of all columns). The inhibition logic will insure that
+at most N columns remain ON within a local inhibition area, where
+N = localAreaDensity * (total number of columns in inhibition area). 
+Default <code class="docutils literal"><span class="pre">-1.0</span></code>.</li>
+<li><strong>numActiveColumnsPerInhArea</strong> &#8211; (float)
+An alternate way to control the density of the active columns. If
+numActiveColumnsPerInhArea is specified then localAreaDensity must be
+less than 0, and vice versa.  When using numActiveColumnsPerInhArea, the
+inhibition logic will insure that at most &#8216;numActiveColumnsPerInhArea&#8217;
+columns remain ON within a local inhibition area (the size of which is
+set by the internally calculated inhibitionRadius, which is in turn
+determined from the average size of the connected receptive fields of all
+columns). When using this method, as columns learn and grow their
+effective receptive fields, the inhibitionRadius will grow, and hence the
+net density of the active columns will <em>decrease</em>. This is in contrast to
+the localAreaDensity method, which keeps the density of active columns
+the same regardless of the size of their receptive fields. Default <code class="docutils literal"><span class="pre">10.0</span></code>.</li>
+<li><strong>stimulusThreshold</strong> &#8211; (int)
+This is a number specifying the minimum number of synapses that must be
+on in order for a columns to turn ON. The purpose of this is to prevent
+noise input from activating columns. Specified as a percent of a fully
+grown synapse. Default <code class="docutils literal"><span class="pre">0</span></code>.</li>
+<li><strong>synPermInactiveDec</strong> &#8211; (float)
+The amount by which an inactive synapse is decremented in each round.
+Specified as a percent of a fully grown synapse. Default <code class="docutils literal"><span class="pre">0.008</span></code>.</li>
+<li><strong>synPermActiveInc</strong> &#8211; (float)
+The amount by which an active synapse is incremented in each round.
+Specified as a percent of a fully grown synapse. Default <code class="docutils literal"><span class="pre">0.05</span></code>.</li>
+<li><strong>synPermConnected</strong> &#8211; (float)
+The default connected threshold. Any synapse whose permanence value is
+above the connected threshold is a &#8220;connected synapse&#8221;, meaning it can
+contribute to the cell&#8217;s firing. Default <code class="docutils literal"><span class="pre">0.1</span></code>.</li>
+<li><strong>minPctOverlapDutyCycle</strong> &#8211; (float)
+A number between 0 and 1.0, used to set a floor on how often a column
+should have at least stimulusThreshold active inputs. Periodically, each
+column looks at the overlap duty cycle of all other columns within its
+inhibition radius and sets its own internal minimal acceptable duty cycle
+to: minPctDutyCycleBeforeInh * max(other columns&#8217; duty cycles).  On each
+iteration, any column whose overlap duty cycle falls below this computed
+value will  get all of its permanence values boosted up by
+synPermActiveInc. Raising all permanences in response to a sub-par duty
+cycle before  inhibition allows a cell to search for new inputs when
+either its previously learned inputs are no longer ever active, or when
+the vast majority of them have been &#8220;hijacked&#8221; by other columns. Default 
+<code class="docutils literal"><span class="pre">0.001</span></code>.</li>
+<li><strong>dutyCyclePeriod</strong> &#8211; (int)
+The period used to calculate duty cycles. Higher values make it take
+longer to respond to changes in boost or synPerConnectedCell. Shorter
+values make it more unstable and likely to oscillate. Default <code class="docutils literal"><span class="pre">1000</span></code>.</li>
+<li><strong>boostStrength</strong> &#8211; (float)
+A number greater or equal than 0.0, used to control the strength of
+boosting. No boosting is applied if it is set to 0. Boosting strength
+increases as a function of boostStrength. Boosting encourages columns to
+have similar activeDutyCycles as their neighbors, which will lead to more
+efficient use of columns. However, too much boosting may also lead to
+instability of SP outputs. Default <code class="docutils literal"><span class="pre">0.0</span></code>.</li>
+<li><strong>seed</strong> &#8211; (int)
+Seed for our own pseudo-random number generator. Default <code class="docutils literal"><span class="pre">-1</span></code>.</li>
+<li><strong>spVerbosity</strong> &#8211; (int)
+spVerbosity level: 0, 1, 2, or 3. Default <code class="docutils literal"><span class="pre">0</span></code>.</li>
+<li><strong>wrapAround</strong> &#8211; (bool)
+Determines if inputs at the beginning and end of an input dimension should
+be considered neighbors when mapping columns to inputs. Default <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.compute">
+<code class="descname">compute</code><span class="sig-paren">(</span><em>inputVector</em>, <em>learn</em>, <em>activeArray</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the primary public method of the SpatialPooler class. This
+function takes a input vector and outputs the indices of the active columns.
+If &#8216;learn&#8217; is set to True, this method also updates the permanences of the
+columns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inputVector</strong> &#8211; A numpy array of 0&#8217;s and 1&#8217;s that comprises the input
+to the spatial pooler. The array will be treated as a one dimensional
+array, therefore the dimensions of the array do not have to match the
+exact dimensions specified in the class constructor. In fact, even a
+list would suffice. The number of input bits in the vector must,
+however, match the number of bits specified by the call to the
+constructor. Therefore there must be a &#8216;0&#8217; or &#8216;1&#8217; in the array for
+every input bit.</li>
+<li><strong>learn</strong> &#8211; A boolean value indicating whether learning should be
+performed. Learning entails updating the  permanence values of the
+synapses, and hence modifying the &#8216;state&#8217; of the model. Setting
+learning to &#8216;off&#8217; freezes the SP and has many uses. For example, you
+might want to feed in various inputs and examine the resulting SDR&#8217;s.</li>
+<li><strong>activeArray</strong> &#8211; An array whose size is equal to the number of columns.
+Before the function returns this array will be populated with 1&#8217;s at
+the indices of the active columns, and 0&#8217;s everywhere else.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getActiveDutyCycles">
+<code class="descname">getActiveDutyCycles</code><span class="sig-paren">(</span><em>activeDutyCycles</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getActiveDutyCycles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the activity duty cycles for all columns. Input list will be 
+overwritten.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>activeDutyCycles</strong> &#8211; (list) size must match number of columns.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getBoostFactors">
+<code class="descname">getBoostFactors</code><span class="sig-paren">(</span><em>boostFactors</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getBoostFactors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the boost factors for all columns. Input list will be overwritten.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>boostFactors</strong> &#8211; (list) size must match number of columns.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getBoostStrength">
+<code class="descname">getBoostStrength</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getBoostStrength" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) the maximum boost value used.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getBoostedOverlaps">
+<code class="descname">getBoostedOverlaps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getBoostedOverlaps" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) the boosted overlap score for each column.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getColumnDimensions">
+<code class="descname">getColumnDimensions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getColumnDimensions" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(iter) the dimensions of the columns in the region</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getConnectedCounts">
+<code class="descname">getConnectedCounts</code><span class="sig-paren">(</span><em>connectedCounts</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getConnectedCounts" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>connectedCounts</strong> &#8211; (list) will be overwritten</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(int) the number of connected synapses for all columns.
+<code class="docutils literal"><span class="pre">connectedCounts</span></code> size must match the number of columns.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getConnectedSynapses">
+<code class="descname">getConnectedSynapses</code><span class="sig-paren">(</span><em>columnIndex</em>, <em>connectedSynapses</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getConnectedSynapses" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>connectedSynapses</strong> &#8211; (list) will be overwritten</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(iter) the connected synapses for a given column.
+<code class="docutils literal"><span class="pre">connectedSynapses</span></code> size must match the number of inputs</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getDutyCyclePeriod">
+<code class="descname">getDutyCyclePeriod</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getDutyCyclePeriod" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) the duty cycle period</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getGlobalInhibition">
+<code class="descname">getGlobalInhibition</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getGlobalInhibition" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(bool) whether global inhibition is enabled.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getInhibitionRadius">
+<code class="descname">getInhibitionRadius</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getInhibitionRadius" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) the inhibition radius</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getInputDimensions">
+<code class="descname">getInputDimensions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getInputDimensions" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(iter) the dimensions of the input vector</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getIterationLearnNum">
+<code class="descname">getIterationLearnNum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getIterationLearnNum" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) The number of iterations that have been learned.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getIterationNum">
+<code class="descname">getIterationNum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getIterationNum" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the iteration number</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getLocalAreaDensity">
+<code class="descname">getLocalAreaDensity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getLocalAreaDensity" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) the local area density. Returns a value less than 0 if 
+parameter is unused.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getMinOverlapDutyCycles">
+<code class="descname">getMinOverlapDutyCycles</code><span class="sig-paren">(</span><em>minOverlapDutyCycles</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getMinOverlapDutyCycles" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) the minimum overlap duty cycles for all columns. 
+<code class="docutils literal"><span class="pre">minOverlapDutyCycles</span></code> size must match the number of columns.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getMinPctOverlapDutyCycles">
+<code class="descname">getMinPctOverlapDutyCycles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getMinPctOverlapDutyCycles" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) the minimum tolerated overlaps, given as percent of
+neighbors overlap score</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getNumActiveColumnsPerInhArea">
+<code class="descname">getNumActiveColumnsPerInhArea</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getNumActiveColumnsPerInhArea" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) the number of active columns per inhibition area. Returns 
+a value less than 0 if parameter is unused.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getNumColumns">
+<code class="descname">getNumColumns</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getNumColumns" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) the total number of columns</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getNumInputs">
+<code class="descname">getNumInputs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getNumInputs" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) the total number of inputs.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getOverlapDutyCycles">
+<code class="descname">getOverlapDutyCycles</code><span class="sig-paren">(</span><em>overlapDutyCycles</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getOverlapDutyCycles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the overlap duty cycles for all columns. <code class="docutils literal"><span class="pre">overlapDutyCycles</span></code>
+size must match the number of columns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>overlapDutyCycles</strong> &#8211; (list) will be overwritten.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getOverlaps">
+<code class="descname">getOverlaps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getOverlaps" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(iter) the overlap score for each column.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getPermanence">
+<code class="descname">getPermanence</code><span class="sig-paren">(</span><em>columnIndex</em>, <em>permanence</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getPermanence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the permanence values for a given column. <code class="docutils literal"><span class="pre">permanence</span></code> size
+must match the number of inputs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>columnIndex</strong> &#8211; (int) column index to get permanence for.</li>
+<li><strong>permanence</strong> &#8211; (list) will be overwritten with permanences.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getPotential">
+<code class="descname">getPotential</code><span class="sig-paren">(</span><em>columnIndex</em>, <em>potential</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getPotential" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>columnIndex</strong> &#8211; (int) column index to get potential for.</li>
+<li><strong>potential</strong> &#8211; (list) will be overwritten with column potentials. Must 
+match the number of inputs.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getPotentialPct">
+<code class="descname">getPotentialPct</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getPotentialPct" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) the potential percent</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getPotentialRadius">
+<code class="descname">getPotentialRadius</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getPotentialRadius" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) the potential radius</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getSpVerbosity">
+<code class="descname">getSpVerbosity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getSpVerbosity" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) the verbosity level, larger is more verbose.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getStimulusThreshold">
+<code class="descname">getStimulusThreshold</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getStimulusThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) the stimulus threshold</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getSynPermActiveInc">
+<code class="descname">getSynPermActiveInc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getSynPermActiveInc" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) the permanence increment amount for active synapses inputs</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getSynPermBelowStimulusInc">
+<code class="descname">getSynPermBelowStimulusInc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getSynPermBelowStimulusInc" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) the permanence increment amount for columns that have not 
+been recently active.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getSynPermConnected">
+<code class="descname">getSynPermConnected</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getSynPermConnected" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) the permanence amount that qualifies a synapse as being 
+connected.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getSynPermInactiveDec">
+<code class="descname">getSynPermInactiveDec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getSynPermInactiveDec" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) the permanence decrement amount for inactive synapses.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getSynPermTrimThreshold">
+<code class="descname">getSynPermTrimThreshold</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getSynPermTrimThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sparsity is enforced by trimming out all permanence values below this value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) the permanence trim threshold</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.getUpdatePeriod">
+<code class="descname">getUpdatePeriod</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.getUpdatePeriod" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) The period at which active duty cycles are updated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.printParameters">
+<code class="descname">printParameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.printParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Useful for debugging.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setActiveDutyCycles">
+<code class="descname">setActiveDutyCycles</code><span class="sig-paren">(</span><em>activeDutyCycles</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setActiveDutyCycles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the activity duty cycles for all columns. <code class="docutils literal"><span class="pre">activeDutyCycles</span></code> size 
+must match the number of columns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>activeDutyCycles</strong> &#8211; (list) value to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setBoostFactors">
+<code class="descname">setBoostFactors</code><span class="sig-paren">(</span><em>boostFactors</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setBoostFactors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the boost factors for all columns. <code class="docutils literal"><span class="pre">boostFactors</span></code> size must match
+the number of columns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>boostFactors</strong> &#8211; (iter) value to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setBoostStrength">
+<code class="descname">setBoostStrength</code><span class="sig-paren">(</span><em>boostStrength</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setBoostStrength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the maximum boost value.
+:param boostStrength: (float) value to set</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setDutyCyclePeriod">
+<code class="descname">setDutyCyclePeriod</code><span class="sig-paren">(</span><em>dutyCyclePeriod</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setDutyCyclePeriod" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dutyCyclePeriod</strong> &#8211; (int) value to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setGlobalInhibition">
+<code class="descname">setGlobalInhibition</code><span class="sig-paren">(</span><em>globalInhibition</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setGlobalInhibition" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>globalInhibition</strong> &#8211; (bool) value to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setInhibitionRadius">
+<code class="descname">setInhibitionRadius</code><span class="sig-paren">(</span><em>inhibitionRadius</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setInhibitionRadius" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inhibitionRadius</strong> &#8211; (int) value to set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setIterationLearnNum">
+<code class="descname">setIterationLearnNum</code><span class="sig-paren">(</span><em>iterationLearnNum</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setIterationLearnNum" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iterationLearnNum</strong> &#8211; (int) value to set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setIterationNum">
+<code class="descname">setIterationNum</code><span class="sig-paren">(</span><em>iterationNum</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setIterationNum" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iterationNum</strong> &#8211; (int) value to set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setLocalAreaDensity">
+<code class="descname">setLocalAreaDensity</code><span class="sig-paren">(</span><em>localAreaDensity</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setLocalAreaDensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the local area density. Invalidates the &#8216;numActiveColumnsPerInhArea&#8217;
+parameter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>localAreaDensity</strong> &#8211; (float) value to set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setMinOverlapDutyCycles">
+<code class="descname">setMinOverlapDutyCycles</code><span class="sig-paren">(</span><em>minOverlapDutyCycles</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setMinOverlapDutyCycles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the minimum overlap duty cycles for all columns. 
+<code class="docutils literal"><span class="pre">minOverlapDutyCycles</span></code> size must match the number of columns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>minOverlapDutyCycles</strong> &#8211; (iter) value to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setMinPctOverlapDutyCycles">
+<code class="descname">setMinPctOverlapDutyCycles</code><span class="sig-paren">(</span><em>minPctOverlapDutyCycles</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setMinPctOverlapDutyCycles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the minimum tolerated activity duty cycle, given as percent of
+neighbors&#8217; activity duty cycle.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>minPctOverlapDutyCycles</strong> &#8211; (float) value to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setNumActiveColumnsPerInhArea">
+<code class="descname">setNumActiveColumnsPerInhArea</code><span class="sig-paren">(</span><em>numActiveColumnsPerInhArea</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setNumActiveColumnsPerInhArea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the number of active columns per inhibition area. Invalidates the
+<code class="docutils literal"><span class="pre">localAreaDensity</span></code> parameter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>numActiveColumnsPerInhArea</strong> &#8211; (float) value to set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setOverlapDutyCycles">
+<code class="descname">setOverlapDutyCycles</code><span class="sig-paren">(</span><em>overlapDutyCycles</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setOverlapDutyCycles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the overlap duty cycles for all columns. <code class="docutils literal"><span class="pre">overlapDutyCycles</span></code>
+size must match the number of columns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>overlapDutyCycles</strong> &#8211; (list) value to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setPermanence">
+<code class="descname">setPermanence</code><span class="sig-paren">(</span><em>columnIndex</em>, <em>permanence</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setPermanence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the permanence values for a given column. <code class="docutils literal"><span class="pre">permanence</span></code> size must 
+match the number of inputs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>columnIndex</strong> &#8211; (int) column index to set permanence for.</li>
+<li><strong>permanence</strong> &#8211; (list) value to set.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setPotential">
+<code class="descname">setPotential</code><span class="sig-paren">(</span><em>columnIndex</em>, <em>potential</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setPotential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the potential mapping for a given column. <code class="docutils literal"><span class="pre">potential</span></code> size must match 
+the number of inputs, and must be greater than <code class="docutils literal"><span class="pre">stimulusThreshold</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>columnIndex</strong> &#8211; (int) column index to set potential for.</li>
+<li><strong>potential</strong> &#8211; (list) value to set.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setPotentialPct">
+<code class="descname">setPotentialPct</code><span class="sig-paren">(</span><em>potentialPct</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setPotentialPct" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>potentialPct</strong> &#8211; (float) value to set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setPotentialRadius">
+<code class="descname">setPotentialRadius</code><span class="sig-paren">(</span><em>potentialRadius</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setPotentialRadius" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>potentialRadius</strong> &#8211; (float) value to set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setSpVerbosity">
+<code class="descname">setSpVerbosity</code><span class="sig-paren">(</span><em>spVerbosity</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setSpVerbosity" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spVerbosity</strong> &#8211; (int) value to set, larger is more verbose.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setStimulusThreshold">
+<code class="descname">setStimulusThreshold</code><span class="sig-paren">(</span><em>stimulusThreshold</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setStimulusThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stimulusThreshold</strong> &#8211; (float) value to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setSynPermActiveInc">
+<code class="descname">setSynPermActiveInc</code><span class="sig-paren">(</span><em>synPermActiveInc</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setSynPermActiveInc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the permanence increment amount for active synapses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>synPermActiveInc</strong> &#8211; (float) value to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setSynPermBelowStimulusInc">
+<code class="descname">setSynPermBelowStimulusInc</code><span class="sig-paren">(</span><em>synPermBelowStimulusInc</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setSynPermBelowStimulusInc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the permanence increment amount for columns that have not been
+recently active.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>synPermBelowStimulusInc</strong> &#8211; (float) value to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setSynPermConnected">
+<code class="descname">setSynPermConnected</code><span class="sig-paren">(</span><em>synPermConnected</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setSynPermConnected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the permanence amount that qualifies a synapse as being
+connected.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>synPermConnected</strong> &#8211; (float) value to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setSynPermInactiveDec">
+<code class="descname">setSynPermInactiveDec</code><span class="sig-paren">(</span><em>synPermInactiveDec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setSynPermInactiveDec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the permanence decrement amount for inactive synapses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>synPermInactiveDec</strong> &#8211; (float) value to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setSynPermTrimThreshold">
+<code class="descname">setSynPermTrimThreshold</code><span class="sig-paren">(</span><em>synPermTrimThreshold</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setSynPermTrimThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sparsity is enforced by trimming out all permanence values below this value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>synPermTrimThreshold</strong> &#8211; (float) the permanence trim threshold</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.setUpdatePeriod">
+<code class="descname">setUpdatePeriod</code><span class="sig-paren">(</span><em>updatePeriod</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.setUpdatePeriod" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>updatePeriod</strong> &#8211; (int) The period at which active duty cycles are 
+updated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.spatial_pooler.SpatialPooler.stripUnlearnedColumns">
+<code class="descname">stripUnlearnedColumns</code><span class="sig-paren">(</span><em>activeArray</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.spatial_pooler.SpatialPooler.stripUnlearnedColumns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the set of columns who have never been active from the set of
+active columns selected in the inhibition round. Such columns cannot
+represent learned pattern and are therefore meaningless if only inference
+is required. This should not be done when using a random, unlearned SP
+since you would end up with no active columns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>activeArray</strong> &#8211; An array whose size is equal to the number of columns.
+Any columns marked as active with an activeDutyCycle of 0 have
+never been activated before and therefore are not active due to
+learning. Any of these (unlearned) columns will be disabled (set to 0).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/index.html">Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../opf/index.html">Online Prediction Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../network/index.html">Network API</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Algorithms</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="encoders.html">Encoders</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Spatial Pooling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sequence-memory.html">Sequence Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="classifiers.html">Classifiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="anomaly-detection.html">Anomaly Detection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../data/index.html">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support/index.html">Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../math.html">Math</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/algorithms/spatial-pooling.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
