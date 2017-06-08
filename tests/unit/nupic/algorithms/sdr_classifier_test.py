@@ -788,17 +788,16 @@ class SDRClassifierTest(unittest.TestCase):
     self.assertAlmostEqual(result2[0][1], 1.0, places=1)
 
 
-  @unittest.skipUnless(
-      capnp, "pycapnp is not installed, skipping serialization test.")
-  def testWriteRead(self):
+  def _doWriteReadChecks(self, computeBeforeSerializing):
     c1 = SDRClassifier([0], 0.1, 0.1, 0)
 
     # Create a vector of input bit indices
     input1 = [1, 5, 9]
-    result = c1.compute(recordNum=0,
-                        patternNZ=input1,
-                        classification={'bucketIdx': 4, 'actValue': 34.7},
-                        learn=True, infer=True)
+    if computeBeforeSerializing:
+      result = c1.compute(recordNum=0,
+                          patternNZ=input1,
+                          classification={'bucketIdx': 4, 'actValue': 34.7},
+                          learn=True, infer=True)
 
     proto1 = SdrClassifier_capnp.SdrClassifierProto.new_message()
     c1.write(proto1)
@@ -841,9 +840,23 @@ class SDRClassifierTest(unittest.TestCase):
                          learn=True, infer=True)
 
     self.assertEqual(result1.keys(), result2.keys())
+
     for key in result1.keys():
       for i in xrange(len(c1._actualValues)):
         self.assertAlmostEqual(result1[key][i], result2[key][i], 5)
+
+
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
+  def testWriteRead(self):
+    self._doWriteReadChecks(computeBeforeSerializing=True)
+
+  @unittest.skip("Good test to have, but fails on i out of bounds in "
+                 "result1[key][i]. Need to debug.")
+  @unittest.skipUnless(
+    capnp, "pycapnp is not installed, skipping serialization test.")
+  def testWriteReadNoComputeBeforeSerializing(self):
+    self._doWriteReadChecks(computeBeforeSerializing=False)
 
 
   def test_pFormatArray(self):
