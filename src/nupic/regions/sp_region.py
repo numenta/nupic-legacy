@@ -420,7 +420,7 @@ class SPRegion(PyRegion):
 
   def initialize(self):
     """
-    Overrides :meth:`nupic.bindings.regions.PyRegion.initialize`.
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.initialize`.
     """
     # Zero out the spatial output in case it is requested
     self._spatialPoolerOutput = numpy.zeros(self.columnCount,
@@ -466,6 +466,9 @@ class SPRegion(PyRegion):
   def compute(self, inputs, outputs):
     """
     Run one iteration, profiling it if requested.
+
+    :param inputs: TODO: I need help with this. -- Matt 
+    :param outputs: TODO: I need help with this. -- Matt 
     """
 
     # Uncomment this to find out who is generating divide by 0, or other numpy warnings
@@ -745,7 +748,7 @@ class SPRegion(PyRegion):
   @classmethod
   def getSpec(cls):
     """
-    Overrides :meth:`nupic.bindings.regions.PyRegion.getSpec`.
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getSpec`.
 
     The parameters collection is constructed based on the parameters specified
     by the various components (spatialSpec, temporalSpec and otherSpec)
@@ -768,7 +771,7 @@ class SPRegion(PyRegion):
 
   def getParameter(self, parameterName, index=-1):
     """
-    Overrides :meth:`nupic.bindings.regions.PyRegion.getParameter`.
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getParameter`.
       
     Most parameters are handled automatically by PyRegion's parameter get 
     mechanism. The ones that need special treatment are explicitly handled here.
@@ -800,7 +803,7 @@ class SPRegion(PyRegion):
 
   def setParameter(self, parameterName, index, parameterValue):
     """
-    Overrides :meth:`nupic.bindings.regions.PyRegion.setParameter`.
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.setParameter`.
 
     Set the value of a Spec parameter. Most parameters are handled
     automatically by PyRegion's parameter set mechanism. The ones that need
@@ -855,14 +858,14 @@ class SPRegion(PyRegion):
   @staticmethod
   def getProtoType():
     """
-    Overrides :meth:`nupic.bindings.regions.PyRegion.getProtoType`.
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getProtoType`.
     """
     return SPRegionProto
 
 
   def writeToProto(self, proto):
     """
-    Overrides :meth:`nupic.bindings.regions.PyRegion.writeToProto`.
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.writeToProto`.
 
     Write state to proto object.
 
@@ -882,9 +885,10 @@ class SPRegion(PyRegion):
   @classmethod
   def readFromProto(cls, proto):
     """
-    Overrides :meth:`nupic.bindings.regions.PyRegion.readFromProto`.
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.readFromProto`.
 
     Read state from proto object.
+    
     :param proto: SPRegionProto capnproto object
     """
     instance = cls(proto.columnCount, proto.inputWidth)
@@ -1028,7 +1032,7 @@ class SPRegion(PyRegion):
   # length of that variable.
   def getParameterArrayCount(self, name, index):
     """
-    Overrides :meth:`nupic.bindings.regions.PyRegion.getParameterArrayCount`.
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getParameterArrayCount`.
 
     TODO: as a temporary hack, getParameterArrayCount checks to see if there's a
     variable, private or not, with that name. If so, it returns the value of the
@@ -1042,7 +1046,7 @@ class SPRegion(PyRegion):
 
   def getParameterArray(self, name, index, a):
     """
-    Overrides :meth:`nupic.bindings.regions.PyRegion.getParameterArray`.
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getParameterArray`.
 
     TODO: as a temporary hack, getParameterArray checks to see if there's a
     variable, private or not, with that name. If so, it returns the value of the
