@@ -111,9 +111,8 @@ nupic
 ├── regions
 │   ├── anomaly_likelihood_region.py [OK]
 │   ├── anomaly_region.py [OK]
-│   ├── cla_classifier_region.py [TODO]
-│   ├── knn_anomaly_classifier_region.py [TODO]
-│   ├── knn_classifier_region.py [TODO]
+│   ├── knn_anomaly_classifier_region.py [OK]
+│   ├── knn_classifier_region.py [OK]
 │   ├── pluggable_encoder_sensor.py [TODO]
 │   ├── record_sensor.py [TODO]
 │   ├── record_sensor_filters
