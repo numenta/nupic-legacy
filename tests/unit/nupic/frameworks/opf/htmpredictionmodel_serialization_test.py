@@ -221,7 +221,8 @@ class HTMPredictionModelSerializationTest(unittest.TestCase):
 
 
   def _runSimpleModelSerializationDeserialization(self, modelParams):
-    # basic serialization/deserialization; flush out starting point for tests
+    # Rudimentary serialization/deserialization; flush out starting point for
+    # tests
 
     srcModel = ModelFactory.create(modelParams)
     srcModel.enableInference({'predictedField': 'consumption'})
@@ -246,7 +247,8 @@ class HTMPredictionModelSerializationTest(unittest.TestCase):
   @unittest.skipUnless(
     capnp, "pycapnp is not installed, skipping serialization test.")
   def testSimpleCPPModelSerializationNoValidation(self):
-    # basic serialization/deserialization; flush out starting point for tests
+    # Rudimentary serialization/deserialization; flush out starting point for
+    # tests
 
     self._runSimpleModelSerializationDeserialization(CPP_MODEL_PARAMS)
 
@@ -254,7 +256,8 @@ class HTMPredictionModelSerializationTest(unittest.TestCase):
   @unittest.skipUnless(
     capnp, "pycapnp is not installed, skipping serialization test.")
   def testSimplePYModelSerializationNoValidation(self):
-    # basic serialization/deserialization; flush out starting point for tests
+    # Rudimentary serialization/deserialization; flush out starting point for
+    # tests
 
     self._runSimpleModelSerializationDeserialization(PY_MODEL_PARAMS)
 
