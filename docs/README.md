@@ -15,51 +15,40 @@ sphinx-autobuild  ${NUPIC}/docs/source  ${NUPIC}/docs/_build_html  \
 We are using [reStructuredText](http://docutils.sourceforge.net/docs/user/rst/quickref.html) and [Sphinx](http://www.sphinx-doc.org/en/stable/) to build docs. Here is an example of a properly formatted function docstring:
 
 ```python
-def compute(self, recordNum, patternNZ, classification, learn, infer):
-  """
-  Process one input sample.
+  def run(self, inputRecord):
+    """
+    Run one iteration of this model.
 
-  This method is called by outer loop code outside the nupic-engine. We
-  use this instead of the nupic engine compute() because our inputs and
-  outputs aren't fixed size vectors of reals.
+    :param inputRecord: (object)
+           A record object formatted according to
+           :meth:`~nupic.data.record_stream.RecordStreamIface.getNextRecord` or
+           :meth:`~nupic.data.record_stream.RecordStreamIface.getNextRecordDict`
+           result format.
+    :returns: (:class:`~nupic.frameworks.opf.opf_utils.ModelResult`)
+             An ModelResult namedtuple. The contents of ModelResult.inferences
+             depends on the the specific inference type of this model, which
+             can be queried by :meth:`.getInferenceType`.
+    """
+```
 
+If the function parameter type is discernable, enter it in parenthesis after the `:param x:` declaration. There must be two newlines between the function description any `:param:` / `:returns`.
 
-  :param recordNum: Record number of this input pattern. Record numbers
-    normally increase sequentially by 1 each time unless there are missing
-    records in the dataset. Knowing this information insures that we don't get
-    confused by missing records.
+### Linking code
 
-  :param patternNZ: List of the active indices from the output below. When the
-    input is from TemporalMemory, this list should be the indices of the
-    active cells.
+Most commonly, you will want to link to modules, classes, or functions:
 
-  :param classification: Dict of the classification information where:
+```rst
+:mod:`full.namespace`
+:class:`full.namespace.ClassName`
+:meth:`full.namespace.ClassName.methodName`
+```
 
-    - bucketIdx: index of the encoder bucket
-    - actValue: actual value going into the encoder
+If you don't want the full namespace to each thing displayed, use `~`:
 
-    Classification could be None for inference mode.
-  :param learn: (bool) if true, learn this sample
-  :param infer: (bool) if true, perform inference
-
-  :return:    Dict containing inference results, there is one entry for each
-              step in self.steps, where the key is the number of steps, and
-              the value is an array containing the relative likelihood for
-              each bucketIdx starting from bucketIdx 0.
-
-              There is also an entry containing the average actual value to
-              use for each bucket. The key is 'actualValues'.
-
-              for example:
-
-              .. code-block:: python
-
-                 {1 :             [0.1, 0.3, 0.2, 0.7],
-                   4 :             [0.2, 0.4, 0.3, 0.5],
-                   'actualValues': [1.5, 3,5, 5,5, 7.6],
-                 }
-  """
-
+```rst
+:mod:`~full.namespace`
+:class:`~full.namespace.ClassName`
+:meth:`~full.namespace.ClassName.methodName`
 ```
 
 See the codebase that has been documented (denoted below) for examples of completely documented code.
