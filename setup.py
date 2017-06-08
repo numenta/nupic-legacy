@@ -174,7 +174,7 @@ if __name__ == "__main__":
       "Topic :: Scientific/Engineering :: Artificial Intelligence"
     ],
     long_description=(
-        "Numenta Platform for Intelligent Computing: a machine intelligence "
+        "YAY!!! WOO!!!! Numenta Platform for Intelligent Computing: a machine intelligence "
         "platform that implements the HTM learning algorithms. HTM is a "
         "detailed computational theory of the neocortex. At the core of HTM "
         "are time-based continuous learning algorithms that store and recall "
