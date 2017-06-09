@@ -292,28 +292,10 @@ class TMRegion(PyRegion):
 
   """
   TMRegion is designed to implement the temporal memory compute for a given
-  CLA level.
+  HTM level.
 
-  Uses a subclass of TM to do most of the work. The specific TM implementation
-  is specified using the temporalImp parameter.
-
-  Automatic parameter handling:
-
-  Parameter names, default values, and descriptions are retrieved automatically
-  from the temporal memory class. Thus, there are only a few hardcoded
-  arguments in __init__, and the rest are passed to the appropriate underlying
-  class. The RegionSpec is mostly built automatically from these parameters.
-
-  If you add a parameter to a TM class, it will be exposed through TMRegion
-  automatically as if it were in TMRegion.__init__, with the right default
-  value. Add an entry in the __init__ docstring for it too, and that will be
-  brought into the RegionSpec. TMRegion will maintain the parameter as its own
-  instance variable and also pass it to the temporal memory instance. If the
-  parameter is changed, TMRegion will propagate the change.
-
-  If you want to do something different with the parameter, add it as an
-  argument into TMRegion.__init__, which will override all the default handling.
-
+  Uses a form of Temporal Memory to do most of the work. The specific TM 
+  implementation is specified using the ``temporalImp`` parameter.
   """
 
   def __init__(self,
@@ -423,7 +405,9 @@ class TMRegion(PyRegion):
 
 
   def initialize(self):
-
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.initialize`.
+    """
     # Allocate appropriate temporal memory object
     # Retrieve the necessary extra arguments that were handled automatically
     autoArgs = dict((name, getattr(self, name))
@@ -453,11 +437,13 @@ class TMRegion(PyRegion):
   #############################################################################
   def compute(self, inputs, outputs):
     """
-    Run one iteration of TMRegion's compute, profiling it if requested.
+    Run one iteration of :class:`~nupic.regions.tm_region.TMRegion` compute, 
+    profiling it if requested.
 
-    The guts of the compute are contained in the _compute() call so that
-    we can profile it if requested.
-    """
+    :param inputs: (dict) mapping region input names to numpy.array values
+    :param outputs: (dict) mapping region output names to numpy.arrays that 
+           should be populated with output values by this method
+     """
 
     # Uncomment this to find out who is generating divide by 0, or other numpy warnings
     # numpy.seterr(divide='raise', invalid='raise', over='raise')
@@ -477,6 +463,8 @@ class TMRegion(PyRegion):
         stats.sort_stats('time', 'calls')
         stats.print_stats()
 
+      # The guts of the compute are contained in the _compute() call so that
+      # we can profile it if requested.
       if self._profileObj is None:
         print "\n  Preparing to capture profile using hotshot..."
         if os.path.exists('hotshot.stats'):
@@ -576,9 +564,10 @@ class TMRegion(PyRegion):
   #############################################################################
   @classmethod
   def getBaseSpec(cls):
-    """Return the base Spec for TMRegion.
-
+    """
     Doesn't include the spatial, temporal and other parameters
+
+    :returns: (dict) the base Spec for TMRegion.
     """
     spec = dict(
       description=TMRegion.__doc__,
@@ -692,10 +681,11 @@ class TMRegion(PyRegion):
 
   @classmethod
   def getSpec(cls):
-    """Return the Spec for TMRegion.
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getSpec`.
 
     The parameters collection is constructed based on the parameters specified
-    by the variosu components (spatialSpec, temporalSpec and otherSpec)
+    by the various components (spatialSpec, temporalSpec and otherSpec)
     """
     spec = cls.getBaseSpec()
     t, o = _getAdditionalSpecs(temporalImp=gDefaultTemporalImp)
@@ -706,17 +696,22 @@ class TMRegion(PyRegion):
 
 
   def getAlgorithmInstance(self):
-    """Returns instance of the underlying TemporalMemory algorithm object."""
+    """
+    :returns: instance of the underlying 
+              :class:`~nupic.algorithms.temporal_memory.TemporalMemory` 
+              algorithm object.
+    """
     return self._tfdr
 
 
   def getParameter(self, parameterName, index=-1):
     """
-      Get the value of a parameter. Most parameters are handled automatically by
-      PyRegion's parameter get mechanism. The ones that need special treatment
-      are explicitly handled here.
-    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getParameter`.
 
+    Get the value of a parameter. Most parameters are handled automatically by
+    :class:`~nupic.bindings.regions.PyRegion.PyRegion`'s parameter get mechanism. The 
+    ones that need special treatment are explicitly handled here.
+    """
     if parameterName in self._temporalArgNames:
       return getattr(self._tfdr, parameterName)
     else:
@@ -725,9 +720,7 @@ class TMRegion(PyRegion):
 
   def setParameter(self, parameterName, index, parameterValue):
     """
-      Set the value of a Spec parameter. Most parameters are handled
-      automatically by PyRegion's parameter set mechanism. The ones that need
-      special treatment are explicitly handled here.
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.setParameter`.
     """
     if parameterName in self._temporalArgNames:
       setattr(self._tfdr, parameterName, parameterValue)
@@ -757,18 +750,16 @@ class TMRegion(PyRegion):
   #############################################################################
 
   def resetSequenceStates(self):
-    """ Resets the region's sequence states
+    """ 
+    Resets the region's sequence states.
     """
-    #print "#############"
-    #print "############# TMRegion: got resetSequenceStates() call"
-    #print "#############"
-
     self._tfdr.reset()
     self._sequencePos = 0  # Position within the current sequence
     return
 
   def finishLearning(self):
-    """Perform an internal optimization step that speeds up inference if we know
+    """
+    Perform an internal optimization step that speeds up inference if we know
     learning will not be performed anymore. This call may, for example, remove
     all potential inputs to each column.
     """
@@ -788,14 +779,19 @@ class TMRegion(PyRegion):
 
   @staticmethod
   def getProtoType():
-    """Return the pycapnp proto type that the class uses for serialization."""
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getProtoType`.
+    """
     return TMRegionProto
 
 
   def writeToProto(self, proto):
-    """Write state to proto object.
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.writeToProto`.
 
-    proto: TMRegionProto capnproto object
+    Write state to proto object.
+
+    :param proto: TMRegionProto capnproto object
     """
     proto.temporalImp = self.temporalImp
     proto.columnCount = self.columnCount
@@ -814,9 +810,12 @@ class TMRegion(PyRegion):
 
   @classmethod
   def readFromProto(cls, proto):
-    """Read state from proto object.
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.readFromProto`.
 
-    proto: TMRegionProto capnproto object
+    Read state from proto object.
+
+    :param proto: TMRegionProto capnproto object
     """
     instance = cls(proto.columnCount, proto.inputWidth, proto.cellsPerColumn)
 
@@ -848,19 +847,20 @@ class TMRegion(PyRegion):
     return state
 
   def serializeExtraData(self, filePath):
-    """This method is called during network serialization with an external
-    filename that can be used to bypass pickle for saving large binary states.
-
-    filePath: full filepath and name
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.serializeExtraData`.
     """
     if self._tfdr is not None:
       self._tfdr.saveToFile(filePath)
 
   def deSerializeExtraData(self, filePath):
-    """This method is called during network deserialization with an external
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.deSerializeExtraData`.
+
+    This method is called during network deserialization with an external
     filename that can be used to bypass pickle for loading large binary states.
 
-    filePath: full filepath and name
+    :param filePath: (string) absolute file path
     """
     if self._tfdr is not None:
       self._tfdr.loadFromFile(filePath)
@@ -958,6 +958,9 @@ class TMRegion(PyRegion):
 
 
   def getOutputElementCount(self, name):
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount`.
+    """
     if name == 'bottomUpOut':
       return self.outputWidth
     elif name == 'topDownOut':
@@ -975,6 +978,9 @@ class TMRegion(PyRegion):
   # TODO: as a temporary hack, getParameterArrayCount checks to see if there's a variable, private or
   # not, with that name. If so, it attempts to return the length of that variable.
   def getParameterArrayCount(self, name, index):
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getParameterArrayCount`.
+    """
     p = self.getParameter(name)
     if (not hasattr(p, '__len__')):
       raise Exception("Attempt to access parameter '%s' as an array but it is not an array" % name)
@@ -984,6 +990,9 @@ class TMRegion(PyRegion):
   # TODO: as a temporary hack, getParameterArray checks to see if there's a variable, private or not,
   # with that name. If so, it returns the value of the variable.
   def getParameterArray(self, name, index, a):
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getParameterArray`.
+    """
     p = self.getParameter(name)
     if (not hasattr(p, '__len__')):
       raise Exception("Attempt to access parameter '%s' as an array but it is not an array" % name)

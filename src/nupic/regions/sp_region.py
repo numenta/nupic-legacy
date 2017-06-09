@@ -300,39 +300,23 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
 
 
 class SPRegion(PyRegion):
-
   """
   SPRegion is designed to implement the spatial pooler compute for a given
   HTM level.
 
-  Uses the SpatialPooler class to do most of the work. This node has just one
-  SpatialPooler instance for the enitire level and does *not* support the concept
-  of "baby nodes" within it.
-
-  Automatic parameter handling:
-
-  Parameter names, default values, and descriptions are retrieved automatically
-  from SpatialPooler. Thus, there are only a few hardcoded arguments in __init__,
-  and the rest are passed to the appropriate underlying class. The NodeSpec is
-  mostly built automatically from these parameters, too.
-
-  If you add a parameter to SpatialPooler, it will be exposed through SPRegion
-  automatically as if it were in SPRegion.__init__, with the right default
-  value. Add an entry in the __init__ docstring for it too, and that will be
-  brought into the NodeSpec. SPRegion will maintain the parameter as its own
-  instance variable and also pass it to SpatialPooler. If the parameter is
-  changed, SPRegion will propagate the change.
-
-  If you want to do something different with the parameter, add it as an
-  argument into SPRegion.__init__, which will override all the default handling.
+  Uses the :class:`~nupic.algorithms.spatial_pooler.SpatialPooler` class to do 
+  most of the work.
+  
+  :param columnCount: (int) Number of columns in the SP, a required parameter.
+  :param inputWidth: (int) Size of inputs to the SP, a required parameter.
+  :param spatialImp: (string) ``py`` or ``cpp` (default ``cpp``).
   """
 
   def __init__(self,
-               columnCount,   # Number of columns in the SP, a required parameter
-               inputWidth,    # Size of inputs to the SP, a required parameter
-               spatialImp=getDefaultSPImp(),   #'py', 'cpp'
+               columnCount,
+               inputWidth,
+               spatialImp=getDefaultSPImp(),
                **kwargs):
-
     if columnCount <= 0 or inputWidth <=0:
       raise TypeError("Parameters columnCount and inputWidth must be > 0")
 
@@ -435,6 +419,9 @@ class SPRegion(PyRegion):
 
 
   def initialize(self):
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.initialize`.
+    """
     # Zero out the spatial output in case it is requested
     self._spatialPoolerOutput = numpy.zeros(self.columnCount,
                                             dtype=GetNTAReal())
@@ -478,10 +465,11 @@ class SPRegion(PyRegion):
 
   def compute(self, inputs, outputs):
     """
-    Run one iteration of SPRegion's compute, profiling it if requested.
+    Run one iteration, profiling it if requested.
 
-    The guts of the compute are contained in the _compute() call so that
-    we can profile it if requested.
+    :param inputs: (dict) mapping region input names to numpy.array values
+    :param outputs: (dict) mapping region output names to numpy.arrays that 
+           should be populated with output values by this method
     """
 
     # Uncomment this to find out who is generating divide by 0, or other numpy warnings
@@ -502,6 +490,8 @@ class SPRegion(PyRegion):
         stats.sort_stats('time', 'calls')
         stats.print_stats()
 
+      # The guts of the compute are contained in the _compute() call so that we
+      # can profile it if requested.
       if self._profileObj is None:
         print "\n  Preparing to capture profile using hotshot..."
         if os.path.exists('hotshot.stats'):
@@ -642,9 +632,10 @@ class SPRegion(PyRegion):
 
   @classmethod
   def getBaseSpec(cls):
-    """Return the base Spec for SPRegion.
-
+    """
     Doesn't include the spatial, temporal and other parameters
+
+    :returns: (dict) The base Spec for SPRegion.
     """
     spec = dict(
       description=SPRegion.__doc__,
@@ -757,10 +748,11 @@ class SPRegion(PyRegion):
 
   @classmethod
   def getSpec(cls):
-    """Return the Spec for SPRegion.
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getSpec`.
 
     The parameters collection is constructed based on the parameters specified
-    by the variosu components (spatialSpec, temporalSpec and otherSpec)
+    by the various components (spatialSpec, temporalSpec and otherSpec)
     """
     spec = cls.getBaseSpec()
     s, o = _getAdditionalSpecs(spatialImp=getDefaultSPImp())
@@ -771,15 +763,19 @@ class SPRegion(PyRegion):
 
 
   def getAlgorithmInstance(self):
-    """Returns instance of the underlying SpatialPooler algorithm object."""
+    """
+    :returns: (:class:`~nupic.algorithms.spatial_pooler.SpatialPooler`) instance 
+              of the underlying algorithm object.
+    """
     return self._sfdr
 
 
   def getParameter(self, parameterName, index=-1):
     """
-      Get the value of a NodeSpec parameter. Most parameters are handled
-      automatically by PyRegion's parameter get mechanism. The ones that need
-      special treatment are explicitly handled here.
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getParameter`.
+      
+    Most parameters are handled automatically by PyRegion's parameter get 
+    mechanism. The ones that need special treatment are explicitly handled here.
     """
 
     if parameterName == 'activeOutputCount':
@@ -808,9 +804,11 @@ class SPRegion(PyRegion):
 
   def setParameter(self, parameterName, index, parameterValue):
     """
-      Set the value of a Spec parameter. Most parameters are handled
-      automatically by PyRegion's parameter set mechanism. The ones that need
-      special treatment are explicitly handled here.
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.setParameter`.
+
+    Set the value of a Spec parameter. Most parameters are handled
+    automatically by PyRegion's parameter set mechanism. The ones that need
+    special treatment are explicitly handled here.
     """
     if parameterName in self._spatialArgNames:
       setattr(self._sfdr, parameterName, parameterValue)
@@ -860,14 +858,19 @@ class SPRegion(PyRegion):
 
   @staticmethod
   def getProtoType():
-    """Return the pycapnp proto type that the class uses for serialization."""
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getProtoType`.
+    """
     return SPRegionProto
 
 
   def writeToProto(self, proto):
-    """Write state to proto object.
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.writeToProto`.
 
-    proto: SPRegionProto capnproto object
+    Write state to proto object.
+
+    :param proto: SPRegionProto capnproto object
     """
     proto.spatialImp = self.spatialImp
     proto.columnCount = self.columnCount
@@ -882,9 +885,12 @@ class SPRegion(PyRegion):
 
   @classmethod
   def readFromProto(cls, proto):
-    """Read state from proto object.
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.readFromProto`.
 
-    proto: SPRegionProto capnproto object
+    Read state from proto object.
+    
+    :param proto: SPRegionProto capnproto object
     """
     instance = cls(proto.columnCount, proto.inputWidth)
 
@@ -1026,17 +1032,27 @@ class SPRegion(PyRegion):
   # variable, private or not, with that name. If so, it attempts to return the
   # length of that variable.
   def getParameterArrayCount(self, name, index):
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getParameterArrayCount`.
+
+    TODO: as a temporary hack, getParameterArrayCount checks to see if there's a
+    variable, private or not, with that name. If so, it returns the value of the
+    variable.
+    """
     p = self.getParameter(name)
     if (not hasattr(p, '__len__')):
       raise Exception("Attempt to access parameter '%s' as an array but it is not an array" % name)
     return len(p)
 
 
-  # TODO: as a temporary hack, getParameterArray checks to see if there's a
-  # variable, private or not, with that name. If so, it returns the value of the
-  # variable.
   def getParameterArray(self, name, index, a):
+    """
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getParameterArray`.
 
+    TODO: as a temporary hack, getParameterArray checks to see if there's a
+    variable, private or not, with that name. If so, it returns the value of the
+    variable.
+    """
     p = self.getParameter(name)
     if (not hasattr(p, '__len__')):
       raise Exception("Attempt to access parameter '%s' as an array but it is not an array" % name)
