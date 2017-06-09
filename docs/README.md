@@ -67,6 +67,7 @@ nupic
 │   ├── anomaly_likelihood.py [OK]
 │   ├── sdr_classifier.py [OK]
 │   ├── sdr_classifier_factory.py [OK]
+│   ├── knn_classifier.py [OK]
 │   ├── backtracking_tm.py [OK]
 │   ├── backtracking_tm_cpp.py [OK]
 │   ├── connections.py [OK]
