@@ -32,12 +32,39 @@ from nupic.bindings.math import Random
 
 class KNNClassifierRegion(PyRegion):
   """
-  KNNClassifierRegion implements the k Nearest Neighbor classification algorithm.
-  By default it will implement vanilla 1-nearest neighbor using the L2 (Euclidean)
-  distance norm.  There are options for using different norms as well as
-  various ways of sparsifying the input.
+  KNNClassifierRegion implements the k Nearest Neighbor classification 
+  algorithm. By default it will implement vanilla 1-nearest neighbor using the 
+  L2 (Euclidean) distance norm.  There are options for using different norms as 
+  well as various ways of sparsifying the input.
 
-  Note: categories are ints >= 0.
+  .. note:: categories are ints >= 0.
+
+  :param maxCategoryCount: (int)
+  :param bestPrototypeIndexCount: (int) 
+  :param outputProbabilitiesByDist:  (bool)
+  :param k:  (int)
+  :param distanceNorm: (float) 
+  :param distanceMethod: (string)
+  :param distThreshold: (float)
+  :param doBinarization: (bool)
+  :param inputThresh: (float)
+  :param useSparseMemory: (bool)
+  :param sparseThreshold: (float)
+  :param relativeThreshold: (bool)
+  :param winnerCount: (int)
+  :param acceptanceProbability: (float) 
+  :param seed: (int)
+  :param doSphering: (bool)
+  :param SVDSampleCount: (int)
+  :param SVDDimCount: (int)
+  :param fractionOfMax: (int)
+  :param useAuxiliary: (int)
+  :param justUseAuxiliary: (int)
+  :param verbosity: (int)
+  :param replaceDuplicates: (bool) 
+  :param cellsPerCol: (int)
+  :param maxStoredPatterns: (int)
+  :param minSparsity: (float)
   """
 
   __VERSION__ = 1
@@ -45,6 +72,9 @@ class KNNClassifierRegion(PyRegion):
 
   @classmethod
   def getSpec(cls):
+    """
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.getSpec`.
+    """
     ns = dict(
         description=KNNClassifierRegion.__doc__,
         singleNodeOnly=True,
@@ -479,7 +509,6 @@ class KNNClassifierRegion(PyRegion):
                maxStoredPatterns=-1,
                minSparsity=0.0
                ):
-
     self.version = KNNClassifierRegion.__VERSION__
 
     # Convert various arguments to match the expectation
@@ -654,21 +683,19 @@ class KNNClassifierRegion(PyRegion):
 
 
   def clear(self):
-
     self._knn.clear()
 
 
   def getAlgorithmInstance(self):
-    """Returns instance of the underlying KNNClassifier algorithm object."""
+    """
+    :returns: (:class:`~nupic.algorithms.knn_classifier.KNNClassifier`)
+    """
     return self._knn
 
 
   def getParameter(self, name, index=-1):
     """
-    Get the value of the parameter.
-
-    @param name -- the name of the parameter to retrieve, as defined
-            by the Node Spec.
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.getParameter`.
     """
     if name == "patternCount":
       return self._knn._numPatterns
@@ -723,11 +750,7 @@ class KNNClassifierRegion(PyRegion):
 
   def setParameter(self, name, index, value):
     """
-    Set the value of the parameter.
-
-    @param name -- the name of the parameter to update, as defined
-            by the Node Spec.
-    @param value -- the value to which the parameter is to be set.
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.setParameter`.
     """
     if name == "learningMode":
       self.learningMode = bool(int(value))
@@ -759,13 +782,15 @@ class KNNClassifierRegion(PyRegion):
 
 
   def reset(self):
-
+    """
+    Resets confusion matrix.
+    """
     self.confusion = numpy.zeros((1, 1))
 
 
   def doInference(self, activeInput):
-    """Explicitly run inference on a vector that is passed in and return the
-    category id. Useful for debugging."""
+    # Explicitly run inference on a vector that is passed in and return the
+    # category id. Useful for debugging.
 
     prediction, inference, allScores = self._knn.infer(activeInput)
     return inference
@@ -775,7 +800,7 @@ class KNNClassifierRegion(PyRegion):
     """
     Begin writing output tap files.
 
-    @param tapPath -- base name of the output tap files to write.
+    :param tapPath: (string) base name of the output tap files to write.
     """
 
     self._tapFileIn = open(tapPath + '.in', 'w')
@@ -783,7 +808,9 @@ class KNNClassifierRegion(PyRegion):
 
 
   def disableTap(self):
-    """Disable writing of output tap files. """
+    """
+    Disable writing of output tap files.
+    """
 
     if self._tapFileIn is not None:
       self._tapFileIn.close()
@@ -794,7 +821,11 @@ class KNNClassifierRegion(PyRegion):
 
 
   def handleLogInput(self, inputs):
-    """Write inputs to output tap file."""
+    """
+    Write inputs to output tap file.
+    
+    :param inputs: (iter) some inputs.
+    """
 
     if self._tapFileIn is not None:
       for input in inputs:
@@ -804,7 +835,11 @@ class KNNClassifierRegion(PyRegion):
 
 
   def handleLogOutput(self, output):
-    """Write outputs to output tap file."""
+    """
+    Write outputs to output tap file.
+
+    :param outputs: (iter) some outputs.
+    """
     #raise Exception('MULTI-LINE DUMMY\nMULTI-LINE DUMMY')
     if self._tapFileOut is not None:
       for k in range(len(output)):
@@ -840,11 +875,15 @@ class KNNClassifierRegion(PyRegion):
     """
     Process one input sample. This method is called by the runtime engine.
 
-    NOTE: the number of input categories may vary, but the array size is fixed
-    to the max number of categories allowed (by a lower region), so "unused"
-    indices of the input category array are filled with -1s.
+    .. note:: the number of input categories may vary, but the array size is 
+       fixed to the max number of categories allowed (by a lower region), so 
+       "unused" indices of the input category array are filled with -1s.
 
     TODO: confusion matrix does not support multi-label classification
+
+    :param inputs: (dict) mapping region input names to numpy.array values
+    :param outputs: (dict) mapping region output names to numpy.arrays that 
+           should be populated with output values by this method
     """
 
     #raise Exception('MULTI-LINE DUMMY\nMULTI-LINE DUMMY')
@@ -1026,30 +1065,34 @@ class KNNClassifierRegion(PyRegion):
 
   def getCategoryList(self):
     """
-    Public API for returning the category list
-    This is a required API of the NearestNeighbor inspector.
+    Public API for returning the category list. This is a required API of the 
+    NearestNeighbor inspector.
 
-    It returns an array which has one entry per stored prototype. The value
-    of the entry is the category # of that stored prototype.
+    :returns: (list) which has one entry per stored prototype. The value of the 
+              entry is the category # of that stored prototype.
     """
 
     return self._knn._categoryList
 
 
   def removeCategory(self, categoryToRemove):
+    """
+    Removes a category.
+    
+    :param categoryToRemove: (string) label to remove
+    """
     return self._knn.removeCategory(categoryToRemove)
 
 
   def getLatestDistances(self):
     """
-    Public API for returning the full scores
-    (distance to each prototype) from the last
-    compute() inference call.
-    This is a required API of the NearestNeighbor inspector.
+    Public API for returning the full scores (distance to each prototype) from 
+    the last :meth:`compute` inference call. This is a required API of the 
+    NearestNeighbor inspector.
 
-    It returns an array which has one entry per stored prototype. The value
-    of the entry is distance of the most recenty inferred input from the
-    stored prototype.
+    :returns: (list) which has one entry per stored prototype. The value of the 
+              entry is distance of the most recenty inferred input from the 
+              stored prototype.
     """
     if self._protoScores is not None:
       if self.keepAllDistances:
@@ -1062,10 +1105,12 @@ class KNNClassifierRegion(PyRegion):
 
   def getAllDistances(self):
     """
-    Return all the prototype distances from all computes available.
-
-    Like getLatestDistances, but returns all the scores if more than one set is
-    available. getLatestDistances will always just return one set of scores.
+    Like :meth:`~nupic.regions.knn_classifier_region.KNNClassifierRegion.getLatestDistances`, 
+    but returns all the scores if more than one  set is available. 
+    :meth:`~nupic.regions.knn_classifier_region.KNNClassifierRegion.getLatestDistances` 
+    will always just return one set of scores.
+    
+    :returns: (list) all the prototype distances from all computes available.
     """
 
     if self._protoScores is None:
@@ -1136,7 +1181,9 @@ class KNNClassifierRegion(PyRegion):
 
 
   def getOutputElementCount(self, name):
-    """This method will be called only when the node is used in nuPIC 2"""
+    """
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount`.
+    """
     if name == 'categoriesOut':
       return self.maxCategoryCount
     elif name == 'categoryProbabilitiesOut':

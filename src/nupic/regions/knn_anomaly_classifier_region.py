@@ -38,28 +38,40 @@ from nupic.frameworks.opf.exceptions import (HTMPredictionModelInvalidRangeError
 
 class KNNAnomalyClassifierRegion(PyRegion):
   """
-  KNNAnomalyClassifierRegion wraps the KNNClassifierRegion to classify htm_prediction_model
+  Wraps the :class:`~nupic.regions.knn_classifier_region.KNNClassifierRegion` to 
+  classify :class:`~nupic.frameworks.opf.htm_prediction_model.HTMPredictionModel`
   state.  It allows for individual records to be classified as anomalies and
   supports anomaly detection even after the model has learned the anomalous
   sequence.
 
-  Methods:
-    compute() - called by htm_prediction_model during record processing
-    getLabels() - return points with classification records
-    addLabel() - add a set label to a given set of points
-    removeLabels() - remove labels from a given set of points
+  **Methods:**
 
-  Parameters:
-    trainRecords - number of records to skip before classification
-    anomalyThreshold - threshold on anomaly score to automatically classify
-                       record as an anomaly
-    cacheSize - number of records to keep in cache. Can only recalculate
-                records kept in cache when setting the trainRecords.
+    * :meth:`~nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.compute` 
+      - called by 
+      :class:`~nupic.frameworks.opf.htm_prediction_model.HTMPredictionModel` 
+      during record processing
+    * :meth:`~nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.getLabels` 
+      - return points with classification records
+    * :meth:`~nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.addLabel` 
+      - add a set label to a given set of points
+    * :meth:`~nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.removeLabels` 
+      - remove labels from a given set of points
 
+  :param trainRecords: (int) number of records to skip before classification.
+  :param anomalyThreshold: (float) threshold on anomaly score to automatically 
+         classify record as an anomaly
+  :param cacheSize: (int) number of records to keep in cache. Can only 
+         recalculate records kept in cache when setting the ``trainRecords``.
+  :param classificationVectorType: (int) default=1
+  :param activeColumnCount: (int) default=40,
+  :param classificationMaxDist: (float) default=0.30
   """
 
   @classmethod
   def getSpec(cls):
+    """
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.getSpec`.
+    """
     ns = dict(
         description=KNNAnomalyClassifierRegion.__doc__,
         singleNodeOnly=True,
@@ -207,7 +219,6 @@ class KNNAnomalyClassifierRegion(PyRegion):
                activeColumnCount=40,
                classificationMaxDist=0.30,
                **classifierArgs):
-
     # Internal Region Values
     self._maxLabelOutputs = 16
     self._activeColumnCount = activeColumnCount
@@ -240,10 +251,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
 
   def getParameter(self, name, index=-1):
     """
-    Get the value of the parameter.
-
-    @param name -- the name of the parameter to retrieve, as defined
-            by the Node Spec.
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.getParameter`.
     """
     if name == "trainRecords":
       return self.trainRecords
@@ -261,11 +269,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
 
   def setParameter(self, name, index, value):
     """
-    Set the value of the parameter.
-
-    @param name -- the name of the parameter to update, as defined
-            by the Node Spec.
-    @param value -- the value to which the parameter is to be set.
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.setParameter`.
     """
     if name == "trainRecords":
       # Ensure that the trainRecords can only be set to minimum of the ROWID in
@@ -283,19 +287,19 @@ class KNNAnomalyClassifierRegion(PyRegion):
       # Remove any labels before the first cached record (wont be used anymore)
       self._deleteRangeFromKNN(0, self._recordsCache[0].ROWID)
       # Reclassify all states
-      self.classifyStates()
+      self._classifyStates()
     elif name == "anomalyThreshold":
       if not (isinstance(value, float) or isinstance(value, int)):
         raise HTMPredictionModelInvalidArgument("Invalid argument type \'%s\'. threshold "
           "must be a number." % (type(value)))
       self.anomalyThreshold = value
-      self.classifyStates()
+      self._classifyStates()
     elif name == "classificationMaxDist":
       if not (isinstance(value, float) or isinstance(value, int)):
         raise HTMPredictionModelInvalidArgument("Invalid argument type \'%s\'. "
           "classificationMaxDist must be a number." % (type(value)))
       self._classificationMaxDist = value
-      self.classifyStates()
+      self._classifyStates()
     elif name == "activeColumnCount":
       self._activeColumnCount = value
     else:
@@ -307,11 +311,11 @@ class KNNAnomalyClassifierRegion(PyRegion):
     Process one input sample.
     This method is called by the runtime engine.
     """
-    record = self.constructClassificationRecord(inputs)
+    record = self._constructClassificationRecord(inputs)
 
     #Classify this point after waiting the classification delay
     if record.ROWID >= self.getParameter('trainRecords'):
-      self.classifyState(record)
+      self._classifyState(record)
 
     #Save new classification record and keep history as moving window
     self._recordsCache.append(record)
@@ -327,21 +331,20 @@ class KNNAnomalyClassifierRegion(PyRegion):
     """
     Get the labels of the previously computed record.
 
-    ----------------
-    retval - array of strings representing the classification labels
+    :returns: (list) of strings representing the classification labels
     """
     return self.labelResults
 
 
-  def classifyStates(self):
+  def _classifyStates(self):
     """
     Reclassifies all internal state
     """
     for state in self._recordsCache:
-      self.classifyState(state)
+      self._classifyState(state)
 
 
-  def classifyState(self, state):
+  def _classifyState(self, state):
     """
     Reclassifies given state.
     """
@@ -394,7 +397,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
       self._addRecordToKNN(state)
 
 
-  def constructClassificationRecord(self, inputs):
+  def _constructClassificationRecord(self, inputs):
     """
     Construct a _HTMClassificationRecord based on the state of the model
     passed in through the inputs.
@@ -618,21 +621,26 @@ class KNNAnomalyClassifierRegion(PyRegion):
     Get the labels on classified points within range start to end. Not inclusive
     of end.
 
-    reval - dict of format:
+    :returns: (dict) with format:
 
-      {
-        'isProcessing': boolean,
-        'recordLabels': list of results
-      }
+      ::
 
-      isProcessing - currently always false as recalculation blocks; used if
-        reprocessing of records is still being performed;
+        {
+          'isProcessing': boolean,
+          'recordLabels': list of results
+        }
 
-      Each item in recordLabels is of format:
-      {
-        'ROWID': id of the row,
-        'labels': list of strings
-      }
+      ``isProcessing`` - currently always false as recalculation blocks; used if
+      reprocessing of records is still being performed;
+
+      Each item in ``recordLabels`` is of format:
+      
+      ::
+      
+        {
+          'ROWID': id of the row,
+          'labels': list of strings
+        }
 
     """
     if len(self._recordsCache) == 0:
@@ -681,10 +689,14 @@ class KNNAnomalyClassifierRegion(PyRegion):
   def addLabel(self, start, end, labelName):
     """
     Add the label labelName to each record with record ROWID in range from
-    start to end, noninclusive of end.
+    ``start`` to ``end``, noninclusive of end.
 
     This will recalculate all points from end to the last record stored in the
     internal cache of this classifier.
+
+    :param start: (int) start index 
+    :param end: (int) end index (noninclusive)
+    :param labelName: (string) label name
     """
     if len(self._recordsCache) == 0:
       raise HTMPredictionModelInvalidRangeError("Invalid supplied range for 'addLabel'. "
@@ -734,17 +746,22 @@ class KNNAnomalyClassifierRegion(PyRegion):
 
     # Recompute [end, ...)
     for state in self._recordsCache[clippedEnd:]:
-      self.classifyState(state)
+      self._classifyState(state)
 
 
   def removeLabels(self, start=None, end=None, labelFilter=None):
     """
     Remove labels from each record with record ROWID in range from
-    start to end, noninclusive of end. Removes all records if labelFilter is
-    None, otherwise only removes the labels eqaul to labelFilter.
+    ``start`` to ``end``, noninclusive of end. Removes all records if 
+    ``labelFilter`` is None, otherwise only removes the labels equal to 
+    ``labelFilter``.
 
     This will recalculate all points from end to the last record stored in the
     internal cache of this classifier.
+    
+    :param start: (int) start index 
+    :param end: (int) end index (noninclusive)
+    :param labelFilter: (string) label filter
     """
     if len(self._recordsCache) == 0:
       raise HTMPredictionModelInvalidRangeError("Invalid supplied range for "
@@ -801,7 +818,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
 
     # Recompute [clippedEnd, ...)
     for state in self._recordsCache[clippedEnd:]:
-      self.classifyState(state)
+      self._classifyState(state)
 
 
   #############################################################################
@@ -908,6 +925,9 @@ class KNNAnomalyClassifierRegion(PyRegion):
 
 
   def getOutputElementCount(self, name):
+    """
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount`.
+    """
     if name == 'labels':
       return self._maxLabelOutputs
     else:
