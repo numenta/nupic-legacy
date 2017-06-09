@@ -830,6 +830,10 @@ class SDRClassifierTest(unittest.TestCase):
     self.assertEqual(c1._version, c2._version)
     self.assertEqual(c1.verbosity, c2.verbosity)
 
+    # NOTE: the previous step's actual values determine the size of lists in
+    # results
+    expectedActualValuesLen = len(c1._actualValues)
+
     result1 = c1.compute(recordNum=1,
                          patternNZ=input1,
                          classification={'bucketIdx': 4, 'actValue': 34.7},
@@ -842,7 +846,10 @@ class SDRClassifierTest(unittest.TestCase):
     self.assertEqual(result1.keys(), result2.keys())
 
     for key in result1.keys():
-      for i in xrange(len(c1._actualValues)):
+      self.assertEqual(len(result1[key]), len(result2[key]))
+      self.assertEqual(len(result1[key]), expectedActualValuesLen)
+
+      for i in xrange(expectedActualValuesLen):
         self.assertAlmostEqual(result1[key][i], result2[key][i], 5)
 
 
@@ -851,8 +858,7 @@ class SDRClassifierTest(unittest.TestCase):
   def testWriteRead(self):
     self._doWriteReadChecks(computeBeforeSerializing=True)
 
-  @unittest.skip("Good test to have, but fails on i out of bounds in "
-                 "result1[key][i]. Need to debug.")
+
   @unittest.skipUnless(
     capnp, "pycapnp is not installed, skipping serialization test.")
   def testWriteReadNoComputeBeforeSerializing(self):
