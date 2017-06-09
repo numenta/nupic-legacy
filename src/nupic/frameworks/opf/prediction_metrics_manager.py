@@ -18,9 +18,12 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-
-# This script implements PredictionMetricsManager, a helper class that handles
-# pooling of multiple record and field prediction metrics calculators
+"""
+This module implements 
+:class:`~nupic.frameworks.opf.prediction_metrics_manager.PredictionMetricsManager`, 
+a helper class that handles pooling of multiple record and field prediction 
+metrics calculators.
+"""
 
 import logging
 import copy
@@ -48,29 +51,26 @@ MetricValueElement = namedtuple("MetricValueElement", ["spec", "value"])
 
 
 class MetricsManager(object):
-  """ This is a class to handle the computation of metrics properly. This class
+  """ 
+  This is a class to handle the computation of metrics properly. This class
   takes in an inferenceType, and it assumes that it is associcated with a single
-  model """
+  model 
+
+  :param metricSpecs: (list) of :class:`MetricSpec`s that specify which metrics 
+         should be calculated.
+  :param fieldInfo: (list) of :class:`~nupic.data.field_meta.FieldMetaInfo`
+         objects.
+  :param inferenceType: (:class:`~nupic.frameworks.opf.opf_utils.InferenceType`
+         value that specifies the inference type of the associated model. This 
+         affects how metrics are calculated. FOR EXAMPLE, temporal models save 
+         the inference from the previous timestep to match it to the ground 
+         truth value in the current timestep.
+  """
 
   # Map from inference element to sensor input element. This helps us find the
   # appropriate ground truth field for a given inference element
 
   def __init__(self, metricSpecs, fieldInfo, inferenceType):
-    """
-    Constructs a Metrics Manager
-
-    Parameters:
-    -----------------------------------------------------------------------
-    metricSpecs:    A sequence of MetricSpecs that specify which metrics should
-                    be calculated
-
-    inferenceType:  An opf_utils.inferenceType value that specifies the inference
-                    type of the associated model. This affects how metrics are
-                    calculated. FOR EXAMPLE, temporal models save the inference
-                    from the previous timestep to match it to the ground truth
-                    value in the current timestep
-    """
-
     self.__metricSpecs = []
     self.__metrics = []
     self.__metricLabels = []
