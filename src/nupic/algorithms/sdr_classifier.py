@@ -154,7 +154,7 @@ class SDRClassifier(object):
   def compute(self, recordNum, patternNZ, classification, learn, infer):
     """
     Process one input sample.
-    
+
     This method is called by outer loop code outside the nupic-engine. We
     use this instead of the nupic engine compute() because our inputs and
     outputs aren't fixed size vectors of reals.
@@ -421,11 +421,18 @@ class SDRClassifier(object):
     proto.alpha = self.alpha
     proto.actValueAlpha = self.actValueAlpha
 
+    # NOTE: technically, saving `_maxSteps` is redundant, since it may be
+    # reconstructed from `self.steps` just as in the constructor. Eliminating
+    # this attribute from the capnp scheme will involve coordination with
+    # nupic.core, where the `SdrClassifierProto` schema resides.
     proto.maxSteps = self._maxSteps
 
-    patternProto = proto.init("patternNZHistory", self._maxSteps)
-    recordNumHistoryProto = proto.init("recordNumHistory", self._maxSteps)
-    for  i in xrange(self._maxSteps):
+    # NOTE: size of history buffer may be less than `self._maxSteps` if fewer
+    # inputs had been processed
+    patternProto = proto.init("patternNZHistory", len(self._patternNZHistory))
+    recordNumHistoryProto = proto.init("recordNumHistory",
+                                       len(self._patternNZHistory))
+    for  i in xrange(len(self._patternNZHistory)):
       subPatternProto = patternProto.init(i, len(self._patternNZHistory[i][1]))
       for j in xrange(len(self._patternNZHistory[i][1])):
         subPatternProto[j] = int(self._patternNZHistory[i][1][j])
