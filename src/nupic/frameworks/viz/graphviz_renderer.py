@@ -31,6 +31,7 @@ class GraphVizRenderer(object):
   Network visualization "renderer" implementation to render a network with
   graphviz.
   """
+
   def render(self, graph):
     graph = nx.nx_agraph.to_agraph(graph)
     graph.layout()

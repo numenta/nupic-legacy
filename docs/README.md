@@ -103,8 +103,6 @@ nupic
 │   │   └── two_gram_model.py [OK]
 │   └── viz
 │       ├── dot_renderer.py [TODO]
-│       ├── examples
-│       │   └── visualize_network.py [TODO]
 │       ├── graphviz_renderer.py [TODO]
 │       ├── network_visualization.py [TODO]
 │       └── networkx_renderer.py [TODO]

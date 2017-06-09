@@ -31,20 +31,22 @@ class NetworkVisualizer(object):
 
   Usage:
 
-      NetworkVisualizer(network).render()
+  .. code-block:: python
+  
+    NetworkVisualizer(network).render()
 
   You may optionally specify a specific renderers. e.g.:
 
-      viz = NetworkVisualizer(network)
-      viz.render(renderer=GraphVizRenderer)
-      viz.render(renderer=NetworkXRenderer)
+  .. code-block:: python
+  
+    viz = NetworkVisualizer(network)
+    viz.render(renderer=GraphVizRenderer)
+    viz.render(renderer=NetworkXRenderer)
 
+  :param network: (:class:`nupic.engine.Network`)
   """
-  def __init__(self, network):
-    """
 
-    :param network: nupic.engine.network
-    """
+  def __init__(self, network):
     self.network = network
 
 
@@ -78,10 +80,11 @@ class NetworkVisualizer(object):
 
   def render(self, renderer=DEFAULT_RENDERER):
     """
-    Render network.
+    Render network. Default is 
+    :class:`~nupic.frameworks.viz.dot_renderer.DotRenderer`.
 
     :param renderer: Constructor parameter to a "renderer" implementation.
-      Return value for which must have a "render" method that accepts a single
-      argument (a networkx graph instance).
+           Return value for which must have a "render" method that accepts a 
+           single argument (a networkx graph instance).
     """
     renderer().render(self.export())
