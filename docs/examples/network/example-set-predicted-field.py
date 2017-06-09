@@ -1,3 +1,1 @@
-predictedIdx = dataSource.getFieldNames().index("consumption")
-
-network.regions["sensor"].setParameter("predictedFieldIdx", predictedIdx)
+network.regions["sensor"].setParameter("predictedField", "consumption")

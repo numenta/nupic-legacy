@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2017, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -19,28 +19,28 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""CLA classifier diff tool.
+"""SDR classifier diff tool.
 
-This class can be used just like versions of the CLA classifier but internally
-creates instances of each CLA classifier. Each record is fed to both
+This class can be used just like versions of the SDR classifier but internally
+creates instances of each SDR classifier. Each record is fed to both
 classifiers and the results are checked for differences.
 """
 
 import cPickle as pickle
 import numbers
 
-from nupic.algorithms.cla_classifier import CLAClassifier
-from nupic.bindings.algorithms import FastCLAClassifier
+from nupic.algorithms.sdr_classifier import SDRClassifier
+from nupic.bindings.algorithms import SDRClassifier as SDRClassifierCpp
 
 
 CALLS_PER_SERIALIZE = 100
 
 
 
-class CLAClassifierDiff(object):
+class SDRClassifierDiff(object):
   """Classifier-like object that diffs the output from different classifiers.
 
-  Instances of each version of the CLA classifier are created and each call to
+  Instances of each version of the SDR classifier are created and each call to
   compute is passed to each version of the classifier. The results are diffed
   to make sure the there are no differences.
 
@@ -54,29 +54,29 @@ class CLAClassifierDiff(object):
   """
 
 
-  __VERSION__ = 'CLAClassifierDiffV1'
+  __VERSION__ = 'SDRClassifierDiffV1'
 
 
   def __init__(self, steps=(1,), alpha=0.001, actValueAlpha=0.3, verbosity=0,
                callsPerSerialize=CALLS_PER_SERIALIZE):
-    self._claClassifier = CLAClassifier(steps, alpha, actValueAlpha, verbosity)
-    self._fastCLAClassifier = FastCLAClassifier(steps, alpha, actValueAlpha,
+    self._sdrClassifier = SDRClassifier(steps, alpha, actValueAlpha, verbosity)
+    self._sdrClassifierCpp = SDRClassifierCpp(steps, alpha, actValueAlpha,
                                                 verbosity)
     self._calls = 0
     self._callsPerSerialize = callsPerSerialize
 
 
   def compute(self, recordNum, patternNZ, classification, learn, infer):
-    result1 = self._claClassifier.compute(recordNum, patternNZ, classification,
+    result1 = self._sdrClassifier.compute(recordNum, patternNZ, classification,
                                           learn, infer)
-    result2 = self._fastCLAClassifier.compute(recordNum, patternNZ,
+    result2 = self._sdrClassifierCpp.compute(recordNum, patternNZ,
                                               classification, learn, infer)
     self._calls += 1
     # Check if it is time to serialize and deserialize.
     if self._calls % self._callsPerSerialize == 0:
-      self._claClassifier = pickle.loads(pickle.dumps(self._claClassifier))
-      self._fastCLAClassifier = pickle.loads(pickle.dumps(
-          self._fastCLAClassifier))
+      self._sdrClassifier = pickle.loads(pickle.dumps(self._sdrClassifier))
+      self._sdrClassifierCpp = pickle.loads(pickle.dumps(
+          self._sdrClassifierCpp))
     # Assert both results are the same type.
     assert type(result1) == type(result2)
     # Assert that the keys match.
@@ -88,10 +88,10 @@ class CLAClassifierDiff(object):
       for i in xrange(len(l)):
         if isinstance(classification['actValue'], numbers.Real):
           assert abs(float(l[i]) - float(result2[k][i])) < 0.0000001, (
-              'Python CLAClassifier has value %f and C++ FastCLAClassifier has '
+              'Python SDRClassifier has value %f and C++ SDRClassifierCpp has '
               'value %f.' % (l[i], result2[k][i]))
         else:
           assert l[i] == result2[k][i], (
-              'Python CLAClassifier has value %s and C++ FastCLAClassifier has '
+              'Python SDRClassifier has value %s and C++ SDRClassifierCpp has '
               'value %s.' % (str(l[i]), str(result2[k][i])))
     return result1

@@ -149,10 +149,7 @@ def createRecordSensor(network, name, dataSource):
   sensorRegion.encoder = createEncoder()
 
   # Specify which sub-encoder should be used for "actValueOut"
-  predictedFieldIdx = dataSource.getFieldNames().index("consumption")
-  network.regions[name].setParameter("predictedFieldIdx",
-                                     numpy.array([predictedFieldIdx],
-                                                dtype="uint32"))
+  network.regions[name].setParameter("predictedField", "consumption")
 
   # Specify the dataSource as a file record stream instance
   sensorRegion.dataSource = dataSource

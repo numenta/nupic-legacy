@@ -19,6 +19,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+"""
+Tools to help with topology.
+"""
 
 import itertools
 import numpy
@@ -28,18 +31,16 @@ def coordinatesFromIndex(index, dimensions):
   """
   Translate an index into coordinates, using the given coordinate system.
 
-  Similar to numpy.unravel_index.
+  Similar to ``numpy.unravel_index``.
 
-  @param index (int)
-  The index of the point. The coordinates are expressed as a single index by
-  using the dimensions as a mixed radix definition. For example, in dimensions
-  42x10, the point [1, 4] is index 1*420 + 4*10 = 460.
+  :param index: (int) The index of the point. The coordinates are expressed as a 
+         single index by using the dimensions as a mixed radix definition. For 
+         example, in dimensions 42x10, the point [1, 4] is index 
+         1*420 + 4*10 = 460.
 
-  @param dimensions (list of ints)
-  The coordinate system.
+  :param dimensions (list of ints) The coordinate system.
 
-  @returns
-  A list of coordinates of length len(dimensions).
+  :returns: (list) of coordinates of length ``len(dimensions)``.
   """
   coordinates = [0] * len(dimensions)
 
@@ -57,18 +58,17 @@ def indexFromCoordinates(coordinates, dimensions):
   """
   Translate coordinates into an index, using the given coordinate system.
 
-  Similar to numpy.ravel_multi_index.
+  Similar to ``numpy.ravel_multi_index``.
 
-  @param coordinates (list of ints)
-  A list of coordinates of length dimensions.size().
+  :param coordinates: (list of ints) A list of coordinates of length 
+         ``dimensions.size()``.
 
-  @param dimensions (list of ints
-  The coordinate system.
+  :param dimensions: (list of ints) The coordinate system.
 
-  @returns
-  The index of the point. The coordinates are expressed as a single index by
-  using the dimensions as a mixed radix definition. For example, in dimensions
-  42x10, the point [1, 4] is index 1*420 + 4*10 = 460.
+  :returns: (int) The index of the point. The coordinates are expressed as a 
+            single index by using the dimensions as a mixed radix definition. 
+            For example, in dimensions 42x10, the point [1, 4] is index 
+            1*420 + 4*10 = 460.
   """
   index = 0
   for i, dimension in enumerate(dimensions):
@@ -93,19 +93,19 @@ def neighborhood(centerIndex, radius, dimensions):
   to C code rather than calculating them on-demand with lots of calls to Python
   code.
 
-  @param centerIndex (int)
-  The index of the point. The coordinates are expressed as a single index by
-  using the dimensions as a mixed radix definition. For example, in dimensions
-  42x10, the point [1, 4] is index 1*420 + 4*10 = 460.
+  :param centerIndex: (int) The index of the point. The coordinates are 
+         expressed as a single index by using the dimensions as a mixed radix 
+         definition. For example, in dimensions 42x10, the point [1, 4] is index 
+         1*420 + 4*10 = 460.
 
-  @param radius (int)
-  The radius of this neighborhood about the centerIndex.
+  :param radius: (int) The radius of this neighborhood about the 
+         ``centerIndex``.
 
-  @param dimensions (indexable sequence)
-  The dimensions of the world outside this neighborhood.
+  :param dimensions: (indexable sequence) The dimensions of the world outside 
+         this neighborhood.
 
-  @returns (numpy array)
-  The points in the neighborhood, including centerIndex.
+  :returns: (numpy array) The points in the neighborhood, including 
+            ``centerIndex``.
   """
   centerPosition = coordinatesFromIndex(centerIndex, dimensions)
 
@@ -121,22 +121,22 @@ def neighborhood(centerIndex, radius, dimensions):
 
 def wrappingNeighborhood(centerIndex, radius, dimensions):
   """
-  Like 'neighborhood', except that the neighborhood isn't truncated when it's
-  near an edge. It wraps around to the other side.
+  Like :meth:`neighborhood`, except that the neighborhood isn't truncated when 
+  it's near an edge. It wraps around to the other side.
 
-  @param centerIndex (int)
-  The index of the point. The coordinates are expressed as a single index by
-  using the dimensions as a mixed radix definition. For example, in dimensions
-  42x10, the point [1, 4] is index 1*420 + 4*10 = 460.
+  :param centerIndex: (int) The index of the point. The coordinates are 
+         expressed as a single index by using the dimensions as a mixed radix 
+         definition. For example, in dimensions 42x10, the point [1, 4] is index 
+         1*420 + 4*10 = 460.
 
-  @param radius (int)
-  The radius of this neighborhood about the centerIndex.
+  :param radius: (int) The radius of this neighborhood about the 
+         ``centerIndex``.
 
-  @param dimensions (indexable sequence)
-  The dimensions of the world outside this neighborhood.
+  :param dimensions: (indexable sequence) The dimensions of the world outside 
+         this neighborhood.
 
-  @returns (numpy array)
-  The points in the neighborhood, including centerIndex.
+  :returns: (numpy array) The points in the neighborhood, including 
+            ``centerIndex``.
   """
   centerPosition = coordinatesFromIndex(centerIndex, dimensions)
 

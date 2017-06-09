@@ -15,51 +15,40 @@ sphinx-autobuild  ${NUPIC}/docs/source  ${NUPIC}/docs/_build_html  \
 We are using [reStructuredText](http://docutils.sourceforge.net/docs/user/rst/quickref.html) and [Sphinx](http://www.sphinx-doc.org/en/stable/) to build docs. Here is an example of a properly formatted function docstring:
 
 ```python
-def compute(self, recordNum, patternNZ, classification, learn, infer):
-  """
-  Process one input sample.
+  def run(self, inputRecord):
+    """
+    Run one iteration of this model.
 
-  This method is called by outer loop code outside the nupic-engine. We
-  use this instead of the nupic engine compute() because our inputs and
-  outputs aren't fixed size vectors of reals.
+    :param inputRecord: (object)
+           A record object formatted according to
+           :meth:`~nupic.data.record_stream.RecordStreamIface.getNextRecord` or
+           :meth:`~nupic.data.record_stream.RecordStreamIface.getNextRecordDict`
+           result format.
+    :returns: (:class:`~nupic.frameworks.opf.opf_utils.ModelResult`)
+             An ModelResult namedtuple. The contents of ModelResult.inferences
+             depends on the the specific inference type of this model, which
+             can be queried by :meth:`.getInferenceType`.
+    """
+```
 
+If the function parameter type is discernable, enter it in parenthesis after the `:param x:` declaration. There must be two newlines between the function description any `:param:` / `:returns`.
 
-  :param recordNum: Record number of this input pattern. Record numbers
-    normally increase sequentially by 1 each time unless there are missing
-    records in the dataset. Knowing this information insures that we don't get
-    confused by missing records.
+### Linking code
 
-  :param patternNZ: List of the active indices from the output below. When the
-    input is from TemporalMemory, this list should be the indices of the
-    active cells.
+Most commonly, you will want to link to modules, classes, or functions:
 
-  :param classification: Dict of the classification information where:
+```rst
+:mod:`full.namespace`
+:class:`full.namespace.ClassName`
+:meth:`full.namespace.ClassName.methodName`
+```
 
-    - bucketIdx: index of the encoder bucket
-    - actValue: actual value going into the encoder
+If you don't want the full namespace to each thing displayed, use `~`:
 
-    Classification could be None for inference mode.
-  :param learn: (bool) if true, learn this sample
-  :param infer: (bool) if true, perform inference
-
-  :return:    Dict containing inference results, there is one entry for each
-              step in self.steps, where the key is the number of steps, and
-              the value is an array containing the relative likelihood for
-              each bucketIdx starting from bucketIdx 0.
-
-              There is also an entry containing the average actual value to
-              use for each bucket. The key is 'actualValues'.
-
-              for example:
-
-              .. code-block:: python
-
-                 {1 :             [0.1, 0.3, 0.2, 0.7],
-                   4 :             [0.2, 0.4, 0.3, 0.5],
-                   'actualValues': [1.5, 3,5, 5,5, 7.6],
-                 }
-  """
-
+```rst
+:mod:`~full.namespace`
+:class:`~full.namespace.ClassName`
+:meth:`~full.namespace.ClassName.methodName`
 ```
 
 See the codebase that has been documented (denoted below) for examples of completely documented code.
@@ -78,43 +67,15 @@ nupic
 │   ├── anomaly_likelihood.py [OK]
 │   ├── sdr_classifier.py [OK]
 │   ├── sdr_classifier_factory.py [OK]
-│   ├── backtracking_tm.py [TODO]
-│   ├── backtracking_tm_cpp.py [TODO]
-│   ├── backtracking_tm_shim.py [TODO]
-│   ├── connections.py [TODO]
-│   ├── fdrutilities.py [TODO]
-│   ├── monitor_mixin
-│   │   ├── metric.py [TODO]
-│   │   ├── monitor_mixin_base.py [TODO]
-│   │   ├── plot.py [TODO]
-│   │   ├── temporal_memory_monitor_mixin.py [TODO]
-│   │   └── trace.py [TODO]
+│   ├── backtracking_tm.py [OK]
+│   ├── backtracking_tm_cpp.py [OK]
+│   ├── connections.py [OK]
+│   ├── fdrutilities.py [DEFER]
+│   ├── monitor_mixin [DEFER]
 │   ├── spatial_pooler.py [OK]
-│   ├── temporal_memory.py [TODO]
-│   └── temporal_memory_shim.py [TODO]
-├── data
-│   ├── fieldmeta.py [OK]
-│   ├── file_record_stream.py [OK]
-│   ├── inference_shifter.py [OK]
-│   ├── record_stream.py [OK]
-│   ├── stream_reader.py [OK]
-│   └── utils.py [OK]
-├── encoders
-│   ├── adaptive_scalar.py [OK]
-│   ├── base.py [OK]
-│   ├── category.py [OK]
-│   ├── coordinate.py [OK]
-│   ├── date.py [OK]
-│   ├── delta.py [OK]
-│   ├── geospatial_coordinate.py [OK]
-│   ├── logarithm.py [OK]
-│   ├── multi.py [OK]
-│   ├── pass_through.py [OK]
-│   ├── random_distributed_scalar.py [OK]
-│   ├── scalar.py [OK]
-│   ├── scalarspace.py [OK]
-│   ├── sdr_category.py [OK]
-│   └── sparse_pass_through.py [OK]
+│   └── temporal_memory.py [OK]
+├── data [OK]
+├── encoders [OK]
 ├── frameworks
 │   ├── opf
 │   │   ├── htm_prediction_model.py [OK]
@@ -125,7 +86,7 @@ nupic
 │   │   ├── exp_description_api.py [OK]
 │   │   │   └── ExperimentDescriptionAPI [TODO]
 │   │   ├── experiment_runner.py [OK]
-│   │   ├── metrics.py [TODO]
+│   │   ├── metrics.py [OK]
 │   │   ├── model.py [OK]
 │   │   ├── model_factory.py [OK]
 │   │   ├── opf_basic_environment.py [OK]
@@ -146,15 +107,7 @@ nupic
 │       ├── graphviz_renderer.py [TODO]
 │       ├── network_visualization.py [TODO]
 │       └── networkx_renderer.py [TODO]
-├── math
-│   ├── cross.py [TODO]
-│   ├── dist.py [TODO]
-│   ├── logarithms.py [TODO]
-│   ├── mvn.py [TODO]
-│   ├── proposal.py [TODO]
-│   ├── roc_utils.py [TODO]
-│   ├── stats.py [TODO]
-│   └── topology.py [TODO]
+├── math [OK]
 ├── regions
 │   ├── anomaly_likelihood_region.py [OK]
 │   ├── anomaly_region.py [OK]
@@ -174,43 +127,8 @@ nupic
 │   ├── test_region.py [TODO]
 │   └─── unimportable_node.py [TODO]
 ├── serializable.py [TODO]
-├── simple_server.py [TODO]
-├── support
-│   ├── __init__ [OK]
-│   ├── configuration.py [OK]
-│   ├── configuration_base.py [OK]
-│   ├── configuration_custom.py [OK]
-│   ├── console_printer.py [OK]
-│   ├── exceptions.py [OK]
-│   ├── fs_helpers.py [OK]
-│   ├── group_by.py [OK]
-│   ├── lock_attributes.py [OK]
-│   └── pymysql_helpers.py [TODO]
-├── swarming
-│   ├── DummyModelRunner.py [TODO]
-│   ├── HypersearchV2.py [TODO]
-│   ├── HypersearchWorker.py [TODO]
-│   ├── ModelRunner.py [TODO]
-│   ├── api.py [TODO]
-│   ├── exp_generator
-│   │   └── ExpGenerator.py [TODO]
-│   ├── experimentutils.py [TODO]
-│   ├── hypersearch
-│   │   ├── ExtendedLogger.py [TODO]
-│   │   ├── HsState.py [TODO]
-│   │   ├── ModelTerminator.py [TODO]
-│   │   ├── Particle.py [TODO]
-│   │   ├── SwarmTerminator.py [TODO]
-│   │   ├── errorcodes.py [TODO]
-│   │   ├── object_json.py [TODO]
-│   │   ├── permutation_helpers.py [TODO]
-│   │   ├── regression.py [TODO]
-│   │   └── support.py [TODO]
-│   ├── jsonschema
-│   ├── modelchooser.py [TODO]
-│   ├── permutationhelpers.py [TODO]
-│   ├── permutations_runner.py [TODO]
-│   └── utils.py [TODO]
+├── support [OK]
+├── swarming [DEFER]
 └── utils.py [TODO]
 
 ```
