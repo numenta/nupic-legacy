@@ -98,7 +98,7 @@ nupic
 │   │   │   ├── ModelResults [OK]
 │   │   │   └── SensorInput [OK]
 │   │   ├── periodic.py [DEFER]
-│   │   ├── prediction_metrics_manager.py [TODO]
+│   │   ├── prediction_metrics_manager.py [OK]
 │   │   ├── previous_value_model.py [OK]
 │   │   └── two_gram_model.py [OK]
 │   └── viz
