@@ -15,5 +15,5 @@ SDR Classifier
 KNN Classifier
 ++++++++++++++
 
-.. autoclass:: nupic.algorithms.KNNClassifier.KNNClassifier
+.. autoclass:: nupic.algorithms.knn_classifier.KNNClassifier
    :members:
