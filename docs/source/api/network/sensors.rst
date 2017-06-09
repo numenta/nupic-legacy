@@ -11,6 +11,6 @@ PluggableEncoderSensor
 RecordSensor
 ^^^^^^^^^^^^
 
-.. autoclass:: nupic.regions.RecordSensor.RecordSensor
+.. autoclass:: nupic.regions.record_sensor.RecordSensor
    :members:
    :show-inheritance:

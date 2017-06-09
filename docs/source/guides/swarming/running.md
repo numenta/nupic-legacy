@@ -288,7 +288,7 @@ NuPIC includes a Dockerfile for use with [Docker](http://docker.io/), as well as
 
 [TL;DR] Watch the [video](https://youtu.be/BtkGn22KSrQ).
 
-[![Swarming in NuPIC video thumbnail](http://img.youtube.com/vi/BtkGn22KSrQ/hqdefault.jpg)](https://youtu.be/BtkGn22KSrQ)
+[![Swarming in NuPIC video thumbnail](../../_static/swarming-in-docker-video.jpg)](https://youtu.be/BtkGn22KSrQ)
 
 #### Before you begin
 

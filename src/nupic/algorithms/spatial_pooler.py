@@ -116,7 +116,7 @@ class SpatialPooler(object):
       Format is (height, width, depth, ...), where each value represents the
       size of the dimension.  For a topology of one dimension with 2000 columns
       use 2000, or (2000,). For a three dimensional topology of 32x64x16 use
-      (32, 64, 16). Default ```(64, 64)`.
+      (32, 64, 16). Default ``(64, 64)``.
   
   :param potentialRadius: (int)
       This parameter determines the extent of the input that each column can

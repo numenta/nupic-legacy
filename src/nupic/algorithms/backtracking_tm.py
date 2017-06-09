@@ -639,7 +639,7 @@ class BacktrackingTM(ConsolePrinterMixin):
           - ``curExtra``: the number of bits in the predicted output that are 
                 not in the next input
           - ``predictionScoreTotal``: the sum of every prediction score to date
-          - ``predictionScoreAvg``: ``predictionScoreTotal / nPredictions ``
+          - ``predictionScoreAvg``: ``predictionScoreTotal / nPredictions``
           - ``pctMissingTotal``: the total number of bits that were missed over 
                 all predictions
           - ``pctMissingAvg``: ``pctMissingTotal / nPredictions``
@@ -2503,10 +2503,10 @@ class BacktrackingTM(ConsolePrinterMixin):
     minPermanence and deletes any segments that have less than
     minNumSyns synapses remaining.
 
-    :param minPermanence Any syn whose permanence is 0 or < ``minPermanence`` 
-           will be deleted. If None is passed in, then ``self.connectedPerm`` is 
-           used.
-    :param minNumSyns Any segment with less than ``minNumSyns`` synapses 
+    :param minPermanence: (float) Any syn whose permanence is 0 or < 
+           ``minPermanence``  will be deleted. If None is passed in, then 
+           ``self.connectedPerm`` is used.
+    :param minNumSyns: (int) Any segment with less than ``minNumSyns`` synapses 
            remaining in it will be deleted. If None is passed in, then 
            ``self.activationThreshold`` is used.
     :returns: (tuple) ``numSegsRemoved``, ``numSynsRemoved``

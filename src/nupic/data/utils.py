@@ -73,7 +73,8 @@ def serializeTimestamp(t):
   Turns a datetime object into a string.
 
   :param t: (datetime.datetime)
-  :return: (string) in default format (see :const:`DATETIME_FORMATS`[0])
+  :return: (string) in default format (see 
+           :const:`~nupic.data.utils.DATETIME_FORMATS` [0])
   """
   return t.strftime(DATETIME_FORMATS[0])
 
@@ -84,7 +85,8 @@ def serializeTimestampNoMS(t):
   Turns a datetime object into a string ignoring milliseconds.
 
   :param t: (datetime.datetime)
-  :return: (string) in default format (see :const:`DATETIME_FORMATS`[2])
+  :return: (string) in default format (see 
+           :const:`~nupic.data.utils.DATETIME_FORMATS` [2])
   """
   return t.strftime(DATETIME_FORMATS[2])
 

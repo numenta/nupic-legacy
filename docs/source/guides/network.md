@@ -3,7 +3,7 @@
 * [Network API Documentation](../api/network/)
 * [Network API Quick Start](../quick-start/network.html)
 
-[![Thumbnail of Network API video](http://img.youtube.com/vi/g9yS9zFt3dM/hqdefault.jpg)](https://www.youtube.com/watch?v=g9yS9zFt3dM)
+[![Thumbnail of Network API video](../_static/network-api-video.jpg)](https://www.youtube.com/watch?v=g9yS9zFt3dM)
 
 ## Introduction
 

@@ -55,8 +55,8 @@ class ModelRecordEncoder(object):
     """
     :param fields: non-empty sequence of nupic.data.fieldmeta.FieldMetaInfo
       objects corresponding to fields in input rows.
-    :param dict aggregationPeriod: aggregation period of the record stream as a
-      dict containing 'months' and 'seconds'. The months is always an integer
+    :param aggregationPeriod: (dict) aggregation period of the record stream 
+      containing 'months' and 'seconds'. The months is always an integer
       and seconds is a floating point. Only one is allowed to be non-zero at a
       time. If there is no aggregation associated with the stream, pass None.
       Typically, a raw file or hbase stream will NOT have any aggregation info,
@@ -444,7 +444,8 @@ class RecordStreamIface(object):
     """
     :returns: (list) of :class:`nupic.data.fieldmeta.FieldMetaInfo` objects for
         each field in the stream. Might be None, if that information is provided
-        externally (through stream def, for example).
+        externally (through the `Stream Definition <stream-def.html>`_, 
+        for example).
     """
 
 

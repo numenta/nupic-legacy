@@ -89,7 +89,7 @@ class DescriptionIface(object):
   def getModelDescription(self):
     """
     :returns: the model creation parameters based on the settings in the config
-    dictionary.
+              dictionary.
     """
 
 

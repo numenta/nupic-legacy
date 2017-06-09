@@ -78,11 +78,11 @@ class FieldMetaInfo(FieldMetaInfoBase):
   @staticmethod
   def createFromFileFieldElement(fieldInfoTuple):
     """
-    Creates a :class:`.fieldmeta.FieldMetaInfo` instance from a tuple containing
+    Creates a :class:`.field_meta.FieldMetaInfo` instance from a tuple containing
     ``name``, ``type``, and ``special``.
 
     :param fieldInfoTuple: Must contain ``name``, ``type``, and ``special``
-    :return: :class:`~.fieldmeta.FieldMetaInfo` instance
+    :return: (:class:`~.field_meta.FieldMetaInfo`) instance
     """
     return FieldMetaInfo._make(fieldInfoTuple)
 
@@ -91,7 +91,7 @@ class FieldMetaInfo(FieldMetaInfoBase):
   def createListFromFileFieldList(cls, fields):
     """
     Creates a FieldMetaInfo list from the a list of tuples. Basically runs
-    :meth:`~.fieldmeta.FieldMetaInfo.createFromFileFieldElement` on each tuple.
+    :meth:`~.field_meta.FieldMetaInfo.createFromFileFieldElement` on each tuple.
 
     *Example:*
 
@@ -109,7 +109,7 @@ class FieldMetaInfo(FieldMetaInfoBase):
     :param fields: a sequence of field attribute tuples conforming to the format
                    of ``name``, ``type``, and ``special``
 
-    :return: A list of :class:`~.fieldmeta.FieldMetaInfo` elements corresponding
+    :return: A list of :class:`~.field_meta.FieldMetaInfo` elements corresponding
              to the given 'fields' list.
     """
     return [cls.createFromFileFieldElement(f) for f in fields]
