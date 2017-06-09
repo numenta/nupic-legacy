@@ -791,9 +791,9 @@ class KNNClassifier(object):
     """Return the closest training pattern that is *not* of the given
     category "cat".
 
-    :param inputPattern The pattern whose closest neighbor is sought
+    :param inputPattern: The pattern whose closest neighbor is sought
 
-    :param cat Training patterns of this category will be ignored no matter
+    :param cat: Training patterns of this category will be ignored no matter
         their distance to inputPattern
 
     :returns: A dense version of the closest training pattern, or None if no
@@ -1023,6 +1023,7 @@ class KNNClassifier(object):
     of `a`'s singular values.
 
     **Reason for computing the SVD:**
+    
     There are cases where you want to feed a lot of vectors to the
     KNNClassifier. However, this can be slow. You can speed up training by (1)
     computing the SVD of the input patterns which will give you the
