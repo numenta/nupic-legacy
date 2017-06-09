@@ -7,7 +7,7 @@ Prediction Metrics Manager
 .. automodule:: nupic.frameworks.opf.prediction_metrics_manager
 
 .. autoclass:: nupic.frameworks.opf.prediction_metrics_manager.MetricsManager
-
+   :members:
 
 Interface
 ---------
