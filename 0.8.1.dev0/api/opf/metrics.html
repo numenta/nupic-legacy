@@ -1,0 +1,783 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Metrics &#8212; NuPIC 0.8.1.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8.1.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Model Results" href="results.html" />
+    <link rel="prev" title="Environments" href="environment.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="metrics">
+<h1>Metrics<a class="headerlink" href="#metrics" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-nupic.frameworks.opf.prediction_metrics_manager">
+<span id="prediction-metrics-manager"></span><h2>Prediction Metrics Manager<a class="headerlink" href="#module-nupic.frameworks.opf.prediction_metrics_manager" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.frameworks.opf.prediction_metrics_manager.MetricsManager">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.prediction_metrics_manager.</code><code class="descname">MetricsManager</code><span class="sig-paren">(</span><em>metricSpecs</em>, <em>fieldInfo</em>, <em>inferenceType</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.prediction_metrics_manager.MetricsManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a class to handle the computation of metrics properly. This class
+takes in an inferenceType, and it assumes that it is associcated with a single
+model</p>
+<dl class="method">
+<dt id="nupic.frameworks.opf.prediction_metrics_manager.MetricsManager.getMetricDetails">
+<code class="descname">getMetricDetails</code><span class="sig-paren">(</span><em>metricLabel</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.prediction_metrics_manager.MetricsManager.getMetricDetails" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets detailed info about a given metric, in addition to its value. This
+may including any statistics or auxilary data that are computed for a given
+metric</p>
+<p>metricLabel:   The string label of the given metric (see metrics.MetricSpec)</p>
+<dl class="docutils">
+<dt>Returns:  A dictionary of metric information, as returned by</dt>
+<dd>opf.metric.Metric.getMetric()</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.prediction_metrics_manager.MetricsManager.getMetricLabels">
+<code class="descname">getMetricLabels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.prediction_metrics_manager.MetricsManager.getMetricLabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of labels for the metrics that are being calculated</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.prediction_metrics_manager.MetricsManager.getMetrics">
+<code class="descname">getMetrics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.prediction_metrics_manager.MetricsManager.getMetrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the current metric values</p>
+<dl class="docutils">
+<dt>Returns: A dictionary where each key is the metric-name, and the values are</dt>
+<dd>it scalar value. Same as the output of update()</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.prediction_metrics_manager.MetricsManager.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>results</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.prediction_metrics_manager.MetricsManager.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the new metrics values, given the next inference/ground-truth values</p>
+<dl class="docutils">
+<dt>results:  An opf_utils.ModelResult object that was computed during the last</dt>
+<dd>iteration of the model</dd>
+<dt>Returns:  A dictionary where each key is the metric-name, and the values are</dt>
+<dd>it scalar value.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.frameworks.opf.metrics">
+<span id="interface"></span><h2>Interface<a class="headerlink" href="#module-nupic.frameworks.opf.metrics" title="Permalink to this headline">¶</a></h2>
+<p>Metrics take the predicted and actual values and compute some metric (lower is 
+better) which is used in the OPF for swarming (and just generally as part of the 
+output.</p>
+<p>One non-obvious thing is that they are computed over a fixed window size, 
+typically something like 1000 records. So each output record will have a metric 
+score computed over the 1000 records prior.</p>
+<div class="section" id="example-usage-hot-gym-example">
+<h3>Example usage (hot gym example):<a class="headerlink" href="#example-usage-hot-gym-example" title="Permalink to this headline">¶</a></h3>
+<p>Where:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">aae</span></code>: average absolute error</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">altMAPE</span></code>: mean absolute percentage error but modified so you never have </dt>
+<dd>divide by zero</dd>
+</dl>
+</li>
+</ul>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nupic.frameworks.opf.metrics</span> <span class="kn">import</span> <span class="n">MetricSpec</span>
+<span class="kn">from</span> <span class="nn">nupic.frameworks.opf.prediction_metrics_manager</span> <span class="kn">import</span> <span class="n">MetricsManager</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">createOpfModel</span><span class="p">()</span> <span class="c1"># assuming this is done elsewhere</span>
+
+<span class="n">metricSpecs</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">MetricSpec</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">&#39;kw_energy_consumption&#39;</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;multiStep&#39;</span><span class="p">,</span>
+               <span class="n">inferenceElement</span><span class="o">=</span><span class="s1">&#39;multiStepBestPredictions&#39;</span><span class="p">,</span>
+               <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;errorMetric&#39;</span><span class="p">:</span> <span class="s1">&#39;aae&#39;</span><span class="p">,</span> <span class="s1">&#39;window&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="s1">&#39;steps&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span>
+    <span class="n">MetricSpec</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">&#39;kw_energy_consumption&#39;</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;trivial&#39;</span><span class="p">,</span>
+               <span class="n">inferenceElement</span><span class="o">=</span><span class="s1">&#39;prediction&#39;</span><span class="p">,</span>
+               <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;errorMetric&#39;</span><span class="p">:</span> <span class="s1">&#39;aae&#39;</span><span class="p">,</span> <span class="s1">&#39;window&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="s1">&#39;steps&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span>
+    <span class="n">MetricSpec</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">&#39;kw_energy_consumption&#39;</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;multiStep&#39;</span><span class="p">,</span>
+               <span class="n">inferenceElement</span><span class="o">=</span><span class="s1">&#39;multiStepBestPredictions&#39;</span><span class="p">,</span>
+               <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;errorMetric&#39;</span><span class="p">:</span> <span class="s1">&#39;altMAPE&#39;</span><span class="p">,</span> <span class="s1">&#39;window&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="s1">&#39;steps&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span>
+    <span class="n">MetricSpec</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">&#39;kw_energy_consumption&#39;</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;trivial&#39;</span><span class="p">,</span>
+               <span class="n">inferenceElement</span><span class="o">=</span><span class="s1">&#39;prediction&#39;</span><span class="p">,</span>
+               <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;errorMetric&#39;</span><span class="p">:</span> <span class="s1">&#39;altMAPE&#39;</span><span class="p">,</span> <span class="s1">&#39;window&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="s1">&#39;steps&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span>
+<span class="p">)</span>
+
+<span class="n">metricsManager</span> <span class="o">=</span> <span class="n">MetricsManager</span><span class="p">(</span><span class="n">metricSpecs</span><span class="p">,</span> 
+                                <span class="n">model</span><span class="o">.</span><span class="n">getFieldInfo</span><span class="p">(),</span>
+                                <span class="n">model</span><span class="o">.</span><span class="n">getInferenceType</span><span class="p">()</span>
+                                <span class="p">)</span>
+<span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">inputData</span><span class="p">:</span> <span class="c1"># this is just pseudocode</span>
+  <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+  <span class="n">metrics</span> <span class="o">=</span> <span class="n">metricsManager</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+  <span class="c1"># You can collect metrics here, or attach to your result object.</span>
+  <span class="n">result</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="#nupic.frameworks.opf.metrics.getModule" title="nupic.frameworks.opf.metrics.getModule"><code class="xref py py-meth docutils literal"><span class="pre">getModule()</span></code></a> for a mapping of available metric identifiers to their
+implementation classes.</p>
+</div>
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricsIface">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricsIface</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricsIface" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Metrics module compares a prediction Y to corresponding ground truth X and 
+returns a single measure representing the &#8220;goodness&#8221; of the prediction. It is 
+up to the implementation to determine how this comparison is made.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>metricSpec</strong> &#8211; (<a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricSpec" title="nupic.frameworks.opf.metrics.MetricSpec"><code class="xref py py-class docutils literal"><span class="pre">MetricSpec</span></code></a>) spec used to created the metric</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.frameworks.opf.metrics.MetricsIface.addInstance">
+<code class="descname">addInstance</code><span class="sig-paren">(</span><em>groundTruth</em>, <em>prediction</em>, <em>record=None</em>, <em>result=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricsIface.addInstance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add one instance consisting of ground truth and a prediction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>groundTruth</strong> &#8211; The actual measured value at the current timestep</li>
+<li><strong>prediction</strong> &#8211; The value predicted by the network at the current timestep</li>
+<li><strong>record</strong> &#8211; the raw input record as fed to 
+<a class="reference internal" href="models.html#nupic.frameworks.opf.model.Model.run" title="nupic.frameworks.opf.model.Model.run"><code class="xref py py-meth docutils literal"><span class="pre">run()</span></code></a> by the user. The 
+typical usage is to feed a record to that method and get a 
+<a class="reference internal" href="results.html#nupic.frameworks.opf.opf_utils.ModelResult" title="nupic.frameworks.opf.opf_utils.ModelResult"><code class="xref py py-class docutils literal"><span class="pre">ModelResult</span></code></a>. Then you pass 
+<a class="reference internal" href="results.html#nupic.frameworks.opf.opf_utils.ModelResult" title="nupic.frameworks.opf.opf_utils.ModelResult"><code class="xref py py-class docutils literal"><span class="pre">ModelResult</span></code></a>.rawInput into 
+this function as the record parameter.</li>
+<li><strong>result</strong> &#8211; (<a class="reference internal" href="results.html#nupic.frameworks.opf.opf_utils.ModelResult" title="nupic.frameworks.opf.opf_utils.ModelResult"><code class="xref py py-class docutils literal"><span class="pre">ModelResult</span></code></a>) the
+result of running a row of data through an OPF model</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The average error as computed over the metric&#8217;s window size</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.metrics.MetricsIface.getMetric">
+<code class="descname">getMetric</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricsIface.getMetric" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal"><span class="pre">stats</span></code> is expected to contain further information relevant to the given 
+metric, for example the number of timesteps represented in the current 
+measurement. All stats are implementation defined, and <code class="docutils literal"><span class="pre">stats</span></code> can be 
+<code class="docutils literal"><span class="pre">None</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(dict) representing data from the metric<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">value</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">current</span> <span class="n">measurement</span><span class="o">&gt;</span><span class="p">,</span> <span class="s2">&quot;stats&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="o">&lt;</span><span class="n">stat</span><span class="o">&gt;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span> <span class="o">...</span><span class="p">}}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricSpec">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricSpec</code><span class="sig-paren">(</span><em>metric</em>, <em>inferenceElement</em>, <em>field=None</em>, <em>params=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class represents a single Metrics specification in the TaskControl block.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>metric</strong> &#8211; (string) A metric type name that identifies which metrics 
+module is to be constructed by 
+<a class="reference internal" href="#nupic.frameworks.opf.metrics.getModule" title="nupic.frameworks.opf.metrics.getModule"><code class="xref py py-meth docutils literal"><span class="pre">nupic.frameworks.opf.metrics.getModule()</span></code></a>; e.g., <code class="docutils literal"><span class="pre">rmse</span></code></li>
+<li><strong>inferenceElement</strong> &#8211; (<a class="reference internal" href="utils.html#nupic.frameworks.opf.opf_utils.InferenceElement" title="nupic.frameworks.opf.opf_utils.InferenceElement"><code class="xref py py-class docutils literal"><span class="pre">InferenceElement</span></code></a>) Some 
+inference types (such as classification), can output more than one type 
+of inference (i.e. the predicted class AND the predicted next step). 
+This field specifies which of these inferences to compute the metrics 
+on.</li>
+<li><strong>field</strong> &#8211; (string) Field name on which this metric is to be collected</li>
+<li><strong>params</strong> &#8211; (dict) Custom parameters for the metrics module&#8217;s constructor</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="nupic.frameworks.opf.metrics.MetricSpec.getInferenceTypeFromLabel">
+<em class="property">classmethod </em><code class="descname">getInferenceTypeFromLabel</code><span class="sig-paren">(</span><em>label</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricSpec.getInferenceTypeFromLabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the PredictionKind (temporal vs. nontemporal) from the given
+metric label.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>label</strong> &#8211; (string) for a metric spec generated by 
+<code class="xref py py-meth docutils literal"><span class="pre">getMetricLabel()</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(<a class="reference internal" href="utils.html#nupic.frameworks.opf.opf_utils.InferenceType" title="nupic.frameworks.opf.opf_utils.InferenceType"><code class="xref py py-class docutils literal"><span class="pre">InferenceType</span></code></a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.metrics.MetricSpec.getLabel">
+<code class="descname">getLabel</code><span class="sig-paren">(</span><em>inferenceType=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricSpec.getLabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method that generates a unique label for a <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricSpec" title="nupic.frameworks.opf.metrics.MetricSpec"><code class="xref py py-class docutils literal"><span class="pre">MetricSpec</span></code></a> / 
+<a class="reference internal" href="utils.html#nupic.frameworks.opf.opf_utils.InferenceType" title="nupic.frameworks.opf.opf_utils.InferenceType"><code class="xref py py-class docutils literal"><span class="pre">InferenceType</span></code></a> pair. The label is 
+formatted as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">predictionKind</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">metric</span> <span class="nb">type</span><span class="o">&gt;</span><span class="p">:(</span><span class="n">paramName</span><span class="o">=</span><span class="n">value</span><span class="p">)</span><span class="o">*</span><span class="p">:</span><span class="n">field</span><span class="o">=&lt;</span><span class="n">fieldname</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">classification</span><span class="p">:</span><span class="n">aae</span><span class="p">:</span><span class="n">paramA</span><span class="o">=</span><span class="mf">10.2</span><span class="p">:</span><span class="n">paramB</span><span class="o">=</span><span class="mi">20</span><span class="p">:</span><span class="n">window</span><span class="o">=</span><span class="mi">100</span><span class="p">:</span><span class="n">field</span><span class="o">=</span><span class="n">pounds</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(string) label for inference type</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.CustomErrorMetric">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">CustomErrorMetric</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.CustomErrorMetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricsIface" title="nupic.frameworks.opf.metrics.MetricsIface"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.MetricsIface</span></code></a></p>
+<p>Custom Error Metric class that handles user defined error metrics.</p>
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.CustomErrorMetric.CircularBuffer">
+<em class="property">class </em><code class="descname">CircularBuffer</code><span class="sig-paren">(</span><em>length</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.CustomErrorMetric.CircularBuffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>implementation of a fixed size constant random access circular buffer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.metrics.CustomErrorMetric.expValue">
+<code class="descclassname">CustomErrorMetric.</code><code class="descname">expValue</code><span class="sig-paren">(</span><em>pred</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.CustomErrorMetric.expValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to return a scalar value representing the expected
+value of a probability distribution</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.metrics.CustomErrorMetric.mostLikely">
+<code class="descclassname">CustomErrorMetric.</code><code class="descname">mostLikely</code><span class="sig-paren">(</span><em>pred</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.CustomErrorMetric.mostLikely" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to return a scalar value representing the most
+likely outcome given a probability distribution</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricSpec</code><span class="sig-paren">(</span><em>metric</em>, <em>inferenceElement</em>, <em>field=None</em>, <em>params=None</em><span class="sig-paren">)</span></dt>
+<dd><p>This class represents a single Metrics specification in the TaskControl block.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>metric</strong> &#8211; (string) A metric type name that identifies which metrics 
+module is to be constructed by 
+<a class="reference internal" href="#nupic.frameworks.opf.metrics.getModule" title="nupic.frameworks.opf.metrics.getModule"><code class="xref py py-meth docutils literal"><span class="pre">nupic.frameworks.opf.metrics.getModule()</span></code></a>; e.g., <code class="docutils literal"><span class="pre">rmse</span></code></li>
+<li><strong>inferenceElement</strong> &#8211; (<a class="reference internal" href="utils.html#nupic.frameworks.opf.opf_utils.InferenceElement" title="nupic.frameworks.opf.opf_utils.InferenceElement"><code class="xref py py-class docutils literal"><span class="pre">InferenceElement</span></code></a>) Some 
+inference types (such as classification), can output more than one type 
+of inference (i.e. the predicted class AND the predicted next step). 
+This field specifies which of these inferences to compute the metrics 
+on.</li>
+<li><strong>field</strong> &#8211; (string) Field name on which this metric is to be collected</li>
+<li><strong>params</strong> &#8211; (dict) Custom parameters for the metrics module&#8217;s constructor</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt>
+<em class="property">classmethod </em><code class="descname">getInferenceTypeFromLabel</code><span class="sig-paren">(</span><em>label</em><span class="sig-paren">)</span></dt>
+<dd><p>Extracts the PredictionKind (temporal vs. nontemporal) from the given
+metric label.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>label</strong> &#8211; (string) for a metric spec generated by 
+<code class="xref py py-meth docutils literal"><span class="pre">getMetricLabel()</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(<a class="reference internal" href="utils.html#nupic.frameworks.opf.opf_utils.InferenceType" title="nupic.frameworks.opf.opf_utils.InferenceType"><code class="xref py py-class docutils literal"><span class="pre">InferenceType</span></code></a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">getLabel</code><span class="sig-paren">(</span><em>inferenceType=None</em><span class="sig-paren">)</span></dt>
+<dd><p>Helper method that generates a unique label for a <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricSpec" title="nupic.frameworks.opf.metrics.MetricSpec"><code class="xref py py-class docutils literal"><span class="pre">MetricSpec</span></code></a> / 
+<a class="reference internal" href="utils.html#nupic.frameworks.opf.opf_utils.InferenceType" title="nupic.frameworks.opf.opf_utils.InferenceType"><code class="xref py py-class docutils literal"><span class="pre">InferenceType</span></code></a> pair. The label is 
+formatted as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">predictionKind</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">metric</span> <span class="nb">type</span><span class="o">&gt;</span><span class="p">:(</span><span class="n">paramName</span><span class="o">=</span><span class="n">value</span><span class="p">)</span><span class="o">*</span><span class="p">:</span><span class="n">field</span><span class="o">=&lt;</span><span class="n">fieldname</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">classification</span><span class="p">:</span><span class="n">aae</span><span class="p">:</span><span class="n">paramA</span><span class="o">=</span><span class="mf">10.2</span><span class="p">:</span><span class="n">paramB</span><span class="o">=</span><span class="mi">20</span><span class="p">:</span><span class="n">window</span><span class="o">=</span><span class="mi">100</span><span class="p">:</span><span class="n">field</span><span class="o">=</span><span class="n">pounds</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(string) label for inference type</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.AggregateMetric">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">AggregateMetric</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricsIface" title="nupic.frameworks.opf.metrics.MetricsIface"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.MetricsIface</span></code></a></p>
+<p>Partial implementation of Metrics Interface for metrics that accumulate an 
+error and compute an aggregate score, potentially over some window of previous 
+data. This is a convenience class that can serve as the base class for a wide 
+variety of metrics.</p>
+<dl class="method">
+<dt id="nupic.frameworks.opf.metrics.AggregateMetric.accumulate">
+<code class="descname">accumulate</code><span class="sig-paren">(</span><em>groundTruth</em>, <em>prediction</em>, <em>accumulatedError</em>, <em>historyBuffer</em>, <em>result</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.AggregateMetric.accumulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the accumulated error given the prediction and the
+ground truth.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>groundTruth</strong> &#8211; Actual value that is observed for the current timestep</li>
+<li><strong>prediction</strong> &#8211; Value predicted by the network for the given timestep</li>
+<li><strong>accumulatedError</strong> &#8211; The total accumulated score from the previous
+predictions (possibly over some finite window)</li>
+<li><strong>historyBuffer</strong> &#8211; <p>A buffer of the last &lt;self.window&gt; ground truth values
+that have been observed.</p>
+<p>If historyBuffer = None,  it means that no history is being kept.</p>
+</li>
+<li><strong>result</strong> &#8211; An ModelResult class (see opf_utils.py), used for advanced
+metric calculation (e.g., MetricNegativeLogLikelihood)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>The new accumulated error. That is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">accumulatedError</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span>
+  <span class="n">groundTruth</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">accumulatedError</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">historyBuffer</span></code> should also be updated in this method.
+<code class="docutils literal"><span class="pre">self.spec.params[&quot;window&quot;]</span></code> indicates the maximum size of the window.</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.frameworks.opf.metrics.AggregateMetric.aggregate">
+<code class="descname">aggregate</code><span class="sig-paren">(</span><em>accumulatedError</em>, <em>historyBuffer</em>, <em>steps</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.AggregateMetric.aggregate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the final aggregated score error given the prediction and the ground 
+truth.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>accumulatedError</strong> &#8211; The total accumulated score from the previous
+predictions (possibly over some finite window)</li>
+<li><strong>historyBuffer</strong> &#8211; A buffer of the last &lt;self.window&gt; ground truth values
+that have been observed. If <code class="docutils literal"><span class="pre">historyBuffer</span></code> = None,  it means that 
+no history is being kept.</li>
+<li><strong>steps</strong> &#8211; (int) The total number of (groundTruth, prediction) pairs that 
+have been passed to the metric. This does not include pairs where 
+<code class="docutils literal"><span class="pre">groundTruth</span> <span class="pre">=</span> <span class="pre">SENTINEL_VALUE_FOR_MISSING_DATA</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The new aggregate (final) error measure.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="helpers">
+<h2>Helpers<a class="headerlink" href="#helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="method">
+<dt id="nupic.frameworks.opf.metrics.getModule">
+<code class="descclassname">metrics.</code><code class="descname">getModule</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.getModule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory method to return an appropriate <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricsIface" title="nupic.frameworks.opf.metrics.MetricsIface"><code class="xref py py-class docutils literal"><span class="pre">MetricsIface</span></code></a> module.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">rmse</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricRMSE" title="nupic.frameworks.opf.metrics.MetricRMSE"><code class="xref py py-class docutils literal"><span class="pre">MetricRMSE</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">nrmse</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricNRMSE" title="nupic.frameworks.opf.metrics.MetricNRMSE"><code class="xref py py-class docutils literal"><span class="pre">MetricNRMSE</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">aae</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricAAE" title="nupic.frameworks.opf.metrics.MetricAAE"><code class="xref py py-class docutils literal"><span class="pre">MetricAAE</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">acc</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricAccuracy" title="nupic.frameworks.opf.metrics.MetricAccuracy"><code class="xref py py-class docutils literal"><span class="pre">MetricAccuracy</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">avg_err</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricAveError" title="nupic.frameworks.opf.metrics.MetricAveError"><code class="xref py py-class docutils literal"><span class="pre">MetricAveError</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">trivial</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricTrivial" title="nupic.frameworks.opf.metrics.MetricTrivial"><code class="xref py py-class docutils literal"><span class="pre">MetricTrivial</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">two_gram</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricTwoGram" title="nupic.frameworks.opf.metrics.MetricTwoGram"><code class="xref py py-class docutils literal"><span class="pre">MetricTwoGram</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">moving_mean</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricMovingMean" title="nupic.frameworks.opf.metrics.MetricMovingMean"><code class="xref py py-class docutils literal"><span class="pre">MetricMovingMean</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">moving_mode</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricMovingMode" title="nupic.frameworks.opf.metrics.MetricMovingMode"><code class="xref py py-class docutils literal"><span class="pre">MetricMovingMode</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">neg_auc</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricNegAUC" title="nupic.frameworks.opf.metrics.MetricNegAUC"><code class="xref py py-class docutils literal"><span class="pre">MetricNegAUC</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">custom_error_metric</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.CustomErrorMetric" title="nupic.frameworks.opf.metrics.CustomErrorMetric"><code class="xref py py-class docutils literal"><span class="pre">CustomErrorMetric</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">multiStep</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricMultiStep" title="nupic.frameworks.opf.metrics.MetricMultiStep"><code class="xref py py-class docutils literal"><span class="pre">MetricMultiStep</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">ms_aae</span></code>: <code class="xref py py-class docutils literal"><span class="pre">MetricMultiStepAAE</span></code></li>
+<li><code class="docutils literal"><span class="pre">ms_avg_err</span></code>: <code class="xref py py-class docutils literal"><span class="pre">MetricMultiStepAveError</span></code></li>
+<li><code class="docutils literal"><span class="pre">passThruPrediction</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricPassThruPrediction" title="nupic.frameworks.opf.metrics.MetricPassThruPrediction"><code class="xref py py-class docutils literal"><span class="pre">MetricPassThruPrediction</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">altMAPE</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricAltMAPE" title="nupic.frameworks.opf.metrics.MetricAltMAPE"><code class="xref py py-class docutils literal"><span class="pre">MetricAltMAPE</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">MAPE</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricMAPE" title="nupic.frameworks.opf.metrics.MetricMAPE"><code class="xref py py-class docutils literal"><span class="pre">MetricMAPE</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">multi</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricMulti" title="nupic.frameworks.opf.metrics.MetricMulti"><code class="xref py py-class docutils literal"><span class="pre">MetricMulti</span></code></a></li>
+<li><code class="docutils literal"><span class="pre">negativeLogLikelihood</span></code>: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricNegativeLogLikelihood" title="nupic.frameworks.opf.metrics.MetricNegativeLogLikelihood"><code class="xref py py-class docutils literal"><span class="pre">MetricNegativeLogLikelihood</span></code></a></li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>metricSpec</strong> &#8211; (<a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricSpec" title="nupic.frameworks.opf.metrics.MetricSpec"><code class="xref py py-class docutils literal"><span class="pre">MetricSpec</span></code></a>) metric to find module for. 
+<code class="docutils literal"><span class="pre">metricSpec.metric</span></code> must be in the list above.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(<a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">AggregateMetric</span></code></a>) an appropriate metric module</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="available-metrics">
+<h2>Available Metrics<a class="headerlink" href="#available-metrics" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricNegativeLogLikelihood">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricNegativeLogLikelihood</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricNegativeLogLikelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>Computes negative log-likelihood. Likelihood is the predicted probability of
+the true data from a model. It is more powerful than metrics that only 
+considers the single best prediction (e.g. MSE) as it considers the entire 
+probability distribution predicted by a model.</p>
+<p>It is more appropriate to use likelihood as the error metric when multiple
+predictions are possible.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricRMSE">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricRMSE</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricRMSE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>Computes root-mean-square error.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricNRMSE">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricNRMSE</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricNRMSE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricRMSE" title="nupic.frameworks.opf.metrics.MetricRMSE"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.MetricRMSE</span></code></a></p>
+<p>Computes normalized root-mean-square error.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricAAE">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricAAE</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricAAE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>Computes average absolute error.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricAltMAPE">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricAltMAPE</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricAltMAPE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>Computes the &#8220;Alternative&#8221; Mean Absolute Percent Error.</p>
+<p>A generic MAPE computes the percent error for each sample, and then gets
+an average. This can suffer from samples where the actual value is very small
+or zero - this one sample can drastically alter the mean.</p>
+<p>This metric on the other hand first computes the average of the actual values
+and the averages of the errors before dividing. This washes out the effects of
+a small number of samples with very small actual values.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricMAPE">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricMAPE</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricMAPE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>Computes the &#8220;Classic&#8221; Mean Absolute Percent Error.</p>
+<p>This computes the percent error for each sample, and then gets
+an average. Note that this can suffer from samples where the actual value is
+very small or zero - this one sample can drastically alter the mean. To
+avoid this potential issue, use &#8216;altMAPE&#8217; instead.</p>
+<p>This metric is provided mainly as a convenience when comparing results against
+other investigations that have also used MAPE.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricPassThruPrediction">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricPassThruPrediction</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricPassThruPrediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricsIface" title="nupic.frameworks.opf.metrics.MetricsIface"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.MetricsIface</span></code></a></p>
+<p>This is not a metric, but rather a facility for passing the predictions
+generated by a baseline metric through to the prediction output cache produced
+by a model.</p>
+<p>For example, if you wanted to see the predictions generated for the TwoGram
+metric, you would specify &#8216;PassThruPredictions&#8217; as the &#8216;errorMetric&#8217; 
+parameter.</p>
+<p>This metric class simply takes the prediction and outputs that as the
+aggregateMetric value.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricMovingMean">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricMovingMean</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricMovingMean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>Computes error metric based on moving mean prediction.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricMovingMode">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricMovingMode</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricMovingMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>Computes error metric based on moving mode prediction.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricTrivial">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricTrivial</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricTrivial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>Computes a metric against the ground truth N steps ago. The metric to
+compute is designated by the <code class="docutils literal"><span class="pre">errorMetric</span></code> entry in the metric params.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricTwoGram">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricTwoGram</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricTwoGram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>Computes error metric based on one-grams. The groundTruth passed into
+this metric is the encoded output of the field (an array of 1&#8217;s and 0&#8217;s).</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricAccuracy">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricAccuracy</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricAccuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>Computes simple accuracy for an enumerated type. all inputs are treated as
+discrete members of a set, therefore for example 0.5 is only a correct
+response if the ground truth is exactly 0.5. Inputs can be strings, integers,
+or reals.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricAveError">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricAveError</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricAveError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>Simply the inverse of the Accuracy metric.  More consistent with scalar 
+metrics because they all report an error to be minimized.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricNegAUC">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricNegAUC</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricNegAUC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>Computes -1 * AUC (Area Under the Curve) of the ROC (Receiver Operator
+Characteristics) curve. We compute -1 * AUC because metrics are optimized to 
+be LOWER when swarming.</p>
+<p>For this, we assuming that category 1 is the &#8220;positive&#8221; category and we are 
+generating an ROC curve with the TPR (True Positive Rate) of category 1 on the 
+y-axis and the FPR (False Positive Rate) on the x-axis.</p>
+<dl class="method">
+<dt id="nupic.frameworks.opf.metrics.MetricNegAUC.accumulate">
+<code class="descname">accumulate</code><span class="sig-paren">(</span><em>groundTruth</em>, <em>prediction</em>, <em>accumulatedError</em>, <em>historyBuffer</em>, <em>result=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricNegAUC.accumulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accumulate history of groundTruth and &#8220;prediction&#8221; values.</p>
+<p>For this metric, groundTruth is the actual category and &#8220;prediction&#8221; is a
+dict containing one top-level item with a key of 0 (meaning this is the
+0-step classificaton) and a value which is another dict, which contains the
+probability for each category as output from the classifier. For example,
+this is what &#8220;prediction&#8221; would be if the classifier said that category 0
+had a 0.6 probability and category 1 had a 0.4 probability: {0:0.6, 1: 0.4}</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricMultiStep">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricMultiStep</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricMultiStep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>This is an &#8220;uber&#8221; metric which is used to apply one of the other basic
+metrics to a specific step in a multi-step prediction.</p>
+<p>The specParams are expected to contain:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">errorMetric</span></code>: name of basic metric to apply</li>
+<li><code class="docutils literal"><span class="pre">steps</span></code>: compare prediction[&#8216;steps&#8217;] to the current ground truth.</li>
+</ul>
+<p>Note that the metrics manager has already performed the time shifting
+for us - it passes us the prediction element from &#8216;steps&#8217; steps ago
+and asks us to compare that to the current ground truth.</p>
+<p>When multiple steps of prediction are requested, we average the results of
+the underlying metric for each step.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricMultiStepProbability">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricMultiStepProbability</code><span class="sig-paren">(</span><em>metricSpec</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricMultiStepProbability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.AggregateMetric" title="nupic.frameworks.opf.metrics.AggregateMetric"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.AggregateMetric</span></code></a></p>
+<p>This is an &#8220;uber&#8221; metric which is used to apply one of the other basic
+metrics to a specific step in a multi-step prediction.</p>
+<p>The specParams are expected to contain:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">errorMetric</span></code>: name of basic metric to apply</li>
+<li><code class="docutils literal"><span class="pre">steps</span></code>: compare prediction[&#8216;steps&#8217;] to the current ground truth.</li>
+</ul>
+<p>Note that the metrics manager has already performed the time shifting
+for us - it passes us the prediction element from &#8216;steps&#8217; steps ago
+and asks us to compare that to the current ground truth.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.frameworks.opf.metrics.MetricMulti">
+<em class="property">class </em><code class="descclassname">nupic.frameworks.opf.metrics.</code><code class="descname">MetricMulti</code><span class="sig-paren">(</span><em>weights</em>, <em>metrics</em>, <em>window=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.frameworks.opf.metrics.MetricMulti" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.frameworks.opf.metrics.MetricsIface" title="nupic.frameworks.opf.metrics.MetricsIface"><code class="xref py py-class docutils literal"><span class="pre">nupic.frameworks.opf.metrics.MetricsIface</span></code></a></p>
+<p>Multi metric can combine multiple other (sub)metrics and weight them to 
+provide combined score.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/index.html">Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Online Prediction Framework</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clients.html">Clients</a></li>
+<li class="toctree-l3"><a class="reference internal" href="description-api.html">Description API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="exp-runner.html">Experiment Runner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="environment.html">Environments</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-nupic.frameworks.opf.prediction_metrics_manager">Prediction Metrics Manager</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-nupic.frameworks.opf.metrics">Interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#helpers">Helpers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#available-metrics">Available Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="results.html">Model Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="exceptions.html">Exceptions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../network/index.html">Network API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data/index.html">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support/index.html">Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../math.html">Math</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/opf/metrics.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
