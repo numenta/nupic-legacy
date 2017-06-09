@@ -127,7 +127,6 @@ nupic
 │   └─── unimportable_node.py [TODO]
 ├── serializable.py [TODO]
 ├── support [OK]
-├── swarming [DEFER]
-└── utils.py [TODO]
+└── swarming [DEFER]
 
 ```
