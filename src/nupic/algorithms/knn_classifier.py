@@ -1165,6 +1165,119 @@ class KNNClassifier(object):
         self._categoryList[vectorIndex] = categoryIndex
 
 
+  @classmethod
+  def read(cls, proto):
+    if proto.version != KNNCLASSIFIER_VERSION:
+      raise RuntimeError("Invalid KNNClassifier Version")
+
+    knn = object.__new__(cls)
+
+    knn.version = proto.version
+    knn.k = proto.k
+    knn.exact = proto.exact
+    knn.distanceNorm = proto.distanceNorm
+    knn.distanceMethod = proto.distanceMethod
+    knn.distThreshold = proto.distThreshold
+    knn.doBinarization = proto.doBinarization
+    knn.binarizationThreshold = proto.binarizationThreshold
+    knn.useSparseMemory = proto.useSparseMemory
+    knn.sparseThreshold = proto.sparseThreshold
+    knn.relativeThreshold = proto.relativeThreshold
+    knn.numWinners = proto.numWinners
+    knn.numSVDSamples = proto.numSVDSamples
+    knn.numSVDDims = proto.numSVDDims
+    knn.fractionOfMax = proto.fractionOfMax
+    knn.verbosity = proto.verbosity
+    knn.maxStoredPatterns = proto.maxStoredPatterns
+    knn.replaceDuplicates = proto.replaceDuplicates
+    knn.cellsPerCol = proto.cellsPerCol
+    knn.minSparsity = proto.minSparsity
+
+    if knn.numSVDDims == "adaptive":
+      knn._adaptiveSVDDims = True
+    else:
+      knn._adaptiveSVDDims = False
+
+    # Read private state
+    knn.clear()
+    if proto.memory is not None:
+      knn._Memory = numpy.array(proto.memory, dtype=numpy.float64)
+
+    knn._numPatterns = proto.numPatterns
+
+    if proto.m is not None:
+      knn._M = numpy.array(proto.m, dtype=numpy.float64)
+
+    if proto.categoryList is not None:
+      knn._categoryList = list(proto.categoryList)
+
+    if proto.partitionIdList is not None:
+      knn._partitionIdList = list(proto.partitionIdList)
+      knn._rebuildPartitionIdMap(knn._partitionIdList)
+
+    knn._iterationIdx = proto.iterationIdx
+    knn._finishedLearning = proto.finishedLearning
+
+    if proto.s is not None:
+      knn._s = numpy.array(proto.s, dtype=numpy.float32)
+
+    if proto.vt is not None:
+      knn._vt = numpy.array(proto.vt, dtype=numpy.float32)
+
+    if proto.mean is not None:
+      knn._mean = numpy.array(proto.mean, dtype=numpy.float32)
+
+    return knn
+
+
+  def write(self, proto):
+
+    proto.version = self.version
+    proto.k = self.k
+    proto.exact = self.exact
+    proto.distanceNorm = self.distanceNorm
+    proto.distanceMethod = self.distanceMethod
+    proto.distThreshold = self.distThreshold
+    proto.doBinarization = self.doBinarization
+    proto.binarizationThreshold = self.binarizationThreshold
+    proto.useSparseMemory = self.useSparseMemory
+    proto.sparseThreshold = self.sparseThreshold
+    proto.relativeThreshold = self.relativeThreshold
+    proto.numWinners = self.numWinners
+    proto.verbosity = self.verbosity
+    proto.maxStoredPatterns = self.maxStoredPatterns
+    proto.replaceDuplicates = self.replaceDuplicates
+    proto.cellsPerCol = self.cellsPerCol
+    proto.minSparsity = self.minSparsity
+
+    # Write private state
+    if self._Memory is not None:
+      proto.memory = self._Memory.tolist()
+
+    proto.numPatterns = self._numPatterns
+
+    if self._M is not None:
+      proto.m = self._M.tolist()
+
+    if self._categoryList is not None:
+      proto.categoryList = self._categoryList
+
+    if self._partitionIdList is not None:
+      proto.partitionIdList = self._partitionIdList
+
+    proto.finishedLearning = self._finishedLearning
+    proto.iterationIdx = self._iterationIdx
+
+    if self._s is not None:
+      proto.s = self._s.tolist()
+
+    if self._vt is not None:
+      proto.vt = self._vt.tolist()
+
+    if self._mean is not None:
+      proto.mean = self._mean.tolist()
+
+
   def __getstate__(self):
     """Return serializable state.
 
