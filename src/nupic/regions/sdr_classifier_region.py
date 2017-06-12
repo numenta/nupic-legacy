@@ -391,7 +391,10 @@ class SDRClassifierRegion(PyRegion):
         actValueList = []
         for category in categories:
           bucketIdxList.append(int(category))
-          actValueList.append(int(category))
+          if "actValueIn" not in inputs:
+            actValueList.append(int(category))
+          else:
+            actValueList.append(float(inputs["actValueIn"]))
 
         classificationIn = {"bucketIdx": bucketIdxList,
                             "actValue": actValueList}

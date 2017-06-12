@@ -89,6 +89,7 @@ class SDRClassifier(object):
     bucket. A lower actValueAlpha results in longer term memory
   :param verbosity: (int) verbosity level, can be 0, 1, or 2
 
+  :raises: (ValueError) when record number does not increase monotonically.
   """
 
   VERSION = 1
