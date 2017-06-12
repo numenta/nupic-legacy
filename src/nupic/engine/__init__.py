@@ -51,7 +51,6 @@ pyRegions = (
     ("nupic.regions.record_sensor", "RecordSensor"),
     ("nupic.regions.sdr_classifier_region", "SDRClassifierRegion"),
     ("nupic.regions.sp_region", "SPRegion"),
-    ("nupic.regions.svm_classifier_node", "SVMClassifierNode"),
     ("nupic.regions.test_region", "TestRegion"),
     ("nupic.regions.tm_region", "TMRegion"),
     ("nupic.regions.unimportable_node", "UnimportableNode"),
