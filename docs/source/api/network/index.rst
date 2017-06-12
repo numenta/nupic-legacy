@@ -24,3 +24,4 @@ Examples of Network API usages can be found at
    network
    regions
    sensors
+   viz
