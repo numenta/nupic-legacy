@@ -57,17 +57,26 @@ class SDRClassifierRegion(PyRegion):
   During learning, the connection weights between input units and output units
   are adjusted to maximize the likelihood of the model
 
-
   The caller can choose to tell the region that the classifications for
   iteration N+K should be aligned with the activationPattern for iteration N.
   This results in the classifier producing predictions for K steps in advance.
   Any number of different K's can be specified, allowing the classifier to learn
   and infer multi-step predictions for a number of steps in advance.
+  
+  :param steps: (int) default=1
+  :param alpha: (float) default=0.001
+  :param verbosity: (int) How verbose to log, default=0
+  :param implementation: (string) default=None
+  :param maxCategoryCount: (int) default=None
+
   """
 
 
   @classmethod
   def getSpec(cls):
+    """
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.getSpec`.
+    """
     ns = dict(
       description=SDRClassifierRegion.__doc__,
       singleNodeOnly=True,
@@ -266,6 +275,8 @@ class SDRClassifierRegion(PyRegion):
 
   def initialize(self):
     """
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.initialize`.
+
     Is called once by NuPIC before the first call to compute().
     Initializes self._sdrClassifier if it is not already initialized.
     """
@@ -279,16 +290,15 @@ class SDRClassifierRegion(PyRegion):
 
 
   def getAlgorithmInstance(self):
-    """Returns instance of the underlying SDRClassifier algorithm object."""
+    """
+    :returns: (:class:`nupic.regions.sdr_classifier_region.SDRClassifierRegion`)
+    """
     return self._sdrClassifier
 
 
   def getParameter(self, name, index=-1):
     """
-    Get the value of the parameter.
-
-    @param name -- the name of the parameter to retrieve, as defined
-            by the Node Spec.
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.getParameter`.
     """
     # If any spec parameter name is the same as an attribute, this call
     # will get it automatically, e.g. self.learningMode
@@ -297,11 +307,7 @@ class SDRClassifierRegion(PyRegion):
 
   def setParameter(self, name, index, value):
     """
-    Set the value of the parameter.
-
-    @param name -- the name of the parameter to update, as defined
-            by the Node Spec.
-    @param value -- the value to which the parameter is to be set.
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.setParameter`.
     """
     if name == "learningMode":
       self.learningMode = bool(int(value))
@@ -313,14 +319,17 @@ class SDRClassifierRegion(PyRegion):
 
   @staticmethod
   def getProtoType():
-    """Return the pycapnp proto type that the class uses for serialization."""
+    """
+    :returns: the pycapnp proto type that the class uses for serialization.
+    """
     return SDRClassifierRegionProto
 
 
   def writeToProto(self, proto):
-    """Write state to proto object.
+    """
+    Write state to proto object.
 
-    proto: SDRClassifierRegionProto capnproto object
+    :param proto: SDRClassifierRegionProto capnproto object
     """
     proto.implementation = self.implementation
     proto.steps = self.steps
@@ -333,9 +342,10 @@ class SDRClassifierRegion(PyRegion):
 
   @classmethod
   def readFromProto(cls, proto):
-    """Read state from proto object.
+    """
+    Read state from proto object.
 
-    proto: SDRClassifierRegionProto capnproto object
+    :param proto: SDRClassifierRegionProto capnproto object
     """
     instance = cls()
 
@@ -355,8 +365,10 @@ class SDRClassifierRegion(PyRegion):
     """
     Process one input sample.
     This method is called by the runtime engine.
-    @param inputs -- inputs of the classifier region
-    @param outputs -- outputs of the classifier region
+
+    :param inputs: (dict) mapping region input names to numpy.array values
+    :param outputs: (dict) mapping region output names to numpy.arrays that 
+           should be populated with output values by this method
     """
 
     # This flag helps to prevent double-computation, in case the deprecated
@@ -439,27 +451,30 @@ class SDRClassifierRegion(PyRegion):
     learning happens in compute() -- if, and only if learning is enabled --
     which is called when you run the network.
 
-    WARNING: The method customCompute() is here to maintain backward
-    compatibility. This method is deprecated, and will be removed.
-    Use network.run() instead, which will call the compute() method.
+    .. warning:: This method is deprecated and exists only to maintain backward 
+       compatibility. This method is deprecated, and will be removed. Use 
+       :meth:`nupic.engine.Network.run` instead, which will call 
+       :meth:`~nupic.regions.sdr_classifier_region.compute`.
 
-    Parameters:
-    --------------------------------------------------------------------
-    recordNum:      Record number of the input sample.
-    patternNZ:      List of the active indices from the output below
-    classification: Dict of the classification information:
-                      bucketIdx: index of the encoder bucket
-                      actValue:  actual value going into the encoder
+    :param recordNum: (int) Record number of the input sample.
+    :param patternNZ: (list) of the active indices from the output below
+    :param classification: (dict) of the classification information:
+    
+           * ``bucketIdx``: index of the encoder bucket
+           * ``actValue``:  actual value going into the encoder
 
-    retval:     dict containing inference results, one entry for each step in
-                self.steps. The key is the number of steps, the value is an
-                array containing the relative likelihood for each bucketIdx
-                starting from bucketIdx 0.
+    :returns: (dict) containing inference results, one entry for each step in
+              ``self.steps``. The key is the number of steps, the value is an
+              array containing the relative likelihood for each ``bucketIdx``
+              starting from 0.
 
-                for example:
-                  {'actualValues': [0.0, 1.0, 2.0, 3.0]
-                    1 : [0.1, 0.3, 0.2, 0.7]
-                    4 : [0.2, 0.4, 0.3, 0.5]}
+              For example:
+              
+              :: 
+              
+                {'actualValues': [0.0, 1.0, 2.0, 3.0]
+                  1 : [0.1, 0.3, 0.2, 0.7]
+                  4 : [0.2, 0.4, 0.3, 0.5]}
     """
 
     # If the compute flag has not been initialized (for example if we
@@ -486,7 +501,9 @@ class SDRClassifierRegion(PyRegion):
 
 
   def getOutputElementCount(self, outputName):
-    """Returns the number of output elements."""
+    """
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount`.
+    """
     if outputName == "categoriesOut":
       return len(self.stepsList)
     elif outputName == "probabilities":

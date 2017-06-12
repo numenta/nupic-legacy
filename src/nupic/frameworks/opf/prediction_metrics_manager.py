@@ -18,9 +18,12 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-
-# This script implements PredictionMetricsManager, a helper class that handles
-# pooling of multiple record and field prediction metrics calculators
+"""
+This module implements 
+:class:`~nupic.frameworks.opf.prediction_metrics_manager.MetricsManager`, 
+a helper class that handles pooling of multiple record and field prediction 
+metrics calculators.
+"""
 
 import logging
 import copy
@@ -48,29 +51,27 @@ MetricValueElement = namedtuple("MetricValueElement", ["spec", "value"])
 
 
 class MetricsManager(object):
-  """ This is a class to handle the computation of metrics properly. This class
+  """ 
+  This is a class to handle the computation of metrics properly. This class
   takes in an inferenceType, and it assumes that it is associcated with a single
-  model """
+  model 
+
+  :param metricSpecs: (list) of 
+         :class:`~nupic.frameworks.opf.metrics.MetricSpec` objects that specify 
+         which metrics should be calculated.
+  :param fieldInfo: (list) of :class:`~nupic.data.field_meta.FieldMetaInfo`
+         objects.
+  :param inferenceType: (:class:`~nupic.frameworks.opf.opf_utils.InferenceType`
+         value that specifies the inference type of the associated model. This 
+         affects how metrics are calculated. FOR EXAMPLE, temporal models save 
+         the inference from the previous timestep to match it to the ground 
+         truth value in the current timestep.
+  """
 
   # Map from inference element to sensor input element. This helps us find the
   # appropriate ground truth field for a given inference element
 
   def __init__(self, metricSpecs, fieldInfo, inferenceType):
-    """
-    Constructs a Metrics Manager
-
-    Parameters:
-    -----------------------------------------------------------------------
-    metricSpecs:    A sequence of MetricSpecs that specify which metrics should
-                    be calculated
-
-    inferenceType:  An opf_utils.inferenceType value that specifies the inference
-                    type of the associated model. This affects how metrics are
-                    calculated. FOR EXAMPLE, temporal models save the inference
-                    from the previous timestep to match it to the ground truth
-                    value in the current timestep
-    """
-
     self.__metricSpecs = []
     self.__metrics = []
     self.__metricLabels = []
@@ -94,12 +95,10 @@ class MetricsManager(object):
     """
     Compute the new metrics values, given the next inference/ground-truth values
 
-    Parameters:
-    -----------------------------------------------------------------------
-    results:  An opf_utils.ModelResult object that was computed during the last
-              iteration of the model
+    :param results: (:class:`~nupic.frameworks.opf.opf_utils.ModelResult`) 
+           object that was computed during the last iteration of the model.
 
-    Returns:  A dictionary where each key is the metric-name, and the values are
+    :returns: (dict) where each key is the metric-name, and the values are
               it scalar value.
 
     """
@@ -158,10 +157,12 @@ class MetricsManager(object):
 
 
   def getMetrics(self):
-    """ Gets the current metric values
+    """ 
+    Gets the current metric values
 
-    Returns: A dictionary where each key is the metric-name, and the values are
-              it scalar value. Same as the output of update()
+    :returns: (dict) where each key is the metric-name, and the values are
+              it scalar value. Same as the output of 
+              :meth:`~nupic.frameworks.opf.prediction_metrics_manager.MetricsManager.update`
     """
 
     result = {}
@@ -174,16 +175,16 @@ class MetricsManager(object):
 
 
   def getMetricDetails(self, metricLabel):
-    """ Gets detailed info about a given metric, in addition to its value. This
+    """ 
+    Gets detailed info about a given metric, in addition to its value. This
     may including any statistics or auxilary data that are computed for a given
-    metric
+    metric.
 
-    Parameters:
-    -----------------------------------------------------------------------
-    metricLabel:   The string label of the given metric (see metrics.MetricSpec)
+    :param metricLabel: (string) label of the given metric (see 
+           :class:`~nupic.frameworks.opf.metrics.MetricSpec`)
 
-    Returns:  A dictionary of metric information, as returned by
-              opf.metric.Metric.getMetric()
+    :returns: (dict) of metric information, as returned by 
+             :meth:`nupic.frameworks.opf.metrics.MetricsIface.getMetric`.
     """
     try:
       metricIndex = self.__metricLabels.index(metricLabel)
@@ -194,7 +195,9 @@ class MetricsManager(object):
 
 
   def getMetricLabels(self):
-    """ Return the list of labels for the metrics that are being calculated"""
+    """
+    :returns: (list) of labels for the metrics that are being calculated
+    """
     return tuple(self.__metricLabels)
 
 

@@ -67,6 +67,7 @@ nupic
 │   ├── anomaly_likelihood.py [OK]
 │   ├── sdr_classifier.py [OK]
 │   ├── sdr_classifier_factory.py [OK]
+│   ├── knn_classifier.py [OK]
 │   ├── backtracking_tm.py [OK]
 │   ├── backtracking_tm_cpp.py [OK]
 │   ├── connections.py [OK]
@@ -97,7 +98,7 @@ nupic
 │   │   │   ├── ModelResults [OK]
 │   │   │   └── SensorInput [OK]
 │   │   ├── periodic.py [DEFER]
-│   │   ├── prediction_metrics_manager.py [TODO]
+│   │   ├── prediction_metrics_manager.py [OK]
 │   │   ├── previous_value_model.py [OK]
 │   │   └── two_gram_model.py [OK]
 │   └── viz
@@ -111,9 +112,8 @@ nupic
 ├── regions
 │   ├── anomaly_likelihood_region.py [OK]
 │   ├── anomaly_region.py [OK]
-│   ├── cla_classifier_region.py [TODO]
-│   ├── knn_anomaly_classifier_region.py [TODO]
-│   ├── knn_classifier_region.py [TODO]
+│   ├── knn_anomaly_classifier_region.py [OK]
+│   ├── knn_classifier_region.py [OK]
 │   ├── pluggable_encoder_sensor.py [TODO]
 │   ├── record_sensor.py [TODO]
 │   ├── record_sensor_filters
@@ -121,14 +121,12 @@ nupic
 │   │   └── modify_fields.py [TODO]
 │   ├── sdr_classifier_region.py [TODO]
 │   ├── sp_region.py [TODO]
-│   ├── svm_classifier_node.py [TODO]
 │   ├── spec.py [TODO]
 │   ├── tm_region.py [TODO]
 │   ├── test_region.py [TODO]
 │   └─── unimportable_node.py [TODO]
 ├── serializable.py [TODO]
 ├── support [OK]
-├── swarming [DEFER]
-└── utils.py [TODO]
+└── swarming [DEFER]
 
 ```
