@@ -131,7 +131,7 @@ class SingleStepSDRClassifierTest(unittest.TestCase):
     dataSource.close()
     os.remove(filename)
 
-  @unittest.skip("Skip test until we updated SDR classifier in nupic.core")
+
   def testSimpleMulticlassNetworkCPP(self):
     # Setup data record stream of fake data (with three categories)
     filename = _getTempFileName()
@@ -304,6 +304,93 @@ class SingleStepSDRClassifierTest(unittest.TestCase):
                        key=itemgetter(1), reverse=True)[0][0]
       model.resetSequenceStates()
       prediction = None
+
+
+  def testSimpleScalarPredictionNetworkPY(self):
+    # Setup data record stream of fake data (with three categories)
+    filename = _getTempFileName()
+    fields = [("timestamp", "datetime", "T"),
+              ("value", "float", ""),
+              ("reset", "int", "R"),
+              ("sid", "int", "S"),
+              ("categories", "list", "C")]
+    records = (
+      [datetime(day=1, month=3, year=2010), 0.5, 1, 0, "0"],
+      [datetime(day=2, month=3, year=2010), 1.5, 0, 0, "1"],
+      [datetime(day=3, month=3, year=2010), 0.5, 0, 0, "0"],
+      [datetime(day=4, month=3, year=2010), 1.5, 0, 0, "1"],
+      [datetime(day=5, month=3, year=2010), 0.5, 0, 0, "0"],
+      [datetime(day=6, month=3, year=2010), 1.5, 0, 0, "1"],
+      [datetime(day=7, month=3, year=2010), 0.5, 0, 0, "0"],
+      [datetime(day=8, month=3, year=2010), 1.5, 0, 0, "1"])
+    dataSource = FileRecordStream(streamID=filename, write=True, fields=fields)
+    for r in records:
+      dataSource.appendRecord(list(r))
+
+    # Create the network and get region instances.
+    net = Network()
+    net.addRegion("sensor", "py.RecordSensor", "{'numCategories': 3}")
+    net.addRegion("classifier", "py.SDRClassifierRegion",
+                  "{steps: '0', alpha: 0.001, implementation: 'py'}")
+    net.link("sensor", "classifier", "UniformLink", "",
+             srcOutput="dataOut", destInput="bottomUpIn")
+    net.link("sensor", "classifier", "UniformLink", "",
+             srcOutput="bucketIdxOut", destInput="bucketIdxIn")
+    net.link("sensor", "classifier", "UniformLink", "",
+             srcOutput="actValueOut", destInput="actValueIn")
+    net.link("sensor", "classifier", "UniformLink", "",
+             srcOutput="categoryOut", destInput="categoryIn")
+
+    sensor = net.regions["sensor"]
+    sensor.setParameter('predictedField', 'value')
+    classifier = net.regions["classifier"]
+
+    # Setup sensor region encoder and data stream.
+    dataSource.close()
+    dataSource = FileRecordStream(filename)
+    sensorRegion = sensor.getSelf()
+    sensorRegion.encoder = MultiEncoder()
+    sensorRegion.encoder.addEncoder(
+      "value", ScalarEncoder(21, 0.0, 13.0, n=256, name="value"))
+    sensorRegion.dataSource = dataSource
+
+    # Get ready to run.
+    net.initialize()
+
+    # Train the network (by default learning is ON in the classifier, but assert
+    # anyway) and then turn off learning and turn on inference mode.
+    self.assertEqual(classifier.getParameter("learningMode"), 1)
+    net.run(8)
+
+    # Test the network on the same data as it trained on; should classify with
+    # 100% accuracy.
+    classifier.setParameter("inferenceMode", 1)
+    classifier.setParameter("learningMode", 0)
+
+    # Assert learning is OFF and that the classifier learned the dataset.
+    self.assertEqual(classifier.getParameter("learningMode"), 0,
+                     "Learning mode is not turned off.")
+    self.assertEqual(classifier.getParameter("inferenceMode"), 1,
+                     "Inference mode is not turned on.")
+
+    # make sure we can access all the parameters with getParameter
+    self.assertEqual(classifier.getParameter("maxCategoryCount"), 2000)
+    self.assertAlmostEqual(float(classifier.getParameter("alpha")), 0.001)
+    self.assertEqual(int(classifier.getParameter("steps")), 0)
+    self.assertTrue(classifier.getParameter("implementation") == "py")
+    self.assertEqual(classifier.getParameter("verbosity"), 0)
+
+    expectedValues = ([0.5], [1.5], [0.5], [1.5], [0.5], [1.5], [0.5], [1.5],)
+    dataSource.rewind()
+    for i in xrange(8):
+      net.run(1)
+      predictedValue = classifier.getOutputData("categoriesOut")
+      self.assertAlmostEqual(expectedValues[i], predictedValue[0],
+                               "Classififer did not make correct prediction "
+                               "for record number {}.".format(i))
+    # Close data stream, delete file.
+    dataSource.close()
+    os.remove(filename)
 
 
 
