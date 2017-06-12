@@ -211,4 +211,5 @@ which should look something like this:
     1-step:    45.6100006104 (96.41%)	5-step:              0.0 (0.1883%)
     1-step:    43.4000015259 (3.969%)	5-step:              0.0 (0.1883%)
     1-step:    43.4000015259 (4.125%)	5-step:              0.0 (0.1883%)
+
 **Congratulations! You've got HTM predictions for a scalar data stream!**

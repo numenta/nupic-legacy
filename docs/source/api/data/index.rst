@@ -3,7 +3,11 @@ Data
 
 Data wrappers and helpers.
 
-.. include:: field-meta.rst
+Field Meta
+^^^^^^^^^^
+
+.. automodule:: nupic.data.field_meta
+   :members:
 
 FileRecordStream
 ^^^^^^^^^^^^^^^^
@@ -28,6 +32,11 @@ StreamReader
 
 .. autoclass:: nupic.data.stream_reader.StreamReader
    :members:
+
+Stream Definition
+^^^^^^^^^^^^^^^^^
+
+See an example at :doc:`stream-def`.
 
 Utilities
 ^^^^^^^^^

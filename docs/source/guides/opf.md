@@ -32,7 +32,8 @@ of database)
 
 Each of these 3 components is in a separate set of modules. Metrics and writing output are optional when running models.
 
-![Data flow in the OPF](../../_static/opf-figure1.png)
+![Data flow in the OPF](../_static/opf-figure1.png)
+
 > Figure 1: Data flow in the OPF
 
 ## What doesn’t the OPF do?
@@ -104,7 +105,7 @@ It also provides the following functionality, common to all models:
 
 ### Model Input
 
-![Records are input to models in the form of dictionary-like objects, where the keys are field names and the values are the raw field values.](../../_static/opf-figure2.png)
+![Records are input to models in the form of dictionary-like objects, where the keys are field names and the values are the raw field values.](../_static/opf-figure2.png)
 
 > Figure 2: Records are input to models in the form of dictionary-like objects, where the keys are field names and the values are the raw field values.
 
@@ -167,7 +168,7 @@ In this example, we can see that the “_prediction_” inference element is ass
 
 This association is used to compute metrics and to determine which parts of the input to write to output. For example, to compute error, the value of “_prediction_” will be compared to the value of SensorInput.dataRow, and the value of “_classification_” will be compared to value of SensorInput.category
 
-![Inference elements](../../_static/opf-figure3.png)
+![Inference elements](../_static/opf-figure3.png)
 
 > Figure 3: Inference Elements
 
@@ -206,7 +207,7 @@ This shifting applies to both csv output and metrics calculation. Each inference
 
 Below is an example of how this shifting occurs to compute errors:
 
-![Shifting](../../_static/opf-figure4.png)
+![Shifting](../_static/opf-figure4.png)
 
 > Figure 4: Shifting
 

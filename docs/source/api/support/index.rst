@@ -7,6 +7,8 @@ Support
 Configuration Base
 ^^^^^^^^^^^^^^^^^^
 
+See :doc:`default-config` for details about default values.
+
 .. automodule:: nupic.support.configuration_base
    :members:
 

@@ -18,11 +18,11 @@ A TemporalAnomaly model calculates the anomaly score based on the correctness of
 
 The algorithm for the anomaly score is as follows:
 
-![equation](http://latex.codecogs.com/gif.latex?anomalyScore%3D%5Cfrac%7B%5Clvert%20A_t-%28P_%7Bt-1%7D%5Cbigcap%20A_t%29%5Crvert%20%7D%7B%5Clvert%20A_t%5Crvert%20%7D)
+![equation](../_static/anomaly-equation-1.gif)
 
-![equation](http://latex.codecogs.com/gif.latex?P_%7Bt-1%7D%3D%5Ctext%7BPredicted%20columns%20at%20time%20t%7D)
+![equation](../_static/anomaly-equation-2.gif)
 
-![equation](http://latex.codecogs.com/gif.latex?A_%7Bt%7D%3D%5Ctext%7BActive%20columns%20at%20time%20t%7D)
+![equation](../_static/anomaly-equation-3.gif)
 
 __Note__: Here, a "predicted column" is a column with a non-zero confidence value. This is not exactly the same as having a cell in the predicted state. For more information, refer the "predicted cells vs. confidences" section below.
 
@@ -63,11 +63,11 @@ Since NontemporalAnomaly models have no temporal memory, the anomaly score is ba
 
 To compute the nontemporal anomaly score, we first compute the "match" score for each winning column after inhibition
 
-![equation](http://latex.codecogs.com/gif.latex?match_%7Bcol_%7Bk%7D%7D%20%3D%20overlap_%7Bcol_%7Bi%7D%7D*dutyCycle_%7Bcol_%7Bi%7D%7D)
+![equation](../_static/anomaly-equation-4.gif)
 
 Then, to get the anomaly score (how unusual the data is), we take the inverse of the total matches
 
-![equation](http://latex.codecogs.com/gif.latex?anomalyScore%3D%28%5Csum%20_%7Bcol_%7Bi%7D%5Cepsilon%20winningCols%7Dmatch_%7Bcol_%7Bi%7D%7D+1%29%5E%7B-1%7D)
+![equation](../_static/anomaly-equation-5.gif)
 
 The addition of 1 is to avoid divide by 0 errors.
 

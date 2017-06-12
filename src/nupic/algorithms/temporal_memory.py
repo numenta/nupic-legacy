@@ -412,11 +412,10 @@ class TemporalMemory(object):
     some extra bookkeeping. Unit tests should call this method, and not 
     :meth:`~nupic.algorithms.connections.Connections.createSegment`.
 
-    :param cell: (int)
-    Index of cell to create a segment on.
+    :param cell: (int) Index of cell to create a segment on.
 
     :returns: (:class:`~nupic.algorithms.connections.Segment`) The created 
-             segment.
+              segment.
     """
     return self._createSegment(
       self.connections, self.lastUsedIterationForSegment, cell, self.iteration,

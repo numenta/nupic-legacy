@@ -135,9 +135,10 @@ class InferenceElement(Enum(
   @staticmethod
   def getMaxDelay(inferences):
     """
-    :param inferences: (dict) where the keys are :class:`.InferenceElement`s
-    :return: (int) the maximum delay for the :class:`.InferenceElement`s in
-             the inference dictionary
+    :param inferences: (dict) where the keys are :class:`.InferenceElement` 
+           objects.
+    :return: (int) the maximum delay for the :class:`.InferenceElement` objects 
+             in the inference dictionary.
     """
     maxDelay = 0
     for inferenceElement, inference in inferences.iteritems():
