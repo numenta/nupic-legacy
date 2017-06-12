@@ -28,6 +28,7 @@ from abc import ABCMeta, abstractmethod
 from nupic.bindings.regions.PyRegion import PyRegion
 
 from nupic.data.dict_utils import DictObj
+from nupic.serializable import Serializable
 
 
 
@@ -73,7 +74,7 @@ class RegionIdentityPolicyBase(object):
 
 
 
-class TestRegion(PyRegion):
+class TestRegion(PyRegion, Serializable):
 
   """
   TestRegion is designed for testing and exploration of CLA Network
@@ -423,6 +424,35 @@ class TestRegion(PyRegion):
   # Methods to support serialization
   #
   #############################################################################
+
+
+  def getSchema(self):
+    return TestRegionProto
+
+
+  def write(self, proto):
+    """Save the region's state.
+
+    The ephemerals and identity policy are excluded from the saved state.
+
+    :param proto: an instance of TestRegionProto to serialize
+    """
+    proto.breakPdb = self.breakPdb
+    proto.breakKomodo = self.breakKomodo
+
+
+  def read(self, proto):
+    """Load the state from the given proto instance.
+
+    The saved state does not include the identity policy so this must be
+    constructed and set after the region is deserialized. This can be done by
+    calling 'setIdentityPolicyInstance'.
+
+    :param proto: an instance of TestRegionProto to load state from
+    """
+    self.breakPdb = proto.breakPdb
+    self.breakKomodo = proto.breakKomodo
+    self.__constructEphemeralInstanceVars()
 
 
   def __getstate__(self):
