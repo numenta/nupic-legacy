@@ -252,7 +252,7 @@ class HTMPredictionModelSerializationTest(unittest.TestCase):
     m2 = HTMPredictionModel.read(readerProto)
     # Work around a serialization bug that doesn't save the enabled predicted
     # field
-    # TODO this enableInference call should be removed after NUP-2449 is fixed.
+    # TODO this enableInference call should be removed after NUP-2463 is fixed.
     m2.enableInference({'predictedField': 'consumption'})
 
     # Run computes on m1 & m2 and compare results
