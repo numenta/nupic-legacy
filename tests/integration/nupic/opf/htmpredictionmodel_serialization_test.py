@@ -26,6 +26,7 @@ This module tests capnp serialization of HTMPredictionModel.
 import copy
 import datetime
 import numpy.random
+import numpy.testing
 import unittest
 
 try:
@@ -229,10 +230,7 @@ PY_MODEL_PARAMS = {
 class HTMPredictionModelSerializationTest(unittest.TestCase):
 
 
-  def _runSimpleModelSerializationDeserialization(self, modelParams):
-    # Rudimentary serialization/deserialization; flush out starting point for
-    # tests
-
+  def _runModelSerializationDeserializationChecks(self, modelParams):
     m1 = ModelFactory.create(modelParams)
     m1.enableInference({'predictedField': 'consumption'})
     headers = ['timestamp', 'consumption']
@@ -250,19 +248,56 @@ class HTMPredictionModelSerializationTest(unittest.TestCase):
 
     # Deserialize
     m2 = HTMPredictionModel.read(readerProto)
+    # TODO NUP-2463: remove this work-around.
     # Work around a serialization bug that doesn't save the enabled predicted
     # field
-    # TODO this enableInference call should be removed after NUP-2463 is fixed.
     m2.enableInference({'predictedField': 'consumption'})
+
+    # TODO NUP-2464: remove this work-around
+    # Work around NUP-2464 by fixing up m2._numPredictions
+    m2._numPredictions = 1
 
     # Run computes on m1 & m2 and compare results
     record = [datetime.datetime(2013, 12, 14), numpy.random.uniform(100)]
     modelInput = dict(zip(headers, record))
-    # NOTE: use deepcopy to guarantee no side-effect
+    # Use deepcopy to guarantee no input side-effect between calls
     r1 = m1.run(copy.deepcopy(modelInput))
     r2 = m2.run(copy.deepcopy(modelInput))
 
-    #self.assertEqual(r1, r2)
+    # Compare results
+    self.assertEqual(r2.predictionNumber, r1.predictionNumber)
+    self.assertEqual(r2.rawInput, r1.rawInput)
+
+    self.assertEqual(r2.sensorInput.dataRow, r1.sensorInput.dataRow)
+    self.assertEqual(r2.sensorInput.dataDict, r1.sensorInput.dataDict)
+    numpy.testing.assert_array_equal(r2.sensorInput.dataEncodings,
+                                           r1.sensorInput.dataEncodings)
+    self.assertEqual(r2.sensorInput.sequenceReset, r1.sensorInput.sequenceReset)
+    self.assertEqual(r2.sensorInput.category, r1.sensorInput.category)
+
+    self.assertEqual(r2.inferences, r1.inferences)
+    self.assertEqual(r2.metrics, r1.metrics)
+    self.assertEqual(r2.predictedFieldIdx, r1.predictedFieldIdx)
+    self.assertEqual(r2.predictedFieldName, r1.predictedFieldName)
+
+    numpy.testing.assert_array_equal(r2.classifierInput.dataRow,
+                                     r1.classifierInput.dataRow)
+    self.assertEqual(r2.classifierInput.bucketIndex,
+                     r1.classifierInput.bucketIndex)
+
+    # Compre regions
+    self.assertIsNotNone(m2._getSensorRegion())
+    self.assertEqual(m2._getSensorRegion(), m1._getSensorRegion())
+
+    self.assertIsNotNone(m2._getClassifierRegion())
+    self.assertEqual(m2._getClassifierRegion(), m1._getClassifierRegion())
+
+    # TODO NUP-2356: Uncomment after issue is resolved.
+    #self.assertIsNotNone(m2._getTPRegion())
+    self.assertEqual(m2._getTPRegion(), m1._getTPRegion())
+
+    self.assertIsNotNone(m2._getSPRegion())
+    self.assertEqual(m2._getSPRegion(), m1._getSPRegion())
 
 
   @unittest.skip('NUP-2463 Predicted field and __inferenceEnabled are not '
@@ -315,20 +350,14 @@ class HTMPredictionModelSerializationTest(unittest.TestCase):
 
   @unittest.skipUnless(
     capnp, 'pycapnp is not installed, skipping serialization test.')
-  def testSimpleCPPModelSerializationNoValidation(self):
-    # Rudimentary serialization/deserialization; flush out starting point for
-    # tests
-
-    self._runSimpleModelSerializationDeserialization(CPP_MODEL_PARAMS)
+  def testCPPModelSerialization(self):
+    self._runModelSerializationDeserializationChecks(CPP_MODEL_PARAMS)
 
 
   @unittest.skipUnless(
     capnp, 'pycapnp is not installed, skipping serialization test.')
-  def testSimplePYModelSerializationNoValidation(self):
-    # Rudimentary serialization/deserialization; flush out starting point for
-    # tests
-
-    self._runSimpleModelSerializationDeserialization(PY_MODEL_PARAMS)
+  def testPYModelSerialization(self):
+    self._runModelSerializationDeserializationChecks(PY_MODEL_PARAMS)
 
 
 
