@@ -230,7 +230,7 @@ PY_MODEL_PARAMS = {
 class HTMPredictionModelSerializationTest(unittest.TestCase):
 
 
-  def _runSimpleModelSerializationDeserializationChecks(self, modelParams):
+  def _runModelSerializationDeserializationChecks(self, modelParams):
     m1 = ModelFactory.create(modelParams)
     m1.enableInference({'predictedField': 'consumption'})
     headers = ['timestamp', 'consumption']
@@ -356,14 +356,14 @@ class HTMPredictionModelSerializationTest(unittest.TestCase):
 
   @unittest.skipUnless(
     capnp, 'pycapnp is not installed, skipping serialization test.')
-  def testSimpleCPPModelSerialization(self):
-    self._runSimpleModelSerializationDeserializationChecks(CPP_MODEL_PARAMS)
+  def testCPPModelSerialization(self):
+    self._runModelSerializationDeserializationChecks(CPP_MODEL_PARAMS)
 
 
   @unittest.skipUnless(
     capnp, 'pycapnp is not installed, skipping serialization test.')
-  def testSimplePYModelSerialization(self):
-    self._runSimpleModelSerializationDeserializationChecks(PY_MODEL_PARAMS)
+  def testPYModelSerialization(self):
+    self._runModelSerializationDeserializationChecks(PY_MODEL_PARAMS)
 
 
 
