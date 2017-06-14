@@ -16,7 +16,7 @@ struct SegmentProto {
   struct SegmentSynapse {
     srcCellCol @0 :UInt32;
     srcCellIdx @1 :UInt32;
-    permanence @1 :Float64;
+    permanence @2 :Float64;
   }
   synapses @7 :List(SegmentSynapse);
 }
@@ -64,7 +64,7 @@ struct BacktrackingTMProto {
   activeColumns @26 :List(UInt32);
 
   # First list indexed by column, inner list indexed by cell in the column
-  cells @27 :List(List(SegmentProto));
+  cells @27 :List(List(List(SegmentProto)));
 
   lrnIterationIdx @28 :UInt32;
   iterationIdx @29 :UInt32;
@@ -82,16 +82,16 @@ struct BacktrackingTMProto {
   prevLrnPatterns @38 :List(List(UInt32));
   prevInfPatterns @39 :List(List(UInt32));
 
-  struct _SegmentUpdateWrapperProto {
+  struct SegmentUpdateWrapperProto {
     lrnIterationIdx @0 :UInt32;
     segmentUpdate @1 :SegmentUpdateProto;
   }
-  struct _CellSegmentUpdatesProto {
+  struct CellSegmentUpdatesProto {
     columnIdx @0 :UInt32;
     cellIdx @1 :UInt32;
     segmentUpdates @2 :List(SegmentUpdateWrapperProto);
   }
-  segmentUpdates @40 :List(_CellSegmentUpdatesProto);
+  segmentUpdates @40 :List(CellSegmentUpdatesProto);
 
   cellConfidenceT @41 :List(Float32);
   cellConfidenceT1 @42 :List(Float32);
