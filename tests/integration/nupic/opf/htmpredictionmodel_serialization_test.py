@@ -300,12 +300,6 @@ class HTMPredictionModelSerializationTest(unittest.TestCase):
     self.assertEqual(m2._getSPRegion(), m1._getSPRegion())
 
 
-    self.assertEqual(m2._getSensorRegion(), m1._getSensorRegion())
-    self.assertEqual(m2._getSensorRegion(), m1._getSensorRegion())
-    self.assertEqual(m2._getSensorRegion(), m1._getSensorRegion())
-
-
-
   @unittest.skip('NUP-2463 Predicted field and __inferenceEnabled are not '
                  'serialized by HTMPredictionModel.write')
   @unittest.skipUnless(
