@@ -635,11 +635,6 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
     return obj
 
 
-  @staticmethod
-  def _readArray(arrayProto, arr):
-    numpy.copyto(arr, numpy.array(arrayProto, dtype=arr.dtype))
-
-
   def __getattr__(self, name):
     """ @internal
     Patch __getattr__ so that we can catch the first access to 'cells' and load.
