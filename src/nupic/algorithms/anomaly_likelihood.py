@@ -123,7 +123,7 @@ from nupic.serializable import Serializable
 from nupic.utils import MovingAverage
 
 
-class AnomalyLikelihood(object, Serializable):
+class AnomalyLikelihood(Serializable):
   """
   Helper class for running anomaly likelihood computation. To use it simply
   create an instance and then feed it successive anomaly scores:

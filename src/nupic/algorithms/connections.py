@@ -124,7 +124,7 @@ def binSearch(arr, val):
 
 
 
-class Connections(object, Serializable):
+class Connections(Serializable):
   """ 
   Class to hold data representing the connectivity of a collection of cells. 
   

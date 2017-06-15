@@ -29,7 +29,7 @@ import numbers
 from nupic.serializable import Serializable
 
 
-class MovingAverage(object, Serializable):
+class MovingAverage(Serializable):
   """Helper class for computing moving average and sliding window"""
 
 

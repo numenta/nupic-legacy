@@ -88,7 +88,7 @@ class BinaryCorticalColumns(_SparseMatrixCorticalColumnAdapter,
 
 
 
-class SpatialPooler(object, Serializable):
+class SpatialPooler(Serializable):
   """
   This class implements the spatial pooler. It is in charge of handling the
   relationships between the columns of a region and the inputs bits. The

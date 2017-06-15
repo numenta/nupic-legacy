@@ -65,7 +65,7 @@ def _isSequence(obj):
 
 
 
-class Encoder(object, Serializable):
+class Encoder(Serializable):
   """
   An encoder converts a value to a sparse distributed representation.
 

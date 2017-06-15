@@ -61,7 +61,7 @@ def _labeledInput(activeInputs, cellsPerCol=32):
 
 
 
-class KNNClassifier(object, Serializable):
+class KNNClassifier(Serializable):
   """
   This class implements NuPIC's k Nearest Neighbor Classifier. KNN is very
   useful as a basic classifier for many situations. This implementation contains

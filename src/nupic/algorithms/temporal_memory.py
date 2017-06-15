@@ -37,7 +37,7 @@ EPSILON = 0.00001 # constant error threshold to check equality of permanences to
 
 
 
-class TemporalMemory(object, Serializable):
+class TemporalMemory(Serializable):
   """
   Class implementing the Temporal Memory algorithm. 
 
