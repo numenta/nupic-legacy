@@ -30,7 +30,9 @@ import copy
 import cPickle as pickle
 import itertools
 
+import capnp
 import numpy
+
 from nupic.algorithms.backtracking_tm_capnp import (
     SegmentProto, SegmentUpdateProto, BacktrackingTMProto)
 from nupic.bindings.math import Random
