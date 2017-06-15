@@ -70,9 +70,14 @@ class BacktrackingTMTest(unittest.TestCase):
         tm1.compute(bottomUpInput, True, True)
 
     # Serialize and deserialized the TM.
+    tmProto = BacktrackingTM.getSchema().new_message()
+    tm1.write(tmProto)
     checkpointPath = os.path.join(self._tmpDir, 'a')
-    tm1.writeToFile(checkpointPath)
-    tm2 = BacktrackingTM.readFromFile(checkpointPath)
+    with open(checkpointPath, "wb") as f:
+      tmProto.write(f)
+    with open(checkpointPath, "rb") as f:
+      tmProto = BacktrackingTM.getSchema().read(f)
+    tm2 = BacktrackingTM.read(tmProto)
 
     # Check that the TMs are the same.
     self.assertTMsEqual(tm1, tm2)
@@ -105,9 +110,14 @@ class BacktrackingTMTest(unittest.TestCase):
         tm1.compute(bottomUpInput, True, True)
 
     # Serialize and deserialized the TM.
+    tmProto = BacktrackingTM.getSchema().new_message()
+    tm1.write(tmProto)
     checkpointPath = os.path.join(self._tmpDir, 'a')
-    tm1.writeToFile(checkpointPath)
-    tm2 = BacktrackingTM.readFromFile(checkpointPath)
+    with open(checkpointPath, "wb") as f:
+      tmProto.write(f)
+    with open(checkpointPath, "rb") as f:
+      tmProto = BacktrackingTM.getSchema().read(f)
+    tm2 = BacktrackingTM.read(tmProto)
 
     # Check that the TMs are the same.
     self.assertTMsEqual(tm1, tm2)
@@ -155,12 +165,22 @@ class BacktrackingTMTest(unittest.TestCase):
     print 'Serializing and deserializing models.'
 
     savePath1 = os.path.join(self._tmpDir, 'tm1.bin')
-    tm1.writeToFile(savePath1)
-    tm3 = BacktrackingTM.readFromFile(savePath1)
+    tmProto1 = BacktrackingTM.getSchema().new_message()
+    tm1.write(tmProto1)
+    with open(savePath1, "wb") as f:
+      tmProto1.write(f)
+    with open(savePath1, "rb") as f:
+      tmProto3 = BacktrackingTM.getSchema().read(f)
+    tm3 = BacktrackingTM.read(tmProto3)
 
     savePath2 = os.path.join(self._tmpDir, 'tm2.bin')
-    tm2.writeToFile(savePath2)
-    tm4 = BacktrackingTM.readFromFile(savePath2)
+    tmProto2 = BacktrackingTM.getSchema().new_message()
+    tm2.write(tmProto2)
+    with open(savePath2, "wb") as f:
+      tmProto2.write(f)
+    with open(savePath2, "rb") as f:
+      tmProto4 = BacktrackingTM.getSchema().read(f)
+    tm4 = BacktrackingTM.read(tmProto4)
 
     self.assertTMsEqual(tm1, tm3)
     self.assertTMsEqual(tm2, tm4)

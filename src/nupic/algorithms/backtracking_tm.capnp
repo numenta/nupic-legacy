@@ -16,7 +16,7 @@ struct SegmentProto {
   struct SegmentSynapse {
     srcCellCol @0 :UInt32;
     srcCellIdx @1 :UInt32;
-    permanence @2 :Float64;
+    permanence @2 :Float32;
   }
   synapses @7 :List(SegmentSynapse);
 }
@@ -40,7 +40,7 @@ struct BacktrackingTMProto {
   #numberOfCells
   initialPerm @4 :Float32;
   connectedPerm @5 :Float32;
-  minThreshold @6 :Float64;
+  minThreshold @6 :UInt32;
   newSynapseCount @7 :UInt32;
   permanenceInc @8 :Float32;
   permanenceDec @9 :Float32;
@@ -57,8 +57,8 @@ struct BacktrackingTMProto {
   maxInfBacktrack @20 :UInt32;
   maxLrnBacktrack @21 :UInt32;
   maxSeqLength @22 :UInt32;
-  maxSegmentsPerCell @23 :UInt32;
-  maxSynapsesPerSegment @24 :UInt32;
+  maxSegmentsPerCell @23 :Int64;
+  maxSynapsesPerSegment @24 :Int64;
   outputType @25 :Text;
 
   activeColumns @26 :List(UInt32);
@@ -69,7 +69,7 @@ struct BacktrackingTMProto {
   lrnIterationIdx @28 :UInt32;
   iterationIdx @29 :UInt32;
   segID @30 :UInt32;
-  currentOutput @31 :List(Float32);
+  currentOutput @31 :List(Bool);
 
   pamCounter @32 :UInt32;
   collectSequenceStats @33 :Bool;
