@@ -231,7 +231,7 @@ class HTMPredictionModel(Model):
 
     # -----------------------------------------------------------------------
     if network is not None:
-      # Most likely in the scope of desrialization
+      # Most likely in the scope of deserialization
       self._netInfo = NetworkInfo(net=network, statsCollectors=[])
     else:
       # Create the network
