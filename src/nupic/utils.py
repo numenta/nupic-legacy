@@ -128,3 +128,9 @@ class MovingAverage(object, Serializable):
     proto.windowSize = self.windowSize
     proto.slidingWindow = self.slidingWindow
     proto.total = self.total
+
+
+  @classmethod
+  def getSchema(cls):
+    raise NotImplementedError()
+
