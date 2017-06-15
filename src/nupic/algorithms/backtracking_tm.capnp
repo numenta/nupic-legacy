@@ -69,7 +69,7 @@ struct BacktrackingTMProto {
   lrnIterationIdx @28 :UInt32;
   iterationIdx @29 :UInt32;
   segID @30 :UInt32;
-  currentOutput @31 :List(Bool);
+  currentOutput @31 :List(List(Bool));
 
   pamCounter @32 :UInt32;
   collectSequenceStats @33 :Bool;
@@ -93,29 +93,29 @@ struct BacktrackingTMProto {
   }
   segmentUpdates @40 :List(CellSegmentUpdatesProto);
 
-  cellConfidenceT @41 :List(Float32);
-  cellConfidenceT1 @42 :List(Float32);
-  cellConfidenceCandidate @43 :List(Float32);
+  cellConfidenceT @41 :List(List(Float32));
+  cellConfidenceT1 @42 :List(List(Float32));
+  cellConfidenceCandidate @43 :List(List(Float32));
 
   colConfidenceT @44 :List(Float32);
   colConfidenceT1 @45 :List(Float32);
   colConfidenceCandidate @46 :List(Float32);
 
-  lrnActiveStateT @47 :List(Int8);
-  lrnActiveStateT1 @48 :List(Int8);
+  lrnActiveStateT @47 :List(List(Int8));
+  lrnActiveStateT1 @48 :List(List(Int8));
 
-  infActiveStateT @49 :List(Int8);
-  infActiveStateT1 @50 :List(Int8);
-  infActiveStateBackup @51 :List(Int8);
-  infActiveStateCandidate @52 :List(Int8);
+  infActiveStateT @49 :List(List(Int8));
+  infActiveStateT1 @50 :List(List(Int8));
+  infActiveStateBackup @51 :List(List(Int8));
+  infActiveStateCandidate @52 :List(List(Int8));
 
-  lrnPredictedStateT @53 :List(Int8);
-  lrnPredictedStateT1 @54 :List(Int8);
+  lrnPredictedStateT @53 :List(List(Int8));
+  lrnPredictedStateT1 @54 :List(List(Int8));
 
-  infPredictedStateT @55 :List(Int8);
-  infPredictedStateT1 @56 :List(Int8);
-  infPredictedStateBackup @57 :List(Int8);
-  infPredictedStateCandidate @58 :List(Int8);
+  infPredictedStateT @55 :List(List(Int8));
+  infPredictedStateT1 @56 :List(List(Int8));
+  infPredictedStateBackup @57 :List(List(Int8));
+  infPredictedStateCandidate @58 :List(List(Int8));
 
   # From mixin class
   consolePrinterVerbosity @59 :UInt8;
