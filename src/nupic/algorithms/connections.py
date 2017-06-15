@@ -22,6 +22,8 @@
 from bisect import bisect_left
 from collections import defaultdict
 
+from nupic.serializable import Serializable
+
 EPSILON = 0.00001 # constant error threshold to check equality of permanences to
                   # other floats
 
@@ -122,7 +124,7 @@ def binSearch(arr, val):
 
 
 
-class Connections(object):
+class Connections(Serializable):
   """ 
   Class to hold data representing the connectivity of a collection of cells. 
   
