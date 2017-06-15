@@ -29,6 +29,14 @@ from nupic.bindings.regions.PyRegion import PyRegion
 from nupic.algorithms import knn_classifier
 from nupic.bindings.math import Random
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.regions.knn_classifier_region_capnp import KNNClassifierParamsProto
+
+
 
 class KNNClassifierRegion(PyRegion):
   """
@@ -1193,6 +1201,99 @@ class KNNClassifierRegion(PyRegion):
     else:
       raise Exception('Unknown output: ' + name)
 
+
+  @classmethod
+  def read(cls, proto):
+    if proto.version != KNNClassifierRegion.__VERSION__:
+      raise RuntimeError("Invalid KNNClassifierRegion Version")
+
+    instance = object.__new__(cls)
+    instance.version = proto.version
+    instance._knn = knn_classifier.KNNClassifier.read(proto.knn)
+    instance.knnParams = proto.knnParams.to_dict()
+    instance._rgen = Random()
+    instance._rgen.read(proto.rgen)
+    instance.verbosity = proto.verbosity
+    instance._firstComputeCall = proto.firstComputeCall
+    instance.keepAllDistances = proto.keepAllDistances
+    instance.learningMode = proto.learningMode
+    instance.inferenceMode = proto.inferenceMode
+    instance._doSphering = proto.doSphering
+    instance.outputProbabilitiesByDist = proto.outputProbabilitiesByDist
+    instance._epoch = proto.epoch
+    instance.maxStoredPatterns = proto.maxStoredPatterns
+    instance.maxCategoryCount = proto.maxCategoryCount
+    instance._bestPrototypeIndexCount = proto.bestPrototypeIndexCount
+    instance.acceptanceProbability = proto.acceptanceProbability
+    instance._useAuxiliary = proto.useAuxiliary
+    instance._justUseAuxiliary = proto.justUseAuxiliary
+    instance._protoScoreCount = proto.protoScoreCount
+    instance.confusion = numpy.array(proto.confusion, dtype=numpy.int32)
+    instance._normOffset = numpy.array(proto.normOffset, dtype=numpy.float32)
+    instance._normScale = numpy.array(proto.normScale, dtype=numpy.float32)
+    instance._samples = numpy.array(proto.normScale, dtype=numpy.float32)
+    instance._labels = numpy.array(proto.labels, dtype=numpy.int32)
+    instance._partitions = numpy.array(proto.partitions, dtype=numpy.int32)
+    instance._protoScores = numpy.array(proto.partitions, dtype=numpy.float32)
+    instance._categoryDistances = numpy.array(proto.categoryDistances,
+                                             dtype=numpy.float32)
+
+    instance._scanInfo = None
+    instance._accuracy = None
+    instance._tapFileIn = None
+    instance._tapFileOut = None
+
+    return instance
+
+
+  def write(self, proto):
+    proto.version = self.version
+
+    # Convert 'NoneType' to zero. See 'getParameter'
+    knnParams = self.knnParams.copy()
+    v = knnParams["numSVDSamples"]
+    knnParams["numSVDSamples"] = v if v is not None else 0
+    v = knnParams["numSVDDims"]
+    knnParams["numSVDDims"] = v if v is not None else 0
+    v = knnParams["fractionOfMax"]
+    knnParams["fractionOfMax"] = v if v is not None else 0
+    proto.knnParams = KNNClassifierParamsProto.new_message(**knnParams)
+
+    self._knn.write(proto.knn)
+    self._rgen.write(proto.rgen)
+
+    proto.verbosity = self.verbosity
+    proto.firstComputeCall = self._firstComputeCall
+    proto.keepAllDistances = self.keepAllDistances
+    proto.learningMode = self.learningMode
+    proto.inferenceMode = self.inferenceMode
+    proto.doSphering = self._doSphering
+    proto.outputProbabilitiesByDist = self.outputProbabilitiesByDist
+    proto.epoch = self._epoch
+    proto.maxStoredPatterns = self.maxStoredPatterns
+    proto.maxCategoryCount = self.maxCategoryCount
+    proto.bestPrototypeIndexCount = self._bestPrototypeIndexCount
+    proto.acceptanceProbability = self.acceptanceProbability
+    proto.useAuxiliary = self._useAuxiliary
+    proto.justUseAuxiliary = self._justUseAuxiliary
+    proto.protoScoreCount = self._protoScoreCount
+
+    if self.confusion is not None:
+      proto.confusion = self.confusion.tolist()
+    if self._normOffset is not None:
+      proto.normOffset = self._normOffset.tolist()
+    if self._normScale is not None:
+      proto.normScale = self._normScale.tolist()
+    if self._samples is not None:
+      proto.samples = self._samples.tolist()
+    if self._labels is not None:
+      proto.labels = self._labels.tolist()
+    if self._partitions is not None:
+      proto.partitions = self._partitions.tolist()
+    if self._protoScores is not None:
+      proto.protoScores = self._protoScores.tolist()
+    if self._categoryDistances is not None:
+      proto.categoryDistances = self._categoryDistances.tolist()
 
 
 if __name__=='__main__':
