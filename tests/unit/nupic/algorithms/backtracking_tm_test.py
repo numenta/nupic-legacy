@@ -58,6 +58,8 @@ class BacktrackingTMTest(unittest.TestCase):
 
 
   def testSerializationLearned(self):
+    if BacktrackingTM.__name__ == "BacktrackingTMCPP":
+      return unittest.skip("CPP version doesn't support capnp yet")
     # Create a model and give it some inputs to learn.
     tm1 = BacktrackingTM(numberOfCols=100, cellsPerColumn=12,
                          verbosity=VERBOSITY)
@@ -97,6 +99,8 @@ class BacktrackingTMTest(unittest.TestCase):
 
 
   def testSerializationMiddleOfSequence(self):
+    if BacktrackingTM.__name__ == "BacktrackingTMCPP":
+      return unittest.skip("CPP version doesn't support capnp yet")
     # Create a model and give it some inputs to learn.
     tm1 = BacktrackingTM(numberOfCols=100, cellsPerColumn=12,
                          verbosity=VERBOSITY)
@@ -139,6 +143,8 @@ class BacktrackingTMTest(unittest.TestCase):
 
   def testSerializationMiddleOfSequence2(self):
     """More complex test of checkpointing in the middle of a sequence."""
+    if BacktrackingTM.__name__ == "BacktrackingTMCPP":
+      return unittest.skip("CPP version doesn't support capnp yet")
     tm1 = BacktrackingTM(2048, 32, 0.21, 0.5, 11, 20, 0.1, 0.1, 1.0, 0.0, 14,
                          False, 5, 2, False, 1960, 0, False, 3, 10, 5, 0, 32,
                          128, 32, 'normal')
