@@ -26,6 +26,7 @@ from collections import namedtuple
 import numpy
 
 from nupic.encoders.utils import bitsToString
+from nupic.serializable import Serializable
 
 defaultDtype = numpy.uint8
 
@@ -64,7 +65,7 @@ def _isSequence(obj):
 
 
 
-class Encoder(object):
+class Encoder(object, Serializable):
   """
   An encoder converts a value to a sparse distributed representation.
 

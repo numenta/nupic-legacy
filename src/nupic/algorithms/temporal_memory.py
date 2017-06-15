@@ -29,6 +29,7 @@ from nupic.bindings.math import Random
 from operator import mul
 
 from nupic.algorithms.connections import Connections, binSearch
+from nupic.serializable import Serializable
 from nupic.support.group_by import groupby2
 
 EPSILON = 0.00001 # constant error threshold to check equality of permanences to
@@ -36,7 +37,7 @@ EPSILON = 0.00001 # constant error threshold to check equality of permanences to
 
 
 
-class TemporalMemory(object):
+class TemporalMemory(object, Serializable):
   """
   Class implementing the Temporal Memory algorithm. 
 

@@ -26,9 +26,10 @@ import numpy
 from nupic.algorithms import anomaly
 from nupic.bindings.regions.PyRegion import PyRegion
 
+from nupic.serializable import Serializable
 
 
-class AnomalyRegion(PyRegion):
+class AnomalyRegion(PyRegion, Serializable):
   """Region for computing the anomaly score."""
 
 
