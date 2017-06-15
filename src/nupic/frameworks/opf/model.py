@@ -27,10 +27,10 @@ import shutil
 from abc import ABCMeta, abstractmethod
 
 import nupic.frameworks.opf.opf_utils as opf_utils
+from nupic.serializable import Serializable
 
 
-
-class Model(object):
+class Model(Serializable):
   """ This is the base class that all OPF Model implementations should
   subclass.
 
