@@ -120,6 +120,10 @@ class BacktrackingTMCPP(BacktrackingTM):
     self.makeCells4Ephemeral = True
 
     #---------------------------------------------------------------------------------
+    # Store the seed for constructing Cells4
+    self.seed = seed
+
+    #---------------------------------------------------------------------------------
     # Init the base class
     BacktrackingTM.__init__(self,
                             numberOfCols = numberOfCols,

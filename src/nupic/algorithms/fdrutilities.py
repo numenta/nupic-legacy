@@ -448,7 +448,7 @@ def sameTMParams(tp1, tp2):
   for param in ["numberOfCols", "cellsPerColumn", "initialPerm", "connectedPerm",
                 "minThreshold", "newSynapseCount", "permanenceInc", "permanenceDec",
                 "permanenceMax", "globalDecay", "activationThreshold",
-                "doPooling", "segUpdateValidDuration", "seed",
+                "doPooling", "segUpdateValidDuration",
                 "burnIn", "pamLength", "maxAge"]:
     if getattr(tp1, param) != getattr(tp2,param):
       print param,"is different"
