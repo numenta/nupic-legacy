@@ -30,9 +30,10 @@ from collections import deque
 
 import numpy
 
+from nupic.serializable import Serializable
 
 
-class SDRClassifier(object):
+class SDRClassifier(Serializable):
   """
   The SDR Classifier accepts a binary input pattern from the
   level below (the "activationPattern") and information from the sensor and

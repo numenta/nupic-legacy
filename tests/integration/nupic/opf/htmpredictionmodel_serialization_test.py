@@ -23,8 +23,10 @@
 This module tests capnp serialization of HTMPredictionModel.
 """
 
+import copy
 import datetime
 import numpy.random
+import numpy.testing
 import unittest
 
 try:
@@ -49,7 +51,7 @@ from nupic.frameworks.opf.htm_prediction_model import HTMPredictionModel
 
 
 CPP_MODEL_PARAMS = {
-    'model': "HTMPrediction",
+    'model': 'HTMPrediction',
     'version': 1,
     'aggregationInfo': {  'days': 0,
         'fields': [(u'c1', 'sum'), (u'c0', 'first')],
@@ -63,8 +65,14 @@ CPP_MODEL_PARAMS = {
         'years': 0},
     'predictAheadTime': None,
     'modelParams': {
-      #'inferenceType': 'TemporalAnomaly',
-      'inferenceType': 'NontemporalAnomaly',
+      # inferenceType choices:
+      #
+      # TemporalNextStep, TemporalClassification, NontemporalClassification,
+      # TemporalAnomaly, NontemporalAnomaly, TemporalMultiStep,
+      # NontemporalMultiStep
+      #
+      #'inferenceType': 'TemporalAnomaly', # TODO: blocked on NUP-2356
+      'inferenceType': 'NontemporalMultiStep',
         'sensorParams': {
             'verbosity' : 0,
             'encoders': {
@@ -92,8 +100,7 @@ CPP_MODEL_PARAMS = {
             'synPermActiveInc': 0.1,
             'synPermInactiveDec': 0.005,
         },
-        #'tmEnable' : True,
-        'tmEnable' : False,
+        'tmEnable' : True,
         'tmParams': {
             'temporalImp': 'cpp',
             'verbosity': 0,
@@ -133,7 +140,7 @@ CPP_MODEL_PARAMS = {
 
 
 PY_MODEL_PARAMS = {
-  'model': "HTMPrediction",
+  'model': 'HTMPrediction',
     'version': 1,
     'aggregationInfo': {  'days': 0,
                           'fields': [(u'c1', 'sum'), (u'c0', 'first')],
@@ -147,10 +154,14 @@ PY_MODEL_PARAMS = {
         'years': 0},
     'predictAheadTime': None,
     'modelParams': {
-      #'inferenceType': 'TemporalAnomaly', # backtracking_tm.py", line 425, in __getattr__: AttributeError: 'TM' object has no attribute 'write'
-      #'inferenceType': 'NontemporalAnomaly', # sdr_classifier.py", line 429, in write - IndexError: deque index out of range
-      #'inferenceType': 'NontemporalClassification', # sdr_classifier.py", line 429, in write: IndexError: deque index out of range
-      'inferenceType': 'NontemporalMultiStep', # sdr_classifier.py", line 429, in write: IndexError: deque index out of range
+      # inferenceType choices:
+      #
+      # TemporalNextStep, TemporalClassification, NontemporalClassification,
+      # TemporalAnomaly, NontemporalAnomaly, TemporalMultiStep,
+      # NontemporalMultiStep
+      #
+      #'inferenceType': 'TemporalAnomaly', # TODO: blocked on NUP-2356
+      'inferenceType': 'NontemporalMultiStep',
         'sensorParams': {
           'verbosity' : 0,
             'encoders': {
@@ -179,7 +190,6 @@ PY_MODEL_PARAMS = {
             'synPermInactiveDec': 0.005,
             },
         'tmEnable' : True,
-        #'tmEnable' : False,
         'tmParams': {
           'temporalImp': 'py',
             'verbosity': 0,
@@ -220,46 +230,134 @@ PY_MODEL_PARAMS = {
 class HTMPredictionModelSerializationTest(unittest.TestCase):
 
 
-  def _runSimpleModelSerializationDeserialization(self, modelParams):
-    # Rudimentary serialization/deserialization; flush out starting point for
-    # tests
-
-    srcModel = ModelFactory.create(modelParams)
-    srcModel.enableInference({'predictedField': 'consumption'})
+  def _runModelSerializationDeserializationChecks(self, modelParams):
+    m1 = ModelFactory.create(modelParams)
+    m1.enableInference({'predictedField': 'consumption'})
     headers = ['timestamp', 'consumption']
 
     record = [datetime.datetime(2013, 12, 12), numpy.random.uniform(100)]
     modelInput = dict(zip(headers, record))
-    srcModel.run(modelInput)
+    m1.run(modelInput)
 
-    # Save and load after each batch. Clean up.
     # Serialize
     builderProto = HTMPredictionModelProto.new_message()
-    srcModel.write(builderProto)
+    m1.write(builderProto)
 
     # Construct HTMPredictionModelProto reader from populated builder
     readerProto = HTMPredictionModelProto.from_bytes(builderProto.to_bytes())
 
     # Deserialize
-    destModel = HTMPredictionModel.read(readerProto)
+    m2 = HTMPredictionModel.read(readerProto)
+    # TODO NUP-2463: remove this work-around.
+    # Work around a serialization bug that doesn't save the enabled predicted
+    # field
+    m2.enableInference({'predictedField': 'consumption'})
+
+    # TODO NUP-2464: remove this work-around
+    # Work around NUP-2464 by fixing up m2._numPredictions
+    m2._numPredictions = 1
+
+    # Run computes on m1 & m2 and compare results
+    record = [datetime.datetime(2013, 12, 14), numpy.random.uniform(100)]
+    modelInput = dict(zip(headers, record))
+    # Use deepcopy to guarantee no input side-effect between calls
+    r1 = m1.run(copy.deepcopy(modelInput))
+    r2 = m2.run(copy.deepcopy(modelInput))
+
+    # Compare results
+    self.assertEqual(r2.predictionNumber, r1.predictionNumber)
+    self.assertEqual(r2.rawInput, r1.rawInput)
+
+    self.assertEqual(r2.sensorInput.dataRow, r1.sensorInput.dataRow)
+    self.assertEqual(r2.sensorInput.dataDict, r1.sensorInput.dataDict)
+    numpy.testing.assert_array_equal(r2.sensorInput.dataEncodings,
+                                           r1.sensorInput.dataEncodings)
+    self.assertEqual(r2.sensorInput.sequenceReset, r1.sensorInput.sequenceReset)
+    self.assertEqual(r2.sensorInput.category, r1.sensorInput.category)
+
+    self.assertEqual(r2.inferences, r1.inferences)
+    self.assertEqual(r2.metrics, r1.metrics)
+    self.assertEqual(r2.predictedFieldIdx, r1.predictedFieldIdx)
+    self.assertEqual(r2.predictedFieldName, r1.predictedFieldName)
+
+    numpy.testing.assert_array_equal(r2.classifierInput.dataRow,
+                                     r1.classifierInput.dataRow)
+    self.assertEqual(r2.classifierInput.bucketIndex,
+                     r1.classifierInput.bucketIndex)
+
+    # Compre regions
+    self.assertIsNotNone(m2._getSensorRegion())
+    self.assertEqual(m2._getSensorRegion(), m1._getSensorRegion())
+
+    self.assertIsNotNone(m2._getClassifierRegion())
+    self.assertEqual(m2._getClassifierRegion(), m1._getClassifierRegion())
+
+    # TODO NUP-2356: Uncomment after issue is resolved.
+    #self.assertIsNotNone(m2._getTPRegion())
+    self.assertEqual(m2._getTPRegion(), m1._getTPRegion())
+
+    self.assertIsNotNone(m2._getSPRegion())
+    self.assertEqual(m2._getSPRegion(), m1._getSPRegion())
+
+
+  @unittest.skip('NUP-2463 Predicted field and __inferenceEnabled are not '
+                 'serialized by HTMPredictionModel.write')
+  @unittest.skipUnless(
+    capnp, 'pycapnp is not installed, skipping serialization test.')
+  def testPredictedFieldAndInferenceEnabledAreSaved(self):
+    m1 = ModelFactory.create(PY_MODEL_PARAMS)
+    m1.enableInference({'predictedField': 'consumption'})
+    self.assertTrue(m1.isInferenceEnabled())
+    self.assertEqual(m1.getInferenceArgs().get('predictedField'), 'consumption')
+
+
+    headers = ['timestamp', 'consumption']
+
+    record = [datetime.datetime(2013, 12, 12), numpy.random.uniform(100)]
+    modelInput = dict(zip(headers, record))
+    m1.run(modelInput)
+
+    # Serialize
+    builderProto = HTMPredictionModelProto.new_message()
+    m1.write(builderProto)
+
+    # Construct HTMPredictionModelProto reader from populated builder
+    readerProto = HTMPredictionModelProto.from_bytes(builderProto.to_bytes())
+
+    # Deserialize
+    m2 = HTMPredictionModel.read(readerProto)
+
+    self.assertTrue(m2.isInferenceEnabled())
+    self.assertEqual(m2.getInferenceArgs().get('predictedField'), 'consumption')
+
+    # Running the desrialized m2 without redundant enableInference call should
+    # work
+    record = [datetime.datetime(2013, 12, 14), numpy.random.uniform(100)]
+    modelInput = dict(zip(headers, record))
+    m2.run(modelInput)
+
+    # Check that disabled inference is saved, too (since constructor defaults to
+    # enabled at time of this writing)
+    m1.disableInference()
+    self.assertFalse(m1.isInferenceEnabled())
+    builderProto = HTMPredictionModelProto.new_message()
+    m1.write(builderProto)
+    readerProto = HTMPredictionModelProto.from_bytes(builderProto.to_bytes())
+    m3 = HTMPredictionModel.read(readerProto)
+    self.assertFalse(m3.isInferenceEnabled())
+
 
 
   @unittest.skipUnless(
-    capnp, "pycapnp is not installed, skipping serialization test.")
-  def testSimpleCPPModelSerializationNoValidation(self):
-    # Rudimentary serialization/deserialization; flush out starting point for
-    # tests
-
-    self._runSimpleModelSerializationDeserialization(CPP_MODEL_PARAMS)
+    capnp, 'pycapnp is not installed, skipping serialization test.')
+  def testCPPModelSerialization(self):
+    self._runModelSerializationDeserializationChecks(CPP_MODEL_PARAMS)
 
 
   @unittest.skipUnless(
-    capnp, "pycapnp is not installed, skipping serialization test.")
-  def testSimplePYModelSerializationNoValidation(self):
-    # Rudimentary serialization/deserialization; flush out starting point for
-    # tests
-
-    self._runSimpleModelSerializationDeserialization(PY_MODEL_PARAMS)
+    capnp, 'pycapnp is not installed, skipping serialization test.')
+  def testPYModelSerialization(self):
+    self._runModelSerializationDeserializationChecks(PY_MODEL_PARAMS)
 
 
 

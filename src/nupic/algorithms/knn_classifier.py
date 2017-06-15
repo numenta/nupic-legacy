@@ -25,7 +25,7 @@ import numpy
 
 from nupic.bindings.math import (NearestNeighbor, min_score_per_category)
 
-
+from nupic.serializable import Serializable
 
 g_debugPrefix = "KNN"
 KNNCLASSIFIER_VERSION = 1
@@ -61,7 +61,7 @@ def _labeledInput(activeInputs, cellsPerCol=32):
 
 
 
-class KNNClassifier(object):
+class KNNClassifier(Serializable):
   """
   This class implements NuPIC's k Nearest Neighbor Classifier. KNN is very
   useful as a basic classifier for many situations. This implementation contains

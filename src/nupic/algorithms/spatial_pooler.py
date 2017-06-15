@@ -25,8 +25,7 @@ from nupic.bindings.math import (SM32 as SparseMatrix,
                                  GetNTAReal,
                                  Random as NupicRandom)
 from nupic.math import topology
-
-
+from nupic.serializable import Serializable
 
 realDType = GetNTAReal()
 uintType = "uint32"
@@ -89,7 +88,7 @@ class BinaryCorticalColumns(_SparseMatrixCorticalColumnAdapter,
 
 
 
-class SpatialPooler(object):
+class SpatialPooler(Serializable):
   """
   This class implements the spatial pooler. It is in charge of handling the
   relationships between the columns of a region and the inputs bits. The
