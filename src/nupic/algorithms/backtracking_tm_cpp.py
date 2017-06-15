@@ -27,8 +27,17 @@ Temporal memory implementation in C++ wrapped by a Python class.
 :meth:`~nupic.algorithms.backtracking_tm.BacktrackingTM.compute`.
 """
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+import json
 import numpy
 from numpy import *
+
+if capnp:
+  from nupic.algorithms.backtracking_tm_cpp_capnp import (
+      BacktrackingTMCppProto)
 from nupic.bindings.algorithms import Cells4
 
 import nupic.math
@@ -152,6 +161,44 @@ class BacktrackingTMCPP(BacktrackingTM):
                             maxSynapsesPerSegment = maxSynapsesPerSegment,
                             outputType = outputType,
                             )
+
+
+  @classmethod
+  def getSchema(cls):
+    return BacktrackingTMCppProto
+
+
+  def write(self, proto):
+    super(BacktrackingTMCPP, self).write(proto.baseTM)
+    self.cells4.write(proto.cells4)
+    proto.makeCells4Ephemeral = self.makeCells4Ephemeral
+    proto.seed = self.seed
+    proto.checkSynapseConsistency = self.checkSynapseConsistency
+    proto.initArgs = json.dumps(self._initArgsDict)
+
+
+  @classmethod
+  def read(cls, proto):
+    # Use base class to create initial class
+    obj = BacktrackingTM.read(proto.baseTM)
+    obj.__class__ = cls
+
+    # Additional CPP-specific deserialization
+    newCells4 = Cells4.read(proto.cells4)
+    print newCells4
+    obj.cells4 = newCells4
+    obj.makeCells4Ephemeral = proto.makeCells4Ephemeral
+    obj.seed = proto.seed
+    obj.checkSynapseConsistency = proto.checkSynapseConsistency
+    obj._initArgsDict = json.loads(proto.initArgs)
+    obj._initArgsDict["outputType"] = str(obj._initArgsDict["outputType"])
+
+    # Initialize ephemeral attributes
+    obj.allocateStatesInCPP = False
+    obj.retrieveLearningStates = False
+    obj._setStatePointers()
+
+    return obj
 
 
   def __setstate__(self, state):

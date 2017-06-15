@@ -470,7 +470,7 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
     proto.pamCounter = self.pamCounter
     proto.collectSequenceStats = self.collectSequenceStats
     proto.resetCalled = self.resetCalled
-    proto.avgInputDensity = self.avgInputDensity
+    proto.avgInputDensity = self.avgInputDensity or -1.0
     proto.learnedSeqLength = self.learnedSeqLength
     proto.avgLearnedSeqLength = self.avgLearnedSeqLength
 
@@ -563,8 +563,7 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
       for cellSegments, cellSegmentsProto in zip(columnSegments,
                                                  columnSegmentsProto):
         for segmentProto in cellSegmentsProto:
-          segment = Segment.read(segmentProto)
-          segment.tm = obj
+          segment = Segment.read(segmentProto, obj)
           cellSegments.append(segment)
 
     obj.lrnIterationIdx = int(proto.lrnIterationIdx)
@@ -574,7 +573,10 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
     obj.pamCounter = int(proto.pamCounter)
     obj.collectSequenceStats = proto.collectSequenceStats
     obj.resetCalled = proto.resetCalled
-    obj.avgInputDensity = proto.avgInputDensity
+    if proto.avgInputDensity < 0.0:
+      obj.avgInputDensity = None
+    else:
+      obj.avgInputDensity = proto.avgInputDensity
     obj.learnedSeqLength = int(proto.learnedSeqLength)
     obj.avgLearnedSeqLength = proto.avgLearnedSeqLength
 
@@ -592,7 +594,7 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
       key = (cellWrapperProto.columnIdx, cellWrapperProto.cellIdx)
       value = []
       for updateWrapperProto in cellWrapperProto.segmentUpdates:
-        segmentUpdate = SegmentUpdate.read(updateWrapperProto.segmentUpdate)
+        segmentUpdate = SegmentUpdate.read(updateWrapperProto.segmentUpdate, obj)
         value.append((int(updateWrapperProto.lrnIterationIdx), segmentUpdate))
       obj.segmentUpdates[key] = value
 
@@ -1389,12 +1391,14 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
       proto.weaklyPredicting = self.weaklyPredicting
 
     @classmethod
-    def read(cls, proto):
+    def read(cls, proto, tm):
       obj = object.__new__(cls)
 
       obj.columnIdx = proto.columnIdx
       obj.cellIdx = proto.cellIdx
-      obj.segment.read(proto.segment)
+      # TODO: Is it ok for this to be a separate instance than the segment
+      # in the TM segment list?
+      obj.segment.read(proto.segment, tm)
       obj.activeSynapses = [syn for syn in proto.activeSynapses]
       obj.sequenceSegment = proto.sequenceSegment
       obj.phase1Flag = proto.phase1Flag
@@ -3568,8 +3572,9 @@ class Segment(Serializable):
 
 
   @classmethod
-  def read(cls, proto):
+  def read(cls, proto, tm):
     obj = object.__new__(cls)
+    obj.tm = tm
     obj.segID = int(proto.segID)
     obj.isSequenceSeg = proto.isSequenceSeg
     obj.lastActiveIteration = int(proto.lastActiveIteration)
