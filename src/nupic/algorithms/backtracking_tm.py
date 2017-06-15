@@ -30,11 +30,15 @@ import copy
 import cPickle as pickle
 import itertools
 
-import capnp
+try:
+  import capnp
+except ImportError:
+  capnp = None
 import numpy
 
-from nupic.algorithms.backtracking_tm_capnp import (
-    SegmentProto, SegmentUpdateProto, BacktrackingTMProto)
+if capnp:
+  from nupic.algorithms.backtracking_tm_capnp import (
+      SegmentProto, SegmentUpdateProto, BacktrackingTMProto)
 from nupic.bindings.math import Random
 from nupic.bindings.algorithms import getSegmentActivityLevel, isSegmentActive
 from nupic.math import GetNTAReal

@@ -30,6 +30,11 @@ import random
 import shutil
 import tempfile
 import unittest2 as unittest
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
 from pkg_resources import resource_filename
 
 from nupic.algorithms import fdrutilities
@@ -57,6 +62,7 @@ class BacktrackingTMTest(unittest.TestCase):
     self.assertTrue(isinstance(BacktrackingTM(), BacktrackingTM))
 
 
+  @unittest.skipUnless(capnp, "pycapnp not installed")
   def testSerializationLearned(self):
     if BacktrackingTM.__name__ == "BacktrackingTMCPP":
       return unittest.skip("CPP version doesn't support capnp yet")
@@ -98,6 +104,7 @@ class BacktrackingTMTest(unittest.TestCase):
         self.assertTrue(numpy.array_equal(result1, result2))
 
 
+  @unittest.skipUnless(capnp, "pycapnp not installed")
   def testSerializationMiddleOfSequence(self):
     if BacktrackingTM.__name__ == "BacktrackingTMCPP":
       return unittest.skip("CPP version doesn't support capnp yet")
@@ -141,6 +148,7 @@ class BacktrackingTMTest(unittest.TestCase):
         self.assertTrue(numpy.array_equal(result1, result2))
 
 
+  @unittest.skipUnless(capnp, "pycapnp not installed")
   def testSerializationMiddleOfSequence2(self):
     """More complex test of checkpointing in the middle of a sequence."""
     if BacktrackingTM.__name__ == "BacktrackingTMCPP":
