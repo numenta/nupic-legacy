@@ -27,6 +27,7 @@ in our codebase.
 import numbers
 
 from nupic.serializable import Serializable
+from nupic.movingaverage_capnp import MovingAverageProto
 
 
 class MovingAverage(Serializable):
@@ -132,5 +133,5 @@ class MovingAverage(Serializable):
 
   @classmethod
   def getSchema(cls):
-    raise NotImplementedError()
+    return MovingAverageProto
 
