@@ -38,12 +38,15 @@ def runHotgym(numRecords):
 
   sp = SpatialPooler(
     # How large the input encoding will be.
-    inputDimensions=(encodingWidth),
+    inputDimensions=(encodingWidth,),
     # How many mini-columns will be in the Spatial Pooler.
-    columnDimensions=(spParams["columnCount"]),
+    columnDimensions=(spParams["columnCount"],),
     # What percent of the columns"s receptive field is available for potential
     # synapses?
     potentialPct=spParams["potentialPct"],
+    # Potential radius should be set to the input size if there is global
+    # inhibition.
+    potentialRadius=encodingWidth,
     # This means that the input space has no topology.
     globalInhibition=spParams["globalInhibition"],
     localAreaDensity=spParams["localAreaDensity"],
@@ -62,7 +65,7 @@ def runHotgym(numRecords):
     # TODO: is this useful?
     # Determines if inputs at the beginning and end of an input dimension should
     # be considered neighbors when mapping columns to inputs.
-    wrapAround=False
+    wrapAround=True
   )
 
   tm = TemporalMemory(
