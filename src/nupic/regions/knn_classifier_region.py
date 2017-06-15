@@ -1257,7 +1257,7 @@ class KNNClassifierRegion(PyRegion):
     knnParams["numSVDDims"] = v if v is not None else 0
     v = knnParams["fractionOfMax"]
     knnParams["fractionOfMax"] = v if v is not None else 0
-    proto.knnParams = KNNClassifierParamsProto.new_message(**knnParams)
+    proto.knnParams = knnParams
 
     self._knn.write(proto.knn)
     self._rgen.write(proto.rgen)
