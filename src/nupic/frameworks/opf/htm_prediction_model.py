@@ -177,13 +177,23 @@ class HTMPredictionModel(Model):
       anomalyParams={},
       minLikelihoodThreshold=DEFAULT_LIKELIHOOD_THRESHOLD,
       maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP,
-      network=None):
+      network=None,
+      baseProto=None):
+    """
+    :param network: if not None, the deserialized nupic.engine.Network instance
+                    to use instead of creating a new Network
+    :param baseProto: if not None, capnp ModelProto message reader for
+                      deserializing; supersedes inferenceType
+    """
     if not inferenceType in self.__supportedInferenceKindSet:
       raise ValueError("{0} received incompatible inference type: {1}"\
                        .format(self.__class__, inferenceType))
 
     # Call super class constructor
-    super(HTMPredictionModel, self).__init__(inferenceType)
+    if baseProto is None:
+      super(HTMPredictionModel, self).__init__(inferenceType)
+    else:
+      super(HTMPredictionModel, self).__init__(proto=baseProto)
 
     # self.__restoringFromState is set to True by our __setstate__ method
     # and back to False at completion of our _deSerializeExtraData() method.
@@ -221,6 +231,7 @@ class HTMPredictionModel(Model):
 
     # -----------------------------------------------------------------------
     if network is not None:
+      # Most likely in the scope of desrialization
       self._netInfo = NetworkInfo(net=network, statsCollectors=[])
     else:
       # Create the network
@@ -1308,10 +1319,10 @@ class HTMPredictionModel(Model):
 
 
   def write(self, proto):
-    inferenceType = self.getInferenceType()
-    # lower-case first letter to be compatible with capnproto enum naming
-    inferenceType = inferenceType[:1].lower() + inferenceType[1:]
-    proto.inferenceType = inferenceType
+    """
+    :param proto: capnp HTMPredictionModelProto message builder
+    """
+    super(HTMPredictionModel, self).writeBaseToProto(proto.modelBase)
 
     proto.numRunCalls = self.__numRunCalls
     proto.minLikelihoodThreshold = self._minLikelihoodThreshold
@@ -1322,11 +1333,9 @@ class HTMPredictionModel(Model):
 
   @classmethod
   def read(cls, proto):
-    inferenceType = str(proto.inferenceType)
-    # upper-case first letter to be compatible with enum InferenceType naming
-    inferenceType = inferenceType[:1].upper() + inferenceType[1:]
-    inferenceType = InferenceType.getValue(inferenceType)
-
+    """
+    :param proto: HTMPredictionModelProto reader
+    """
     network = Network.read(proto.network)
     spEnable = ("SP" in network.regions)
     tmEnable = ("TM" in network.regions)
@@ -1335,8 +1344,8 @@ class HTMPredictionModel(Model):
     model = cls(spEnable=spEnable,
                 tmEnable=tmEnable,
                 clEnable=clEnable,
-                inferenceType=inferenceType,
-                network=network)
+                network=network,
+                baseProto=proto.modelBase)
 
     model.__numRunCalls = proto.numRunCalls
     model._minLikelihoodThreshold = proto.minLikelihoodThreshold

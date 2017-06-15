@@ -51,179 +51,182 @@ from nupic.frameworks.opf.htm_prediction_model import HTMPredictionModel
 
 
 CPP_MODEL_PARAMS = {
-    'model': 'HTMPrediction',
-    'version': 1,
-    'aggregationInfo': {  'days': 0,
-        'fields': [(u'c1', 'sum'), (u'c0', 'first')],
-        'hours': 1,
-        'microseconds': 0,
-        'milliseconds': 0,
-        'minutes': 0,
-        'months': 0,
-        'seconds': 0,
-        'weeks': 0,
-        'years': 0},
-    'predictAheadTime': None,
-    'modelParams': {
-      # inferenceType choices:
-      #
-      # TemporalNextStep, TemporalClassification, NontemporalClassification,
-      # TemporalAnomaly, NontemporalAnomaly, TemporalMultiStep,
-      # NontemporalMultiStep
-      #
-      #'inferenceType': 'TemporalAnomaly', # TODO: blocked on NUP-2356
-      'inferenceType': 'NontemporalMultiStep',
-        'sensorParams': {
-            'verbosity' : 0,
-            'encoders': {
-                u'consumption':    {  'clipInput': True,
-                    'fieldname': u'consumption',
-                    'maxval': 100.0,
-                    'minval': 0.0,
-                    'n': 50,
-                    'name': u'c1',
-                    'type': 'ScalarEncoder',
-                    'w': 21},},
-            'sensorAutoReset' : None,
-        },
-        'spEnable': True,
-        'spParams': {
-            'spatialImp' : 'cpp',
-            'spVerbosity' : 0,
-            'globalInhibition': 1,
-            'columnCount': 512,
-            'inputWidth': 0,
-            'numActiveColumnsPerInhArea': 20,
-            'seed': 1956,
-            'potentialPct': 0.5,
-            'synPermConnected': 0.1,
-            'synPermActiveInc': 0.1,
-            'synPermInactiveDec': 0.005,
-        },
-        'tmEnable' : True,
-        'tmParams': {
-            'temporalImp': 'cpp',
-            'verbosity': 0,
-            'columnCount': 512,
-            'cellsPerColumn': 8,
-            'inputWidth': 512,
-            'seed': 1960,
-            'newSynapseCount': 10,
-            'maxSynapsesPerSegment': 20,
-            'maxSegmentsPerCell': 32,
-            'initialPerm': 0.21,
-            'permanenceInc': 0.1,
-            'permanenceDec' : 0.1,
-            'globalDecay': 0.0,
-            'maxAge': 0,
-            'minThreshold': 4,
-            'activationThreshold': 6,
-            'outputType': 'normal',
-            'pamLength': 1,
-        },
-        'clParams': {
-            'implementation': 'cpp',
-            'regionName': 'SDRClassifierRegion',
-            'verbosity' : 0,
-            'alpha': 0.005,
-            'steps': '1,5',
-        },
-
-        'anomalyParams': {  u'anomalyCacheRecords': None,
-    u'autoDetectThreshold': None,
-    u'autoDetectWaitRecords': 2184},
-
-        'trainSPNetOnlyIfRequested': False,
+  'model': 'HTMPrediction',
+  'version': 1,
+  'aggregationInfo': {
+    'days': 0,
+    'fields': [(u'c1', 'sum'), (u'c0', 'first')],
+    'hours': 1,
+    'microseconds': 0,
+    'milliseconds': 0,
+    'minutes': 0,
+    'months': 0,
+    'seconds': 0,
+    'weeks': 0,
+    'years': 0},
+  'predictAheadTime': None,
+  'modelParams': {
+    # inferenceType choices:
+    #
+    # TemporalNextStep, TemporalClassification, NontemporalClassification,
+    # TemporalAnomaly, NontemporalAnomaly, TemporalMultiStep,
+    # NontemporalMultiStep
+    #
+    #'inferenceType': 'TemporalAnomaly', # TODO: blocked on NUP-2356
+    'inferenceType': 'NontemporalMultiStep',
+    'sensorParams': {
+      'verbosity' : 0,
+      'encoders': {
+        u'consumption':    {  'clipInput': True,
+          'fieldname': u'consumption',
+          'maxval': 100.0,
+          'minval': 0.0,
+          'n': 50,
+          'name': u'c1',
+          'type': 'ScalarEncoder',
+          'w': 21},
+      },
+      'sensorAutoReset' : None,
     },
+    'spEnable': True,
+    'spParams': {
+      'spatialImp' : 'cpp',
+      'spVerbosity' : 0,
+      'globalInhibition': 1,
+      'columnCount': 512,
+      'inputWidth': 0,
+      'numActiveColumnsPerInhArea': 20,
+      'seed': 1956,
+      'potentialPct': 0.5,
+      'synPermConnected': 0.1,
+      'synPermActiveInc': 0.1,
+      'synPermInactiveDec': 0.005,
+    },
+    'tmEnable' : True,
+    'tmParams': {
+      'temporalImp': 'cpp',
+      'verbosity': 0,
+      'columnCount': 512,
+      'cellsPerColumn': 8,
+      'inputWidth': 512,
+      'seed': 1960,
+      'newSynapseCount': 10,
+      'maxSynapsesPerSegment': 20,
+      'maxSegmentsPerCell': 32,
+      'initialPerm': 0.21,
+      'permanenceInc': 0.1,
+      'permanenceDec' : 0.1,
+      'globalDecay': 0.0,
+      'maxAge': 0,
+      'minThreshold': 4,
+      'activationThreshold': 6,
+      'outputType': 'normal',
+      'pamLength': 1,
+    },
+    'clParams': {
+      'implementation': 'cpp',
+      'regionName': 'SDRClassifierRegion',
+      'verbosity' : 0,
+      'alpha': 0.005,
+      'steps': '1,5',
+    },
+
+    'anomalyParams': {  u'anomalyCacheRecords': None,
+                        u'autoDetectThreshold': None,
+                        u'autoDetectWaitRecords': 2184},
+
+    'trainSPNetOnlyIfRequested': False,
+  },
 }
 
 
 
 PY_MODEL_PARAMS = {
   'model': 'HTMPrediction',
-    'version': 1,
-    'aggregationInfo': {  'days': 0,
-                          'fields': [(u'c1', 'sum'), (u'c0', 'first')],
-        'hours': 1,
-        'microseconds': 0,
-        'milliseconds': 0,
-        'minutes': 0,
-        'months': 0,
-        'seconds': 0,
-        'weeks': 0,
-        'years': 0},
-    'predictAheadTime': None,
-    'modelParams': {
-      # inferenceType choices:
-      #
-      # TemporalNextStep, TemporalClassification, NontemporalClassification,
-      # TemporalAnomaly, NontemporalAnomaly, TemporalMultiStep,
-      # NontemporalMultiStep
-      #
-      #'inferenceType': 'TemporalAnomaly', # TODO: blocked on NUP-2356
-      'inferenceType': 'NontemporalMultiStep',
-        'sensorParams': {
-          'verbosity' : 0,
-            'encoders': {
-              u'consumption':    {  'clipInput': True,
-                                      'fieldname': u'consumption',
-                    'maxval': 100.0,
-                    'minval': 0.0,
-                    'n': 50,
-                    'name': u'c1',
-                    'type': 'ScalarEncoder',
-                    'w': 21},},
-            'sensorAutoReset' : None,
-            },
-        'spEnable': True,
-        'spParams': {
-          'spatialImp' : 'py',
-            'spVerbosity' : 0,
-            'globalInhibition': 1,
-            'columnCount': 512,
-            'inputWidth': 0,
-            'numActiveColumnsPerInhArea': 20,
-            'seed': 1956,
-            'potentialPct': 0.5,
-            'synPermConnected': 0.1,
-            'synPermActiveInc': 0.1,
-            'synPermInactiveDec': 0.005,
-            },
-        'tmEnable' : True,
-        'tmParams': {
-          'temporalImp': 'py',
-            'verbosity': 0,
-            'columnCount': 512,
-            'cellsPerColumn': 8,
-            'inputWidth': 512,
-            'seed': 1960,
-            'newSynapseCount': 10,
-            'maxSynapsesPerSegment': 20,
-            'maxSegmentsPerCell': 32,
-            'initialPerm': 0.21,
-            'permanenceInc': 0.1,
-            'permanenceDec' : 0.1,
-            'globalDecay': 0.0,
-            'maxAge': 0,
-            'minThreshold': 4,
-            'activationThreshold': 6,
-            'outputType': 'normal',
-            'pamLength': 1,
-            },
-        'clParams': {
-          'implementation': 'py',
-            'regionName': 'SDRClassifierRegion',
-            'verbosity' : 0,
-            'alpha': 0.005,
-            'steps': '1,5',
-            },
+  'version': 1,
+  'aggregationInfo': {  'days': 0,
+                        'fields': [(u'c1', 'sum'), (u'c0', 'first')],
+                        'hours': 1,
+                        'microseconds': 0,
+                        'milliseconds': 0,
+                        'minutes': 0,
+                        'months': 0,
+                        'seconds': 0,
+                        'weeks': 0,
+                        'years': 0},
+  'predictAheadTime': None,
+  'modelParams': {
+    # inferenceType choices:
+    #
+    # TemporalNextStep, TemporalClassification, NontemporalClassification,
+    # TemporalAnomaly, NontemporalAnomaly, TemporalMultiStep,
+    # NontemporalMultiStep
+    #
+    #'inferenceType': 'TemporalAnomaly', # TODO: blocked on NUP-2356
+    'inferenceType': 'NontemporalMultiStep',
+    'sensorParams': {
+      'verbosity' : 0,
+      'encoders': {
+        u'consumption':    {  'clipInput': True,
+                              'fieldname': u'consumption',
+                              'maxval': 100.0,
+                              'minval': 0.0,
+                              'n': 50,
+                              'name': u'c1',
+                              'type': 'ScalarEncoder',
+                              'w': 21},
+      },
+      'sensorAutoReset' : None,
+    },
+    'spEnable': True,
+    'spParams': {
+      'spatialImp' : 'py',
+      'spVerbosity' : 0,
+      'globalInhibition': 1,
+      'columnCount': 512,
+      'inputWidth': 0,
+      'numActiveColumnsPerInhArea': 20,
+      'seed': 1956,
+      'potentialPct': 0.5,
+      'synPermConnected': 0.1,
+      'synPermActiveInc': 0.1,
+      'synPermInactiveDec': 0.005,
+    },
+    'tmEnable' : True,
+    'tmParams': {
+      'temporalImp': 'py',
+      'verbosity': 0,
+      'columnCount': 512,
+      'cellsPerColumn': 8,
+      'inputWidth': 512,
+      'seed': 1960,
+      'newSynapseCount': 10,
+      'maxSynapsesPerSegment': 20,
+      'maxSegmentsPerCell': 32,
+      'initialPerm': 0.21,
+      'permanenceInc': 0.1,
+      'permanenceDec' : 0.1,
+      'globalDecay': 0.0,
+      'maxAge': 0,
+      'minThreshold': 4,
+      'activationThreshold': 6,
+      'outputType': 'normal',
+      'pamLength': 1,
+    },
+    'clParams': {
+      'implementation': 'py',
+      'regionName': 'SDRClassifierRegion',
+      'verbosity' : 0,
+      'alpha': 0.005,
+      'steps': '1,5',
+    },
 
-        'anomalyParams': {  u'anomalyCacheRecords': None,
-                            u'autoDetectThreshold': None,
-    u'autoDetectWaitRecords': 2184},
+    'anomalyParams': {  u'anomalyCacheRecords': None,
+                        u'autoDetectThreshold': None,
+                        u'autoDetectWaitRecords': 2184},
 
-        'trainSPNetOnlyIfRequested': False,
-        },
+    'trainSPNetOnlyIfRequested': False,
+  },
 }
 
 
@@ -248,14 +251,15 @@ class HTMPredictionModelSerializationTest(unittest.TestCase):
 
     # Deserialize
     m2 = HTMPredictionModel.read(readerProto)
+
+    self.assertEqual(m1.getInferenceType(),
+                     modelParams['modelParams']['inferenceType'])
+    self.assertEqual(m1.getInferenceType(), m2.getInferenceType())
+
     # TODO NUP-2463: remove this work-around.
     # Work around a serialization bug that doesn't save the enabled predicted
     # field
     m2.enableInference({'predictedField': 'consumption'})
-
-    # TODO NUP-2464: remove this work-around
-    # Work around NUP-2464 by fixing up m2._numPredictions
-    m2._numPredictions = 1
 
     # Run computes on m1 & m2 and compare results
     record = [datetime.datetime(2013, 12, 14), numpy.random.uniform(100)]
