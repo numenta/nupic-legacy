@@ -18,6 +18,7 @@ AnomalyLikelihood
 .. automodule:: nupic.algorithms.anomaly_likelihood
 
 .. autoclass:: nupic.algorithms.anomaly_likelihood.AnomalyLikelihood
+   :show-inheritance:
    :members:
 
 .. autofunction:: nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods

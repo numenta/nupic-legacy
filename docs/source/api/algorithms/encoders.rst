@@ -7,6 +7,7 @@ Base Encoder
 ^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.base.Encoder
+   :show-inheritance:
    :members:
 
 Encoder Result
