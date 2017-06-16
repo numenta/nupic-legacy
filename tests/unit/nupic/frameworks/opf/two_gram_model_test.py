@@ -219,6 +219,10 @@ class TwoGramModelTest(unittest.TestCase):
 
     modelDeserialized = two_gram_model.TwoGramModel.read(protoDeserialized)
 
+    self.assertEqual(model.getInferenceType(), inferenceType)
+    self.assertEqual(modelDeserialized.getInferenceType(),
+                     model.getInferenceType())
+
     self.assertSequenceEqual(modelDeserialized._prevValues,
                              model._prevValues)
     self.assertSequenceEqual(modelDeserialized._hashToValueDict,

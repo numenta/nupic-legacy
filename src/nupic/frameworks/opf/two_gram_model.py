@@ -150,13 +150,12 @@ class TwoGramModel(model.Model):
 
   @classmethod
   def read(cls, proto):
-    inferenceType = str(proto.inferenceType)
-    # upper-case first letter to be compatible with enum InferenceType naming
-    inferenceType = inferenceType[:1].upper() + inferenceType[1:]
-    inferenceType = InferenceType.getValue(inferenceType)
-
+    """
+    :param proto: capnp TwoGramModelProto message reader
+    """
     instance = object.__new__(cls)
-    super(TwoGramModel, instance).__init__(inferenceType)
+    super(TwoGramModel, instance).__init__(proto=proto.modelBase)
+
     instance._logger = opf_utils.initLogger(instance)
 
     instance._reset = proto.reset
@@ -178,10 +177,11 @@ class TwoGramModel(model.Model):
 
 
   def write(self, proto):
-    inferenceType = self.getInferenceType()
-    # lower-case first letter to be compatible with capnproto enum naming
-    inferenceType = inferenceType[:1].lower() + inferenceType[1:]
-    proto.inferenceType = inferenceType
+    """
+    :param proto: capnp HTMPredictionModelProto message builder
+    """
+    super(TwoGramModel, self).writeBaseToProto(proto.modelBase)
+
     proto.reset = self._reset
     proto.learningEnabled = self._learningEnabled
     proto.prevValues = self._prevValues

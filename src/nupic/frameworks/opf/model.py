@@ -26,6 +26,7 @@ import os
 import shutil
 from abc import ABCMeta, abstractmethod
 
+from nupic.frameworks.opf.opf_utils import InferenceType
 import nupic.frameworks.opf.opf_utils as opf_utils
 from nupic.serializable import Serializable
 
@@ -43,9 +44,27 @@ class Model(Serializable):
 
   __metaclass__ = ABCMeta
 
-  def __init__(self, inferenceType):
-    self._numPredictions = 0
-    self.__inferenceType =  inferenceType
+  def __init__(self, inferenceType=None, proto=None):
+    """
+    :param opf_utils.InferenceType inferenceType: mutually-exclusive with proto
+                                                  arg
+    :param proto: capnp ModelProto message reader for deserializing;
+                  mutually-exclusive with the other constructor args.
+    """
+    assert inferenceType is not None and proto is None or (
+      inferenceType is None and proto is not None), (
+      "proto and other constructor args are mutually exclusive")
+
+    if proto is None:
+      self._numPredictions = 0
+      self.__inferenceType =  inferenceType
+    else:
+      self._numPredictions = proto.numPredictions
+      inferenceType = str(proto.inferenceType)
+      # upper-case first letter to be compatible with enum InferenceType naming
+      inferenceType = inferenceType[:1].upper() + inferenceType[1:]
+      self.__inferenceType = InferenceType.getValue(inferenceType)
+
     self.__learningEnabled = True
     self.__inferenceEnabled = True
     self.__inferenceArgs = {}
@@ -64,13 +83,11 @@ class Model(Serializable):
              depends on the the specific inference type of this model, which
              can be queried by :meth:`.getInferenceType`.
     """
-    if hasattr(self, '_numPredictions'):
-      predictionNumber = self._numPredictions
-      self._numPredictions += 1
-    else:
-      predictionNumber = None
+    # 0-based prediction index for ModelResult
+    predictionNumber = self._numPredictions
+    self._numPredictions += 1
     result = opf_utils.ModelResult(predictionNumber=predictionNumber,
-                                  rawInput=inputRecord)
+                                   rawInput=inputRecord)
     return result
 
   @abstractmethod
@@ -252,12 +269,27 @@ class Model(Serializable):
     model = cls.read(proto)
     return model
 
+
+  def writeBaseToProto(self, proto):
+    """Save the state maintained by the Model base class
+
+    :param proto: capnp ModelProto message builder
+    """
+    inferenceType = self.getInferenceType()
+    # lower-case first letter to be compatible with capnproto enum naming
+    inferenceType = inferenceType[:1].lower() + inferenceType[1:]
+    proto.inferenceType = inferenceType
+
+    proto.numPredictions = self._numPredictions
+
+
   def write(self, proto):
     """Write state to proto object.
 
     The type of proto is determined by :meth:`getProtoType`.
     """
     raise NotImplementedError()
+
 
   @classmethod
   def read(cls, proto):
