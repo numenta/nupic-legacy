@@ -426,6 +426,10 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
 
 
   def write(self, proto):
+    """Populate serialization proto instance.
+
+    :param proto: (BacktrackingTMProto) the proto instance to populate
+    """
     proto.version = TM_VERSION
     self._random.write(proto.random)
     proto.numberOfCols = self.numberOfCols
@@ -470,6 +474,7 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
     proto.pamCounter = self.pamCounter
     proto.collectSequenceStats = self.collectSequenceStats
     proto.resetCalled = self.resetCalled
+    # In case of None, use negative value as placeholder for serialization
     proto.avgInputDensity = self.avgInputDensity or -1.0
     proto.learnedSeqLength = self.learnedSeqLength
     proto.avgLearnedSeqLength = self.avgLearnedSeqLength
@@ -525,6 +530,10 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
 
   @classmethod
   def read(cls, proto):
+    """Deserialize from proto instance.
+
+    :param proto: (BacktrackingTMProto) the proto instance to read from
+    """
     assert proto.version == TM_VERSION
     obj = object.__new__(cls)
     obj._random = Random()
@@ -573,10 +582,12 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
     obj.pamCounter = int(proto.pamCounter)
     obj.collectSequenceStats = proto.collectSequenceStats
     obj.resetCalled = proto.resetCalled
-    if proto.avgInputDensity < 0.0:
+    avgInputDensity = proto.avgInputDensity
+    if avgInputDensity < 0.0:
+      # Negative value placeholder indicates None
       obj.avgInputDensity = None
     else:
-      obj.avgInputDensity = proto.avgInputDensity
+      obj.avgInputDensity = avgInputDensity
     obj.learnedSeqLength = int(proto.learnedSeqLength)
     obj.avgLearnedSeqLength = proto.avgLearnedSeqLength
 

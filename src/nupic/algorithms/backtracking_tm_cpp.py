@@ -169,6 +169,11 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def write(self, proto):
+    """Populate serialization proto instance.
+
+    :param proto: (BacktrackingTMCppProto) the proto instance to populate
+    """
+    # Write base class to proto.baseTM (BacktrackingTMProto)
     super(BacktrackingTMCPP, self).write(proto.baseTM)
     self.cells4.write(proto.cells4)
     proto.makeCells4Ephemeral = self.makeCells4Ephemeral
@@ -179,7 +184,12 @@ class BacktrackingTMCPP(BacktrackingTM):
 
   @classmethod
   def read(cls, proto):
-    # Use base class to create initial class
+    """Deserialize from proto instance.
+
+    :param proto: (BacktrackingTMCppProto) the proto instance to read from
+    """
+    # Use base class to create initial class from proto.baseTM
+    # (BacktrackingTMProto)
     obj = BacktrackingTM.read(proto.baseTM)
     obj.__class__ = cls
 
@@ -191,6 +201,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     obj.seed = proto.seed
     obj.checkSynapseConsistency = proto.checkSynapseConsistency
     obj._initArgsDict = json.loads(proto.initArgs)
+    # Convert unicode to str
     obj._initArgsDict["outputType"] = str(obj._initArgsDict["outputType"])
 
     # Initialize ephemeral attributes
