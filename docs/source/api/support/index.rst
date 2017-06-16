@@ -47,3 +47,9 @@ PyMySQL Helpers
 
 .. automodule:: nupic.support.pymysql_helpers
 .. automethod:: nupic.support.pymysql_helpers.retrySQL
+
+Serializable
+^^^^^^^^^^^^
+
+.. autoclass:: nupic.serializable.Serializable
+   :members:
