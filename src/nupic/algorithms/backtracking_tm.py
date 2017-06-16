@@ -1357,7 +1357,7 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
     return retlist
 
 
-  class _SegmentUpdate(Serializable):
+  class _SegmentUpdate(object):
     """
     Class used to carry instructions for updating a segment.
     """
@@ -1373,10 +1373,6 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
       # Set true if segment only reaches activationThreshold when including
       #  not fully connected synapses.
       self.weaklyPredicting = False
-
-    @classmethod
-    def getSchema(cls):
-      return SegmentUpdateProto
 
     def write(self, proto):
       proto.columnIdx = self.columnIdx
@@ -3481,7 +3477,7 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
 
 
 
-class Segment(Serializable):
+class Segment(object):
   """
   The Segment class is a container for all of the segment variables and
   the synapses it owns.
@@ -3546,11 +3542,6 @@ class Segment(Serializable):
       if abs(syn1[2] - syn2[2]) > 0.000001:
         return False
     return True
-
-
-  @classmethod
-  def getSchema(cls):
-    return SegmentProto
 
 
   def write(self, proto):
