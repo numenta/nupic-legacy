@@ -1,11 +1,12 @@
 @0xc938bfbf36a3bdc3;
 
-using import "/nupic/frameworks/opf/opf_utils.capnp".InferenceType;
 using import "/nupic/encoders/multi.capnp".MultiEncoderProto;
+using import "/nupic/frameworks/opf/model.capnp".ModelProto;
+using import "/nupic/frameworks/opf/opf_utils.capnp".InferenceType;
 
 # Next ID: 7
 struct TwoGramModelProto {
-    inferenceType @0 :InferenceType;
+    modelBase @0 :ModelProto;
     reset @1 :Bool;
     hashToValueDict @2 :List(HashMapping);
     learningEnabled @3 :Bool;

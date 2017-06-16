@@ -1334,7 +1334,7 @@ class HTMPredictionModel(Model):
   @classmethod
   def read(cls, proto):
     """
-    :param proto: HTMPredictionModelProto reader
+    :param proto: capnp HTMPredictionModelProto message reader
     """
     network = Network.read(proto.network)
     spEnable = ("SP" in network.regions)
