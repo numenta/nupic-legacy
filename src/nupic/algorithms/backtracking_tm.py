@@ -1396,8 +1396,6 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
 
       obj.columnIdx = proto.columnIdx
       obj.cellIdx = proto.cellIdx
-      # TODO: Is it ok for this to be a separate instance than the segment
-      # in the TM segment list?
       obj.segment.read(proto.segment, tm)
       obj.activeSynapses = [syn for syn in proto.activeSynapses]
       obj.sequenceSegment = proto.sequenceSegment
