@@ -2,7 +2,7 @@
 
 using import "/nupic/frameworks/opf/opf_utils.capnp".InferenceType;
 
-# Next ID: 5
+# Next ID: 2
 struct ModelProto {
   inferenceType @0 :InferenceType;
   numPredictions @1 :UInt32;
