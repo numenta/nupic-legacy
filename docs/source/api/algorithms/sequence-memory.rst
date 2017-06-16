@@ -7,6 +7,7 @@ Temporal Memory
 .. automodule:: nupic.algorithms.temporal_memory
 
 .. autoclass:: TemporalMemory
+   :show-inheritance:
    :members:
 
 Backtracking Temporal Memory
@@ -15,6 +16,7 @@ Backtracking Temporal Memory
 .. automodule:: nupic.algorithms.backtracking_tm
 
 .. autoclass:: BacktrackingTM
+   :show-inheritance:
    :members:
 
 C++ Backtracking Temporal Memory
@@ -30,4 +32,5 @@ Connections
 +++++++++++
 
 .. automodule:: nupic.algorithms.connections
+   :show-inheritance:
    :members:
