@@ -805,7 +805,22 @@ class TMRegion(PyRegion):
       self.computePredictedActiveCellIndices)
     proto.orColumnOutputs = self.orColumnOutputs
 
-    self._tfdr.write(proto.temporalMemory)
+    if self.temporalImp == "py":
+      tmProto = proto.init("backtrackingTM")
+      self._tfdr.write(tmProto)
+    elif self.temporalImp == "cpp":
+      tmProto = proto.init("backtrackingTMCpp")
+      self._tfdr.write(tmProto)
+    elif self.temporalImp == "tm_py":
+      tmProto = proto.init("temporalMemory")
+      self._tfdr.write(tmProto)
+    elif self.temporalImp == "tm_cpp":
+      tmProto = proto.init("temporalMemory")
+      self._tfdr.write(tmProto)
+    else:
+      raise TypeError(
+          "Unsupported temporalImp for capnp serialization: {}".format(
+              self.temporalImp))
 
 
   @classmethod
@@ -828,7 +843,18 @@ class TMRegion(PyRegion):
       proto.computePredictedActiveCellIndices)
     instance.orColumnOutputs = proto.orColumnOutputs
 
-    instance._tfdr = _getTPClass(proto.temporalImp).read(proto.temporalMemory)
+    if instance.temporalImp == "py":
+      instance._tfdr = _getTPClass(proto.temporalImp).read(proto.backtrackingTM)
+    elif instance.temporalImp == "cpp":
+      instance._tfdr = _getTPClass(proto.temporalImp).read(proto.backtrackingTMCpp)
+    elif instance.temporalImp == "tm_py":
+      instance._tfdr = _getTPClass(proto.temporalImp).read(proto.temporalMemory)
+    elif instance.temporalImp == "tm_cpp":
+      instance._tfdr = _getTPClass(proto.temporalImp).read(proto.temporalMemory)
+    else:
+      raise TypeError(
+          "Unsupported temporalImp for capnp serialization: {}".format(
+              instance.temporalImp))
 
     return instance
 
