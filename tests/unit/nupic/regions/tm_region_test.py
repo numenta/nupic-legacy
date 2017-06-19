@@ -24,10 +24,15 @@
 import tempfile
 import unittest
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
 import numpy as np
 
 from nupic.regions.tm_region import TMRegion
-from nupic.regions.tm_region_capnp import TMRegionProto
+if capnp:
+  from nupic.regions.tm_region_capnp import TMRegionProto
 
 
 
@@ -97,19 +102,26 @@ class TMRegionTest(unittest.TestCase):
                                    output2["lrnActiveStateT"]))
 
 
+  @unittest.skipUnless(
+    capnp, "pycapnp is not installed, skipping serialization test.")
   def testWriteReadPy(self):
     self.checkTMRegionImpl("py")
 
 
+  @unittest.skipUnless(
+    capnp, "pycapnp is not installed, skipping serialization test.")
   def testWriteReadCpp(self):
     self.checkTMRegionImpl("cpp")
 
 
+  @unittest.skipUnless(
+    capnp, "pycapnp is not installed, skipping serialization test.")
   def testWriteReadTMPy(self):
     self.checkTMRegionImpl("tm_py")
 
 
-
+  @unittest.skipUnless(
+    capnp, "pycapnp is not installed, skipping serialization test.")
   def testWriteReadTMCpp(self):
     self.checkTMRegionImpl("tm_cpp")
 
