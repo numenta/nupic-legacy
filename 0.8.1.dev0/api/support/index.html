@@ -1,0 +1,942 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Support &#8212; NuPIC 0.8.1.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8.1.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Math" href="../math.html" />
+    <link rel="prev" title="Data" href="../data/index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-nupic.support">
+<span id="support"></span><h1>Support<a class="headerlink" href="#module-nupic.support" title="Permalink to this headline">¶</a></h1>
+<p>Package containing modules that are used internally by Numenta Python
+tools and plugins to extend standard library functionality.
+These modules should NOT be used by client applications.</p>
+<dl class="function">
+<dt id="nupic.support.aggregationDivide">
+<code class="descclassname">nupic.support.</code><code class="descname">aggregationDivide</code><span class="sig-paren">(</span><em>dividend</em>, <em>divisor</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.aggregationDivide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the result from dividing two dicts that represent date and time.</p>
+<p>Both dividend and divisor are dicts that contain one or more of the following
+keys: &#8216;years&#8217;, &#8216;months&#8217;, &#8216;weeks&#8217;, &#8216;days&#8217;, &#8216;hours&#8217;, &#8216;minutes&#8217;, seconds&#8217;,
+&#8216;milliseconds&#8217;, &#8216;microseconds&#8217;.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">aggregationDivide</span><span class="p">({</span><span class="s1">&#39;hours&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;minutes&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">})</span> <span class="o">==</span> <span class="mi">16</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dividend</strong> &#8211; (dict) The numerator, as a dict representing a date and time</li>
+<li><strong>divisor</strong> &#8211; (dict) the denominator, as a dict representing a date and time</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(float) number of times divisor goes into dividend</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.support.aggregationToMonthsSeconds">
+<code class="descclassname">nupic.support.</code><code class="descname">aggregationToMonthsSeconds</code><span class="sig-paren">(</span><em>interval</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.aggregationToMonthsSeconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of months and seconds from an aggregation dict that
+represents a date and time.</p>
+<p>Interval is a dict that contain one or more of the following keys: &#8216;years&#8217;,
+&#8216;months&#8217;, &#8216;weeks&#8217;, &#8216;days&#8217;, &#8216;hours&#8217;, &#8216;minutes&#8217;, seconds&#8217;, &#8216;milliseconds&#8217;,
+&#8216;microseconds&#8217;.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">aggregationMicroseconds</span><span class="p">({</span><span class="s1">&#39;years&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;hours&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;microseconds&#39;</span><span class="p">:</span><span class="mi">42</span><span class="p">})</span> <span class="o">==</span>
+    <span class="p">{</span><span class="s1">&#39;months&#39;</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;seconds&#39;</span><span class="p">:</span><span class="mf">14400.000042</span><span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>interval</strong> &#8211; (dict) The aggregation interval representing a date and time</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(dict) number of months and seconds in the interval:
+<code class="docutils literal"><span class="pre">{months':</span> <span class="pre">XX,</span> <span class="pre">'seconds':</span> <span class="pre">XX}</span></code>. The seconds is
+a floating point that can represent resolutions down to a
+microsecond.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.support.getArgumentDescriptions">
+<code class="descclassname">nupic.support.</code><code class="descname">getArgumentDescriptions</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.getArgumentDescriptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the arguments, default values, and argument descriptions for a function.</p>
+<p>Parses the argument descriptions out of the function docstring, using a
+format something lke this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">junk</span><span class="p">]</span>
+<span class="n">argument_name</span><span class="p">:</span>     <span class="n">description</span><span class="o">...</span>
+  <span class="n">description</span><span class="o">...</span>
+  <span class="n">description</span><span class="o">...</span>
+<span class="p">[</span><span class="n">junk</span><span class="p">]</span>
+<span class="p">[</span><span class="n">more</span> <span class="n">arguments</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>It will find an argument as long as the exact argument name starts the line.
+It will then strip a trailing colon, if present, then strip the rest of the
+line and use it to start the description. It will then strip and append any
+subsequent lines with a greater indent level than the original argument name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> &#8211; (function) to inspect</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list of tuples) (<code class="docutils literal"><span class="pre">argName</span></code>, <code class="docutils literal"><span class="pre">argDescription</span></code>, <code class="docutils literal"><span class="pre">defaultValue</span></code>)
+If an argument has no default value, the tuple is only two elements long (as
+<code class="docutils literal"><span class="pre">None</span></code> cannot be used, since it could be a default value itself).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.support.getCallerInfo">
+<code class="descclassname">nupic.support.</code><code class="descname">getCallerInfo</code><span class="sig-paren">(</span><em>depth=2</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.getCallerInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to get information about function callers</p>
+<p>The information is the tuple (function/method name, filename, class)
+The class will be None if the caller is just a function and not an object
+method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>depth</strong> &#8211; (int) how far back in the callstack to go to extract the caller
+info</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.support.initLogging">
+<code class="descclassname">nupic.support.</code><code class="descname">initLogging</code><span class="sig-paren">(</span><em>verbose=False</em>, <em>console='stdout'</em>, <em>consoleLevel='DEBUG'</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.initLogging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initilize NuPic logging by reading in from the logging configuration file. The
+logging configuration file is named <code class="docutils literal"><span class="pre">nupic-logging.conf</span></code> and is expected to
+be in the format defined by the python logging module.</p>
+<p>If the environment variable <code class="docutils literal"><span class="pre">NTA_CONF_PATH</span></code> is defined, then the logging
+configuration file is expected to be in the <code class="docutils literal"><span class="pre">NTA_CONF_PATH</span></code> directory. If
+<code class="docutils literal"><span class="pre">NTA_CONF_PATH</span></code> is not defined, then it is found in the &#8216;conf/default&#8217;
+subdirectory of the NuPic installation directory (typically
+~/nupic/current/conf/default)</p>
+<p>The logging configuration file can use the environment variable
+<code class="docutils literal"><span class="pre">NTA_LOG_DIR</span></code> to set the locations of log files. If this variable is not
+defined, logging to files will be disabled.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>console</strong> &#8211; Defines console output for the default &#8220;root&#8221; logging
+configuration; this may be one of &#8216;stdout&#8217;, &#8216;stderr&#8217;, or None;
+Use None to suppress console logging output</li>
+<li><strong>consoleLevel</strong> &#8211; Logging-level filter string for console output corresponding to
+logging levels in the logging module; may be one of:
+&#8216;DEBUG&#8217;, &#8216;INFO&#8217;, &#8216;WARNING&#8217;, &#8216;ERROR&#8217;, or &#8216;CRITICAL&#8217;.
+E.g.,  a value of&#8217;WARNING&#8217; suppresses DEBUG and INFO level output
+to console, but allows WARNING, ERROR, and CRITICAL</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.support.title">
+<code class="descclassname">nupic.support.</code><code class="descname">title</code><span class="sig-paren">(</span><em>s=None</em>, <em>additional=''</em>, <em>stream=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to display nice titles</p>
+<p>It automatically extracts the name of the function/method it is called from
+and you can add additional text. title() will then print the name
+of the function/method and the additional text surrounded by tow lines
+of dashes. If you don&#8217;t want the name of the function, you can provide
+alternative text (regardless of the additional text)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>s</strong> &#8211; (string) text to display, uses the function name and arguments by
+default</li>
+<li><strong>additional</strong> &#8211; (string) extra text to display (not needed if s is not
+None)</li>
+<li><strong>stream</strong> &#8211; (stream) the stream to print to. Ny default goes to standard
+output</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
+  <span class="n">title</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>will display:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>---
+foo
+---
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
+  <span class="n">title</span><span class="p">(</span><span class="n">additional</span><span class="o">=</span><span class="s1">&#39;(), this is cool!!!&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will display:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>----------------------
+foo(), this is cool!!!
+----------------------
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
+  <span class="n">title</span><span class="p">(</span><span class="s1">&#39;No function name here!&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will display:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>----------------------
+No function name here!
+----------------------
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="section" id="configuration-base">
+<h2>Configuration Base<a class="headerlink" href="#configuration-base" title="Permalink to this headline">¶</a></h2>
+<p>See <a class="reference internal" href="default-config.html"><span class="doc">Default NuPIC Configuration</span></a> for details about default values.</p>
+<span class="target" id="module-nupic.support.configuration_base"></span><p>This is the base Configuration implementation. It provides for reading
+configuration parameters from <code class="docutils literal"><span class="pre">nupic-site.xml</span></code> and <code class="docutils literal"><span class="pre">nupic-default.xml</span></code>.</p>
+<dl class="class">
+<dt id="nupic.support.configuration_base.Configuration">
+<em class="property">class </em><code class="descclassname">nupic.support.configuration_base.</code><code class="descname">Configuration</code><a class="headerlink" href="#nupic.support.configuration_base.Configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class can be used to fetch NuPic configuration settings which are
+stored in one or more XML files.</p>
+<p>If the environment variable <code class="docutils literal"><span class="pre">NTA_CONF_PATH</span></code> is defined, then the
+configuration files are expected to be in the <code class="docutils literal"><span class="pre">NTA_CONF_PATH</span></code> search path,
+which is a &#8216;:&#8217; separated list of directories (on Windows the separator is a
+&#8216;;&#8217;). If <code class="docutils literal"><span class="pre">NTA_CONF_PATH</span></code> is not defined, then it is loaded via
+pkg_resources.</p>
+<dl class="classmethod">
+<dt id="nupic.support.configuration_base.Configuration.clear">
+<em class="property">classmethod </em><code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_base.Configuration.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear out the entire configuration.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_base.Configuration.dict">
+<em class="property">classmethod </em><code class="descname">dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_base.Configuration.dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict containing all of the configuration properties</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(dict) containing all configuration properties.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_base.Configuration.findConfigFile">
+<em class="property">classmethod </em><code class="descname">findConfigFile</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_base.Configuration.findConfigFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search the configuration path (specified via the NTA_CONF_PATH
+environment variable) for the given filename. If found, return the complete
+path to the file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; (string) name of file to locate</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_base.Configuration.get">
+<em class="property">classmethod </em><code class="descname">get</code><span class="sig-paren">(</span><em>prop</em>, <em>default=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_base.Configuration.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value of the given configuration property as string. This
+returns a string which is the property value, or the value of &#8220;default&#8221; arg.
+If the property is not found, use <a class="reference internal" href="#nupic.support.configuration_base.Configuration.getString" title="nupic.support.configuration_base.Configuration.getString"><code class="xref py py-meth docutils literal"><span class="pre">getString()</span></code></a> instead.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">it&#8217;s atypical for our configuration properties to be missing - a
+missing configuration property is usually a very serious error. Because
+of this, it&#8217;s preferable to use one of the <a class="reference internal" href="#nupic.support.configuration_base.Configuration.getString" title="nupic.support.configuration_base.Configuration.getString"><code class="xref py py-meth docutils literal"><span class="pre">getString()</span></code></a>,
+<a class="reference internal" href="#nupic.support.configuration_base.Configuration.getInt" title="nupic.support.configuration_base.Configuration.getInt"><code class="xref py py-meth docutils literal"><span class="pre">getInt()</span></code></a>, <a class="reference internal" href="#nupic.support.configuration_base.Configuration.getFloat" title="nupic.support.configuration_base.Configuration.getFloat"><code class="xref py py-meth docutils literal"><span class="pre">getFloat()</span></code></a>, etc. variants instead of <a class="reference internal" href="#nupic.support.configuration_base.Configuration.get" title="nupic.support.configuration_base.Configuration.get"><code class="xref py py-meth docutils literal"><span class="pre">get()</span></code></a>.
+Those variants will raise KeyError when an expected property is missing.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>prop</strong> &#8211; (string) name of the property</li>
+<li><strong>default</strong> &#8211; default value to return if property does not exist</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(string) property value, or default if the property does not exist</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_base.Configuration.getBool">
+<em class="property">classmethod </em><code class="descname">getBool</code><span class="sig-paren">(</span><em>prop</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_base.Configuration.getBool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the requested property and return it as a bool. If property
+does not exist, then KeyError will be raised. If the property value is
+neither 0 nor 1, then ValueError will be raised</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>prop</strong> &#8211; (string) name of the property</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body">KeyError, ValueError</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(bool) property value</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_base.Configuration.getConfigPaths">
+<em class="property">classmethod </em><code class="descname">getConfigPaths</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_base.Configuration.getConfigPaths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of paths to search for configuration files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) of paths</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_base.Configuration.getFloat">
+<em class="property">classmethod </em><code class="descname">getFloat</code><span class="sig-paren">(</span><em>prop</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_base.Configuration.getFloat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the requested property and return it as a float. If property
+does not exist, then KeyError will be raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>prop</strong> &#8211; (string) name of the property</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(float) property value</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_base.Configuration.getInt">
+<em class="property">classmethod </em><code class="descname">getInt</code><span class="sig-paren">(</span><em>prop</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_base.Configuration.getInt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the requested property and return it as an int. If property
+does not exist, then KeyError will be raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>prop</strong> &#8211; (string) name of the property</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(int) property value</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_base.Configuration.getString">
+<em class="property">classmethod </em><code class="descname">getString</code><span class="sig-paren">(</span><em>prop</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_base.Configuration.getString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the requested property as a string. If property does not exist,
+then KeyError will be raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>prop</strong> &#8211; (string) name of the property</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body">KeyError</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(string) property value</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_base.Configuration.readConfigFile">
+<em class="property">classmethod </em><code class="descname">readConfigFile</code><span class="sig-paren">(</span><em>filename</em>, <em>path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_base.Configuration.readConfigFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the given XML file and store all properties it describes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> &#8211; (string) name of XML file to parse (no path)</li>
+<li><strong>path</strong> &#8211; (string) path of the XML file. If None, then use the standard
+configuration search path.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_base.Configuration.set">
+<em class="property">classmethod </em><code class="descname">set</code><span class="sig-paren">(</span><em>prop</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_base.Configuration.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of the given configuration property.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>prop</strong> &#8211; (string) name of the property</li>
+<li><strong>value</strong> &#8211; (object) value to set</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_base.Configuration.setConfigPaths">
+<em class="property">classmethod </em><code class="descname">setConfigPaths</code><span class="sig-paren">(</span><em>paths</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_base.Configuration.setConfigPaths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify the paths we use to search for configuration files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>paths</strong> &#8211; (list) of paths to search for config files.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.support.configuration_custom">
+<span id="configuration-custom"></span><h2>Configuration Custom<a class="headerlink" href="#module-nupic.support.configuration_custom" title="Permalink to this headline">¶</a></h2>
+<p>This Configuration implementation allows for persistent configuration updates
+stored in <code class="docutils literal"><span class="pre">nupic-custom.xml</span></code> in the site conf folder.</p>
+<dl class="class">
+<dt id="nupic.support.configuration_custom.Configuration">
+<em class="property">class </em><code class="descclassname">nupic.support.configuration_custom.</code><code class="descname">Configuration</code><a class="headerlink" href="#nupic.support.configuration_custom.Configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class extends the 
+<code class="xref py py-class docutils literal"><span class="pre">nupic.support.configuration_base.ConfigurationBase</span></code> implementation 
+with the ability to read and write custom, persistent parameters. The custom 
+settings will be stored in the <code class="docutils literal"><span class="pre">nupic-custom.xml</span></code> file.</p>
+<p>If the environment variable <code class="docutils literal"><span class="pre">NTA_CONF_PATH</span></code> is defined, then the 
+configuration files are expected to be in the <code class="docutils literal"><span class="pre">NTA_CONF_PATH</span></code> search path, 
+which is a <code class="docutils literal"><span class="pre">:</span></code> separated list of directories (on Windows the separator is a 
+<code class="docutils literal"><span class="pre">;</span></code>). If <code class="docutils literal"><span class="pre">NTA_CONF_PATH</span></code> is not defined, then it is assumed to be 
+<code class="docutils literal"><span class="pre">$NTA/conf/default</span></code> (typically <code class="docutils literal"><span class="pre">~/nupic/current/conf/default</span></code>).</p>
+<dl class="classmethod">
+<dt id="nupic.support.configuration_custom.Configuration.clear">
+<em class="property">classmethod </em><code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_custom.Configuration.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all configuration properties from in-memory cache, but do NOT alter 
+the custom configuration file. Used in unit-testing.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_custom.Configuration.getCustomDict">
+<em class="property">classmethod </em><code class="descname">getCustomDict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_custom.Configuration.getCustomDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns: (dict) containing all custom configuration properties.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_custom.Configuration.loadCustomConfig">
+<em class="property">classmethod </em><code class="descname">loadCustomConfig</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_custom.Configuration.loadCustomConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads custom configuration settings from their persistent storage.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">DO NOT CALL THIS: It&#8217;s typically not necessary to call this 
+method directly. This method exists <em>solely</em> for the benefit of 
+<code class="docutils literal"><span class="pre">prepare_conf.py</span></code>, which needs to load configuration files selectively.</p>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_custom.Configuration.resetCustomConfig">
+<em class="property">classmethod </em><code class="descname">resetCustomConfig</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_custom.Configuration.resetCustomConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all custom configuration settings and delete the persistent custom 
+configuration store.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_custom.Configuration.setCustomProperties">
+<em class="property">classmethod </em><code class="descname">setCustomProperties</code><span class="sig-paren">(</span><em>properties</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_custom.Configuration.setCustomProperties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set multiple custom properties and persist them to the custom configuration 
+store.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>properties</strong> &#8211; (dict) of property name/value pairs to set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.support.configuration_custom.Configuration.setCustomProperty">
+<em class="property">classmethod </em><code class="descname">setCustomProperty</code><span class="sig-paren">(</span><em>propertyName</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.configuration_custom.Configuration.setCustomProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a single custom setting and persist it to the custom configuration 
+store.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>propertyName</strong> &#8211; (string) containing the name of the property to get</li>
+<li><strong>value</strong> &#8211; (object) value to set the property to</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.support.console_printer">
+<span id="console-printer"></span><h2>Console Printer<a class="headerlink" href="#module-nupic.support.console_printer" title="Permalink to this headline">¶</a></h2>
+<p>This module defines <a class="reference internal" href="#nupic.support.console_printer.ConsolePrinterMixin" title="nupic.support.console_printer.ConsolePrinterMixin"><code class="xref py py-class docutils literal"><span class="pre">ConsolePrinterMixin</span></code></a> and <a class="reference internal" href="#nupic.support.console_printer.Tee" title="nupic.support.console_printer.Tee"><code class="xref py py-class docutils literal"><span class="pre">Tee</span></code></a>.</p>
+<p>The <a class="reference internal" href="#nupic.support.console_printer.ConsolePrinterMixin" title="nupic.support.console_printer.ConsolePrinterMixin"><code class="xref py py-class docutils literal"><span class="pre">ConsolePrinterMixin</span></code></a> is used by objects that need to print to the
+screen under the control of a verbosity level.</p>
+<p>The <a class="reference internal" href="#nupic.support.console_printer.Tee" title="nupic.support.console_printer.Tee"><code class="xref py py-class docutils literal"><span class="pre">Tee</span></code></a> class is used to redirect standard output to a file in addition
+to sending it to the console.</p>
+<dl class="class">
+<dt id="nupic.support.console_printer.ConsolePrinterMixin">
+<em class="property">class </em><code class="descclassname">nupic.support.console_printer.</code><code class="descname">ConsolePrinterMixin</code><span class="sig-paren">(</span><em>verbosity=1</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.console_printer.ConsolePrinterMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mixin class for printing to the console with different verbosity levels.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>verbosity</strong> &#8211; (int)
+0: don&#8217;t print anything to stdout
+1: normal (production-level) printing
+2: extra debug information
+3: lots of debug information</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.support.console_printer.ConsolePrinterMixin.cPrint">
+<code class="descname">cPrint</code><span class="sig-paren">(</span><em>level</em>, <em>message</em>, <em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.console_printer.ConsolePrinterMixin.cPrint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a message to the console.</p>
+<p>Prints only if level &lt;= self.consolePrinterVerbosity
+Printing with level 0 is equivalent to using a print statement,
+and should normally be avoided.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>level</strong> &#8211; (int) indicating the urgency of the message with
+lower values meaning more urgent (messages at level 0  are the most
+urgent and are always printed)</li>
+<li><strong>message</strong> &#8211; (string) possibly with format specifiers</li>
+<li><strong>args</strong> &#8211; specifies the values for any format specifiers in message</li>
+<li><strong>kw</strong> &#8211; newline is the only keyword argument. True (default) if a newline
+should be printed</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.support.console_printer.Tee">
+<em class="property">class </em><code class="descclassname">nupic.support.console_printer.</code><code class="descname">Tee</code><span class="sig-paren">(</span><em>outputFile</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.console_printer.Tee" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class captures standard output and writes it to a file
+in addition to sending it to the console</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.support.fs_helpers">
+<span id="file-system-helpers"></span><h2>File System Helpers<a class="headerlink" href="#module-nupic.support.fs_helpers" title="Permalink to this headline">¶</a></h2>
+<p>This module contains file-system helper functions.</p>
+<dl class="function">
+<dt id="nupic.support.fs_helpers.makeDirectoryFromAbsolutePath">
+<code class="descclassname">nupic.support.fs_helpers.</code><code class="descname">makeDirectoryFromAbsolutePath</code><span class="sig-paren">(</span><em>absDirPath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.fs_helpers.makeDirectoryFromAbsolutePath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes directory for the given directory path with default permissions.
+If the directory already exists, it is treated as success.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>absDirPath</strong> &#8211; (string) absolute path of the directory to create.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body">OSError if directory creation fails</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(string) absolute path provided</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.support.group_by">
+<span id="group-by"></span><h2>Group By<a class="headerlink" href="#module-nupic.support.group_by" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nupic.support.group_by.groupby2">
+<code class="descclassname">nupic.support.group_by.</code><code class="descname">groupby2</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.group_by.groupby2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like itertools.groupby, with the following additions:</p>
+<ul class="simple">
+<li>Supports multiple sequences. Instead of returning (k, g), each iteration
+returns (k, g0, g1, ...), with one <cite>g</cite> for each input sequence. The value of
+each <cite>g</cite> is either a non-empty iterator or <cite>None</cite>.</li>
+<li>It treats the value <cite>None</cite> as an empty sequence. So you can make subsequent
+calls to groupby2 on any <cite>g</cite> value.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Read up on groupby here:
+<a class="reference external" href="https://docs.python.org/dev/library/itertools.html#itertools.groupby">https://docs.python.org/dev/library/itertools.html#itertools.groupby</a></p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> &#8211; (list) Parameters alternating between sorted lists and their
+respective key functions. The lists should be sorted with
+respect to their key function.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(tuple) A n + 1 dimensional tuple, where the first element is the
+key of the iteration, and the other n entries are groups of
+objects that share this key. Each group corresponds to the an
+input sequence. <cite>groupby2</cite> is a generator that returns a tuple
+for every iteration. If an input sequence has no members with
+the current key, None is returned in place of a generator.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.support.lock_attributes">
+<span id="lock-attributes"></span><h2>Lock Attributes<a class="headerlink" href="#module-nupic.support.lock_attributes" title="Permalink to this headline">¶</a></h2>
+<p>The lock attributes machinery is engaged by default. To deactivate it
+define the <code class="docutils literal"><span class="pre">NTA_DONT_USE_LOCK_ATTRIBUTES</span></code> environment variable. The benefit is
+that there will be no runtime overhead (Except for a one-time check when classes
+that derive from <a class="reference internal" href="#nupic.support.lock_attributes.LockAttributesMixin" title="nupic.support.lock_attributes.LockAttributesMixin"><code class="xref py py-class docutils literal"><span class="pre">LockAttributesMixin</span></code></a> are defined or methods decorated
+with <code class="docutils literal"><span class="pre">_canAddAttributes</span></code> are defined).</p>
+<dl class="class">
+<dt id="nupic.support.lock_attributes.LockAttributesMetaclass">
+<em class="property">class </em><code class="descclassname">nupic.support.lock_attributes.</code><code class="descname">LockAttributesMetaclass</code><span class="sig-paren">(</span><em>name</em>, <em>bases</em>, <em>dict</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.lock_attributes.LockAttributesMetaclass" title="Permalink to this definition">¶</a></dt>
+<dd><p>This metaclass makes objects attribute-locked by decorating their
+<code class="docutils literal"><span class="pre">__init__</span></code> and <code class="docutils literal"><span class="pre">__setstate__</span></code> methods with the <code class="docutils literal"><span class="pre">_allow_new_attributes</span></code>
+decorator.</p>
+<p>It doesn&#8217;t do anything unless the environment variable
+<code class="docutils literal"><span class="pre">NTA_USE_LOCK_ATTRIBUTES</span></code> is defined. That allows for verifying proper usage
+during testing and skipping it in production code (that was verified during
+testing) to avoid the cost of verifying every attribute setting.</p>
+<p>It also replaces the <code class="docutils literal"><span class="pre">__setattr__</span></code> magic method with a custom one that
+verifies new attributes are set only in code that originates from a decorated
+method (normally <code class="docutils literal"><span class="pre">__init__</span></code> or <code class="docutils literal"><span class="pre">__setstate__</span></code>).</p>
+<p>If the target class has no <code class="docutils literal"><span class="pre">__init__</span></code> method it adds a trivial <code class="docutils literal"><span class="pre">__init__</span></code>
+method to provide a hook for the decorator (the <code class="docutils literal"><span class="pre">_simple_init</span></code>
+function defined above)</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.support.lock_attributes.LockAttributesMixin">
+<em class="property">class </em><code class="descclassname">nupic.support.lock_attributes.</code><code class="descname">LockAttributesMixin</code><span class="sig-paren">(</span><em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.lock_attributes.LockAttributesMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class serves as a base (or mixin) for classes that want to enforce
+the locked attributes pattern (all attributes should be defined in
+<code class="docutils literal"><span class="pre">__init__</span></code> or <code class="docutils literal"><span class="pre">__setstate__</span></code>.</p>
+<p>All the target class has to do add LockAttributesMixin as one of its bases
+(inherit from it).</p>
+<p>The metaclass will be activated when the application class is created
+and the lock attributes machinery will be injected (unless the
+deactivation_key is defined in the environment)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.support.pymysql_helpers">
+<span id="pymysql-helpers"></span><h2>PyMySQL Helpers<a class="headerlink" href="#module-nupic.support.pymysql_helpers" title="Permalink to this headline">¶</a></h2>
+<p>Helper utilities for python scripts that use pymysql</p>
+<dl class="method">
+<dt id="nupic.support.pymysql_helpers.retrySQL">
+<code class="descclassname">pymysql_helpers.</code><code class="descname">retrySQL</code><span class="sig-paren">(</span><em>timeoutSec=300</em>, <em>logger=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.support.pymysql_helpers.retrySQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a closure suitable for use as a decorator for
+retrying a pymysql DAO function on certain failures that warrant retries (
+e.g., RDS/MySQL server down temporarily, transaction deadlock, etc.).
+We share this function across multiple scripts (e.g., ClientJobsDAO,
+StreamMgr) for consitent behavior.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Please ensure that the operation being retried is idempotent.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">logging must be initialized <em>before</em> any loggers are created, else
+there will be no output; see nupic.support.initLogging()</p>
+</div>
+<p>Usage Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@retrySQL</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">jobInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jobID</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>timeoutSec</strong> &#8211; How many seconds from time of initial call to stop retrying
+(floating point)</li>
+<li><strong>logger</strong> &#8211; User-supplied logger instance.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="serializable">
+<h2>Serializable<a class="headerlink" href="#serializable" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.serializable.Serializable">
+<em class="property">class </em><code class="descclassname">nupic.serializable.</code><code class="descname">Serializable</code><a class="headerlink" href="#nupic.serializable.Serializable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serializable base class establishing 
+<a class="reference internal" href="#nupic.serializable.Serializable.read" title="nupic.serializable.Serializable.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> and 
+<a class="reference internal" href="#nupic.serializable.Serializable.write" title="nupic.serializable.Serializable.write"><code class="xref py py-meth docutils literal"><span class="pre">write()</span></code></a> abstract methods, 
+<a class="reference internal" href="#nupic.serializable.Serializable.readFromFile" title="nupic.serializable.Serializable.readFromFile"><code class="xref py py-meth docutils literal"><span class="pre">readFromFile()</span></code></a> and <a class="reference internal" href="#nupic.serializable.Serializable.writeToFile" title="nupic.serializable.Serializable.writeToFile"><code class="xref py py-meth docutils literal"><span class="pre">writeToFile()</span></code></a> concrete methods to support 
+serialization with Cap&#8217;n Proto.</p>
+<dl class="classmethod">
+<dt id="nupic.serializable.Serializable.getSchema">
+<em class="property">classmethod </em><code class="descname">getSchema</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.serializable.Serializable.getSchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Cap&#8217;n Proto schema.</p>
+<dl class="docutils">
+<dt>..warning: This is an abstract method.  Per abc protocol, attempts to subclass</dt>
+<dd>without overriding will fail.</dd>
+</dl>
+<p>&#64;returns Cap&#8217;n Proto schema</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.serializable.Serializable.read">
+<em class="property">classmethod </em><code class="descname">read</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.serializable.Serializable.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new object initialized from Cap&#8217;n Proto obj.</p>
+<p>Note: This is an abstract method.  Per abc protocol, attempts to subclass
+without overriding will fail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; Cap&#8217;n Proto obj</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Obj initialized from proto</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.serializable.Serializable.readFromFile">
+<em class="property">classmethod </em><code class="descname">readFromFile</code><span class="sig-paren">(</span><em>inp</em>, <em>packed=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.serializable.Serializable.readFromFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read serialized object from file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inp</strong> &#8211; input</li>
+<li><strong>packed</strong> &#8211; If true, will assume content is packed</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">first-class instance initialized from proto obj</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.serializable.Serializable.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.serializable.Serializable.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write obj instance to Cap&#8217;n Proto object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; Cap&#8217;n Proto obj</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.serializable.Serializable.writeToFile">
+<code class="descname">writeToFile</code><span class="sig-paren">(</span><em>outp</em>, <em>packed=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.serializable.Serializable.writeToFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write serialized object to file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>outp</strong> &#8211; output</li>
+<li><strong>packed</strong> &#8211; If true, will pack contents.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/index.html">Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../opf/index.html">Online Prediction Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../network/index.html">Network API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data/index.html">Data</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Support</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configuration-base">Configuration Base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-nupic.support.configuration_custom">Configuration Custom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-nupic.support.console_printer">Console Printer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-nupic.support.fs_helpers">File System Helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-nupic.support.group_by">Group By</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-nupic.support.lock_attributes">Lock Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-nupic.support.pymysql_helpers">PyMySQL Helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#serializable">Serializable</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../math.html">Math</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/support/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
