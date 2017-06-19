@@ -1,0 +1,2144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Sequence Memory &#8212; NuPIC 0.8.1.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8.1.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Classifiers" href="classifiers.html" />
+    <link rel="prev" title="Spatial Pooling" href="spatial-pooling.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sequence-memory">
+<h1>Sequence Memory<a class="headerlink" href="#sequence-memory" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-nupic.algorithms.temporal_memory">
+<span id="temporal-memory"></span><h2>Temporal Memory<a class="headerlink" href="#module-nupic.algorithms.temporal_memory" title="Permalink to this headline">¶</a></h2>
+<p>Temporal Memory implementation in Python. See 
+<a class="reference external" href="https://numenta.com/temporal-memory-algorithm/">numenta.com</a> for details.</p>
+<dl class="class">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory">
+<em class="property">class </em><code class="descclassname">nupic.algorithms.temporal_memory.</code><code class="descname">TemporalMemory</code><span class="sig-paren">(</span><em>columnDimensions=(2048</em>, <em>)</em>, <em>cellsPerColumn=32</em>, <em>activationThreshold=13</em>, <em>initialPermanence=0.21</em>, <em>connectedPermanence=0.5</em>, <em>minThreshold=10</em>, <em>maxNewSynapseCount=20</em>, <em>permanenceIncrement=0.1</em>, <em>permanenceDecrement=0.1</em>, <em>predictedSegmentDecrement=0.0</em>, <em>maxSegmentsPerCell=255</em>, <em>maxSynapsesPerSegment=255</em>, <em>seed=42</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../support/index.html#nupic.serializable.Serializable" title="nupic.serializable.Serializable"><code class="xref py py-class docutils literal"><span class="pre">nupic.serializable.Serializable</span></code></a></p>
+<p>Class implementing the Temporal Memory algorithm.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">predictedSegmentDecrement</span></code>: A good value is just a bit larger than
+(the column-level sparsity * permanenceIncrement). So, if column-level
+sparsity is 2% and permanenceIncrement is 0.01, this parameter should be
+something like 4% * 0.01 = 0.0004).</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>columnDimensions</strong> &#8211; (list or tuple) Dimensions of the column space. 
+Default value <code class="docutils literal"><span class="pre">[2048]</span></code>.</li>
+<li><strong>cellsPerColumn</strong> &#8211; (int) Number of cells per column. Default value <code class="docutils literal"><span class="pre">32</span></code>.</li>
+<li><strong>activationThreshold</strong> &#8211; (int) If the number of active connected synapses 
+on a segment is at least this threshold, the segment is said to be 
+active. Default value <code class="docutils literal"><span class="pre">13</span></code>.</li>
+<li><strong>initialPermanence</strong> &#8211; (float) Initial permanence of a new synapse. Default
+value <code class="docutils literal"><span class="pre">0.21</span></code>.</li>
+<li><strong>connectedPermanence</strong> &#8211; (float) If the permanence value for a synapse is 
+greater than this value, it is said to be connected. Default value 
+<code class="docutils literal"><span class="pre">0.5</span></code>.</li>
+<li><strong>minThreshold</strong> &#8211; (int) If the number of potential synapses active on a 
+segment is at least this threshold, it is said to be &#8220;matching&#8221; and 
+is eligible for learning. Default value <code class="docutils literal"><span class="pre">10</span></code>.</li>
+<li><strong>maxNewSynapseCount</strong> &#8211; (int) The maximum number of synapses added to a 
+segment during learning. Default value <code class="docutils literal"><span class="pre">20</span></code>.</li>
+<li><strong>permanenceIncrement</strong> &#8211; (float) Amount by which permanences of synapses 
+are incremented during learning. Default value <code class="docutils literal"><span class="pre">0.1</span></code>.</li>
+<li><strong>permanenceDecrement</strong> &#8211; (float) Amount by which permanences of synapses 
+are decremented during learning. Default value <code class="docutils literal"><span class="pre">0.1</span></code>.</li>
+<li><strong>predictedSegmentDecrement</strong> &#8211; (float) Amount by which segments are 
+punished for incorrect predictions. Default value <code class="docutils literal"><span class="pre">0.0</span></code>.</li>
+<li><strong>seed</strong> &#8211; (int) Seed for the random number generator. Default value <code class="docutils literal"><span class="pre">42</span></code>.</li>
+<li><strong>maxSegmentsPerCell</strong> &#8211; (int) The maximum number of segments per cell. 
+Default value <code class="docutils literal"><span class="pre">255</span></code>.</li>
+<li><strong>maxSynapsesPerSegment</strong> &#8211; (int) The maximum number of synapses per 
+segment. Default value <code class="docutils literal"><span class="pre">255</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.activateCells">
+<code class="descname">activateCells</code><span class="sig-paren">(</span><em>activeColumns</em>, <em>learn=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.activateCells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the active cells, using the current active columns and dendrite
+segments. Grow and reinforce synapses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>activeColumns</strong> &#8211; (iter) A sorted list of active column indices.</li>
+<li><strong>learn</strong> &#8211; <p>(bool) If true, reinforce / punish / grow synapses.</p>
+<p><strong>Pseudocode:</strong></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">each</span> <span class="n">column</span>
+  <span class="k">if</span> <span class="n">column</span> <span class="ow">is</span> <span class="n">active</span> <span class="ow">and</span> <span class="n">has</span> <span class="n">active</span> <span class="n">distal</span> <span class="n">dendrite</span> <span class="n">segments</span>
+    <span class="n">call</span> <span class="n">activatePredictedColumn</span>
+  <span class="k">if</span> <span class="n">column</span> <span class="ow">is</span> <span class="n">active</span> <span class="ow">and</span> <span class="n">doesn</span><span class="s1">&#39;t have active distal dendrite segments</span>
+    <span class="n">call</span> <span class="n">burstColumn</span>
+  <span class="k">if</span> <span class="n">column</span> <span class="ow">is</span> <span class="n">inactive</span> <span class="ow">and</span> <span class="n">has</span> <span class="n">matching</span> <span class="n">distal</span> <span class="n">dendrite</span> <span class="n">segments</span>
+    <span class="n">call</span> <span class="n">punishPredictedColumn</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.activateDendrites">
+<code class="descname">activateDendrites</code><span class="sig-paren">(</span><em>learn=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.activateDendrites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate dendrite segment activity, using the current active cells.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>learn</strong> &#8211; (bool) If true, segment activations will be recorded. This 
+information is used during segment cleanup.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pseudocode:</strong></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">each</span> <span class="n">distal</span> <span class="n">dendrite</span> <span class="n">segment</span> <span class="k">with</span> <span class="n">activity</span> <span class="o">&gt;=</span> <span class="n">activationThreshold</span>
+  <span class="n">mark</span> <span class="n">the</span> <span class="n">segment</span> <span class="k">as</span> <span class="n">active</span>
+<span class="k">for</span> <span class="n">each</span> <span class="n">distal</span> <span class="n">dendrite</span> <span class="n">segment</span> <span class="k">with</span> <span class="n">unconnected</span> <span class="n">activity</span> <span class="o">&gt;=</span> <span class="n">minThreshold</span>
+  <span class="n">mark</span> <span class="n">the</span> <span class="n">segment</span> <span class="k">as</span> <span class="n">matching</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.activatePredictedColumn">
+<code class="descname">activatePredictedColumn</code><span class="sig-paren">(</span><em>column</em>, <em>columnActiveSegments</em>, <em>columnMatchingSegments</em>, <em>prevActiveCells</em>, <em>prevWinnerCells</em>, <em>learn</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.activatePredictedColumn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines which cells in a predicted column should be added to winner cells
+list, and learns on the segments that correctly predicted this column.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>column</strong> &#8211; (int) Index of bursting column.</li>
+<li><strong>columnActiveSegments</strong> &#8211; (iter) Active segments in this column.</li>
+<li><strong>columnMatchingSegments</strong> &#8211; (iter) Matching segments in this column.</li>
+<li><strong>prevActiveCells</strong> &#8211; (list) Active cells in <code class="docutils literal"><span class="pre">t-1</span></code>.</li>
+<li><strong>prevWinnerCells</strong> &#8211; (list) Winner cells in <code class="docutils literal"><span class="pre">t-1</span></code>.</li>
+<li><strong>learn</strong> &#8211; (bool) If true, grow and reinforce synapses.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(list) A list of predicted cells that will be added to 
+active cells and winner cells.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.burstColumn">
+<code class="descname">burstColumn</code><span class="sig-paren">(</span><em>column</em>, <em>columnMatchingSegments</em>, <em>prevActiveCells</em>, <em>prevWinnerCells</em>, <em>learn</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.burstColumn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activates all of the cells in an unpredicted active column, chooses a winner
+cell, and, if learning is turned on, learns on one segment, growing a new
+segment if necessary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>column</strong> &#8211; (int) Index of bursting column.</li>
+<li><strong>columnMatchingSegments</strong> &#8211; (iter) Matching segments in this column, or 
+None if there aren&#8217;t any.</li>
+<li><strong>prevActiveCells</strong> &#8211; (list) Active cells in <code class="docutils literal"><span class="pre">t-1</span></code>.</li>
+<li><strong>prevWinnerCells</strong> &#8211; (list) Winner cells in <code class="docutils literal"><span class="pre">t-1</span></code>.</li>
+<li><strong>learn</strong> &#8211; (bool) Whether or not learning is enabled.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(tuple) Contains (<code class="docutils literal"><span class="pre">cells</span></code> [iter], <code class="docutils literal"><span class="pre">winnerCell</span></code> [int])</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.cellsForColumn">
+<code class="descname">cellsForColumn</code><span class="sig-paren">(</span><em>column</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.cellsForColumn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the indices of cells that belong to a column.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>column</strong> &#8211; (int) Column index</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) Cell indices</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.columnForCell">
+<code class="descname">columnForCell</code><span class="sig-paren">(</span><em>cell</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.columnForCell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the index of the column that a cell belongs to.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cell</strong> &#8211; (int) Cell index</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(int) Column index</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.compute">
+<code class="descname">compute</code><span class="sig-paren">(</span><em>activeColumns</em>, <em>learn=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform one time step of the Temporal Memory algorithm.</p>
+<p>This method calls <a class="reference internal" href="#nupic.algorithms.temporal_memory.TemporalMemory.activateCells" title="nupic.algorithms.temporal_memory.TemporalMemory.activateCells"><code class="xref py py-meth docutils literal"><span class="pre">activateCells()</span></code></a>, then calls 
+<a class="reference internal" href="#nupic.algorithms.temporal_memory.TemporalMemory.activateDendrites" title="nupic.algorithms.temporal_memory.TemporalMemory.activateDendrites"><code class="xref py py-meth docutils literal"><span class="pre">activateDendrites()</span></code></a>. Using <a class="reference internal" href="#nupic.algorithms.temporal_memory.TemporalMemory" title="nupic.algorithms.temporal_memory.TemporalMemory"><code class="xref py py-class docutils literal"><span class="pre">TemporalMemory</span></code></a> via its 
+<a class="reference internal" href="#nupic.algorithms.temporal_memory.TemporalMemory.compute" title="nupic.algorithms.temporal_memory.TemporalMemory.compute"><code class="xref py py-meth docutils literal"><span class="pre">compute()</span></code></a> method ensures that you&#8217;ll always be able to call 
+<a class="reference internal" href="#nupic.algorithms.temporal_memory.TemporalMemory.getPredictiveCells" title="nupic.algorithms.temporal_memory.TemporalMemory.getPredictiveCells"><code class="xref py py-meth docutils literal"><span class="pre">getPredictiveCells()</span></code></a> to get predictions for the next time step.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>activeColumns</strong> &#8211; (iter) Indices of active columns.</li>
+<li><strong>learn</strong> &#8211; (bool) Whether or not learning is enabled.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.connectionsFactory">
+<em class="property">static </em><code class="descname">connectionsFactory</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.connectionsFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <a class="reference internal" href="#nupic.algorithms.connections.Connections" title="nupic.algorithms.connections.Connections"><code class="xref py py-class docutils literal"><span class="pre">Connections</span></code></a> instance.  
+<a class="reference internal" href="#nupic.algorithms.temporal_memory.TemporalMemory" title="nupic.algorithms.temporal_memory.TemporalMemory"><code class="xref py py-class docutils literal"><span class="pre">TemporalMemory</span></code></a> subclasses may override this method to choose a 
+different <a class="reference internal" href="#nupic.algorithms.connections.Connections" title="nupic.algorithms.connections.Connections"><code class="xref py py-class docutils literal"><span class="pre">Connections</span></code></a> implementation, 
+or to augment the instance otherwise returned by the default 
+<a class="reference internal" href="#nupic.algorithms.connections.Connections" title="nupic.algorithms.connections.Connections"><code class="xref py py-class docutils literal"><span class="pre">Connections</span></code></a> implementation.</p>
+<p>See <a class="reference internal" href="#nupic.algorithms.connections.Connections" title="nupic.algorithms.connections.Connections"><code class="xref py py-class docutils literal"><span class="pre">Connections</span></code></a> for constructor 
+signature and usage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="#nupic.algorithms.connections.Connections" title="nupic.algorithms.connections.Connections"><code class="xref py py-class docutils literal"><span class="pre">Connections</span></code></a> instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.createSegment">
+<code class="descname">createSegment</code><span class="sig-paren">(</span><em>cell</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.createSegment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <a class="reference internal" href="#nupic.algorithms.connections.Segment" title="nupic.algorithms.connections.Segment"><code class="xref py py-class docutils literal"><span class="pre">Segment</span></code></a> on the specified 
+cell. This method calls 
+<a class="reference internal" href="#nupic.algorithms.connections.Connections.createSegment" title="nupic.algorithms.connections.Connections.createSegment"><code class="xref py py-meth docutils literal"><span class="pre">createSegment()</span></code></a> on the 
+underlying <a class="reference internal" href="#nupic.algorithms.connections.Connections" title="nupic.algorithms.connections.Connections"><code class="xref py py-class docutils literal"><span class="pre">Connections</span></code></a>, and it does 
+some extra bookkeeping. Unit tests should call this method, and not 
+<a class="reference internal" href="#nupic.algorithms.connections.Connections.createSegment" title="nupic.algorithms.connections.Connections.createSegment"><code class="xref py py-meth docutils literal"><span class="pre">createSegment()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cell</strong> &#8211; (int) Index of cell to create a segment on.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(<a class="reference internal" href="#nupic.algorithms.connections.Segment" title="nupic.algorithms.connections.Segment"><code class="xref py py-class docutils literal"><span class="pre">Segment</span></code></a>) The created 
+segment.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getActivationThreshold">
+<code class="descname">getActivationThreshold</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getActivationThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the activation threshold.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) The activation threshold.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getActiveCells">
+<code class="descname">getActiveCells</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getActiveCells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the indices of the active cells.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) Indices of active cells.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getActiveSegments">
+<code class="descname">getActiveSegments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getActiveSegments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the active segments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) Active segments</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getCellIndex">
+<em class="property">static </em><code class="descname">getCellIndex</code><span class="sig-paren">(</span><em>cell</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getCellIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the index of the cell.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cell</strong> &#8211; (int) cell to find the index of</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getCellIndices">
+<em class="property">classmethod </em><code class="descname">getCellIndices</code><span class="sig-paren">(</span><em>cells</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getCellIndices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the indices of the cells passed in.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cells</strong> &#8211; (list) cells to find the indices of</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getCellsPerColumn">
+<code class="descname">getCellsPerColumn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getCellsPerColumn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of cells per column.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) The number of cells per column.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getColumnDimensions">
+<code class="descname">getColumnDimensions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getColumnDimensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the dimensions of the columns in the region.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(tuple) Column dimensions</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getConnectedPermanence">
+<code class="descname">getConnectedPermanence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getConnectedPermanence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the connected permanence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) The connected permanence.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getInitialPermanence">
+<code class="descname">getInitialPermanence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getInitialPermanence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the initial permanence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) The initial permanence.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getMatchingSegments">
+<code class="descname">getMatchingSegments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getMatchingSegments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the matching segments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) Matching segments</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getMaxNewSynapseCount">
+<code class="descname">getMaxNewSynapseCount</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getMaxNewSynapseCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the max new synapse count.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) The max new synapse count.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getMaxSegmentsPerCell">
+<code class="descname">getMaxSegmentsPerCell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getMaxSegmentsPerCell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the maximum number of segments per cell</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) max number of segments per cell</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getMaxSynapsesPerSegment">
+<code class="descname">getMaxSynapsesPerSegment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getMaxSynapsesPerSegment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the maximum number of synapses per segment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) max number of synapses per segment</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getMinThreshold">
+<code class="descname">getMinThreshold</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getMinThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the min threshold.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) The min threshold.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getPermanenceDecrement">
+<code class="descname">getPermanenceDecrement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getPermanenceDecrement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the permanence decrement.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) The permanence decrement.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getPermanenceIncrement">
+<code class="descname">getPermanenceIncrement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getPermanenceIncrement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the permanence increment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) The permanence increment.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getPredictedSegmentDecrement">
+<code class="descname">getPredictedSegmentDecrement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getPredictedSegmentDecrement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the predicted segment decrement.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) The predicted segment decrement.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getPredictiveCells">
+<code class="descname">getPredictiveCells</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getPredictiveCells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the indices of the predictive cells.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) Indices of predictive cells.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.getWinnerCells">
+<code class="descname">getWinnerCells</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.getWinnerCells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the indices of the winner cells.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) Indices of winner cells.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.mapCellsToColumns">
+<code class="descname">mapCellsToColumns</code><span class="sig-paren">(</span><em>cells</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.mapCellsToColumns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps cells to the columns they belong to.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cells</strong> &#8211; (set) Cells</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(dict) Mapping from columns to their cells in <cite>cells</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.numberOfCells">
+<code class="descname">numberOfCells</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.numberOfCells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of cells in this layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) Number of cells</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.numberOfColumns">
+<code class="descname">numberOfColumns</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.numberOfColumns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of columns in this layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) Number of columns</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.punishPredictedColumn">
+<code class="descname">punishPredictedColumn</code><span class="sig-paren">(</span><em>column</em>, <em>columnActiveSegments</em>, <em>columnMatchingSegments</em>, <em>prevActiveCells</em>, <em>prevWinnerCells</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.punishPredictedColumn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Punishes the Segments that incorrectly predicted a column to be active.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>column</strong> &#8211; (int) Index of bursting column.</li>
+<li><strong>columnActiveSegments</strong> &#8211; (iter) Active segments for this column, or None 
+if there aren&#8217;t any.</li>
+<li><strong>columnMatchingSegments</strong> &#8211; (iter) Matching segments for this column, or 
+None if there aren&#8217;t any.</li>
+<li><strong>prevActiveCells</strong> &#8211; (list) Active cells in <code class="docutils literal"><span class="pre">t-1</span></code>.</li>
+<li><strong>prevWinnerCells</strong> &#8211; (list) Winner cells in <code class="docutils literal"><span class="pre">t-1</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.read">
+<em class="property">classmethod </em><code class="descname">read</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads deserialized data from proto object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; (DynamicStructBuilder) Proto object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(:class:TemporalMemory) TemporalMemory instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates the start of a new sequence. Clears any predictions and makes sure
+synapses don&#8217;t grow to the currently active cells in the next time step.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.setActivationThreshold">
+<code class="descname">setActivationThreshold</code><span class="sig-paren">(</span><em>activationThreshold</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.setActivationThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the activation threshold.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>activationThreshold</strong> &#8211; (int) activation threshold.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.setConnectedPermanence">
+<code class="descname">setConnectedPermanence</code><span class="sig-paren">(</span><em>connectedPermanence</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.setConnectedPermanence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the connected permanence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>connectedPermanence</strong> &#8211; (float) The connected permanence.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.setInitialPermanence">
+<code class="descname">setInitialPermanence</code><span class="sig-paren">(</span><em>initialPermanence</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.setInitialPermanence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the initial permanence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>initialPermanence</strong> &#8211; (float) The initial permanence.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.setMaxNewSynapseCount">
+<code class="descname">setMaxNewSynapseCount</code><span class="sig-paren">(</span><em>maxNewSynapseCount</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.setMaxNewSynapseCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the max new synapse count.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>maxNewSynapseCount</strong> &#8211; (int) Max new synapse count.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.setMinThreshold">
+<code class="descname">setMinThreshold</code><span class="sig-paren">(</span><em>minThreshold</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.setMinThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the min threshold.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>minThreshold</strong> &#8211; (int) min threshold.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.setPermanenceDecrement">
+<code class="descname">setPermanenceDecrement</code><span class="sig-paren">(</span><em>permanenceDecrement</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.setPermanenceDecrement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the permanence decrement.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>permanenceDecrement</strong> &#8211; (float) The permanence decrement.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.setPermanenceIncrement">
+<code class="descname">setPermanenceIncrement</code><span class="sig-paren">(</span><em>permanenceIncrement</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.setPermanenceIncrement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the permanence increment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>permanenceIncrement</strong> &#8211; (float) The permanence increment.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.setPredictedSegmentDecrement">
+<code class="descname">setPredictedSegmentDecrement</code><span class="sig-paren">(</span><em>predictedSegmentDecrement</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.setPredictedSegmentDecrement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the predicted segment decrement.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>predictedSegmentDecrement</strong> &#8211; (float) The predicted segment decrement.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.temporal_memory.TemporalMemory.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.temporal_memory.TemporalMemory.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes serialized data to proto object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; (DynamicStructBuilder) Proto object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.algorithms.backtracking_tm">
+<span id="backtracking-temporal-memory"></span><h2>Backtracking Temporal Memory<a class="headerlink" href="#module-nupic.algorithms.backtracking_tm" title="Permalink to this headline">¶</a></h2>
+<p>Temporal memory implementation.</p>
+<p>This is the Python implementation and is used as the base class for the C++
+implementation in <code class="xref py py-class docutils literal"><span class="pre">BacktrackingTMCPP</span></code>.</p>
+<dl class="class">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM">
+<em class="property">class </em><code class="descclassname">nupic.algorithms.backtracking_tm.</code><code class="descname">BacktrackingTM</code><span class="sig-paren">(</span><em>numberOfCols=500</em>, <em>cellsPerColumn=10</em>, <em>initialPerm=0.11</em>, <em>connectedPerm=0.5</em>, <em>minThreshold=8</em>, <em>newSynapseCount=15</em>, <em>permanenceInc=0.1</em>, <em>permanenceDec=0.1</em>, <em>permanenceMax=1.0</em>, <em>globalDecay=0.1</em>, <em>activationThreshold=12</em>, <em>doPooling=False</em>, <em>segUpdateValidDuration=5</em>, <em>burnIn=2</em>, <em>collectStats=False</em>, <em>seed=42</em>, <em>verbosity=0</em>, <em>checkSynapseConsistency=False</em>, <em>pamLength=1</em>, <em>maxInfBacktrack=10</em>, <em>maxLrnBacktrack=5</em>, <em>maxAge=100000</em>, <em>maxSeqLength=32</em>, <em>maxSegmentsPerCell=-1</em>, <em>maxSynapsesPerSegment=-1</em>, <em>outputType='normal'</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../support/index.html#nupic.support.console_printer.ConsolePrinterMixin" title="nupic.support.console_printer.ConsolePrinterMixin"><code class="xref py py-class docutils literal"><span class="pre">nupic.support.console_printer.ConsolePrinterMixin</span></code></a>, <a class="reference internal" href="../support/index.html#nupic.serializable.Serializable" title="nupic.serializable.Serializable"><code class="xref py py-class docutils literal"><span class="pre">nupic.serializable.Serializable</span></code></a></p>
+<p>Class implementing the temporal memory algorithm as described in
+<a class="reference external" href="https://numenta.com/biological-and-machine-intelligence/">BAMI</a>.  The 
+implementation here attempts to closely match the pseudocode in the 
+documentation. This implementation does contain several additional bells and 
+whistles such as a column confidence measure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>numberOfCols</strong> &#8211; (int) Number of mini-columns in the region. This values 
+needs to be the same as the number of columns in the SP, if one is 
+used.</li>
+<li><strong>cellsPerColumn</strong> &#8211; (int) The number of cells per mini-column.</li>
+<li><strong>initialPerm</strong> &#8211; (float) Initial permanence for newly created synapses.</li>
+<li><strong>connectedPerm</strong> &#8211; TODO: document</li>
+<li><strong>minThreshold</strong> &#8211; (int)  Minimum number of active synapses for a segment to 
+be considered during search for the best-matching segments.</li>
+<li><strong>newSynapseCount</strong> &#8211; (int) The max number of synapses added to a segment 
+during learning.</li>
+<li><strong>permanenceInc</strong> &#8211; (float) Active synapses get their permanence counts 
+incremented by this value.</li>
+<li><strong>permanenceDec</strong> &#8211; (float) All other synapses get their permanence counts 
+decremented by this value.</li>
+<li><strong>permanenceMax</strong> &#8211; TODO: document</li>
+<li><strong>maxAge</strong> &#8211; <p>(int) Number of iterations before global decay takes effect.
+Also the global decay execution interval. After global decay starts, it
+will will run again every <code class="docutils literal"><span class="pre">maxAge</span></code> iterations. If <code class="docutils literal"><span class="pre">maxAge==1</span></code>, 
+global decay is applied to every iteration to every segment.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Using <code class="docutils literal"><span class="pre">maxAge</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> can significantly speed up the TM when 
+global decay is used.</p>
+</div>
+</li>
+<li><strong>globalDecay</strong> &#8211; <p>(float) Value to decrease permanences when the global 
+decay process runs. Global decay will remove synapses if their 
+permanence value reaches 0. It will also remove segments when they no
+longer have synapses.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Global decay is applied after <code class="docutils literal"><span class="pre">maxAge</span></code> iterations, after 
+which it will run every <code class="docutils literal"><span class="pre">maxAge</span></code> iterations.</p>
+</div>
+</li>
+<li><strong>activationThreshold</strong> &#8211; (int) Number of synapses that must be active to 
+activate a segment.</li>
+<li><strong>doPooling</strong> &#8211; (bool) If True, pooling is enabled. False is the default.</li>
+<li><strong>segUpdateValidDuration</strong> &#8211; TODO: document</li>
+<li><strong>burnIn</strong> &#8211; (int) Used for evaluating the prediction score. Default is 2.</li>
+<li><strong>collectStats</strong> &#8211; (bool) If True, collect training / inference stats. 
+Default is False.</li>
+<li><strong>seed</strong> &#8211; (int)  Random number generator seed. The seed affects the random 
+aspects of initialization like the initial permanence values. A fixed 
+value ensures a reproducible result.</li>
+<li><strong>verbosity</strong> &#8211; <p>(int) Controls the verbosity of the TM diagnostic output:</p>
+<ul>
+<li>verbosity == 0: silent</li>
+<li>verbosity in [1..6]: increasing levels of verbosity</li>
+</ul>
+</li>
+<li><strong>pamLength</strong> &#8211; <p>(int) Number of time steps to remain in &#8220;Pay Attention Mode&#8221; 
+after we detect we&#8217;ve reached the end of a learned sequence. Setting 
+this to 0 disables PAM mode. When we are in PAM mode, we do not burst 
+unpredicted columns during learning, which in turn prevents us from 
+falling into a previously learned sequence for a while (until we run 
+through another &#8216;pamLength&#8217; steps).</p>
+<p>The advantage of PAM mode is that it requires fewer presentations to 
+learn a set of sequences which share elements. The disadvantage of PAM 
+mode is that if a learned sequence is immediately followed by set set 
+of elements that should be learned as a 2nd sequence, the first 
+<code class="docutils literal"><span class="pre">pamLength</span></code> elements of that sequence will not be learned as part of 
+that 2nd sequence.</p>
+</li>
+<li><strong>maxInfBacktrack</strong> &#8211; (int) How many previous inputs to keep in a buffer for
+inference backtracking.</li>
+<li><strong>maxLrnBacktrack</strong> &#8211; (int) How many previous inputs to keep in a buffer for
+learning backtracking.</li>
+<li><strong>maxSeqLength</strong> &#8211; (int) If not 0, we will never learn more than 
+<code class="docutils literal"><span class="pre">maxSeqLength</span></code> inputs in a row without starting over at start cells. 
+This sets an upper bound on the length of learned sequences and thus is
+another means (besides <code class="docutils literal"><span class="pre">maxAge</span></code> and <code class="docutils literal"><span class="pre">globalDecay</span></code>) by which to 
+limit how much the TM tries to learn.</li>
+<li><strong>maxSegmentsPerCell</strong> &#8211; (int) The maximum number of segments allowed on a 
+cell. This is used to turn on &#8220;fixed size CLA&#8221; mode. When in effect, 
+<code class="docutils literal"><span class="pre">globalDecay</span></code> is not applicable and must be set to 0 and <code class="docutils literal"><span class="pre">maxAge</span></code> 
+must be set to 0. When this is used (&gt; 0), <code class="docutils literal"><span class="pre">maxSynapsesPerSegment</span></code> 
+must also be &gt; 0.</li>
+<li><strong>maxSynapsesPerSegment</strong> &#8211; (int) The maximum number of synapses allowed in 
+a segment. This is used to turn on &#8220;fixed size CLA&#8221; mode. When in 
+effect, <code class="docutils literal"><span class="pre">globalDecay</span></code> is not applicable and must be set to 0, and 
+<code class="docutils literal"><span class="pre">maxAge</span></code> must be set to 0. When this is used (&gt; 0), 
+<code class="docutils literal"><span class="pre">maxSegmentsPerCell</span></code> must also be &gt; 0.</li>
+<li><strong>outputType</strong> &#8211; <p>(string) Can be one of the following (default <code class="docutils literal"><span class="pre">normal</span></code>):</p>
+<ul>
+<li><code class="docutils literal"><span class="pre">normal</span></code>: output the OR of the active and predicted state.</li>
+<li><code class="docutils literal"><span class="pre">activeState</span></code>: output only the active state.</li>
+<li><code class="docutils literal"><span class="pre">activeState1CellPerCol</span></code>: output only the active state, and at most 
+1 cell/column. If more than 1 cell is active in a column, the one 
+with the highest confidence is sent up.</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.compute">
+<code class="descname">compute</code><span class="sig-paren">(</span><em>bottomUpInput</em>, <em>enableLearn</em>, <em>enableInference=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle one compute, possibly learning.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is an error to have both <code class="docutils literal"><span class="pre">enableLearn</span></code> and 
+<code class="docutils literal"><span class="pre">enableInference</span></code> set to False</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">By default, we don&#8217;t compute the inference output when learning 
+because it slows things down, but you can override this by passing 
+in True for <code class="docutils literal"><span class="pre">enableInference</span></code>.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>bottomUpInput</strong> &#8211; The bottom-up input as numpy list, typically from a 
+spatial pooler.</li>
+<li><strong>enableLearn</strong> &#8211; (bool) If true, perform learning</li>
+<li><strong>enableInference</strong> &#8211; (bool) If None, default behavior is to disable the 
+inference output when <code class="docutils literal"><span class="pre">enableLearn</span></code> is on. If true, compute the 
+inference output. If false, do not compute the inference output.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">TODO: document</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.finishLearning">
+<code class="descname">finishLearning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.finishLearning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when learning has been completed. This method just calls
+<a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.trimSegments" title="nupic.algorithms.backtracking_tm.BacktrackingTM.trimSegments"><code class="xref py py-meth docutils literal"><span class="pre">trimSegments()</span></code></a> and then clears out caches.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.getAvgLearnedSeqLength">
+<code class="descname">getAvgLearnedSeqLength</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getAvgLearnedSeqLength" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Moving average of learned sequence length</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.getNumCells">
+<code class="descname">getNumCells</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getNumCells" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) the total number of cells</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegments">
+<code class="descname">getNumSegments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegments" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) the total number of segments</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegmentsInCell">
+<code class="descname">getNumSegmentsInCell</code><span class="sig-paren">(</span><em>c</em>, <em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegmentsInCell" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>c</strong> &#8211; (int) column index</li>
+<li><strong>i</strong> &#8211; (int) cell index within column</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(int) the total number of synapses in cell (c, i)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSynapses">
+<code class="descname">getNumSynapses</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSynapses" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) the total number of synapses</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSynapsesPerSegmentAvg">
+<code class="descname">getNumSynapsesPerSegmentAvg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSynapsesPerSegmentAvg" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) the average number of synapses per segment</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.getPredictedState">
+<code class="descname">getPredictedState</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getPredictedState" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">numpy array of predicted cells, representing the current predicted
+state. <code class="docutils literal"><span class="pre">predictedCells[c][i]</span></code> represents the state of the i&#8217;th cell in 
+the c&#8217;th column.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentInfo">
+<code class="descname">getSegmentInfo</code><span class="sig-paren">(</span><em>collectActiveData=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about the distribution of segments, synapses and
+permanence values in the current TM. If requested, also returns information
+regarding the number of currently active segments and synapses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">tuple described below:<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span>
+  <span class="n">nSegments</span><span class="p">,</span>
+  <span class="n">nSynapses</span><span class="p">,</span>
+  <span class="n">nActiveSegs</span><span class="p">,</span>
+  <span class="n">nActiveSynapses</span><span class="p">,</span>
+  <span class="n">distSegSizes</span><span class="p">,</span>
+  <span class="n">distNSegsPerCell</span><span class="p">,</span>
+  <span class="n">distPermValues</span><span class="p">,</span>
+  <span class="n">distAges</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">nSegments</span></code>: (int) total number of segments</li>
+<li><code class="docutils literal"><span class="pre">nSynapses</span></code>: (int) total number of synapses</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">nActiveSegs</span></code>: (int) total number of active segments (0 if </dt>
+<dd><code class="docutils literal"><span class="pre">collectActiveData</span></code> is False)</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">nActiveSynapses</span></code>: (int) total number of active synapses 0 if </dt>
+<dd><code class="docutils literal"><span class="pre">collectActiveData</span></code> is False</dd>
+</dl>
+</li>
+<li><code class="docutils literal"><span class="pre">distSegSizes</span></code>: (dict) where d[n] = number of segments with n synapses</li>
+<li><code class="docutils literal"><span class="pre">distNSegsPerCell</span></code>: (dict) where d[n] = number of cells with n segments</li>
+<li><code class="docutils literal"><span class="pre">distPermValues</span></code>: (dict) where d[p] = number of synapses with perm = p/10</li>
+<li><code class="docutils literal"><span class="pre">distAges</span></code>: (list) of tuples (<code class="docutils literal"><span class="pre">ageRange</span></code>, <code class="docutils literal"><span class="pre">numSegments</span></code>)</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentOnCell">
+<code class="descname">getSegmentOnCell</code><span class="sig-paren">(</span><em>c</em>, <em>i</em>, <em>segIdx</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentOnCell" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>c</strong> &#8211; (int) column index</li>
+<li><strong>i</strong> &#8211; (int) cell index in column</li>
+<li><strong>segIdx</strong> &#8211; (int) segment index to match</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>(list) representing the the segment on cell (c, i) with index 
+<code class="docutils literal"><span class="pre">segIdx</span></code>.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span>  <span class="p">[</span><span class="n">segmentID</span><span class="p">,</span> <span class="n">sequenceSegmentFlag</span><span class="p">,</span> <span class="n">positiveActivations</span><span class="p">,</span>
+    <span class="n">totalActivations</span><span class="p">,</span> <span class="n">lastActiveIteration</span><span class="p">,</span>
+    <span class="n">lastPosDutyCycle</span><span class="p">,</span> <span class="n">lastPosDutyCycleIteration</span><span class="p">],</span>
+   <span class="p">[</span><span class="n">col1</span><span class="p">,</span> <span class="n">idx1</span><span class="p">,</span> <span class="n">perm1</span><span class="p">],</span>
+   <span class="p">[</span><span class="n">col2</span><span class="p">,</span> <span class="n">idx2</span><span class="p">,</span> <span class="n">perm2</span><span class="p">],</span> <span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.getStats">
+<code class="descname">getStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current learning and inference stats. This returns a dict
+containing all the learning and inference stats we have collected since the
+last <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.resetStats" title="nupic.algorithms.backtracking_tm.BacktrackingTM.resetStats"><code class="xref py py-meth docutils literal"><span class="pre">resetStats()</span></code></a> call. If <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM" title="nupic.algorithms.backtracking_tm.BacktrackingTM"><code class="xref py py-class docutils literal"><span class="pre">BacktrackingTM</span></code></a> <code class="docutils literal"><span class="pre">collectStats</span></code> 
+parameter is False, then None is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(dict) The following keys are returned in the dict when 
+<code class="docutils literal"><span class="pre">collectStats</span></code> is True:<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">nPredictions</span></code>: the number of predictions. This is the total </dt>
+<dd>number of inferences excluding burn-in and the last inference.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">curPredictionScore</span></code>: the score for predicting the current input</dt>
+<dd>(predicted during the previous inference)</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">curMissing</span></code>: the number of bits in the current input that were </dt>
+<dd>not predicted to be on.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">curExtra</span></code>: the number of bits in the predicted output that are </dt>
+<dd>not in the next input</dd>
+</dl>
+</li>
+<li><code class="docutils literal"><span class="pre">predictionScoreTotal</span></code>: the sum of every prediction score to date</li>
+<li><code class="docutils literal"><span class="pre">predictionScoreAvg</span></code>: <code class="docutils literal"><span class="pre">predictionScoreTotal</span> <span class="pre">/</span> <span class="pre">nPredictions</span></code></li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">pctMissingTotal</span></code>: the total number of bits that were missed over </dt>
+<dd>all predictions</dd>
+</dl>
+</li>
+<li><code class="docutils literal"><span class="pre">pctMissingAvg</span></code>: <code class="docutils literal"><span class="pre">pctMissingTotal</span> <span class="pre">/</span> <span class="pre">nPredictions</span></code></li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">prevSequenceSignature</span></code>: signature for the sequence immediately </dt>
+<dd>preceding the last reset. &#8216;None&#8217; if <code class="docutils literal"><span class="pre">collectSequenceStats</span></code> is 
+False.</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.infer">
+<code class="descname">infer</code><span class="sig-paren">(</span><em>bottomUpInput</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.infer" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: document</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bottomUpInput</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.learn">
+<code class="descname">learn</code><span class="sig-paren">(</span><em>bottomUpInput</em>, <em>enableInference=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.learn" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: document</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>bottomUpInput</strong> &#8211; </li>
+<li><strong>enableInference</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.loadFromFile">
+<code class="descname">loadFromFile</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.loadFromFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implemented in 
+<a class="reference internal" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.loadFromFile" title="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.loadFromFile"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.loadFromFile()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>nSteps</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gives the future predictions for &lt;nSteps&gt; timesteps starting
+from the current TM state. The TM is returned to its original state at the
+end before returning.</p>
+<ol class="arabic simple">
+<li>We save the TM state.</li>
+<li>Loop for nSteps<ol class="loweralpha">
+<li>Turn-on with lateral support from the current active cells</li>
+<li>Set the predicted cells as the next step&#8217;s active cells. This step
+in learn and infer methods use input here to correct the predictions.
+We don&#8217;t use any input here.</li>
+</ol>
+</li>
+<li>Revert back the TM state to the time before prediction</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nSteps</strong> &#8211; (int) The number of future time steps to be predicted</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">all the future predictions - a numpy array of type &#8220;float32&#8221; and
+shape (nSteps, numberOfCols). The ith row gives the tm prediction for 
+each column at a future timestep (t+i+1).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.printActiveIndices">
+<code class="descname">printActiveIndices</code><span class="sig-paren">(</span><em>state</em>, <em>andValues=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printActiveIndices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the list of <code class="docutils literal"><span class="pre">[column,</span> <span class="pre">cellIdx]</span></code> indices for each of the active cells 
+in state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>state</strong> &#8211; TODO: document</li>
+<li><strong>andValues</strong> &#8211; TODO: document</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.printCell">
+<code class="descname">printCell</code><span class="sig-paren">(</span><em>c</em>, <em>i</em>, <em>onlyActiveSegments=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printCell" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: document</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>c</strong> &#8211; </li>
+<li><strong>i</strong> &#8211; </li>
+<li><strong>onlyActiveSegments</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.printCells">
+<code class="descname">printCells</code><span class="sig-paren">(</span><em>predictedOnly=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printCells" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: document</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>predictedOnly</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.printColConfidence">
+<code class="descname">printColConfidence</code><span class="sig-paren">(</span><em>aState</em>, <em>maxCols=20</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printColConfidence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print up to maxCols number from a flat floating point array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>aState</strong> &#8211; TODO: document</li>
+<li><strong>maxCols</strong> &#8211; TODO: document</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.printComputeEnd">
+<code class="descname">printComputeEnd</code><span class="sig-paren">(</span><em>output</em>, <em>learn=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printComputeEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called at the end of inference to print out various diagnostic
+information based on the current verbosity level.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>output</strong> &#8211; TODO: document</li>
+<li><strong>learn</strong> &#8211; TODO: document</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.printConfidence">
+<code class="descname">printConfidence</code><span class="sig-paren">(</span><em>aState</em>, <em>maxCols=20</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printConfidence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a floating point array that is the same shape as activeState.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>aState</strong> &#8211; TODO: document</li>
+<li><strong>maxCols</strong> &#8211; TODO: document</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.printInput">
+<code class="descname">printInput</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: document</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.printOutput">
+<code class="descname">printOutput</code><span class="sig-paren">(</span><em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: document</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>y</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.printParameters">
+<code class="descname">printParameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the parameter settings for the TM.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.printSegmentUpdates">
+<code class="descname">printSegmentUpdates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printSegmentUpdates" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: document</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.printState">
+<code class="descname">printState</code><span class="sig-paren">(</span><em>aState</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print an integer array that is the same shape as activeState.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>aState</strong> &#8211; TODO: document</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.printStates">
+<code class="descname">printStates</code><span class="sig-paren">(</span><em>printPrevious=True</em>, <em>printLearnState=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printStates" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: document</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>printPrevious</strong> &#8211; </li>
+<li><strong>printLearnState</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the state of all cells.</p>
+<p>This is normally used between sequences while training. All internal states
+are reset to 0.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.resetStats">
+<code class="descname">resetStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.resetStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the learning and inference stats. This will usually be called by
+user code at the start of each inference run (for a particular data set).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.saveToFile">
+<code class="descname">saveToFile</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.saveToFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implemented in 
+<a class="reference internal" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.saveToFile" title="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.saveToFile"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.saveToFile()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.topDownCompute">
+<code class="descname">topDownCompute</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.topDownCompute" title="Permalink to this definition">¶</a></dt>
+<dd><p>For now, we will assume there is no one above us and that bottomUpOut is
+simply the output that corresponds to our currently stored column
+confidences.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the same thing as <code class="xref py py-meth docutils literal"><span class="pre">columnConfidences()</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm.BacktrackingTM.trimSegments">
+<code class="descname">trimSegments</code><span class="sig-paren">(</span><em>minPermanence=None</em>, <em>minNumSyns=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.trimSegments" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method deletes all synapses whose permanence is less than
+minPermanence and deletes any segments that have less than
+minNumSyns synapses remaining.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>minPermanence</strong> &#8211; (float) Any syn whose permanence is 0 or &lt; 
+<code class="docutils literal"><span class="pre">minPermanence</span></code>  will be deleted. If None is passed in, then 
+<code class="docutils literal"><span class="pre">self.connectedPerm</span></code> is used.</li>
+<li><strong>minNumSyns</strong> &#8211; (int) Any segment with less than <code class="docutils literal"><span class="pre">minNumSyns</span></code> synapses 
+remaining in it will be deleted. If None is passed in, then 
+<code class="docutils literal"><span class="pre">self.activationThreshold</span></code> is used.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(tuple) <code class="docutils literal"><span class="pre">numSegsRemoved</span></code>, <code class="docutils literal"><span class="pre">numSynsRemoved</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.algorithms.backtracking_tm_cpp">
+<span id="c-backtracking-temporal-memory"></span><h2>C++ Backtracking Temporal Memory<a class="headerlink" href="#module-nupic.algorithms.backtracking_tm_cpp" title="Permalink to this headline">¶</a></h2>
+<p>Temporal memory implementation in C++ wrapped by a Python class.</p>
+<p><a class="reference internal" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP" title="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP"><code class="xref py py-class docutils literal"><span class="pre">BacktrackingTMCPP</span></code></a> wraps the C++ algorithm execution by extending 
+<a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM" title="nupic.algorithms.backtracking_tm.BacktrackingTM"><code class="xref py py-class docutils literal"><span class="pre">BacktrackingTM</span></code></a> and overriding 
+<a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.compute" title="nupic.algorithms.backtracking_tm.BacktrackingTM.compute"><code class="xref py py-meth docutils literal"><span class="pre">compute()</span></code></a>.</p>
+<dl class="class">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP">
+<em class="property">class </em><code class="descclassname">nupic.algorithms.backtracking_tm_cpp.</code><code class="descname">BacktrackingTMCPP</code><span class="sig-paren">(</span><em>numberOfCols=500</em>, <em>cellsPerColumn=10</em>, <em>initialPerm=0.11</em>, <em>connectedPerm=0.5</em>, <em>minThreshold=8</em>, <em>newSynapseCount=15</em>, <em>permanenceInc=0.1</em>, <em>permanenceDec=0.1</em>, <em>permanenceMax=1.0</em>, <em>globalDecay=0.1</em>, <em>activationThreshold=12</em>, <em>doPooling=False</em>, <em>segUpdateValidDuration=5</em>, <em>burnIn=2</em>, <em>collectStats=False</em>, <em>seed=42</em>, <em>verbosity=0</em>, <em>checkSynapseConsistency=False</em>, <em>pamLength=1</em>, <em>maxInfBacktrack=10</em>, <em>maxLrnBacktrack=5</em>, <em>maxAge=100000</em>, <em>maxSeqLength=32</em>, <em>maxSegmentsPerCell=-1</em>, <em>maxSynapsesPerSegment=-1</em>, <em>outputType='normal'</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM" title="nupic.algorithms.backtracking_tm.BacktrackingTM"><code class="xref py py-class docutils literal"><span class="pre">nupic.algorithms.backtracking_tm.BacktrackingTM</span></code></a></p>
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.compute">
+<code class="descname">compute</code><span class="sig-paren">(</span><em>bottomUpInput</em>, <em>enableLearn</em>, <em>enableInference=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.compute" title="nupic.algorithms.backtracking_tm.BacktrackingTM.compute"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm.BacktrackingTM.compute()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.finishLearning">
+<code class="descname">finishLearning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.finishLearning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.finishLearning" title="nupic.algorithms.backtracking_tm.BacktrackingTM.finishLearning"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm.BacktrackingTM.finishLearning()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getAvgLearnedSeqLength">
+<code class="descname">getAvgLearnedSeqLength</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getAvgLearnedSeqLength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getAvgLearnedSeqLength" title="nupic.algorithms.backtracking_tm.BacktrackingTM.getAvgLearnedSeqLength"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm.BacktrackingTM.getAvgLearnedSeqLength()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getColCellIdx">
+<code class="descname">getColCellIdx</code><span class="sig-paren">(</span><em>idx</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getColCellIdx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get column and cell within column from a global cell index.
+The global index is <code class="docutils literal"><span class="pre">idx</span> <span class="pre">=</span> <span class="pre">colIdx</span> <span class="pre">*</span> <span class="pre">nCellsPerCol()</span> <span class="pre">+</span> <span class="pre">cellIdxInCol</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> &#8211; (int) global cell index</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(tuple) (colIdx, cellIdxInCol)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getNumSegments">
+<code class="descname">getNumSegments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getNumSegments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegments" title="nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegments"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegments()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getNumSegmentsInCell">
+<code class="descname">getNumSegmentsInCell</code><span class="sig-paren">(</span><em>c</em>, <em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getNumSegmentsInCell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegmentsInCell" title="nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegmentsInCell"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegmentsInCell()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getNumSynapses">
+<code class="descname">getNumSynapses</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getNumSynapses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSynapses" title="nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSynapses"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSynapses()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getSegmentInfo">
+<code class="descname">getSegmentInfo</code><span class="sig-paren">(</span><em>collectActiveData=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getSegmentInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentInfo" title="nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentInfo"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentInfo()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getSegmentOnCell">
+<code class="descname">getSegmentOnCell</code><span class="sig-paren">(</span><em>c</em>, <em>i</em>, <em>segIdx</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.getSegmentOnCell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentOnCell" title="nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentOnCell"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentOnCell()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.loadFromFile">
+<code class="descname">loadFromFile</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.loadFromFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load Cells4 state from a file saved with <a class="reference internal" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.saveToFile" title="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.saveToFile"><code class="xref py py-meth docutils literal"><span class="pre">saveToFile()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.printCell">
+<code class="descname">printCell</code><span class="sig-paren">(</span><em>c</em>, <em>i</em>, <em>onlyActiveSegments=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.printCell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printCell" title="nupic.algorithms.backtracking_tm.BacktrackingTM.printCell"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm.BacktrackingTM.printCell()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.printSegmentUpdates">
+<code class="descname">printSegmentUpdates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.printSegmentUpdates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.printSegmentUpdates" title="nupic.algorithms.backtracking_tm.BacktrackingTM.printSegmentUpdates"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm.BacktrackingTM.printSegmentUpdates()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.reset" title="nupic.algorithms.backtracking_tm.BacktrackingTM.reset"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm.BacktrackingTM.reset()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.saveToFile">
+<code class="descname">saveToFile</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.saveToFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save Cells4 state to a file. File can be loaded with <a class="reference internal" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.loadFromFile" title="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.loadFromFile"><code class="xref py py-meth docutils literal"><span class="pre">loadFromFile()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.trimSegments">
+<code class="descname">trimSegments</code><span class="sig-paren">(</span><em>minPermanence=None</em>, <em>minNumSyns=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP.trimSegments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.algorithms.backtracking_tm.BacktrackingTM.trimSegments" title="nupic.algorithms.backtracking_tm.BacktrackingTM.trimSegments"><code class="xref py py-meth docutils literal"><span class="pre">nupic.algorithms.backtracking_tm.BacktrackingTM.trimSegments()</span></code></a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-nupic.algorithms.connections">
+<span id="connections"></span><h2>Connections<a class="headerlink" href="#module-nupic.algorithms.connections" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.algorithms.connections.Connections">
+<em class="property">class </em><code class="descclassname">nupic.algorithms.connections.</code><code class="descname">Connections</code><span class="sig-paren">(</span><em>numCells</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../support/index.html#nupic.serializable.Serializable" title="nupic.serializable.Serializable"><code class="xref py py-class docutils literal"><span class="pre">nupic.serializable.Serializable</span></code></a></p>
+<p>Class to hold data representing the connectivity of a collection of cells.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>numCells</strong> &#8211; (int) Number of cells in collection.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.computeActivity">
+<code class="descname">computeActivity</code><span class="sig-paren">(</span><em>activePresynapticCells</em>, <em>connectedPermanence</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.computeActivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute each segment&#8217;s number of active synapses for a given input.
+In the returned lists, a segment&#8217;s active synapse count is stored at index
+<code class="docutils literal"><span class="pre">segment.flatIdx</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>activePresynapticCells</strong> &#8211; (iter) Active cells.</li>
+<li><strong>connectedPermanence</strong> &#8211; (float) Permanence threshold for a synapse to be 
+considered connected</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(tuple) (<code class="docutils literal"><span class="pre">numActiveConnectedSynapsesForSegment</span></code> [list],
+<code class="docutils literal"><span class="pre">numActivePotentialSynapsesForSegment</span></code> [list])</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.createSegment">
+<code class="descname">createSegment</code><span class="sig-paren">(</span><em>cell</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.createSegment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new segment on a cell.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cell</strong> &#8211; (int) Cell index</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(int) New segment index</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.createSynapse">
+<code class="descname">createSynapse</code><span class="sig-paren">(</span><em>segment</em>, <em>presynapticCell</em>, <em>permanence</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.createSynapse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new synapse on a segment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>segment</strong> &#8211; (<a class="reference internal" href="#nupic.algorithms.connections.Segment" title="nupic.algorithms.connections.Segment"><code class="xref py py-class docutils literal"><span class="pre">Segment</span></code></a>) Segment object for synapse to be synapsed 
+to.</li>
+<li><strong>presynapticCell</strong> &#8211; (int) Source cell index.</li>
+<li><strong>permanence</strong> &#8211; (float) Initial permanence of synapse.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(<a class="reference internal" href="#nupic.algorithms.connections.Synapse" title="nupic.algorithms.connections.Synapse"><code class="xref py py-class docutils literal"><span class="pre">Synapse</span></code></a>) created synapse</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.dataForSegment">
+<code class="descname">dataForSegment</code><span class="sig-paren">(</span><em>segment</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.dataForSegment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the data for a segment.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method exists to match the interface of the C++ Connections. 
+This allows tests and tools to inspect the connections using a common 
+interface.</p>
+</div>
+<p>:param segment (<a class="reference internal" href="#nupic.algorithms.connections.Segment" title="nupic.algorithms.connections.Segment"><code class="xref py py-class docutils literal"><span class="pre">Segment</span></code></a>)
+:returns: segment data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.dataForSynapse">
+<code class="descname">dataForSynapse</code><span class="sig-paren">(</span><em>synapse</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.dataForSynapse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the data for a synapse.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method exists to match the interface of the C++ Connections. 
+This allows tests and tools to inspect the connections using a common 
+interface.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>synapse</strong> &#8211; (<a class="reference internal" href="#nupic.algorithms.connections.Synapse" title="nupic.algorithms.connections.Synapse"><code class="xref py py-class docutils literal"><span class="pre">Synapse</span></code></a>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Synapse data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.destroySegment">
+<code class="descname">destroySegment</code><span class="sig-paren">(</span><em>segment</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.destroySegment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Destroys a segment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>segment</strong> &#8211; (<a class="reference internal" href="#nupic.algorithms.connections.Segment" title="nupic.algorithms.connections.Segment"><code class="xref py py-class docutils literal"><span class="pre">Segment</span></code></a>) representing the segment to be destroyed.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.destroySynapse">
+<code class="descname">destroySynapse</code><span class="sig-paren">(</span><em>synapse</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.destroySynapse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Destroys a synapse.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>synapse</strong> &#8211; (<a class="reference internal" href="#nupic.algorithms.connections.Synapse" title="nupic.algorithms.connections.Synapse"><code class="xref py py-class docutils literal"><span class="pre">Synapse</span></code></a>) synapse to destroy</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.getSegment">
+<code class="descname">getSegment</code><span class="sig-paren">(</span><em>cell</em>, <em>idx</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.getSegment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#nupic.algorithms.connections.Segment" title="nupic.algorithms.connections.Segment"><code class="xref py py-class docutils literal"><span class="pre">Segment</span></code></a> object of the specified segment using data from 
+the <code class="docutils literal"><span class="pre">self._cells</span></code> array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cell</strong> &#8211; (int) cell index</li>
+<li><strong>idx</strong> &#8211; (int) segment index on a cell</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(<a class="reference internal" href="#nupic.algorithms.connections.Segment" title="nupic.algorithms.connections.Segment"><code class="xref py py-class docutils literal"><span class="pre">Segment</span></code></a>) Segment object with index idx on the specified cell</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.numSegments">
+<code class="descname">numSegments</code><span class="sig-paren">(</span><em>cell=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.numSegments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of segments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cell</strong> &#8211; (int) Optional parameter to get the number of segments on a 
+cell.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(int) Number of segments on all cells if cell is not specified, or 
+on a specific specified cell</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.numSynapses">
+<code class="descname">numSynapses</code><span class="sig-paren">(</span><em>segment=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.numSynapses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of Synapses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>segment</strong> &#8211; (<a class="reference internal" href="#nupic.algorithms.connections.Segment" title="nupic.algorithms.connections.Segment"><code class="xref py py-class docutils literal"><span class="pre">Segment</span></code></a>) Optional parameter to get the number of 
+synapses on a segment.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(int) Number of synapses on all segments if segment is not 
+specified, or on a specified segment.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.algorithms.connections.Connections.read">
+<em class="property">classmethod </em><code class="descname">read</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads deserialized data from proto object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; (DynamicStructBuilder) Proto object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(<a class="reference internal" href="#nupic.algorithms.connections.Connections" title="nupic.algorithms.connections.Connections"><code class="xref py py-class docutils literal"><span class="pre">Connections</span></code></a>) instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.segmentFlatListLength">
+<code class="descname">segmentFlatListLength</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.segmentFlatListLength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the needed length for a list to hold a value for every segment&#8217;s 
+flatIdx.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) Required list length</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.segmentForFlatIdx">
+<code class="descname">segmentForFlatIdx</code><span class="sig-paren">(</span><em>flatIdx</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.segmentForFlatIdx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the segment with the specified flatIdx.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>flatIdx</strong> &#8211; (int) The segment&#8217;s flattened list index.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(<a class="reference internal" href="#nupic.algorithms.connections.Segment" title="nupic.algorithms.connections.Segment"><code class="xref py py-class docutils literal"><span class="pre">Segment</span></code></a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.segmentPositionSortKey">
+<code class="descname">segmentPositionSortKey</code><span class="sig-paren">(</span><em>segment</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.segmentPositionSortKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a numeric key for sorting this segment. This can be used with the 
+python built-in <code class="docutils literal"><span class="pre">sorted()</span></code> function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>segment</strong> &#8211; (<a class="reference internal" href="#nupic.algorithms.connections.Segment" title="nupic.algorithms.connections.Segment"><code class="xref py py-class docutils literal"><span class="pre">Segment</span></code></a>) within this <a class="reference internal" href="#nupic.algorithms.connections.Connections" title="nupic.algorithms.connections.Connections"><code class="xref py py-class docutils literal"><span class="pre">Connections</span></code></a> 
+instance.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(float) A numeric key for sorting.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.segmentsForCell">
+<code class="descname">segmentsForCell</code><span class="sig-paren">(</span><em>cell</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.segmentsForCell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the segments that belong to a cell.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cell</strong> &#8211; (int) Cell index</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(list) Segment objects representing segments on the given cell.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.synapsesForPresynapticCell">
+<code class="descname">synapsesForPresynapticCell</code><span class="sig-paren">(</span><em>presynapticCell</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.synapsesForPresynapticCell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the synapses for the source cell that they synapse on.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>presynapticCell</strong> &#8211; (int) Source cell index</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(set) <a class="reference internal" href="#nupic.algorithms.connections.Synapse" title="nupic.algorithms.connections.Synapse"><code class="xref py py-class docutils literal"><span class="pre">Synapse</span></code></a> objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.synapsesForSegment">
+<code class="descname">synapsesForSegment</code><span class="sig-paren">(</span><em>segment</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.synapsesForSegment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the synapses on a segment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>segment</strong> &#8211; (int) Segment index</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(set) Synapse objects representing synapses on the given segment.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.updateSynapsePermanence">
+<code class="descname">updateSynapsePermanence</code><span class="sig-paren">(</span><em>synapse</em>, <em>permanence</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.updateSynapsePermanence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the permanence for a synapse.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>synapse</strong> &#8211; (class:<cite>Synapse</cite>) to be updated.</li>
+<li><strong>permanence</strong> &#8211; (float) New permanence.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.algorithms.connections.Connections.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Connections.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes serialized data to proto object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; (DynamicStructBuilder) Proto object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.algorithms.connections.Segment">
+<em class="property">class </em><code class="descclassname">nupic.algorithms.connections.</code><code class="descname">Segment</code><span class="sig-paren">(</span><em>cell</em>, <em>flatIdx</em>, <em>ordinal</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Segment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class containing minimal information to identify a unique segment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cell</strong> &#8211; (int) Index of the cell that this segment is on.</li>
+<li><strong>flatIdx</strong> &#8211; (int) The segment&#8217;s flattened list index.</li>
+<li><strong>ordinal</strong> &#8211; (long) Used to sort segments. The sort order needs to be 
+consistent between implementations so that tie-breaking is consistent 
+when finding the best matching segment.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="nupic.algorithms.connections.Synapse">
+<em class="property">class </em><code class="descclassname">nupic.algorithms.connections.</code><code class="descname">Synapse</code><span class="sig-paren">(</span><em>segment</em>, <em>presynapticCell</em>, <em>permanence</em>, <em>ordinal</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.Synapse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class containing minimal information to identify a unique synapse.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>segment</strong> &#8211; (Object) Segment object that the synapse is synapsed to.</li>
+<li><strong>presynapticCell</strong> &#8211; (int) The index of the presynaptic cell of the 
+synapse.</li>
+<li><strong>permanence</strong> &#8211; (float) Permanence of the synapse from 0.0 to 1.0.</li>
+<li><strong>ordinal</strong> &#8211; (long) Used to sort synapses. The sort order needs to be 
+consistent between implementations so that tie-breaking is consistent 
+when finding the min permanence synapse.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nupic.algorithms.connections.binSearch">
+<code class="descclassname">nupic.algorithms.connections.</code><code class="descname">binSearch</code><span class="sig-paren">(</span><em>arr</em>, <em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.algorithms.connections.binSearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for running binary search on a sorted list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>arr</strong> &#8211; (list) a sorted list of integers to search</li>
+<li><strong>val</strong> &#8211; (int)  a integer to search for in the sorted array</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(int) the index of the element if it is found and -1 otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/index.html">Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../opf/index.html">Online Prediction Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../network/index.html">Network API</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Algorithms</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="encoders.html">Encoders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spatial-pooling.html">Spatial Pooling</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Sequence Memory</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-nupic.algorithms.temporal_memory">Temporal Memory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-nupic.algorithms.backtracking_tm">Backtracking Temporal Memory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-nupic.algorithms.backtracking_tm_cpp">C++ Backtracking Temporal Memory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-nupic.algorithms.connections">Connections</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="classifiers.html">Classifiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="anomaly-detection.html">Anomaly Detection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../data/index.html">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support/index.html">Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../math.html">Math</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/algorithms/sequence-memory.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Example Model Params &#8212; NuPIC 0.8.1.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.8.1.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="example-model-params">
+<h1>Example Model Params<a class="headerlink" href="#example-model-params" title="Permalink to this headline">¶</a></h1>
+<p>This raw model params file is used in the <a class="reference external" href="index.html">Quick Start</a>. These
+parameters are used to create an
+<code class="xref py py-class docutils literal"><span class="pre">HTMPredictionModel</span></code>, which will
+create an HTM with specified encoders and connect them to both a
+<a class="reference internal" href="../api/algorithms/spatial-pooling.html#nupic.algorithms.spatial_pooler.SpatialPooler" title="nupic.algorithms.spatial_pooler.SpatialPooler"><code class="xref py py-class docutils literal"><span class="pre">SpatialPooler</span></code></a> and
+<a class="reference internal" href="../api/algorithms/sequence-memory.html#nupic.algorithms.backtracking_tm.BacktrackingTM" title="nupic.algorithms.backtracking_tm.BacktrackingTM"><code class="xref py py-class docutils literal"><span class="pre">BacktrackingTM</span></code></a> (or
+<a class="reference internal" href="../api/algorithms/sequence-memory.html#nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP" title="nupic.algorithms.backtracking_tm_cpp.BacktrackingTMCPP"><code class="xref py py-class docutils literal"><span class="pre">BacktrackingTMCPP</span></code></a> if
+<code class="docutils literal"><span class="pre">modelParams.tmParams.temporalImp==cpp</span></code>).</p>
+<p>To see detailed algorithm parameters for the algorithms see their API documentation at:</p>
+<ul class="simple">
+<li><a class="reference internal" href="../api/algorithms/spatial-pooling.html#nupic.algorithms.spatial_pooler.SpatialPooler" title="nupic.algorithms.spatial_pooler.SpatialPooler"><code class="xref py py-class docutils literal"><span class="pre">SpatialPooler</span></code></a></li>
+<li><a class="reference internal" href="../api/algorithms/sequence-memory.html#nupic.algorithms.backtracking_tm.BacktrackingTM" title="nupic.algorithms.backtracking_tm.BacktrackingTM"><code class="xref py py-class docutils literal"><span class="pre">BacktrackingTM</span></code></a></li>
+<li><a class="reference internal" href="../api/algorithms/classifiers.html#nupic.algorithms.sdr_classifier.SDRClassifier" title="nupic.algorithms.sdr_classifier.SDRClassifier"><code class="xref py py-class docutils literal"><span class="pre">SDRClassifier</span></code></a></li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Type of model that the rest of these parameters apply to.</span>
+<span class="n">model</span><span class="p">:</span> <span class="n">HTMPrediction</span>
+
+<span class="c1"># Version that specifies the format of the config.</span>
+<span class="n">version</span><span class="p">:</span> <span class="mi">1</span>
+
+<span class="c1"># The section &quot;aggregationInfo&quot; specifies what field to aggregate with which</span>
+<span class="c1"># aggregation method.</span>
+<span class="c1">#</span>
+<span class="c1"># Example of how to aggregate the field &quot;consumption&quot; with the method &quot;mean&quot;</span>
+<span class="c1"># and the field &quot;gym&quot; with the method &quot;first&quot;. Both field will be</span>
+<span class="c1"># aggregated over a period of 1h 15m, according to their respective</span>
+<span class="c1"># aggregation methods.</span>
+<span class="c1">#</span>
+<span class="c1">#   aggregationInfo:</span>
+<span class="c1">#     fields:</span>
+<span class="c1">#     - [consumption, sum]</span>
+<span class="c1">#     - [gym, first]</span>
+<span class="c1">#     minutes: 15</span>
+<span class="c1">#     hours: 1</span>
+<span class="c1">#</span>
+<span class="c1"># See nupic.data.aggregator for more info about supported aggregation methods.</span>
+<span class="n">aggregationInfo</span><span class="p">:</span>
+  <span class="c1"># &quot;fields&quot; should be a list of pairs. Each pair is a field name and an</span>
+  <span class="c1"># aggregation function (e.g. sum). The function will be used to aggregate</span>
+  <span class="c1"># multiple values of this field over the aggregation period.</span>
+  <span class="n">fields</span><span class="p">:</span>
+  <span class="o">-</span> <span class="p">[</span><span class="n">consumption</span><span class="p">,</span> <span class="n">mean</span><span class="p">]</span>
+  <span class="c1"># If a time unit is not listed, 0 will be its default value.</span>
+  <span class="n">microseconds</span><span class="p">:</span> <span class="mi">0</span>
+  <span class="n">milliseconds</span><span class="p">:</span> <span class="mi">0</span>
+  <span class="n">minutes</span><span class="p">:</span> <span class="mi">0</span>
+  <span class="n">months</span><span class="p">:</span> <span class="mi">0</span>
+  <span class="n">seconds</span><span class="p">:</span> <span class="mi">0</span>
+  <span class="n">hours</span><span class="p">:</span> <span class="mi">1</span>
+  <span class="n">days</span><span class="p">:</span> <span class="mi">0</span>
+  <span class="n">weeks</span><span class="p">:</span> <span class="mi">0</span>
+  <span class="n">years</span><span class="p">:</span> <span class="mi">0</span>
+
+<span class="n">predictAheadTime</span><span class="p">:</span> <span class="n">null</span>
+
+<span class="c1"># Parameters of the model to be created.</span>
+<span class="n">modelParams</span><span class="p">:</span>
+
+  <span class="c1"># The type of inference that this model will perform.</span>
+  <span class="c1"># Supported values are :</span>
+  <span class="c1"># - TemporalNextStep</span>
+  <span class="c1"># - TemporalClassification</span>
+  <span class="c1"># - NontemporalClassification</span>
+  <span class="c1"># - TemporalAnomaly</span>
+  <span class="c1"># - NontemporalAnomaly</span>
+  <span class="c1"># - TemporalMultiStep</span>
+  <span class="c1"># - NontemporalMultiStep</span>
+  <span class="n">inferenceType</span><span class="p">:</span> <span class="n">TemporalMultiStep</span>
+
+  <span class="c1"># Parameters of the Sensor region</span>
+  <span class="n">sensorParams</span><span class="p">:</span>
+    <span class="c1"># Sensor diagnostic output verbosity control:</span>
+    <span class="c1"># - verbosity == 0: silent</span>
+    <span class="c1"># - verbosity in [1 .. 6]: increasing level of verbosity</span>
+    <span class="n">verbosity</span><span class="p">:</span> <span class="mi">0</span>
+
+    <span class="c1"># List of encoders and their parameters.</span>
+    <span class="n">encoders</span><span class="p">:</span>
+      <span class="n">consumption</span><span class="p">:</span>
+        <span class="n">fieldname</span><span class="p">:</span> <span class="n">consumption</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">consumption</span>
+        <span class="n">resolution</span><span class="p">:</span> <span class="mf">0.88</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">RandomDistributedScalarEncoder</span>
+      <span class="n">timestamp_timeOfDay</span><span class="p">:</span>
+        <span class="n">fieldname</span><span class="p">:</span> <span class="n">timestamp</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">timestamp_timeOfDay</span>
+        <span class="n">timeOfDay</span><span class="p">:</span> <span class="p">[</span><span class="mi">21</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">DateEncoder</span>
+      <span class="n">timestamp_weekend</span><span class="p">:</span>
+        <span class="n">fieldname</span><span class="p">:</span> <span class="n">timestamp</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">timestamp_weekend</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">DateEncoder</span>
+        <span class="n">weekend</span><span class="p">:</span> <span class="mi">21</span>
+
+    <span class="c1"># The &quot;sensorAutoReset&quot; specifies the period for automatically generated</span>
+    <span class="c1"># resets from a RecordSensor.</span>
+    <span class="c1">#</span>
+    <span class="c1"># If None, disable automatically generated resets. Also disable for all</span>
+    <span class="c1"># values that evaluate to 0. Example:</span>
+    <span class="c1">#   sensorAutoReset: null</span>
+    <span class="c1">#</span>
+    <span class="c1">#</span>
+    <span class="c1"># Valid keys for the &quot;sensorAutoReset&quot; option:</span>
+    <span class="c1">#   sensorAutoReset:</span>
+    <span class="c1">#    days: &lt;int&gt;</span>
+    <span class="c1">#     hours: &lt;int&gt;</span>
+    <span class="c1">#     minutes: &lt;int&gt;</span>
+    <span class="c1">#     seconds: &lt;int&gt;</span>
+    <span class="c1">#     milliseconds: &lt;int&gt;</span>
+    <span class="c1">#     microseconds: &lt;int&gt;</span>
+    <span class="c1">#     weeks: &lt;int&gt;</span>
+    <span class="c1">#</span>
+    <span class="c1"># Example for an automated reset every 1.5 days:</span>
+    <span class="c1">#   sensorAutoReset:</span>
+    <span class="c1">#     days: 1</span>
+    <span class="c1">#     hours: 12</span>
+    <span class="c1">#</span>
+    <span class="n">sensorAutoReset</span><span class="p">:</span> <span class="n">null</span>
+
+
+  <span class="c1"># Controls whether the Spatial Pooler (SP) region is enabled.</span>
+  <span class="n">spEnable</span><span class="p">:</span> <span class="n">true</span>
+
+  <span class="c1"># Parameters of the SP region. For detailed descriptions of each</span>
+  <span class="c1"># parameter, see the API docs for</span>
+  <span class="c1"># nupic.algorithms.spatial_pooler.SpatialPooler. Note that the OPF</span>
+  <span class="c1"># will only create one-dimensional input and spatial pooling</span>
+  <span class="c1"># structures, so during SP creation `columnCount` translates to</span>
+  <span class="c1"># `columnDimensions=(columnCount,)` and</span>
+  <span class="c1"># `inputDimensions=(inputWidth,)`.</span>
+  <span class="n">spParams</span><span class="p">:</span>
+    <span class="n">inputWidth</span><span class="p">:</span> <span class="mi">946</span>
+    <span class="n">columnCount</span><span class="p">:</span> <span class="mi">2048</span>
+    <span class="n">spVerbosity</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="n">spatialImp</span><span class="p">:</span> <span class="n">cpp</span>
+    <span class="n">globalInhibition</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="n">localAreaDensity</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span>
+    <span class="n">numActiveColumnsPerInhArea</span><span class="p">:</span> <span class="mi">40</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="mi">1956</span>
+    <span class="n">potentialPct</span><span class="p">:</span> <span class="mf">0.85</span>
+    <span class="n">synPermConnected</span><span class="p">:</span> <span class="mf">0.1</span>
+    <span class="n">synPermActiveInc</span><span class="p">:</span> <span class="mf">0.04</span>
+    <span class="n">synPermInactiveDec</span><span class="p">:</span> <span class="mf">0.005</span>
+    <span class="n">boostStrength</span><span class="p">:</span> <span class="mf">3.0</span>
+
+  <span class="c1"># Controls whether the Temporal Memory (TM) region is enabled.</span>
+  <span class="n">tmEnable</span><span class="p">:</span> <span class="n">true</span>
+
+  <span class="c1"># Parameters of the TM region. For detailed descriptions of each</span>
+  <span class="c1"># parameter, see the API docs for</span>
+  <span class="c1"># nupic.algorithms.backtracking_tm.BacktrackingTM.</span>
+  <span class="n">tmParams</span><span class="p">:</span>
+    <span class="n">verbosity</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="n">columnCount</span><span class="p">:</span> <span class="mi">2048</span>
+    <span class="n">cellsPerColumn</span><span class="p">:</span> <span class="mi">32</span>
+    <span class="n">inputWidth</span><span class="p">:</span> <span class="mi">2048</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="mi">1960</span>
+    <span class="n">temporalImp</span><span class="p">:</span> <span class="n">cpp</span>
+    <span class="n">newSynapseCount</span><span class="p">:</span> <span class="mi">20</span>
+    <span class="n">initialPerm</span><span class="p">:</span> <span class="mf">0.21</span>
+    <span class="n">permanenceInc</span><span class="p">:</span> <span class="mf">0.1</span>
+    <span class="n">permanenceDec</span><span class="p">:</span> <span class="mf">0.1</span>
+    <span class="n">maxAge</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="n">globalDecay</span><span class="p">:</span> <span class="mf">0.0</span>
+    <span class="n">maxSynapsesPerSegment</span><span class="p">:</span> <span class="mi">32</span>
+    <span class="n">maxSegmentsPerCell</span><span class="p">:</span> <span class="mi">128</span>
+    <span class="n">minThreshold</span><span class="p">:</span> <span class="mi">12</span>
+    <span class="n">activationThreshold</span><span class="p">:</span> <span class="mi">16</span>
+    <span class="n">outputType</span><span class="p">:</span> <span class="n">normal</span>
+    <span class="n">pamLength</span><span class="p">:</span> <span class="mi">1</span>
+
+  <span class="c1"># Classifier parameters. For detailed descriptions of each parameter, see</span>
+  <span class="c1"># the API docs for nupic.algorithms.sdr_classifier.SDRClassifier.</span>
+  <span class="n">clParams</span><span class="p">:</span>
+    <span class="n">verbosity</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="n">regionName</span><span class="p">:</span> <span class="n">SDRClassifierRegion</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="mf">0.1</span>
+    <span class="n">steps</span><span class="p">:</span> <span class="s1">&#39;1,5&#39;</span>
+    <span class="n">maxCategoryCount</span><span class="p">:</span> <span class="mi">1000</span>
+    <span class="n">implementation</span><span class="p">:</span> <span class="n">cpp</span>
+
+  <span class="c1"># If set, don&#39;t create the SP network unless the user requests SP metrics.</span>
+  <span class="n">trainSPNetOnlyIfRequested</span><span class="p">:</span> <span class="n">false</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/index.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/quick-start/example-model-params.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
