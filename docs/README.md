@@ -117,11 +117,8 @@ nupic
 │   ├── record_sensor.py [OK]
 │   ├── sdr_classifier_region.py [OK]
 │   ├── sp_region.py [OK]
-│   ├── spec.py [TODO]
-│   ├── tm_region.py [OK]
-│   ├── test_region.py [TODO]
-│   └─── unimportable_node.py [TODO]
-├── serializable.py [TODO]
+│   └── tm_region.py [OK]
+├── serializable.py [OK]
 ├── support [OK]
 └── swarming [DEFER]
 
