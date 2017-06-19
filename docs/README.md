@@ -115,9 +115,6 @@ nupic
 │   ├── knn_classifier_region.py [OK]
 │   ├── pluggable_encoder_sensor.py [OK]
 │   ├── record_sensor.py [OK]
-│   ├── record_sensor_filters
-│   │   ├── add_noise.py [TODO]
-│   │   └── modify_fields.py [TODO]
 │   ├── sdr_classifier_region.py [OK]
 │   ├── sp_region.py [OK]
 │   ├── spec.py [TODO]
