@@ -28,6 +28,15 @@ from nupic.frameworks.opf import model
 from nupic.frameworks.opf import opf_utils
 from opf_utils import InferenceType
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.frameworks.opf.previous_value_model_capnp import (
+    PreviousValueModelProto)
+
+
 
 class PreviousValueModel(model.Model):
   """
@@ -120,7 +129,43 @@ class PreviousValueModel(model.Model):
   def resetSequenceStates(self):
     self._reset = True
 
+
+  def write(self, proto):
+    """ Serialize via capnp
+
+    :param proto: capnp PreviousValueModelProto message builder
+    """
+    super(PreviousValueModel, self).writeBaseToProto(proto.modelBase)
+
+    proto.fieldNames = self._fieldNames
+    proto.fieldTypes = self._fieldTypes
+    proto.predictedField = self._predictedField
+    proto.predictionSteps = self._predictionSteps
+
+
+  @classmethod
+  def read(cls, proto):
+    """Deserialize via capnp
+
+    :param proto: capnp PreviousValueModelProto message reader
+
+    :returns: new instance of PreviousValueModel deserialized from the given
+              proto
+    """
+    instance = object.__new__(cls)
+    super(PreviousValueModel, instance).__init__(proto=proto.modelBase)
+
+    instance._logger = opf_utils.initLogger(instance)
+
+    instance._predictedField = proto.predictedField
+    instance._fieldNames = list(proto.fieldNames)
+    instance._fieldTypes = list(proto.fieldTypes)
+    instance._predictionSteps = list(proto.predictionSteps)
+
+
   def __getstate__(self):
+    # NOTE This deletion doesn't seem to make sense, as someone might want to
+    # serialize and then continue to use the model instance.
     del self._logger
     return self.__dict__
 

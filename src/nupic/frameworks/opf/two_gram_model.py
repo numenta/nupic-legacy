@@ -178,7 +178,7 @@ class TwoGramModel(model.Model):
 
   def write(self, proto):
     """
-    :param proto: capnp HTMPredictionModelProto message builder
+    :param proto: capnp TwoGramModelProto message builder
     """
     super(TwoGramModel, self).writeBaseToProto(proto.modelBase)
 
@@ -205,6 +205,8 @@ class TwoGramModel(model.Model):
 
 
   def __getstate__(self):
+    # NOTE This deletion doesn't seem to make sense, as someone might want to
+    # serialize and then continue to use the model instance.
     del self._logger
     return self.__dict__
 

@@ -2,7 +2,6 @@
 
 using import "/nupic/encoders/multi.capnp".MultiEncoderProto;
 using import "/nupic/frameworks/opf/model.capnp".ModelProto;
-using import "/nupic/frameworks/opf/opf_utils.capnp".InferenceType;
 
 # Next ID: 7
 struct TwoGramModelProto {
