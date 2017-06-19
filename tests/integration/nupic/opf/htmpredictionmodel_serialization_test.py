@@ -256,11 +256,6 @@ class HTMPredictionModelSerializationTest(unittest.TestCase):
                      modelParams['modelParams']['inferenceType'])
     self.assertEqual(m1.getInferenceType(), m2.getInferenceType())
 
-    # TODO NUP-2463: remove this work-around.
-    # Work around a serialization bug that doesn't save the enabled predicted
-    # field
-    m2.enableInference({'predictedField': 'consumption'})
-
     # Run computes on m1 & m2 and compare results
     record = [datetime.datetime(2013, 12, 14), numpy.random.uniform(100)]
     modelInput = dict(zip(headers, record))
@@ -304,8 +299,6 @@ class HTMPredictionModelSerializationTest(unittest.TestCase):
     self.assertEqual(m2._getSPRegion(), m1._getSPRegion())
 
 
-  @unittest.skip('NUP-2463 Predicted field and __inferenceEnabled are not '
-                 'serialized by HTMPredictionModel.write')
   @unittest.skipUnless(
     capnp, 'pycapnp is not installed, skipping serialization test.')
   def testPredictedFieldAndInferenceEnabledAreSaved(self):
@@ -349,7 +342,6 @@ class HTMPredictionModelSerializationTest(unittest.TestCase):
     readerProto = HTMPredictionModelProto.from_bytes(builderProto.to_bytes())
     m3 = HTMPredictionModel.read(readerProto)
     self.assertFalse(m3.isInferenceEnabled())
-
 
 
   @unittest.skipUnless(

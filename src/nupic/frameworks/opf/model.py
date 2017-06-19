@@ -22,6 +22,7 @@
 """Module defining the OPF Model base class."""
 
 import cPickle as pickle
+import json
 import os
 import shutil
 from abc import ABCMeta, abstractmethod
@@ -58,6 +59,9 @@ class Model(Serializable):
     if proto is None:
       self._numPredictions = 0
       self.__inferenceType =  inferenceType
+      self.__learningEnabled = True
+      self.__inferenceEnabled = True
+      self.__inferenceArgs = {}
     else:
       self._numPredictions = proto.numPredictions
       inferenceType = str(proto.inferenceType)
@@ -65,9 +69,9 @@ class Model(Serializable):
       inferenceType = inferenceType[:1].upper() + inferenceType[1:]
       self.__inferenceType = InferenceType.getValue(inferenceType)
 
-    self.__learningEnabled = True
-    self.__inferenceEnabled = True
-    self.__inferenceArgs = {}
+      self.__learningEnabled = proto.learningEnabled
+      self.__inferenceEnabled = proto.inferenceEnabled
+      self.__inferenceArgs = json.loads(proto.inferenceArgs)
 
   def run(self, inputRecord):
     """
@@ -281,6 +285,10 @@ class Model(Serializable):
     proto.inferenceType = inferenceType
 
     proto.numPredictions = self._numPredictions
+
+    proto.learningEnabled = self.__learningEnabled
+    proto.inferenceEnabled = self.__inferenceEnabled
+    proto.inferenceArgs = json.dumps(self.__inferenceArgs)
 
 
   def write(self, proto):
