@@ -1,11 +1,17 @@
 @0xb9d11462f08c1dee;
 
+using import "/nupic/algorithms/backtracking_tm.capnp".BacktrackingTMProto;
+using import "/nupic/algorithms/backtracking_tm_cpp.capnp".BacktrackingTMCppProto;
 using import "/nupic/proto/TemporalMemoryProto.capnp".TemporalMemoryProto;
 
-# Next ID: 11
+# Next ID: 13
 struct TMRegionProto {
   temporalImp @0 :Text;
-  temporalMemory @1 :TemporalMemoryProto;
+  union {
+    temporalMemory @1 :TemporalMemoryProto;
+    backtrackingTM @11 :BacktrackingTMProto;
+    backtrackingTMCpp @12 :BacktrackingTMCppProto;
+  }
   columnCount @2 :UInt32;
   inputWidth @3 :UInt32;
   cellsPerColumn @4 :UInt32;

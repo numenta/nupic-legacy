@@ -426,6 +426,10 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
 
 
   def write(self, proto):
+    """Populate serialization proto instance.
+
+    :param proto: (BacktrackingTMProto) the proto instance to populate
+    """
     proto.version = TM_VERSION
     self._random.write(proto.random)
     proto.numberOfCols = self.numberOfCols
@@ -470,7 +474,8 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
     proto.pamCounter = self.pamCounter
     proto.collectSequenceStats = self.collectSequenceStats
     proto.resetCalled = self.resetCalled
-    proto.avgInputDensity = self.avgInputDensity
+    # In case of None, use negative value as placeholder for serialization
+    proto.avgInputDensity = self.avgInputDensity or -1.0
     proto.learnedSeqLength = self.learnedSeqLength
     proto.avgLearnedSeqLength = self.avgLearnedSeqLength
 
@@ -525,6 +530,10 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
 
   @classmethod
   def read(cls, proto):
+    """Deserialize from proto instance.
+
+    :param proto: (BacktrackingTMProto) the proto instance to read from
+    """
     assert proto.version == TM_VERSION
     obj = object.__new__(cls)
     obj._random = Random()
@@ -563,8 +572,7 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
       for cellSegments, cellSegmentsProto in zip(columnSegments,
                                                  columnSegmentsProto):
         for segmentProto in cellSegmentsProto:
-          segment = Segment.read(segmentProto)
-          segment.tm = obj
+          segment = Segment.read(segmentProto, obj)
           cellSegments.append(segment)
 
     obj.lrnIterationIdx = int(proto.lrnIterationIdx)
@@ -574,7 +582,12 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
     obj.pamCounter = int(proto.pamCounter)
     obj.collectSequenceStats = proto.collectSequenceStats
     obj.resetCalled = proto.resetCalled
-    obj.avgInputDensity = proto.avgInputDensity
+    avgInputDensity = proto.avgInputDensity
+    if avgInputDensity < 0.0:
+      # Negative value placeholder indicates None
+      obj.avgInputDensity = None
+    else:
+      obj.avgInputDensity = avgInputDensity
     obj.learnedSeqLength = int(proto.learnedSeqLength)
     obj.avgLearnedSeqLength = proto.avgLearnedSeqLength
 
@@ -592,7 +605,7 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
       key = (cellWrapperProto.columnIdx, cellWrapperProto.cellIdx)
       value = []
       for updateWrapperProto in cellWrapperProto.segmentUpdates:
-        segmentUpdate = SegmentUpdate.read(updateWrapperProto.segmentUpdate)
+        segmentUpdate = SegmentUpdate.read(updateWrapperProto.segmentUpdate, obj)
         value.append((int(updateWrapperProto.lrnIterationIdx), segmentUpdate))
       obj.segmentUpdates[key] = value
 
@@ -1355,7 +1368,7 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
     return retlist
 
 
-  class _SegmentUpdate(Serializable):
+  class _SegmentUpdate(object):
     """
     Class used to carry instructions for updating a segment.
     """
@@ -1372,10 +1385,6 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
       #  not fully connected synapses.
       self.weaklyPredicting = False
 
-    @classmethod
-    def getSchema(cls):
-      return SegmentUpdateProto
-
     def write(self, proto):
       proto.columnIdx = self.columnIdx
       proto.cellIdx = self.cellIdx
@@ -1389,12 +1398,12 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
       proto.weaklyPredicting = self.weaklyPredicting
 
     @classmethod
-    def read(cls, proto):
+    def read(cls, proto, tm):
       obj = object.__new__(cls)
 
       obj.columnIdx = proto.columnIdx
       obj.cellIdx = proto.cellIdx
-      obj.segment.read(proto.segment)
+      obj.segment.read(proto.segment, tm)
       obj.activeSynapses = [syn for syn in proto.activeSynapses]
       obj.sequenceSegment = proto.sequenceSegment
       obj.phase1Flag = proto.phase1Flag
@@ -3479,7 +3488,7 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
 
 
 
-class Segment(Serializable):
+class Segment(object):
   """
   The Segment class is a container for all of the segment variables and
   the synapses it owns.
@@ -3546,11 +3555,6 @@ class Segment(Serializable):
     return True
 
 
-  @classmethod
-  def getSchema(cls):
-    return SegmentProto
-
-
   def write(self, proto):
     proto.segID = self.segID
     proto.isSequenceSeg = self.isSequenceSeg
@@ -3568,8 +3572,9 @@ class Segment(Serializable):
 
 
   @classmethod
-  def read(cls, proto):
+  def read(cls, proto, tm):
     obj = object.__new__(cls)
+    obj.tm = tm
     obj.segID = int(proto.segID)
     obj.isSequenceSeg = proto.isSequenceSeg
     obj.lastActiveIteration = int(proto.lastActiveIteration)
