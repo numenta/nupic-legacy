@@ -23,9 +23,17 @@ from nupic.bindings.regions.PyRegion import PyRegion
 
 class PluggableEncoderSensor(PyRegion):
   """
-  A PluggableEncoderSensor holds a value and encodes it into network output.
+  Holds a value and encodes it into network output.
 
-  It requires you to reach in and insert an encoder.
+  It requires you to reach in and insert an encoder:
+  
+  .. code-block:: python
+  
+    timestampSensor = network.addRegion("timestampSensor",
+                                      'py.PluggableEncoderSensor', "")
+    timestampSensor.getSelf().encoder = DateEncoder(timeOfDay=(21, 9.5),
+                                                  name="timestamp_timeOfDay")
+
   """
 
   @classmethod
@@ -65,11 +73,14 @@ class PluggableEncoderSensor(PyRegion):
       raise Exception('Unrecognized output %s' % name)
 
   def getSensedValue(self):
+    """
+    :return: sensed value 
+    """
     return self._sensedValue
 
   def setSensedValue(self, value):
     """
-    Sets the value that will be encoded when this region does a compute.
+    :param value: will be encoded when this region does a compute.
     """
     self._sensedValue = value
 

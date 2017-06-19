@@ -113,8 +113,8 @@ nupic
 │   ├── anomaly_region.py [OK]
 │   ├── knn_anomaly_classifier_region.py [OK]
 │   ├── knn_classifier_region.py [OK]
-│   ├── pluggable_encoder_sensor.py [TODO]
-│   ├── record_sensor.py [TODO]
+│   ├── pluggable_encoder_sensor.py [OK]
+│   ├── record_sensor.py [OK]
 │   ├── record_sensor_filters
 │   │   ├── add_noise.py [TODO]
 │   │   └── modify_fields.py [TODO]
