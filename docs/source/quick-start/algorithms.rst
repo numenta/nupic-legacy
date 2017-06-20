@@ -5,9 +5,11 @@ Algorithms API
 
 See the `Algorithms API <../api/algorithms/>`_ for an overview of this API.
 
-Here is the complete program we are going to use as an example. In sections
-below, we'll break it down into parts and explain what is happening (without
-some of the plumbing details).
+Here is the complete program we are going to use as an example. Descriptions of
+the algorithm parameters we're using in this Quick Start
+`can be found here <example-model-params.html>`_. In sections below, we'll
+break it down into parts and explain what is happening (without some of the
+plumbing details).
 
 .. literalinclude:: ../../examples/algo/complete-algo-example.py
 
@@ -136,10 +138,7 @@ Creating the TM
 Just like the SP, we must create an instance of the
 :class:`.TemporalMemory` with parameters we identified in the
 `OPF Quick Start <opf.html>`_ document's
-`model parameters <example-model-params.html>`_ (see the ``tpParams`` section).
-
-    **NOTE**: The term `tpParams` is leftover from an older generation of code
-    where the Temporal Memory algorithm was called *Temporal Pooling*.
+`model parameters <example-model-params.html>`_ (see the ``tmParams`` section).
 
 .. literalinclude:: ../../examples/algo/create-tm.py
 
@@ -210,7 +209,7 @@ Predictive Cells
 
 The :class:`.TemporalMemory` interface has many methods of getting cellular
 state information. In the section above, we used the
-:meth:`~TemporalMemory.getActiveCells` function to get the indices of active
+:meth:`.TemporalMemory.getActiveCells` function to get the indices of active
 cells. We can also get predictive cells by calling
 :meth:`.TemporalMemory.getPredictiveCells`, which returns an array of indices of
 cells in a depolarized, or predictive, state.
