@@ -41,9 +41,8 @@ class RecordSensor(PyRegion):
   An information record is analogous database record -- it is just a
   collection of typed values: date, amount, category, location, etc.
 
-  The RS may obtain information from one of three sources:
+  The RS may obtain information from one of two sources:
     . a file (e.g. csv or tsv)
-    . a sql database (not yet implemented)
     . a data generator (for artificial data)
 
   The RS encodes a record using an encoding scheme that can be specified
@@ -51,56 +50,51 @@ class RecordSensor(PyRegion):
 
   An RS is essentially a shell containing two objects:
 
-  1. A DataSource object gets one record at a time. This record is returned
-  either as a dictionary or a user-defined object. The fields within a record
-  correspond to entries in the dictionary or attributes of the object. For
-  example, a DataSource might return:
+  1. `dataSource` object gets one record at a time. This record is returned
+     either as a dictionary or a user-defined object. The fields within a record
+     correspond to entries in the dictionary or attributes of the object. For
+     example, a `dataSource` might return:
 
-    dict(date="02-01-2010 23:12:23", amount=4.95, country="US",
-         _reset=0, _sequenceId=0)
+     .. code-block:: python
+    
+        dict(date="02-01-2010 23:12:23", amount=4.95, country="US",
+             _reset=0, _sequenceId=0)
+    
+     or an object with attributes `date`, `amount` and `country`.
+    
+     A data source is typically a 
+     :class:`nupic.data.file_record_stream.FileRecordStream`: or an artificial 
+     data generator.
 
-  or an object with attributes "date", "amount" and "country".
+  2. An `encoder` object encodes one record into a fixed-sparsity
+     distributed representation. Usually 
+     :class:`nupic.encoders.multi.MultiEncoder`.
 
-  The _reset and _sequenceId attributes must always exist, and are provided by
-  the DataSource if not directly present in the data.
+     Example usage in NuPIC:
+  
+     .. code-block:: python
+   
+       from nupic.net import Network
+       from nupic.encoders import MultiEncoder
+       from nupic.data.file.file_record_stream import FileRecordStream
+     
+       n = Network()
+       s = n.addRegion("sensor", "py.RecordSensor", "")
+       mysource = FileRecordStream("mydata.txt")
+       myencoder = MultiEncoder()
+       ... set up myencoder ...
+       s.getSelf().dataSource = mysource
+       s.getSelf().encoder = myencoder
+     
+       l1 = n.addRegion("l1", "py.TestRegion", "[create params]")
+       n.initialize()
+     
+       n.run(100)
 
-  DataSource methods are:
-  -- getNext() -- return the next record, which is a dict
-  -- TBD: something like getIterationCount()?
 
-  2. A MultiEncoder object encodes one record into a fixed-sparsity
-  distributed representation. MultiEncoder is defined in
-  nupic.encoders
-
-  The DataSource and MultiEncoder are supplied after the node is created,
-  not in the node itself.
-
-  Example usage in NuPIC:
-
-  from nupic.net import Network
-  from nupic.encoders import MultiEncoder
-  from nupic.data.file.file_record_stream import FileRecordStream
-
-  n = Network()
-  s = n.addRegion("sensor", "py.RecordSensor", "")
-  mysource = FileRecordStream("mydata.txt")
-  myencoder = MultiEncoder()
-  ... set up myencoder ...
-  s.getSelf().dataSource = mysource
-  s.getSelf().encoder = myencoder
-
-  l1 = n.addRegion("l1", "py.FDRCNode", "[create params]")
-  n.initialize()
-
-  n.run(100)
-
-  TBD: the data source could also include the type of data, and we could
-  more closely tie the DataSource output to the encoder input, ensuring that
-  data types match and that allfields the encoder expects to see are in fact
-  present.
-
+  :param verbosity: (int) verbosity, default 0 
+  :param numCategories: (int) number of categories, default 1 
   """
-
 
   @classmethod
   def getSpec(cls):
@@ -229,9 +223,6 @@ class RecordSensor(PyRegion):
 
 
   def __init__(self, verbosity=0, numCategories=1):
-    """
-    Create a node without an encoder or datasource
-    """
     self.encoder = None
     self.disabledEncoder = None
     self.dataSource = None
@@ -279,12 +270,13 @@ class RecordSensor(PyRegion):
 
 
   def getNextRecord(self):
-    """Get the next record to encode. Includes getting a record
-    from the datasource and applying filters. If the filters
-    request more data from the datasource continue to get data
-    from the datasource until all filters are satisfied.
-    This method is separate from compute() so that we can use
-    a standalone RecordSensor to get filtered data"""
+    """
+    Get the next record to encode. Includes getting a record from the 
+    `dataSource` and applying filters. If the filters request more data from the 
+    `dataSource` continue to get data from the `dataSource` until all filters 
+    are satisfied. This method is separate from :meth:`.RecordSensor.compute` so that we can 
+    use a standalone :class:`.RecordSensor` to get filtered data.
+    """
 
     allFiltersHaveEnoughData = False
     while not allFiltersHaveEnoughData:
@@ -348,7 +340,11 @@ class RecordSensor(PyRegion):
   def populateCategoriesOut(self, categories, output):
     """
     Populate the output array with the category indices.
-    Note: non-categories are represented with -1.
+    
+    .. note:: Non-categories are represented with ``-1``.
+
+    :param categories: (list) of category strings
+    :param output: (list) category output, will be overwritten
     """
     if categories[0] is None:
       # The record has no entry in category field.
@@ -363,7 +359,11 @@ class RecordSensor(PyRegion):
 
 
   def compute(self, inputs, outputs):
-    """Get a record from the dataSource and encode it."""
+    """
+    Get a record from the dataSource and encode it.
+    
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.compute`.
+    """
     if not self.topDownMode:
       data = self.getNextRecord()
 
@@ -506,10 +506,10 @@ class RecordSensor(PyRegion):
     Converts all of the non-numeric fields from spatialOutput and temporalOutput
     into their scalar equivalents and records them in the output dictionary.
 
-    @param spatialOutput: The results of topDownCompute() for the spatial input.
-    @param temporalOutput: The results of topDownCompute() for the temporal
+    :param spatialOutput: The results of topDownCompute() for the spatial input.
+    :param temporalOutput: The results of topDownCompute() for the temporal
       input.
-    @param output: The main dictionary of outputs passed to compute(). It is
+    :param output: The main dictionary of outputs passed to compute(). It is
       expected to have keys 'spatialTopDownOut' and 'temporalTopDownOut' that
       are mapped to numpy arrays.
     """
@@ -531,16 +531,22 @@ class RecordSensor(PyRegion):
 
 
   def getOutputValues(self, outputName):
-    """Return the dictionary of output values. Note that these are normal Python
-    lists, rather than numpy arrays. This is to support lists with mixed scalars
-    and strings, as in the case of records with categorical variables
+    """
+    .. note:: These are normal Python lists, rather than numpy arrays. This is 
+              to support lists with mixed scalars and strings, as in the case of 
+              records with categorical variables.
+    
+    :returns: (dict) output values. 
     """
     return self._outputValues[outputName]
 
 
   def getOutputElementCount(self, name):
     """
-    Computes the width of dataOut
+    Computes the width of dataOut.
+
+    Overrides 
+    :meth:`nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount`.
     """
 
     if name == "resetOut":
@@ -602,14 +608,15 @@ class RecordSensor(PyRegion):
 
   @staticmethod
   def getProtoType():
-    """Return the pycapnp proto type that the class uses for serialization."""
+    """
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.getProtoType`.
+    """
     return RecordSensorProto
 
 
   def writeToProto(self, proto):
-    """Write state to proto object.
-
-    proto: RecordSensorProto capnproto object
+    """
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.writeToProto`.
     """
     self.encoder.write(proto.encoder)
     if self.disabledEncoder is not None:
@@ -621,9 +628,8 @@ class RecordSensor(PyRegion):
 
   @classmethod
   def readFromProto(cls, proto):
-    """Read state from proto object.
-
-    proto: RecordSensorProto capnproto object
+    """    
+    Overrides :meth:`nupic.bindings.regions.PyRegion.PyRegion.readFromProto`.
     """
     instance = cls()
 

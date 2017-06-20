@@ -35,7 +35,6 @@ from nupic.frameworks.prediction.callbacks import (printSPCoincidences,
                                                    displaySPCoincidences,
                                                    setAttribute,
                                                    sensorOpen)
-from nupic.regions.record_sensor_filters.modify_fields import ModifyFields
 
 
 
