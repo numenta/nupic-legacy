@@ -29,6 +29,16 @@ import unittest2 as unittest
 from nupic.data import dict_utils
 from nupic.frameworks.opf import opf_utils, previous_value_model
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.frameworks.opf.previous_value_model_capnp import (
+    PreviousValueModelProto)
+
+
+
 SEQUENCE_LENGTH = 100
 
 
@@ -115,6 +125,59 @@ class PreviousValueModelTest(unittest.TestCase):
 
   def testMultiStepSaw(self):
     self._runMultiStep(_generateSaw())
+
+
+  @unittest.skipUnless(
+    capnp, "pycapnp is not installed, skipping serialization test.")
+  def testCapnpWriteRead(self):
+    m1 = previous_value_model.PreviousValueModel(
+      opf_utils.InferenceType.TemporalMultiStep, predictedField ='a',
+      predictionSteps = [1, 3, 5])
+
+    m1.run(dict_utils.DictObj({'a' : 0}))
+
+    # Serialize
+    builderProto = PreviousValueModelProto.new_message()
+    m1.write(builderProto)
+
+    # Construct reader from populated builder
+    readerProto = PreviousValueModelProto.from_bytes(builderProto.to_bytes())
+
+    # Deserialize
+    m2 = previous_value_model.PreviousValueModel.read(readerProto)
+
+    self.assertIs(m1.getProtoType(), PreviousValueModelProto)
+    self.assertIs(m2.getProtoType(), PreviousValueModelProto)
+
+    self.assertEqual(m2._numPredictions, m1._numPredictions)
+    self.assertEqual(m2.getInferenceType(), m1.getInferenceType())
+    self.assertEqual(m2.isLearningEnabled(), m1.isLearningEnabled())
+    self.assertEqual(m2.isInferenceEnabled(), m1.isInferenceEnabled())
+    self.assertEqual(m2.getInferenceArgs(), m1.getInferenceArgs())
+    self.assertEqual(m2._predictedField, m1._predictedField)
+    self.assertEqual(m2._fieldNames, m1._fieldNames)
+    self.assertEqual(m2._fieldTypes, m1._fieldTypes)
+    self.assertEqual(m2._predictionSteps, m1._predictionSteps)
+
+    # Run computes on m1 & m2 and compare results
+    r1 = m1.run(dict_utils.DictObj({'a' : 1}))
+    r2 = m2.run(dict_utils.DictObj({'a' : 1}))
+
+    self.assertEqual(r2.predictionNumber, r1.predictionNumber)
+    self.assertEqual(r2.rawInput, r1.rawInput)
+
+    self.assertEqual(r2.predictionNumber, r1.predictionNumber)
+    self.assertEqual(r2.inferences[opf_utils.InferenceElement.prediction],
+                     r1.inferences[opf_utils.InferenceElement.prediction])
+    self.assertEqual(
+      r2.inferences[opf_utils.InferenceElement.multiStepBestPredictions][1],
+      r1.inferences[opf_utils.InferenceElement.multiStepBestPredictions][1])
+    self.assertEqual(
+      r2.inferences[opf_utils.InferenceElement.multiStepBestPredictions][3],
+      r1.inferences[opf_utils.InferenceElement.multiStepBestPredictions][3])
+    self.assertEqual(
+      r2.inferences[opf_utils.InferenceElement.multiStepBestPredictions][5],
+      r1.inferences[opf_utils.InferenceElement.multiStepBestPredictions][5])
 
 
 
