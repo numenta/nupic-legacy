@@ -2,7 +2,7 @@
 
 using import "/nupic/frameworks/opf/model.capnp".ModelProto;
 
-# Next ID: ZZZ
+# Next ID: 5
 struct PreviousValueModelProto {
     modelBase @0 :ModelProto;
     # List of field names

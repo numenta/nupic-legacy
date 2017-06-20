@@ -130,6 +130,11 @@ class PreviousValueModel(model.Model):
     self._reset = True
 
 
+  @staticmethod
+  def getProtoType():
+    return PreviousValueModelProto
+
+
   def write(self, proto):
     """ Serialize via capnp
 
@@ -161,6 +166,8 @@ class PreviousValueModel(model.Model):
     instance._fieldNames = list(proto.fieldNames)
     instance._fieldTypes = list(proto.fieldTypes)
     instance._predictionSteps = list(proto.predictionSteps)
+
+    return instance
 
 
   def __getstate__(self):
