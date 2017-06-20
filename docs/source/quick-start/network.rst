@@ -43,10 +43,10 @@ Create an HTM network with :class:`.Network`:
 
 Now we need to add several regions to this network:
 
-- Sensor Region
-- Spatial Pooler Region
-- Temporal Memory Region
-- Classifier Region
+- Sensor Region (:class:`nupic.regions.record_sensor.RecordSensor`)
+- Spatial Pooler Region (:class:`nupic.regions.sp_region.SPRegion`)
+- Temporal Memory Region (:class:`nupic.regions.tm_region.TMRegion`)
+- Classifier Region (:class:`nupic.regions.sdr_classifier_region.SDRClassifierRegion`)
 
 The regions will be linked serially. In the next sections, we'll cover how to
 create regions with the right parameters and how to link them.
@@ -185,7 +185,7 @@ identified as ``modelParams.clParams``, the ``steps`` value tells the model how
 many steps into the future to predict. In this case, we are predicting both one
 and five steps into the future as shown by the value ``1,5``.
 
-You can use the method ``getOuputData()`` to get output predictions from the
+You can use the method ``getOutputData()`` to get output predictions from the
 classifier region. In our case, we are interested in:
 
 .. code-block:: python

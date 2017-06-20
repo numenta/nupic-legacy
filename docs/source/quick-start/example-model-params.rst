@@ -3,7 +3,7 @@ Example Model Params
 
 This raw model params file is used in the `Quick Start <index.html>`_. These
 parameters are used to create an
-:class:`~nupic.opf.models.htm_prediction_model.HTMPredictionModel`, which will
+:class:`~nupic.frameworks.opf.htm_prediction_model.HTMPredictionModel`, which will
 create an HTM with specified encoders and connect them to both a
 :class:`~nupic.algorithms.spatial_pooler.SpatialPooler` and
 :class:`~nupic.algorithms.backtracking_tm.BacktrackingTM` (or
