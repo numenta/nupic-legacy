@@ -7,8 +7,8 @@
 
 ## Introduction
 
-The Numenta Platform for Intelligent Computing (NuPIC) allows programmers to design, create, train, test, and deploy Hierarchical Temporary Memory (HTM) technology.
-As described in the NuPIC 2 Overview document, NuPIC consists of a Network Engine library along with layered software including examples and frameworks.
+The Numenta Platform for Intelligent Computing (NuPIC) allows programmers to design, create, train, test, and deploy Hierarchical Temporary Memory (HTM) technology for streaming data.
+NuPIC consists of a Network Engine library along with layered software including examples and frameworks.
 Core HTM functionality is provided by the Network Engine, which can create and manipulate HTM Networks.
 
 ## Goals and Technical Requirements
@@ -37,10 +37,6 @@ Modular architecture for algorithms; isolate algorithm developers from needing t
 ## Overview of the Network Engine
 
 ### Network Structure
-
-An example HTM network is shown in Figure 1.
-
-[Needs to place example HTM network here]
 
 The key structural features of this network are:
 -	A network is composed of zero or more named regions.
@@ -280,10 +276,3 @@ for iteration in (1, …, n):
 A network callback is an arbitrary user-specified function that is called at every network iteration.
 An arbitrary number of network callbacks may be attached to a Network.
 Callbacks allow us to add functionality (such as watchers) without changing or expanding the Core API.
-
-## History, Implementation Status and Future Plans
-
-* Currently a Region is logically composed of one or more Nodes.
-The Node class may be removed, as it does not appear to be necessary with the new algorithms.
-If Node is removed, `Dimensions` and `NodeSet` will also be removed.
-* The Network Engine design allows "zero copy" links, in which a Region's input is a reference to an output of another region.

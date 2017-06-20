@@ -123,8 +123,8 @@ The [`ModelResult`](../api/opf/results.html#nupic.frameworks.opf.opf_utils.Model
 
 #### Raw Input vs. Sensor Input
 
-As explained above, fields from the raw input are translated into primitive input types. There also may be additional information about the input record that is needed by the OPF framework. The SensorInput object is a container that stores translated input record, as well
-as auxiliary information about the input. More attributes may be added to the SensorInput object as new features require them. Note: not every model needs to populate every field in SensorInput, and the exact requirements depend on which inferences and metrics are being computed.
+As explained above, fields from the raw input are translated into primitive input types. There also may be additional information about the input record that is needed by the OPF framework. The [`SensorInput`](../api/opf/utils.html#nupic.frameworks.opf.opf_utils.SensorInput) object is a container that stores translated input record, as well
+as auxiliary information about the input. More attributes may be added to the SensorInput object as new features require them. Note: not every model needs to populate every field in [`SensorInput`](../api/opf/utils.html#nupic.frameworks.opf.opf_utils.SensorInput), and the exact requirements depend on which inferences and metrics are being computed.
 
 - **sequenceReset**: Control field for temporal patterns. This field has a value of 1 if an explicit temporal reset was specified for this record, 0 otherwise. Resets are currently not being used.
 - **dataRow**: The translated version of the input row.
@@ -144,7 +144,7 @@ For reasons unknown and poorly explained, the OPF handles different data types f
 
 #### Mapping Inferences to Input Values
 
-In order to compute metrics and write output, the OPF needs to know which input values (i.e. attributes of SensorInput) correspond to each inference element. This mapping between inputs and outputs are defined in InferenceElement.\_\_inferenceInputMap. By specifying this mapping here, the same logic can be used both for writing to output and computing metrics
+In order to compute metrics and write output, the OPF needs to know which input values (i.e. attributes of [`SensorInput`](../api/opf/utils.html#nupic.frameworks.opf.opf_utils.SensorInput)) correspond to each inference element. This mapping between inputs and outputs are defined in [`InferenceElement`](../api/opf/utils.html#nupic.frameworks.opf.opf_utils.InferenceElement)`.__inferenceInputMap`. By specifying this mapping here, the same logic can be used both for writing to output and computing metrics
 
 ￼￼Below is an example.
 
