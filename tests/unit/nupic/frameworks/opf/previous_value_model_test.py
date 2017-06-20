@@ -159,7 +159,6 @@ class PreviousValueModelTest(unittest.TestCase):
     self.assertEqual(m2._fieldTypes, m1._fieldTypes)
     self.assertEqual(m2._predictionSteps, m1._predictionSteps)
 
-
     # Run computes on m1 & m2 and compare results
     r1 = m1.run(dict_utils.DictObj({'a' : 1}))
     r2 = m2.run(dict_utils.DictObj({'a' : 1}))
