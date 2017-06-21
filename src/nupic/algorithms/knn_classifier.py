@@ -27,6 +27,16 @@ from nupic.bindings.math import (NearestNeighbor, min_score_per_category)
 
 from nupic.serializable import Serializable
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+import numpy
+
+if capnp:
+  from nupic.algorithms.knn_classifier_capnp import KNNClassifierProto
+
+
 g_debugPrefix = "KNN"
 KNNCLASSIFIER_VERSION = 1
 
@@ -1170,6 +1180,10 @@ class KNNClassifier(Serializable):
       if vectorIndex < len(self._categoryList):
         self._categoryList[vectorIndex] = categoryIndex
 
+  @staticmethod
+  def getSchema():
+    return KNNClassifierProto
+
 
   @classmethod
   def read(cls, proto):
@@ -1207,7 +1221,12 @@ class KNNClassifier(Serializable):
     # Read private state
     knn.clear()
     if proto.memory is not None:
-      knn._Memory = numpy.array(proto.memory, dtype=numpy.float64)
+      which = proto.memory.which()
+      if which == "ndarray":
+        knn._Memory = numpy.array(proto.memory.ndarray, dtype=numpy.float64)
+      elif which == "nearestNeighbor":
+        knn._Memory = NearestNeighbor()
+        knn._Memory.read(proto.memory.nearestNeighbor)
 
     knn._numPatterns = proto.numPatterns
 
@@ -1240,25 +1259,28 @@ class KNNClassifier(Serializable):
 
     proto.version = self.version
     proto.k = self.k
-    proto.exact = self.exact
+    proto.exact = bool(self.exact)
     proto.distanceNorm = self.distanceNorm
     proto.distanceMethod = self.distanceMethod
     proto.distThreshold = self.distThreshold
-    proto.doBinarization = self.doBinarization
+    proto.doBinarization = bool(self.doBinarization)
     proto.binarizationThreshold = self.binarizationThreshold
-    proto.useSparseMemory = self.useSparseMemory
+    proto.useSparseMemory = bool(self.useSparseMemory)
     proto.sparseThreshold = self.sparseThreshold
-    proto.relativeThreshold = self.relativeThreshold
+    proto.relativeThreshold = bool(self.relativeThreshold)
     proto.numWinners = self.numWinners
     proto.verbosity = self.verbosity
     proto.maxStoredPatterns = self.maxStoredPatterns
-    proto.replaceDuplicates = self.replaceDuplicates
+    proto.replaceDuplicates = bool(self.replaceDuplicates)
     proto.cellsPerCol = self.cellsPerCol
     proto.minSparsity = self.minSparsity
 
     # Write private state
-    if self._Memory is not None:
-      proto.memory = self._Memory.tolist()
+    if isinstance(self._Memory, numpy.ndarray):
+      proto.memory.ndarray = self._Memory.tolist()
+    else:
+      proto.memory.init("nearestNeighbor")
+      self._Memory.write(proto.memory.nearestNeighbor)
 
     proto.numPatterns = self._numPatterns
 
@@ -1271,7 +1293,7 @@ class KNNClassifier(Serializable):
     if self._partitionIdList is not None:
       proto.partitionIdList = self._partitionIdList
 
-    proto.finishedLearning = self._finishedLearning
+    proto.finishedLearning = bool(self._finishedLearning)
     proto.iterationIdx = self._iterationIdx
 
     if self._s is not None:

@@ -34,7 +34,7 @@ try:
 except ImportError:
   capnp = None
 if capnp:
-  from nupic.regions.knn_classifier_region_capnp import KNNClassifierParamsProto
+  from nupic.regions.knn_classifier_region_capnp import KNNClassifierRegionProto
 
 
 
@@ -1201,9 +1201,12 @@ class KNNClassifierRegion(PyRegion):
     else:
       raise Exception('Unknown output: ' + name)
 
+  @staticmethod
+  def getProtoType():
+    return KNNClassifierRegionProto
 
   @classmethod
-  def read(cls, proto):
+  def readFromProto(cls, proto):
     if proto.version != KNNClassifierRegion.__VERSION__:
       raise RuntimeError("Invalid KNNClassifierRegion Version")
 
@@ -1246,7 +1249,7 @@ class KNNClassifierRegion(PyRegion):
     return instance
 
 
-  def write(self, proto):
+  def writeToProto(self, proto):
     proto.version = self.version
 
     # Convert 'NoneType' to zero. See 'getParameter'
@@ -1257,6 +1260,27 @@ class KNNClassifierRegion(PyRegion):
     knnParams["numSVDDims"] = v if v is not None else 0
     v = knnParams["fractionOfMax"]
     knnParams["fractionOfMax"] = v if v is not None else 0
+
+    # Convert type to capnp compatible
+    if "outputProbabilitiesByDist" in knnParams:
+      knnParams["outputProbabilitiesByDist"] = bool(
+        knnParams["outputProbabilitiesByDist"])
+
+    if "doBinarization" in knnParams:
+      knnParams["doBinarization"] = bool(knnParams["doBinarization"])
+
+    if "useSparseMemory" in knnParams:
+      knnParams["useSparseMemory"] = bool(knnParams["useSparseMemory"])
+
+    if "relativeThreshold" in knnParams:
+      knnParams["relativeThreshold"] = bool(knnParams["relativeThreshold"])
+
+    if "doSphering" in knnParams:
+      knnParams["doSphering"] = bool(knnParams["doSphering"])
+
+    if "replaceDuplicates" in knnParams:
+      knnParams["replaceDuplicates"] = bool(knnParams["replaceDuplicates"])
+
     proto.knnParams = knnParams
 
     self._knn.write(proto.knn)

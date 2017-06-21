@@ -1,6 +1,8 @@
 @0x9ac6bf9fef7ba20d;
 
-# Next ID: 30
+using import "/nupic/proto/SparseMatrixProto.capnp".SparseMatrixProto;
+
+# Next ID: 31
 struct KNNClassifierProto {
     # Public fields
     version @0 :Int32;
@@ -25,7 +27,11 @@ struct KNNClassifierProto {
     minSparsity @19 :Float32;
 
     # Private State
-    memory @20 :List(List(Float64));
+    memory :union  {
+        ndarray @20 :List(List(Float64));
+        # NearestNeighbor inherits from SparseMatrix and shares the same schema
+        nearestNeighbor @30 :SparseMatrixProto;
+    }
     numPatterns @21 :Int32;
     m @22 :List(List(Float64));
     categoryList @23 :List(Int32);
