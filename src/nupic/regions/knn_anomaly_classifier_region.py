@@ -938,7 +938,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
     instance.saved_categories = list(proto.savedCategories)
 
     instance._recordsCache = []
-    for i, item in enumerate(proto.recordsCache):
+    for item in proto.recordsCache:
       instance._recordsCache.append(_CLAClassificationRecord(
         ROWID=item.rowid,
         anomalyScore=item.anomalyScore,

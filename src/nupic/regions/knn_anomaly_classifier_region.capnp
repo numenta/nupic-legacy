@@ -29,35 +29,35 @@ struct KNNAnomalyClassifierRegionProto {
     labelResults @13 :List(Text);
     savedCategories @14 :List(Text);
     recordsCache @15 :List(ClassificationRecord);
+}
 
-    # Next ID: 26
-    struct KNNClassifierArgsProto {
-               maxCategoryCount @0 :Int32;
-               bestPrototypeIndexCount @1 :Int32;
-               outputProbabilitiesByDist @2 :Bool;
-               k @3 :Int32;
-               distanceNorm @4 :Float32;
-               distanceMethod @5 :Text;
-               distThreshold @6 :Float32;
-               doBinarization @7 :Bool;
-               inputThresh @8 :Float32;
-               useSparseMemory @9 :Bool;
-               sparseThreshold @10 :Float32;
-               relativeThreshold @11: Bool;
-               winnerCount @12 :Int32;
-               acceptanceProbability @13 :Float32;
-               seed @14 :Int32;
-               doSphering @15 :Bool;
-               svdSampleCount @16 :Int32;
-               svdDimCount @17 :Int32;
-               fractionOfMax @18 :Int32;
-               useAuxiliary @19 :Int32;
-               justUseAuxiliary @20 :Int32;
-               verbosity @21 :Int32;
-               replaceDuplicates @22 :Bool;
-               cellsPerCol @23 :Int32;
-               maxStoredPatterns @24 :Int32;
-               minSparsity @25 :Float32;
-    }
+# Next ID: 26
+struct KNNClassifierArgsProto {
+    maxCategoryCount @0 :Int32;
+    bestPrototypeIndexCount @1 :Int32;
+    outputProbabilitiesByDist @2 :Bool;
+    k @3 :Int32;
+    distanceNorm @4 :Float32;
+    distanceMethod @5 :Text;
+    distThreshold @6 :Float32;
+    doBinarization @7 :Bool;
+    inputThresh @8 :Float32;
+    useSparseMemory @9 :Bool;
+    sparseThreshold @10 :Float32;
+    relativeThreshold @11: Bool;
+    winnerCount @12 :Int32;
+    acceptanceProbability @13 :Float32;
+    seed @14 :Int32;
+    doSphering @15 :Bool;
+    svdSampleCount @16 :Int32;
+    svdDimCount @17 :Int32;
+    fractionOfMax @18 :Int32;
+    useAuxiliary @19 :Int32;
+    justUseAuxiliary @20 :Int32;
+    verbosity @21 :Int32;
+    replaceDuplicates @22 :Bool;
+    cellsPerCol @23 :Int32;
+    maxStoredPatterns @24 :Int32;
+    minSparsity @25 :Float32;
 }
 
