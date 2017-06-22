@@ -72,8 +72,7 @@ CPP_MODEL_PARAMS = {
     # TemporalAnomaly, NontemporalAnomaly, TemporalMultiStep,
     # NontemporalMultiStep
     #
-    #'inferenceType': 'TemporalAnomaly', # TODO: blocked on NUP-2356
-    'inferenceType': 'NontemporalMultiStep',
+    'inferenceType': 'TemporalAnomaly',
     'sensorParams': {
       'verbosity' : 0,
       'encoders': {
@@ -162,8 +161,8 @@ PY_MODEL_PARAMS = {
     # TemporalAnomaly, NontemporalAnomaly, TemporalMultiStep,
     # NontemporalMultiStep
     #
-    #'inferenceType': 'TemporalAnomaly', # TODO: blocked on NUP-2356
-    'inferenceType': 'NontemporalMultiStep',
+    'inferenceType': 'TemporalAnomaly',
+    # 'inferenceType': 'NontemporalMultiStep',
     'sensorParams': {
       'verbosity' : 0,
       'encoders': {
@@ -291,8 +290,7 @@ class HTMPredictionModelSerializationTest(unittest.TestCase):
     self.assertIsNotNone(m2._getClassifierRegion())
     self.assertEqual(m2._getClassifierRegion(), m1._getClassifierRegion())
 
-    # TODO NUP-2356: Uncomment after issue is resolved.
-    #self.assertIsNotNone(m2._getTPRegion())
+    self.assertIsNotNone(m2._getTPRegion())
     self.assertEqual(m2._getTPRegion(), m1._getTPRegion())
 
     self.assertIsNotNone(m2._getSPRegion())

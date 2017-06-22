@@ -1276,11 +1276,12 @@ class KNNClassifier(Serializable):
     proto.minSparsity = self.minSparsity
 
     # Write private state
-    if isinstance(self._Memory, numpy.ndarray):
-      proto.memory.ndarray = self._Memory.tolist()
-    else:
-      proto.memory.init("nearestNeighbor")
-      self._Memory.write(proto.memory.nearestNeighbor)
+    if self._Memory is not None:
+      if isinstance(self._Memory, numpy.ndarray):
+        proto.memory.ndarray = self._Memory.tolist()
+      else:
+        proto.memory.init("nearestNeighbor")
+        self._Memory.write(proto.memory.nearestNeighbor)
 
     proto.numPatterns = self._numPatterns
 

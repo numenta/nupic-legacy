@@ -1286,21 +1286,21 @@ class KNNClassifierRegion(PyRegion):
     self._knn.write(proto.knn)
     self._rgen.write(proto.rgen)
 
-    proto.verbosity = self.verbosity
-    proto.firstComputeCall = self._firstComputeCall
-    proto.keepAllDistances = self.keepAllDistances
-    proto.learningMode = self.learningMode
-    proto.inferenceMode = self.inferenceMode
-    proto.doSphering = self._doSphering
-    proto.outputProbabilitiesByDist = self.outputProbabilitiesByDist
-    proto.epoch = self._epoch
-    proto.maxStoredPatterns = self.maxStoredPatterns
-    proto.maxCategoryCount = self.maxCategoryCount
-    proto.bestPrototypeIndexCount = self._bestPrototypeIndexCount
-    proto.acceptanceProbability = self.acceptanceProbability
-    proto.useAuxiliary = self._useAuxiliary
-    proto.justUseAuxiliary = self._justUseAuxiliary
-    proto.protoScoreCount = self._protoScoreCount
+    proto.verbosity = int(self.verbosity)
+    proto.firstComputeCall = bool(self._firstComputeCall)
+    proto.keepAllDistances = bool(self.keepAllDistances)
+    proto.learningMode = bool(self.learningMode)
+    proto.inferenceMode = bool(self.inferenceMode)
+    proto.doSphering = bool(self._doSphering)
+    proto.outputProbabilitiesByDist = bool(self.outputProbabilitiesByDist)
+    proto.epoch = int(self._epoch)
+    proto.maxStoredPatterns = int(self.maxStoredPatterns)
+    proto.maxCategoryCount = int(self.maxCategoryCount)
+    proto.bestPrototypeIndexCount = int(self._bestPrototypeIndexCount)
+    proto.acceptanceProbability = float(self.acceptanceProbability)
+    proto.useAuxiliary = bool(self._useAuxiliary)
+    proto.justUseAuxiliary = bool(self._justUseAuxiliary)
+    proto.protoScoreCount = int(self._protoScoreCount)
 
     if self.confusion is not None:
       proto.confusion = self.confusion.tolist()
