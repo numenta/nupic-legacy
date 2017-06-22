@@ -9,7 +9,7 @@ struct KNNClassifierRegionProto {
     knnParams @1 :KNNClassifierParamsProto;
     knn @2 :KNNClassifierProto;
     rgen @3 :RandomProto;
-    verbosity @4 :Int8;
+    verbosity @4 :Int32;
     firstComputeCall @5 :Bool;
     keepAllDistances @6 :Bool;
     learningMode @7 :Bool;

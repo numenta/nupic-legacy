@@ -93,14 +93,14 @@ class KNNClassifierRegionTest(unittest.TestCase):
     knn.setParameter('inferenceMode', None, True)
 
     proto = KNNClassifierRegionProto.new_message()
-    knn.write(proto)
+    knn.writeToProto(proto)
 
     with tempfile.TemporaryFile() as f:
       proto.write(f)
       f.seek(0)
       protoDeserialized = KNNClassifierRegionProto.read(f)
 
-    knnDeserialized = KNNClassifierRegion.read(protoDeserialized)
+    knnDeserialized = KNNClassifierRegion.readFromProto(protoDeserialized)
     expected = {
       "categoriesOut": np.zeros((1,)),
       "bestPrototypeIndices": np.zeros((1,)),

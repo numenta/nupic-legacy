@@ -34,7 +34,7 @@ try:
 except ImportError:
   capnp = None
 if capnp:
-  from nupic.regions.knn_classifier_region_capnp import KNNClassifierParamsProto
+  from nupic.regions.knn_classifier_region_capnp import KNNClassifierRegionProto
 
 
 
@@ -1201,9 +1201,12 @@ class KNNClassifierRegion(PyRegion):
     else:
       raise Exception('Unknown output: ' + name)
 
+  @staticmethod
+  def getProtoType():
+    return KNNClassifierRegionProto
 
   @classmethod
-  def read(cls, proto):
+  def readFromProto(cls, proto):
     if proto.version != KNNClassifierRegion.__VERSION__:
       raise RuntimeError("Invalid KNNClassifierRegion Version")
 
@@ -1246,7 +1249,7 @@ class KNNClassifierRegion(PyRegion):
     return instance
 
 
-  def write(self, proto):
+  def writeToProto(self, proto):
     proto.version = self.version
 
     # Convert 'NoneType' to zero. See 'getParameter'
@@ -1257,26 +1260,47 @@ class KNNClassifierRegion(PyRegion):
     knnParams["numSVDDims"] = v if v is not None else 0
     v = knnParams["fractionOfMax"]
     knnParams["fractionOfMax"] = v if v is not None else 0
+
+    # Convert type to capnp compatible
+    if "outputProbabilitiesByDist" in knnParams:
+      knnParams["outputProbabilitiesByDist"] = bool(
+        knnParams["outputProbabilitiesByDist"])
+
+    if "doBinarization" in knnParams:
+      knnParams["doBinarization"] = bool(knnParams["doBinarization"])
+
+    if "useSparseMemory" in knnParams:
+      knnParams["useSparseMemory"] = bool(knnParams["useSparseMemory"])
+
+    if "relativeThreshold" in knnParams:
+      knnParams["relativeThreshold"] = bool(knnParams["relativeThreshold"])
+
+    if "doSphering" in knnParams:
+      knnParams["doSphering"] = bool(knnParams["doSphering"])
+
+    if "replaceDuplicates" in knnParams:
+      knnParams["replaceDuplicates"] = bool(knnParams["replaceDuplicates"])
+
     proto.knnParams = knnParams
 
     self._knn.write(proto.knn)
     self._rgen.write(proto.rgen)
 
-    proto.verbosity = self.verbosity
-    proto.firstComputeCall = self._firstComputeCall
-    proto.keepAllDistances = self.keepAllDistances
-    proto.learningMode = self.learningMode
-    proto.inferenceMode = self.inferenceMode
-    proto.doSphering = self._doSphering
-    proto.outputProbabilitiesByDist = self.outputProbabilitiesByDist
-    proto.epoch = self._epoch
-    proto.maxStoredPatterns = self.maxStoredPatterns
-    proto.maxCategoryCount = self.maxCategoryCount
-    proto.bestPrototypeIndexCount = self._bestPrototypeIndexCount
-    proto.acceptanceProbability = self.acceptanceProbability
-    proto.useAuxiliary = self._useAuxiliary
-    proto.justUseAuxiliary = self._justUseAuxiliary
-    proto.protoScoreCount = self._protoScoreCount
+    proto.verbosity = int(self.verbosity)
+    proto.firstComputeCall = bool(self._firstComputeCall)
+    proto.keepAllDistances = bool(self.keepAllDistances)
+    proto.learningMode = bool(self.learningMode)
+    proto.inferenceMode = bool(self.inferenceMode)
+    proto.doSphering = bool(self._doSphering)
+    proto.outputProbabilitiesByDist = bool(self.outputProbabilitiesByDist)
+    proto.epoch = int(self._epoch)
+    proto.maxStoredPatterns = int(self.maxStoredPatterns)
+    proto.maxCategoryCount = int(self.maxCategoryCount)
+    proto.bestPrototypeIndexCount = int(self._bestPrototypeIndexCount)
+    proto.acceptanceProbability = float(self.acceptanceProbability)
+    proto.useAuxiliary = bool(self._useAuxiliary)
+    proto.justUseAuxiliary = bool(self._justUseAuxiliary)
+    proto.protoScoreCount = int(self._protoScoreCount)
 
     if self.confusion is not None:
       proto.confusion = self.confusion.tolist()
