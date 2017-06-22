@@ -34,6 +34,14 @@ from nupic.bindings.math import Random
 from nupic.frameworks.opf.exceptions import (HTMPredictionModelInvalidRangeError,
                                              HTMPredictionModelInvalidArgument)
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.regions.knn_anomaly_classifier_region_capnp import \
+    KNNAnomalyClassifierRegionProto
+
 
 
 class KNNAnomalyClassifierRegion(PyRegion):
@@ -826,6 +834,125 @@ class KNNAnomalyClassifierRegion(PyRegion):
   # Methods to support serialization
   #
   #############################################################################
+
+  def writeToProto(self, proto):
+    proto.version = self._version
+    proto.maxLabelOutputs = self._maxLabelOutputs
+    proto.activeColumnCount = self._activeColumnCount
+    if self._prevPredictedColumns is not None:
+      proto.prevPredictedColumns = self._prevPredictedColumns.tolist()
+    proto.anomalyVectorLength = self._anomalyVectorLength
+    proto.classificationMaxDist = self._classificationMaxDist
+    proto.iteration = self._iteration
+    proto.trainRecords = self.trainRecords
+    proto.anomalyThreshold = self.anomalyThreshold
+    proto.cacheSize = self.cacheSize
+    proto.classificationVectorType = self.classificationVectorType
+
+    if self._knnclassifierArgs is not None:
+      knnParams = self._knnclassifierArgs.copy()
+
+      # Convert keys and types  to be compatible with capnp
+      if "SVDSampleCount" in knnParams:
+        if knnParams["SVDSampleCount"] is not None:
+          knnParams["svdSampleCount"] = knnParams["SVDSampleCount"]
+        del knnParams["SVDSampleCount"]
+
+      if "SVDDimCount" in knnParams:
+        if knnParams["SVDDimCount"] is not None:
+          knnParams["svdDimCount"] = knnParams["SVDDimCount"]
+        del knnParams["SVDDimCount"]
+
+      if "outputProbabilitiesByDist" in knnParams:
+        knnParams["outputProbabilitiesByDist"] = bool(
+          knnParams["outputProbabilitiesByDist"])
+
+      if "doBinarization" in knnParams:
+        knnParams["doBinarization"] = bool(knnParams["doBinarization"])
+
+      if "useSparseMemory" in knnParams:
+        knnParams["useSparseMemory"] = bool(knnParams["useSparseMemory"])
+
+      if "relativeThreshold" in knnParams:
+        knnParams["relativeThreshold"] = bool(knnParams["relativeThreshold"])
+
+      if "doSphering" in knnParams:
+        knnParams["doSphering"] = bool(knnParams["doSphering"])
+
+      if "replaceDuplicates" in knnParams:
+        knnParams["replaceDuplicates"] = bool(knnParams["replaceDuplicates"])
+
+      proto.knnclassifierArgs = knnParams
+
+    if self._knnclassifier is not None:
+      self._knnclassifier.writeToProto(proto.knnclassifier)
+    if self.labelResults is not None:
+      proto.labelResults = self.labelResults
+    if self.saved_categories is not None:
+      proto.savedCategories = self.saved_categories
+    if self._recordsCache is not None:
+      recordsCache = proto.init("recordsCache", len(self._recordsCache))
+      for i, item in enumerate(self._recordsCache):
+        record = recordsCache[i]
+        record.rowid = int(item.ROWID)
+        record.anomalyScore = float(item.anomalyScore)
+        if item.anomalyVector is not None:
+          record.anomalyVector = item.anomalyVector
+        if item.anomalyLabel is not None:
+          record.anomalyLabel = item.anomalyLabel
+        record.setByUser = bool(item.setByUser)
+
+
+  @classmethod
+  def readFromProto(cls, proto):
+    if proto.version != KNNAnomalyClassifierRegion.__VERSION__:
+      raise RuntimeError("Invalid KNNAnomalyClassifierRegion Version")
+
+    instance = object.__new__(cls)
+    instance._version = proto.version
+    instance._maxLabelOutputs = proto.maxLabelOutputs
+    instance._activeColumnCount = proto.activeColumnCount
+    instance._prevPredictedColumns = numpy.array(proto.prevPredictedColumns)
+    instance._anomalyVectorLength = proto.anomalyVectorLength
+    instance._classificationMaxDist = proto.classificationMaxDist
+    instance._iteration = proto.iteration
+    instance.trainRecords = proto.trainRecords
+    instance.anomalyThreshold = proto.anomalyThreshold
+    instance.cacheSize = proto.cacheSize
+    instance.classificationVectorType = proto.classificationVectorType
+    instance._knnclassifierArgs = proto.knnclassifierArgs.to_dict()
+
+    # Convert keys
+    if "svdSampleCount" in instance._knnclassifierArgs:
+      SVDSampleCount = instance._knnclassifierArgs["svdSampleCount"]
+      del instance._knnclassifierArgs["svdSampleCount"]
+      instance._knnclassifierArgs["SVDSampleCount"] = SVDSampleCount
+    if "svdDimCount" in instance._knnclassifierArgs:
+      SVDDimCount = instance._knnclassifierArgs["svdDimCount"]
+      del instance._knnclassifierArgs["svdDimCount"]
+      instance._knnclassifierArgs["SVDDimCount"] = SVDDimCount
+
+    instance._knnclassifier = KNNClassifierRegion.readFromProto(
+      proto.knnclassifier)
+    instance.labelResults = list(proto.labelResults)
+    instance.saved_categories = list(proto.savedCategories)
+
+    instance._recordsCache = []
+    for i, item in enumerate(proto.recordsCache):
+      instance._recordsCache.append(_CLAClassificationRecord(
+        ROWID=item.rowid,
+        anomalyScore=item.anomalyScore,
+        anomalyVector=list(item.anomalyVector),
+        anomalyLabel=list(item.anomalyLabel),
+        setByUser=item.setByUser
+      ))
+
+    return instance
+
+
+  @staticmethod
+  def getProtoType():
+    return KNNAnomalyClassifierRegionProto
 
 
   def __getstate__(self):
