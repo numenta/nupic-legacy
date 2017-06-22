@@ -162,7 +162,6 @@ PY_MODEL_PARAMS = {
     # NontemporalMultiStep
     #
     'inferenceType': 'TemporalAnomaly',
-    # 'inferenceType': 'NontemporalMultiStep',
     'sensorParams': {
       'verbosity' : 0,
       'encoders': {
