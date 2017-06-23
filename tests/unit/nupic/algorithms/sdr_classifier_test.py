@@ -130,7 +130,7 @@ class SDRClassifierTest(unittest.TestCase):
     retval = c.compute(recordNum=recordNum, patternNZ=[1, 5, 9],
               classification={"bucketIdx": 4, "actValue": 34.7},
               learn=True, infer=False)
-    self.assertIsNone(retval)
+    self.assertEquals({}, retval)
     recordNum += 1
 
     # infer only
@@ -149,7 +149,7 @@ class SDRClassifierTest(unittest.TestCase):
     retval3 = c.compute(recordNum=recordNum, patternNZ=[1, 2],
                         classification={"bucketIdx": 2, "actValue": 14.2},
                         learn=False, infer=False)
-    self.assertIsNone(retval3)
+    self.assertEquals({}, retval3)
 
 
   def testCompute1(self):
