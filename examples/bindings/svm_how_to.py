@@ -168,15 +168,15 @@ def persistence():
 
     print "Serializing dense classifier"
 
-    # Save
     schema = classifier.getSchema()
-    with open("test", "wb") as f:
+    with open("test", "w+b") as f:
+        # Save
         proto = schema.new_message()
         classifier.write(proto)
         proto.write(f)
 
-    # Load
-    with open("test", "rb") as f:
+        # Load
+        f.seek(0)
         proto2 = schema.read(f)
         classifier = algo.svm_dense.read(proto2)
 
@@ -198,15 +198,15 @@ def persistence():
     classifier01.train(gamma = 1./3., C = 100, eps=1e-1)
 
     print "Serializing 0/1 classifier"
-    # Save
     schema = classifier01.getSchema()
-    with open("test", "wb") as f:
+    with open("test", "w+b") as f:
+        # Save
         proto = schema.new_message()
         classifier01.write(proto)
         proto.write(f)
 
-    # Load
-    with open("test", "rb") as f:
+        # Load
+        f.seek(0)
         proto2 = schema.read(f)
         classifier01 = algo.svm_01.read(proto2)
 

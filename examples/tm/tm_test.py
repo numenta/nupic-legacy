@@ -786,14 +786,14 @@ def basicTest():
   # Save and reload
   schema = TMClass.getSchema()
 
-  # Save
-  with open("test_tm.bin", "wb") as f:
+  with open("test_tm.bin", "w+b") as f:
+    # Save
     proto = schema.new_message()
     tm.write(proto)
     proto.write(f)
 
-  # Load
-  with open("test_tm.bin", "rb") as f:
+    # Load
+    f.seek(0)
     proto2 = schema.read(f)
     tm2 = TMClass.read(proto2)
 

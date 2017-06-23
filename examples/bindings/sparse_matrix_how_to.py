@@ -98,14 +98,14 @@ print '\nfromDense\n', s
 # A sparse matrix can be serialized:
 schema = SM32.getSchema()
 
-# Save
-with open("sm.bin", "wb") as f:
+with open("sm.bin", "w+b") as f:
+  # Save
   proto = schema.new_message()
   s.write(proto)
   proto.write(f)
 
-# Load
-with open("sm.bin", "rb") as f:
+  # Load
+  f.seek(0)
   proto2 = schema.read(f)
   s2 = SM32()
   s2.read(proto2)
