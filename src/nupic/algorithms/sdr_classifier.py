@@ -32,6 +32,12 @@ import numpy
 
 from nupic.serializable import Serializable
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.proto.SdrClassifier_capnp import SdrClassifierProto
 
 class SDRClassifier(Serializable):
   """
@@ -216,7 +222,7 @@ class SDRClassifier(Serializable):
     # To allow multi-class classification, we need to be able to run learning
     # without inference being on. So initialize retval outside
     # of the inference block.
-    retval = None
+    retval = {}
 
     # Update maxInputIdx and augment weight matrix with zero padding
     if max(patternNZ) > self._maxInputIdx:
@@ -372,6 +378,10 @@ class SDRClassifier(Serializable):
     predictDist = expOutputActivation / numpy.sum(expOutputActivation)
     return predictDist
 
+
+  @classmethod
+  def getSchema(cls):
+    return SdrClassifierProto
 
   @classmethod
   def read(cls, proto):

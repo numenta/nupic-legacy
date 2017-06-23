@@ -26,7 +26,6 @@ creates instances of each SDR classifier. Each record is fed to both
 classifiers and the results are checked for differences.
 """
 
-import cPickle as pickle
 import numbers
 
 from nupic.algorithms.sdr_classifier import SDRClassifier
@@ -74,9 +73,18 @@ class SDRClassifierDiff(object):
     self._calls += 1
     # Check if it is time to serialize and deserialize.
     if self._calls % self._callsPerSerialize == 0:
-      self._sdrClassifier = pickle.loads(pickle.dumps(self._sdrClassifier))
-      self._sdrClassifierCpp = pickle.loads(pickle.dumps(
-          self._sdrClassifierCpp))
+      schemaPy = self._sdrClassifier.getSchema()
+      protoPy = schemaPy.new_message()
+      self._sdrClassifier.write(protoPy)
+      protoPy = schemaPy.from_bytes(protoPy.to_bytes())
+      self._sdrClassifier = SDRClassifier.read(protoPy)
+
+      schemaCpp = self._sdrClassifierCpp.getSchema()
+      protoCpp = schemaCpp.new_message()
+      self._sdrClassifierCpp.write(protoCpp)
+      protoCpp = schemaCpp.from_bytes(protoCpp.to_bytes())
+      self._sdrClassifierCpp = SDRClassifierCpp.read(protoCpp)
+
     # Assert both results are the same type.
     assert type(result1) == type(result2)
     # Assert that the keys match.
