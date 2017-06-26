@@ -470,7 +470,8 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
     proto.lrnIterationIdx = self.lrnIterationIdx
     proto.iterationIdx = self.iterationIdx
     proto.segID = self.segID
-    proto.currentOutput = self.currentOutput.tolist()
+    if self.currentOutput is not None:
+      proto.currentOutput = self.currentOutput.tolist()
     proto.pamCounter = self.pamCounter
     proto.collectSequenceStats = self.collectSequenceStats
     proto.resetCalled = self.resetCalled

@@ -20,7 +20,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import cPickle
 
 # SparseMatrix is a versatile class that offers a wide range of functionality.
 # This tutorial will introduce you to the main features of SparseMatrix.
@@ -96,10 +95,22 @@ s = SM32()
 s.fromDense(numpy.random.random((4,4)))
 print '\nfromDense\n', s
 
-# A sparse matrix can be pickled:
-cPickle.dump(s, open('sm.txt', 'wb'))
-s2 = cPickle.load(open('sm.txt', 'rb'))
-print '\nPickling\n', s2
+# A sparse matrix can be serialized:
+schema = SM32.getSchema()
+
+with open("sm.bin", "w+b") as f:
+  # Save
+  proto = schema.new_message()
+  s.write(proto)
+  proto.write(f)
+
+  # Load
+  f.seek(0)
+  proto2 = schema.read(f)
+  s2 = SM32()
+  s2.read(proto2)
+
+print '\nSerializing\n', s2
 
 # 4. Simple queries:
 # =================
