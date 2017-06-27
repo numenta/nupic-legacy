@@ -31,4 +31,4 @@ tar -zcv -f release/nupic-${CIRCLE_SHA1}-darwin64.tar.gz dist
 # awscli needs to be manually installed on Circle's OS X
 pip install awscli --user
 
-aws s3 cp release/nupic-${CIRCLE_SHA1}-darwin64.tar.gz s3://artifacts.numenta.org/numenta/nupic.core/circle/
+aws s3 cp release/nupic-${CIRCLE_SHA1}-darwin64.tar.gz s3://artifacts.numenta.org/numenta/nupic/circle/
