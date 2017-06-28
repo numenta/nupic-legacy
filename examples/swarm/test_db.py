@@ -83,7 +83,7 @@ def dbValidator():
   host = Configuration.get("nupic.cluster.database.host")
   port = int(Configuration.get("nupic.cluster.database.port"))
   user = Configuration.get("nupic.cluster.database.user")
-  passwd = "*" * len(Configuration.get("nupic.cluster.database.passwd"))
+  passwd = Configuration.get("nupic.cluster.database.passwd")
 
 
   print "This script will validate that your MySQL is setup correctly for "
@@ -103,7 +103,7 @@ def dbValidator():
   print "    host   :    ", host
   print "    port   :    ", port
   print "    user   :    ", user
-  print "    passwd :    ", passwd
+  print "    passwd :    ", "*" * len(passwd)
 
 
   if testDbConnection(host, port, user, passwd):
