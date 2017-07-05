@@ -24,11 +24,11 @@ from abc import ABCMeta, abstractmethod
 
 
 class Serializable(object):
-  """ 
-  Serializable base class establishing 
-  :meth:`~nupic.serializable.Serializable.read` and 
-  :meth:`~nupic.serializable.Serializable.write` abstract methods, 
-  :meth:`.readFromFile` and :meth:`.writeToFile` concrete methods to support 
+  """
+  Serializable base class establishing
+  :meth:`~nupic.serializable.Serializable.read` and
+  :meth:`~nupic.serializable.Serializable.write` abstract methods,
+  :meth:`.readFromFile` and :meth:`.writeToFile` concrete methods to support
   serialization with Cap'n Proto.
   """
 
@@ -43,7 +43,7 @@ class Serializable(object):
 
     ..warning: This is an abstract method.  Per abc protocol, attempts to subclass
                without overriding will fail.
-    
+
     @returns Cap'n Proto schema
     """
     pass
@@ -69,7 +69,7 @@ class Serializable(object):
     """
     Write obj instance to Cap'n Proto object
 
-    .. warning: This is an abstract method.  Per abc protocol, attempts to 
+    .. warning: This is an abstract method.  Per abc protocol, attempts to
                 subclass without overriding will fail.
 
     :param proto: Cap'n Proto obj
@@ -78,11 +78,11 @@ class Serializable(object):
 
 
   @classmethod
-  def readFromFile(cls, inp, packed=True):
+  def readFromFile(cls, f, packed=True):
     """
     Read serialized object from file.
 
-    :param inp: input 
+    :param f: input file
     :param packed: If true, will assume content is packed
     :return: first-class instance initialized from proto obj
     """
@@ -91,19 +91,19 @@ class Serializable(object):
 
     # Read from file
     if packed:
-      proto = schema.read_packed(inp)
+      proto = schema.read_packed(f)
     else:
-      proto = schema.read(inp)
+      proto = schema.read(f)
 
     # Return first-class instance initialized from proto obj
     return cls.read(proto)
 
 
-  def writeToFile(self, outp, packed=True):
+  def writeToFile(self, f, packed=True):
     """
     Write serialized object to file.
-    
-    :param outp: output 
+
+    :param f: output file
     :param packed: If true, will pack contents.
     """
     # Get capnproto schema from instance
@@ -117,6 +117,6 @@ class Serializable(object):
 
     # Finally, write to file
     if packed:
-      proto.write_packed(outp)
+      proto.write_packed(f)
     else:
-      proto.write(outp)
+      proto.write(f)
