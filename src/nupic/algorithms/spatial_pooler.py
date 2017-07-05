@@ -19,11 +19,15 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import capnp
 import numpy
+
 from nupic.bindings.math import (SM32 as SparseMatrix,
                                  SM_01_32_32 as SparseBinaryMatrix,
                                  GetNTAReal,
                                  Random as NupicRandom)
+from nupic.proto.SpatialPoolerProto_capnp import SpatialPoolerProto
+
 from nupic.math import topology
 from nupic.serializable import Serializable
 
@@ -1734,6 +1738,11 @@ class SpatialPooler(Serializable):
     # update version property to current SP version
     state['_version'] = VERSION
     self.__dict__.update(state)
+
+
+  @classmethod
+  def getSchema(cls):
+    return SpatialPoolerProto
 
 
   def write(self, proto):
