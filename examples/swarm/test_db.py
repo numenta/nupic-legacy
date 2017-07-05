@@ -65,10 +65,10 @@ def testDbConnection(host, port, user, passwd):
     cursor.execute("INSERT INTO db_test VALUES ('testing123', 123)")
     cursor.execute("DROP TABLE IF EXISTS db_test")
     cursor.execute("DROP DATABASE IF EXISTS nupic_db_test")
-    return True
 
   except pymysql.err.OperationalError:
-    return False
+    print "Error: failed to connect to database"
+    raise pymysql.err.OperationalError
 
 
 def dbValidator():
@@ -106,9 +106,10 @@ def dbValidator():
   print "    passwd :    ", "*" * len(passwd)
 
 
-  if testDbConnection(host, port, user, passwd):
+  try: 
+    testDbConnection(host, port, user, passwd)
     print "Connection successful!!"
-  else:
+  except pymysql.err.OperationalError:
     print ("Couldn't connect to the database or you don't have the "
            "permissions required to create databases and tables. "
            "Please ensure you have MySQL\n installed, running, "
