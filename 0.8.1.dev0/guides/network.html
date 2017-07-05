@@ -1,0 +1,407 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Network API Guide &#8212; NuPIC 0.8.1.dev0
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.8.1.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Swarming" href="swarming/index.html" />
+    <link rel="prev" title="OPF Guide" href="opf.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="network-api-guide">
+<span id="network-api-guide"></span><h1>Network API Guide<a class="headerlink" href="#network-api-guide" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference external" href="../api/network/">Network API Documentation</a></li>
+<li><a class="reference external" href="../quick-start/network.html">Network API Quick Start</a></li>
+</ul>
+<p><a class="reference external" href="https://www.youtube.com/watch?v=g9yS9zFt3dM"><img alt="Thumbnail of Network API video" src="../_images/network-api-video.jpg" /></a></p>
+<div class="section" id="introduction">
+<span id="introduction"></span><h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The Numenta Platform for Intelligent Computing (NuPIC) allows programmers to design, create, train, test, and deploy Hierarchical Temporary Memory (HTM) technology for streaming data.
+NuPIC consists of a Network Engine library along with layered software including examples and frameworks.
+Core HTM functionality is provided by the Network Engine, which can create and manipulate HTM Networks.</p>
+</div>
+<div class="section" id="goals-and-technical-requirements">
+<span id="goals-and-technical-requirements"></span><h2>Goals and Technical Requirements<a class="headerlink" href="#goals-and-technical-requirements" title="Permalink to this headline">¶</a></h2>
+<p>An HTM Network is a collection of Regions that implement HTM algorithms and other algorithms.
+The Network Engine allows users to create and manipulate HTM Networks, including:</p>
+<ul class="simple">
+<li>Creating, saving, and loading networks</li>
+<li>Configuring networks</li>
+<li>Running networks</li>
+<li>Querying networks</li>
+</ul>
+<p>The design goals of the Network Engine were:</p>
+<ul class="simple">
+<li>Provide all essential functionality for using HTM Networks, but no more.
+Additional functionality will be provided by layered libraries.</li>
+<li>Excellent performance.
+The Network Engine should add negligible overhead.</li>
+<li>Easy to understand and use.
+The API should be consistent and easy to learn; it should not use fancy or obscure language features.</li>
+<li>Clean architecture and transparent behavior.
+A &#8220;Network&#8221; is a Network, not a proxy; no asynchronous operation; exceptions propagate directly to the caller and the call stack is visible and comprehensible.</li>
+<li>Easy to add support for new algorithms.
+Modular architecture for algorithms; isolate algorithm developers from needing to know much about Network Engine internals.</li>
+</ul>
+</div>
+<div class="section" id="overview-of-the-network-engine">
+<span id="overview-of-the-network-engine"></span><h2>Overview of the Network Engine<a class="headerlink" href="#overview-of-the-network-engine" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="network-structure">
+<span id="network-structure"></span><h3>Network Structure<a class="headerlink" href="#network-structure" title="Permalink to this headline">¶</a></h3>
+<p>The key structural features of this network are:</p>
+<ul class="simple">
+<li>A network is composed of zero or more named regions.</li>
+<li>A region has zero or more named inputs and zero or more named outputs.</li>
+<li>The output of one region may be connected to the input of another region with a link.
+While the figure does not show it, an input may be linked to multiple outputs and vice-versa.</li>
+</ul>
+</div>
+<div class="section" id="object-model">
+<span id="object-model"></span><h3>Object Model<a class="headerlink" href="#object-model" title="Permalink to this headline">¶</a></h3>
+<p>The Network Engine is a library written in C++, using an object-oriented design.</p>
+<p>The Network Engine defines a class corresponding to each of the components shown in Figure 1.
+Each of these is discussed in more detail in the next section:</p>
+<ul class="simple">
+<li>Network</li>
+<li>Region</li>
+<li>Input</li>
+<li>Output</li>
+<li>Link</li>
+</ul>
+<p>Additionally, the <code class="docutils literal"><span class="pre">RegionImpl</span></code> class provides a base class for different region types (each of which can implement a separate algorithm).
+The <code class="docutils literal"><span class="pre">LinkPolicy</span></code> class provides a base class for different link behaviors.</p>
+<p>A few other auxiliary classes are present in the API, including <code class="docutils literal"><span class="pre">NodeSpec</span></code>, <code class="docutils literal"><span class="pre">Collections</span></code>, and <code class="docutils literal"><span class="pre">Dimensions</span></code>.</p>
+<p>Note: As of 10/2010, a Region is logically a collection of one or more nodes, and there is a corresponding node class.
+It is possible that we will remove nodes from the object model.
+Because of this, nodes and region functionality related to nodes are not described in this document.</p>
+</div>
+<div class="section" id="internal-and-external-api">
+<span id="internal-and-external-api"></span><h3>Internal and External API<a class="headerlink" href="#internal-and-external-api" title="Permalink to this headline">¶</a></h3>
+<p>NuPIC users access the Network Engine through the Core API.
+The Core API does not include the full object model.
+Only the Network and Region classes are exposed to users, and only a subset of their methods (&#8220;public external&#8221; methods, as described below) is seen by users.
+Other classes and methods are only used internally by the Network Engine.
+The details of how methods are selectively exposed in the Core API are described in the Language Bindings Design document.</p>
+<p>There are three types of methods in the Network Engine object model.</p>
+<ul class="simple">
+<li>Public/external methods are declared &#8220;public&#8221; in the C++ definition and are exposed in the Core API. They are also called internally within the Network Engine.</li>
+<li>Public/internal methods are declared &#8220;public&#8221; in the C++ definition and are not exposed in the Core API. They are used internally by other classes within the Network Engine.</li>
+<li>Private methods are declared &#8220;private&#8221; in the C++ definition and are only available to the class for which they are defined.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="network-engine-classes">
+<span id="network-engine-classes"></span><h2>Network Engine Classes<a class="headerlink" href="#network-engine-classes" title="Permalink to this headline">¶</a></h2>
+<p>This section gives an overview of each important class.
+It assumes that the reader has access to header and implementation files in <code class="docutils literal"><span class="pre">nta/*</span></code>.</p>
+<div class="section" id="network">
+<span id="network"></span><h3>Network<a class="headerlink" href="#network" title="Permalink to this headline">¶</a></h3>
+<p>Network is the &#8220;root&#8221; object in the Network Engine.
+All other objects are contained within a Network object, either directly or indirectly.
+A Network can be saved to a network bundle, loaded from a network bundle, or constructed programmatically (see &#8220;Network Serialization&#8221;, below).
+All of the Network public API is also external.
+There are no public/internal methods.</p>
+<p>Conceptually, a network is just a container of regions, with links between those regions.
+A network can be constructed programmatically by adding regions with <code class="docutils literal"><span class="pre">addRegion()</span></code> and linking them together with link().</p>
+<p>The main data members of Network are a Collection of Regions, and a data structure that contains a set of regions at each phase.
+The Network owns the Regions, which are destroyed in the Network destructor.
+This is really all there is to it.
+Some components in Figure 1 you might expect to be contained directly by Network, but are not.
+As described below, Region Inputs and Outputs are owned by Region; Links are owned by Region inputs.</p>
+<p>A Network must be initialized before it can run. Network initialization can be explicit but is usually done implicitly when <code class="docutils literal"><span class="pre">run()</span></code> is called.
+Initialization is discussed in more detail in the &#8220;Initialization&#8221; section below.</p>
+<p>Two pieces of information replicated between the Network and its contained regions.
+The first is the region name, which is needed by the region to be able to produce good error messages.
+It also appears as the key in the Network&#8217;s Region collection, where it is used to retrieve a Region by name.
+The second is the phase information, which the network stores in a way that allows it so quickly select all regions at a given phase, and which the Region stores to facilitate serialization.
+The network controls both pieces of information, and there is no public/external API on Region to set the name or phase of a Region.</p>
+</div>
+<div class="section" id="region">
+<span id="region"></span><h3>Region<a class="headerlink" href="#region" title="Permalink to this headline">¶</a></h3>
+<p>A Region is the fundamental computational unit in an HTM.
+A Region has inputs and outputs, and has a <code class="docutils literal"><span class="pre">compute()</span></code> method that generates the outputs (from inputs, internal state, and perhaps external data sources, such as a file).
+A Region without inputs is known as a sensor, and a Region without outputs is known as an effector.
+A Region owns its inputs and outputs, and is responsible for choreographing their initialization.</p>
+<p>A Region caches the following values.
+These values are not needed for any computation.</p>
+<ul class="simple">
+<li>name &#8211; needed for good error messages</li>
+<li>network &#8211; needed by inspectors that start with one region but can open inspectors for other regions</li>
+<li>phase &#8211; needed for serialization (more convenient to store with the region than with the network) and <code class="docutils literal"><span class="pre">region.getPhases()</span></code></li>
+</ul>
+<p>Most of the real work of a Region (<code class="docutils literal"><span class="pre">compute()</span></code> and <code class="docutils literal"><span class="pre">execute()</span></code> methods, getting and setting parameters) is delegated to a <code class="docutils literal"><span class="pre">RegionImpl</span></code>.
+Each Region contains a single <code class="docutils literal"><span class="pre">RegionImpl</span></code>, which is gets from the <code class="docutils literal"><span class="pre">RegionImplFactory</span></code>.
+A <code class="docutils literal"><span class="pre">RegionImpl</span></code> determines what inputs, outputs, and parameters a Region has.</p>
+<p>The Region can profile itself, recording accumulated time in <code class="docutils literal"><span class="pre">compute()</span></code> and in <code class="docutils literal"><span class="pre">execute()</span></code> methods.</p>
+<p>Each Region has a set of <code class="docutils literal"><span class="pre">setParameter</span></code>/<code class="docutils literal"><span class="pre">getParameter</span></code> methods.
+These methods are typed (e.g. <code class="docutils literal"><span class="pre">getParameterInt32</span></code>) but not templated for several interacting reasons.
+They are typed because a typed interface is much faster than an untyped interface (as in NuPIC 1) in which all values are converted to/from strings.
+The typed methods could have been overloaded (for <code class="docutils literal"><span class="pre">setParameter</span></code> only) but SWIG generates very slow code in this case.
+They could not be templated because they are passed through to <code class="docutils literal"><span class="pre">RegionImpl</span></code>, and templated methods on <code class="docutils literal"><span class="pre">RegionImpl</span></code> could not be overridden by subclasses (which is the whole point).</p>
+<p>The <code class="docutils literal"><span class="pre">prepareInputs()</span></code> method of Region evaluates all of the incoming links and copies necessary data into each of the Region&#8217;s inputs.</p>
+</div>
+<div class="section" id="regionimpl">
+<span id="regionimpl"></span><h3>RegionImpl<a class="headerlink" href="#regionimpl" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">RegionImpl</span></code> does all of the algorithm-specific work of a Region.
+It is a base class from which the actual algorithm-specific class is derived.
+Region types implemented in C++ are derived directly from <code class="docutils literal"><span class="pre">RegionImpl</span></code>.
+The <code class="docutils literal"><span class="pre">PyNodeBase</span></code> class, which can load any Region type defined in Python, is also derived from <code class="docutils literal"><span class="pre">RegionImpl</span></code>.</p>
+<p>All of the setup of inputs and outputs is done by the Region container.
+This allows <code class="docutils literal"><span class="pre">RegionImpl</span></code> to focus on computation and parameter management.</p>
+<p>A call to <code class="docutils literal"><span class="pre">Network::run()</span></code> goes to <code class="docutils literal"><span class="pre">Region::compute()</span></code> and then to <code class="docutils literal"><span class="pre">RegionImpl::compute()</span></code> &#8211;
+these will all be visible in a stack trace from inside <code class="docutils literal"><span class="pre">RegionImpl::compute()</span></code>.
+In this sense, network computation is transparent, which was one of the design goals &#8211;
+there are no proxies and no asynchronous behavior (unlike in the previous version of NuPIC).</p>
+<p>The <code class="docutils literal"><span class="pre">RegionImpl</span></code> supplies (via a class method) the RegionSpec for the type of Region it implements.
+The <code class="docutils literal"><span class="pre">RegionSpec</span></code> includes a list of inputs, outputs, parameters, and execute methods.</p>
+</div>
+<div class="section" id="output">
+<span id="output"></span><h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
+<p>An Output is essentially a contiguous buffer of typed data (in the <code class="docutils literal"><span class="pre">data_</span></code> member), plus a list of Links whose source is that Output.
+The buffer is not allocated when the Output is created, but in the <code class="docutils literal"><span class="pre">initialize()</span></code> method, which is called (indirectly) at Network initialization time.</p>
+<p>Output objects are allocated in the Region constructor, which creates an Output for each output specified in the <code class="docutils literal"><span class="pre">RegionSpec</span></code>.</p>
+<p>The size of the Output buffer is specified by the <code class="docutils literal"><span class="pre">RegionImpl</span></code> (via <code class="docutils literal"><span class="pre">getNodeOutputElementCount</span></code>), i.e.:</p>
+<ul class="simple">
+<li>Region creates Output.</li>
+<li>Region creates <code class="docutils literal"><span class="pre">RegionImpl</span></code>.</li>
+<li>Region queries <code class="docutils literal"><span class="pre">RegionImpl</span></code> for output buffer size.</li>
+<li>During initialization, Region asks Output to allocate buffer of given size.</li>
+</ul>
+<p>(Note: currently, the output size is calculated from the <code class="docutils literal"><span class="pre">NodeOutputElementCount</span></code> times the number of nodes in the Region.
+If we move to one node per Region, the output size will be given directly by the <code class="docutils literal"><span class="pre">RegionImpl</span></code>).</p>
+<p>The Output has a list of pointers to Links for which it is the source, but it does not own those links (links are owned by the Input on the other side).</p>
+</div>
+<div class="section" id="input">
+<span id="input"></span><h3>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h3>
+<p>An Input has similar structure to an Output &#8211;
+it has a contiguous buffer of typed data, plus a list of Links whose destination is that Input.
+Input objects are allocated in the Region constructor, which creates an Input for each input specified in the RegionSpec.</p>
+<p>The size of the Input buffer is determined by the incoming links &#8211;
+it is the sum of the sizes of connected Output buffers.
+The buffer is allocated in the last phase of network initialization, after Output buffers are allocated.</p>
+<p>The Input has a list of pointers to Links for which it is the destination.
+The Input is the owner of those Links, and the Links are deallocated in the Input destructor.
+The order of links matters, as this determines how output data is mapped into the input buffer.</p>
+<p>The Input design anticipates a future &#8220;zero copy&#8221; optimization for inputs.
+Currently, data is always copied from the source Output into the destination Input.
+If an Input has only a single incoming Link, then there is a one-to-one mapping between an Output and Input, and the Input buffer can simply be a pointer to the linked Output buffer.
+This optimization is deferred until there is a demonstrated need.</p>
+</div>
+<div class="section" id="link">
+<span id="link"></span><h3>Link<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h3>
+<p>A Link is logically a connection from one Output to one Input.
+Internally, the Link keeps track of this information in two ways.
+First, it contains strings with the names of the source and destination Regions and Input/Output.
+This information is used in serialization and de-serialization.
+Second, it contains pointers to the source Output and destination Input.
+These pointers are initialized at network initialization time, and make it possible to quickly traverse a link (get from source to destination or destination to source).</p>
+<p>An Input or Output may have multiple links.
+An example of an Input with multiple links is shown in Figure 2.
+The input buffer is essentially a concatenation of data in the output buffers.</p>
+<p>[Need to insert img here]</p>
+<p>The link also keeps track of its offset within its destination input buffer.
+The offset is calculated at Network initialization time, when all linking is complete.</p>
+<p>Note: in the current Region model, where a Region is a collection of nodes, a Link performs the node-level mapping between Output and Input.
+Specifically, it can generate a splitter map, or directly generate the input for a specific destination node.
+This functionality is not described here because it may be removed.
+A Link contains a <code class="docutils literal"><span class="pre">LinkPolicy</span></code>, also not described here, which is responsible for generating the splitter map.</p>
+</div>
+<div class="section" id="collection">
+<span id="collection"></span><h3>Collection<a class="headerlink" href="#collection" title="Permalink to this headline">¶</a></h3>
+<p>A Collection is a templatized container used throughout the API instead of STL containers.
+It is easy to wrap, because its interface is simpler than an STL interface, and it provides a consistent way to access collections of objects.
+A container provides lookup by name and index.
+In the external API, a container is always read-only.</p>
+</div>
+</div>
+<div class="section" id="specific-topics">
+<span id="specific-topics"></span><h2>Specific topics<a class="headerlink" href="#specific-topics" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="network-serialization">
+<span id="network-serialization"></span><h3>Network serialization<a class="headerlink" href="#network-serialization" title="Permalink to this headline">¶</a></h3>
+<p>Networks are serialized into a &#8220;bundle&#8221;, which is a directory with several files.
+Automatic Zip support (so that the network bundle can be distributed as a single file) is anticipated, but won&#8217;t be implemented until there is a demonstrated need.</p>
+<p>Each network bundle contains:</p>
+<ul class="simple">
+<li>A network structure file, network.yaml. This is a YAML-formatted file that specifies all of the regions and links in the file, but not the internal (<code class="docutils literal"><span class="pre">RegionImpl</span></code>) state of a region.</li>
+<li>One or more files for each <code class="docutils literal"><span class="pre">RegionImpl</span></code>, containing the state of the <code class="docutils literal"><span class="pre">RegionImpl</span></code>. For regions implemented in Python, this is usually the pickled state of the region. (Network bundles containing such pickled state cannot be safely shared because they essentially contain arbitrary code). The state of the first region is saved in files with a prefix &#8220;R0-&#8221;; the state of the next region is saved in files with the prefix &#8220;R1-&#8221;, and so on. The region name is not part of the filename, so that region names are not restricted to names allowed by the filesystem.</li>
+</ul>
+<p>Network serialization proceeds as follows:</p>
+<ul class="simple">
+<li>The Network serializes its structure to the network.yaml file.</li>
+<li>Iterates through its Regions, asking them to serialize their state (exclusive of <code class="docutils literal"><span class="pre">RegionImpl</span></code> state).</li>
+<li>Iterations through all of the links on all of the inputs on all of the regions, asking them to serialize their state.</li>
+<li>The Network asks each region to serialize its <code class="docutils literal"><span class="pre">RegionImpl</span></code> state to the bundle.</li>
+</ul>
+<p>Network de-serialization is the reverse of the serialization process.</p>
+</div>
+<div class="section" id="network-initialization">
+<span id="network-initialization"></span><h3>Network initialization<a class="headerlink" href="#network-initialization" title="Permalink to this headline">¶</a></h3>
+<p>Network initialization involves a complicated choreography.
+Much of the complication is related to inducing dimensions on Regions and making sure that all dimensions are consistent.
+That part of network initialization is not described here because Region dimensions may be removed from the API.</p>
+<ol class="simple">
+<li>(not described). Determine the dimensions of each Region through an iterative process of link evaluation.</li>
+<li>Allocate all Ouput buffers. Each Region has enough information to figure out the size of its outputs.</li>
+<li>Allocate all Input buffers. For each Input, the buffer size is determined by examining the incoming links and summing their source output sizes.</li>
+<li>Initialize the RegionImpl in each Region. The <code class="docutils literal"><span class="pre">RegionImpl</span></code> is given pointers to its input and output buffers, which it can safely cache.</li>
+<li>Set the minimum and maximum enabled phase for the Network.</li>
+</ol>
+</div>
+<div class="section" id="running-a-network">
+<span id="running-a-network"></span><h3>Running a network<a class="headerlink" href="#running-a-network" title="Permalink to this headline">¶</a></h3>
+<p>The main job of a Network is to choreograph Region computation by calling Region <code class="docutils literal"><span class="pre">compute()</span></code> methods in the right order.
+The network associates with each region a list of one or more integer phases.
+The method <code class="docutils literal"><span class="pre">run(n)</span></code> is best shown by pseudocode:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>for iteration in (1, …, n):
+  for phase in (minPhase, …, maxPhase):
+    for each region associated with this phase:
+      region.prepareInputs()
+      region.compute()
+  invoke all network callbacks
+</pre></div>
+</div>
+<p>A network callback is an arbitrary user-specified function that is called at every network iteration.
+An arbitrary number of network callbacks may be attached to a Network.
+Callbacks allow us to add functionality (such as watchers) without changing or expanding the Core API.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="opf.html">OPF Guide</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Network API Guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#goals-and-technical-requirements">Goals and Technical Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#overview-of-the-network-engine">Overview of the Network Engine</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#network-structure">Network Structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#object-model">Object Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#internal-and-external-api">Internal and External API</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#network-engine-classes">Network Engine Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#network">Network</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#region">Region</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#regionimpl">RegionImpl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#input">Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#link">Link</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#collection">Collection</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#specific-topics">Specific topics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#network-serialization">Network serialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#network-initialization">Network initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#running-a-network">Running a network</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="swarming/index.html">Swarming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anomaly-detection.html">Anomaly Detection</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/guides/network.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
