@@ -19,7 +19,6 @@ machine:
 dependencies:
   override:
     # Install all dependencies
-    - ./ci/circle/before_install-osx.sh
     - sudo pip install --upgrade pip
     - pip install --upgrade --user --ignore-installed setuptools wheel
     - pip install --use-wheel --user -r requirements.txt  --quiet || exit
