@@ -8,3 +8,4 @@ Guides
     network
     swarming/index
     anomaly-detection
+    serialization
