@@ -39,4 +39,4 @@ sudo pip install --upgrade pip
 pip install --upgrade --user --ignore-installed setuptools wheel
 
 echo "Installing Python dependencies"
-pip install --use-wheel --user -r bindings/py/requirements.txt  --quiet || exit
+pip install --use-wheel --user -r requirements.txt  --quiet || exit
