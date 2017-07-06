@@ -67,8 +67,13 @@ def testDbConnection(host, port, user, passwd):
     cursor.execute("DROP DATABASE IF EXISTS nupic_db_test")
 
   except pymysql.err.OperationalError:
-    print "Error: failed to connect to database"
-    raise pymysql.err.OperationalError
+    print ("Couldn't connect to the database or you don't have the "
+           "permissions required to create databases and tables. "
+           "Please ensure you have MySQL\n installed, running, "
+           "accessible using the NuPIC configuration settings, "
+           "and the user specified has permission to create both "
+           "databases and tables.")
+    raise
 
 
 def dbValidator():
@@ -106,16 +111,8 @@ def dbValidator():
   print "    passwd :    ", "*" * len(passwd)
 
 
-  try: 
-    testDbConnection(host, port, user, passwd)
-    print "Connection successful!!"
-  except pymysql.err.OperationalError:
-    print ("Couldn't connect to the database or you don't have the "
-           "permissions required to create databases and tables. "
-           "Please ensure you have MySQL\n installed, running, "
-           "accessible using the NuPIC configuration settings, "
-           "and the user specified has permission to create both "
-           "databases and tables.")
+  testDbConnection(host, port, user, passwd)
+  print "Connection successful!!"
 
 if __name__ == "__main__":
   dbValidator()
