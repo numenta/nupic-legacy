@@ -63,4 +63,5 @@ If you want to build the dependent `nupic.bindings` from source, you should buil
 - Build:
 [![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
 [![AppVeyor Status](https://ci.appveyor.com/api/projects/status/4toemh0qtr21mk6b/branch/master?svg=true)](https://ci.appveyor.com/project/numenta-ci/nupic/branch/master)
+[![CircleCI](https://circleci.com/gh/numenta/nupic.svg?style=svg)](https://circleci.com/gh/numenta/nupic)
 - To cite this codebase: [![DOI](https://zenodo.org/badge/19461/numenta/nupic.svg)](https://zenodo.org/badge/latestdoi/19461/numenta/nupic)
