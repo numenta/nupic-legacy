@@ -19,14 +19,18 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import capnp
+try:
+  import capnp
+except ImportError:
+  capnp = None
 import numpy
 
 from nupic.bindings.math import (SM32 as SparseMatrix,
                                  SM_01_32_32 as SparseBinaryMatrix,
                                  GetNTAReal,
                                  Random as NupicRandom)
-from nupic.proto.SpatialPoolerProto_capnp import SpatialPoolerProto
+if capnp:
+  from nupic.proto.SpatialPoolerProto_capnp import SpatialPoolerProto
 
 from nupic.math import topology
 from nupic.serializable import Serializable
