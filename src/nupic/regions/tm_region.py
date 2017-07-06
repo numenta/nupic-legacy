@@ -778,9 +778,9 @@ class TMRegion(PyRegion):
 
 
   @staticmethod
-  def getProtoType():
+  def getSchema():
     """
-    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getProtoType`.
+    Overrides :meth:`~nupic.bindings.regions.PyRegion.PyRegion.getSchema`.
     """
     return TMRegionProto
 

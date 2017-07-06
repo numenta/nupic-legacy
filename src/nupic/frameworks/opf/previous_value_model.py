@@ -131,7 +131,7 @@ class PreviousValueModel(model.Model):
 
 
   @staticmethod
-  def getProtoType():
+  def getSchema():
     return PreviousValueModelProto
 
 

@@ -318,7 +318,7 @@ class SDRClassifierRegion(PyRegion):
 
 
   @staticmethod
-  def getProtoType():
+  def getSchema():
     """
     :returns: the pycapnp proto type that the class uses for serialization.
     """

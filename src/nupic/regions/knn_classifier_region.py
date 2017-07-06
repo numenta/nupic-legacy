@@ -1202,7 +1202,7 @@ class KNNClassifierRegion(PyRegion):
       raise Exception('Unknown output: ' + name)
 
   @staticmethod
-  def getProtoType():
+  def getSchema():
     return KNNClassifierRegionProto
 
   @classmethod
