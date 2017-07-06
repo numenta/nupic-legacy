@@ -19,6 +19,9 @@ machine:
 dependencies:
   override:
     # Install all dependencies
+    - brew install mysql
+    - brew tap homebrew/services
+    - brew services start mysql
     - sudo pip install --upgrade pip
     - pip install --upgrade --user --ignore-installed setuptools wheel
     - pip install --use-wheel --user -r requirements.txt  --quiet || exit
