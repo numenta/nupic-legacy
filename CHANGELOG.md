@@ -31,7 +31,7 @@
 - Added Serializable to all classes with a capnp write function (#3710)
 - Safe import of capnp for moving average proto
 - getSchema returns prototype
-- Remove unused _readArray
+- Remove unused \_readArray
 - Rely on pycapnp/numpy native conversions in write/read
 - Add capnp conditionals for Windows
 - NUP-2351: Use dict directly instead of creating capnp message
@@ -44,16 +44,16 @@
 - Finished up first pass implementation of BacktrackingTM serialization
 - NUP-2350: capnp serialization for TwoGramModel
 - NUP-2449 Completed implementation of HTMPredictionModel serialization tests.
-- NUP-2463 Implemented test (disabled) to demonstrate the bug "Predicted field and __inferenceEnabled are not serialized by HTMPredictionModel.write"
+- NUP-2463 Implemented test (disabled) to demonstrate the bug "Predicted field and \_\_inferenceEnabled are not serialized by HTMPredictionModel.write"
 - OPF Guide cleanup and link fixes (#3700)
 - NUP-2355 Add new serialization to TestRegion
 - remove SVMClassifierNode (#3697)
 - handle scalar values in the sdr classifier region
-- NUP-2346: Add serialization to knn_classifier
+- NUP-2346: Add serialization to knn\_classifier
 - NUP-2458 Fixed and enabled SDRClassifierTest.testWriteReadNoComputeBeforeSerializing
-- NUP-2458 Implemented testWriteReadNoComputeBeforeSerializing in sdr_classifier_test.py that reproduces the "deque index out of bounds", but disabled the test, since it fails in a different way after the fix, most likely unrelated to the fix, which needs to be debugged
+- NUP-2458 Implemented testWriteReadNoComputeBeforeSerializing in sdr\_classifier\_test.py that reproduces the "deque index out of bounds", but disabled the test, since it fails in a different way after the fix, most likely unrelated to the fix, which needs to be debugged
 - NUP-2398 Refactor test comparing different configurations
-- NUP-2458 Prevent index out of bounds when saving `patternNZHistory` after fewer than _maxSteps input records have been processed.
+- NUP-2458 Prevent index out of bounds when saving `patternNZHistory` after fewer than \_maxSteps input records have been processed.
 - NUP-2458 Moved HTMPredictionModel serialization test to integration/opf
 - NUP-2449 Implement simple serialization/deserialzation tests. This exposed a number of problems that need to be fixed before we can make further progress.
 - update sdr classifier doc
