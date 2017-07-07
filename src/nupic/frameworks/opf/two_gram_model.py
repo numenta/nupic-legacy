@@ -144,7 +144,7 @@ class TwoGramModel(model.Model):
 
 
   @staticmethod
-  def getProtoType():
+  def getSchema():
     return TwoGramModelProto
 
 

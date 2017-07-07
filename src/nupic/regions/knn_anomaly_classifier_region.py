@@ -951,7 +951,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
 
 
   @staticmethod
-  def getProtoType():
+  def getSchema():
     return KNNAnomalyClassifierRegionProto
 
 

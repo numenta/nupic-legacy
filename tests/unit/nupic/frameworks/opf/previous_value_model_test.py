@@ -146,8 +146,8 @@ class PreviousValueModelTest(unittest.TestCase):
     # Deserialize
     m2 = previous_value_model.PreviousValueModel.read(readerProto)
 
-    self.assertIs(m1.getProtoType(), PreviousValueModelProto)
-    self.assertIs(m2.getProtoType(), PreviousValueModelProto)
+    self.assertIs(m1.getSchema(), PreviousValueModelProto)
+    self.assertIs(m2.getSchema(), PreviousValueModelProto)
 
     self.assertEqual(m2._numPredictions, m1._numPredictions)
     self.assertEqual(m2.getInferenceType(), m1.getInferenceType())
