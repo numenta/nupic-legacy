@@ -6,7 +6,14 @@ The Numenta Platform for Intelligent Computing (**NuPIC**) is a machine intellig
 
 For usage guides, quick starts, and API documentation, see <http://nupic.docs.numenta.org/>.
 
-## Installing NuPIC 0.5.5
+## This project is in Maintenance Mode
+
+We plan to do minor releases only, and limit changes in NuPIC and NuPIC Core to:
+
+- Fixing critical bugs.
+- Features needed to support ongoing research.
+
+## Installing NuPIC
 
 NuPIC binaries are available for:
 

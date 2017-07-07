@@ -1,5 +1,64 @@
 # Changelog
 
+## 1.0.0
+
+- Improved exception handling in /swarm/test_db.py (#3738)
+- DEVOPS-362 Remove unnecessary install script
+- DEVOPS-362 test removing dependency on install script entirely
+- DEVOPS-362 update install script
+- DEVOPS-362 Add initial version of missing install script
+- Added serialization guide to API docs. (#3737)
+- Put conditional around capnp for Windows
+- Complete new serialization in SpatialPooler
+- Catch nupic.core reference
+- NUP-2342: consolidate read/write into a single context
+- NUP-2342: Update examples to use capnp serialization
+- NUP-2341: Use capnp serialization for SDRClassifierDiff
+- NUP-2351: Remove TODOs from HTM Prediction Model test and fix  bugs exposed by this test
+- NUP-2351: Add serialization to KNNAnomalyClassifierRegion
+- NUP-2351: Fix KNNClassifier serialization
+- NUP-2349 Implemented testCapnpWriteRead test for PreviousValueModel OPF class. Implemented PreviousValueModel.getProtoType. Return instance from PreviousValueModel.read.
+- NUP-2349 Implemented capnp serialization of PreviousValueModel
+- Put capnp import checks in place for Windows
+- Add serialization tests for TMRegion
+- NUP-2463 Serialize inferenceArgs, learningEnabled, and inferenceEnabled in opf Model.
+- Add support for different TM types in TMRegion serialization
+- Added Serializable to API docs, and inheritence links
+- Fixed Next ID value in comment in model.capnp
+- NUP-2464 Integrated ModelProto support into opf TwoGramModel.
+- Fixed input to SP in docs algo example (#3708)
+- NUP-2464 Serialize numPredictions and inferenceType via ModelProto member of HTMPredictionModelProto.
+- Added Serializable to all classes with a capnp write function (#3710)
+- Safe import of capnp for moving average proto
+- getSchema returns prototype
+- Remove unused \_readArray
+- Rely on pycapnp/numpy native conversions in write/read
+- Add capnp conditionals for Windows
+- NUP-2351: Use dict directly instead of creating capnp message
+- Fixed Serializable extensions
+- Fix CPP breakages from changes
+- NUP-2351: Add capnp serialization to KNNClassifierRegion
+- Fix everything up to get serialization tests working with capnp serialization for BacktrackingTM
+- Added getSchema to MovingAverage
+- Added Serializable to all classes with a capnp write function
+- Finished up first pass implementation of BacktrackingTM serialization
+- NUP-2350: capnp serialization for TwoGramModel
+- NUP-2449 Completed implementation of HTMPredictionModel serialization tests.
+- NUP-2463 Implemented test (disabled) to demonstrate the bug "Predicted field and \_\_inferenceEnabled are not serialized by HTMPredictionModel.write"
+- OPF Guide cleanup and link fixes (#3700)
+- NUP-2355 Add new serialization to TestRegion
+- remove SVMClassifierNode (#3697)
+- handle scalar values in the sdr classifier region
+- NUP-2346: Add serialization to knn\_classifier
+- NUP-2458 Fixed and enabled SDRClassifierTest.testWriteReadNoComputeBeforeSerializing
+- NUP-2458 Implemented testWriteReadNoComputeBeforeSerializing in sdr\_classifier\_test.py that reproduces the "deque index out of bounds", but disabled the test, since it fails in a different way after the fix, most likely unrelated to the fix, which needs to be debugged
+- NUP-2398 Refactor test comparing different configurations
+- NUP-2458 Prevent index out of bounds when saving `patternNZHistory` after fewer than \_maxSteps input records have been processed.
+- NUP-2458 Moved HTMPredictionModel serialization test to integration/opf
+- NUP-2449 Implement simple serialization/deserialzation tests. This exposed a number of problems that need to be fixed before we can make further progress.
+- update sdr classifier doc
+
+
 ## 0.8.0
 
 * Document ExperimentDescriptionAPI (#3679)
@@ -677,7 +736,7 @@ https://discourse.numenta.org/t/warning-0-7-0-breaking-changes/2200
 * GCE now encodes altitude using a 3D coordinate system.
 * Distributing `*.i` files from `nupic.bindings` in binary packages.
 * Updates test entry points to pure python. README instructions for running tests were updated.
-* Missing configuration files are no longer ignored. A runtime exception is raised immediately when an expected configuration file is not found. 
+* Missing configuration files are no longer ignored. A runtime exception is raised immediately when an expected configuration file is not found.
 * Updated deployment logic to account for both deployment scenarios (iterative and release).
 * Configured pypi deployment on all branches with tags.
 * Added pypi deployment configuration for binary releases.
