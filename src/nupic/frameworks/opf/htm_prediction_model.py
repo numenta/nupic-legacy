@@ -1314,7 +1314,7 @@ class HTMPredictionModel(Model):
 
 
   @staticmethod
-  def getProtoType():
+  def getSchema():
     return HTMPredictionModelProto
 
 

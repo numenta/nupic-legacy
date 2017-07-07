@@ -214,7 +214,7 @@ class Model(Serializable):
     return self.__inferenceEnabled
 
   @staticmethod
-  def getProtoType():
+  def getSchema():
     """Return the pycapnp proto type that the class uses for serialization.
 
     This is used to convert the proto into the proper type before passing it
@@ -236,7 +236,7 @@ class Model(Serializable):
 
   def writeToCheckpoint(self, checkpointDir):
     """Serializes model using capnproto and writes data to ``checkpointDir``"""
-    proto = self.getProtoType().new_message()
+    proto = self.getSchema().new_message()
 
     self.write(proto)
 
@@ -268,7 +268,7 @@ class Model(Serializable):
     checkpointPath = cls._getModelCheckpointFilePath(checkpointDir)
 
     with open(checkpointPath, 'r') as f:
-      proto = cls.getProtoType().read(f)
+      proto = cls.getSchema().read(f)
 
     model = cls.read(proto)
     return model
@@ -294,7 +294,7 @@ class Model(Serializable):
   def write(self, proto):
     """Write state to proto object.
 
-    The type of proto is determined by :meth:`getProtoType`.
+    The type of proto is determined by :meth:`getSchema`.
     """
     raise NotImplementedError()
 
@@ -303,7 +303,7 @@ class Model(Serializable):
   def read(cls, proto):
     """Read state from proto object.
 
-    The type of proto is determined by :meth:`getProtoType`.
+    The type of proto is determined by :meth:`getSchema`.
     """
     raise NotImplementedError()
 
