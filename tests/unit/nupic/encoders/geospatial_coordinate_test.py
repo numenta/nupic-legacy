@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
@@ -6,26 +5,35 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
 import numpy as np
+import tempfile
 import unittest
 
 from nupic.encoders.base import defaultDtype
-from nupic.encoders.geospatial_coordinate import (
-  GeospatialCoordinateEncoder)
+from nupic.encoders.geospatial_coordinate import GeospatialCoordinateEncoder
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.geospatial_coordinate_capnp import (
+    GeospatialCoordinateEncoderProto
+  )
 
 # Disable warnings about accessing protected members
 # pylint: disable=W0212
@@ -60,7 +68,7 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
 
     # see WGS80 defining parameters (semi-major axis) on
     # http://en.wikipedia.org/wiki/Geodetic_datum#Parameters_for_some_geodetic_systems
-    self.assertEqual(coordinate.tolist(), [6378137, 0, 0])  
+    self.assertEqual(coordinate.tolist(), [6378137, 0, 0])
 
 
   def testCoordinateForPositionOrigin(self):
@@ -132,7 +140,7 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
     overlap1 = overlap(encoding1, encoding2)
     overlap2 = overlap(encoding1, encoding3)
 
-    self.assertTrue(overlap1 > overlap2)
+    self.assertGreater(overlap1, overlap2)
 
 
   def testEncodeIntoArray3D(self):
@@ -149,13 +157,47 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
     overlap1 = overlap(encoding1, encoding2)
     overlap2 = overlap(encoding1, encoding3)
 
-    self.assertTrue(overlap1 > overlap2)
+    self.assertGreater(overlap1, overlap2)
+
+
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
+  def testReadWrite(self):
+    scale = 30 # meters
+    timestep = 60 # seconds
+    speed = 2.5 # meters per second
+    original = GeospatialCoordinateEncoder(scale, timestep, n=999, w=25)
+    encode(original, speed, -122.229194, 37.486782, 0)
+    encode(original, speed, -122.229294, 37.486882, 100)
+
+    proto1 = GeospatialCoordinateEncoderProto.new_message()
+    original.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = GeospatialCoordinateEncoderProto.read(f)
+
+    encoder = GeospatialCoordinateEncoder.read(proto2)
+
+    self.assertIsInstance(encoder, GeospatialCoordinateEncoder)
+    self.assertEqual(encoder.w, original.w)
+    self.assertEqual(encoder.n, original.n)
+    self.assertEqual(encoder.name, original.name)
+    self.assertEqual(encoder.verbosity, original.verbosity)
+
+    # Compare a new value with the original and deserialized.
+    encoding3 = encode(original, speed, -122.229294, 37.486982, 1000)
+    encoding4 = encode(encoder, speed, -122.229294, 37.486982, 1000)
+    self.assertTrue(np.array_equal(encoding3, encoding4))
 
 
 def encode(encoder, speed, longitude, latitude, altitude=None):
   output = np.zeros(encoder.getWidth(), dtype=defaultDtype)
   encoder.encodeIntoArray((speed, longitude, latitude, altitude), output)
   return output
+
 
 def overlap(sdr1, sdr2):
   assert sdr1.size == sdr2.size

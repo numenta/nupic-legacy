@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -6,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -32,7 +31,8 @@ from optparse import OptionParser
 
 from nupic.data.file_record_stream import FileRecordStream
 
-###########################################################################
+
+
 def _generateCategory(filename="simple.csv", numSequences=2, elementsPerSeq=1, 
                     numRepeats=10, resets=False):
   """ Generate a simple dataset. This contains a bunch of non-overlapping
@@ -53,7 +53,7 @@ def _generateCategory(filename="simple.csv", numSequences=2, elementsPerSeq=1,
   scriptDir = os.path.dirname(__file__)
   pathname = os.path.join(scriptDir, 'datasets', filename)
   print "Creating %s..." % (pathname)
-  fields = [('reset', 'int', 'R'), ('category', 'string', ''), 
+  fields = [('reset', 'int', 'R'), ('category', 'int', 'C'),
             ('field1', 'string', '')]  
   outFile = FileRecordStream(pathname, write=True, fields=fields)
   
@@ -77,9 +77,9 @@ def _generateCategory(filename="simple.csv", numSequences=2, elementsPerSeq=1,
       reset = 0
 
   outFile.close()
-  
-  
-###########################################################################
+
+
+
 def _generateScalar(filename="simple.csv", numSequences=2, elementsPerSeq=1, 
                     numRepeats=10, stepSize=0.1, resets=False):
   """ Generate a simple dataset. This contains a bunch of non-overlapping
@@ -101,7 +101,7 @@ def _generateScalar(filename="simple.csv", numSequences=2, elementsPerSeq=1,
   scriptDir = os.path.dirname(__file__)
   pathname = os.path.join(scriptDir, 'datasets', filename)
   print "Creating %s..." % (pathname)
-  fields = [('reset', 'int', 'R'), ('category', 'string', ''), 
+  fields = [('reset', 'int', 'R'), ('category', 'int', 'C'),
             ('field1', 'float', '')]  
   outFile = FileRecordStream(pathname, write=True, fields=fields)
   
@@ -125,8 +125,9 @@ def _generateScalar(filename="simple.csv", numSequences=2, elementsPerSeq=1,
       reset = 0
 
   outFile.close()
-  
-###########################################################################
+
+
+
 def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=3, 
                     numRepeats=10, hub=[0,1], hubOffset=1, resets=False):
   
@@ -153,7 +154,7 @@ def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=
   scriptDir = os.path.dirname(__file__)
   pathname = os.path.join(scriptDir, 'datasets', filename)
   print "Creating %s..." % (pathname)
-  fields = [('reset', 'int', 'R'), ('category', 'string', ''), 
+  fields = [('reset', 'int', 'R'), ('category', 'int', 'C'),
             ('field1', 'string', '')]  
   outFile = FileRecordStream(pathname, write=True, fields=fields)
   
@@ -190,10 +191,9 @@ def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=
       reset = 0
 
   outFile.close()
-  
-  
-               
-##############################################################################
+
+
+
 if __name__ == '__main__':
 
   helpString = \
@@ -231,10 +231,10 @@ if __name__ == '__main__':
   _generateCategory('category_SP_1.csv', numSequences=50, elementsPerSeq=1, 
                   numRepeats=20)
   
-  _generateCategory('category_TP_0.csv', numSequences=2, elementsPerSeq=5, 
+  _generateCategory('category_TM_0.csv', numSequences=2, elementsPerSeq=5,
                   numRepeats=30)
   
-  _generateCategory('category_TP_1.csv', numSequences=10, elementsPerSeq=5, 
+  _generateCategory('category_TM_1.csv', numSequences=10, elementsPerSeq=5,
                   numRepeats=20)
 
   _generateOverlapping('category_hub_TP_0.csv', numSequences=10, elementsPerSeq=5, 
@@ -246,10 +246,10 @@ if __name__ == '__main__':
   _generateScalar('scalar_SP_0.csv', numSequences=2, elementsPerSeq=1, 
                   numRepeats=20, stepSize=0.1, resets=False)
   
-  _generateScalar('scalar_TP_0.csv', numSequences=2, elementsPerSeq=5, 
+  _generateScalar('scalar_TM_0.csv', numSequences=2, elementsPerSeq=5,
                   numRepeats=20, stepSize=0.1, resets=False)
   
-  _generateScalar('scalar_TP_1.csv', numSequences=10, elementsPerSeq=5, 
+  _generateScalar('scalar_TM_1.csv', numSequences=10, elementsPerSeq=5,
                   numRepeats=20, stepSize=0.1, resets=False)
   
   

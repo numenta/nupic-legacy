@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -6,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -31,7 +30,8 @@ from optparse import OptionParser
 
 from nupic.data.file_record_stream import FileRecordStream
 
-###########################################################################
+
+
 def _generateSimple(filename="simple.csv", numSequences=2, elementsPerSeq=1, 
                     numRepeats=10, resets=False):
   """ Generate a simple dataset. This contains a bunch of non-overlapping
@@ -79,7 +79,7 @@ def _generateSimple(filename="simple.csv", numSequences=2, elementsPerSeq=1,
   outFile.close()
 
 
-###########################################################################
+
 def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=3, 
                     numRepeats=10, hub=[0,1], hubOffset=1, resets=False):
   
@@ -146,7 +146,7 @@ def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=
   outFile.close()
   
 
-###########################################################################
+
 def _generateFirstOrder0():
   """ Generate the initial, first order, and second order transition
   probabilities for 'probability0'. For this model, we generate the following
@@ -231,7 +231,6 @@ def _generateFirstOrder0():
 
 
 
-###########################################################################
 def _generateFileFromProb(filename, numRecords, categoryList, initProb, 
       firstOrderProb, secondOrderProb, seqLen, numNoise=0, resetsEvery=None):
   """ Generate a set of records reflecting a set of probabilities.
@@ -374,7 +373,7 @@ def _generateFileFromProb(filename, numRecords, categoryList, initProb,
   outFile.close()
 
 
-##############################################################################
+
 if __name__ == '__main__':
 
   helpString = \

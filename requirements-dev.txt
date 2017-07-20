@@ -1,0 +1,7 @@
+# for documentation
+sphinx==1.5.3
+sphinx-autobuild==0.6.0
+recommonmark==0.4.0
+# for network visualization
+networkx==1.11
+

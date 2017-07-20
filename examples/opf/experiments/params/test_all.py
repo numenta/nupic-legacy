@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -6,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -26,7 +25,7 @@ import os
 from pprint import pprint
 import time
 
-from nupic.frameworks.opf import opfhelpers
+from nupic.frameworks.opf import helpers
 from nupic.frameworks.opf.client import Client
 
 # Experiment directories relative to "trunk/examples/opf/experiments."
@@ -39,7 +38,7 @@ def testAll(experiments):
   for experiment in experiments:
     experimentBase = os.path.join(os.getcwd(), experimentsDir, experiment)
 
-    config, control = opfhelpers.loadExperiment(experimentBase)
+    config, control = helpers.loadExperiment(experimentBase)
 
     if control['environment'] == 'opfExperiment':
       experimentTasks = control['tasks']
@@ -53,8 +52,8 @@ def testAll(experiments):
 
     datasetPath = datasetURI[len("file://"):]
     for i in xrange(1024, 2176, 128):
-      #config['modelParams']['tpParams']['cellsPerColumn'] = 16
-      config['modelParams']['tpParams']['columnCount'] = i
+      #config['modelParams']['tmParams']['cellsPerColumn'] = 16
+      config['modelParams']['tmParams']['columnCount'] = i
       config['modelParams']['spParams']['columnCount'] = i
       print 'Running with 32 cells per column and %i columns.' % i
       start = time.time()

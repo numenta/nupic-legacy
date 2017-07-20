@@ -10,9 +10,9 @@ automating and running isolated linux containers.  Vagrant provides a
 high-level interface for provisioning and launching VMs
 
 Before you begin, install Vagrant from
-https://www.vagrantup.com/downloads.html, checkout this repository from
+https://www.vagrantup.com/downloads.html, clone this repository from
 https://github.com/numenta/nupic, and cd into
-`vagrant-coreos-docker`.
+`nupic/coreos-vagrant`.
 
 Bring up vm with vagrant and log in:
 

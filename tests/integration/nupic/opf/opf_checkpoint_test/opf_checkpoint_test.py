@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -6,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -25,10 +24,15 @@ import os
 import shutil
 
 from nupic.data.file_record_stream import FileRecordStream
-from nupic.frameworks.opf.experiment_runner import runExperiment
+from nupic.frameworks.opf.experiment_runner import runExperiment, getCheckpointParentDir
 from nupic.support import initLogging
 from nupic.support.unittesthelpers.testcasebase import (
     unittest, TestCaseBase as HelperTestCaseBase)
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
 
 _EXPERIMENT_BASE = os.path.join(os.path.abspath(
     os.path.dirname(__file__)), "experiments")
@@ -43,22 +47,6 @@ class MyTestCaseBase(HelperTestCaseBase):
     of docstrings in the report.
     """
     return None
-
-
-  @staticmethod
-  def getOpfNonTemporalPredictionFilepath(experimentDir, taskLabel):
-    path = os.path.join(experimentDir,
-                        "inference",
-                        "%s.nontemporal.predictionLog.csv" % taskLabel)
-    return os.path.abspath(path)
-
-
-  @staticmethod
-  def getOpfTemporalPredictionFilepath(experimentDir, taskLabel):
-    path = os.path.join(experimentDir,
-                        "inference",
-                        "%s.temporal.predictionLog.csv" % taskLabel)
-    return os.path.abspath(path)
 
 
   def compareOPFPredictionFiles(self, path1, path2, temporal,
@@ -256,15 +244,27 @@ class MyTestCaseBase(HelperTestCaseBase):
     size = 2**27
     csv.field_size_limit(size)
 
-    rawFileObj = open(filepath, 'rU')
+    rawFileObj = open(filepath, 'r')
 
     csvReader = csv.reader(rawFileObj, dialect='excel')
 
     return csvReader
 
 
+  def _createExperimentArgs(self, experimentDir,
+                            newSerialization=False,
+                            additionalArgs=()):
+    args = []
+    args.append(experimentDir)
+    if newSerialization:
+      args.append("--newSerialization")
+    args += additionalArgs
+    return args
+
+
   def _testSamePredictions(self, experiment, predSteps, checkpointAt,
-                           predictionsFilename, additionalFields=None):
+                           predictionsFilename, additionalFields=None,
+                           newSerialization=False):
     """ Test that we get the same predictions out from the following two
     scenarios:
 
@@ -291,6 +291,7 @@ class MyTestCaseBase(HelperTestCaseBase):
     predictionsFilename: The name of the predictions file that the OPF
                   generates for this experiment (for example
                   'DefaulTask.NontemporalMultiStep.predictionLog.csv')
+    newSerialization: Whether to use new capnproto serialization.
     """
 
     # Get the 3 sub-experiment directories
@@ -299,16 +300,23 @@ class MyTestCaseBase(HelperTestCaseBase):
     bExpDir = os.path.join(_EXPERIMENT_BASE, experiment, "b")
 
     # Run a+b
-    _aPlusBExp = runExperiment(args=[aPlusBExpDir])
+    args = self._createExperimentArgs(aPlusBExpDir,
+                                      newSerialization=newSerialization)
+    _aPlusBExp = runExperiment(args)
 
     # Run a, the copy the saved checkpoint into the b directory
-    _aExp = runExperiment(args=[aExpDir])
+    args = self._createExperimentArgs(aExpDir,
+                                      newSerialization=newSerialization)
+    _aExp = runExperiment(args)
     if os.path.exists(os.path.join(bExpDir, 'savedmodels')):
       shutil.rmtree(os.path.join(bExpDir, 'savedmodels'))
     shutil.copytree(src=os.path.join(aExpDir, 'savedmodels'),
                     dst=os.path.join(bExpDir, 'savedmodels'))
 
-    _bExp = runExperiment(args=[bExpDir, '--load=DefaultTask'])
+    args = self._createExperimentArgs(bExpDir,
+                                      newSerialization=newSerialization,
+                                      additionalArgs=['--load=DefaultTask'])
+    _bExp = runExperiment(args)
 
     # Now, compare the predictions at the end of a+b to those in b.
     aPlusBPred = FileRecordStream(os.path.join(aPlusBExpDir, 'inference',
@@ -384,6 +392,11 @@ class MyTestCaseBase(HelperTestCaseBase):
       except StopIteration:
         break
 
+    # clean up model checkpoint directories
+    shutil.rmtree(getCheckpointParentDir(aExpDir))
+    shutil.rmtree(getCheckpointParentDir(bExpDir))
+    shutil.rmtree(getCheckpointParentDir(aPlusBExpDir))
+
     print "Predictions match!"
 
 
@@ -427,6 +440,23 @@ class PositiveTests(MyTestCaseBase):
         "DefaultTask.NontemporalMultiStep.predictionLog.csv")
 
 
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
+  def test_NonTemporalMultiStepNew(self):
+    """ Test that we get the same predictions out of a model that was
+    saved and reloaded from a checkpoint as we do from one that runs
+    continuously.
+
+    Uses new capnproto serialization.
+    """
+
+    self._testSamePredictions(
+        experiment="non_temporal_multi_step", predSteps=24, checkpointAt=250,
+        predictionsFilename=
+        "DefaultTask.NontemporalMultiStep.predictionLog.csv",
+        newSerialization=True)
+
+
   @unittest.skip("Currently Fails: NUP-1864")
   def test_TemporalMultiStep(self):
     """ Test that we get the same predictions out of a model that was
@@ -452,6 +482,8 @@ class PositiveTests(MyTestCaseBase):
       additionalFields=['anomalyScore'])
 
 
+  @unittest.skip("We aren't currently supporting serialization backward "
+                 "compatibility")
   def test_BackwardsCompatibility(self):
     """ Test that we can load in a checkpoint saved by an earlier version of
     the OPF.

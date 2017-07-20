@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
@@ -6,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -22,11 +21,11 @@
 
 import unittest
 
-from nupic.data.pattern_machine import ConsecutivePatternMachine
-from nupic.data.sequence_machine import SequenceMachine
-from nupic.research.temporal_memory import TemporalMemory
-from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
+from nupic.algorithms.monitor_mixin.temporal_memory_monitor_mixin import (
   TemporalMemoryMonitorMixin)
+from nupic.algorithms.temporal_memory import TemporalMemory
+from nupic.data.generators.pattern_machine import ConsecutivePatternMachine
+from nupic.data.generators.sequence_machine import SequenceMachine
 class MonitoredTemporalMemory(TemporalMemoryMonitorMixin, TemporalMemory): pass
 
 

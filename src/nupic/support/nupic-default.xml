@@ -1,0 +1,328 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Do not modify this file directly.  Instead, copy entries that you -->
+<!-- wish to modify from this file into nupic-site.xml and change them -->
+<!-- there.  If nupic-site.xml does not already exist, create it.      -->
+
+<configuration>
+
+<property>
+  <name>nupic.opf.sdrClassifier.implementation</name>
+  <value>cpp</value>
+  <description>The SDR classifier implementation to use by default. The current
+  options are 'py' and 'cpp'.
+  </description>
+</property>
+
+<property>
+  <name>nupic.opf.metricWindow</name>
+  <value>1000</value>
+  <description> The number of records over which average metrics
+  (eror, Grok Score, etc.) are computed. Must be greater than 1.
+  </description>
+</property>
+
+
+<!-- Anomaly Classification Properties -->
+<property>
+  <name>nupic.model.temporalAnomaly.wait_records</name>
+  <value>4000</value>
+  <description> The number of records to wait before classification begins.
+  Used to wait for anomaly scores to settle down before classifying anomalies. 
+  </description>
+</property>
+
+<property>
+  <name>nupic.model.temporalAnomaly.auto_detect_threshold</name>
+  <value>1.1</value>
+  <description>Threshold on the anomaly score used to identify anomalies.
+  Anomaly score ranges are between 0 and 1. If this value is set above 1, it
+  is the equivalent of turning auto classification off.
+  </description>
+</property>
+
+<property>
+  <name>nupic.model.temporalAnomaly.window_length</name>
+  <value>10000</value>
+  <description>The number of records back to store relevent information for
+  anomaly classification. These records will be recalculated when labels or
+  thresholds are updated.
+  </description>
+</property>
+
+<property>
+  <name>nupic.model.temporalAnomaly.anomaly_vector</name>
+  <value>tpc</value>
+  <description>Vector type used to classify anomalies. Types:
+    tpc - classify on active cells in the TP
+    sp_tpe - classify on the active SP columns concatenated with the predicted
+      TM columns that did not become active
+  </description>
+</property>
+
+<!-- database credentials, used for swarming -->
+
+<property>
+  <name>nupic.cluster.database.host</name>
+  <value>localhost</value>
+  <description>Name of the machine running the MySQL database server</description>
+</property>
+
+<property>
+  <name>nupic.cluster.database.user</name>
+  <value>root</value>
+  <description>Username for the MySQL database server </description>
+</property>
+
+<property>
+  <name>nupic.cluster.database.port</name>
+  <value>3306</value>
+  <description>Port number for the MySQL database server </description>
+</property>
+
+<property>
+  <name>nupic.cluster.database.passwd</name>
+  <value></value>
+  <description>Password for the MySQL database server </description>
+</property>
+
+<property>
+  <name>nupic.cluster.database.nameSuffix</name>
+  <value>${env.USER}</value>
+  <description>Suffix to place at the end of each database name.
+  </description>
+</property>
+
+<!-- Model checkpoint settings -->
+<property>
+  <name>nupic.model.checkpoint.maxPredictionRows</name>
+  <value>50000</value>
+  <description> Maximum number of prediction rows to save along with model
+  checkpoints.
+  </description>
+</property>
+
+<!--Hypersearch parameters-->
+<property>
+  <name>nupic.hypersearch.minParticlesPerSwarm</name>
+  <value>5</value>
+  <description>The minimum number of particles to create per swarm
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.speculative.particles.default</name>
+  <value>1</value>
+  <description>If true (not 0), hypersearch workers will go ahead and create
+  and run particles in subsequent sprints and generations before the current
+  generation or sprint has been completed. If false, a worker will wait in a
+  sleep loop until the current generation or sprint has finished before
+  choosing the next particle position or going into the next sprint. When true,
+  the best model can be found faster, but results are less repeatable due to
+  the randomness of when each worker completes each particle. This property
+  can be overridden via the speculativeParticles element of the Hypersearch
+  job params.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.max.field.branching</name>
+  <value>5</value>
+  <description>If > 0 at every sprint only the top n fields from the pair
+  sprint will be appended to the best model from the previous sprint. Usefull
+  feature for datasets with many fields. Also limits the maximum number of fields
+  that can be in the best model to this n.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.min.field.contribution</name>
+  <value>0.2</value>
+  <description>When adding fields in sprints only looks at fields that by themselves
+  contribute at least by n percent to improving the error
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.speculative.particles.sleepSecondsMax</name>
+  <value>10.0</value>
+  <description>
+  When a worker sleeps to honor nupic.hypersearch.speculative.particles, it
+  will sleep for a random amount of time between 0 and this value.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.maxUniqueModelAttempts</name>
+  <value>10</value>
+  <description>The max # of attempts we will make to create a unique model before
+    giving up and assuming all the possible positions in a swarm have been
+    evaluated.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.modelOrphanIntervalSecs</name>
+  <value>180</value>
+  <description>The max amount of time (in seconds) allowed before a model is
+  considered orphaned. At this point, it is available for being taken over
+  by another worker.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.maxPctErrModels</name>
+  <value>0.20</value>
+  <description>If this percent of the models in a hyperseach completed with
+  an error, abort the search.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.inertia</name>
+  <value>0.25</value>
+  <description>Weight given to the previous velocity of a particle in PSO.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.cogRate</name>
+  <value>0.25</value>
+  <description>This parameter controls how much the particle is affected by its
+  distance from it's local best position.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.socRate</name>
+  <value>1.0</value>
+  <description>This parameter controls how much the particle is affected by its
+  distance from the global best position.
+  </description>
+</property>
+
+
+<property>
+  <name>nupic.hypersearch.randomUpperBound</name>
+  <value>1.2</value>
+  <description>Upper bound for sampling a random number in the PSO.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.randomLowerBound</name>
+  <value>0.8</value>
+  <description>Lower bound for sampling a random number in the PSO.
+  </description>
+</property>
+
+
+<!-- Model Chooser Properties -->
+<property>
+  <name>nupic.hypersearch.bestModelMinRecords</name>
+  <value>1000</value>
+  <description> The minimum number of records for a model to be a candidate for
+  the 'best model' in a hypersearch job
+  </description>
+</property>
+
+
+<!-- Model Maturity/Termination properties -->
+<property>
+  <name>nupic.hypersearch.enableModelMaturity</name>
+  <value>0</value>
+  <description> Feature flag to enable model maturity. If set to 1, models can
+  be stopped early if their error scores level off. Otherwise, all models will
+  run till they are killed or until they run out of data
+  </description>
+</property>
+
+
+<property>
+  <name>nupic.hypersearch.maturityNumPoints</name>
+  <value>10</value>
+  <description> The number of points that model runner looks at to determine if
+  the model has matured. For example, if set to 10, the model runner will look at
+  the change over the LAST 10 points to see if the model has matured
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.maturityPctChange</name>
+  <value>0.005</value>
+  <description> Model maturity is determined by the averege percent change error
+  over time. This sets the maximum percent change (positive or negative) that a
+  model can have and still be considered 'mature'.
+  </description>
+</property>
+
+
+<property>
+  <name>nupic.hypersearch.enableSwarmTermination</name>
+  <value>0</value>
+  <description> Feature flag to enable swarm early termination. If set to 1,
+  poorly performing swarms (field combinations) will killed before the swarm
+  reaches maturation. 'Poor performance' is defined relative to other swarms
+  in the hypersearch
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.swarmMaturityWindow</name>
+  <value>2</value>
+  <description> If the best model for a swarm has remained unchanged for this
+  many generations, the swarm is considered mature.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.swarmMaxGenerations</name>
+  <value>10</value>
+  <description> The maximum number of generations a swarm (pso optimization)
+  can evolve before it is considered mature. Set to -1 to indicate infinite
+  generations.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.minWorkersPerSwarm</name>
+  <value>1</value>
+  <description> The minimum workers to allocate per swarm.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.maxWorkersPerSwarm</name>
+  <value>0</value>
+  <description> The maximum workers to allocate per swarm. Set to 0 to fall
+    back to "nupic.scheduler.default.maxSlotsPerJob".
+  </description>
+</property>
+
+<!-- Ensemble Properties-->
+
+<property>
+  <name>nupic.hypersearch.ensemble</name>
+  <value>0</value>
+  <description>If 1, predictions from every model are saved in hbase.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.minWorkersPerEnsemble</name>
+  <value>1</value>
+  <description> The minimum workers to allocate per ensemble.
+  </description>
+</property>
+
+<property>
+  <name>nupic.hypersearch.maxWorkersPerEnsemble</name>
+  <value>1</value>
+  <description> The maximum workers to allocate for an ensemble.
+  </description>
+</property>
+
+
+
+</configuration>

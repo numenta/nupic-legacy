@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -6,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -26,16 +25,19 @@ import csv
 import datetime
 import logging
 
-from nupic.data.datasethelpers import findDataset
+from pkg_resources import resource_filename
+
 from nupic.frameworks.opf.metrics import MetricSpec
-from nupic.frameworks.opf.modelfactory import ModelFactory
-from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
+from nupic.frameworks.opf.model_factory import ModelFactory
+from nupic.frameworks.opf.prediction_metrics_manager import MetricsManager
 
 import model_params
 
 _LOGGER = logging.getLogger(__name__)
 
-_DATA_PATH = "extra/hotgym/rec-center-hourly.csv"
+_INPUT_FILE_PATH = resource_filename(
+  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
+)
 
 _METRIC_SPECS = (
     MetricSpec(field='consumption', metric='multiStep',
@@ -52,7 +54,7 @@ _METRIC_SPECS = (
                params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': 1}),
 )
 
-_NUM_RECORDS = 1000
+_NUM_RECORDS = 4000
 
 
 
@@ -66,7 +68,7 @@ def runHotgym():
   model.enableInference({'predictedField': 'consumption'})
   metricsManager = MetricsManager(_METRIC_SPECS, model.getFieldInfo(),
                                   model.getInferenceType())
-  with open (findDataset(_DATA_PATH)) as fin:
+  with open (_INPUT_FILE_PATH) as fin:
     reader = csv.reader(fin)
     headers = reader.next()
     reader.next()

@@ -12,6 +12,9 @@ test.out
 *.swp
 *.coverage*
 
+# virtual environments
+venv/
+
 # build
 build/
 
@@ -28,15 +31,13 @@ nbproject/
 # Wheels
 wheelhouse/
 
-# swarming output files
-data/
-
 # output from integration tests
 inference/
 savedmodels/
 /*.please_wait
 /auto_specials*.csv
 /weighted_mean*.csv
+/agg_gap_hours_24*.csv
 /test*.txt
 /test*.pkl
 
@@ -65,12 +66,9 @@ conf/default/nupic-site.xml
 extensions/core/
 experimental/
 
-# nupic bindings swig libraries
-nupic/bindings/
-~nupic/bindings/*.i
-
 # Pip stuff
 dist/
 nupic.egg-info/
-nupic/*cpp_region.*
+nupic/*py_region.*
 temp/
+docs/_build_html

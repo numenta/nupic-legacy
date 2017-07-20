@@ -1,0 +1,170 @@
+# Type of model that the rest of these parameters apply to.
+model: HTMPrediction
+
+# Version that specifies the format of the config.
+version: 1
+
+# The section "aggregationInfo" specifies what field to aggregate with which
+# aggregation method.
+#
+# Example of how to aggregate the field "consumption" with the method "mean"
+# and the field "gym" with the method "first". Both field will be
+# aggregated over a period of 1h 15m, according to their respective
+# aggregation methods.
+#
+#   aggregationInfo:
+#     fields:
+#     - [consumption, sum]
+#     - [gym, first]
+#     minutes: 15
+#     hours: 1
+#
+# See nupic.data.aggregator for more info about supported aggregation methods.
+aggregationInfo:
+  # "fields" should be a list of pairs. Each pair is a field name and an
+  # aggregation function (e.g. sum). The function will be used to aggregate
+  # multiple values of this field over the aggregation period.
+  fields:
+  - [consumption, mean]
+  # If a time unit is not listed, 0 will be its default value.
+  microseconds: 0
+  milliseconds: 0
+  minutes: 0
+  months: 0
+  seconds: 0
+  hours: 1
+  days: 0
+  weeks: 0
+  years: 0
+
+predictAheadTime: null
+
+# Parameters of the model to be created.
+modelParams:
+
+  # The type of inference that this model will perform.
+  # Supported values are :
+  # - TemporalNextStep
+  # - TemporalClassification
+  # - NontemporalClassification
+  # - TemporalAnomaly
+  # - NontemporalAnomaly
+  # - TemporalMultiStep
+  # - NontemporalMultiStep
+  inferenceType: TemporalMultiStep
+
+  # Parameters of the Sensor region
+  sensorParams:
+    # Sensor diagnostic output verbosity control:
+    # - verbosity == 0: silent
+    # - verbosity in [1 .. 6]: increasing level of verbosity
+    verbosity: 0
+
+    # List of encoders and their parameters.
+    encoders:
+      consumption:
+        fieldname: consumption
+        name: consumption
+        resolution: 0.88
+        seed: 1
+        type: RandomDistributedScalarEncoder
+      timestamp_timeOfDay:
+        fieldname: timestamp
+        name: timestamp_timeOfDay
+        timeOfDay: [21, 1]
+        type: DateEncoder
+      timestamp_weekend:
+        fieldname: timestamp
+        name: timestamp_weekend
+        type: DateEncoder
+        weekend: 21
+
+    # The "sensorAutoReset" specifies the period for automatically generated
+    # resets from a RecordSensor.
+    #
+    # If None, disable automatically generated resets. Also disable for all
+    # values that evaluate to 0. Example:
+    #   sensorAutoReset: null
+    #
+    #
+    # Valid keys for the "sensorAutoReset" option:
+    #   sensorAutoReset:
+    #    days: <int>
+    #     hours: <int>
+    #     minutes: <int>
+    #     seconds: <int>
+    #     milliseconds: <int>
+    #     microseconds: <int>
+    #     weeks: <int>
+    #
+    # Example for an automated reset every 1.5 days:
+    #   sensorAutoReset:
+    #     days: 1
+    #     hours: 12
+    #
+    sensorAutoReset: null
+
+
+  # Controls whether the Spatial Pooler (SP) region is enabled.
+  spEnable: true
+
+  # Parameters of the SP region. For detailed descriptions of each
+  # parameter, see the API docs for
+  # nupic.algorithms.spatial_pooler.SpatialPooler. Note that the OPF
+  # will only create one-dimensional input and spatial pooling
+  # structures, so during SP creation `columnCount` translates to
+  # `columnDimensions=(columnCount,)` and
+  # `inputDimensions=(inputWidth,)`.
+  spParams:
+    inputWidth: 946
+    columnCount: 2048
+    spVerbosity: 0
+    spatialImp: cpp
+    globalInhibition: 1
+    localAreaDensity: -1.0
+    numActiveColumnsPerInhArea: 40
+    seed: 1956
+    potentialPct: 0.85
+    synPermConnected: 0.1
+    synPermActiveInc: 0.04
+    synPermInactiveDec: 0.005
+    boostStrength: 3.0
+
+  # Controls whether the Temporal Memory (TM) region is enabled.
+  tmEnable: true
+
+  # Parameters of the TM region. For detailed descriptions of each
+  # parameter, see the API docs for
+  # nupic.algorithms.backtracking_tm.BacktrackingTM.
+  tmParams:
+    verbosity: 0
+    columnCount: 2048
+    cellsPerColumn: 32
+    inputWidth: 2048
+    seed: 1960
+    temporalImp: cpp
+    newSynapseCount: 20
+    initialPerm: 0.21
+    permanenceInc: 0.1
+    permanenceDec: 0.1
+    maxAge: 0
+    globalDecay: 0.0
+    maxSynapsesPerSegment: 32
+    maxSegmentsPerCell: 128
+    minThreshold: 12
+    activationThreshold: 16
+    outputType: normal
+    pamLength: 1
+
+  # Classifier parameters. For detailed descriptions of each parameter, see
+  # the API docs for nupic.algorithms.sdr_classifier.SDRClassifier.
+  clParams:
+    verbosity: 0
+    regionName: SDRClassifierRegion
+    alpha: 0.1
+    steps: '1,5'
+    maxCategoryCount: 1000
+    implementation: cpp
+
+  # If set, don't create the SP network unless the user requests SP metrics.
+  trainSPNetOnlyIfRequested: false

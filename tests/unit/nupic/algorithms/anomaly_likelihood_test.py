@@ -1,20 +1,19 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013-2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -22,11 +21,17 @@
 
 """Unit tests for anomaly likelihood module."""
 
+# disable pylint warning: "Access to a protected member xxxxx of a client class"
+# pylint: disable=W0212
+
 import copy
 import datetime
 import math
 import numpy
+import pickle
 import unittest2 as unittest
+
+import mock
 
 from nupic.algorithms import anomaly_likelihood as an
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
@@ -92,46 +97,278 @@ def _generateSampleData(mean=0.2, variance=0.2, metricMean=0.2,
 
 
 
-class AnomalyLikelihoodTest(TestCaseBase):
+class AnomalyLikelihoodClassTest(TestCaseBase):
+  """Tests the high-level AnomalyLikelihood class"""
 
 
-  def assertWithinEpsilon(self, a, b, epsilon=0.001):
+  def testCalcSkipRecords(self):
+
+    # numIngested is less than both learningPeriod and windowSize
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=5,
+      windowSize=10,
+      learningPeriod=10)
+    self.assertEqual(numSkip, 5)
+
+    # numIngested is equal to learningPeriod, but less than windowSize
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=10,
+      windowSize=15,
+      learningPeriod=10)
+    self.assertEqual(numSkip, 10)
+
+    # edge case: learningPeriod is 0
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=10,
+      windowSize=10,
+      learningPeriod=0)
+    self.assertEqual(numSkip, 0)
+
+    # boundary case: numIngested is equal to learningPeriod and windowSize
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=10,
+      windowSize=10,
+      learningPeriod=10)
+    self.assertEqual(numSkip, 10)
+
+    # learning samples partially shifted out
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=14,
+      windowSize=10,
+      learningPeriod=10)
+    self.assertEqual(numSkip, 6)
+
+    # learning samples fully shifted out
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=20,
+      windowSize=10,
+      learningPeriod=10)
+    self.assertEqual(numSkip, 0)
+
+    # learning samples plus others shifted out
+    numSkip = an.AnomalyLikelihood._calcSkipRecords(
+      numIngested=25,
+      windowSize=10,
+      learningPeriod=10)
+    self.assertEqual(numSkip, 0)
+
+
+  def testHistoricWindowSize(self):
+    l = an.AnomalyLikelihood(claLearningPeriod=2,
+                             estimationSamples=2,
+                             historicWindowSize=3)
+
+    l.anomalyProbability(5, 0.1, timestamp=1) # burn in
+    self.assertEqual(len(l._historicalScores), 1)
+
+    l.anomalyProbability(5, 0.1, timestamp=2)
+    self.assertEqual(len(l._historicalScores), 2)
+
+    l.anomalyProbability(5, 0.1, timestamp=3)
+    self.assertEqual(len(l._historicalScores), 3)
+
+    l.anomalyProbability(5, 0.1, timestamp=4)
+    self.assertEqual(len(l._historicalScores), 3)
+
+
+  def testdWindowSizeImpactOnEstimateAnomalyLikelihoodsArgs(self):
+
+    # Verify that AnomalyLikelihood's historicWindowSize plays nice with args
+    # passed to estimateAnomalyLikelihoods"""
+
+    originalEstimateAnomalyLikelihoods = an.estimateAnomalyLikelihoods
+
+    estimationArgs = []
+
+    def estimateAnomalyLikelihoodsWrap(anomalyScores,
+                                       averagingWindow=10,
+                                       skipRecords=0,
+                                       verbosity=0):
+      estimationArgs.append((tuple(anomalyScores), skipRecords))
+
+      return originalEstimateAnomalyLikelihoods(anomalyScores,
+                                                averagingWindow=averagingWindow,
+                                                skipRecords=skipRecords,
+                                                verbosity=verbosity)
+
+
+    estimateAnomalyLikelihoodsPatch = mock.patch(
+      "nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods",
+      side_effect=estimateAnomalyLikelihoodsWrap, autospec=True)
+    with estimateAnomalyLikelihoodsPatch as estimateAnomalyLikelihoodsMock:
+      l = an.AnomalyLikelihood(claLearningPeriod=2,
+                               estimationSamples=2,
+                               historicWindowSize=3)
+
+      l.anomalyProbability(10, 0.1, timestamp=1)
+      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 0)
+
+      l.anomalyProbability(20, 0.2, timestamp=2)
+      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 0)
+
+      l.anomalyProbability(30, 0.3, timestamp=3)
+      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 0)
+
+      l.anomalyProbability(40, 0.4, timestamp=4)
+      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 0)
+
+      # Estimation should kick in after claLearningPeriod + estimationSamples
+      # samples have been ingested
+      l.anomalyProbability(50, 0.5, timestamp=5)
+      self.assertEqual(estimateAnomalyLikelihoodsMock.call_count, 1)
+      # NOTE: we cannot use mock's assert_called_with, because the sliding
+      # window container changes in-place after estimateAnomalyLikelihoods is
+      # called
+      scores, numSkip = estimationArgs.pop()
+      self.assertEqual(scores, ((2, 20, 0.2), (3, 30, 0.3), (4, 40, 0.4)))
+      self.assertEqual(numSkip, 1)
+
+
+  def testReestimationPeriodArg(self):
+    estimateAnomalyLikelihoodsWrap = mock.Mock(
+      wraps=an.estimateAnomalyLikelihoods,
+      autospec=True)
+
+    estimateAnomalyLikelihoodsPatch = mock.patch(
+      "nupic.algorithms.anomaly_likelihood.estimateAnomalyLikelihoods",
+      side_effect=estimateAnomalyLikelihoodsWrap, autospec=True)
+    with estimateAnomalyLikelihoodsPatch:
+      l = an.AnomalyLikelihood(claLearningPeriod=2,
+                               estimationSamples=2,
+                               historicWindowSize=3,
+                               reestimationPeriod=2)
+
+      # burn-in
+      l.anomalyProbability(10, 0.1, timestamp=1)
+      l.anomalyProbability(10, 0.1, timestamp=2)
+      l.anomalyProbability(10, 0.1, timestamp=3)
+      l.anomalyProbability(10, 0.1, timestamp=4)
+      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 0)
+
+      l.anomalyProbability(10, 0.1, timestamp=5)
+      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 1)
+      l.anomalyProbability(10, 0.1, timestamp=6)
+      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 1)
+      l.anomalyProbability(10, 0.1, timestamp=7)
+      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 2)
+      l.anomalyProbability(10, 0.1, timestamp=8)
+      self.assertEqual(estimateAnomalyLikelihoodsWrap.call_count, 2)
+
+
+  def testAnomalyProbabilityResultsDuringProbationaryPeriod(self):
+    originalUpdateAnomalyLikelihoods = an.updateAnomalyLikelihoods
+
+    def updateAnomalyLikelihoodsWrap(anomalyScores, params, verbosity=0):
+      likelihoods, avgRecordList, params = originalUpdateAnomalyLikelihoods(
+        anomalyScores=anomalyScores,
+        params=params,
+        verbosity=verbosity)
+
+      self.assertEqual(len(likelihoods), 1)
+
+      return [0.1], avgRecordList, params
+
+
+    updateAnomalyLikelihoodsPatch = mock.patch(
+      "nupic.algorithms.anomaly_likelihood.updateAnomalyLikelihoods",
+      side_effect=updateAnomalyLikelihoodsWrap, autospec=True)
+    with updateAnomalyLikelihoodsPatch:
+      l = an.AnomalyLikelihood(claLearningPeriod=2,
+                               estimationSamples=2,
+                               historicWindowSize=3)
+
+      # 0.5 result is expected during burn-in
+      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=1), 0.5)
+      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=2), 0.5)
+      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=3), 0.5)
+      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=4), 0.5)
+
+      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=5), 0.9)
+      self.assertEqual(l.anomalyProbability(10, 0.1, timestamp=6), 0.9)
+
+
+  def testEquals(self):
+    l = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
+    l2 = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
+    self.assertEqual(l, l2)
+
+    # Use 5 iterations to force the distribution to be created (4 probationary
+    # samples + 1)
+    l2.anomalyProbability(5, 0.1, timestamp=1) # burn in
+    l2.anomalyProbability(5, 0.1, timestamp=2)
+    l2.anomalyProbability(5, 0.1, timestamp=3)
+    l2.anomalyProbability(5, 0.1, timestamp=4)
+    self.assertIsNone(l2._distribution)
+    l2.anomalyProbability(1, 0.3, timestamp=5)
+    self.assertIsNotNone(l2._distribution)
+    self.assertNotEqual(l, l2)
+
+    l.anomalyProbability(5, 0.1, timestamp=1) # burn in
+    l.anomalyProbability(5, 0.1, timestamp=2)
+    l.anomalyProbability(5, 0.1, timestamp=3)
+    l.anomalyProbability(5, 0.1, timestamp=4)
+    self.assertIsNone(l._distribution)
+    l.anomalyProbability(1, 0.3, timestamp=5)
+    self.assertIsNotNone(l._distribution)
+    self.assertEqual(l, l2, "equal? \n%s\n vs. \n%s" % (l, l2))
+
+
+  def testSerialization(self):
+    """serialization using pickle"""
+    l = an.AnomalyLikelihood(claLearningPeriod=2, estimationSamples=2)
+
+    l.anomalyProbability("hi", 0.1, timestamp=1) # burn in
+    l.anomalyProbability("hi", 0.1, timestamp=2)
+    l.anomalyProbability("hello", 0.3, timestamp=3)
+
+    stored = pickle.dumps(l)
+    restored = pickle.loads(stored)
+
+    self.assertEqual(l, restored)
+
+
+
+class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
+  """Tests the low-level algorithm functions"""
+
+
+  def assertWithinEpsilon(self, a, b, epsilon=0.005):
     self.assertLessEqual(abs(a - b), epsilon,
                          "Values %g and %g are not within %g" % (a, b, epsilon))
 
 
   def testNormalProbability(self):
     """
-    Test that the normalProbability function returns correct normal values
+    Test that the tailProbability function returns correct normal values
     """
     # Test a standard normal distribution
     # Values taken from http://en.wikipedia.org/wiki/Standard_normal_table
     p = {"name": "normal", "mean": 0.0, "variance": 1.0, "stdev": 1.0}
-    self.assertWithinEpsilon(an.normalProbability(0.0, p), 0.5)
-    self.assertWithinEpsilon(an.normalProbability(0.3, p), 0.3820885780)
-    self.assertWithinEpsilon(an.normalProbability(1.0, p), 0.1587)
-    self.assertWithinEpsilon(1.0 - an.normalProbability(1.0, p),
-                             an.normalProbability(-1.0, p))
-    self.assertWithinEpsilon(an.normalProbability(-0.3, p),
-                             1.0 - an.normalProbability(0.3, p))
+    self.assertWithinEpsilon(an.tailProbability(0.0, p), 0.5)
+    self.assertWithinEpsilon(an.tailProbability(0.3, p), 0.3820885780)
+    self.assertWithinEpsilon(an.tailProbability(1.0, p), 0.1587)
+    self.assertWithinEpsilon(an.tailProbability(1.0, p),
+                             an.tailProbability(-1.0, p))
+    self.assertWithinEpsilon(an.tailProbability(-0.3, p),
+                             an.tailProbability(0.3, p))
 
     # Non standard normal distribution
     p = {"name": "normal", "mean": 1.0, "variance": 4.0, "stdev": 2.0}
-    self.assertWithinEpsilon(an.normalProbability(1.0, p), 0.5)
-    self.assertWithinEpsilon(an.normalProbability(2.0, p), 0.3085)
-    self.assertWithinEpsilon(an.normalProbability(3.0, p), 0.1587)
-    self.assertWithinEpsilon(an.normalProbability(3.0, p),
-                             1.0 - an.normalProbability(-1.0, p))
-    self.assertWithinEpsilon(an.normalProbability(0.0, p),
-                             1.0 - an.normalProbability(2.0, p))
+    self.assertWithinEpsilon(an.tailProbability(1.0, p), 0.5)
+    self.assertWithinEpsilon(an.tailProbability(2.0, p), 0.3085)
+    self.assertWithinEpsilon(an.tailProbability(3.0, p), 0.1587)
+    self.assertWithinEpsilon(an.tailProbability(3.0, p),
+                             an.tailProbability(-1.0, p))
+    self.assertWithinEpsilon(an.tailProbability(0.0, p),
+                             an.tailProbability(2.0, p))
 
     # Non standard normal distribution
     p = {"name": "normal", "mean": -2.0, "variance": 0.5,
          "stdev": math.sqrt(0.5)}
-    self.assertWithinEpsilon(an.normalProbability(-2.0, p), 0.5)
-    self.assertWithinEpsilon(an.normalProbability(-1.5, p), 0.241963652)
-    self.assertWithinEpsilon(an.normalProbability(-2.5, p),
-                             1.0 - an.normalProbability(-1.5, p))
+    self.assertWithinEpsilon(an.tailProbability(-2.0, p), 0.5)
+    self.assertWithinEpsilon(an.tailProbability(-1.5, p), 0.241963652)
+    self.assertWithinEpsilon(an.tailProbability(-2.5, p),
+                             an.tailProbability(-1.5, p))
 
 
   def testEstimateNormal(self):
@@ -223,18 +460,34 @@ class AnomalyLikelihoodTest(TestCaseBase):
     self.assertGreaterEqual(numpy.sum(likelihoods < 0.02), 1)
 
 
+  def testEstimateAnomalyLikelihoodsCategoryValues(self):
+    start = datetime.datetime(2017, 1, 1, 0, 0, 0)
+    delta = datetime.timedelta(minutes=5)
+    dts = [start + (i * delta) for i in xrange(10)]
+    values = ["a", "b", "c", "d", "e"] * 2
+    rawScores = [0.1 * i for i in xrange(10)]
+    data = zip(dts, values, rawScores)
+
+    likelihoods, avgRecordList, estimatorParams = (
+      an.estimateAnomalyLikelihoods(data)
+    )
+    self.assertEqual(len(likelihoods), 10)
+    self.assertEqual(len(avgRecordList), 10)
+    self.assertTrue(an.isValidEstimatorParams(estimatorParams))
+
+
   def testEstimateAnomalyLikelihoodsMalformedRecords(self):
     """
     This calls estimateAnomalyLikelihoods with malformed records, which should
     be quietly skipped.
     """
 
-    # Generate an estimate using fake distribution of anomaly scores.
+    # Generate a fake distribution of anomaly scores, and add malformed records
     data1 = _generateSampleData(mean=0.2)
-    data1 = data1 + [(2, 2), (2, 2, 2, 2), (), (2)]  # Malformed records
+    data1 = data1[0:1000] + [(2, 2)] + [(2, 2, 2, 2)] + [()] + [(2)]
 
     likelihoods, avgRecordList, estimatorParams = (
-      an.estimateAnomalyLikelihoods(data1[0:1000])
+      an.estimateAnomalyLikelihoods(data1[0:1004])
     )
     self.assertEqual(len(likelihoods), 1000)
     self.assertEqual(len(avgRecordList), 1000)
@@ -497,7 +750,7 @@ class AnomalyLikelihoodTest(TestCaseBase):
 
   def testFilterLikelihodsInputType(self):
     """
-    Calls _filterLikelihoods with both input types -- numpy array of floats and 
+    Calls _filterLikelihoods with both input types -- numpy array of floats and
     list of floats.
     """
     l =[0.0, 0.0, 0.3, 0.3, 0.5]
@@ -506,13 +759,18 @@ class AnomalyLikelihoodTest(TestCaseBase):
     n2 = an._filterLikelihoods(n)
     filtered = [0.0, 0.001, 0.3, 0.3, 0.5]
 
-    [self.assertAlmostEqual(l2[i], filtered[i],
-      msg="Input of type list returns incorrect result")
-      for i in range(len(l))]
-    [self.assertAlmostEqual(n2[i], filtered[i],
-      msg="Input of type numpy array returns incorrect result")
-      for i in range(len(n))]
-  
+    for i in range(len(l)):
+      self.assertAlmostEqual(
+        l2[i], filtered[i],
+        msg="Input of type list returns incorrect result")
+
+    for i in range(len(n)):
+      self.assertAlmostEqual(
+        n2[i], filtered[i],
+        msg="Input of type numpy array returns incorrect result")
+
+
+
   def testFilterLikelihoods(self):
     """
     Tests _filterLikelihoods function for several cases:
@@ -531,10 +789,11 @@ class AnomalyLikelihoodTest(TestCaseBase):
     l2[1] = 1 - yellowThreshold
     l2[7] = 1 - yellowThreshold
     l3 = an._filterLikelihoods(l, redThreshold=redThreshold)
-    
-    [self.assertAlmostEqual(l2[i], l3[i], msg="Failure in case (i)")
-      for i in range(len(l2))]
-    
+
+    for i in range(len(l2)):
+      self.assertAlmostEqual(l2[i], l3[i], msg="Failure in case (i)")
+
+
     # Case (ii): values at indices 1-10 should be filtered to yellowzone
     l = numpy.array([0.999978229, 0.999978229, 0.999999897, 1, 1, 1, 1,
                      0.999999994, 0.999999966, 0.999999966, 0.999994331,
@@ -543,9 +802,10 @@ class AnomalyLikelihoodTest(TestCaseBase):
     l2 = copy.copy(l)
     l2[1:11] = 1 - yellowThreshold
     l3 = an._filterLikelihoods(l, redThreshold=redThreshold)
-    
-    [self.assertAlmostEqual(l2[i], l3[i], msg="Failure in case (ii)")
-      for i in range(len(l2))]
+
+    for i in range(len(l2)):
+      self.assertAlmostEqual(l2[i], l3[i], msg="Failure in case (ii)")
+
 
     # Case (iii): redThreshold difference should be at index 2
     l = numpy.array([0.999968329, 0.999999897, 1, 1, 1,
@@ -559,12 +819,17 @@ class AnomalyLikelihoodTest(TestCaseBase):
     l3a = an._filterLikelihoods(l, redThreshold=redThreshold)
     l3b = an._filterLikelihoods(l, redThreshold=0.99999)
 
-    [self.assertAlmostEqual(l2a[i], l3a[i], msg="Failure in case (iii), list a")
-      for i in range(len(l2a))]
-    [self.assertAlmostEqual(l2b[i], l3b[i], msg="Failure in case (iii), list b")
-      for i in range(len(l2b))]
+    for i in range(len(l2a)):
+      self.assertAlmostEqual(l2a[i], l3a[i],
+                             msg="Failure in case (iii), list a")
+
+    for i in range(len(l2b)):
+      self.assertAlmostEqual(l2b[i], l3b[i],
+                             msg="Failure in case (iii), list b")
+
     self.assertFalse(numpy.array_equal(l3a, l3b),
-      msg="Failure in case (iii), list 3")
+                     msg="Failure in case (iii), list 3")
+
 
 
 if __name__ == "__main__":

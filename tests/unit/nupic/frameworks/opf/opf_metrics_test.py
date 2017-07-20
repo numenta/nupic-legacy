@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -6,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -24,7 +23,7 @@ import numpy as np
 
 import unittest2 as unittest
 
-from nupic.frameworks.opf.metrics import getModule, MetricSpec
+from nupic.frameworks.opf.metrics import getModule, MetricSpec, MetricMulti
 
 
 
@@ -45,6 +44,18 @@ class OPFMetricsTest(unittest.TestCase):
 
     self.assertTrue(abs(rmse.getMetric()["value"]-target)\
 < OPFMetricsTest.DELTA)
+
+
+  def testNRMSE(self):
+    nrmse = getModule(MetricSpec("nrmse", None, None,
+                                 {"verbosity" : OPFMetricsTest.VERBOSITY}))
+    gt = [9, 4, 5, 6]
+    p = [0, 13, 8, 3]
+    for i in xrange(len(gt)):
+      nrmse.addInstance(gt[i], p[i])
+    target = 3.5856858280031814
+
+    self.assertAlmostEqual(nrmse.getMetric()["value"], target)
 
 
   def testWindowedRMSE(self):
@@ -152,7 +163,7 @@ class OPFMetricsTest(unittest.TestCase):
     msp = getModule(MetricSpec("multiStep", None, None,
      {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "errorMetric":"aae",
            "steps": 3}))
-    
+
     # Make each ground truth 1 greater than the prediction
     gt = [i+1 for i in range(100)]
     p = [{3: {i: .7, 5: 0.3}} for i in range(100)]
@@ -168,7 +179,7 @@ class OPFMetricsTest(unittest.TestCase):
     msp = getModule(MetricSpec("multiStep", None, None,
      {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "errorMetric":"aae",
            "steps": [3,6]}))
-    
+
     # Make each 3 step prediction +1 over ground truth and each 6 step
     # prediction +0.5 over ground truth
     gt = [i for i in range(100)]
@@ -471,6 +482,105 @@ record={"test":gt[i]})
 < OPFMetricsTest.DELTA)
 
 
+  def testNegativeLogLikelihood(self):
+    # make sure negativeLogLikelihood returns correct LL numbers
+
+    # mock objects for ClassifierInput and ModelResult (see opf_utils.py)
+    class MockClassifierInput(object):
+      def __init__(self, bucketIdx):
+        self.bucketIndex = bucketIdx
+
+    class MockModelResult(object):
+      def __init__(self, bucketll, bucketIdx):
+        self.inferences = {'multiStepBucketLikelihoods': {1: bucketll}}
+        self.classifierInput = MockClassifierInput(bucketIdx)
+
+
+    bucketLL = {0: 1.0, 1: 0, 2: 0, 3: 0} # model prediction as a dictionary
+    gt_bucketIdx = 0 # bucket index for ground truth
+    negLL = getModule(MetricSpec("negativeLogLikelihood", None, None,
+                                {"verbosity" : OPFMetricsTest.VERBOSITY}))
+    negLL.addInstance(0, 0, record = None,
+                      result=MockModelResult(bucketLL, gt_bucketIdx))
+    target = 0.0 # -log(1.0)
+    self.assertAlmostEqual(negLL.getMetric()["value"], target)
+
+    bucketLL = {0: 0.5, 1: 0.5, 2: 0, 3: 0} # model prediction as a dictionary
+    gt_bucketIdx = 0 # bucket index for ground truth
+    negLL = getModule(MetricSpec("negativeLogLikelihood", None, None,
+                                {"verbosity" : OPFMetricsTest.VERBOSITY}))
+    negLL.addInstance(0, 0, record = None,
+                      result=MockModelResult(bucketLL, gt_bucketIdx))
+    target = 0.6931471 # -log(0.5)
+    self.assertTrue(abs(negLL.getMetric()["value"]-target)
+                    < OPFMetricsTest.DELTA)
+
+    # test accumulated negLL for multiple steps
+    bucketLL = []
+    bucketLL.append({0: 1, 1: 0, 2: 0, 3: 0})
+    bucketLL.append({0: 0, 1: 1, 2: 0, 3: 0})
+    bucketLL.append({0: 0, 1: 0, 2: 1, 3: 0})
+    bucketLL.append({0: 0, 1: 0, 2: 0, 3: 1})
+
+    gt_bucketIdx = [0, 2, 1, 3]
+    negLL = getModule(MetricSpec("negativeLogLikelihood", None, None,
+                                {"verbosity" : OPFMetricsTest.VERBOSITY}))
+    for i in xrange(len(bucketLL)):
+      negLL.addInstance(0, 0, record = None,
+                        result=MockModelResult(bucketLL[i], gt_bucketIdx[i]))
+    target = 5.756462
+    self.assertTrue(abs(negLL.getMetric()["value"]-target)
+                    < OPFMetricsTest.DELTA)
+
+
+  def testNegLLMultiplePrediction(self):
+    # In cases where the ground truth has multiple possible outcomes, make sure
+    # that the prediction that captures ground truth distribution has best LL
+    # and models that gives single prediction (either most likely outcome or
+    # average outcome) has worse LL
+
+    # mock objects for ClassifierInput and ModelResult (see opf_utils.py)
+    class MockClassifierInput(object):
+      def __init__(self, bucketIdx):
+        self.bucketIndex = bucketIdx
+
+    class MockModelResult(object):
+      def __init__(self, bucketll, bucketIdx):
+        self.inferences = {'multiStepBucketLikelihoods': {1: bucketll}}
+        self.classifierInput = MockClassifierInput(bucketIdx)
+
+    # the ground truth lies in bucket 0 with p=0.45, in bucket 1 with p=0.0
+    # and in bucket 2 with p=0.55
+    gt_bucketIdx = [0]*45+[2]*55
+
+    # compare neg log-likelihood for three type of model predictions
+    # a model that predicts ground truth distribution
+    prediction_gt = {0: 0.45, 1: 0, 2: 0.55}
+
+    # a model that predicts only the most likely outcome
+    prediction_ml = {0: 0.0, 1: 0, 2: 1.0}
+
+    # a model that only predicts mean (bucket 1)
+    prediction_mean = {0: 0, 1: 1, 2: 0}
+
+    negLL_gt = getModule(MetricSpec("negativeLogLikelihood", None, None,
+                                {"verbosity" : OPFMetricsTest.VERBOSITY}))
+    negLL_ml = getModule(MetricSpec("negativeLogLikelihood", None, None,
+                                {"verbosity" : OPFMetricsTest.VERBOSITY}))
+    negLL_mean = getModule(MetricSpec("negativeLogLikelihood", None, None,
+                                {"verbosity" : OPFMetricsTest.VERBOSITY}))
+    for i in xrange(len(gt_bucketIdx)):
+      negLL_gt.addInstance(0, 0, record = None,
+                        result=MockModelResult(prediction_gt, gt_bucketIdx[i]))
+      negLL_ml.addInstance(0, 0, record = None,
+                        result=MockModelResult(prediction_ml, gt_bucketIdx[i]))
+      negLL_mean.addInstance(0, 0, record = None,
+                        result=MockModelResult(prediction_mean, gt_bucketIdx[i]))
+
+    self.assertTrue(negLL_gt.getMetric()["value"] < negLL_ml.getMetric()["value"])
+    self.assertTrue(negLL_gt.getMetric()["value"] < negLL_mean.getMetric()["value"])
+
+
   def testCustomErrorMetric(self):
     customFunc = """def getError(pred,ground,tools):
                       return abs(pred-ground)"""
@@ -756,6 +866,33 @@ record={"test":gt[i]})
       self.assertTrue (False , "error Window of 0 should fail self.assertTrue")
     except:
       pass
+
+
+  def testMultiMetric(self):
+    ms1 = MetricSpec(field='a', metric='trivial',  inferenceElement='prediction', params={'errorMetric': 'aae', 'window': 1000, 'steps': 1})
+    ms2 = MetricSpec(metric='trivial', inferenceElement='prediction', field='a', params={'window': 10, 'steps': 1, 'errorMetric': 'rmse'})
+    metric1000 = getModule(ms1)
+    metric10 = getModule(ms2)
+    # create multi metric
+    multi = MetricMulti(weights=[0.2, 0.8], metrics=[metric10, metric1000])
+    multi.verbosity = 1
+    # create reference metrics (must be diff from metrics above used in MultiMetric, as they keep history)
+    metric1000ref = getModule(ms1)
+    metric10ref = getModule(ms2)
+
+
+    gt = range(500, 1000)
+    p = range(500)
+
+    for i in xrange(len(gt)):
+      v10=metric10ref.addInstance(gt[i], p[i])
+      v1000=metric1000ref.addInstance(gt[i], p[i])
+      if v10 is None or v1000 is None:
+        check=None
+      else:
+        check=0.2*float(v10) + 0.8*float(v1000)
+      metricValue = multi.addInstance(gt[i], p[i])
+      self.assertEqual(check, metricValue, "iter i= %s gt=%s pred=%s multi=%s sub1=%s sub2=%s" % (i, gt[i], p[i], metricValue, v10, v1000))
 
 
 

@@ -1,0 +1,134 @@
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
+# version format
+version: 0.1.0.{build}
+
+branches:
+  except:
+    - gh-pages
+
+skip_commits:
+  # Add [av skip] to commit messages to skip AppVeyor building
+  # Add [ci skip] to skip Travis and AppVeyor building
+  message: /\[av skip\]/
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+# http://www.appveyor.com/docs/environment-variables
+# http://www.appveyor.com/docs/installed-software
+
+init:
+  - git config --global core.autocrlf input
+
+clone_folder: c:\projects\nupic
+clone_depth: 50
+
+# Can't have a shallow clone because the CMake process will be calling into
+# git to write the current SHA into the binaries.
+shallow_clone: false
+
+services:
+  - mysql
+
+environment:
+  PYTHON_ARCH: "64"
+  COMPILER_FAMILY: GCC
+  MYSQL_PWD: "Password12!"
+  PYTHON_VERSION: "2.7.9"
+  PYTHONHOME: "C:\\Python27-x64"
+  PYTHONPATH: "C:\\Python27-x64\\lib\\site-packages"
+  PATH: "C:\\Python27-x64;C:\\Python27-x64\\Scripts;%PATH%"
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+before_build:
+  - set NUPIC_DEPLOYMENT_BUILD=1
+  - set NUPIC=c:\projects\nupic
+
+  - set REPO_DIR=c:\projects\nupic
+  - cd %REPO_DIR%
+
+  # Install Python 2.7.x and support packages (pip, wheel, numpy etc.)
+  - ps: .\ci\appveyor\install_python_pip.ps1
+
+  - echo %PATH%
+  - echo %PYTHONPATH%
+
+  - set ARTIFACTS_DIR=%REPO_DIR%\build\artifacts
+  - for /f %%i in ('type VERSION') do set NUPIC_VERSION=%%i
+
+  - echo NuPIC version   = %NUPIC_VERSION%
+
+  # Check all packages installed correctly
+  - cmd: pip list
+
+build_script:
+  - cd %REPO_DIR%
+
+  - python setup.py bdist_wheel
+
+  - ps: ls -l dist
+  - 7z a nupic-%APPVEYOR_REPO_COMMIT%.zip .\dist\nupic-%NUPIC_VERSION%-py2-none-any.whl
+  - ps: ls -l .
+  - ps: move .\dist\nupic-$env:NUPIC_VERSION-py2-none-any.whl .\dist\nupic-$env:NUPIC_VERSION-cp27-none-win_amd64.whl
+
+test_script:
+  - cd %REPO_DIR%
+  - pip install .\dist\nupic-%NUPIC_VERSION%-cp27-none-win_amd64.whl
+
+  # Show nupic installation folder by trying to import nupic, if works, it prints
+  # the absolute path of nupic.__file__, which the installation folder itself.
+  - python -c "import sys;import os;import nupic.data;sys.stdout.write(os.path.abspath(os.path.join(nupic.data.__file__, '../..')) + '\n')"
+
+  # Setup local USER name
+  - set USER=appveyor
+
+  # Read the nupic-default.XML file and update the passwd entry
+  - ps: $nupic_site = [xml](Get-Content .\src\nupic\support\nupic-default.xml)
+  - ps: $passwd_property = $nupic_site.configuration.property | where {$_.Name -eq 'nupic.cluster.database.passwd'}
+  - ps: $passwd_property.value = "Password12!"
+  # Save the script to the install location
+  # TODO: Can we save it to repo before installation of the package instead?
+  - ps: $nupic_site.Save('C:\Python27-x64\lib\site-packages\nupic\support\nupic-site.xml')
+
+  # Python unit tests
+  - py.test tests\unit
+
+  # Python integration tests
+  - py.test tests\integration
+
+artifacts:
+  - path: 'dist\*.whl' # Find all wheel files in project root only (non-recusive)
+  - path: nupic-$(APPVEYOR_REPO_COMMIT).zip
+    name: appveyor
+
+deploy:
+  # Amazon S3 deployment provider settings
+  - provider: S3
+    access_key_id: AKIAIGHYSEHV3WFKOWNQ
+    secret_access_key:
+      secure: /8wO17Gir0XAiecJkHeE3jxOJzvyl0+uWcl7BKCuN0FC795golsL8905VmNuRl1o
+    bucket: "artifacts.numenta.org"
+    region: us-west-2
+    set_public: true
+    artifact: "nupic-$(NUPIC_VERSION)-cp27-none-win_amd64.whl"
+    folder: "numenta/nupic/$(APPVEYOR_REPO_COMMIT)"
+    on:
+      branch: master
+  - provider: S3
+    access_key_id: AKIAIGHYSEHV3WFKOWNQ
+    secret_access_key:
+      secure: /8wO17Gir0XAiecJkHeE3jxOJzvyl0+uWcl7BKCuN0FC795golsL8905VmNuRl1o
+    bucket: "artifacts.numenta.org"
+    region: us-west-2
+    set_public: true
+    artifact: appveyor
+    folder: "numenta/nupic/appveyor"
+    on:
+      branch: master

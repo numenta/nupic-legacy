@@ -1,0 +1,101 @@
+{
+  "inferenceArgs": {
+    "predictionSteps": [1],
+    "predictedField": "c1",
+    "inputPredictedField": "auto"
+  },
+  "modelConfig": {
+    "aggregationInfo": {
+      "seconds": 0,
+      "fields": [],
+      "months": 0,
+      "days": 0,
+      "years": 0,
+      "hours": 0,
+      "microseconds": 0,
+      "weeks": 0,
+      "minutes": 0,
+      "milliseconds": 0
+    },
+    "model": "HTMPrediction",
+    "version": 1,
+    "predictAheadTime": null,
+    "modelParams": {
+      "inferenceType": "TemporalAnomaly",
+      "sensorParams": {
+        "encoders": {
+          "c0_timeOfDay": {
+            "type": "DateEncoder",
+            "timeOfDay": [
+              21,
+              9.49
+            ],
+            "fieldname": "c0",
+            "name": "c0"
+          },
+          "c0_dayOfWeek": null,
+          "c0_weekend": null,
+          "c1": {
+            "name": "c1",
+            "fieldname": "c1",
+            "numBuckets": 130.0,
+            "seed": 42,
+            "type": "RandomDistributedScalarEncoder"
+          }
+        },
+        "sensorAutoReset": null,
+        "verbosity": 0
+      },
+      "spEnable": true,
+      "spParams": {
+        "spatialImp": "cpp",
+        "potentialPct": 0.8,
+        "columnCount": 2048,
+        "globalInhibition": 1,
+        "inputWidth": 0,
+        "boostStrength": 0.0,
+        "numActiveColumnsPerInhArea": 40,
+        "seed": 1956,
+        "spVerbosity": 0,
+        "spatialImp": "cpp",
+        "synPermActiveInc": 0.003,
+        "synPermConnected": 0.2,
+        "synPermInactiveDec": 0.0005
+      },
+      "trainSPNetOnlyIfRequested": false,
+      "tmEnable": true,
+      "tmParams": {
+        "activationThreshold": 13,
+        "cellsPerColumn": 32,
+        "columnCount": 2048,
+        "globalDecay": 0.0,
+        "initialPerm": 0.21,
+        "inputWidth": 2048,
+        "maxAge": 0,
+        "maxSegmentsPerCell": 128,
+        "maxSynapsesPerSegment": 32,
+        "minThreshold": 10,
+        "newSynapseCount": 20,
+        "outputType": "normal",
+        "pamLength": 3,
+        "permanenceDec": 0.1,
+        "permanenceInc": 0.1,
+        "seed": 1960,
+        "temporalImp": "cpp",
+        "verbosity": 0
+      },
+      "clEnable": false,
+      "clParams": {
+        "alpha": 0.035828933612157998,
+        "regionName": "SDRClassifierRegion",
+        "steps": "1",
+        "verbosity": 0
+      },
+      "anomalyParams": {
+        "anomalyCacheRecords": null,
+        "autoDetectThreshold": null,
+        "autoDetectWaitRecords": 5030
+      }
+    }
+  }
+}

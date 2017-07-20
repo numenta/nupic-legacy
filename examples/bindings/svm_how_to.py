@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -21,7 +21,6 @@
 
 from random import *
 import numpy
-import cPickle
 import pylab
 import nupic.bindings.algorithms as algo
 from nupic.bindings.math import GetNumpyDataType
@@ -29,9 +28,8 @@ from nupic.bindings.math import GetNumpyDataType
 type = GetNumpyDataType('NTA_Real')
 type = 'float32'
 
-#--------------------------------------------------------------------------------
-# Simple use case
-#--------------------------------------------------------------------------------
+
+
 def simple():
     
     print "Simple"
@@ -142,9 +140,8 @@ def simple():
         print 'p2=', classifier.predict_probability(x, proba),
         print 'proba=', proba
 
-#--------------------------------------------------------------------------------
-# Persistence
-#--------------------------------------------------------------------------------
+
+
 def persistence():
     
     print "Persistence"
@@ -169,9 +166,19 @@ def persistence():
         x = numpy.array(x_list, dtype=type)
         classifier.add_sample(float(y), x)
 
-    print "Pickling dense classifier"
-    cPickle.dump(classifier, open('test', 'wb'))
-    classifier = cPickle.load(open('test', 'rb'))
+    print "Serializing dense classifier"
+
+    schema = classifier.getSchema()
+    with open("test", "w+b") as f:
+        # Save
+        proto = schema.new_message()
+        classifier.write(proto)
+        proto.write(f)
+
+        # Load
+        f.seek(0)
+        proto2 = schema.read(f)
+        classifier = algo.svm_dense.read(proto2)
 
     print "Training dense classifier"
     classifier.train(gamma = 1, C = 10, eps=1e-1)
@@ -190,17 +197,24 @@ def persistence():
     print "Training 0/1 classifier"
     classifier01.train(gamma = 1./3., C = 100, eps=1e-1)
 
-    print "Pickling 0/1 classifier"
-    cPickle.dump(classifier01, open('test', 'wb'))
-    classifier01 = cPickle.load(open('test', 'rb'))
+    print "Serializing 0/1 classifier"
+    schema = classifier01.getSchema()
+    with open("test", "w+b") as f:
+        # Save
+        proto = schema.new_message()
+        classifier01.write(proto)
+        proto.write(f)
+
+        # Load
+        f.seek(0)
+        proto2 = schema.read(f)
+        classifier01 = algo.svm_01.read(proto2)
 
     print "Predicting with 0/1 classifier"
     print classifier01.predict(numpy.array(samples[0], dtype=type))
 
 
-#--------------------------------------------------------------------------------
-# Cross validation
-#--------------------------------------------------------------------------------
+
 def cross_validation():
     return
     print "Cross validation"

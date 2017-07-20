@@ -13,8 +13,8 @@ $num_instances = 1
 $update_channel = "alpha"
 $enable_serial_logging = false
 $vb_gui = false
-$vb_memory = 1024
-$vb_cpus = 1
+$vb_memory = 4096
+$vb_cpus = 2
 
 # Attempt to apply the deprecated environment variable NUM_INSTANCES to
 # $num_instances while allowing config.rb to override it

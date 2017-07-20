@@ -1,20 +1,19 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2017, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -24,12 +23,21 @@
 
 CL_VERBOSITY = 0
 
-import cPickle as pickle
+import tempfile
 import unittest2 as unittest
 
 import numpy
 
-from nupic.encoders.sparse_pass_through_encoder import SparsePassThroughEncoder
+from nupic.encoders import SparsePassThroughEncoder
+
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.sparse_pass_through_capnp import (
+      SparsePassThroughEncoderProto)
 
 
 
@@ -53,6 +61,14 @@ class SparsePassThroughEncoderTest(unittest.TestCase):
     x = e.decode(out)
     self.assertIsInstance(x[0], dict)
     self.assertTrue(self.name in x[0])
+
+
+  def testEncodeArrayInvalidType(self):
+    e = self._encoder(self.n, 1)
+    v = numpy.zeros(self.n)
+    v[0] = 12
+    with self.assertRaises(ValueError):
+      e.encode(v)
 
 
   def testEncodeArrayInvalidW(self):
@@ -116,6 +132,39 @@ class SparsePassThroughEncoderTest(unittest.TestCase):
     c = e.closenessScores(out1, out2)
     self.assertEqual(c[0], 0.8)
 
+
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
+  def testReadWrite(self):
+    original = self._encoder(self.n, name=self.name)
+    originalValue = original.encode([1,0,1,0,1,0,1,0,1])
+
+    proto1 = SparsePassThroughEncoderProto.new_message()
+    original.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = SparsePassThroughEncoderProto.read(f)
+
+    encoder = SparsePassThroughEncoder.read(proto2)
+
+    self.assertIsInstance(encoder, SparsePassThroughEncoder)
+    self.assertEqual(encoder.name, original.name)
+    self.assertEqual(encoder.verbosity, original.verbosity)
+    self.assertEqual(encoder.w, original.w)
+    self.assertEqual(encoder.n, original.n)
+    self.assertEqual(encoder.description, original.description)
+    self.assertTrue(numpy.array_equal(encoder.encode([1,0,1,0,1,0,1,0,1]),
+                                      originalValue))
+    self.assertEqual(original.decode(encoder.encode([1,0,1,0,1,0,1,0,1])),
+                     encoder.decode(original.encode([1,0,1,0,1,0,1,0,1])))
+
+    # Feed in a new value and ensure the encodings match
+    result1 = original.encode([0,1,0,1,0,1,0,1,0])
+    result2 = encoder.encode([0,1,0,1,0,1,0,1,0])
+    self.assertTrue(numpy.array_equal(result1, result2))
 
 
 if __name__ == "__main__":

@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -25,11 +25,9 @@ echo "Running after_success-release.sh..."
 echo
 
 echo "Installing wheel..."
-pip install wheel --user || exit
-# `sudo install twine` doesn't put twine in a place we can use it, so we install
-# it at the --user level.
+pip install wheel || exit
 echo "Installing twine..."
-pip install twine --user -v || exit
+pip install twine || exit
 
 # Twine gets installed into /Users/travis/Library/Python/2.7/bin, which needs to
 # be added to the PATH

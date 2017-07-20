@@ -1,36 +1,39 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014-2017, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from mock import Mock
+import sys
 from mock import patch
 import unittest2 as unittest
 
 from nupic import engine
+from nupic.bindings.regions.TestNode import TestNode
+from nupic.regions.sp_region import SPRegion
 
 
 
 class NetworkTest(unittest.TestCase):
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testErrorHandling(self):
     n = engine.Network()
 
@@ -38,14 +41,12 @@ class NetworkTest(unittest.TestCase):
     with self.assertRaises(Exception) as cm:
       n.addRegion('r', 'py.NonExistingNode', '')
 
-    self.assertEqual(cm.exception.message,
-                     "Matching Python module for " +
-                     "py.NonExistingNode not found.")
+    self.assertEqual(cm.exception.message, "Matching Python module for NonExistingNode not found.")
 
     orig_import = __import__
     def import_mock(name, *args):
-      if name == "nupic.regions.UnimportableNode":
-        raise SyntaxError("invalid syntax (UnimportableNode.py, line 5)")
+      if name == "nupic.regions.unimportable_node":
+        raise SyntaxError("invalid syntax (unimportable_node.py, line 5)")
 
       return orig_import(name, *args)
 
@@ -54,15 +55,13 @@ class NetworkTest(unittest.TestCase):
       with self.assertRaises(Exception) as cm:
         n.addRegion('r', 'py.UnimportableNode', '')
 
-      self.assertEqual(str(cm.exception),
-        'invalid syntax (UnimportableNode.py, line 5)')
+      self.assertEqual(cm.exception.message, "invalid syntax (unimportable_node.py, line 5)")
 
     # Test failure in the __init__() method
     with self.assertRaises(Exception) as cm:
       n.addRegion('r', 'py.TestNode', '{ failInInit: 1 }')
 
-    self.assertEqual(str(cm.exception),
-      'TestNode.__init__() Failing on purpose as requested')
+    self.assertEqual(cm.exception.message, "TestNode.__init__() Failing on purpose as requested")
 
     # Test failure inside the compute() method
     with self.assertRaises(Exception) as cm:
@@ -75,7 +74,7 @@ class NetworkTest(unittest.TestCase):
       'TestNode.compute() Failing on purpose as requested')
 
     # Test failure in the static getSpec
-    from nupic.regions.TestNode import TestNode
+    from nupic.bindings.regions.TestNode import TestNode
     TestNode._failIngetSpec = True
 
     with self.assertRaises(Exception) as cm:
@@ -286,9 +285,7 @@ class NetworkTest(unittest.TestCase):
     region1 = n.addRegion("region1", "TestNode", "")
     region2 = n.addRegion("region2", "TestNode", "")
 
-    names = []
-    for name in n.regions:
-      names.append(name)
+    names = [region[0] for region in n.regions]
     self.assertEqual(names, ['region1', 'region2'])
     print n.getPhases('region1')
     self.assertEqual(n.getPhases('region1'), (0,))
@@ -315,6 +312,42 @@ class NetworkTest(unittest.TestCase):
     # Negative test
     with self.assertRaises(Exception):
       region2.setDimensions(r1dims)
+
+
+  def testDelayedLink(self):
+    n = engine.Network()
+
+    region1 = n.addRegion("region1", "TestNode", "")
+    region2 = n.addRegion("region2", "TestNode", "")
+
+    names = []
+
+    propagationDelay = 2
+    n.link("region1", "region2", "TestFanIn2", "",
+           propagationDelay=propagationDelay)
+
+    r1dims = engine.Dimensions([6, 4])
+    region1.setDimensions(r1dims)
+
+    n.initialize()
+
+    outputArrays = []
+    inputArrays = []
+
+    iterations = propagationDelay + 2
+    for i in xrange(iterations):
+      n.run(1)
+
+      if i < iterations - propagationDelay:
+        outputArrays.append(list(region1.getOutputData("bottomUpOut")))
+
+      if i < propagationDelay:
+        # Pre-initialized delay elements should be arrays of all 0's
+        outputArrays.insert(i, [0.0] * len(outputArrays[0]))
+
+      inputArrays.append(list(region2.getInputData("bottomUpIn")))
+
+    self.assertListEqual(inputArrays, outputArrays)
 
 
   def testInputsAndOutputs(self):
@@ -345,6 +378,8 @@ class NetworkTest(unittest.TestCase):
     print r.getSpec()
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testPyNodeGetSetParameter(self):
     n = engine.Network()
 
@@ -365,6 +400,8 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(result, 77.7)
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testPyNodeGetNodeSpec(self):
     n = engine.Network()
 
@@ -387,6 +424,8 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(i.description, 'Primary output for the node')
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testTwoRegionPyNodeNetwork(self):
     n = engine.Network()
 
@@ -412,6 +451,11 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(r2dims[1], 2)
 
 
+  def testGetRegion(self):
+    n = engine.Network()
+    n.addRegion("region1", "py.TestNode", "")
 
-if __name__ == "__main__":
-  unittest.main()
+    region = n.getRegionsByType(TestNode)[0]
+    self.assertEqual(type(region.getSelf()), TestNode)
+
+    self.assertEqual(n.getRegionsByType(SPRegion), [])

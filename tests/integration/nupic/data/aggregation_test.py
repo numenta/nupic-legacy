@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -6,28 +5,27 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
 import datetime
-import glob
 import os
-import sys
 import tempfile
 
+from pkg_resources import resource_filename
+
 from nupic.data.file_record_stream import FileRecordStream
-from nupic.data.datasethelpers import findDataset
 
 from nupic.data.aggregator import Aggregator, generateDataset
 
@@ -36,7 +34,7 @@ from nupic.support.unittesthelpers.testcasebase import (unittest,
   TestCaseBase as HelperTestCaseBase)
 
 
-#############################################################################
+
 def _aggregate(input, options, output, timeFieldName):
   """ Aggregate the input stream and write aggregated records to the output
   stream
@@ -69,13 +67,13 @@ class DataInputList(object):
 
   _list = None
 
-  ##############################################################################
+
   def __init__(self, list, fields):
     self._list = list
     self._fields = fields
     self._recNo = 0
 
-  ##############################################################################
+
   def getNextRecord(self):
     try:
       if self._recNo >= len(self._list):
@@ -88,7 +86,6 @@ class DataInputList(object):
     return ret
 
 
-  ##############################################################################
   def getCurPos(self):
     return 0
   
@@ -103,12 +100,12 @@ class DataOutputList(object):
 
   metaProvider = None
 
-  ##############################################################################
+
   def __init__(self, file):
     self._store = []
     pass
-  
-  ##############################################################################
+
+
   def appendRecord(self, record, inputRef=None):
     self._store.append(record)
 
@@ -123,11 +120,11 @@ class DataOutputMyFile(object):
 
   metaProvider = None
 
-  ##############################################################################
+
   def __init__(self, file):
     self._file = file
 
-  ##############################################################################
+
   def appendRecord(self, record, inputRef):
     if self._file == None:
       print 'No File'
@@ -527,8 +524,6 @@ class DataOutputMyFile(object):
 
 
 
-################################################################################
-################################################################################
 class AggregationTests(HelperTestCaseBase):
 
   def setUp(self):
@@ -546,7 +541,9 @@ class AggregationTests(HelperTestCaseBase):
 
 
   def test_GymAggregateWithOldData(self):
-    filename = findDataset('extra/gym/gym.csv')
+    filename = resource_filename(
+      "nupic.datafiles", "extra/gym/gym.csv"
+    )
 
     input = []
 
@@ -598,7 +595,9 @@ class AggregationTests(HelperTestCaseBase):
     return
 
   def test_GymAggregate(self):
-    filename = findDataset('extra/gym/gym.csv')
+    filename = resource_filename(
+      "nupic.datafiles", "extra/gym/gym.csv"
+    )
 
     input = []
 
@@ -646,8 +645,9 @@ class AggregationTests(HelperTestCaseBase):
 
     print "Using input dataset: ", dataset
 
-    gymFileds = None
-    with FileRecordStream(findDataset(dataset)) as f:
+    filename = resource_filename("nupic.datafiles", dataset)
+
+    with FileRecordStream(filename) as f:
       gymFields = f.getFieldNames()
 
     aggregationOptions = dict(
@@ -662,14 +662,19 @@ class AggregationTests(HelperTestCaseBase):
     handle = \
       tempfile.NamedTemporaryFile(prefix='agg_gym_hours_5', 
         suffix='.csv', 
-        dir=os.path.dirname(findDataset(dataset)))
+        dir=os.path.dirname(
+          resource_filename("nupic.datafiles", dataset)
+        )
+      )
     outputFile = handle.name
     handle.close()
 
     print "Expected outputFile path: ", outputFile
 
     print "Files in the destination folder before the test:"
-    print os.listdir(os.path.abspath(os.path.dirname(findDataset(dataset))))
+    print os.listdir(os.path.abspath(os.path.dirname(
+      resource_filename("nupic.datafiles", dataset)))
+    )
 
     if os.path.isfile(outputFile):
       print "Removing existing outputFile: ", outputFile
@@ -694,7 +699,9 @@ class AggregationTests(HelperTestCaseBase):
         outputFile, f1))
 
     print "Files in the destination folder after the test:"
-    print os.listdir(os.path.abspath(os.path.dirname(findDataset(dataset))))
+    print os.listdir(os.path.abspath(os.path.dirname(
+      resource_filename("nupic.datafiles", dataset)
+    )))
 
     print result
     print '-' * 30
@@ -748,7 +755,7 @@ class AggregationTests(HelperTestCaseBase):
 2009-05-06 20:41:15,554.3
 2009-05-06 20:41:51,652.11"""
     fields = [('timestamp', 'datetime', 'T'), ('amount', 'float', '')]
-    with FileRecordStream('data/gap.csv', write=True, fields=fields) as f:
+    with FileRecordStream(resource_filename('nupic.datafiles', 'gap.csv'), write=True, fields=fields) as f:
       lines = data.split('\n')
       for line in lines:
         t, a = line.split(',')
@@ -773,11 +780,10 @@ class AggregationTests(HelperTestCaseBase):
     handle = \
       tempfile.NamedTemporaryFile(prefix='agg_gap_hours_24', 
         suffix='.csv', 
-        dir='data')
+        dir='.')
     outputFile = handle.name
     handle.close()
     
-    #outputFile = 'data/agg_gap_hours_24.csv'
     if os.path.isfile(outputFile):
       os.remove(outputFile)
     self.assertFalse(os.path.exists(outputFile),
@@ -833,10 +839,7 @@ class AggregationTests(HelperTestCaseBase):
       ['dummy-5', datetime.datetime(2000, 3, 5), 0, 2],
     )
 
-    if not os.path.isdir('data'):
-      os.makedirs('data')
-
-    with FileRecordStream('data/auto_specials.csv', write=True, fields=fields) \
+    with FileRecordStream(resource_filename('nupic.datafiles', 'auto_specials.csv'), write=True, fields=fields) \
            as o:
       for r in records:
         o.appendRecord(r)
@@ -895,10 +898,7 @@ class AggregationTests(HelperTestCaseBase):
       [6, 0, datetime.datetime(2000, 3, 8)],
     )
 
-    if not os.path.isdir('data'):
-      os.makedirs('data')
-
-    with FileRecordStream('data/weighted_mean.csv', write=True, fields=fields) \
+    with FileRecordStream(resource_filename('nupic.datafiles', 'weighted_mean.csv'), write=True, fields=fields) \
           as o:
       for r in records:
         o.appendRecord(r)

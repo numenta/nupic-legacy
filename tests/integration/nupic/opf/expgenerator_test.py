@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
@@ -6,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -31,23 +30,24 @@ import shutil
 import string
 import subprocess
 import sys
+
+from pkg_resources import resource_filename
 import unittest2 as unittest
 
-from nupic.data import dictutils
-from nupic.database.ClientJobsDAO import ClientJobsDAO
+from nupic.database.client_jobs_dao import ClientJobsDAO
 from nupic.support import aggregationDivide
 from nupic.support.unittesthelpers.testcasebase import (
   TestCaseBase as HelperTestCaseBase)
-from nupic.swarming import HypersearchWorker
-from nupic.swarming.permutationhelpers import PermuteChoices
-from nupic.swarming.utils import generatePersistentJobGUID
-from nupic.frameworks.opf.expdescriptionapi import OpfEnvironment
-from nupic.frameworks.opf.exp_generator import ExpGenerator
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                                           InferenceElement)
+from nupic.swarming import hypersearch_worker
+from nupic.swarming.permutation_helpers import PermuteChoices
+from nupic.swarming.utils import generatePersistentJobGUID, rCopy
+from nupic.frameworks.opf.exp_description_api import OpfEnvironment
+from nupic.swarming.exp_generator import experiment_generator
+from nupic.frameworks.opf.opf_utils import (InferenceType,
+                                            InferenceElement)
 
 LOGGER = logging.getLogger(__name__)
-
+HOTGYM_INPUT = "extra/hotgym/hotgym.csv"
 
 
 g_debug = False
@@ -85,10 +85,6 @@ class MyTestEnvironment(object):
     LOGGER.info("Generating experiment description files in: %s", \
                   os.path.abspath(self.testOutDir))
 
-    # Where to find out datasets
-    self.datasetSrcDir = os.path.join(installRootDir, "examples", "prediction", \
-      "data", "extra")
-
 
   def cleanUp(self):
     shutil.rmtree(self.testOutDir, ignore_errors=True)
@@ -120,7 +116,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     global g_myEnv
     if not g_myEnv:
       # Setup environment
-      params = type('obj', (object,), {'installDir' : os.environ['NUPIC']})
+      params = type('obj', (object,), {'installDir' : resource_filename("nupic", "")})
       g_myEnv = MyTestEnvironment(params)
 
 
@@ -185,7 +181,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       "--version=%s" % (hsVersion)
     ]
     self.addExtraLogItem({'args':args})
-    ExpGenerator.expGenerator(args)
+    experiment_generator.expGenerator(args)
 
 
     #----------------------------------------
@@ -254,7 +250,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     LOGGER.info("RUNNING PERMUTATIONS")
     LOGGER.info("============================================================")
 
-    jobID = HypersearchWorker.main(args)
+    jobID = hypersearch_worker.main(args)
 
     # Make sure all models completed successfully
     cjDAO = ClientJobsDAO.get()
@@ -305,7 +301,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
                      expDesc['inferenceArgs']['predictionSteps'])
     #self.assertEqual(base.config['modelParams']['clParams']['steps'],
     #                 '%s' % (predictionSteps))
-    tmpAggregationInfo = dictutils.rCopy(
+    tmpAggregationInfo = rCopy(
         base.config['aggregationInfo'],
         lambda value, _: value)
     tmpAggregationInfo.pop('fields')
@@ -403,7 +399,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     #----------------------------------------
     # Run it
-    ExpGenerator.expGenerator(args)
+    experiment_generator.expGenerator(args)
     return
 
 
@@ -414,12 +410,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -454,10 +449,10 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Make sure we have the right optimization designation
     self.assertEqual(perms.minimize,
-        ("multiStepBestPredictions:multiStep:errorMetric='altMAPE':"
+                     ("multiStepBestPredictions:multiStep:errorMetric='altMAPE':"
          "steps=\\[1\\]:window=%d:field=consumption")
-          % ExpGenerator.METRIC_WINDOW,
-          msg="got: %s" % perms.minimize)
+                     % experiment_generator.METRIC_WINDOW,
+                     msg="got: %s" % perms.minimize)
 
     # Should not have any classifier info to permute over
     self.assertNotIn('clAlpha', perms.permutations)
@@ -503,7 +498,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     optimizeString = ("multiStepBestPredictions:multiStep:"
                      "errorMetric='%s':steps=\[1\]"
                      ":window=%d:field=%s" % \
-                                (optimizeMetric, ExpGenerator.METRIC_WINDOW,
+                                (optimizeMetric, experiment_generator.METRIC_WINDOW,
                                  predictedField))
     print "perm.minimize=",perm.minimize
     print "optimizeString=",optimizeString
@@ -517,13 +512,13 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     # =========================================================================
     # Test category predicted field
     # =========================================================================
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "nfl", "qa_nfl.csv")
     streamDef = dict(
       version = 1,
       info = "test_category_predicted_field",
       streams = [
-        dict(source="file://%s" % (dataPath),
-             info="nfl.csv",
+        # It doesn't matter if this stream source points to a real place or not.
+        dict(source="file://dummy",
+             info="dummy.csv",
              columns=["*"]),
         ],
     )
@@ -551,7 +546,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
         },
       ],
     }
-    
+
     # Make sure we have the right metric type
     #   (avg_err for categories, aae for scalars)
     (base, perms) = self.getModules(expDesc)
@@ -582,12 +577,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -766,12 +760,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "TestAggregation",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
       ],
@@ -869,12 +862,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -933,13 +925,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
-
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -979,12 +969,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"],
              last_record=20),
@@ -1028,7 +1017,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # --------------------------------------------------------------------
     (base, perms) = self.getModules(expDesc)
-    
+
     print "base.config['modelParams']:"
     pprint.pprint(base.config['modelParams'])
     print "perms.permutations"
@@ -1045,7 +1034,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
                      expDesc['inferenceArgs']['predictedField'])
     self.assertEqual(base.config['modelParams']['inferenceType'],
                      "TemporalMultiStep")
-    
+
     # Make sure there is a '_classifier_input' encoder with classifierOnly
     #  set to True
     self.assertEqual(base.config['modelParams']['sensorParams']['encoders']
@@ -1053,7 +1042,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertEqual(base.config['modelParams']['sensorParams']['encoders']
                      ['_classifierInput']['fieldname'],
                      expDesc['inferenceArgs']['predictedField'])
-    
+
 
     # And in the permutations file
     self.assertIn('inferenceType', perms.permutations['modelParams'])
@@ -1068,12 +1057,12 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Should set inputPredictedField to "auto" (the default)
     self.assertEqual(perms.inputPredictedField, "auto")
-    
 
-    # Should have TP parameters being permuted
+
+    # Should have TM parameters being permuted
     self.assertIn('activationThreshold',
-                  perms.permutations['modelParams']['tpParams'])
-    self.assertIn('minThreshold', perms.permutations['modelParams']['tpParams'])
+                  perms.permutations['modelParams']['tmParams'])
+    self.assertIn('minThreshold', perms.permutations['modelParams']['tmParams'])
 
 
     # Make sure the right metrics were put in
@@ -1102,7 +1091,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # --------------------------------------
-    # If we specify NonTemporal, we shouldn't permute over TP parameters
+    # If we specify NonTemporal, we shouldn't permute over TM parameters
     expDesc2 = copy.deepcopy(expDesc)
     expDesc2['inferenceType'] = 'NontemporalMultiStep'
     (base, perms) = self.getModules(expDesc2)
@@ -1116,9 +1105,9 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertIn('alpha', perms.permutations['modelParams']['clParams'])
     self.assertNotIn('inferenceType', perms.permutations['modelParams'])
     self.assertNotIn('activationThreshold',
-                     perms.permutations['modelParams']['tpParams'])
+                     perms.permutations['modelParams']['tmParams'])
     self.assertNotIn('minThreshold',
-                     perms.permutations['modelParams']['tpParams'])
+                     perms.permutations['modelParams']['tmParams'])
 
     # Make sure the right metrics were put in
     metrics = base.control['metrics']
@@ -1151,8 +1140,8 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertIn('alpha', perms.permutations['modelParams']['clParams'])
     self.assertIn('inferenceType', perms.permutations['modelParams'])
     self.assertIn('activationThreshold',
-                  perms.permutations['modelParams']['tpParams'])
-    self.assertIn('minThreshold', perms.permutations['modelParams']['tpParams'])
+                  perms.permutations['modelParams']['tmParams'])
+    self.assertIn('minThreshold', perms.permutations['modelParams']['tmParams'])
 
     # Make sure the right metrics were put in
     metrics = base.control['metrics']
@@ -1166,8 +1155,8 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Test running it
     self.runBaseDescriptionAndPermutations(expDesc, hsVersion='v2')
-    
-    
+
+
     # ---------------------------------------------------------------------
     # If the caller sets inferenceArgs.inputPredictedField, make
     # sure the permutations file has the same setting
@@ -1200,13 +1189,12 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
   def test_DeltaEncoders(self):
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
 
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -1302,12 +1290,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       })
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"],
              last_record=10),
@@ -1426,12 +1413,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -1484,7 +1470,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Should set inputPredictedField to "auto"
     self.assertEqual(perms.inputPredictedField, "auto")
-    
+
 
 
     # --------------------------------------------------------------------
@@ -1563,12 +1549,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -1619,12 +1604,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -1676,12 +1660,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     """
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -1745,12 +1728,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     """
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"],
              last_record=10),
@@ -1808,14 +1790,14 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertEqual(base.config['modelParams']['sensorParams']['encoders']
                      ['_classifierInput']['fieldname'],
                      expDesc['inferenceArgs']['predictedField'])
-    
+
     self.assertNotIn('consumption',
              base.config['modelParams']['sensorParams']['encoders'].keys())
 
-    
-    # The SP and TP should both be disabled
+
+    # The SP and TM should both be disabled
     self.assertFalse(base.config['modelParams']['spEnable'])
-    self.assertFalse(base.config['modelParams']['tpEnable'])
+    self.assertFalse(base.config['modelParams']['tmEnable'])
 
     # Check permutations file
     self.assertNotIn('inferenceType', perms.permutations['modelParams'])
@@ -1824,8 +1806,8 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
             + "steps=\\[0\\]:window=1000:field=consumption")
     self.assertIn('alpha', perms.permutations['modelParams']['clParams'])
 
-    # Should have no SP or TP params to permute over
-    self.assertEqual(perms.permutations['modelParams']['tpParams'], {})
+    # Should have no SP or TM params to permute over
+    self.assertEqual(perms.permutations['modelParams']['tmParams'], {})
     self.assertEqual(perms.permutations['modelParams']['spParams'], {})
 
 
@@ -1864,8 +1846,8 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     except:
       gotException = True
     self.assertTrue(gotException)
-    
-    
+
+
     # --------------------------------------
     # If we specify NonTemporalClassification, inferenceArgs.inputPredictedField
     #  can not be 'yes'
@@ -1877,7 +1859,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     except:
       gotException = True
     self.assertTrue(gotException)
-    
+
 
     return
 
@@ -1962,9 +1944,10 @@ if __name__ == '__main__':
 
   # Our custom options (that don't get passed to unittest):
   customOptions = ['--installDir', '--verbosity', '--logLevel']
-  parser.add_option(
-    "--installDir", dest="installDir", default=os.environ['NUPIC'],
-    help="Path to the NTA install directory [default: %default].")
+
+  parser.add_option("--installDir", dest="installDir",
+        default=resource_filename("nupic", ""),
+        help="Path to the NTA install directory [default: %default].")
 
   parser.add_option("--verbosity", default=0, type="int",
         help="Verbosity level, either 0, 1, 2, or 3 [default: %default].")

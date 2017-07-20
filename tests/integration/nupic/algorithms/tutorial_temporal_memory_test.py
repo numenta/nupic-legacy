@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
@@ -6,45 +5,50 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import nupic.bindings.algorithms
 import pprint
-import unittest2 as unittest
+import unittest
+from abc import ABCMeta
 
-from nupic.data.pattern_machine import ConsecutivePatternMachine
-
-from nupic.test.abstract_temporal_memory_test import AbstractTemporalMemoryTest
-
+import nupic.algorithms.temporal_memory
+from nupic.data.generators.pattern_machine import ConsecutivePatternMachine
+from nupic.support.unittesthelpers.abstract_temporal_memory_test import AbstractTemporalMemoryTest
 
 
 class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
+  __metaclass__ = ABCMeta
 
   VERBOSITY = 1
-  DEFAULT_TM_PARAMS = {
-    "columnDimensions": [6],
-    "cellsPerColumn": 4,
-    "initialPermanence": 0.3,
-    "connectedPermanence": 0.5,
-    "minThreshold": 1,
-    "maxNewSynapseCount": 6,
-    "permanenceIncrement": 0.1,
-    "permanenceDecrement": 0.05,
-    "activationThreshold": 1
-  }
-  PATTERN_MACHINE = ConsecutivePatternMachine(6, 1)
 
+  def getPatternMachine(self):
+    return ConsecutivePatternMachine(6, 1)
+
+  def getDefaultTMParams(self):
+    return {
+      "columnDimensions": (6,),
+      "cellsPerColumn": 4,
+      "initialPermanence": 0.3,
+      "connectedPermanence": 0.5,
+      "minThreshold": 1,
+      "maxNewSynapseCount": 6,
+      "permanenceIncrement": 0.1,
+      "permanenceDecrement": 0.05,
+      "activationThreshold": 1,
+    }
 
   def testFirstOrder(self):
     """Basic first order sequences"""
@@ -216,12 +220,17 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     print
 
     if learn:
-      print self.tm.mmPrettyPrintConnections()
+      self._printConnections()
 
 
   # ==============================
   # Helper functions
   # ==============================
+
+  def _printConnections(self):
+    # This is in a helper so that it can be overridden.
+    print self.tm.mmPrettyPrintConnections()
+
 
   def _showInput(self, sequence, learn=True, num=1):
     sequenceText = self.sequenceMachine.prettyPrintSequence(
@@ -232,6 +241,22 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     print "Feeding sequence {0}{1}:\n{2}".format(
       learnText, numText, sequenceText)
     print
+
+
+
+class TutorialTemporalMemoryTestsCPP(TutorialTemporalMemoryTest, unittest.TestCase):
+  def getTMClass(self):
+    return nupic.bindings.algorithms.TemporalMemory
+
+  def _printConnections(self):
+    # Can't call segmentsForCell on C++ connections class (yet).
+    pass
+
+
+
+class TutorialTemporalMemoryTestsPY(TutorialTemporalMemoryTest, unittest.TestCase):
+  def getTMClass(self):
+    return nupic.algorithms.temporal_memory.TemporalMemory
 
 
 

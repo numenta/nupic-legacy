@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -6,22 +5,22 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
 """
-A simple client to create a CLA anomaly detection model for hotgym.
+A simple client to create a HTM anomaly detection model for hotgym.
 The script prints out all records that have an abnormally high anomaly
 score.
 """
@@ -30,16 +29,17 @@ import csv
 import datetime
 import logging
 
-from nupic.data.datasethelpers import findDataset
-from nupic.frameworks.opf.modelfactory import ModelFactory
-from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
+from pkg_resources import resource_filename
+
+from nupic.frameworks.opf.model_factory import ModelFactory
 
 import model_params
 
 _LOGGER = logging.getLogger(__name__)
 
-_DATA_PATH = "extra/hotgym/rec-center-hourly.csv"
-
+_INPUT_DATA_FILE = resource_filename(
+  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
+)
 _OUTPUT_PATH = "anomaly_scores.csv"
 
 _ANOMALY_THRESHOLD = 0.9
@@ -52,7 +52,7 @@ def createModel():
 def runHotgymAnomaly():
   model = createModel()
   model.enableInference({'predictedField': 'consumption'})
-  with open (findDataset(_DATA_PATH)) as fin:
+  with open (_INPUT_DATA_FILE) as fin:
     reader = csv.reader(fin)
     csvWriter = csv.writer(open(_OUTPUT_PATH,"wb"))
     csvWriter.writerow(["timestamp", "consumption", "anomaly_score"])

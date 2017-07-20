@@ -1,0 +1,22 @@
+#See http://www.pip-installer.org/en/latest/requirements.html for details
+asteval==0.9.1
+coverage==3.7.1
+mock==1.0.1
+ordereddict==1.1
+psutil==1.0.1
+pytest==3.0.7
+pytest-cov==2.5.0
+pytest-xdist==1.16.0
+python-dateutil==2.1
+PyYAML==3.10
+unittest2==0.5.1
+validictory==0.9.1
+PyMySQL==0.6.2
+DBUtils==1.1
+pyproj==1.9.3
+prettytable==0.7.2
+
+# When updating nupic.bindings, also update any shared dependencies to keep
+# versions in sync.
+nupic.bindings==1.0.0
+numpy==1.12.1

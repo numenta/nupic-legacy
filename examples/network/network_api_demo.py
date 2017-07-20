@@ -1,20 +1,19 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2015-2016, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -25,16 +24,20 @@ import csv
 import json
 import os
 
-from nupic.algorithms.anomaly import computeRawAnomalyScore
-from nupic.data.datasethelpers import findDataset
+from pkg_resources import resource_filename
+
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
-from nupic.encoders import MultiEncoder
+from nupic.encoders import MultiEncoder, ScalarEncoder, DateEncoder
+from nupic.regions.sp_region import SPRegion
+from nupic.regions.tm_region import TMRegion
 
 _VERBOSITY = 0  # how chatty the demo should be
 _SEED = 1956  # the random seed used throughout
-_DATA_PATH = "extra/hotgym/rec-center-hourly.csv"
-_OUTPUT_PATH = "test_output.csv"
+_INPUT_FILE_PATH = resource_filename(
+  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
+)
+_OUTPUT_PATH = "network-demo-anomaly-output.csv"
 _NUM_RECORDS = 2000
 
 # Config field for SPRegion
@@ -51,11 +54,11 @@ SP_PARAMS = {
     "synPermConnected": 0.1,
     "synPermActiveInc": 0.0001,
     "synPermInactiveDec": 0.0005,
-    "maxBoost": 1.0,
+    "boostStrength": 0.0,
 }
 
-# Config field for TPRegion
-TP_PARAMS = {
+# Config field for TMRegion
+TM_PARAMS = {
     "verbosity": _VERBOSITY,
     "columnCount": 2048,
     "cellsPerColumn": 32,
@@ -80,25 +83,13 @@ TP_PARAMS = {
 
 def createEncoder():
   """Create the encoder instance for our test and return it."""
+  consumption_encoder = ScalarEncoder(21, 0.0, 100.0, n=50, name="consumption",
+      clipInput=True)
+  time_encoder = DateEncoder(timeOfDay=(21, 9.5), name="timestamp_timeOfDay")
+
   encoder = MultiEncoder()
-  encoder.addMultipleEncoders({
-      "consumption": {
-          "clipInput": True,
-          "fieldname": u"consumption",
-          "maxval": 100.0,
-          "minval": 0.0,
-          "n": 50,
-          "name": u"consumption",
-          "type": "ScalarEncoder",
-          "w": 21,
-      },
-      "timestamp_timeOfDay": {
-          "fieldname": u"timestamp",
-          "name": u"timestamp_timeOfDay",
-          "timeOfDay": (21, 9.5),
-          "type": "DateEncoder",
-      },
-  })
+  encoder.addEncoder("consumption", consumption_encoder)
+  encoder.addEncoder("timestamp", time_encoder)
 
   return encoder
 
@@ -109,7 +100,7 @@ def createNetwork(dataSource):
 
   The network has a sensor region reading data from `dataSource` and passing
   the encoded representation to an SPRegion. The SPRegion output is passed to
-  a TPRegion.
+  a TMRegion.
 
   :param dataSource: a RecordStream instance to get data from
   :returns: a Network instance ready to run
@@ -140,15 +131,23 @@ def createNetwork(dataSource):
   network.link("spatialPoolerRegion", "sensor", "UniformLink", "",
                srcOutput="temporalTopDownOut", destInput="temporalTopDownIn")
 
-  # Add the TPRegion on top of the SPRegion
-  network.addRegion("temporalPoolerRegion", "py.TPRegion",
-                    json.dumps(TP_PARAMS))
+  # Add the TMRegion on top of the SPRegion
+  network.addRegion("temporalPoolerRegion", "py.TMRegion",
+                    json.dumps(TM_PARAMS))
 
   network.link("spatialPoolerRegion", "temporalPoolerRegion", "UniformLink", "")
   network.link("temporalPoolerRegion", "spatialPoolerRegion", "UniformLink", "",
                srcOutput="topDownOut", destInput="topDownIn")
 
-  network.initialize()
+  # Add the AnomalyLikelihoodRegion on top of the TMRegion
+  network.addRegion("anomalyLikelihoodRegion", "py.AnomalyLikelihoodRegion",
+    json.dumps({}))
+  
+  network.link("temporalPoolerRegion", "anomalyLikelihoodRegion", "UniformLink",
+               "", srcOutput="anomalyScore", destInput="rawAnomalyScore")
+  network.link("sensor", "anomalyLikelihoodRegion", "UniformLink", "",
+               srcOutput="sourceOut", destInput="metricValue")
+  
 
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
 
@@ -166,9 +165,8 @@ def createNetwork(dataSource):
   temporalPoolerRegion.setParameter("learningMode", True)
   # Enable inference mode so we get predictions
   temporalPoolerRegion.setParameter("inferenceMode", True)
-  # Enable anomalyMode to compute the anomaly score. This actually doesn't work
-  # now so doesn't matter. We instead compute the anomaly score based on
-  # topDownOut (predicted columns) and SP bottomUpOut (active columns).
+  # Enable anomalyMode to compute the anomaly score to be passed to the anomaly
+  # likelihood region. 
   temporalPoolerRegion.setParameter("anomalyMode", True)
 
   return network
@@ -183,40 +181,42 @@ def runNetwork(network, writer):
   sensorRegion = network.regions["sensor"]
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
   temporalPoolerRegion = network.regions["temporalPoolerRegion"]
+  anomalyLikelihoodRegion = network.regions["anomalyLikelihoodRegion"]
 
   prevPredictedColumns = []
 
-  i = 0
-  for _ in xrange(_NUM_RECORDS):
+  for i in xrange(_NUM_RECORDS):
     # Run the network for a single iteration
     network.run(1)
 
-    activeColumns = spatialPoolerRegion.getOutputData(
-        "bottomUpOut").nonzero()[0]
-
-    # Calculate the anomaly score using the active columns
-    # and previous predicted columns
-    anomalyScore = computeRawAnomalyScore(activeColumns, prevPredictedColumns)
-
-    # Write out the anomaly score along with the record number and consumption
+    # Write out the anomaly likelihood along with the record number and consumption
     # value.
     consumption = sensorRegion.getOutputData("sourceOut")[0]
-    writer.writerow((i, consumption, anomalyScore))
-
-    # Store the predicted columns for the next timestep
-    predictedColumns = temporalPoolerRegion.getOutputData(
-        "topDownOut").nonzero()[0]
-    prevPredictedColumns = copy.deepcopy(predictedColumns)
-
-    i += 1
-
+    anomalyScore = temporalPoolerRegion.getOutputData("anomalyScore")[0]
+    anomalyLikelihood = anomalyLikelihoodRegion.getOutputData("anomalyLikelihood")[0]
+    writer.writerow((i, consumption, anomalyScore, anomalyLikelihood))
 
 
 if __name__ == "__main__":
-  trainFile = findDataset(_DATA_PATH)
-  dataSource = FileRecordStream(streamID=trainFile)
+  dataSource = FileRecordStream(streamID=_INPUT_FILE_PATH)
 
   network = createNetwork(dataSource)
+  network.initialize()
+
+  spRegion = network.getRegionsByType(SPRegion)[0]
+  sp = spRegion.getSelf().getAlgorithmInstance()
+  print "spatial pooler region inputs: {0}".format(spRegion.getInputNames())
+  print "spatial pooler region outputs: {0}".format(spRegion.getOutputNames())
+  print "# spatial pooler columns: {0}".format(sp.getNumColumns())
+  print
+
+  tmRegion = network.getRegionsByType(TMRegion)[0]
+  tm = tmRegion.getSelf().getAlgorithmInstance()
+  print "temporal memory region inputs: {0}".format(tmRegion.getInputNames())
+  print "temporal memory region outputs: {0}".format(tmRegion.getOutputNames())
+  print "# temporal memory columns: {0}".format(tm.numberOfCols)
+  print
+
   outputPath = os.path.join(os.path.dirname(__file__), _OUTPUT_PATH)
   with open(outputPath, "w") as outputFile:
     writer = csv.writer(outputFile)

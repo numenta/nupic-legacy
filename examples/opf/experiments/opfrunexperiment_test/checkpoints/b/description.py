@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -30,14 +30,14 @@
 ###############################################################################
 
 
-from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
+from nupic.frameworks.opf.exp_description_helpers import importBaseDescription
 
 # the sub-experiment configuration
 config ={
   'aggregationInfo' : {'seconds': 0, 'fields': [(u'c1', 'first'), (u'c0', 'first')], 'months': 0, 'days': 0, 'years': 0, 'hours': 1, 'microseconds': 0, 'weeks': 0, 'minutes': 0, 'milliseconds': 0},
-  'modelParams' : {'sensorParams': {'encoders': {u'c0_timeOfDay': None, u'c0_dayOfWeek': None, u'c1': {'name': 'c1', 'clipInput': True, 'n': 275, 'fieldname': 'c1', 'w': 21, 'type': 'AdaptiveScalarEncoder'}, u'c0_weekend': None}}, 'inferenceType': 'NontemporalMultiStep', 'spParams': {'synPermInactiveDec': 0.052500000000000005}, 'tpParams': {'minThreshold': 11, 'activationThreshold': 14, 'pamLength': 3}, 'clParams': {'alpha': 0.050050000000000004}},
+  'modelParams' : {'sensorParams': {'encoders': {u'c0_timeOfDay': None, u'c0_dayOfWeek': None, u'c1': {'name': 'c1', 'clipInput': True, 'n': 275, 'fieldname': 'c1', 'w': 21, 'type': 'AdaptiveScalarEncoder'}, u'c0_weekend': None}}, 'inferenceType': 'NontemporalMultiStep', 'spParams': {'synPermInactiveDec': 0.052500000000000005}, 'tmParams': {'minThreshold': 11, 'activationThreshold': 14, 'pamLength': 3}, 'clParams': {'alpha': 0.050050000000000004}},
 
-  'dataPath': 'data/b.csv',
+  'dataPath': 'experiments/opfrunexperiment_test/checkpoints/data/b.csv',
 
 }
 

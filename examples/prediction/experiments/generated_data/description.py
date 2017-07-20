@@ -2,7 +2,7 @@ from nupic.encoders import (LogEncoder, DateEncoder, MultiEncoder, ScalarEncoder
 
 from nupic.data import FunctionSource
 from nupic.frameworks.prediction.callbacks import displaySPCoincidences, printSPCoincidences
-from nupic.data.dictutils import DictObj
+from nupic.data.dict_utils import DictObj
 
 
 nCoincidences = 30
@@ -64,30 +64,25 @@ def getDescription(datasets):
   dataSource = FunctionSource(generateFunction, dict(nRandomFields=nRandomFields,
                                                  randomFieldWidth=randomFieldWidth))
 
-  inputShape = (1, encoder.getWidth())
+  inputDimensions = (1, encoder.getWidth())
 
   # Layout the coincidences vertically stacked on top of each other, each
   # looking at the entire input field.
-  coincidencesShape = (nCoincidences, 1)
-  # TODO: why do we need input border?
-  inputBorder = inputShape[1]/2
-  if inputBorder*2 >= inputShape[1]:
-    inputBorder -= 1
+  columnDimensions = (nCoincidences, 1)
 
 
   nodeParams = dict()
 
   spParams = dict(
         commonDistributions=0,
-        inputShape = inputShape,
-        inputBorder = inputBorder,
-        coincidencesShape = coincidencesShape,
-        coincInputRadius = inputShape[1]/2,
-        coincInputPoolPct = 0.75,
+        inputDimensions = inputDimensions,
+        columnDimensions = columnDimensions,
+        potentialRadius = inputDimensions[1]/2,
+        potentialPct = 0.75,
         gaussianDist = 0,
         localAreaDensity = 0.10,
         # localAreaDensity = 0.04,
-        numActivePerInhArea = -1,
+        numActiveColumnsPerInhArea = -1,
         dutyCyclePeriod = 1000,
         stimulusThreshold = 5,
         synPermInactiveDec=0.08,

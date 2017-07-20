@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -81,7 +81,7 @@ config = dict(
   spCoincCount = 200,
   spNumActivePerInhArea = 3,
 
-  # TP params
+  # TM params
   tpNCellsPerCol = 20,
   tpInitialPerm = 0.6,
   tpPermanenceInc = 0.1,
@@ -148,9 +148,9 @@ if config['dataSetPackage'] is not None:
     
   else:
     assert False
-    
 
-#########################################################################
+
+
 def getBaseDatasets():
   datasets = dict()
   for name in ['filenameTrain', 'filenameTest', 'filenameCategory',
@@ -158,9 +158,9 @@ def getBaseDatasets():
     if config[name] is not None:
       datasets[name] = config[name]
   return datasets
-  
 
-#########################################################################
+
+
 def getDatasets(baseDatasets, generate=False):
   # nothing to generate if no script
   if not 'dataGenScript' in baseDatasets:
@@ -198,8 +198,8 @@ def getDatasets(baseDatasets, generate=False):
 
   return datasets
   
-  
-#########################################################################
+
+
 def getDescription(datasets):
 
   # ========================================================================
@@ -224,19 +224,16 @@ def getDescription(datasets):
   # ------------------------------------------------------------------
   # Node params
   # The inputs are long, horizontal vectors
-  inputShape = (1, encoder.getWidth())
+  inputDimensions = (1, encoder.getWidth())
 
   # Layout the coincidences vertically stacked on top of each other, each
   # looking at the entire input field. 
-  coincidencesShape = (config['spCoincCount'], 1)
-  inputBorder = inputShape[1]/2
-  if inputBorder*2 >= inputShape[1]:
-    inputBorder -= 1
+  columnDimensions = (config['spCoincCount'], 1)
 
   # If we have disableSpatial, then set the number of "coincidences" to be the
   #  same as the encoder width
   if config['disableSpatial']:
-    coincidencesShape = (encoder.getWidth(), 1)
+    columnDimensions = (encoder.getWidth(), 1)
     config['trainSP'] = 0
 
   sensorParams = dict(
@@ -247,15 +244,14 @@ def getDescription(datasets):
   CLAParams = dict(
     # SP params
     disableSpatial = config['disableSpatial'],
-    inputShape = inputShape,
-    inputBorder = inputBorder,
-    coincidencesShape = coincidencesShape,
-    coincInputRadius = inputShape[1]/2,
-    coincInputPoolPct = 1.00,
+    inputDimensions = inputDimensions,
+    columnDimensions = columnDimensions,
+    potentialRadius = inputDimensions[1]/2,
+    potentialPct = 1.00,
     gaussianDist = 0,
     commonDistributions = 0,    # should be False if possibly not training
     localAreaDensity = -1, #0.05, 
-    numActivePerInhArea = config['spNumActivePerInhArea'], 
+    numActiveColumnsPerInhArea = config['spNumActivePerInhArea'], 
     dutyCyclePeriod = 1000,
     stimulusThreshold = 1,
     synPermInactiveDec=0.11,
@@ -269,7 +265,7 @@ def getDescription(datasets):
     printPeriodicStats = int(config['spPrintPeriodicStats']),
 
 
-    # TP params
+    # TM params
     tpSeed = 1,
     disableTemporal = 0 if config['trainTP'] else 1,
     temporalImp = config['temporalImp'],
@@ -363,7 +359,7 @@ def getDescription(datasets):
           )
       )
 
-    # Testing the training set on both the TP and n-grams. 
+    # Testing the training set on both the TM and n-grams.
     inferSteps.append(
       dict(name = 'confidenceTrain_nonoise', 
              iterationCount = min(config['evalTrainingSetNumIterations'], 

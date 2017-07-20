@@ -1,0 +1,45 @@
+machine:
+  timezone:
+    GMT
+  xcode:
+    version: 8.0
+  environment:
+    XCODE_SCHEME: nupic
+    XCODE_WORKSPACE: nupic
+    ARCHFLAGS: "-arch x86_64"
+    PYTHONPATH: "$HOME/Library/Python/2.7/lib/python/site-packages"
+    PATH: "$HOME/Library/Python/2.7/bin:$PATH"
+    PYBIN: "$HOME/Library/Python/2.7/bin"
+  pre:
+    - sudo pip install --ignore-installed --upgrade --verbose virtualenv
+    # Link virtualenv to /usr/local/bin if it doesn't exist and always give exit status of 0.
+    - "([ ! -e /usr/local/bin/virtualenv ] && ln -s ~/Library/Python/2.7/bin/virtualenv /usr/local/bin/virtualenv) || true"
+    - if [[ "$OSTYPE" != "darwin"* ]]; then echo "Must set option to use OS X in CircleCI Web UI" && exit 1; fi
+
+dependencies:
+  override:
+    # Install all dependencies
+    - brew install mysql
+    - brew tap homebrew/services
+    - brew services start mysql
+    - sudo pip install --upgrade pip
+    - pip install --upgrade --user --ignore-installed setuptools wheel
+    - pip install --use-wheel --user -r requirements.txt  --quiet || exit
+
+compile:
+  override:
+    # Remove the virtualenv before it can cause problems.  As of May 2017 the CircleCI virtualenv/path setup causes some tests to fail unnecessarily.
+    - rm -r ~/virtualenvs
+    - python setup.py bdist_wheel
+    - pip install --use-wheel --user --no-index --find-links=`pwd`/dist/ nupic
+
+test:
+  override:
+    - python setup.py test --pytest-args="--verbose --boxed --junit-xml=`pwd`/nupic-test-results.xml --cov nupic --cov-report html unit integration"
+  post:
+    # We want to have the test report and wheel in both Circle_Artifacts as
+    # well as dist, for the sake of debugging
+    - cp dist/*.whl $CIRCLE_ARTIFACTS/
+    - cp nupic-test-results.xml $CIRCLE_ARTIFACTS/
+    # If not on a fork, upload artifacts to S3
+    - if [[ "$CIRCLE_REPOSITORY_URL" == "https://github.com/numenta/nupic" ]]; then ci/circle/deploy_s3-osx.sh; else echo "Skipping deployment, as this is a fork"; fi

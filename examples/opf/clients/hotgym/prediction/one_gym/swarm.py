@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -6,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -56,6 +55,9 @@ def writeModelParamsToFile(modelParams, name):
   outDir = os.path.join(os.getcwd(), 'model_params')
   if not os.path.isdir(outDir):
     os.mkdir(outDir)
+  # Create an __init__.py so the params are recognized.
+  initPath = os.path.join(outDir, '__init__.py')
+  open(initPath, 'a').close()
   outPath = os.path.join(os.getcwd(), 'model_params', paramsName)
   with open(outPath, "wb") as outFile:
     modelParamsString = modelParamsToString(modelParams)

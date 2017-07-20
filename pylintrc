@@ -1,19 +1,19 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2012-2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2012-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -47,7 +47,7 @@ persistent=no
 
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
-load-plugins=nupic.support.lint.executable
+load-plugins=
 
 
 [MESSAGES CONTROL]
@@ -120,7 +120,7 @@ msg-template={msg_id}, {line:3d}:{column:2d} - {msg} ({symbol})
 required-attributes=
 
 # List of builtins function names that should not be used, separated by a comma
-bad-functions=
+bad-functions=map,filter,apply,input
 
 # Regular expression which should only match correct module names
 module-rgx=([a-z][a-z0-9_]*[a-z0-9])|(__init__)$
@@ -147,6 +147,10 @@ argument-rgx=_?[a-z][A-Za-z0-9]*$
 # Regular expression which should only match correct variable names
 variable-rgx=_{0,2}[a-z][A-Za-z0-9]*$
 
+# Regular expression which should only match correct attribute names in class
+# bodies
+class-attribute-rgx=([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$
+
 # Regular expression which should only match correct list comprehension /
 # generator expression variable names
 inlinevar-rgx=[a-z][A-Za-z0-9_]*$
@@ -172,6 +176,9 @@ max-line-length=80
 
 # String used as indentation unit (2 spaces).
 indent-string='  '
+
+# Number of spaces of indent required inside a hanging or continued line.
+indent-after-paren=2
 
 
 [MISCELLANEOUS]
@@ -215,7 +222,7 @@ generated-members=REQUEST,acl_users,aq_parent
 [VARIABLES]
 
 # Tells whether we should check for unused import in __init__ files.
-init-import=yes
+init-import=no
 
 # A regular expression matching the beginning of the name of dummy variables
 # (i.e. not used).
@@ -255,7 +262,7 @@ max-locals=50
 max-returns=10
 
 # Maximum number of branch for function / method body
-max-branchs=20
+max-branches=20
 
 # Maximum number of statements in function / method body
 max-statements=200
@@ -276,7 +283,7 @@ max-public-methods=20
 [IMPORTS]
 
 # Deprecated modules which should not be used, separated by a comma
-deprecated-modules=regsub,string,TERMIOS,Bastion,rexec
+deprecated-modules=regsub,TERMIOS,Bastion,rexec
 
 # Create a graph of every (i.e. internal and external) dependencies in the
 # given file (report RP0402 must not be disabled)

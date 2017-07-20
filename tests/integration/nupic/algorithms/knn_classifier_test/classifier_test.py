@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2014, Numenta, Inc.  Unless you have purchased from
@@ -6,20 +5,21 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import copy
 import logging
 import time
 import unittest2 as unittest
@@ -27,8 +27,8 @@ import unittest2 as unittest
 import cPickle
 import numpy
 
-from nupic.regions.PyRegion import RealNumpyDType
-from nupic.algorithms.KNNClassifier import KNNClassifier
+from nupic.bindings.regions.PyRegion import RealNumpyDType
+from nupic.algorithms.knn_classifier import KNNClassifier
 
 import pca_knn_data
 
@@ -38,7 +38,7 @@ LOGGER = logging.getLogger(__name__)
 
 class KNNClassifierTest(unittest.TestCase):
   """Tests for k Nearest Neighbor classifier"""
-  
+
 
   def runTestKNNClassifier(self, short = 0):
     """ Test the KNN classifier in this module. short can be:
@@ -50,8 +50,6 @@ class KNNClassifierTest(unittest.TestCase):
       numpy.random.seed(42)
     else:
       seed_value = int(time.time())
-      # seed_value = 1276437656
-      #seed_value = 1277136651
       numpy.random.seed(seed_value)
       LOGGER.info('Seed used: %d', seed_value)
       f = open('seedval', 'a')
@@ -62,16 +60,22 @@ class KNNClassifierTest(unittest.TestCase):
 
     LOGGER.info("\nTesting KNN Classifier on dense patterns")
     numPatterns, numClasses = getNumTestPatterns(short)
-    patterns = numpy.random.rand(numPatterns, 100)
+    patternSize = 100
+    patterns = numpy.random.rand(numPatterns, patternSize)
     patternDict = dict()
+    testDict = dict()
 
     # Assume there are no repeated patterns -- if there are, then
     # numpy.random would be completely broken.
+    # Patterns in testDict are identical to those in patternDict but for the
+    # first 2% of items.
     for i in xrange(numPatterns):
-      randCategory = numpy.random.randint(0, numClasses-1)
       patternDict[i] = dict()
       patternDict[i]['pattern'] = patterns[i]
-      patternDict[i]['category'] = randCategory
+      patternDict[i]['category'] = numpy.random.randint(0, numClasses-1)
+      testDict[i] = copy.deepcopy(patternDict[i])
+      testDict[i]['pattern'][:int(0.02*patternSize)] = numpy.random.rand()
+      testDict[i]['category'] = None
 
     LOGGER.info("\nTesting KNN Classifier with L2 norm")
 
@@ -84,6 +88,16 @@ class KNNClassifierTest(unittest.TestCase):
     knnL1 = KNNClassifier(k=1, distanceNorm=1.0)
     failures += simulateClassifier(knnL1, patternDict, \
       "KNN Classifier with L1 norm test")
+
+    # Test with exact matching classifications.
+    LOGGER.info("\nTesting KNN Classifier with exact matching. For testing we "
+      "slightly alter the training data and expect None to be returned for the "
+      "classifications.")
+    knnExact = KNNClassifier(k=1, exact=True)
+    failures += simulateClassifier(knnExact,
+                                   patternDict,
+                                   "KNN Classifier with exact matching test",
+                                   testDict=testDict)
 
     numPatterns, numClasses = getNumTestPatterns(short)
     patterns = (numpy.random.rand(numPatterns, 25) > 0.7).astype(RealNumpyDType)
@@ -198,7 +212,6 @@ class KNNClassifierTest(unittest.TestCase):
     self.runTestPCAKNN(1)
 
 
-
 def simulateKMoreThanOne():
   """A small test with k=3"""
 
@@ -242,7 +255,7 @@ def simulateKMoreThanOne():
   return failures
 
 
-def simulateClassifier(knn, patternDict, testName):
+def simulateClassifier(knn, patternDict, testName, testDict=None):
   """Train this classifier instance with the given patterns."""
 
   failures = ""
@@ -257,17 +270,27 @@ def simulateClassifier(knn, patternDict, testName):
   knnString = cPickle.dumps(knn)
   LOGGER.info("Size of the classifier is %s", len(knnString))
 
-  LOGGER.info("Testing the classifier on the training set")
+  # Run the classifier to infer categories on either the training data, or the
+  # test data (of it's provided).
   error_count = 0
   tick = time.time()
-  LOGGER.info("Number of patterns: %s", len(patternDict))
-  for i in patternDict.keys():
-    LOGGER.info("Testing %s - %s %s", i, patternDict[i]['category'], \
-      len(patternDict[i]['pattern']))
-    winner, _inferenceResult, _dist, _categoryDist \
-      = knn.infer(patternDict[i]['pattern'])
-    if winner != patternDict[i]['category']:
-      error_count += 1
+  if testDict:
+    LOGGER.info("Testing the classifier on the test set")
+    for i in testDict.keys():
+      winner, _inferenceResult, _dist, _categoryDist \
+        = knn.infer(testDict[i]['pattern'])
+      if winner != testDict[i]['category']:
+        error_count += 1
+  else:
+    LOGGER.info("Testing the classifier on the training set")
+    LOGGER.info("Number of patterns: %s", len(patternDict))
+    for i in patternDict.keys():
+      LOGGER.info("Testing %s - %s %s", i, patternDict[i]['category'], \
+        len(patternDict[i]['pattern']))
+      winner, _inferenceResult, _dist, _categoryDist \
+        = knn.infer(patternDict[i]['pattern'])
+      if winner != patternDict[i]['category']:
+        error_count += 1
   tock = time.time()
   LOGGER.info("Time Elapsed %s", tock-tick)
 

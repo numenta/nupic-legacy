@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
@@ -6,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -26,8 +25,10 @@ import os
 import pprint
 import sys
 import unittest2 as unittest
+from pkg_resources import resource_filename
 
-from nupic.frameworks.opf.opfhelpers import (
+
+from nupic.frameworks.opf.helpers import (
   loadExperimentDescriptionScriptFromDir,
   getExperimentDescriptionInterfaceFromModule
 )
@@ -47,9 +48,9 @@ class MyTestEnvironment(object):
 
   def __init__(self):
 
-    nupicDir = os.environ['NUPIC']
-
-    examplesDir = os.path.join(nupicDir, "examples")
+    nupic_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                             "..", "..", "..", "..", "..")
+    examplesDir = os.path.join(nupic_dir, "examples")
 
     _debugOut("examplesDir=<%s>" % (examplesDir,))
 
@@ -58,7 +59,7 @@ class MyTestEnvironment(object):
 
     # This is where we find OPF binaries (e.g., run_opf_experiment.py, etc.)
     # In the autobuild, it is a read-only directory
-    self.__opfBinDir = os.path.join(nupicDir, "scripts")
+    self.__opfBinDir = os.path.join(nupic_dir, "scripts")
     assert os.path.exists(self.__opfBinDir), \
            "%s is not present in filesystem" % self.__opfBinDir
     _debugOut("self.__opfBinDir=<%s>" % self.__opfBinDir)
@@ -219,11 +220,11 @@ class PositiveTests(MyTestCaseBase):
     modelDesc = expIface.getModelDescription()
 
     tpActivationThreshold = modelDesc['modelParams'] \
-        ['tpParams']['activationThreshold']
+        ['tmParams']['activationThreshold']
 
     expectedValue = 12
     self.assertEqual(tpActivationThreshold, expectedValue,
-                     "Expected tp activationThreshold=%s, but got %s" % (
+                     "Expected tm activationThreshold=%s, but got %s" % (
                       expectedValue, tpActivationThreshold))
 
 

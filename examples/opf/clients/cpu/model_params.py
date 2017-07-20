@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -21,7 +21,7 @@
 
 MODEL_PARAMS = {
     # Type of model that the rest of these parameters apply to.
-    'model': "CLA",
+    'model': "HTMPrediction",
 
     # Version that specifies the format of the config.
     'version': 1,
@@ -75,7 +75,7 @@ MODEL_PARAMS = {
             'globalInhibition': 1,
 
             # Number of cell columns in the cortical region (same number for
-            # SP and TP)
+            # SP and TM)
             # (see also tpNCellsPerCol)
             'columnCount': 2048,
 
@@ -84,15 +84,15 @@ MODEL_PARAMS = {
             # SP inhibition control (absolute value);
             # Maximum number of active columns in the SP region's output (when
             # there are more, the weaker ones are suppressed)
-            'numActivePerInhArea': 40,
+            'numActiveColumnsPerInhArea': 40,
 
             'seed': 1956,
 
-            # coincInputPoolPct
+            # potentialPct
             # What percent of the columns's receptive field is available
             # for potential synapses. At initialization time, we will
-            # choose coincInputPoolPct * (2*coincInputRadius+1)^2
-            'coincInputPoolPct': 0.5,
+            # choose potentialPct * (2*potentialRadius+1)^2
+            'potentialPct': 0.5,
 
             # The default connected threshold. Any synapse whose
             # permanence value is above the connected threshold is
@@ -101,7 +101,7 @@ MODEL_PARAMS = {
             # level before inhibition falls below minDutyCycleBeforeInh
             # will have their own internal synPermConnectedCell
             # threshold set below this default value.
-            # (This concept applies to both SP and TP and so 'cells'
+            # (This concept applies to both SP and TM and so 'cells'
             # is correct here as opposed to 'columns')
             'synPermConnected': 0.1,
 
@@ -110,20 +110,20 @@ MODEL_PARAMS = {
             'synPermInactiveDec': 0.01,
         },
 
-        # Controls whether TP is enabled or disabled;
-        # TP is necessary for making temporal predictions, such as predicting
-        # the next inputs.  Without TP, the model is only capable of
+        # Controls whether TM is enabled or disabled;
+        # TM is necessary for making temporal predictions, such as predicting
+        # the next inputs.  Without TM, the model is only capable of
         # reconstructing missing sensor inputs (via SP).
-        'tpEnable' : True,
+        'tmEnable' : True,
 
-        'tpParams': {
-            # TP diagnostic output verbosity control;
+        'tmParams': {
+            # TM diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
-            # (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)
+            # (see verbosity in nupic/trunk/py/nupic/research/backtracking_tm.py and backtracking_tm_cpp.py)
             'verbosity': 0,
 
             # Number of cell columns in the cortical region (same number for
-            # SP and TP)
+            # SP and TM)
             # (see also tpNCellsPerCol)
             'columnCount': 2048,
 
@@ -148,7 +148,7 @@ MODEL_PARAMS = {
             #  > 0 for fixed-size CLA
             # -1 for non-fixed-size CLA
             #
-            # TODO: for Ron: once the appropriate value is placed in TP
+            # TODO: for Ron: once the appropriate value is placed in TM
             # constructor, see if we should eliminate this parameter from
             # description.py.
             'maxSynapsesPerSegment': 32,
@@ -157,7 +157,7 @@ MODEL_PARAMS = {
             #  > 0 for fixed-size CLA
             # -1 for non-fixed-size CLA
             #
-            # TODO: for Ron: once the appropriate value is placed in TP
+            # TODO: for Ron: once the appropriate value is placed in TM
             # constructor, see if we should eliminate this parameter from
             # description.py.
             'maxSegmentsPerCell': 128,
@@ -193,7 +193,7 @@ MODEL_PARAMS = {
 
             'outputType': 'normal',
 
-            # "Pay Attention Mode" length. This tells the TP how many new
+            # "Pay Attention Mode" length. This tells the TM how many new
             # elements to append to the end of a learned sequence at a time.
             # Smaller values are better for datasets with short sequences,
             # higher values are better for datasets with long sequences.
@@ -204,11 +204,11 @@ MODEL_PARAMS = {
             # Classifier implementation selection.
             'implementation': 'cpp',
 
-            'regionName' : 'CLAClassifierRegion',
+            'regionName' : 'SDRClassifierRegion',
 
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
-            'clVerbosity' : 0,
+            'verbosity' : 0,
 
             # This controls how fast the classifier learns/forgets. Higher values
             # make it adapt faster and forget older patterns faster.

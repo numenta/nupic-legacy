@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -21,7 +21,7 @@
 
 MODEL_PARAMS = {
     # Type of model that the rest of these parameters apply to.
-    'model': "CLA",
+    'model': "HTMPrediction",
 
     # Version that specifies the format of the config.
     'version': 1,
@@ -84,7 +84,7 @@ MODEL_PARAMS = {
             # Example for 1.5 days: sensorAutoReset = dict(days=1,hours=12),
             #
             # (value generated from SENSOR_AUTO_RESET)
-            'sensorAutoReset' : None,
+            'sensorAutoReset': None,
         },
 
         'spEnable': True,
@@ -92,16 +92,16 @@ MODEL_PARAMS = {
         'spParams': {
             # SP diagnostic output verbosity control;
             # 0: silent; >=1: some info; >=2: more info;
-            'spVerbosity' : 0,
+            'spVerbosity': 0,
 
             # Spatial Pooler implementation selector.
             # Options: 'py', 'cpp' (speed optimized, new)
-            'spatialImp' : 'cpp', 
+            'spatialImp': 'cpp',
 
             'globalInhibition': 1,
 
             # Number of cell columns in the cortical region (same number for
-            # SP and TP)
+            # SP and TM)
             # (see also tpNCellsPerCol)
             'columnCount': 2048,
 
@@ -116,34 +116,39 @@ MODEL_PARAMS = {
 
             # potentialPct
             # What percent of the columns's receptive field is available
-            # for potential synapses. 
+            # for potential synapses.
             'potentialPct': 0.85,
 
             # The default connected threshold. Any synapse whose
             # permanence value is above the connected threshold is
             # a "connected synapse", meaning it can contribute to the
-            # cell's firing. Typical value is 0.10. 
+            # cell's firing. Typical value is 0.10.
             'synPermConnected': 0.1,
 
             'synPermActiveInc': 0.04,
 
             'synPermInactiveDec': 0.005,
+
+            # boostStrength controls the strength of boosting. It should be a
+            # a number greater or equal than 0.0. No boosting is applied if
+            # boostStrength=0.0. Boosting encourages efficient usage of SP columns.
+            'boostStrength': 3.0,
         },
 
-        # Controls whether TP is enabled or disabled;
-        # TP is necessary for making temporal predictions, such as predicting
-        # the next inputs.  Without TP, the model is only capable of
+        # Controls whether TM is enabled or disabled;
+        # TM is necessary for making temporal predictions, such as predicting
+        # the next inputs.  Without TM, the model is only capable of
         # reconstructing missing sensor inputs (via SP).
-        'tpEnable' : True,
+        'tmEnable' : True,
 
-        'tpParams': {
-            # TP diagnostic output verbosity control;
+        'tmParams': {
+            # TM diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
-            # (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)
+            # (see verbosity in nupic/trunk/py/nupic/research/backtracking_tm.py and backtracking_tm_cpp.py)
             'verbosity': 0,
 
             # Number of cell columns in the cortical region (same number for
-            # SP and TP)
+            # SP and TM)
             # (see also tpNCellsPerCol)
             'columnCount': 2048,
 
@@ -154,21 +159,21 @@ MODEL_PARAMS = {
 
             'seed': 1960,
 
-            # Temporal Pooler implementation selector (see _getTPClass in
+            # Temporal Memory implementation selector (see _getTPClass in
             # CLARegion.py).
             'temporalImp': 'cpp',
 
             # New Synapse formation count
             # NOTE: If None, use spNumActivePerInhArea
             #
-            # TODO: need better explanation
+            # The number of synapses added to a segment during learning
             'newSynapseCount': 20,
 
             # Maximum number of synapses per segment
             #  > 0 for fixed-size CLA
             # -1 for non-fixed-size CLA
             #
-            # TODO: for Ron: once the appropriate value is placed in TP
+            # TODO: for Ron: once the appropriate value is placed in TM
             # constructor, see if we should eliminate this parameter from
             # description.py.
             'maxSynapsesPerSegment': 32,
@@ -177,13 +182,12 @@ MODEL_PARAMS = {
             #  > 0 for fixed-size CLA
             # -1 for non-fixed-size CLA
             #
-            # TODO: for Ron: once the appropriate value is placed in TP
+            # TODO: for Ron: once the appropriate value is placed in TM
             # constructor, see if we should eliminate this parameter from
             # description.py.
             'maxSegmentsPerCell': 128,
 
-            # Initial Permanence
-            # TODO: need better explanation
+            # Initial permanence for newly created synapses
             'initialPerm': 0.21,
 
             # Permanence Increment
@@ -192,7 +196,7 @@ MODEL_PARAMS = {
             # Permanence Decrement
             # If set to None, will automatically default to tpPermanenceInc
             # value.
-            'permanenceDec' : 0.1,
+            'permanenceDec': 0.1,
 
             'globalDecay': 0.0,
 
@@ -213,7 +217,7 @@ MODEL_PARAMS = {
 
             'outputType': 'normal',
 
-            # "Pay Attention Mode" length. This tells the TP how many new
+            # "Pay Attention Mode" length. This tells the TM how many new
             # elements to append to the end of a learned sequence at a time.
             # Smaller values are better for datasets with short sequences,
             # higher values are better for datasets with long sequences.
@@ -221,15 +225,15 @@ MODEL_PARAMS = {
         },
 
         'clParams': {
-            'regionName' : 'CLAClassifierRegion',
+            'regionName': 'SDRClassifierRegion',
 
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
-            'clVerbosity' : 0,
+            'verbosity': 0,
 
-            # This controls how fast the classifier learns/forgets. Higher values
-            # make it adapt faster and forget older patterns faster.
-            'alpha': 0.0001,
+            # This controls how fast the classifier learns/forgets. Higher
+            # values make it adapt faster and forget older patterns faster.
+            'alpha': 0.1,
 
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.

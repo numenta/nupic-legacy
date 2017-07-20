@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -6,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -29,10 +28,10 @@ from datetime import datetime
 
 import numpy
 import unittest2 as unittest
+from pkg_resources import resource_filename
 
-from nupic.regions.RecordSensor import RecordSensor
+from nupic.regions.record_sensor import RecordSensor
 from nupic.data.file_record_stream import FileRecordStream
-from nupic.data.datasethelpers import findDataset
 from nupic.encoders import MultiEncoder
 from nupic.data.filters import DeltaFilter
 
@@ -57,7 +56,7 @@ class FiltersTest(unittest.TestCase):
 
     """
     r = RecordSensor()
-    filename = findDataset("extra/qa/delta.csv")
+    filename = resource_filename("nupic.datafiles", "extra/qa/delta.csv")
     datasource = FileRecordStream(filename)
     r.dataSource = datasource
     n = 50

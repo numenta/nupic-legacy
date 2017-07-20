@@ -1,0 +1,484 @@
+{
+  "additionalProperties": false, 
+  "type": "object", 
+  "description": "ExpGenerator-experiment-description", 
+  "properties": {
+    "resetPeriod": {
+      "additionalProperties": false, 
+      "required": false, 
+      "type": "object", 
+      "description": "sensor auto-reset period to enforce. NOTE: years/months are presently not supported for sensor auto-reset. If this parameter is omitted or all of the specified units are 0, then sensor auto-reset will be disabled in that permutation.", 
+      "properties": {
+        "seconds": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "days": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "hours": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "microseconds": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "weeks": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "minutes": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "milliseconds": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }
+      }
+    }, 
+    "maxModels": {
+      "default": null, 
+      "minimum": 1, 
+      "required": false, 
+      "type": [
+        "integer",
+        "null"
+      ], 
+      "description": "Maximum number of models to evaluate. This replaces the older location of this specification from the job params. "
+    }, 
+    "spPermuteDecrement": {
+      "default": true, 
+      "required": false, 
+      "type": "boolean", 
+      "description": "If true, permute over the sp permanence decrement value"
+    }, 
+    "inferenceArgs": {
+      "default": {}, 
+      "required": false, 
+      "type": [
+        {
+          "additionalProperties": false, 
+          "required": true, 
+          "type": "object", 
+          "description": "Additional parameters relevant to an inference", 
+          "properties": {
+            "predictionSteps": {
+              "description": "A list of integers that specifies which steps size(s) to learn/infer on", 
+              "default": [
+                1
+              ], 
+              "items": {
+                "minimum": 0, 
+                "required": true, 
+                "type": "integer"
+              }, 
+              "required": false, 
+              "minItems": 1, 
+              "type": "array"
+            }, 
+            "predictedField": {
+              "default": null, 
+              "required": false, 
+              "type": [
+                "string", 
+                "null"
+              ], 
+              "description": "Name of the field being optimized for during prediction"
+            },
+            "inputPredictedField": {
+              "default": null, 
+              "required": false, 
+              "type": "string", 
+              "description": "Whether or not to use the predicted field as an input. When set to 'auto', swarming will use it only if it provides better performance. When the inferenceType is NontemporalClassification, this value is forced to 'no'", 
+              "enum": [
+                "auto", 
+                "yes",
+                "no"
+              ]
+            } 
+          }
+        }, 
+        "null"
+      ], 
+      "description": "inferenceArgs -- arguments for the type of inference you want to use"
+    }, 
+    "prediction": {
+      "description": " [DEPRECATED] Prediction optimization options; at least one MUST be enabled. NOTE: at this time, non-temporal and temporalpredictions are mutually-exclusive (RunPermutations cannot yetoptimize for both). This is deprecated. Used inferenceType instead", 
+      "default": {
+        "temporal": {
+          "optimize": true
+        }
+      }, 
+      "required": false, 
+      "additionalProperties": false, 
+      "type": "object", 
+      "properties": {
+        "nonTemporal": {
+          "description": "Non-temporal prediction options", 
+          "default": {
+            "optimize": false
+          }, 
+          "required": false, 
+          "additionalProperties": false, 
+          "type": "object", 
+          "properties": {
+            "optimize": {
+              "required": true, 
+              "type": "boolean", 
+              "description": "True=enable Non-temporal Prediction and optimize  Hypersearch based on Non-temporal prediction results; False=disable"
+            }
+          }
+        }, 
+        "temporal": {
+          "description": "Temporal prediction options", 
+          "default": {
+            "optimize": false
+          }, 
+          "required": false, 
+          "additionalProperties": false, 
+          "type": "object", 
+          "properties": {
+            "optimize": {
+              "required": true, 
+              "type": "boolean", 
+              "description": "True=enable Temporal Prediction and optimize Hypersearch based on Temporal prediction results; False=disable"
+            }
+          }
+        }
+      }
+    }, 
+    "fieldPermutationLimit": {
+      "default": 0, 
+      "minimum": 0, 
+      "required": false, 
+      "type": "integer", 
+      "description": "Bound permutations by the given number of fields, including meta-fields (e.g., 'timeOfDay', 'dayOfWeek'), in any given experiment during hypersearch; the value must be 0 or positive. If the value is 0 or this argument is omitted, ExpGenerator will use the total count of fields and meta-fields in the dataset as the maximum."
+    }, 
+    "environment": {
+      "default": "nupic", 
+      "required": false, 
+      "type": "string", 
+      "description": "The type of program that will using this description file.This is used to determine which fields should be generated", 
+      "enum": [
+        "nupic", 
+        "opfExperiment"
+      ]
+    }, 
+    "customErrorMetric": {
+      "required": false, 
+      "type": "object", 
+      "description": "Custom User definied Error metric that will be computed"
+    }, 
+    "spCoincInputPoolPct": {
+      "default": 0.8, 
+      "minimum": 0.0, 
+      "required": false, 
+      "type": "number", 
+      "description": "What percent of the columns's receptive field is available"
+    }, 
+    "fastSwarmModelParams": {
+      "default": null, 
+      "required": false, 
+      "type": [
+        "object",
+        "null"
+      ], 
+      "description": "This is the JSON encoded params from another model that will be used to seed a fast swarm. When included, the swarming will take a number of shortcuts based on this seed model, like turning off the normal field search logic and instead using the same fields used by the seed model. Normally, fixedFields should NOT be specified along with this option because the fixedFields will be extracted from these model params."
+    }, 
+    "swarmSize": {
+      "default": null, 
+      "enum": [
+        "small", 
+        "medium", 
+        "large"
+      ], 
+      "type": [
+        "string",
+        "null"
+      ], 
+      "description": "The swarm size. This is a meta parameter which, when present, sets the minParticlesPerSwarm, killUselessSwarms, minFieldContribution and other settings as appropriate for the requested swarm size.", 
+      "required": false
+    }, 
+    "runBaselines": {
+      "default": false, 
+      "required": false, 
+      "type": "boolean", 
+      "description": "Flag to run baseline error metrics with the job for comparison"
+    }, 
+    "metrics": {
+      "description": "Additional metrics to be generated, along with thedefault ones for the given inferenceType. Note: The specified metric should be compatible withe the giveninference", 
+      "default": [], 
+      "items": {
+        "required": true, 
+        "type": {
+          "additionalProperties": false, 
+          "type": "object", 
+          "description": "Sub-schema to specify metrics", 
+          "properties": {
+            "field": {
+              "default": null, 
+              "required": false, 
+              "type": [
+                "string",
+                "null"
+              ], 
+              "description": "Field on which to compute the metric"
+            }, 
+            "metric": {
+              "required": true, 
+              "type": "string", 
+              "description": "Type of metric to compute"
+            }, 
+            "inferenceElement": {
+              "required": true, 
+              "type": "string", 
+              "description": "InferenceElement on which to compute the metric"
+            }, 
+            "params": {
+              "default": {}, 
+              "required": false, 
+              "type": "object", 
+              "description": "Additional paramters for the metric"
+            }, 
+            "logged": {
+              "default": false, 
+              "required": false, 
+              "type": "boolean", 
+              "description": "Whether or not this metric is written to the output cache"
+            }
+          }
+        }
+      }, 
+      "required": false, 
+      "minItems": 1, 
+      "type": "array"
+    }, 
+    "predictionField": {
+      "minLength": 1, 
+      "required": false, 
+      "type": "string", 
+      "description": "[DEPRECATED] Name of field we're trying to predict. This is deprected. Used inferenceArgs.predictedField instead"
+    }, 
+    "streamDef": {
+      "minLength": 1, 
+      "required": true, 
+      "type": "object", 
+      "description": "JSON description of the stream to use. The schema for this can be found at https://github.com/numenta/nupic/blob/master/src/nupic/frameworks/opf/jsonschema/stream_def.json"
+    }, 
+    "inferenceType": {
+      "enum": [
+        "NontemporalClassification", 
+        "TemporalMultiStep", 
+        "NontemporalMultiStep", 
+        "TemporalClassification", 
+        "TemporalNextStep", 
+        "TemporalAnomaly", 
+        "NontemporalAnomaly", 
+        "MultiStep"
+      ], 
+      "type": "string", 
+      "description": "The type of inference to conduct", 
+      "required": false
+    }, 
+    "metricWindow": {
+      "default": null, 
+      "minimum": 1, 
+      "required": false, 
+      "type": [
+        "number",
+        "null"
+      ], 
+      "description": "The metric window size. If not specified, then a default value as specified by the nupic configuration parameter nupic.opf.metricWindow will be used."
+    }, 
+    "fixedFields": {
+      "description": "If specified, the swarm will try only this field combination, but still search for the best encoder settings and other parameters. This is way to speed up swarming significantly if you already know which fields should be included in the final model.", 
+      "minItems": 1, 
+      "items": {
+        "type": "string"
+      }, 
+      "required": false, 
+      "uniqueItems": true, 
+      "type": "array"
+    }, 
+    "spSynPermConnected": {
+      "default": 0.10000000000000001, 
+      "minimum": 0.0, 
+      "required": false, 
+      "type": "number", 
+      "description": "What is the default connected threshold"
+    }, 
+    "iterationCount": {
+      "default": null, 
+      "minimum": -1, 
+      "required": false, 
+      "type": [
+        "integer",
+        "null"
+      ], 
+      "description": "Maximum number of iterations to run. This is used primarily for unit test purposes. A value of -1 means run through the entire dataset."
+    }, 
+    "anomalyParams": {
+      "default": {}, 
+      "required": false, 
+      "type": [
+        {
+          "additionalProperties": false, 
+          "required": true, 
+          "type": "object", 
+          "description": "Additional parameters relevant to an anomaly model", 
+          "properties": {
+            "anomalyCacheRecords": {
+              "default": null, 
+              "required": false, 
+              "type": [
+                "integer", 
+                "null"
+              ], 
+              "description": "Number of records to store in internal anomaly classifier record cache"
+            }, 
+            "autoDetectThreshold": {
+              "default": null, 
+              "required": false, 
+              "type": [
+                "number", 
+                "null"
+              ], 
+              "description": "Threshold for anomaly score to  auto detect anomalies"
+            }, 
+            "autoDetectWaitRecords": {
+              "default": null, 
+              "required": false, 
+              "type": [
+                "integer", 
+                "null"
+              ], 
+              "description": "Number of records to wait until auto detection begins"
+            }
+          }
+        }, 
+        "null"
+      ], 
+      "description": ""
+    }, 
+    "includedFields": {
+      "description": "Which fields to include in the hypersearch and their types. The encoders used for each field will be based on the type designated here.", 
+      "minItems": 1, 
+      "items": {
+        "additionalProperties": false, 
+        "type": "object", 
+        "properties": {
+          "space": {
+            "required": false, 
+            "type": "string", 
+            "description": "A way to customize which spaces (absolute, delta) are evaluted when runDelta is True. "
+          }, 
+          "maxValue": {
+            "required": false, 
+            "type": "number", 
+            "description": "Maximum value. Only applicable for 'int' and 'float' fields"
+          }, 
+          "minValue": {
+            "required": false, 
+            "type": "number", 
+            "description": "Minimum value. Only applicable for 'int' and 'float' fields"
+          }, 
+          "runDelta": {
+            "required": false, 
+            "type": "boolean", 
+            "description": "If true, use a delta encoder."
+          }, 
+          "fieldName": {
+            "required": true, 
+            "type": "string", 
+            "description": "Name of field to be encoded"
+          }, 
+          "fieldType": {
+            "required": true, 
+            "type": "string", 
+            "description": "Field type. Can be one of 'string', 'int', 'float'or 'datetime'"
+          }, 
+          "encoderType": {
+            "required": false, 
+            "type": "string", 
+            "description": "Encoder type, for example 'ScalarEncoder, AdaptiveScalarEncoder, etc. "
+          }
+        }
+      }, 
+      "required": true, 
+      "uniqueItems": true, 
+      "type": "array"
+    }, 
+    "minParticlesPerSwarm": {
+      "default": null, 
+      "minimum": 1, 
+      "required": false, 
+      "type": [
+        "number",
+        "null"
+      ], 
+      "description": "The number of particles to run per swarm"
+    }, 
+    "computeInterval": {
+      "required": false, 
+      "type": "object", 
+      "description": "How often predictions are computed. When this parameter is included, then different aggregations will be attempted during swarming. This parameter sets the UPPER BOUND on the interval between generated predictions, they may in fact be generated more often than this, depending on what the actual aggregation interval is for that particular model.  computeInterval MUST be an integer multiple of the minimum aggregation period, which is the aggregation setting of in the stream. The max aggregation period attempted will always be an integer factor of computeInterval. When this parameter is specified, inferenceArgs:predictionSteps must contain only 1 item, the number of prediction steps to use at the minimum aggregation setting. For other aggregation intervals that are evaluated during swarming, predictionSteps will be adjusted accordingly", 
+      "properties": {
+        "hours": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "microseconds": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "seconds": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "weeks": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "months": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "minutes": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "days": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "milliseconds": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }, 
+        "years": {
+          "minimum": 0, 
+          "required": false, 
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

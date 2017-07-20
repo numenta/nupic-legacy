@@ -1,6 +1,6 @@
 reset,category,field1
-int,string,float
-R,,
+int,int,float
+R,C,
 0,1,0.1
 0,0,0.0
 0,1,0.1

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
@@ -6,22 +5,23 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import unittest2 as unittest
 
+import sys
+import unittest2 as unittest
 import nupic.engine as net
 
 
@@ -85,15 +85,15 @@ class NetworkSugarTest(unittest.TestCase):
     # for iteration
     for i, r in enumerate(regions):
       if i == 0:
-        self.assertEqual(r, 'r1')
+        self.assertEqual(r[0], 'r1')
       elif i == 1:
-        self.assertEqual(r, 'r2')
+        self.assertEqual(r[0], 'r2')
       else:
         self.fail("Expected i == 0 or i == 1")
 
     # test .keys()
     keys = regions.keys()
-    self.assertEqual(keys, set(['r1', 'r2']))
+    self.assertEqual(keys, list(['r1', 'r2']))
 
     # test .values()
     values = regions.values()
@@ -111,6 +111,8 @@ class NetworkSugarTest(unittest.TestCase):
                                  (('r2', r2), ('r1', r1)))
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testRegion(self):
     r = net.Network().addRegion('r', 'py.TestNode', '')
 
@@ -120,6 +122,8 @@ class NetworkSugarTest(unittest.TestCase):
     self.assertTrue(r.dimensions.isUnspecified())
 
 
+  @unittest.skipIf(sys.platform.lower().startswith("win"),
+                   "Not supported on Windows, yet!")
   def testSpec(self):
     ns = net.Region.getSpecFromType('py.TestNode')
     self.assertEqual(ns.description,

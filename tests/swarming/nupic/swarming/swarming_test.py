@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -6,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -37,17 +36,19 @@ import time
 import math
 import uuid
 import tempfile
+from pkg_resources import resource_filename
 
 from optparse import OptionParser
 
-from nupic.database.ClientJobsDAO import ClientJobsDAO
+
+from nupic.database.client_jobs_dao import ClientJobsDAO
 from nupic.support import configuration, initLogging
 from nupic.support.unittesthelpers.testcasebase import (unittest,
     TestCaseBase as HelperTestCaseBase)
-from nupic.swarming import HypersearchWorker
+from nupic.swarming import hypersearch_worker
 from nupic.swarming.api import getSwarmModelParams, createAndStartSwarm
 from nupic.swarming.utils import generatePersistentJobGUID
-from nupic.swarming.DummyModelRunner import OPFDummyModelRunner
+from nupic.swarming.dummy_model_runner import OPFDummyModelRunner
 
 DEFAULT_JOB_TIMEOUT_SEC = 60 * 2
 
@@ -65,7 +66,6 @@ g_repeatableSwarmMaturityWindow = 5
 
 
 
-################################################################################
 class MyTestEnvironment(object):
 
   # =======================================================================
@@ -83,11 +83,10 @@ class MyTestEnvironment(object):
     return
 
 
-################################################################################
+
 class ExperimentTestBaseClass(HelperTestCaseBase):
 
 
-  ############################################################################
   def setUp(self):
     """ Method called to prepare the test fixture. This is called by the
     unittest framework immediately before calling the test method; any exception
@@ -97,7 +96,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     pass
 
 
-  ############################################################################
   def tearDown(self):
     """ Method called immediately after the test method has been called and the
     result recorded. This is called even if the test method raised an exception,
@@ -111,14 +109,13 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     self.resetExtraLogItems()
 
 
-  ############################################################################
   def shortDescription(self):
     """ Override to force unittest framework to use test method names instead
     of docstrings in the report.
     """
     return None
 
-  ############################################################################
+
   def _printTestHeader(self):
     """ Print out what test we are running
     """
@@ -127,78 +124,73 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     print "Running test: %s.%s..." % (self.__class__, self._testMethodName)
 
 
-
-  ############################################################################
   def _setDataPath(self, env):
     """ Put the path to our datasets int the NTA_DATA_PATH variable which
     will be used to set the environment for each of the workers
-    
+
     Parameters:
     ---------------------------------------------------------------------
     env: The current environment dict
     """
-    
+
     assert env is not None
-    
+
     # If already have a path, concatenate to it
     if "NTA_DATA_PATH" in env:
-      newPath = "%s:%s" % (env["NTA_DATA_PATH"], g_myEnv.testSrcDataDir)
+      newPath = "%s%s%s" % (env["NTA_DATA_PATH"], os.pathsep, g_myEnv.testSrcDataDir)
     else:
       newPath = g_myEnv.testSrcDataDir
-      
+
     env["NTA_DATA_PATH"] = newPath
 
 
-  ############################################################################
   def _launchWorkers(self, cmdLine, numWorkers):
     """ Launch worker processes to execute the given command line
-    
+
     Parameters:
     -----------------------------------------------
     cmdLine: The command line for each worker
     numWorkers: number of workers to launch
-    retval: list of workers 
-    
+    retval: list of workers
+
     """
 
-    workers = []    
+    workers = []
     for i in range(numWorkers):
-      args = ["bash", "-c", cmdLine]
       stdout = tempfile.TemporaryFile()
       stderr = tempfile.TemporaryFile()
-      p = subprocess.Popen(args, bufsize=1, env=os.environ, shell=False,
+      p = subprocess.Popen(cmdLine, bufsize=1, env=os.environ, shell=True,
                            stdin=None, stdout=stdout, stderr=stderr)
       workers.append(p)
-      
+
     return workers
-      
-      
-  ############################################################################
+
+
   def _getJobInfo(self, cjDAO, workers, jobID):
     """ Return the job info for a job
-    
+
     Parameters:
     -----------------------------------------------
     cjDAO:   client jobs database instance
     workers: list of workers for this job
     jobID:   which job ID
-    
+
     retval: job info
     """
 
     # Get the job info
     jobInfo = cjDAO.jobInfo(jobID)
 
-    # Since we're running outside of the Nupic engine, we launched the workers 
-    #  ourself, so see how many are still running and jam the correct status 
+    # Since we're running outside of the Nupic engine, we launched the workers
+    #  ourself, so see how many are still running and jam the correct status
     #  into the job info. When using the Nupic engine, it would do this
-    #  for us. 
+    #  for us.
     runningCount = 0
     for worker in workers:
       retCode = worker.poll()
       if retCode is None:
         runningCount += 1
-        
+
     if runningCount > 0:
       status = ClientJobsDAO.STATUS_RUNNING
     else:
@@ -211,7 +203,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     return jobInfo
 
 
-  ############################################################################
   def _generateHSJobParams(self,
                            expDirectory=None,
                            hsImp='v2',
@@ -238,8 +229,8 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       descriptionPyPath = os.path.join(expDirectory, "description.py")
       permutationsPyPath = os.path.join(expDirectory, "permutations.py")
 
-      permutationsPyContents = open(permutationsPyPath, 'rb').read()
-      descriptionPyContents = open(descriptionPyPath, 'rb').read()
+      permutationsPyContents = open(permutationsPyPath, 'r').read()
+      descriptionPyContents = open(descriptionPyPath, 'r').read()
 
       jobParams = {'persistentJobGUID' : generatePersistentJobGUID(),
                    'permutationsPyContents': permutationsPyContents,
@@ -255,8 +246,10 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
       # Form the stream definition
       if dataPath is None:
-        dataPath = os.path.join(os.environ['NUPIC'], 'examples', 'prediction',
-                        'data', 'extra', 'qa', "hotgym", "qa_hotgym.csv")
+        dataPath = resource_filename("nupic.data",
+                                     os.path.join("extra", "qa", "hotgym",
+                                                  "qa_hotgym.csv"))
+
       streamDef = dict(
         version = 1,
         info = "TestHypersearch",
@@ -298,7 +291,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
 
       jobParams = {
-        "persistentJobGUID": _generatePersistentJobGUID(),
+        "persistentJobGUID": generatePersistentJobGUID(),
         "description":expDesc,
         "maxModels": maxModels,
         "hsVersion": hsImp,
@@ -310,7 +303,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     return jobParams
 
 
-  ############################################################################
   def _runPermutationsLocal(self, jobParams, loggingLevel=logging.INFO,
                             env=None, waitForCompletion=True,
                             continueJobId=None, ignoreErrModels=False):
@@ -363,7 +355,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
     # Run it in the current process
     try:
-      HypersearchWorker.main(args)
+      hypersearch_worker.main(args)
 
     # The dummy model runner will call sys.exit(0) when
     #  NTA_TEST_sysExitAfterNIterations is set
@@ -401,8 +393,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     return (jobID, jobInfo, results, metricResults)
 
 
-
-  ############################################################################
   def _runPermutationsCluster(self, jobParams, loggingLevel=logging.INFO,
                               maxNumWorkers=4, env=None,
                               waitForCompletion=True, ignoreErrModels=False,
@@ -437,12 +427,18 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     if env is not None and len(env) > 0:
       envItems = []
       for (key, value) in env.iteritems():
-        envItems.append("export %s=%s" % (key, value))
-      envStr = "%s;" % (';'.join(envItems))
+        if (sys.platform.startswith('win')):
+          envItems.append("set \"%s=%s\"" % (key, value))
+        else:
+          envItems.append("export %s=%s" % (key, value))
+      if (sys.platform.startswith('win')):
+        envStr = "%s &" % (' & '.join(envItems))
+      else:
+        envStr = "%s;" % (';'.join(envItems))
     else:
       envStr = ''
 
-    cmdLine = '%s python -m nupic.swarming.HypersearchWorker ' \
+    cmdLine = '%s python -m nupic.swarming.hypersearch_worker ' \
                           '--jobID={JOBID} --logLevel=%d' \
                           % (envStr, loggingLevel)
 
@@ -452,8 +448,8 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
             minimumWorkers=1, maximumWorkers=maxNumWorkers,
             jobType = cjDAO.JOB_TYPE_HS)
 
-    # Launch the workers ourself if necessary (no nupic engine running). 
-    workerCmdLine = '%s python -m nupic.swarming.HypersearchWorker ' \
+    # Launch the workers ourself if necessary (no nupic engine running).
+    workerCmdLine = '%s python -m nupic.swarming.hypersearch_worker ' \
                           '--jobID=%d --logLevel=%d' \
                           % (envStr, jobID, loggingLevel)
     workers = self._launchWorkers(cmdLine=workerCmdLine, numWorkers=maxNumWorkers)
@@ -583,8 +579,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       self.assertEqual (jobInfo.completionReason,
                       ClientJobsDAO.CMPL_REASON_SUCCESS)
 
-    ############################################################################
-    ############################################################################
     # Get final model results
     models = cjDAO.modelsGetUpdateCounters(jobID)
     modelIDs = [model.modelId for model in models]
@@ -607,8 +601,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     return (jobID, jobInfo, results, metricResults)
 
 
-
-  ############################################################################
   def runPermutations(self, expDirectory, hsImp='v2', maxModels=2,
                       maxNumWorkers=4, loggingLevel=logging.INFO,
                       onCluster=False, env=None, waitForCompletion=True,
@@ -643,16 +635,16 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     predictionCacheMaxRecords:
                       If specified, determine the maximum number of records in
                       the prediction cache.
-                
+
     retval:          (jobID, jobInfo, resultsInfoForAllModels, metricResults,
                         minErrScore)
     """
-    
+
     # Put in the path to our datasets
     if env is None:
       env = dict()
     self._setDataPath(env)
-    
+
     # ----------------------------------------------------------------
     # Prepare the jobParams
     jobParams = self._generateHSJobParams(expDirectory=expDirectory,
@@ -724,23 +716,24 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
     return (jobID, jobInfo, resultInfos, metricResults, minErrScore)
 
-################################################################################
+
+
 class OneNodeTests(ExperimentTestBaseClass):
   """
   """
   # AWS tests attribute required for tagging via automatic test discovery via
   # nosetests
   engineAWSClusterTest=True
-  #############################################################################
+
 
   def setUp(self):
     super(OneNodeTests, self).setUp()
     if not g_myEnv.options.runInProc:
       self.skipTest("Skipping One Node test since runInProc is not specified")
 
-  ############################################################################
+
   def testSimpleV2(self, onCluster=False, env=None, **kwargs):
-    """ 
+    """
     Try running simple permutations
     """
     self._printTestHeader()
@@ -768,7 +761,7 @@ class OneNodeTests(ExperimentTestBaseClass):
 
     return
 
-  ############################################################################
+
   def testDeltaV2(self, onCluster=False, env=None, **kwargs):
     """ Try running a simple permutations with delta encoder
     Test which tests the delta encoder. Runs a swarm of the sawtooth dataset
@@ -800,7 +793,7 @@ class OneNodeTests(ExperimentTestBaseClass):
 
     return
 
-  ############################################################################
+
   def testSimpleV2NoSpeculation(self, onCluster=False, env=None, **kwargs):
     """ Try running a simple permutations
     """
@@ -831,8 +824,8 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertLess(len(resultInfos), 350)
     return
 
-  ############################################################################
-  def testCLAModelV2(self, onCluster=False, env=None, maxModels=2,
+
+  def testHTMPredictionModelV2(self, onCluster=False, env=None, maxModels=2,
                       **kwargs):
     """ Try running a simple permutations using an actual CLA model, not
     a dummy
@@ -858,7 +851,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertEqual(len(resultInfos), maxModels)
     return
 
-  ############################################################################
+
   def testCLAMultistepModel(self, onCluster=False, env=None, maxModels=2,
                       **kwargs):
     """ Try running a simple permutations using an actual CLA model, not
@@ -885,12 +878,12 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertEqual(len(resultInfos), maxModels)
     return
 
-  ############################################################################
+
   def testLegacyCLAMultistepModel(self, onCluster=False, env=None, maxModels=2,
                       **kwargs):
     """ Try running a simple permutations using an actual CLA model, not
     a dummy. This is a legacy CLA multi-step model that doesn't declare a
-    separate 'classifierOnly' encoder for the predicted field. 
+    separate 'classifierOnly' encoder for the predicted field.
     """
 
     self._printTestHeader()
@@ -913,7 +906,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertEqual(len(resultInfos), maxModels)
     return
 
-  ############################################################################
+
   def testFilterV2(self, onCluster=False):
     """ Try running a simple permutations
     """
@@ -941,7 +934,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertLess(len(resultInfos), 400)
     return
 
-  ############################################################################
+
   def testLateWorker(self, onCluster=False):
     """ Try running a simple permutations where a worker comes in late,
     after the some models have already been evaluated
@@ -984,7 +977,6 @@ class OneNodeTests(ExperimentTestBaseClass):
     return
 
 
-  ############################################################################
   def testOrphanedModel(self, onCluster=False, modelRange=(0,1)):
     """ Run a worker on a model for a while, then have it exit before the
     model finishes. Then, run another worker, which should detect the orphaned
@@ -1057,7 +1049,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertLess(len(resultInfos), 350)
     return
 
-  ############################################################################
+
   def testOrphanedModelGen1(self):
     """ Run a worker on a model for a while, then have it exit before a
     model finishes in gen index 2. Then, run another worker, which should detect
@@ -1069,7 +1061,6 @@ class OneNodeTests(ExperimentTestBaseClass):
     return inst.testOrphanedModel(modelRange=(10,11))
 
 
-  ############################################################################
   def testErredModel(self, onCluster=False, modelRange=(6,7)):
     """ Run with 1 or more models generating errors
     """
@@ -1101,7 +1092,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertLess(len(resultInfos), 350)
     return
 
-  ############################################################################
+
   def testJobFailModel(self, onCluster=False, modelRange=(6,7)):
     """ Run with 1 or more models generating jobFail exception
     """
@@ -1136,7 +1127,6 @@ class OneNodeTests(ExperimentTestBaseClass):
     return
 
 
-  ############################################################################
   def testTooManyErredModels(self, onCluster=False, modelRange=(5,10)):
     """ Run with too many models generating errors
     """
@@ -1168,7 +1158,7 @@ class OneNodeTests(ExperimentTestBaseClass):
                       ClientJobsDAO.CMPL_REASON_ERROR)
     return
 
-  ############################################################################
+
   def testFieldThreshold(self, onCluster=False, env=None, **kwargs):
     """ Test minimum field contribution threshold for a field to be included in further sprints
     """
@@ -1208,16 +1198,16 @@ class OneNodeTests(ExperimentTestBaseClass):
     jobResults = json.loads(jobResultsStr)
     bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
     params = json.loads(bestModel.params)
-    
+
     prefix = 'modelParams|sensorParams|encoders|'
     expectedSwarmId = prefix + ('.' + prefix).join([
-            'attendance', 
+            'attendance',
             'visitor_winloss'])
 
-    self.assertEqual(params["particleState"]["swarmId"], 
+    self.assertEqual(params["particleState"]["swarmId"],
                      expectedSwarmId,
                      "Actual swarm id = %s\nExpcted swarm id = %s" \
-                     % (params["particleState"]["swarmId"], 
+                     % (params["particleState"]["swarmId"],
                         expectedSwarmId))
     self.assertEqual( bestModel.optimizedMetric, 75)
 
@@ -1245,13 +1235,13 @@ class OneNodeTests(ExperimentTestBaseClass):
 
     prefix = 'modelParams|sensorParams|encoders|'
     expectedSwarmId = prefix + ('.' + prefix).join([
-            'attendance', 
-            'home_winloss', 
+            'attendance',
+            'home_winloss',
             'visitor_winloss'])
-    self.assertEqual(params["particleState"]["swarmId"], 
+    self.assertEqual(params["particleState"]["swarmId"],
                      expectedSwarmId,
                      "Actual swarm id = %s\nExpcted swarm id = %s" \
-                     % (params["particleState"]["swarmId"], 
+                     % (params["particleState"]["swarmId"],
                         expectedSwarmId))
     assert bestModel.optimizedMetric == 55, bestModel.optimizedMetric
 
@@ -1281,24 +1271,23 @@ class OneNodeTests(ExperimentTestBaseClass):
 
     prefix = 'modelParams|sensorParams|encoders|'
     expectedSwarmId = prefix + ('.' + prefix).join([
-            'attendance', 
-            'home_winloss', 
-            'precip', 
+            'attendance',
+            'home_winloss',
+            'precip',
             'timestamp_dayOfWeek',
-            'timestamp_timeOfDay', 
+            'timestamp_timeOfDay',
             'visitor_winloss'])
-    self.assertEqual(params["particleState"]["swarmId"], 
+    self.assertEqual(params["particleState"]["swarmId"],
                      expectedSwarmId,
                      "Actual swarm id = %s\nExpcted swarm id = %s" \
-                     % (params["particleState"]["swarmId"], 
+                     % (params["particleState"]["swarmId"],
                         expectedSwarmId))
 
     assert bestModel.optimizedMetric == 25, bestModel.optimizedMetric
 
 
-  ############################################################################
   def testSpatialClassification(self, onCluster=False, env=None, **kwargs):
-    """ 
+    """
     Try running a spatial classification swarm
     """
     self._printTestHeader()
@@ -1336,36 +1325,36 @@ class OneNodeTests(ExperimentTestBaseClass):
                               pprint.pformat(actualFieldContributions)
     expectedFieldContributions = {
                       'address': 100 * (90.0-30)/90.0,
-                      'gym': 100 * (90.0-40)/90.0,  
+                      'gym': 100 * (90.0-40)/90.0,
                       'timestamp_dayOfWeek': 100 * (90.0-80.0)/90.0,
                       'timestamp_timeOfDay': 100 * (90.0-90.0)/90.0,
                       }
 
     for key, value in expectedFieldContributions.items():
-      self.assertEqual(actualFieldContributions[key], value, 
+      self.assertEqual(actualFieldContributions[key], value,
                        "actual field contribution from field '%s' does not "
                        "match the expected value of %f" % (key, value))
 
-      
+
     # Check the expected best encoder combination
     prefix = 'modelParams|sensorParams|encoders|'
     expectedSwarmId = prefix + ('.' + prefix).join([
-            'address', 
+            'address',
             'gym'])
 
-    self.assertEqual(params["particleState"]["swarmId"], 
+    self.assertEqual(params["particleState"]["swarmId"],
                      expectedSwarmId,
                      "Actual swarm id = %s\nExpcted swarm id = %s" \
-                     % (params["particleState"]["swarmId"], 
+                     % (params["particleState"]["swarmId"],
                         expectedSwarmId))
 
 
     return
 
-  ############################################################################
-  def testAlwaysInputPredictedField(self, onCluster=False, env=None, 
+
+  def testAlwaysInputPredictedField(self, onCluster=False, env=None,
                                       **kwargs):
-    """ 
+    """
     Run a swarm where 'inputPredictedField' is set in the permutations
     file. The dummy model for this swarm is designed to give the lowest
     error when the predicted field is INCLUDED, so make sure we don't get
@@ -1424,11 +1413,11 @@ class OneNodeTests(ExperimentTestBaseClass):
 
     return
 
-  ############################################################################
+
   def testFieldThresholdNoPredField(self, onCluster=False, env=None, **kwargs):
-    """ Test minimum field contribution threshold for a field to be included 
+    """ Test minimum field contribution threshold for a field to be included
     in further sprints when doing a temporal search that does not require
-    the predicted field. 
+    the predicted field.
     """
 
 
@@ -1461,59 +1450,59 @@ class OneNodeTests(ExperimentTestBaseClass):
                                     maxModels=None,
                                     dummyModel={'iterations':200},
                                     **kwargs)
-  
-      # Verify the best model and check the field contributions. 
+
+      # Verify the best model and check the field contributions.
       cjDAO = ClientJobsDAO.get()
       jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
       jobResults = json.loads(jobResultsStr)
       bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
       params = json.loads(bestModel.params)
-      
+
       prefix = 'modelParams|sensorParams|encoders|'
       expectedSwarmId = prefix + ('.' + prefix).join([
-              'address', 
+              'address',
               'gym',
-              'timestamp_dayOfWeek', 
+              'timestamp_dayOfWeek',
               'timestamp_timeOfDay'])
-  
-      self.assertEqual(params["particleState"]["swarmId"], 
+
+      self.assertEqual(params["particleState"]["swarmId"],
                        expectedSwarmId,
                        "Actual swarm id = %s\nExpcted swarm id = %s" \
-                       % (params["particleState"]["swarmId"], 
+                       % (params["particleState"]["swarmId"],
                           expectedSwarmId))
       self.assertEqual( bestModel.optimizedMetric, -50)
-  
-  
+
+
       # Check the field contributions
       actualFieldContributions = jobResults['fieldContributions']
       print "Actual field contributions:", \
                                 pprint.pformat(actualFieldContributions)
-      
+
       expectedFieldContributions = {
-                        'consumption': 0.0, 
+                        'consumption': 0.0,
                         'address': 100 * (60.0-40.0)/60.0,
                         'timestamp_timeOfDay': 100 * (60.0-20.0)/60.0,
                         'timestamp_dayOfWeek': 100 * (60.0-10.0)/60.0,
                         'gym': 100 * (60.0-30.0)/60.0}
-      
-      
+
+
       for key, value in expectedFieldContributions.items():
-        self.assertEqual(actualFieldContributions[key], value, 
+        self.assertEqual(actualFieldContributions[key], value,
                          "actual field contribution from field '%s' does not "
                          "match the expected value of %f" % (key, value))
-      
-  
+
+
     if True:
       #==========================================================================
-      # Now test ignoring all fields that contribute less than 55% to the 
+      # Now test ignoring all fields that contribute less than 55% to the
       #   error score. This means we can only use the timestamp_timeOfDay and
-      #   timestamp_dayOfWeek fields. 
-      # This should bring our best error score up to 50-30-40 = -20  
+      #   timestamp_dayOfWeek fields.
+      # This should bring our best error score up to 50-30-40 = -20
       env["NTA_CONF_PROP_nupic_hypersearch_min_field_contribution"] = \
                            '%f' % (55)
       env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
                          '%d' % (5)
-  
+
       (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
              = self.runPermutations(expDir,
                                     hsImp='v2',
@@ -1523,53 +1512,53 @@ class OneNodeTests(ExperimentTestBaseClass):
                                     maxModels=None,
                                     dummyModel={'iterations':200},
                                     **kwargs)
-  
+
       # Get the best model
       cjDAO = ClientJobsDAO.get()
       jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
       jobResults = json.loads(jobResultsStr)
       bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
       params = json.loads(bestModel.params)
-  
+
       prefix = 'modelParams|sensorParams|encoders|'
       expectedSwarmId = prefix + ('.' + prefix).join([
-              'timestamp_dayOfWeek', 
+              'timestamp_dayOfWeek',
               'timestamp_timeOfDay'])
-      self.assertEqual(params["particleState"]["swarmId"], 
+      self.assertEqual(params["particleState"]["swarmId"],
                        expectedSwarmId,
                        "Actual swarm id = %s\nExpcted swarm id = %s" \
-                       % (params["particleState"]["swarmId"], 
+                       % (params["particleState"]["swarmId"],
                           expectedSwarmId))
       self.assertEqual( bestModel.optimizedMetric, -20)
 
-      # Check field contributions returned  
+      # Check field contributions returned
       actualFieldContributions = jobResults['fieldContributions']
       print "Actual field contributions:", \
                                 pprint.pformat(actualFieldContributions)
 
       expectedFieldContributions = {
-                        'consumption': 0.0, 
+                        'consumption': 0.0,
                         'address': 100 * (60.0-40.0)/60.0,
                         'timestamp_timeOfDay': 100 * (60.0-20.0)/60.0,
                         'timestamp_dayOfWeek': 100 * (60.0-10.0)/60.0,
                         'gym': 100 * (60.0-30.0)/60.0}
-      
+
       for key, value in expectedFieldContributions.items():
-        self.assertEqual(actualFieldContributions[key], value, 
+        self.assertEqual(actualFieldContributions[key], value,
                          "actual field contribution from field '%s' does not "
                          "match the expected value of %f" % (key, value))
 
-    if True:  
+    if True:
       #==========================================================================
       # Now, test using maxFieldBranching to limit the max number of fields to
       #  3. This means we can only use the timestamp_timeOfDay, timestamp_dayOfWeek,
-      # gym fields. 
+      # gym fields.
       # This should bring our error score to 50-30-40-20 = -40
       env["NTA_CONF_PROP_nupic_hypersearch_min_field_contribution"] = \
                            '%f' % (0)
       env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
                            '%d' % (3)
-  
+
       (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
              = self.runPermutations(expDir,
                                     hsImp='v2',
@@ -1579,23 +1568,23 @@ class OneNodeTests(ExperimentTestBaseClass):
                                     maxModels=None,
                                     dummyModel={'iterations':200},
                                     **kwargs)
-  
+
       # Get the best model
       cjDAO = ClientJobsDAO.get()
       jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
       jobResults = json.loads(jobResultsStr)
       bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
       params = json.loads(bestModel.params)
-  
+
       prefix = 'modelParams|sensorParams|encoders|'
       expectedSwarmId = prefix + ('.' + prefix).join([
               'gym',
-              'timestamp_dayOfWeek', 
+              'timestamp_dayOfWeek',
               'timestamp_timeOfDay'])
-      self.assertEqual(params["particleState"]["swarmId"], 
+      self.assertEqual(params["particleState"]["swarmId"],
                        expectedSwarmId,
                        "Actual swarm id = %s\nExpcted swarm id = %s" \
-                       % (params["particleState"]["swarmId"], 
+                       % (params["particleState"]["swarmId"],
                           expectedSwarmId))
       self.assertEqual( bestModel.optimizedMetric, -40)
 
@@ -1606,14 +1595,14 @@ class OneNodeTests(ExperimentTestBaseClass):
       # Make sure we get the expected field contributions
       env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = \
                            '%d' % (g_repeatableSwarmMaturityWindow)
-  
+
       env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
                            '%d' % (0)
       env["NTA_CONF_PROP_nupic_hypersearch_minParticlesPerSwarm"] = \
                            '%d' % (5)
       env["NTA_CONF_PROP_nupic_hypersearch_min_field_contribution"] = \
                            '%f' % (0)
-  
+
       (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
              = self.runPermutations(expDir,
                                     hsImp='v2',
@@ -1623,31 +1612,31 @@ class OneNodeTests(ExperimentTestBaseClass):
                                     maxModels=10,
                                     dummyModel={'iterations':200},
                                     **kwargs)
-  
+
       # Get the best model
       cjDAO = ClientJobsDAO.get()
       jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
       jobResults = json.loads(jobResultsStr)
       bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
       params = json.loads(bestModel.params)
-  
+
       prefix = 'modelParams|sensorParams|encoders|'
       expectedSwarmId = prefix + ('.' + prefix).join([
               'timestamp_dayOfWeek'])
-      self.assertEqual(params["particleState"]["swarmId"], 
+      self.assertEqual(params["particleState"]["swarmId"],
                        expectedSwarmId,
                        "Actual swarm id = %s\nExpcted swarm id = %s" \
-                       % (params["particleState"]["swarmId"], 
+                       % (params["particleState"]["swarmId"],
                           expectedSwarmId))
       self.assertEqual( bestModel.optimizedMetric, 10)
 
-      # Check field contributions returned  
+      # Check field contributions returned
       actualFieldContributions = jobResults['fieldContributions']
       print "Actual field contributions:", \
                                 pprint.pformat(actualFieldContributions)
 
       expectedFieldContributions = {
-                        'consumption': 0.0, 
+                        'consumption': 0.0,
                         'address': 100 * (60.0-40.0)/60.0,
                         'timestamp_timeOfDay': 100 * (60.0-20.0)/60.0,
                         'timestamp_dayOfWeek': 100 * (60.0-10.0)/60.0,
@@ -1655,7 +1644,6 @@ class OneNodeTests(ExperimentTestBaseClass):
 
 
 
-################################################################################
 class MultiNodeTests(ExperimentTestBaseClass):
   """
   Test hypersearch on multiple nodes
@@ -1663,7 +1651,8 @@ class MultiNodeTests(ExperimentTestBaseClass):
   # AWS tests attribute required for tagging via automatic test discovery via
   # nosetests
   engineAWSClusterTest=True
-  ############################################################################
+
+
   def testSimpleV2(self):
     """ Try running a simple permutations
     """
@@ -1672,7 +1661,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     inst = OneNodeTests(self._testMethodName)
     return inst.testSimpleV2(onCluster=True) #, maxNumWorkers=7)
 
-  ############################################################################
+
   def testDeltaV2(self):
     """ Try running a simple permutations
     """
@@ -1681,7 +1670,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     inst = OneNodeTests(self._testMethodName)
     return inst.testDeltaV2(onCluster=True) #, maxNumWorkers=7)
 
-  ############################################################################
+
   def testSmartSpeculation(self, onCluster=True, env=None, **kwargs):
     """ Try running a simple permutations
     """
@@ -1720,7 +1709,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     jobResults = json.loads(jobResultsStr)
     bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
     params = json.loads(bestModel.params)
-    
+
     # Make sure that the only nonkilled models are the ones that would have been
     # run without speculation
     prefix = 'modelParams|sensorParams|encoders|'
@@ -1730,9 +1719,9 @@ class MultiNodeTests(ExperimentTestBaseClass):
       if swarms[swarm]["status"] == 'killed':
         swarmId = swarm.split(".")
         if(len(swarmId)>1):
-          # Make sure that something before the last two encoders is in the 
+          # Make sure that something before the last two encoders is in the
           # wrong sprint progression, hence why it was killed
-          # The last encoder is the predicted field and the second to last is 
+          # The last encoder is the predicted field and the second to last is
           # the current new addition
           wrong=0
           for i in range(len(swarmId)-2):
@@ -1740,13 +1729,13 @@ class MultiNodeTests(ExperimentTestBaseClass):
               wrong=1
           assert wrong==1, "Some of the killed swarms should not have been " \
                             + "killed as they are a legal combination."
-                            
+
       if swarms[swarm]["status"] == 'completed':
           swarmId = swarm.split(".")
           if(len(swarmId)>3):
-            # Make sure that the completed swarms are all swarms that should 
+            # Make sure that the completed swarms are all swarms that should
             # have been run.
-            # The last encoder is the predicted field and the second to last is 
+            # The last encoder is the predicted field and the second to last is
             # the current new addition
             for i in range(len(swarmId)-3):
               if correctOrder[i] != swarmId[i]:
@@ -1757,17 +1746,17 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
     pass
 
-  ############################################################################
-  def testSmartSpeculationSpatialClassification(self, onCluster=True, 
+
+  def testSmartSpeculationSpatialClassification(self, onCluster=True,
                                                 env=None, **kwargs):
     """ Test that smart speculation does the right thing with spatial
     classification models. This also applies to temporal models where the
     predicted field is optional (or excluded) since Hypersearch treats them
-    the same. 
+    the same.
     """
 
     self._printTestHeader()
-    expDir = os.path.join(g_myEnv.testSrcExpDir, 
+    expDir = os.path.join(g_myEnv.testSrcExpDir,
                           'smart_speculation_spatial_classification')
 
     # Test it out
@@ -1802,8 +1791,8 @@ class MultiNodeTests(ExperimentTestBaseClass):
     jobResults = json.loads(jobResultsStr)
     bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
     params = json.loads(bestModel.params)
-    
-    
+
+
     # Make sure that the only non-killed models are the ones that would have been
     # run without speculation
     prefix = 'modelParams|sensorParams|encoders|'
@@ -1817,24 +1806,22 @@ class MultiNodeTests(ExperimentTestBaseClass):
           if correctOrder[0] in swarmId:
             raise RuntimeError("Some of the killed swarms should not have been "
                             "killed as they are a legal combination.")
-                            
+
       elif swarms[swarm]["status"] == 'completed':
         swarmId = swarm.split(".")
         if(len(swarmId) >= 2):
-          # Make sure that the completed swarms are all swarms that should 
+          # Make sure that the completed swarms are all swarms that should
           # have been run.
           for i in range(len(swarmId)-1):
             if correctOrder[i] != swarmId[i]:
               raise RuntimeError("Some of the completed swarms should not have "
                         "finished as they are illegal combinations")
-      
+
       elif swarms[swarm]["status"] == 'active':
         raise RuntimeError("Some swarms are still active at the end of "
                            "hypersearch")
 
 
-
-   ############################################################################
   def testFieldBranching(self, onCluster=True, env=None, **kwargs):
     """ Try running a simple permutations
     """
@@ -1873,7 +1860,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     jobResults = json.loads(jobResultsStr)
     bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
     params = json.loads(bestModel.params)
-    
+
     prefix = 'modelParams|sensorParams|encoders|'
     expectedSwarmId = prefix + ('.' + prefix).join([
             'attendance', 'home_winloss', 'timestamp_dayOfWeek',
@@ -1904,7 +1891,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
     prefix = 'modelParams|sensorParams|encoders|'
     expectedSwarmId = prefix + ('.' + prefix).join([
-            'attendance', 'home_winloss', 'timestamp_timeOfDay', 
+            'attendance', 'home_winloss', 'timestamp_timeOfDay',
             'visitor_winloss'])
     assert params["particleState"]["swarmId"] == expectedSwarmId, \
                   params["particleState"]["swarmId"]
@@ -1972,18 +1959,17 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
 
     return
-  ############################################################################
+
+
   def testFieldThreshold(self, onCluster=True, env=None, **kwargs):
     """ Test minimum field contribution threshold for a field to be included in further sprints
     """
 
     self._printTestHeader()
     inst = OneNodeTests(self._testMethodName)
-    return inst.testFieldThreshold(onCluster=True) 
+    return inst.testFieldThreshold(onCluster=True)
 
-   
-    
-  ############################################################################
+
   def testFieldContributions(self, onCluster=True, env=None, **kwargs):
     """ Try running a simple permutations
     """
@@ -2014,31 +2000,30 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
     actualFieldContributions = jobResults['fieldContributions']
     print "Actual field contributions:", actualFieldContributions
-    
-    expectedFieldContributions = {'consumption': 0.0, 
+
+    expectedFieldContributions = {'consumption': 0.0,
                                   'address': 0.0,
                                   'timestamp_timeOfDay': 20.0,
                                   'timestamp_dayOfWeek': 50.0,
                                   'gym': 10.0}
-    
-    
+
+
     for key, value in expectedFieldContributions.items():
-      self.assertEqual(actualFieldContributions[key], value, 
+      self.assertEqual(actualFieldContributions[key], value,
                        "actual field contribution from field '%s' does not "
                        "match the expected value of %f" % (key, value))
     return
 
-  ############################################################################
-  def testCLAModelV2(self):
+
+  def testHTMPredictionModelV2(self):
     """ Try running a simple permutations through a real CLA model
     """
 
     self._printTestHeader()
     inst = OneNodeTests(self._testMethodName)
-    return inst.testCLAModelV2(onCluster=True, maxModels=4)
+    return inst.testHTMPredictionModelV2(onCluster=True, maxModels=4)
 
 
-  ############################################################################
   def testCLAMultistepModel(self):
     """ Try running a simple permutations through a real CLA model that
     uses multistep
@@ -2049,7 +2034,6 @@ class MultiNodeTests(ExperimentTestBaseClass):
     return inst.testCLAMultistepModel(onCluster=True, maxModels=4)
 
 
-  ############################################################################
   def testLegacyCLAMultistepModel(self):
     """ Try running a simple permutations through a real CLA model that
     uses multistep
@@ -2060,7 +2044,6 @@ class MultiNodeTests(ExperimentTestBaseClass):
     return inst.testLegacyCLAMultistepModel(onCluster=True, maxModels=4)
 
 
-  ############################################################################
   def testSimpleV2VariableWaits(self):
     """ Try running a simple permutations where certain field combinations
     take longer to complete, this lets us test that we successfully kill
@@ -2080,7 +2063,6 @@ class MultiNodeTests(ExperimentTestBaseClass):
     return inst.testSimpleV2(onCluster=True, env=env)
 
 
-  ############################################################################
   def testOrphanedModel(self, modelRange=(0,2)):
     """ Run a worker on a model for a while, then have it exit before the
     model finishes. Then, run another worker, which should detect the orphaned
@@ -2116,9 +2098,9 @@ class MultiNodeTests(ExperimentTestBaseClass):
     self.assertLess(len(resultInfos), 500)
     return
 
-  ############################################################################
+
   def testTwoOrphanedModels(self, modelRange=(0,2)):
-    """ Test behavior when a worker marks 2 models orphaned at the same time. 
+    """ Test behavior when a worker marks 2 models orphaned at the same time.
     """
 
     self._printTestHeader()
@@ -2152,7 +2134,6 @@ class MultiNodeTests(ExperimentTestBaseClass):
     return
 
 
-  ############################################################################
   def testOrphanedModelGen1(self):
     """ Run a worker on a model for a while, then have it exit before the
     model finishes. Then, run another worker, which should detect the orphaned
@@ -2163,7 +2144,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     inst = MultiNodeTests(self._testMethodName)
     return inst.testOrphanedModel(modelRange=(10,11))
 
-  ############################################################################
+
   def testOrphanedModelMaxModels(self):
     """ Test to make sure that the maxModels parameter doesn't include
     orphaned models. Run a test with maxModels set to 2, where one becomes
@@ -2200,7 +2181,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     self.assertGreaterEqual(completionReasons.count(cjDB.CMPL_REASON_EOF), numModels)
     self.assertGreaterEqual(completionReasons.count(cjDB.CMPL_REASON_ORPHAN), 1)
 
-  ############################################################################
+
   def testOrphanedModelConnection(self):
     """Test for the correct behavior when a model uses a different connection id
     than what is stored in the db. The correct behavior is for the worker to log
@@ -2241,7 +2222,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     self.assertGreaterEqual(completionReasons.count(cjDB.CMPL_REASON_EOF), numModels)
     self.assertGreaterEqual(completionReasons.count(cjDB.CMPL_REASON_ORPHAN), 1)
 
-  ############################################################################
+
   def testErredModel(self, modelRange=(6,7)):
     """ Run a worker on a model for a while, then have it exit before the
     model finishes. Then, run another worker, which should detect the orphaned
@@ -2252,7 +2233,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     inst = OneNodeTests(self._testMethodName)
     return inst.testErredModel(onCluster=True)
 
-  ############################################################################
+
   def testJobFailModel(self):
     """ Run a worker on a model for a while, then have it exit before the
     model finishes. Then, run another worker, which should detect the orphaned
@@ -2263,7 +2244,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     inst = OneNodeTests(self._testMethodName)
     return inst.testJobFailModel(onCluster=True)
 
-  ############################################################################
+
   def testTooManyErredModels(self, modelRange=(5,10)):
     """ Run a worker on a model for a while, then have it exit before the
     model finishes. Then, run another worker, which should detect the orphaned
@@ -2274,7 +2255,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
     inst = OneNodeTests(self._testMethodName)
     return inst.testTooManyErredModels(onCluster=True)
 
-  ############################################################################
+
   def testSpatialClassification(self):
     """ Try running a simple permutations
     """
@@ -2284,31 +2265,29 @@ class MultiNodeTests(ExperimentTestBaseClass):
     return inst.testSpatialClassification(onCluster=True) #, maxNumWorkers=7)
 
 
-  ############################################################################
   def testAlwaysInputPredictedField(self):
 
     self._printTestHeader()
     inst = OneNodeTests(self._testMethodName)
-    return inst.testAlwaysInputPredictedField(onCluster=True) 
+    return inst.testAlwaysInputPredictedField(onCluster=True)
 
 
-  ############################################################################
   def testFieldThresholdNoPredField(self):
 
     self._printTestHeader()
     inst = OneNodeTests(self._testMethodName)
-    return inst.testFieldThresholdNoPredField(onCluster=True) 
+    return inst.testFieldThresholdNoPredField(onCluster=True)
 
 
 
-################################################################################
 class ModelMaturityTests(ExperimentTestBaseClass):
   """
   """
   # AWS tests attribute required for tagging via automatic test discovery via
   # nosetests
   engineAWSClusterTest=True
-  #############################################################################
+
+
   def setUp(self):
     # Ignore the global hypersearch version setting. Always test hypersearch v2
     hsVersion = 2
@@ -2321,7 +2300,7 @@ class ModelMaturityTests(ExperimentTestBaseClass):
                 'NTA_CONF_PROP_nupic_hypersearch_enableSwarmTermination':'0',
                 'NTA_CONF_PROP_nupic_hypersearch_bestModelMinRecords':'0'}
 
-  ############################################################################
+
   def testMatureInterleaved(self):
     """ Test to make sure that the best model continues running even when it has
     matured. The 2nd model (constant) will be marked as mature first and will
@@ -2371,7 +2350,6 @@ class ModelMaturityTests(ExperimentTestBaseClass):
     self.assertTrue(matured[0], True)
 
 
-  ############################################################################
   def testConstant(self):
     """ Sanity check to make sure that when only 1 model is running, it continues
     to run even when it has reached maturity """
@@ -2405,7 +2383,7 @@ class ModelMaturityTests(ExperimentTestBaseClass):
     self.assertEqual(completionReasons[0], cjDB.CMPL_REASON_EOF)
     self.assertEqual(matured[0], True)
 
-  ############################################################################
+
   def getModelFields(self, jobID, fields):
     cjDB = ClientJobsDAO.get()
     modelIDs = cjDB.jobGetModelIDs(jobID)
@@ -2423,21 +2401,23 @@ class ModelMaturityTests(ExperimentTestBaseClass):
 
     return [e[1:] for e in sorted(modelInfo, key=lambda info:info[0])]
 
-################################################################################
+
+
 class SwarmTerminatorTests(ExperimentTestBaseClass):
   """
   """
   # AWS tests attribute required for tagging via automatic test discovery via
   # nosetests
   engineAWSClusterTest=True
-  #############################################################################
+
+
   def setUp(self):
     self.env = {'NTA_CONF_PROP_nupic_hypersearch_enableModelMaturity':'0',
                 'NTA_CONF_PROP_nupic_hypersearch_enableModelTermination':'0',
                 'NTA_CONF_PROP_nupic_hypersearch_enableSwarmTermination':'1',
                 'NTA_TEST_recordSwarmTerminations':'1'}
 
-  ############################################################################
+
   def testSimple(self, useCluster=False):
     """Run with one really bad swarm to see if terminator picks it up correctly"""
 
@@ -2470,7 +2450,7 @@ class SwarmTerminatorTests(ExperimentTestBaseClass):
       else:
         self.assertEqual(generation, swarmMaturityWindow-1+4)
 
-  ############################################################################
+
   def testMaturity(self, useCluster=False):
     if not g_myEnv.options.runInProc:
       self.skipTest("Skipping One Node test since runInProc is not specified")
@@ -2507,24 +2487,25 @@ class SwarmTerminatorTests(ExperimentTestBaseClass):
       else:
         self.assertEqual(generation, swarmMaturityWindow-1 + 7)
 
-  ############################################################################
+
   def testSimpleMN(self):
     self.testSimple(useCluster=True)
 
-  ############################################################################
+
   def testMaturityMN(self):
     self.testMaturity(useCluster=True)
 
-############################################################################
+
+
 def getHypersearchWinningModelID(jobID):
   """
   Parameters:
   -------------------------------------------------------------------
   jobID:            jobID of successfully-completed Hypersearch job
-  
+
   retval:           modelID of the winning model
   """
-  
+
   cjDAO = ClientJobsDAO.get()
   jobResults = cjDAO.jobGetFields(jobID, ['results'])[0]
   print "Hypersearch job results: %r" % (jobResults,)
@@ -2533,7 +2514,6 @@ def getHypersearchWinningModelID(jobID):
 
 
 
-################################################################################
 def _executeExternalCmdAndReapStdout(args):
   """
   args:     Args list as defined for the args parameter in subprocess.Popen()
@@ -2571,7 +2551,8 @@ def _executeExternalCmdAndReapStdout(args):
 
   return result
 
-################################################################################
+
+
 def _debugOut(text):
   global g_debug
   if g_debug:
@@ -2580,17 +2561,18 @@ def _debugOut(text):
 
   return
 
-################################################################################
+
+
 def _getTestList():
   """ Get the list of tests that can be run from this module"""
 
   suiteNames = [
-                'OneNodeTests', 
+                'OneNodeTests',
                 'MultiNodeTests',
                 'ModelMaturityTests',
                 'SwarmTerminatorTests',
                ]
-		
+
   testNames = []
   for suite in suiteNames:
     for f in dir(eval(suite)):
@@ -2603,10 +2585,10 @@ class _ArgParser(object):
   """Class which handles command line arguments and arguments passed to the test
   """
   args = []
-  
+
   @classmethod
   def _processArgs(cls):
-    """ 
+    """
     Parse our command-line args/options and strip them from sys.argv
     Returns the tuple (parsedOptions, remainingArgs)
     """
@@ -2654,10 +2636,10 @@ class _ArgParser(object):
 
   @classmethod
   def parseArgs(cls):
-    """ Returns the test arguments after parsing 
+    """ Returns the test arguments after parsing
     """
     return cls._processArgs()[0]
-  
+
   @classmethod
   def consumeArgs(cls):
     """ Consumes the test arguments and returns the remaining arguments meant
@@ -2666,13 +2648,12 @@ class _ArgParser(object):
     return cls._processArgs()[1]
 
 
-################################################################################
-################################################################################
+
 def setUpModule():
   print "\nCURRENT DIRECTORY:", os.getcwd()
 
   initLogging(verbose=True)
-  
+
   global g_myEnv
   # Setup our environment
   g_myEnv = MyTestEnvironment()
@@ -2680,7 +2661,7 @@ def setUpModule():
 if __name__ == '__main__':
   # Form the command line for the unit test framework
   # Consume test specific arguments and pass remaining to unittest.main
-  _ArgParser.args = sys.argv[1:] 
+  _ArgParser.args = sys.argv[1:]
   args = [sys.argv[0]] + _ArgParser.consumeArgs()
 
   # Run the tests if called using python

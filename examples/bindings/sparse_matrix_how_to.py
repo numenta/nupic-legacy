@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
@@ -7,21 +6,20 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import cPickle
 
 # SparseMatrix is a versatile class that offers a wide range of functionality.
 # This tutorial will introduce you to the main features of SparseMatrix.
@@ -97,10 +95,22 @@ s = SM32()
 s.fromDense(numpy.random.random((4,4)))
 print '\nfromDense\n', s
 
-# A sparse matrix can be pickled:
-cPickle.dump(s, open('sm.txt', 'wb'))
-s2 = cPickle.load(open('sm.txt', 'rb'))
-print '\nPickling\n', s2
+# A sparse matrix can be serialized:
+schema = SM32.getSchema()
+
+with open("sm.bin", "w+b") as f:
+  # Save
+  proto = schema.new_message()
+  s.write(proto)
+  proto.write(f)
+
+  # Load
+  f.seek(0)
+  proto2 = schema.read(f)
+  s2 = SM32()
+  s2.read(proto2)
+
+print '\nSerializing\n', s2
 
 # 4. Simple queries:
 # =================
