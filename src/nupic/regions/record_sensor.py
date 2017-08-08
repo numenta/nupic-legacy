@@ -377,7 +377,10 @@ class RecordSensor(PyRegion):
       self.encoder.encodeIntoArray(data, outputs["dataOut"])
 
       # If there is a field to predict, set bucketIdxOut and actValueOut.
-      if self.predictedField is not None:
+      # There is a special case where a predicted field might be a vector, as in
+      # the CoordinateEncoder. Since this encoder does not provide bucket
+      # indices for prediction, we will ignore it.
+      if self.predictedField is not None and self.predictedField != "vector":
         allEncoders = list(self.encoder.encoders)
         if self.disabledEncoder is not None:
           allEncoders.extend(self.disabledEncoder.encoders)
