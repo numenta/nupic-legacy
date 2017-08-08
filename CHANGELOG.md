@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- Fixed a bug in record sensor that prevented the usage of CoordinateEncoder. (#3754)
+
 ## 1.0.0
 
 - Improved exception handling in /swarm/test_db.py (#3738)
