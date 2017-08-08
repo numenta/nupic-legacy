@@ -2,7 +2,7 @@
 
 ## 1.0.1
 
-- Fixed a but in record sensor that prevent the usage of CoordinateEncoder. (#3754)
+- Fixed a bug in record sensor that prevent the usage of CoordinateEncoder. (#3754)
 
 ## 1.0.0
 
