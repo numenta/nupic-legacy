@@ -40,7 +40,7 @@ import numpy
 from nupic.frameworks.opf.model import Model
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.field_meta import FieldMetaSpecial, FieldMetaInfo
-from nupic.encoders import MultiEncoder, DeltaEncoder
+from nupic.encoders import MultiEncoder, DeltaEncoder, CoordinateEncoder
 from nupic.engine import Network
 from nupic.support.fs_helpers import makeDirectoryFromAbsolutePath
 from nupic.frameworks.opf.opf_utils import (InferenceType,
@@ -500,7 +500,8 @@ class HTMPredictionModel(Model):
 
     if self._predictedFieldName is not None and self._classifierInputEncoder is not None:
       absoluteValue = inputRecord[self._predictedFieldName]
-      bucketIdx = self._classifierInputEncoder.getBucketIndices(absoluteValue)[0]
+      if self._inputEncoderProvidesBucketIdx(self._classifierInputEncoder):
+        bucketIdx = self._classifierInputEncoder.getBucketIndices(absoluteValue)[0]
 
     return ClassifierInput(dataRow=absoluteValue,
                            bucketIndex=bucketIdx)
@@ -740,6 +741,7 @@ class HTMPredictionModel(Model):
     maxPredictionsPerStep = self._maxPredictionsPerStep
     needLearning = self.isLearningEnabled()
     inferences = {}
+    bucketIdx = 0
 
     # Get the classifier input encoder, if we don't have it already
     if self._classifierInputEncoder is None:
@@ -787,7 +789,9 @@ class HTMPredictionModel(Model):
                        "field configured for this model. Missing value for '%s'"
                        % predictedFieldName)
     absoluteValue = rawInput[predictedFieldName]
-    bucketIdx = self._classifierInputEncoder.getBucketIndices(absoluteValue)[0]
+
+    if self._inputEncoderProvidesBucketIdx(self._classifierInputEncoder):
+      bucketIdx = self._classifierInputEncoder.getBucketIndices(absoluteValue)[0]
 
     # Convert the absolute values to deltas if necessary
     # The bucket index should be handled correctly by the underlying delta encoder
@@ -875,9 +879,9 @@ class HTMPredictionModel(Model):
 
       # calculate likelihood for each bucket
       bucketLikelihood = {}
-      for k in likelihoodsDict.keys():
-        bucketLikelihood[self._classifierInputEncoder.getBucketIndices(k)[0]] = (
-                                                                likelihoodsDict[k])
+      if self._inputEncoderProvidesBucketIdx(self._classifierInputEncoder):
+        for k in likelihoodsDict.keys():
+          bucketLikelihood[self._classifierInputEncoder.getBucketIndices(k)[0]] = (likelihoodsDict[k])
 
       # ---------------------------------------------------------------------
       # If we have a delta encoder, we have to shift our predicted output value
@@ -971,6 +975,13 @@ class HTMPredictionModel(Model):
                                   key=itemgetter(1),
                                   reverse=True)[:maxPredictionsPerStep])
     return likelihoodsDict
+
+
+
+  @classmethod
+  def _inputEncoderProvidesBucketIdx(cls, encoder):
+    return not isinstance(encoder, CoordinateEncoder)
+
 
 
   def getRuntimeStats(self):
