@@ -1,0 +1,1543 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Regions &#8212; NuPIC 1.0.2.dev0
+
+ documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0.2.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Sensors" href="sensors.html" />
+    <link rel="prev" title="Network" href="network.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-nupic.regions">
+<span id="regions"></span><h1>Regions<a class="headerlink" href="#module-nupic.regions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pyregion">
+<h2>PyRegion<a class="headerlink" href="#pyregion" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion">
+<em class="property">class </em><code class="descclassname">nupic.bindings.regions.PyRegion.</code><code class="descname">PyRegion</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwars</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyRegion provides services to its sub-classes (the actual regions):</p>
+<ul class="simple">
+<li>Define and document the interface of a Python region</li>
+<li>Enforce implementation of required methods</li>
+<li>Default implementation for some methods</li>
+</ul>
+<p>PyRegion is an abstract base class (<a class="reference external" href="http://docs.python.org/library/abc.html">http://docs.python.org/library/abc.html</a>).
+If a subclass doesn&#8217;t implement all its abstract methods it can&#8217;t be
+instantiated. Note, that the signature of implemented abstract method in the
+subclass doesn&#8217;t need to match the signature of the abstract method in the
+base class. This is very important for
+<code class="xref py py-meth docutils literal"><span class="pre">__init__()</span></code> in this case.</p>
+<p>The abstract methods (decorated with <code class="docutils literal"><span class="pre">&#64;abstract</span></code> method) are:</p>
+<ul class="simple">
+<li><code class="xref py py-meth docutils literal"><span class="pre">__init__()</span></code></li>
+<li><a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.initialize" title="nupic.bindings.regions.PyRegion.PyRegion.initialize"><code class="xref py py-meth docutils literal"><span class="pre">initialize()</span></code></a></li>
+<li><a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.compute" title="nupic.bindings.regions.PyRegion.PyRegion.compute"><code class="xref py py-meth docutils literal"><span class="pre">compute()</span></code></a></li>
+</ul>
+<p>In addition, some PyRegion methods raise <code class="docutils literal"><span class="pre">NotImplementedError</span></code> which throws
+an exception if called. A sub-class may opt not to implement these
+methods, but if such a methods is called then a <code class="docutils literal"><span class="pre">NotImplementedError</span></code> will
+be raised. This is useful for methods like <code class="xref py py-meth docutils literal"><span class="pre">setParameterArray()</span></code> if a
+particular subclass has no array parameters.</p>
+<p>The not implemented methods are:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getSpec" title="nupic.bindings.regions.PyRegion.PyRegion.getSpec"><code class="xref py py-meth docutils literal"><span class="pre">getSpec()</span></code></a> (class method)</li>
+<li><a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.setParameter" title="nupic.bindings.regions.PyRegion.PyRegion.setParameter"><code class="xref py py-meth docutils literal"><span class="pre">setParameter()</span></code></a></li>
+<li><a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.setParameterArray" title="nupic.bindings.regions.PyRegion.PyRegion.setParameterArray"><code class="xref py py-meth docutils literal"><span class="pre">setParameterArray()</span></code></a></li>
+<li><a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount" title="nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount"><code class="xref py py-meth docutils literal"><span class="pre">getOutputElementCount()</span></code></a></li>
+</ul>
+<p>The <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getSpec" title="nupic.bindings.regions.PyRegion.PyRegion.getSpec"><code class="xref py py-meth docutils literal"><span class="pre">getSpec()</span></code></a> is a class
+method, which is actually required but since
+it&#8217;s not an instance method the <code class="docutils literal"><span class="pre">&#64;abstractmethod</span></code> decorator doesn&#8217;t apply.</p>
+<p>Finally, PyRegion provides reasonable default implementation to some methods.
+Sub-classes may opt to override these methods or use the default
+implementation (often recommended).</p>
+<p>The implemented methods are:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameter" title="nupic.bindings.regions.PyRegion.PyRegion.getParameter"><code class="xref py py-meth docutils literal"><span class="pre">getParameter()</span></code></a></li>
+<li><a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameterArray" title="nupic.bindings.regions.PyRegion.PyRegion.getParameterArray"><code class="xref py py-meth docutils literal"><span class="pre">getParameterArray()</span></code></a></li>
+<li><a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameterArrayCount" title="nupic.bindings.regions.PyRegion.PyRegion.getParameterArrayCount"><code class="xref py py-meth docutils literal"><span class="pre">getParameterArrayCount()</span></code></a></li>
+<li><a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.executeMethod" title="nupic.bindings.regions.PyRegion.PyRegion.executeMethod"><code class="xref py py-meth docutils literal"><span class="pre">executeMethod()</span></code></a></li>
+</ul>
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.compute">
+<code class="descname">compute</code><span class="sig-paren">(</span><em>inputs</em>, <em>outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the main computation.</p>
+<p>This method is called in each iteration for each phase the node supports.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inputs</strong> &#8211; (dict) of numpy arrays (one per input)</li>
+<li><strong>outputs</strong> &#8211; (dict) of numpy arrays (one per output)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.deSerializeExtraData">
+<code class="descname">deSerializeExtraData</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.deSerializeExtraData" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called during network deserialization with an external
+filename that can be used to bypass pickle for loading large binary states.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filePath</strong> &#8211; (string) full filepath and name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.executeMethod">
+<code class="descname">executeMethod</code><span class="sig-paren">(</span><em>methodName</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.executeMethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes a method named <code class="docutils literal"><span class="pre">methodName</span></code> with the specified arguments.</p>
+<p>This method is called when the user executes a command as defined in
+the node spec. It provides a perfectly reasonble implementation
+of the command mechanism. As a sub-class developer you just need to
+implement a method for each command in the node spec. Note that due to
+the command mechanism only unnamed argument are supported.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>methodName</strong> &#8211; (string) the name of the method that correspond to a
+command in the spec.</li>
+<li><strong>args</strong> &#8211; (list) of arguments that will be passed to the method</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount">
+<code class="descname">getOutputElementCount</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the region has multiple nodes (all must have the same output
+size) then just the number of output elements of a single node
+should be returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; (string) the name of the output</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(int) number of elements in the output of a single node.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.getParameter">
+<code class="descname">getParameter</code><span class="sig-paren">(</span><em>name</em>, <em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default implementation that return an attribute with the requested name.</p>
+<p>This method provides a default implementation of
+<a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameter" title="nupic.bindings.regions.PyRegion.PyRegion.getParameter"><code class="xref py py-meth docutils literal"><span class="pre">getParameter()</span></code></a> that
+simply returns an attribute with the parameter name. If the Region
+conceptually contains multiple nodes with separate state, the <code class="docutils literal"><span class="pre">index</span></code>
+argument is used to request a parameter of a specific node inside the
+region. In case of a region-level parameter the index should be <code class="docutils literal"><span class="pre">-1</span></code>.</p>
+<p>The implementation prevents accessing parameters names that start with
+<code class="docutils literal"><span class="pre">_</span></code>. It may be better to enforce this convention at the node spec level.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; (string) name of requested parameter</li>
+<li><strong>index</strong> &#8211; (int) index of node inside the region (if relevant)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.getParameterArray">
+<code class="descname">getParameterArray</code><span class="sig-paren">(</span><em>name</em>, <em>index</em>, <em>array</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameterArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default implementation that return an attribute with the requested name.</p>
+<p>This method provides a default implementation of
+<a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameterArray" title="nupic.bindings.regions.PyRegion.PyRegion.getParameterArray"><code class="xref py py-meth docutils literal"><span class="pre">getParameterArray()</span></code></a>
+that returns an attribute with the parameter name. If the Region
+conceptually contains multiple nodes with separate state the <code class="docutils literal"><span class="pre">index</span></code>
+argument is used to request a parameter of a specific node inside the
+region. The attribute value is written into the output array. No type or
+sanity checks are performed for performance reasons. If something goes awry
+it will result in a low-level exception. If you are unhappy about it you can
+implement your own
+<a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameterArray" title="nupic.bindings.regions.PyRegion.PyRegion.getParameterArray"><code class="xref py py-meth docutils literal"><span class="pre">getParameterArray()</span></code></a>
+method in the subclass.</p>
+<p>The implementation prevents accessing parameters names that start with
+<code class="docutils literal"><span class="pre">_</span></code>. It may be better to enforce this convention at the node spec level.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; (string) name of requested parameter</li>
+<li><strong>index</strong> &#8211; (int) index of node inside the region (if relevant)</li>
+<li><strong>array</strong> &#8211; output numpy array that the value is written to</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">Exception if parameter starts with <code class="docutils literal"><span class="pre">_</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.getParameterArrayCount">
+<code class="descname">getParameterArrayCount</code><span class="sig-paren">(</span><em>name</em>, <em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameterArrayCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default implementation that return the length of the attribute.</p>
+<p>This default implementation goes hand in hand with
+<a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameterArray" title="nupic.bindings.regions.PyRegion.PyRegion.getParameterArray"><code class="xref py py-meth docutils literal"><span class="pre">getParameterArray()</span></code></a>.
+If you override one of them in your subclass, you should probably override
+both of them.</p>
+<p>The implementation prevents accessing parameters names that start with
+<code class="docutils literal"><span class="pre">_</span></code>. It may be better to enforce this convention at the node spec level.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; (string) name of requested parameter</li>
+<li><strong>index</strong> &#8211; (int) index of node inside the region (if relevant)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">Exception if parameter starts with <code class="docutils literal"><span class="pre">_</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.getSchema">
+<em class="property">static </em><code class="descname">getSchema</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.getSchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the pycapnp proto type that the class uses for serialization.</p>
+<p>This is used to convert the proto into the proper type before passing it
+into the read or write method of the subclass.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">PyRegionProto prototype object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body">NotImplementedError if function is not implemented in subclass</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.getSpec">
+<em class="property">classmethod </em><code class="descname">getSpec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.getSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class method is called by NuPIC before creating a Region.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(dict) the region spec for this region. Keys described below:<ul>
+<li><code class="docutils literal"><span class="pre">description</span></code> (string) user-provided description</li>
+<li><code class="docutils literal"><span class="pre">singleNodeOnly</span></code> (bool) True if this Region supports only a single
+node</li>
+<li><code class="docutils literal"><span class="pre">inputs</span></code> (dict) keys are the names of the inputs and the values are
+dictionaries with these keys:<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">description</span></code> (string) user-provided description</li>
+<li><code class="docutils literal"><span class="pre">regionLevel</span></code> (bool) True if this is a &#8220;region-level&#8221; input</li>
+<li><code class="docutils literal"><span class="pre">dataType</span></code> (string) describing the data type, usually <code class="docutils literal"><span class="pre">Real32</span></code></li>
+<li><code class="docutils literal"><span class="pre">count</span></code> (int) items in the input. 0 means unspecified.</li>
+<li><code class="docutils literal"><span class="pre">required</span></code> (bool) whether the input is must be connected</li>
+<li><code class="docutils literal"><span class="pre">isDefaultInput</span></code> (bool) must be True for exactly one input</li>
+<li><code class="docutils literal"><span class="pre">requireSplitterMap</span></code> (bool) [just set this to False.]</li>
+</ul>
+</div></blockquote>
+</li>
+<li><code class="docutils literal"><span class="pre">outputs</span></code> (dict) similar structure to inputs. The keys
+are:<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">description</span></code></li>
+<li><code class="docutils literal"><span class="pre">dataType</span></code></li>
+<li><code class="docutils literal"><span class="pre">count</span></code></li>
+<li><code class="docutils literal"><span class="pre">regionLevel</span></code></li>
+<li><code class="docutils literal"><span class="pre">isDefaultOutput</span></code></li>
+</ul>
+</div></blockquote>
+</li>
+<li><code class="docutils literal"><span class="pre">parameters</span></code> (dict) of dicts with the following keys:<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">description</span></code></li>
+<li><code class="docutils literal"><span class="pre">dataType</span></code></li>
+<li><code class="docutils literal"><span class="pre">count</span></code></li>
+<li><code class="docutils literal"><span class="pre">constraints</span></code> (optional)</li>
+<li><code class="docutils literal"><span class="pre">accessMode</span></code> (one of &#8220;ReadWrite&#8221;, &#8220;Read&#8221;, &#8220;Create&#8221;)</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.guardedCompute">
+<code class="descname">guardedCompute</code><span class="sig-paren">(</span><em>inputs</em>, <em>outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.guardedCompute" title="Permalink to this definition">¶</a></dt>
+<dd><p>The C++ entry point to compute.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inputs</strong> &#8211; (dict) of numpy arrays (one per input)</li>
+<li><strong>outputs</strong> &#8211; (dict) of numpy arrays (one per output)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the node after the network is fully linked
+It is called once by NuPIC before the first call to
+<a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.compute" title="nupic.bindings.regions.PyRegion.PyRegion.compute"><code class="xref py py-meth docutils literal"><span class="pre">compute()</span></code></a>. It is
+a good place to perform one time initialization that depend on the inputs
+and/or outputs. The region may also remember its inputs and outputs here
+because they will not change.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.read">
+<em class="property">classmethod </em><code class="descname">read</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.readFromProto" title="nupic.bindings.regions.PyRegion.PyRegion.readFromProto"><code class="xref py py-meth docutils literal"><span class="pre">readFromProto()</span></code></a>
+on subclass after converting proto to specific type using
+<a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getSchema" title="nupic.bindings.regions.PyRegion.PyRegion.getSchema"><code class="xref py py-meth docutils literal"><span class="pre">getSchema()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; PyRegionProto capnproto object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.readFromProto">
+<em class="property">classmethod </em><code class="descname">readFromProto</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.readFromProto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read state from proto object.</p>
+<p>The type of proto is determined by
+<a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getSchema" title="nupic.bindings.regions.PyRegion.PyRegion.getSchema"><code class="xref py py-meth docutils literal"><span class="pre">getSchema()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">NotImplementedError if function is not implemented in subclass</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.serializeExtraData">
+<code class="descname">serializeExtraData</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.serializeExtraData" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called during network serialization with an external
+filename that can be used to bypass pickle for saving large binary states.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filePath</strong> &#8211; (string) full filepath and name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.setParameter">
+<code class="descname">setParameter</code><span class="sig-paren">(</span><em>name</em>, <em>index</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.setParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of a parameter.</p>
+<p>If the Region conceptually contains multiple nodes with separate state
+the <code class="docutils literal"><span class="pre">index</span></code> argument is used set a parameter of a specific node inside
+the region.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; (string) name of requested parameter</li>
+<li><strong>index</strong> &#8211; (int) index of node inside the region (if relevant)</li>
+<li><strong>value</strong> &#8211; (object) the value to assign to the requested parameter</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">NotImplementedError if function is not implemented in subclass</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.setParameterArray">
+<code class="descname">setParameterArray</code><span class="sig-paren">(</span><em>name</em>, <em>index</em>, <em>array</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.setParameterArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of an array parameter</p>
+<p>If the Region conceptually contains multiple nodes with separate state
+the &#8216;index&#8217; argument is used set a parameter of a specific node inside
+the region.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; (string) name of requested parameter</li>
+<li><strong>index</strong> &#8211; (int) index of node inside the region (if relevant)</li>
+<li><strong>array</strong> &#8211; the value to assign to the requested parameter (a numpy array)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">NotImplementedError if function is not implemented in subclass</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.writeToProto" title="nupic.bindings.regions.PyRegion.PyRegion.writeToProto"><code class="xref py py-meth docutils literal"><span class="pre">writeToProto()</span></code></a>
+on subclass after converting proto to specific type using
+<a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getSchema" title="nupic.bindings.regions.PyRegion.PyRegion.getSchema"><code class="xref py py-meth docutils literal"><span class="pre">getSchema()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; PyRegionProto capnproto object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.bindings.regions.PyRegion.PyRegion.writeToProto">
+<code class="descname">writeToProto</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.bindings.regions.PyRegion.PyRegion.writeToProto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write state to proto object.</p>
+<p>The type of proto is determined by
+<a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getSchema" title="nupic.bindings.regions.PyRegion.PyRegion.getSchema"><code class="xref py py-meth docutils literal"><span class="pre">getSchema()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">NotImplementedError if function is not implemented in subclass</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="anomalyregion">
+<h2>AnomalyRegion<a class="headerlink" href="#anomalyregion" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.regions.anomaly_region.AnomalyRegion">
+<em class="property">class </em><code class="descclassname">nupic.regions.anomaly_region.</code><code class="descname">AnomalyRegion</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.anomaly_region.AnomalyRegion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion</span></code></a>, <a class="reference internal" href="../support/index.html#nupic.serializable.Serializable" title="nupic.serializable.Serializable"><code class="xref py py-class docutils literal"><span class="pre">nupic.serializable.Serializable</span></code></a></p>
+<p>Region for computing the anomaly score.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="spregion">
+<h2>SPRegion<a class="headerlink" href="#spregion" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.regions.sp_region.SPRegion">
+<em class="property">class </em><code class="descclassname">nupic.regions.sp_region.</code><code class="descname">SPRegion</code><span class="sig-paren">(</span><em>columnCount</em>, <em>inputWidth</em>, <em>spatialImp='cpp'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sp_region.SPRegion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion</span></code></a></p>
+<p>SPRegion is designed to implement the spatial pooler compute for a given
+HTM level.</p>
+<p>Uses the <a class="reference internal" href="../algorithms/spatial-pooling.html#nupic.algorithms.spatial_pooler.SpatialPooler" title="nupic.algorithms.spatial_pooler.SpatialPooler"><code class="xref py py-class docutils literal"><span class="pre">SpatialPooler</span></code></a> class to do 
+most of the work.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>columnCount</strong> &#8211; (int) Number of columns in the SP, a required parameter.</li>
+<li><strong>inputWidth</strong> &#8211; (int) Size of inputs to the SP, a required parameter.</li>
+<li><strong>spatialImp</strong> &#8211; (string) <code class="docutils literal"><span class="pre">py</span></code> or <code class="docutils literal"><span class="pre">cpp`</span> <span class="pre">(default</span> <span class="pre">``cpp</span></code>).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.regions.sp_region.SPRegion.compute">
+<code class="descname">compute</code><span class="sig-paren">(</span><em>inputs</em>, <em>outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sp_region.SPRegion.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run one iteration, profiling it if requested.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inputs</strong> &#8211; (dict) mapping region input names to numpy.array values</li>
+<li><strong>outputs</strong> &#8211; (dict) mapping region output names to numpy.arrays that 
+should be populated with output values by this method</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sp_region.SPRegion.getAlgorithmInstance">
+<code class="descname">getAlgorithmInstance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sp_region.SPRegion.getAlgorithmInstance" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(<a class="reference internal" href="../algorithms/spatial-pooling.html#nupic.algorithms.spatial_pooler.SpatialPooler" title="nupic.algorithms.spatial_pooler.SpatialPooler"><code class="xref py py-class docutils literal"><span class="pre">SpatialPooler</span></code></a>) instance 
+of the underlying algorithm object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.regions.sp_region.SPRegion.getBaseSpec">
+<em class="property">classmethod </em><code class="descname">getBaseSpec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sp_region.SPRegion.getBaseSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Doesn&#8217;t include the spatial, temporal and other parameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(dict) The base Spec for SPRegion.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sp_region.SPRegion.getParameter">
+<code class="descname">getParameter</code><span class="sig-paren">(</span><em>parameterName</em>, <em>index=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sp_region.SPRegion.getParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameter" title="nupic.bindings.regions.PyRegion.PyRegion.getParameter"><code class="xref py py-meth docutils literal"><span class="pre">getParameter()</span></code></a>.</p>
+<p>Most parameters are handled automatically by PyRegion&#8217;s parameter get 
+mechanism. The ones that need special treatment are explicitly handled here.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sp_region.SPRegion.getParameterArray">
+<code class="descname">getParameterArray</code><span class="sig-paren">(</span><em>name</em>, <em>index</em>, <em>a</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sp_region.SPRegion.getParameterArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameterArray" title="nupic.bindings.regions.PyRegion.PyRegion.getParameterArray"><code class="xref py py-meth docutils literal"><span class="pre">getParameterArray()</span></code></a>.</p>
+<p>TODO: as a temporary hack, getParameterArray checks to see if there&#8217;s a
+variable, private or not, with that name. If so, it returns the value of the
+variable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sp_region.SPRegion.getParameterArrayCount">
+<code class="descname">getParameterArrayCount</code><span class="sig-paren">(</span><em>name</em>, <em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sp_region.SPRegion.getParameterArrayCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameterArrayCount" title="nupic.bindings.regions.PyRegion.PyRegion.getParameterArrayCount"><code class="xref py py-meth docutils literal"><span class="pre">getParameterArrayCount()</span></code></a>.</p>
+<p>TODO: as a temporary hack, getParameterArrayCount checks to see if there&#8217;s a
+variable, private or not, with that name. If so, it returns the value of the
+variable.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="nupic.regions.sp_region.SPRegion.getSchema">
+<em class="property">static </em><code class="descname">getSchema</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sp_region.SPRegion.getSchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getSchema" title="nupic.bindings.regions.PyRegion.PyRegion.getSchema"><code class="xref py py-meth docutils literal"><span class="pre">getSchema()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.regions.sp_region.SPRegion.getSpec">
+<em class="property">classmethod </em><code class="descname">getSpec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sp_region.SPRegion.getSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getSpec" title="nupic.bindings.regions.PyRegion.PyRegion.getSpec"><code class="xref py py-meth docutils literal"><span class="pre">getSpec()</span></code></a>.</p>
+<p>The parameters collection is constructed based on the parameters specified
+by the various components (spatialSpec, temporalSpec and otherSpec)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sp_region.SPRegion.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sp_region.SPRegion.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.initialize" title="nupic.bindings.regions.PyRegion.PyRegion.initialize"><code class="xref py py-meth docutils literal"><span class="pre">initialize()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.regions.sp_region.SPRegion.readFromProto">
+<em class="property">classmethod </em><code class="descname">readFromProto</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sp_region.SPRegion.readFromProto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.readFromProto" title="nupic.bindings.regions.PyRegion.PyRegion.readFromProto"><code class="xref py py-meth docutils literal"><span class="pre">readFromProto()</span></code></a>.</p>
+<p>Read state from proto object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; SPRegionProto capnproto object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sp_region.SPRegion.setParameter">
+<code class="descname">setParameter</code><span class="sig-paren">(</span><em>parameterName</em>, <em>index</em>, <em>parameterValue</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sp_region.SPRegion.setParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.setParameter" title="nupic.bindings.regions.PyRegion.PyRegion.setParameter"><code class="xref py py-meth docutils literal"><span class="pre">setParameter()</span></code></a>.</p>
+<p>Set the value of a Spec parameter. Most parameters are handled
+automatically by PyRegion&#8217;s parameter set mechanism. The ones that need
+special treatment are explicitly handled here.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sp_region.SPRegion.writeToProto">
+<code class="descname">writeToProto</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sp_region.SPRegion.writeToProto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.writeToProto" title="nupic.bindings.regions.PyRegion.PyRegion.writeToProto"><code class="xref py py-meth docutils literal"><span class="pre">writeToProto()</span></code></a>.</p>
+<p>Write state to proto object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; SPRegionProto capnproto object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tmregion">
+<h2>TMRegion<a class="headerlink" href="#tmregion" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.regions.tm_region.TMRegion">
+<em class="property">class </em><code class="descclassname">nupic.regions.tm_region.</code><code class="descname">TMRegion</code><span class="sig-paren">(</span><em>columnCount</em>, <em>inputWidth</em>, <em>cellsPerColumn</em>, <em>orColumnOutputs=False</em>, <em>cellsSavePath=''</em>, <em>temporalImp='py'</em>, <em>anomalyMode=False</em>, <em>computePredictedActiveCellIndices=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion</span></code></a></p>
+<p>TMRegion is designed to implement the temporal memory compute for a given
+HTM level.</p>
+<p>Uses a form of Temporal Memory to do most of the work. The specific TM 
+implementation is specified using the <code class="docutils literal"><span class="pre">temporalImp</span></code> parameter.</p>
+<dl class="method">
+<dt id="nupic.regions.tm_region.TMRegion.compute">
+<code class="descname">compute</code><span class="sig-paren">(</span><em>inputs</em>, <em>outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run one iteration of <a class="reference internal" href="#nupic.regions.tm_region.TMRegion" title="nupic.regions.tm_region.TMRegion"><code class="xref py py-class docutils literal"><span class="pre">TMRegion</span></code></a> compute, 
+profiling it if requested.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inputs</strong> &#8211; (dict) mapping region input names to numpy.array values</li>
+<li><strong>outputs</strong> &#8211; (dict) mapping region output names to numpy.arrays that 
+should be populated with output values by this method</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.tm_region.TMRegion.deSerializeExtraData">
+<code class="descname">deSerializeExtraData</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.deSerializeExtraData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.deSerializeExtraData" title="nupic.bindings.regions.PyRegion.PyRegion.deSerializeExtraData"><code class="xref py py-meth docutils literal"><span class="pre">deSerializeExtraData()</span></code></a>.</p>
+<p>This method is called during network deserialization with an external
+filename that can be used to bypass pickle for loading large binary states.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filePath</strong> &#8211; (string) absolute file path</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.tm_region.TMRegion.finishLearning">
+<code class="descname">finishLearning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.finishLearning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform an internal optimization step that speeds up inference if we know
+learning will not be performed anymore. This call may, for example, remove
+all potential inputs to each column.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.tm_region.TMRegion.getAlgorithmInstance">
+<code class="descname">getAlgorithmInstance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.getAlgorithmInstance" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">instance of the underlying 
+<a class="reference internal" href="../algorithms/sequence-memory.html#nupic.algorithms.temporal_memory.TemporalMemory" title="nupic.algorithms.temporal_memory.TemporalMemory"><code class="xref py py-class docutils literal"><span class="pre">TemporalMemory</span></code></a> 
+algorithm object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.regions.tm_region.TMRegion.getBaseSpec">
+<em class="property">classmethod </em><code class="descname">getBaseSpec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.getBaseSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Doesn&#8217;t include the spatial, temporal and other parameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(dict) the base Spec for TMRegion.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.tm_region.TMRegion.getOutputElementCount">
+<code class="descname">getOutputElementCount</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.getOutputElementCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount" title="nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount"><code class="xref py py-meth docutils literal"><span class="pre">getOutputElementCount()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.tm_region.TMRegion.getParameter">
+<code class="descname">getParameter</code><span class="sig-paren">(</span><em>parameterName</em>, <em>index=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.getParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameter" title="nupic.bindings.regions.PyRegion.PyRegion.getParameter"><code class="xref py py-meth docutils literal"><span class="pre">getParameter()</span></code></a>.</p>
+<p>Get the value of a parameter. Most parameters are handled automatically by
+<a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">PyRegion</span></code></a>&#8216;s parameter get mechanism. The 
+ones that need special treatment are explicitly handled here.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.tm_region.TMRegion.getParameterArray">
+<code class="descname">getParameterArray</code><span class="sig-paren">(</span><em>name</em>, <em>index</em>, <em>a</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.getParameterArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameterArray" title="nupic.bindings.regions.PyRegion.PyRegion.getParameterArray"><code class="xref py py-meth docutils literal"><span class="pre">getParameterArray()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.tm_region.TMRegion.getParameterArrayCount">
+<code class="descname">getParameterArrayCount</code><span class="sig-paren">(</span><em>name</em>, <em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.getParameterArrayCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameterArrayCount" title="nupic.bindings.regions.PyRegion.PyRegion.getParameterArrayCount"><code class="xref py py-meth docutils literal"><span class="pre">getParameterArrayCount()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="nupic.regions.tm_region.TMRegion.getSchema">
+<em class="property">static </em><code class="descname">getSchema</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.getSchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getSchema" title="nupic.bindings.regions.PyRegion.PyRegion.getSchema"><code class="xref py py-meth docutils literal"><span class="pre">getSchema()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.regions.tm_region.TMRegion.getSpec">
+<em class="property">classmethod </em><code class="descname">getSpec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.getSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getSpec" title="nupic.bindings.regions.PyRegion.PyRegion.getSpec"><code class="xref py py-meth docutils literal"><span class="pre">getSpec()</span></code></a>.</p>
+<p>The parameters collection is constructed based on the parameters specified
+by the various components (spatialSpec, temporalSpec and otherSpec)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.tm_region.TMRegion.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <code class="xref py py-meth docutils literal"><span class="pre">initialize()</span></code>.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.regions.tm_region.TMRegion.readFromProto">
+<em class="property">classmethod </em><code class="descname">readFromProto</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.readFromProto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.readFromProto" title="nupic.bindings.regions.PyRegion.PyRegion.readFromProto"><code class="xref py py-meth docutils literal"><span class="pre">readFromProto()</span></code></a>.</p>
+<p>Read state from proto object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; TMRegionProto capnproto object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.tm_region.TMRegion.resetSequenceStates">
+<code class="descname">resetSequenceStates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.resetSequenceStates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the region&#8217;s sequence states.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.tm_region.TMRegion.serializeExtraData">
+<code class="descname">serializeExtraData</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.serializeExtraData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.serializeExtraData" title="nupic.bindings.regions.PyRegion.PyRegion.serializeExtraData"><code class="xref py py-meth docutils literal"><span class="pre">serializeExtraData()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.tm_region.TMRegion.setParameter">
+<code class="descname">setParameter</code><span class="sig-paren">(</span><em>parameterName</em>, <em>index</em>, <em>parameterValue</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.setParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.setParameter" title="nupic.bindings.regions.PyRegion.PyRegion.setParameter"><code class="xref py py-meth docutils literal"><span class="pre">setParameter()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.tm_region.TMRegion.writeToProto">
+<code class="descname">writeToProto</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.tm_region.TMRegion.writeToProto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.writeToProto" title="nupic.bindings.regions.PyRegion.PyRegion.writeToProto"><code class="xref py py-meth docutils literal"><span class="pre">writeToProto()</span></code></a>.</p>
+<p>Write state to proto object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; TMRegionProto capnproto object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="anomalylikelihoodregion">
+<h2>AnomalyLikelihoodRegion<a class="headerlink" href="#anomalylikelihoodregion" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.regions.anomaly_likelihood_region.AnomalyLikelihoodRegion">
+<em class="property">class </em><code class="descclassname">nupic.regions.anomaly_likelihood_region.</code><code class="descname">AnomalyLikelihoodRegion</code><span class="sig-paren">(</span><em>learningPeriod=288</em>, <em>estimationSamples=100</em>, <em>historicWindowSize=8640</em>, <em>reestimationPeriod=100</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.anomaly_likelihood_region.AnomalyLikelihoodRegion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion</span></code></a>, <a class="reference internal" href="../support/index.html#nupic.serializable.Serializable" title="nupic.serializable.Serializable"><code class="xref py py-class docutils literal"><span class="pre">nupic.serializable.Serializable</span></code></a></p>
+<p>Region for computing the anomaly likelihoods.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="knnanomalyclassifierregion">
+<h2>KNNAnomalyClassifierRegion<a class="headerlink" href="#knnanomalyclassifierregion" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion">
+<em class="property">class </em><code class="descclassname">nupic.regions.knn_anomaly_classifier_region.</code><code class="descname">KNNAnomalyClassifierRegion</code><span class="sig-paren">(</span><em>trainRecords</em>, <em>anomalyThreshold</em>, <em>cacheSize</em>, <em>classificationVectorType=1</em>, <em>activeColumnCount=40</em>, <em>classificationMaxDist=0.3</em>, <em>**classifierArgs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion</span></code></a></p>
+<p>Wraps the <a class="reference internal" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion" title="nupic.regions.knn_classifier_region.KNNClassifierRegion"><code class="xref py py-class docutils literal"><span class="pre">KNNClassifierRegion</span></code></a> to 
+classify <a class="reference internal" href="../opf/models.html#nupic.frameworks.opf.htm_prediction_model.HTMPredictionModel" title="nupic.frameworks.opf.htm_prediction_model.HTMPredictionModel"><code class="xref py py-class docutils literal"><span class="pre">HTMPredictionModel</span></code></a>
+state.  It allows for individual records to be classified as anomalies and
+supports anomaly detection even after the model has learned the anomalous
+sequence.</p>
+<p><strong>Methods:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.compute" title="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.compute"><code class="xref py py-meth docutils literal"><span class="pre">compute()</span></code></a> 
+- called by 
+<a class="reference internal" href="../opf/models.html#nupic.frameworks.opf.htm_prediction_model.HTMPredictionModel" title="nupic.frameworks.opf.htm_prediction_model.HTMPredictionModel"><code class="xref py py-class docutils literal"><span class="pre">HTMPredictionModel</span></code></a> 
+during record processing</li>
+<li><a class="reference internal" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.getLabels" title="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.getLabels"><code class="xref py py-meth docutils literal"><span class="pre">getLabels()</span></code></a> 
+- return points with classification records</li>
+<li><a class="reference internal" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.addLabel" title="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.addLabel"><code class="xref py py-meth docutils literal"><span class="pre">addLabel()</span></code></a> 
+- add a set label to a given set of points</li>
+<li><a class="reference internal" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.removeLabels" title="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.removeLabels"><code class="xref py py-meth docutils literal"><span class="pre">removeLabels()</span></code></a> 
+- remove labels from a given set of points</li>
+</ul>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>trainRecords</strong> &#8211; (int) number of records to skip before classification.</li>
+<li><strong>anomalyThreshold</strong> &#8211; (float) threshold on anomaly score to automatically 
+classify record as an anomaly</li>
+<li><strong>cacheSize</strong> &#8211; (int) number of records to keep in cache. Can only 
+recalculate records kept in cache when setting the <code class="docutils literal"><span class="pre">trainRecords</span></code>.</li>
+<li><strong>classificationVectorType</strong> &#8211; (int) default=1</li>
+<li><strong>activeColumnCount</strong> &#8211; (int) default=40,</li>
+<li><strong>classificationMaxDist</strong> &#8211; (float) default=0.30</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.addLabel">
+<code class="descname">addLabel</code><span class="sig-paren">(</span><em>start</em>, <em>end</em>, <em>labelName</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.addLabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the label labelName to each record with record ROWID in range from
+<code class="docutils literal"><span class="pre">start</span></code> to <code class="docutils literal"><span class="pre">end</span></code>, noninclusive of end.</p>
+<p>This will recalculate all points from end to the last record stored in the
+internal cache of this classifier.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start</strong> &#8211; (int) start index</li>
+<li><strong>end</strong> &#8211; (int) end index (noninclusive)</li>
+<li><strong>labelName</strong> &#8211; (string) label name</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.compute">
+<code class="descname">compute</code><span class="sig-paren">(</span><em>inputs</em>, <em>outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process one input sample.
+This method is called by the runtime engine.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.getLabelResults">
+<code class="descname">getLabelResults</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.getLabelResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the labels of the previously computed record.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) of strings representing the classification labels</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.getLabels">
+<code class="descname">getLabels</code><span class="sig-paren">(</span><em>start=None</em>, <em>end=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.getLabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the labels on classified points within range start to end. Not inclusive
+of end.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(dict) with format:<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;isProcessing&#39;</span><span class="p">:</span> <span class="n">boolean</span><span class="p">,</span>
+  <span class="s1">&#39;recordLabels&#39;</span><span class="p">:</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">results</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">isProcessing</span></code> - currently always false as recalculation blocks; used if
+reprocessing of records is still being performed;</p>
+<p>Each item in <code class="docutils literal"><span class="pre">recordLabels</span></code> is of format:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;ROWID&#39;</span><span class="p">:</span> <span class="nb">id</span> <span class="n">of</span> <span class="n">the</span> <span class="n">row</span><span class="p">,</span>
+  <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">strings</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.getOutputElementCount">
+<code class="descname">getOutputElementCount</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.getOutputElementCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount" title="nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount"><code class="xref py py-meth docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.getParameter">
+<code class="descname">getParameter</code><span class="sig-paren">(</span><em>name</em>, <em>index=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.getParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameter" title="nupic.bindings.regions.PyRegion.PyRegion.getParameter"><code class="xref py py-meth docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion.getParameter()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.getSpec">
+<em class="property">classmethod </em><code class="descname">getSpec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.getSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getSpec" title="nupic.bindings.regions.PyRegion.PyRegion.getSpec"><code class="xref py py-meth docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion.getSpec()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.removeLabels">
+<code class="descname">removeLabels</code><span class="sig-paren">(</span><em>start=None</em>, <em>end=None</em>, <em>labelFilter=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.removeLabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove labels from each record with record ROWID in range from
+<code class="docutils literal"><span class="pre">start</span></code> to <code class="docutils literal"><span class="pre">end</span></code>, noninclusive of end. Removes all records if 
+<code class="docutils literal"><span class="pre">labelFilter</span></code> is None, otherwise only removes the labels equal to 
+<code class="docutils literal"><span class="pre">labelFilter</span></code>.</p>
+<p>This will recalculate all points from end to the last record stored in the
+internal cache of this classifier.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start</strong> &#8211; (int) start index</li>
+<li><strong>end</strong> &#8211; (int) end index (noninclusive)</li>
+<li><strong>labelFilter</strong> &#8211; (string) label filter</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.setParameter">
+<code class="descname">setParameter</code><span class="sig-paren">(</span><em>name</em>, <em>index</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_anomaly_classifier_region.KNNAnomalyClassifierRegion.setParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.setParameter" title="nupic.bindings.regions.PyRegion.PyRegion.setParameter"><code class="xref py py-meth docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion.setParameter()</span></code></a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="knnclassifierregion">
+<h2>KNNClassifierRegion<a class="headerlink" href="#knnclassifierregion" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion">
+<em class="property">class </em><code class="descclassname">nupic.regions.knn_classifier_region.</code><code class="descname">KNNClassifierRegion</code><span class="sig-paren">(</span><em>maxCategoryCount=0</em>, <em>bestPrototypeIndexCount=0</em>, <em>outputProbabilitiesByDist=False</em>, <em>k=1</em>, <em>distanceNorm=2.0</em>, <em>distanceMethod='norm'</em>, <em>distThreshold=0.0</em>, <em>doBinarization=False</em>, <em>inputThresh=0.5</em>, <em>useSparseMemory=True</em>, <em>sparseThreshold=0.0</em>, <em>relativeThreshold=False</em>, <em>winnerCount=0</em>, <em>acceptanceProbability=1.0</em>, <em>seed=42</em>, <em>doSphering=False</em>, <em>SVDSampleCount=0</em>, <em>SVDDimCount=0</em>, <em>fractionOfMax=0</em>, <em>useAuxiliary=0</em>, <em>justUseAuxiliary=0</em>, <em>verbosity=0</em>, <em>replaceDuplicates=False</em>, <em>cellsPerCol=0</em>, <em>maxStoredPatterns=-1</em>, <em>minSparsity=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion</span></code></a></p>
+<p>KNNClassifierRegion implements the k Nearest Neighbor classification 
+algorithm. By default it will implement vanilla 1-nearest neighbor using the 
+L2 (Euclidean) distance norm.  There are options for using different norms as 
+well as various ways of sparsifying the input.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">categories are ints &gt;= 0.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>maxCategoryCount</strong> &#8211; (int)</li>
+<li><strong>bestPrototypeIndexCount</strong> &#8211; (int)</li>
+<li><strong>outputProbabilitiesByDist</strong> &#8211; (bool)</li>
+<li><strong>k</strong> &#8211; (int)</li>
+<li><strong>distanceNorm</strong> &#8211; (float)</li>
+<li><strong>distanceMethod</strong> &#8211; (string)</li>
+<li><strong>distThreshold</strong> &#8211; (float)</li>
+<li><strong>doBinarization</strong> &#8211; (bool)</li>
+<li><strong>inputThresh</strong> &#8211; (float)</li>
+<li><strong>useSparseMemory</strong> &#8211; (bool)</li>
+<li><strong>sparseThreshold</strong> &#8211; (float)</li>
+<li><strong>relativeThreshold</strong> &#8211; (bool)</li>
+<li><strong>winnerCount</strong> &#8211; (int)</li>
+<li><strong>acceptanceProbability</strong> &#8211; (float)</li>
+<li><strong>seed</strong> &#8211; (int)</li>
+<li><strong>doSphering</strong> &#8211; (bool)</li>
+<li><strong>SVDSampleCount</strong> &#8211; (int)</li>
+<li><strong>SVDDimCount</strong> &#8211; (int)</li>
+<li><strong>fractionOfMax</strong> &#8211; (int)</li>
+<li><strong>useAuxiliary</strong> &#8211; (int)</li>
+<li><strong>justUseAuxiliary</strong> &#8211; (int)</li>
+<li><strong>verbosity</strong> &#8211; (int)</li>
+<li><strong>replaceDuplicates</strong> &#8211; (bool)</li>
+<li><strong>cellsPerCol</strong> &#8211; (int)</li>
+<li><strong>maxStoredPatterns</strong> &#8211; (int)</li>
+<li><strong>minSparsity</strong> &#8211; (float)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.compute">
+<code class="descname">compute</code><span class="sig-paren">(</span><em>inputs</em>, <em>outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process one input sample. This method is called by the runtime engine.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">the number of input categories may vary, but the array size is 
+fixed to the max number of categories allowed (by a lower region), so 
+&#8220;unused&#8221; indices of the input category array are filled with -1s.</p>
+</div>
+<p>TODO: confusion matrix does not support multi-label classification</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inputs</strong> &#8211; (dict) mapping region input names to numpy.array values</li>
+<li><strong>outputs</strong> &#8211; (dict) mapping region output names to numpy.arrays that 
+should be populated with output values by this method</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.disableTap">
+<code class="descname">disableTap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.disableTap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disable writing of output tap files.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.enableTap">
+<code class="descname">enableTap</code><span class="sig-paren">(</span><em>tapPath</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.enableTap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Begin writing output tap files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tapPath</strong> &#8211; (string) base name of the output tap files to write.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.getAlgorithmInstance">
+<code class="descname">getAlgorithmInstance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.getAlgorithmInstance" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(<a class="reference internal" href="../algorithms/classifiers.html#nupic.algorithms.knn_classifier.KNNClassifier" title="nupic.algorithms.knn_classifier.KNNClassifier"><code class="xref py py-class docutils literal"><span class="pre">KNNClassifier</span></code></a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.getAllDistances">
+<code class="descname">getAllDistances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.getAllDistances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like <a class="reference internal" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.getLatestDistances" title="nupic.regions.knn_classifier_region.KNNClassifierRegion.getLatestDistances"><code class="xref py py-meth docutils literal"><span class="pre">getLatestDistances()</span></code></a>, 
+but returns all the scores if more than one  set is available. 
+<a class="reference internal" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.getLatestDistances" title="nupic.regions.knn_classifier_region.KNNClassifierRegion.getLatestDistances"><code class="xref py py-meth docutils literal"><span class="pre">getLatestDistances()</span></code></a> 
+will always just return one set of scores.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) all the prototype distances from all computes available.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.getCategoryList">
+<code class="descname">getCategoryList</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.getCategoryList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Public API for returning the category list. This is a required API of the 
+NearestNeighbor inspector.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) which has one entry per stored prototype. The value of the 
+entry is the category # of that stored prototype.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.getLatestDistances">
+<code class="descname">getLatestDistances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.getLatestDistances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Public API for returning the full scores (distance to each prototype) from 
+the last <code class="xref py py-meth docutils literal"><span class="pre">compute()</span></code> inference call. This is a required API of the 
+NearestNeighbor inspector.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) which has one entry per stored prototype. The value of the 
+entry is distance of the most recenty inferred input from the 
+stored prototype.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.getOutputElementCount">
+<code class="descname">getOutputElementCount</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.getOutputElementCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount" title="nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount"><code class="xref py py-meth docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.getParameter">
+<code class="descname">getParameter</code><span class="sig-paren">(</span><em>name</em>, <em>index=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.getParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameter" title="nupic.bindings.regions.PyRegion.PyRegion.getParameter"><code class="xref py py-meth docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion.getParameter()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.getSpec">
+<em class="property">classmethod </em><code class="descname">getSpec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.getSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getSpec" title="nupic.bindings.regions.PyRegion.PyRegion.getSpec"><code class="xref py py-meth docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion.getSpec()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.handleLogInput">
+<code class="descname">handleLogInput</code><span class="sig-paren">(</span><em>inputs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.handleLogInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write inputs to output tap file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputs</strong> &#8211; (iter) some inputs.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.handleLogOutput">
+<code class="descname">handleLogOutput</code><span class="sig-paren">(</span><em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.handleLogOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write outputs to output tap file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>outputs</strong> &#8211; (iter) some outputs.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.removeCategory">
+<code class="descname">removeCategory</code><span class="sig-paren">(</span><em>categoryToRemove</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.removeCategory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a category.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>categoryToRemove</strong> &#8211; (string) label to remove</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets confusion matrix.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.knn_classifier_region.KNNClassifierRegion.setParameter">
+<code class="descname">setParameter</code><span class="sig-paren">(</span><em>name</em>, <em>index</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.knn_classifier_region.KNNClassifierRegion.setParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.setParameter" title="nupic.bindings.regions.PyRegion.PyRegion.setParameter"><code class="xref py py-meth docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion.setParameter()</span></code></a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sdrclassifierregion">
+<h2>SDRClassifierRegion<a class="headerlink" href="#sdrclassifierregion" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nupic.regions.sdr_classifier_region.SDRClassifierRegion">
+<em class="property">class </em><code class="descclassname">nupic.regions.sdr_classifier_region.</code><code class="descname">SDRClassifierRegion</code><span class="sig-paren">(</span><em>steps='1'</em>, <em>alpha=0.001</em>, <em>verbosity=0</em>, <em>implementation=None</em>, <em>maxCategoryCount=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sdr_classifier_region.SDRClassifierRegion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion" title="nupic.bindings.regions.PyRegion.PyRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion</span></code></a></p>
+<p>SDRClassifierRegion implements a SDR classifier that accepts a binary
+input from the level below (the &#8220;activationPattern&#8221;) and information from the
+sensor and encoders (the &#8220;classification&#8221;) describing the input to the system
+at that time step.</p>
+<p>The SDR classifier maps input patterns to class labels. There are as many
+output units as the number of class labels or buckets (in the case of scalar
+encoders). The output is a probabilistic distribution over all class labels.</p>
+<p>During inference, the output is calculated by first doing a weighted summation
+of all the inputs, and then perform a softmax nonlinear function to get
+the predicted distribution of class labels</p>
+<p>During learning, the connection weights between input units and output units
+are adjusted to maximize the likelihood of the model</p>
+<p>The caller can choose to tell the region that the classifications for
+iteration N+K should be aligned with the activationPattern for iteration N.
+This results in the classifier producing predictions for K steps in advance.
+Any number of different K&#8217;s can be specified, allowing the classifier to learn
+and infer multi-step predictions for a number of steps in advance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>steps</strong> &#8211; (int) default=1</li>
+<li><strong>alpha</strong> &#8211; (float) default=0.001</li>
+<li><strong>verbosity</strong> &#8211; (int) How verbose to log, default=0</li>
+<li><strong>implementation</strong> &#8211; (string) default=None</li>
+<li><strong>maxCategoryCount</strong> &#8211; (int) default=None</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nupic.regions.sdr_classifier_region.SDRClassifierRegion.compute">
+<code class="descname">compute</code><span class="sig-paren">(</span><em>inputs</em>, <em>outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sdr_classifier_region.SDRClassifierRegion.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process one input sample.
+This method is called by the runtime engine.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inputs</strong> &#8211; (dict) mapping region input names to numpy.array values</li>
+<li><strong>outputs</strong> &#8211; (dict) mapping region output names to numpy.arrays that 
+should be populated with output values by this method</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sdr_classifier_region.SDRClassifierRegion.customCompute">
+<code class="descname">customCompute</code><span class="sig-paren">(</span><em>recordNum</em>, <em>patternNZ</em>, <em>classification</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sdr_classifier_region.SDRClassifierRegion.customCompute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just return the inference value from one input sample. The actual
+learning happens in compute() &#8211; if, and only if learning is enabled &#8211;
+which is called when you run the network.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This method is deprecated and exists only to maintain backward 
+compatibility. This method is deprecated, and will be removed. Use 
+<a class="reference internal" href="network.html#nupic.engine.Network.run" title="nupic.engine.Network.run"><code class="xref py py-meth docutils literal"><span class="pre">nupic.engine.Network.run()</span></code></a> instead, which will call 
+<code class="xref py py-meth docutils literal"><span class="pre">compute()</span></code>.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>recordNum</strong> &#8211; (int) Record number of the input sample.</li>
+<li><strong>patternNZ</strong> &#8211; (list) of the active indices from the output below</li>
+<li><strong>classification</strong> &#8211; <p>(dict) of the classification information:</p>
+<ul>
+<li><code class="docutils literal"><span class="pre">bucketIdx</span></code>: index of the encoder bucket</li>
+<li><code class="docutils literal"><span class="pre">actValue</span></code>:  actual value going into the encoder</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>(dict) containing inference results, one entry for each step in
+<code class="docutils literal"><span class="pre">self.steps</span></code>. The key is the number of steps, the value is an
+array containing the relative likelihood for each <code class="docutils literal"><span class="pre">bucketIdx</span></code>
+starting from 0.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;actualValues&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">]</span>
+  <span class="mi">1</span> <span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">]</span>
+  <span class="mi">4</span> <span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]}</span>
+</pre></div>
+</div>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sdr_classifier_region.SDRClassifierRegion.getAlgorithmInstance">
+<code class="descname">getAlgorithmInstance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sdr_classifier_region.SDRClassifierRegion.getAlgorithmInstance" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(<a class="reference internal" href="#nupic.regions.sdr_classifier_region.SDRClassifierRegion" title="nupic.regions.sdr_classifier_region.SDRClassifierRegion"><code class="xref py py-class docutils literal"><span class="pre">nupic.regions.sdr_classifier_region.SDRClassifierRegion</span></code></a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sdr_classifier_region.SDRClassifierRegion.getOutputElementCount">
+<code class="descname">getOutputElementCount</code><span class="sig-paren">(</span><em>outputName</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sdr_classifier_region.SDRClassifierRegion.getOutputElementCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount" title="nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount"><code class="xref py py-meth docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion.getOutputElementCount()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sdr_classifier_region.SDRClassifierRegion.getParameter">
+<code class="descname">getParameter</code><span class="sig-paren">(</span><em>name</em>, <em>index=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sdr_classifier_region.SDRClassifierRegion.getParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getParameter" title="nupic.bindings.regions.PyRegion.PyRegion.getParameter"><code class="xref py py-meth docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion.getParameter()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="nupic.regions.sdr_classifier_region.SDRClassifierRegion.getSchema">
+<em class="property">static </em><code class="descname">getSchema</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sdr_classifier_region.SDRClassifierRegion.getSchema" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the pycapnp proto type that the class uses for serialization.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.regions.sdr_classifier_region.SDRClassifierRegion.getSpec">
+<em class="property">classmethod </em><code class="descname">getSpec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sdr_classifier_region.SDRClassifierRegion.getSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.getSpec" title="nupic.bindings.regions.PyRegion.PyRegion.getSpec"><code class="xref py py-meth docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion.getSpec()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sdr_classifier_region.SDRClassifierRegion.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sdr_classifier_region.SDRClassifierRegion.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.initialize" title="nupic.bindings.regions.PyRegion.PyRegion.initialize"><code class="xref py py-meth docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion.initialize()</span></code></a>.</p>
+<p>Is called once by NuPIC before the first call to compute().
+Initializes self._sdrClassifier if it is not already initialized.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="nupic.regions.sdr_classifier_region.SDRClassifierRegion.readFromProto">
+<em class="property">classmethod </em><code class="descname">readFromProto</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sdr_classifier_region.SDRClassifierRegion.readFromProto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read state from proto object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; SDRClassifierRegionProto capnproto object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sdr_classifier_region.SDRClassifierRegion.setParameter">
+<code class="descname">setParameter</code><span class="sig-paren">(</span><em>name</em>, <em>index</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sdr_classifier_region.SDRClassifierRegion.setParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides <a class="reference internal" href="#nupic.bindings.regions.PyRegion.PyRegion.setParameter" title="nupic.bindings.regions.PyRegion.PyRegion.setParameter"><code class="xref py py-meth docutils literal"><span class="pre">nupic.bindings.regions.PyRegion.PyRegion.setParameter()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nupic.regions.sdr_classifier_region.SDRClassifierRegion.writeToProto">
+<code class="descname">writeToProto</code><span class="sig-paren">(</span><em>proto</em><span class="sig-paren">)</span><a class="headerlink" href="#nupic.regions.sdr_classifier_region.SDRClassifierRegion.writeToProto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write state to proto object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>proto</strong> &#8211; SDRClassifierRegionProto capnproto object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/index.html">Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../opf/index.html">Online Prediction Framework</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Network API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="network.html">Network</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Regions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyregion">PyRegion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#anomalyregion">AnomalyRegion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spregion">SPRegion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tmregion">TMRegion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#anomalylikelihoodregion">AnomalyLikelihoodRegion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#knnanomalyclassifierregion">KNNAnomalyClassifierRegion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#knnclassifierregion">KNNClassifierRegion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sdrclassifierregion">SDRClassifierRegion</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sensors.html">Sensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="viz.html">Network Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data/index.html">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support/index.html">Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../math.html">Math</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/network/regions.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

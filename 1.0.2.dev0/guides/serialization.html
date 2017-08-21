@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Serialization &#8212; NuPIC 1.0.2.dev0
+
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.2.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API Docs" href="../api/index.html" />
+    <link rel="prev" title="Anomaly Detection" href="anomaly-detection.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="serialization">
+<span id="serialization"></span><h1>Serialization<a class="headerlink" href="#serialization" title="Permalink to this headline">¶</a></h1>
+<p>NuPIC uses Cap&#8217;n Proto and the Python library pycapnp for serialization. See the <a class="reference external" href="http://jparyani.github.io/pycapnp/">pycapnp documentation</a> for more details on the Python API. The NuPIC algorithms expose this serialization through the following methods:</p>
+<ul class="simple">
+<li><a class="reference external" href="../api/support/index.html#nupic.serializable.Serializable.writeToFile"><code class="docutils literal"><span class="pre">writeToFile</span></code></a> - write the instance to the specified file instance (not the path)</li>
+<li><a class="reference external" href="../api/support/index.html#nupic.serializable.Serializable.readFromFile"><code class="docutils literal"><span class="pre">readFromFile</span></code></a> - class method that returns a new instance using the state saved to the specified file instance (not the path)</li>
+<li><a class="reference external" href="../api/support/index.html#nupic.serializable.Serializable.write"><code class="docutils literal"><span class="pre">write</span></code></a> - write the instance to the specified pycapnp builder</li>
+<li><a class="reference external" href="../api/support/index.html#nupic.serializable.Serializable.read"><code class="docutils literal"><span class="pre">read</span></code></a> - class method that returns a new instance using the state saved to the specified pycapnp reader</li>
+</ul>
+<div class="section" id="writing-to-files">
+<span id="writing-to-files"></span><h2>Writing to Files<a class="headerlink" href="#writing-to-files" title="Permalink to this headline">¶</a></h2>
+<p>The typical serialization use case is writing to a file. Here is an example for creating a SpatialPooler instance, writing it to a file, and reading it back into a new instance of SpatialPooler:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nupic.algorithms.spatial_pooler</span> <span class="kn">import</span> <span class="n">SpatialPooler</span>
+
+<span class="n">sp1</span> <span class="o">=</span> <span class="n">SpatialPooler</span><span class="p">(</span><span class="n">inputDimensions</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,),</span> <span class="n">columnDimensions</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,))</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;out.tmp&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+  <span class="n">sp1</span><span class="o">.</span><span class="n">writeToFile</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;out.tmp&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+  <span class="n">sp2</span> <span class="o">=</span> <span class="n">SpatialPooler</span><span class="o">.</span><span class="n">readFromFile</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="n">sp1</span><span class="o">.</span><span class="n">getColumnDimensions</span><span class="p">(),</span> <span class="n">sp2</span><span class="o">.</span><span class="n">getColumnDimensions</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="writing-directly-to-cap-n-proto-messages">
+<span id="writing-directly-to-cap-n-proto-messages"></span><h2>Writing Directly to Cap&#8217;n Proto Messages<a class="headerlink" href="#writing-directly-to-cap-n-proto-messages" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes you may want to write to a stream or other output source. In this case, you can write to a pycapnp builder and use the pycapnp library to write the builder to the appropriate stream. See the <a class="reference external" href="http://jparyani.github.io/pycapnp/">pycapnp documentation</a> for advanced serialization options. The example below shows how to generate a new pycapnp builder, write a SpatialPooler instance to it, serialize the message, and then read the serialized message back into a new SpatialPooler instance:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Must import &#39;capnp&#39; before schema import hook will work</span>
+<span class="kn">import</span> <span class="nn">capnp</span>
+<span class="kn">from</span> <span class="nn">nupic.proto.SpatialPoolerProto_capnp</span> <span class="kn">import</span> <span class="n">SpatialPoolerProto</span>
+
+<span class="kn">from</span> <span class="nn">nupic.algorithms.spatial_pooler</span> <span class="kn">import</span> <span class="n">SpatialPooler</span>
+
+<span class="n">sp1</span> <span class="o">=</span> <span class="n">SpatialPooler</span><span class="p">(</span><span class="n">inputDimensions</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,),</span> <span class="n">columnDimensions</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,))</span>
+
+<span class="c1"># Serialize the SP</span>
+<span class="n">builder</span> <span class="o">=</span> <span class="n">SpatialPoolerProto</span><span class="o">.</span><span class="n">new_message</span><span class="p">()</span>
+<span class="n">sp1</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">builder</span><span class="p">)</span>
+<span class="n">serializedMessage</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">to_bytes_packed</span><span class="p">()</span>
+
+<span class="c1"># Deserialize to a new SP instance</span>
+<span class="n">reader</span> <span class="o">=</span> <span class="n">SpatialPoolerProto</span><span class="o">.</span><span class="n">from_bytes_packed</span><span class="p">(</span><span class="n">serializedMessage</span><span class="p">)</span>
+<span class="n">sp2</span> <span class="o">=</span> <span class="n">SpatialPooler</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="n">sp1</span><span class="o">.</span><span class="n">getColumnDimensions</span><span class="p">(),</span> <span class="n">sp2</span><span class="o">.</span><span class="n">getColumnDimensions</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="deprecated-serialization-methods">
+<span id="deprecated-serialization-methods"></span><h2>Deprecated Serialization Methods<a class="headerlink" href="#deprecated-serialization-methods" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="opf-save-load">
+<span id="opf-save-load"></span><h3>OPF Save/Load<a class="headerlink" href="#opf-save-load" title="Permalink to this headline">¶</a></h3>
+<p><strong>This method of serialization is deprecated.</strong></p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">nupic.frameworks.opf.common_models.cluster_params</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">getScalarMetricWithTimeOfDayAnomalyParams</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">nupic.frameworks.opf.model_factory</span> <span class="kn">import</span> <span class="n">ModelFactory</span>
+
+<span class="n">params</span> <span class="o">=</span> <span class="n">getScalarMetricWithTimeOfDayAnomalyParams</span><span class="p">(</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">minVal</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">maxVal</span><span class="o">=</span><span class="mf">100.0</span><span class="p">)</span>
+<span class="n">model1</span> <span class="o">=</span> <span class="n">ModelFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">modelConfig</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;modelConfig&quot;</span><span class="p">])</span>
+
+<span class="n">savePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s2">&quot;tmpDir&quot;</span><span class="p">)</span>
+
+<span class="c1"># Serialize the SP</span>
+<span class="n">model1</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">savePath</span><span class="p">)</span>
+
+<span class="c1"># Deserialize to a new SP instance</span>
+<span class="n">model2</span> <span class="o">=</span> <span class="n">ModelFactory</span><span class="o">.</span><span class="n">loadFromCheckpoint</span><span class="p">(</span><span class="n">savePath</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="n">model1</span><span class="o">.</span><span class="n">_getSPRegion</span><span class="p">()</span><span class="o">.</span><span class="n">getSelf</span><span class="p">()</span><span class="o">.</span><span class="n">getAlgorithmInstance</span><span class="p">()</span><span class="o">.</span><span class="n">getColumnDimensions</span><span class="p">(),</span> \
+      <span class="n">model2</span><span class="o">.</span><span class="n">_getSPRegion</span><span class="p">()</span><span class="o">.</span><span class="n">getSelf</span><span class="p">()</span><span class="o">.</span><span class="n">getAlgorithmInstance</span><span class="p">()</span><span class="o">.</span><span class="n">getColumnDimensions</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="network-save-load">
+<span id="network-save-load"></span><h3>Network Save/Load<a class="headerlink" href="#network-save-load" title="Permalink to this headline">¶</a></h3>
+<p><strong>This method of serialization is deprecated.</strong></p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">nupic.engine</span> <span class="kn">import</span> <span class="n">Network</span>
+
+<span class="n">net1</span> <span class="o">=</span> <span class="n">Network</span><span class="p">()</span>
+<span class="n">net1</span><span class="o">.</span><span class="n">addRegion</span><span class="p">(</span><span class="s2">&quot;encoders&quot;</span><span class="p">,</span> <span class="s2">&quot;py.RecordSensor&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="c1"># ... add regions and links ...</span>
+
+<span class="n">savePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s2">&quot;tmp.nta&quot;</span><span class="p">)</span>
+
+<span class="c1"># Save the network</span>
+<span class="n">net1</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">savePath</span><span class="p">)</span>
+
+<span class="c1"># Load the network</span>
+<span class="n">net2</span> <span class="o">=</span> <span class="n">Network</span><span class="p">(</span><span class="n">savePath</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="pickling">
+<span id="pickling"></span><h3>Pickling<a class="headerlink" href="#pickling" title="Permalink to this headline">¶</a></h3>
+<p><strong>This method of serialization is deprecated.</strong></p>
+<p>Most algorithms still support pickling objects. But because many algorithms rely on C extensions, you must save the C state in addition to pickling the object. Below is an example of saving a SpatialPooler instance and reading it back using cPickle.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cPickle</span> <span class="kn">as</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">nupic.algorithms.spatial_pooler</span> <span class="kn">import</span> <span class="n">SpatialPooler</span>
+
+<span class="n">sp1</span> <span class="o">=</span> <span class="n">SpatialPooler</span><span class="p">(</span><span class="n">inputDimensions</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,),</span> <span class="n">columnDimensions</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,))</span>
+
+<span class="c1"># Serialize the SP</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;tmp.pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+  <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+<span class="c1"># Deserialize to a new SP instance</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;tmp.pkl&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+  <span class="n">sp2</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="n">sp1</span><span class="o">.</span><span class="n">getColumnDimensions</span><span class="p">(),</span> <span class="n">sp2</span><span class="o">.</span><span class="n">getColumnDimensions</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="opf.html">OPF Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html">Network API Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="swarming/index.html">Swarming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anomaly-detection.html">Anomaly Detection</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Serialization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#writing-to-files">Writing to Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#writing-directly-to-cap-n-proto-messages">Writing Directly to Cap&#8217;n Proto Messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deprecated-serialization-methods">Deprecated Serialization Methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#opf-save-load">OPF Save/Load</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#network-save-load">Network Save/Load</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pickling">Pickling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/guides/serialization.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
