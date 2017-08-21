@@ -3814,4 +3814,4 @@ class Segment(object):
 # This is necessary for unpickling objects that have instances of the nested
 # class since the loading process looks for the class at the top level of the
 # module.
-SegmentUpdate = BacktrackingTM._SegmentUpdate
+_SegmentUpdate = BacktrackingTM._SegmentUpdate
