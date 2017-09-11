@@ -42,7 +42,7 @@ arrayTypes = ['ByteArray',
 
 pyRegions = (
     ("nupic.bindings.regions.TestNode", "TestNode"),
-    ("nupic.regions.AnomalyLikelihoodRegion", "AnomalyLikelihoodRegion"),
+    ("nupic.regions.anomaly_likelihood_region", "AnomalyLikelihoodRegion"),
     ("nupic.regions.anomaly_region", "AnomalyRegion"),
     ("nupic.regions.knn_anomaly_classifier_region", "KNNAnomalyClassifierRegion"),
     ("nupic.regions.knn_classifier_region", "KNNClassifierRegion"),
@@ -636,6 +636,10 @@ class Network(engine_internal.Network):
     """
     @doc:place_holder(Network.addRegion)
     """
+    print "nodeType:"
+    print nodeType
+    print "nodeParams:"
+    print nodeParams
     engine_internal.Network.addRegion(self, name, nodeType, nodeParams)
     return self._getRegions()[name]
 
