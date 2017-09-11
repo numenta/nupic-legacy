@@ -636,10 +636,6 @@ class Network(engine_internal.Network):
     """
     @doc:place_holder(Network.addRegion)
     """
-    print "nodeType:"
-    print nodeType
-    print "nodeParams:"
-    print nodeParams
     engine_internal.Network.addRegion(self, name, nodeType, nodeParams)
     return self._getRegions()[name]
 
