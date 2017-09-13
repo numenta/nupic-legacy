@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3
+
+- Updated incorrect name for anomaly likelihood region. (#3770)
+
 ## 1.0.2
 
 - Fixed BacktrackingTM serialization error (#3765)
