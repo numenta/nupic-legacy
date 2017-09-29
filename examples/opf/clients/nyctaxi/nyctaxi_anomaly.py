@@ -38,16 +38,16 @@ import model_params
 _LOGGER = logging.getLogger(__name__)
 
 _INPUT_DATA_FILE = resource_filename(
-  "nupic.datafiles", "extra/nyctaxi/nyc_taxi.csv"
+  "nupic.datafiles", "extra/nyctaxi/nycTaxi.csv"
 )
 _OUTPUT_PATH = "anomaly_scores.csv"
 
 _ANOMALY_THRESHOLD = 0.9
 
-# minimum metric value of nyc_taxi.csv
+# minimum metric value of nycTaxi.csv
 _INPUT_MIN = 8
 
-# maximum metric value of nyc_taxi.csv
+# maximum metric value of nycTaxi.csv
 _INPUT_MAX = 39197
 
 
