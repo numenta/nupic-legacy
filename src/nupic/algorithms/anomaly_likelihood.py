@@ -318,15 +318,12 @@ class AnomalyLikelihood(Serializable):
       record.anomalyScore = float(anomalyScore)
 
     if self._distribution:
-      proto.distribution.name = self._distribution["distributionParams"]["name"]
-      proto.distribution.mean = self._distribution["distributionParams"]["mean"]
-      proto.distribution.variance = self._distribution["distributionParams"]\
-        ["variance"]
-      proto.distribution.stdev = self._distribution["distributionParams"]\
-        ["stdev"]
+      proto.distribution.name = self._distribution["distribution"]["name"]
+      proto.distribution.mean = float(self._distribution["distribution"]["mean"])
+      proto.distribution.variance = float(self._distribution["distribution"]["variance"])
+      proto.distribution.stdev = float(self._distribution["distribution"]["stdev"])
 
-      proto.distribution.movingAverage.windowSize = self._distribution\
-        ["movingAverage"]["windowSize"]
+      proto.distribution.movingAverage.windowSize = self._distribution["movingAverage"]["windowSize"]
 
       historicalValues = self._distribution["movingAverage"]["historicalValues"]
       pHistValues = proto.distribution.movingAverage.init(
@@ -334,10 +331,7 @@ class AnomalyLikelihood(Serializable):
       for i, value in enumerate(historicalValues):
         pHistValues[i] = float(value)
 
-      proto.distribution.movingAverage.historicalValues = self._distribution\
-        ["movingAverage"]["historicalValues"]
-      proto.distribution.movingAverage.total = self._distribution\
-        ["movingAverage"]["total"]
+      proto.distribution.movingAverage.total = float(self._distribution["movingAverage"]["total"])
 
       historicalLikelihoods = self._distribution["historicalLikelihoods"]
       pHistLikelihoods = proto.distribution.init("historicalLikelihoods",
