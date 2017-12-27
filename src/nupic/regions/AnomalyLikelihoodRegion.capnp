@@ -16,16 +16,16 @@ struct AnomalyLikelihoodRegionProto {
 
   struct Distribution {
     name @0 :Text;
-    mean @1 :Float32;
-    variance @2 :Float32;
-    stdev @3 :Float32;
+    mean @1 :Float64;
+    variance @2 :Float64;
+    stdev @3 :Float64;
     movingAverage @4 :MovingAverage;
-    historicalLikelihoods @5 :List(Float32);
+    historicalLikelihoods @5 :List(Float64);
 
     struct MovingAverage {
       windowSize @0 :UInt64;
-      historicalValues @1 :List(Float32);
-      total @2 :Float32;
+      historicalValues @1 :List(Float64);
+      total @2 :Float64;
     }
   }
 }
