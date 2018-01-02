@@ -89,8 +89,13 @@ class AnomalyLikelihoodRegionTest(unittest.TestCase):
     anomalyLikelihoodRegion1 = AnomalyLikelihoodRegion()
     inputs = AnomalyLikelihoodRegion.getSpec()['inputs']
     outputs = AnomalyLikelihoodRegion.getSpec()['outputs']
+    parameters = AnomalyLikelihoodRegion.getSpec()['parameters']
 
-    for _ in xrange(0, 6):
+    # Make sure to calculate distribution by passing the probation period
+    learningPeriod = parameters['learningPeriod']['defaultValue']
+    reestimationPeriod = parameters['reestimationPeriod']['defaultValue']
+    probation = learningPeriod + reestimationPeriod
+    for _ in xrange(0, probation + 1):
       inputs['rawAnomalyScore'] = numpy.array([random.random()])
       inputs['metricValue'] = numpy.array([random.random()])
       anomalyLikelihoodRegion1.compute(inputs, outputs)
@@ -110,7 +115,8 @@ class AnomalyLikelihoodRegionTest(unittest.TestCase):
     anomalyLikelihoodRegion2 = AnomalyLikelihoodRegion.read(proto2)
     self.assertEqual(anomalyLikelihoodRegion1, anomalyLikelihoodRegion2)
 
-    for _ in xrange(6, 500):
+    window = parameters['historicWindowSize']['defaultValue']
+    for _ in xrange(0, window + 1):
       inputs['rawAnomalyScore'] = numpy.array([random.random()])
       inputs['metricValue'] = numpy.array([random.random()])
       anomalyLikelihoodRegion1.compute(inputs, outputs)
