@@ -2,7 +2,7 @@ machine:
   timezone:
     GMT
   xcode:
-    version: 8.0
+    version: 8.3
   environment:
     XCODE_SCHEME: nupic
     XCODE_WORKSPACE: nupic
@@ -19,6 +19,7 @@ machine:
 dependencies:
   override:
     # Install all dependencies
+    - brew update
     - brew install mysql
     - brew tap homebrew/services
     - brew services start mysql
