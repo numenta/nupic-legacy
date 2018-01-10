@@ -422,9 +422,9 @@ class KNNClassifier(Serializable):
         within distThreshold, only the first partitionId will be stored). This
         is an optional parameter.
 
-    :param isSparse: (int) If 0, the input pattern is a dense representation. If
-        isSparse > 0, the input pattern is a list of non-zero indices and
-        isSparse is the length of the dense representation
+    :param isSparse: (int) If 0, the input pattern is a dense representation.
+        If isSparse > 0, the input pattern is a list of non-zero indices of
+        the active bits and isSparse is the number of total bits (n).
 
     :param rowID: (int) UNKNOWN
 
@@ -659,7 +659,8 @@ class KNNClassifier(Serializable):
     """Finds the category that best matches the input pattern. Returns the
     winning category index as well as a distribution over all categories.
 
-    :param inputPattern: (list) A pattern to be classified
+    :param inputPattern: (list or array) The pattern to be classified. This
+        must be a dense array.
 
     :param computeScores: NO EFFECT
 
