@@ -178,6 +178,24 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertEqual(list(resultOverlapArr2), list(trueOverlapArr2))
 
 
+  def testComputeParametersValidation(self):
+    sp = SpatialPooler(inputDimensions=[5], columnDimensions=[5])
+    inputGood = np.ones(5, dtype=uintDType)
+    outGood = np.zeros(5, dtype=uintDType)
+    inputBad = np.ones(5, dtype=realDType)
+    outBad = np.zeros(5, dtype=realDType)
+
+    # Validate good parameters
+    sp.compute(inputGood, False, outGood)
+
+    # Validate bad input
+    with self.assertRaises(RuntimeError):
+      sp.compute(inputBad, False, outGood)
+
+    # Validate bad output
+    with self.assertRaises(RuntimeError):
+      sp.compute(inputGood, False, outBad)
+
 
 if __name__ == "__main__":
   unittest.main()
