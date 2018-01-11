@@ -422,9 +422,13 @@ class KNNClassifier(Serializable):
         within distThreshold, only the first partitionId will be stored). This
         is an optional parameter.
 
-    :param isSparse: (int) If 0, the input pattern is a dense representation.
-        If isSparse > 0, the input pattern is a list of non-zero indices of
-        the active bits and isSparse is the number of total bits (n).
+    :param isSparse: (int) 0 if the input pattern is a dense representation.
+        When the input pattern is a list of non-zero indices, then isSparse
+        is the number of total bits (n). E.g. for the dense array
+        [0, 1, 1, 0, 0, 1], isSparse should be `0`. For the equivalent sparse
+        representation [1, 2, 5] (which specifies the indices of active bits),
+        isSparse should be `6`, which is the total number of bits in the input
+        space.
 
     :param rowID: (int) UNKNOWN
 
