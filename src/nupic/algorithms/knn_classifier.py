@@ -664,7 +664,7 @@ class KNNClassifier(Serializable):
     winning category index as well as a distribution over all categories.
 
     :param inputPattern: (list or array) The pattern to be classified. This
-        must be a dense array.
+        must be a dense representation of the array (e.g. [0, 0, 1, 1, 0, 1]).
 
     :param computeScores: NO EFFECT
 
