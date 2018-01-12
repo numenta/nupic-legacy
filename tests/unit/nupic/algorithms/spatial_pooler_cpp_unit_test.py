@@ -183,18 +183,32 @@ class SpatialPoolerTest(unittest.TestCase):
     inputGood = np.ones(5, dtype=uintDType)
     outGood = np.zeros(5, dtype=uintDType)
     inputBad = np.ones(5, dtype=realDType)
+    inputBad2D = np.ones((5, 5), dtype=realDType)
     outBad = np.zeros(5, dtype=realDType)
+    outBad2D = np.zeros((5, 5), dtype=realDType)
 
     # Validate good parameters
     sp.compute(inputGood, False, outGood)
+
+    # Validate bad parameters
+    with self.assertRaises(RuntimeError):
+      sp.compute(inputBad, False, outBad)
 
     # Validate bad input
     with self.assertRaises(RuntimeError):
       sp.compute(inputBad, False, outGood)
 
+    # Validate bad 2d input
+    with self.assertRaises(RuntimeError):
+      sp.compute(inputBad2D, False, outGood)
+
     # Validate bad output
     with self.assertRaises(RuntimeError):
       sp.compute(inputGood, False, outBad)
+
+    # Validate bad 2d output
+    with self.assertRaises(RuntimeError):
+      sp.compute(inputGood, False, outBad2D)
 
 
 if __name__ == "__main__":
