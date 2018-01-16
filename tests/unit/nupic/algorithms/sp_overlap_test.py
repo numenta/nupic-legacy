@@ -130,10 +130,10 @@ class TestSPFrequency(unittest.TestCase):
                                  maxval=maxVal, periodic=False, forced=True) # forced: it's strongly recommended to use w>=21, in the example we force skip the check for readibility
       for y in xrange(numColors):
         temp = enc.encode(rnd.random()*maxVal)
-        colors.append(numpy.array(temp, dtype=realDType))
+        colors.append(numpy.array(temp, dtype=numpy.uint32))
     else:
       for y in xrange(numColors):
-        sdr = numpy.zeros(n, dtype=realDType)
+        sdr = numpy.zeros(n, dtype=numpy.uint32)
         # Randomly setting w out of n bits to 1
         sdr[rnd.sample(xrange(n), w)] = 1
         colors.append(sdr)
@@ -144,7 +144,7 @@ class TestSPFrequency(unittest.TestCase):
     for i in xrange(numColors):
       # TODO: See https://github.com/numenta/nupic/issues/2072
       spInput = colors[i]
-      onCells = numpy.zeros(columnDimensions)
+      onCells = numpy.zeros(columnDimensions, dtype=numpy.uint32)
       spImpl.compute(spInput, True, onCells)
       spOutput.append(onCells.tolist())
       activeCoincIndices = set(onCells.nonzero()[0])
