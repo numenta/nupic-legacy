@@ -22,7 +22,7 @@ python webdata.py
 ```text
 The following table shows the encoded SDRs for every page category in the dataset
 +---------------+-----------------------------------------------------------------------------+
-| Page Category | Encoded SDR                                                                 |
+| Page Category | Encoded SDR (on bit indices)                                                |
 +---------------+-----------------------------------------------------------------------------+
 | bbs           | [ 19  26 115 171 293 364 390 442 470 477 550 598 624 670 705 719 744 748    |
 |               |  788 850 956]                                                               |
@@ -60,51 +60,68 @@ The following table shows the encoded SDRs for every page category in the datase
 |               |  805 970 987]                                                               |
 +---------------+-----------------------------------------------------------------------------+
 
-Start Learning page sequences using the first 100000 user sessions
-Learned 100000 Sessions
+Start Learning page sequences using the first 10000 user sessions
+Learned 10000 Sessions
 Finished Learning
 
 Start Inference using a new user session from the dataset
-User Session to Predict:  ['frontpage', 'frontpage', 'frontpage', 'frontpage', 'frontpage', 'frontpage', 'frontpage', 'frontpage', 'weather', 'weather', 'weather', 'weather', 'news', 'news', 'weather', 'frontpage']
-+-----------+-----------------------------------------------------------------------------------------+
-|    Page   | Prediction                                                                              |
-+-----------+-----------------------------------------------------------------------------------------+
-| frontpage | ('frontpage', 'news', 'business', 'sports', 'on-air', 'tech', 'local', 'misc')          |
-+-----------+-----------------------------------------------------------------------------------------+
-| frontpage | ('frontpage', 'news', 'business', 'sports', 'on-air', 'tech', 'local', 'misc')          |
-+-----------+-----------------------------------------------------------------------------------------+
-| frontpage | ('frontpage', 'news', 'business', 'sports', 'on-air', 'tech', 'local', 'misc')          |
-+-----------+-----------------------------------------------------------------------------------------+
-| frontpage | ('frontpage', 'news', 'business', 'sports', 'on-air', 'tech', 'local', 'misc')          |
-+-----------+-----------------------------------------------------------------------------------------+
-| frontpage | ('frontpage', 'news', 'business', 'sports', 'on-air', 'tech', 'local', 'misc')          |
-+-----------+-----------------------------------------------------------------------------------------+
-| frontpage | ('frontpage', 'news', 'business', 'sports', 'on-air', 'tech', 'local', 'misc')          |
-+-----------+-----------------------------------------------------------------------------------------+
-| frontpage | ('frontpage', 'news', 'business', 'sports', 'on-air', 'tech', 'local', 'misc')          |
-+-----------+-----------------------------------------------------------------------------------------+
-| frontpage | ('frontpage', 'news', 'business', 'sports', 'on-air', 'tech', 'local', 'misc')          |
-+-----------+-----------------------------------------------------------------------------------------+
-|  weather  | ('weather', 'frontpage', 'news', 'on-air', 'msn-news', 'msn-sports', 'local', 'sports') |
-+-----------+-----------------------------------------------------------------------------------------+
-|  weather  | ('weather', 'frontpage', 'news', 'on-air', 'msn-news', 'msn-sports', 'local', 'sports') |
-+-----------+-----------------------------------------------------------------------------------------+
-|  weather  | ('weather', 'frontpage', 'news', 'on-air', 'msn-news', 'msn-sports', 'local', 'sports') |
-+-----------+-----------------------------------------------------------------------------------------+
-|  weather  | ('weather', 'frontpage', 'news', 'on-air', 'msn-news', 'msn-sports', 'local', 'sports') |
-+-----------+-----------------------------------------------------------------------------------------+
-|    news   | ('news', 'frontpage', 'on-air', 'local', 'tech', 'weather', 'business', 'sports')       |
-+-----------+-----------------------------------------------------------------------------------------+
-|    news   | ('news', 'frontpage', 'on-air', 'local', 'tech', 'weather', 'business', 'sports')       |
-+-----------+-----------------------------------------------------------------------------------------+
-|  weather  | ('weather', 'frontpage', 'news', 'on-air', 'msn-news', 'msn-sports', 'local', 'sports') |
-+-----------+-----------------------------------------------------------------------------------------+
-| frontpage | ('frontpage', 'news', 'business', 'sports', 'on-air', 'tech', 'local', 'misc')          |
-+-----------+-----------------------------------------------------------------------------------------+
+User Session to Predict:  ['on-air', 'misc', 'misc', 'misc', 'on-air', 'misc', 'misc', 'misc', 'on-air', 'on-air', 'on-air', 'on-air', 'tech', 'msn-news', 'tech', 'msn-news', 'local', 'tech', 'local', 'local', 'local', 'local', 'local', 'local']
++----------+---------------------------------------------------------------------------------------+
+|   Page   | Prediction                                                                            |
++----------+---------------------------------------------------------------------------------------+
+|  on-air  | ('on-air', 'misc', 'frontpage', 'news', 'summary', 'msn-news', 'weather', 'local')    |
++----------+---------------------------------------------------------------------------------------+
+|   misc   | ('misc', 'frontpage', 'on-air', 'local', 'msn-news', 'msn-sports', 'news', 'sports')  |
++----------+---------------------------------------------------------------------------------------+
+|   misc   | ('misc', 'frontpage', 'on-air', 'local', 'msn-news', 'msn-sports', 'news', 'sports')  |
++----------+---------------------------------------------------------------------------------------+
+|   misc   | ('misc', 'frontpage', 'on-air', 'local', 'msn-news', 'msn-sports', 'news', 'sports')  |
++----------+---------------------------------------------------------------------------------------+
+|  on-air  | ('on-air', 'misc', 'frontpage', 'news', 'summary', 'msn-news', 'weather', 'local')    |
++----------+---------------------------------------------------------------------------------------+
+|   misc   | ('misc', 'frontpage', 'on-air', 'local', 'msn-news', 'msn-sports', 'news', 'sports')  |
++----------+---------------------------------------------------------------------------------------+
+|   misc   | ('misc', 'frontpage', 'on-air', 'local', 'msn-news', 'msn-sports', 'news', 'sports')  |
++----------+---------------------------------------------------------------------------------------+
+|   misc   | ('misc', 'frontpage', 'on-air', 'local', 'msn-news', 'msn-sports', 'news', 'sports')  |
++----------+---------------------------------------------------------------------------------------+
+|  on-air  | ('on-air', 'misc', 'frontpage', 'news', 'summary', 'msn-news', 'weather', 'local')    |
++----------+---------------------------------------------------------------------------------------+
+|  on-air  | ('on-air', 'misc', 'frontpage', 'news', 'summary', 'msn-news', 'weather', 'local')    |
++----------+---------------------------------------------------------------------------------------+
+|  on-air  | ('on-air', 'misc', 'frontpage', 'news', 'summary', 'msn-news', 'weather', 'local')    |
++----------+---------------------------------------------------------------------------------------+
+|  on-air  | ('on-air', 'misc', 'frontpage', 'news', 'summary', 'msn-news', 'weather', 'local')    |
++----------+---------------------------------------------------------------------------------------+
+|   tech   | ('tech', 'frontpage', 'news', 'msn-news', 'on-air', 'business', 'local', 'sports')    |
++----------+---------------------------------------------------------------------------------------+
+| msn-news | ('msn-news', 'frontpage', 'local', 'weather', 'misc', 'on-air', 'msn-sports', 'tech') |
++----------+---------------------------------------------------------------------------------------+
+|   tech   | ('tech', 'frontpage', 'news', 'msn-news', 'on-air', 'business', 'local', 'sports')    |
++----------+---------------------------------------------------------------------------------------+
+| msn-news | ('msn-news', 'frontpage', 'local', 'weather', 'misc', 'on-air', 'msn-sports', 'tech') |
++----------+---------------------------------------------------------------------------------------+
+|  local   | ('local', 'frontpage', 'misc', 'news', 'msn-news', 'on-air', 'weather', 'sports')     |
++----------+---------------------------------------------------------------------------------------+
+|   tech   | ('tech', 'frontpage', 'news', 'msn-news', 'on-air', 'business', 'local', 'sports')    |
++----------+---------------------------------------------------------------------------------------+
+|  local   | ('local', 'frontpage', 'misc', 'news', 'msn-news', 'on-air', 'weather', 'sports')     |
++----------+---------------------------------------------------------------------------------------+
+|  local   | ('local', 'frontpage', 'misc', 'news', 'msn-news', 'on-air', 'weather', 'sports')     |
++----------+---------------------------------------------------------------------------------------+
+|  local   | ('local', 'frontpage', 'misc', 'news', 'msn-news', 'on-air', 'weather', 'sports')     |
++----------+---------------------------------------------------------------------------------------+
+|  local   | ('local', 'frontpage', 'misc', 'news', 'msn-news', 'on-air', 'weather', 'sports')     |
++----------+---------------------------------------------------------------------------------------+
+|  local   | ('local', 'frontpage', 'misc', 'news', 'msn-news', 'on-air', 'weather', 'sports')     |
++----------+---------------------------------------------------------------------------------------+
+|  local   | ('local', 'frontpage', 'misc', 'news', 'msn-news', 'on-air', 'weather', 'sports')     |
++----------+---------------------------------------------------------------------------------------+
 
 Compute prediction accuracy by checking if the next page in the sequence is within the predicted pages calculated by the model:
- - Prediction Accuracy: 0.698660714286
- - Accuracy Predicting Top 3 Pages: 0.814732142857
+ - Prediction Accuracy: 0.614173228346
+ - Accuracy Predicting Top 3 Pages: 0.825196850394
+
 ```
 
 ----------------------------------------------------------------------------------------

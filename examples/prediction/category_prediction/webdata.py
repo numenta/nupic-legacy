@@ -136,7 +136,10 @@ MODEL_PARAMS = {
   },
 }
 
-TRAINING_RECORDS = 100000
+# Learn page sequences from the first 10,000 user sessions.
+# We chose 10,000 because it gives results that are good enough for this example
+# Use more records for learning to improve the prediction accuracy
+LEARNING_RECORDS = 10000
 
 
 
@@ -145,7 +148,7 @@ def computeAccuracy(model, size, top):
   Compute prediction accuracy by checking if the next page in the sequence is
   within the top N predictions calculated by the model
   Args:
-    model: Trained model
+    model: HTM model
     size: Sample size
     top: top N predictions to use
 
@@ -162,8 +165,8 @@ def computeAccuracy(model, size, top):
       for _ in xrange(7):
         next(datafile)
 
-      # Skip training data and compute accuracy using only new sessions
-      for _ in xrange(TRAINING_RECORDS):
+      # Skip learning data and compute accuracy using only new sessions
+      for _ in xrange(LEARNING_RECORDS):
         next(datafile)
 
       # Compute prediction accuracy by checking if the next page in the sequence
@@ -216,7 +219,8 @@ def main():
   model.enableInference({"predictedField": "page"})
 
   # Use the model encoder to display the encoded SDRs the model will learn
-  sdr_table = PrettyTable(field_names=["Page Category", "Encoded SDR"],
+  sdr_table = PrettyTable(field_names=["Page Category",
+                                       "Encoded SDR (on bit indices)"],
                           sortby="Page Category")
   sdr_table.align = "l"
 
@@ -232,7 +236,7 @@ def main():
   print sdr_table
 
   # At this point our model is configured and ready to learn the user sessions
-  # Extract the training data from MSNBC archive and stream it to the model
+  # Extract the learning data from MSNBC archive and stream it to the model
   filename = os.path.join(os.path.dirname(__file__), "msnbc990928.zip")
   with zipfile.ZipFile(filename) as archive:
     with archive.open("msnbc990928.seq") as datafile:
@@ -241,10 +245,10 @@ def main():
         next(datafile)
 
       print
-      print "Start Learning page sequences using the first {} user " \
-            "sessions".format(TRAINING_RECORDS)
+      print "Start learning page sequences using the first {} user " \
+            "sessions".format(LEARNING_RECORDS)
       model.enableLearning()
-      for count in xrange(TRAINING_RECORDS):
+      for count in xrange(LEARNING_RECORDS):
         # Learn each user session as a single sequence
         session = readUserSession(datafile)
         model.resetSequenceStates()
@@ -255,11 +259,11 @@ def main():
         sys.stdout.write("\rLearned {} Sessions".format(count + 1))
         sys.stdout.flush()
 
-      print "\nFinished Learning"
+      print "\nFinished learning"
       model.disableLearning()
 
-      # Use the newly trained model to predict next user session
-      # The test data starts right after the training data
+      # Use the new HTM model to predict next user session
+      # The test data starts right after the learning data
       print
       print "Start Inference using a new user session from the dataset"
       prediction_table = PrettyTable(field_names=["Page", "Prediction"],
