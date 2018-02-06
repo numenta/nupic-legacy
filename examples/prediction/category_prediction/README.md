@@ -13,6 +13,8 @@ Dataset characteristics:
 
 See [dataset][3] description for more information.
 
+This is just an example showing usage of NuPIC, we don’t claim any comparisons with existing techniques.
+
 ### Run with:
 ```  
 python webdata.py
