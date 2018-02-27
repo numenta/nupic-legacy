@@ -42,20 +42,18 @@ arrayTypes = ['ByteArray',
 
 pyRegions = (
     ("nupic.bindings.regions.TestNode", "TestNode"),
-    ("nupic.regions.AnomalyLikelihoodRegion", "AnomalyLikelihoodRegion"),
-    ("nupic.regions.AnomalyRegion", "AnomalyRegion"),
-    ("nupic.regions.CLAClassifierRegion", "CLAClassifierRegion"),
-    ("nupic.regions.KNNAnomalyClassifierRegion", "KNNAnomalyClassifierRegion"),
-    ("nupic.regions.KNNClassifierRegion", "KNNClassifierRegion"),
-    ("nupic.regions.PluggableEncoderSensor", "PluggableEncoderSensor"),
+    ("nupic.regions.anomaly_likelihood_region", "AnomalyLikelihoodRegion"),
+    ("nupic.regions.anomaly_region", "AnomalyRegion"),
+    ("nupic.regions.knn_anomaly_classifier_region", "KNNAnomalyClassifierRegion"),
+    ("nupic.regions.knn_classifier_region", "KNNClassifierRegion"),
+    ("nupic.regions.pluggable_encoder_sensor", "PluggableEncoderSensor"),
     ("nupic.regions.PyRegion", "PyRegion"),
-    ("nupic.regions.RecordSensor", "RecordSensor"),
-    ("nupic.regions.SDRClassifierRegion", "SDRClassifierRegion"),
-    ("nupic.regions.SPRegion", "SPRegion"),
-    ("nupic.regions.SVMClassifierNode", "SVMClassifierNode"),
-    ("nupic.regions.TestRegion", "TestRegion"),
-    ("nupic.regions.TMRegion", "TMRegion"),
-    ("nupic.regions.UnimportableNode", "UnimportableNode"),
+    ("nupic.regions.record_sensor", "RecordSensor"),
+    ("nupic.regions.sdr_classifier_region", "SDRClassifierRegion"),
+    ("nupic.regions.sp_region", "SPRegion"),
+    ("nupic.regions.test_region", "TestRegion"),
+    ("nupic.regions.tm_region", "TMRegion"),
+    ("nupic.regions.unimportable_node", "UnimportableNode"),
 )
 
 registeredRegions = False
@@ -727,7 +725,7 @@ class Network(engine_internal.Network):
   def getRegionsByType(self, regionClass):
     """
     Gets all region instances of a given class
-    (for example, nupic.regions.SPRegion.SPRegion).
+    (for example, nupic.regions.sp_region.SPRegion).
     """
     regions = []
 

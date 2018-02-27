@@ -13,6 +13,7 @@ Base Model
 .. automodule:: nupic.frameworks.opf.model
 
 .. autoclass:: nupic.frameworks.opf.model.Model
+   :show-inheritance:
    :members:
 
 

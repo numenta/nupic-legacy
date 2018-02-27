@@ -4,9 +4,9 @@ coverage==3.7.1
 mock==1.0.1
 ordereddict==1.1
 psutil==1.0.1
-pytest==2.5.1
-pytest-cov==1.6
-pytest-xdist==1.8
+pytest==3.0.7
+pytest-cov==2.5.0
+pytest-xdist==1.16.0
 python-dateutil==2.1
 PyYAML==3.10
 unittest2==0.5.1
@@ -18,5 +18,5 @@ prettytable==0.7.2
 
 # When updating nupic.bindings, also update any shared dependencies to keep
 # versions in sync.
-nupic.bindings==0.6.1
-numpy==1.11.2
+nupic.bindings==1.0.3
+numpy==1.12.1

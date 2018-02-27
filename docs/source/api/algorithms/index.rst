@@ -3,10 +3,10 @@ Algorithms
 
 There are several components to an HTM system:
 
-#. encoding data into SDR using `Encoders <../api/encoders.html>`_
+#. encoding data into SDR using `Encoders <../algorithms/encoders.html>`_
 #. passing encoded data through the :class:`.SpatialPooler`
 #. running :class:`.TemporalMemory` over the Spatial Pooler's active columns
-#. extracting predictions using a `Classifier <../api/classifiers.html>`_
+#. extracting predictions using a `Classifier <../algorithms/classifiers.html>`_
 #. extracting anomalies using :class:`.Anomaly` and :class:`.AnomalyLikelihood`.
 
 Each of these components can be run independently of each other. The only
@@ -23,7 +23,7 @@ between the cells in the Temporal Memory representation.
    :caption: Contents:
 
    encoders
-   spatial-pooler
-   temporal-memory
+   spatial-pooling
+   sequence-memory
    classifiers
    anomaly-detection

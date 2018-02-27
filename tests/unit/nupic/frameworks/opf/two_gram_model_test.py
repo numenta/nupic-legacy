@@ -21,10 +21,18 @@
 
 """Unit tests for TwoGramModel.py."""
 
+import tempfile
 import unittest2 as unittest
 
 from nupic.data import dict_utils
 from nupic.frameworks.opf import opf_utils, two_gram_model
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.frameworks.opf.two_gram_model_capnp import TwoGramModelProto
 
 
 
@@ -39,7 +47,7 @@ class TwoGramModelTest(unittest.TestCase):
                       "n": 10,
                       "w": 1,
                       "clipInput": True,
-		      "forced": True,
+                      "forced": True,
                       "type": "ScalarEncoder"}}
     inferenceType = opf_utils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
@@ -64,7 +72,7 @@ class TwoGramModelTest(unittest.TestCase):
                       "n": 10,
                       "w": 1,
                       "clipInput": True,
-		      "forced": True,
+                      "forced": True,
                       "type": "ScalarEncoder"}}
     inferenceType = opf_utils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
@@ -92,7 +100,7 @@ class TwoGramModelTest(unittest.TestCase):
                       "n": 10,
                       "w": 1,
                       "clipInput": True,
-		      "forced": True,
+                      "forced": True,
                       "type": "ScalarEncoder"},
                 "b": {"fieldname": u"b",
                       "maxval": 9,
@@ -100,7 +108,7 @@ class TwoGramModelTest(unittest.TestCase):
                       "n": 10,
                       "w": 1,
                       "clipInput": True,
-		      "forced": True,
+                      "forced": True,
                       "type": "ScalarEncoder"}}
     inferenceType = opf_utils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
@@ -122,7 +130,7 @@ class TwoGramModelTest(unittest.TestCase):
     encoders = {"a": {"fieldname": u"a",
                       "n": 10,
                       "w": 3,
-		      "forced": True,
+                      "forced": True,
                       "type": "SDRCategoryEncoder"}}
     inferenceType = opf_utils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
@@ -147,7 +155,7 @@ class TwoGramModelTest(unittest.TestCase):
                       "n": 2,
                       "w": 1,
                       "clipInput": True,
-		      "forced": True,
+                      "forced": True,
                       "type": "ScalarEncoder"}}
     inferenceType = opf_utils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
@@ -168,6 +176,70 @@ class TwoGramModelTest(unittest.TestCase):
           expectedInference)
 
 
+  @unittest.skipUnless(
+    capnp, "pycapnp is not installed, skipping serialization test.")
+  def testWriteRead(self):
+    encoders = {"a": {"fieldname": u"a",
+                      "maxval": 9,
+                      "minval": 0,
+                      "n": 10,
+                      "w": 1,
+                      "clipInput": True,
+                      "forced": True,
+                      "type": "ScalarEncoder"},
+                "b": {"fieldname": u"b",
+                      "maxval": 9,
+                      "minval": 0,
+                      "n": 10,
+                      "w": 1,
+                      "clipInput": True,
+                      "forced": True,
+                      "type": "ScalarEncoder"}}
+    inferenceType = opf_utils.InferenceType.TemporalNextStep
+    model = two_gram_model.TwoGramModel(inferenceType, encoders)
+    inputRecords = (dict_utils.DictObj(d) for d in ({"a": 5, "b": 1},
+                                                    {"a": 6, "b": 3},
+                                                    {"a": 5, "b": 2},
+                                                    {"a": 6, "b": 1}))
+    inferences = ((0, 0), (0, 0), (6, 0), (5, 3))
+    for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
+                                                             inferences)):
+      results = model.run(inputRecord)
+      self.assertEqual(results.predictionNumber, i)
+      self.assertSequenceEqual(
+        results.inferences[opf_utils.InferenceElement.prediction],
+        expectedInference)
+
+    proto = TwoGramModelProto.new_message()
+    model.write(proto)
+    with tempfile.TemporaryFile() as f:
+      proto.write(f)
+      f.seek(0)
+      protoDeserialized = TwoGramModelProto.read(f)
+
+    modelDeserialized = two_gram_model.TwoGramModel.read(protoDeserialized)
+
+    self.assertEqual(model.getInferenceType(), inferenceType)
+    self.assertEqual(modelDeserialized.getInferenceType(),
+                     model.getInferenceType())
+
+    self.assertSequenceEqual(modelDeserialized._prevValues,
+                             model._prevValues)
+    self.assertSequenceEqual(modelDeserialized._hashToValueDict,
+                             model._hashToValueDict)
+    self.assertSequenceEqual(modelDeserialized._fieldNames,
+                             model._fieldNames)
+    self.assertSequenceEqual(modelDeserialized._twoGramDicts,
+                             model._twoGramDicts)
+
+    for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
+                                                             inferences)):
+      expected = model.run(inputRecord)
+      actual = modelDeserialized.run(inputRecord)
+      self.assertEqual(expected.predictionNumber, actual.predictionNumber)
+      self.assertSequenceEqual(
+        expected.inferences[opf_utils.InferenceElement.prediction],
+        actual.inferences[opf_utils.InferenceElement.prediction])
 
 if __name__ == "__main__":
   unittest.main()

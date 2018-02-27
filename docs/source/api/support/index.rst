@@ -7,6 +7,8 @@ Support
 Configuration Base
 ^^^^^^^^^^^^^^^^^^
 
+See :doc:`default-config` for details about default values.
+
 .. automodule:: nupic.support.configuration_base
    :members:
 
@@ -45,3 +47,9 @@ PyMySQL Helpers
 
 .. automodule:: nupic.support.pymysql_helpers
 .. automethod:: nupic.support.pymysql_helpers.retrySQL
+
+Serializable
+^^^^^^^^^^^^
+
+.. autoclass:: nupic.serializable.Serializable
+   :members:

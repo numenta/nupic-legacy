@@ -1,5 +1,166 @@
 # Changelog
 
+## 1.0.3
+
+- Updated incorrect name for anomaly likelihood region. (#3770)
+
+## 1.0.2
+
+- Fixed BacktrackingTM serialization error (#3765)
+
+## 1.0.1
+
+- Fixed a bug in record sensor that prevented the usage of CoordinateEncoder. (#3754)
+
+## 1.0.0
+
+- Improved exception handling in /swarm/test_db.py (#3738)
+- DEVOPS-362 Remove unnecessary install script
+- DEVOPS-362 test removing dependency on install script entirely
+- DEVOPS-362 update install script
+- DEVOPS-362 Add initial version of missing install script
+- Added serialization guide to API docs. (#3737)
+- Put conditional around capnp for Windows
+- Complete new serialization in SpatialPooler
+- Catch nupic.core reference
+- NUP-2342: consolidate read/write into a single context
+- NUP-2342: Update examples to use capnp serialization
+- NUP-2341: Use capnp serialization for SDRClassifierDiff
+- NUP-2351: Remove TODOs from HTM Prediction Model test and fix  bugs exposed by this test
+- NUP-2351: Add serialization to KNNAnomalyClassifierRegion
+- NUP-2351: Fix KNNClassifier serialization
+- NUP-2349 Implemented testCapnpWriteRead test for PreviousValueModel OPF class. Implemented PreviousValueModel.getProtoType. Return instance from PreviousValueModel.read.
+- NUP-2349 Implemented capnp serialization of PreviousValueModel
+- Put capnp import checks in place for Windows
+- Add serialization tests for TMRegion
+- NUP-2463 Serialize inferenceArgs, learningEnabled, and inferenceEnabled in opf Model.
+- Add support for different TM types in TMRegion serialization
+- Added Serializable to API docs, and inheritence links
+- Fixed Next ID value in comment in model.capnp
+- NUP-2464 Integrated ModelProto support into opf TwoGramModel.
+- Fixed input to SP in docs algo example (#3708)
+- NUP-2464 Serialize numPredictions and inferenceType via ModelProto member of HTMPredictionModelProto.
+- Added Serializable to all classes with a capnp write function (#3710)
+- Safe import of capnp for moving average proto
+- getSchema returns prototype
+- Remove unused \_readArray
+- Rely on pycapnp/numpy native conversions in write/read
+- Add capnp conditionals for Windows
+- NUP-2351: Use dict directly instead of creating capnp message
+- Fixed Serializable extensions
+- Fix CPP breakages from changes
+- NUP-2351: Add capnp serialization to KNNClassifierRegion
+- Fix everything up to get serialization tests working with capnp serialization for BacktrackingTM
+- Added getSchema to MovingAverage
+- Added Serializable to all classes with a capnp write function
+- Finished up first pass implementation of BacktrackingTM serialization
+- NUP-2350: capnp serialization for TwoGramModel
+- NUP-2449 Completed implementation of HTMPredictionModel serialization tests.
+- NUP-2463 Implemented test (disabled) to demonstrate the bug "Predicted field and \_\_inferenceEnabled are not serialized by HTMPredictionModel.write"
+- OPF Guide cleanup and link fixes (#3700)
+- NUP-2355 Add new serialization to TestRegion
+- remove SVMClassifierNode (#3697)
+- handle scalar values in the sdr classifier region
+- NUP-2346: Add serialization to knn\_classifier
+- NUP-2458 Fixed and enabled SDRClassifierTest.testWriteReadNoComputeBeforeSerializing
+- NUP-2458 Implemented testWriteReadNoComputeBeforeSerializing in sdr\_classifier\_test.py that reproduces the "deque index out of bounds", but disabled the test, since it fails in a different way after the fix, most likely unrelated to the fix, which needs to be debugged
+- NUP-2398 Refactor test comparing different configurations
+- NUP-2458 Prevent index out of bounds when saving `patternNZHistory` after fewer than \_maxSteps input records have been processed.
+- NUP-2458 Moved HTMPredictionModel serialization test to integration/opf
+- NUP-2449 Implement simple serialization/deserialzation tests. This exposed a number of problems that need to be fixed before we can make further progress.
+- update sdr classifier doc
+
+
+## 0.8.0
+
+* Document ExperimentDescriptionAPI (#3679)
+* Update nupic.math API docs (#3677)
+* SP docs cleanup (#3671)
+* Allow multiple classifications for each record to SDRClassifier (#3669)
+* Updated BacktrackingTMCPP compute parameter name (#3667)
+* Fix HTMPredictionModel prediction using SDRClassifier (#3665)
+* Remove CLAClassifier (#3665)
+* Add capnp serialization to TMRegion (#3657)
+
+## 0.7.0
+
+**WARNING**: This release contains breaking changes described in
+https://discourse.numenta.org/t/warning-0-7-0-breaking-changes/2200
+
+* Stop calling the backtracking_tm tests "tm tests" (#3650)
+* Update hierarchy demo to fix regression
+* Clean up BacktrackingTM's public API (#3645)
+* Make region file names snake_case (part 7) (#3640)
+* Removed references to obsolete tm_py_fast shim (#3639)
+* Updated OPF Metric API docs (#3638)
+* updated __init__.py to include missing encoders (#3487)
+* Fixed anomaly likelihood doc problems. (#3629)
+* Updates swarming, some region code to snake_case (part 6) (#3627)
+* Fixed OPF util helpers module names. (#3625)
+* Complete RST docs for nupic.support (#3624)
+* Deleted nupic.support.features* (unused) (#3622)
+* Removed nupic.support.exceptions (unused) (#3620)
+* Proper snake_case for nupic.support (part 5) (#3618)
+* Snake case nupic.encoders (part 4) (#3614)
+* Moved opf_helpers module to helpers (#3610)
+* Removes unused code from nupic.support (#3616)
+* Applying snake_case module name standards (PART 3) (#3611)
+* Fixed support initLogging docstring params
+* Finished OPF utils and env docs
+* Documented OPF Basic Env
+* Documented OPF ENv
+* Documenting OPF Task Driver
+* Documenting OPF experiment runner
+* Removed OPF utils PredictionElement (#3604)
+* Partial doc of experiment description api
+* NUP-2429 Add .gitignore with first_order_0.csv to prevent accedental commits of this generated file.
+* Documented cluster_params canned model config
+* Documented OPF model exceptions
+* Finished doccing opf_utils
+* Documenting OPF utils
+* Removed predictedField from HTMPredictionModel constructor (#3600)
+* NUP-2420 Renamed tm_shim.py to BacktrackingTM_shim.py
+* Removes inputRef / bookmark params from appendRecord (#3597)
+* Documented nupic.data (#3593)
+* OPF Model docstrings (#3589)
+* Remove obsolete nupic.research.bindings check
+* Removed unimplemented abstract methods (#3596)
+* Removed WeatherJoiner code from old example (#3595)
+* Updated snakecase opf_utils in RST docs (#3585)
+* Renamed tm_ccp test so it runs
+* Moved research tm_cpp_test.py back into nupic.research
+* Removed base.Encoder.formatBits() (#3582)
+* Replace dump() with define __str__ in Encoders. Issue #1518 (#3559)
+* Complete encoder docstrings (#3579)
+* Removed nupic.research, moved contents to nupic.algorithms
+* move zip logic into 'build_script'
+* Add support for artifacts deployed to S3 named according to sha
+* Snake case module names PART 2 (#3561)
+* Remove old examples Part 2 (#3562)
+* NUP-2401: Check for prediction results discrepancies (#3558)
+* NUP-2397: rename TP* to TM* (#3555)
+* NUP-2405: quick-start guide for the Network API (#3557)
+* Snake case module names PART 1 (#3550)
+* NUP-2394: network API code example (#3520)
+* Remove old examples Part 1 (#3551)
+* Docs: InferenceShifter,ModelResult,SensorInput,InferenceType (#3549)
+* CLAModel name changed to HTMPredictionModel (#3516)
+* Updating FileRecordStream docstrings (#3545)
+* Fieldmeta docstrings (#3541)
+* Update KNNClassifier docstrings (#3535)
+* SDRClassifier docs, default config docs
+* Updates anomaly docstrings (#3537)
+* [NUP-2399] Added style guides to new guide (#3528)
+* NUP-2396 Allow SensorRegion to pass actValue and bucketIdx to SDRClassifierRegion
+* Added anomaly detection guide (#3521)
+* NUP-2389 Upgrade nupic.bindings dependency to 0.6.1 which has the requisite changes.
+* name change tpParams/tmEnable => tmParams/tmEnable (#3514)
+* NUP-2391: packages to document & progress tracking (#3517)
+* Quick Start Algorithms Section (#3512)
+* Quick Start
+* NUP-2389 Remove calls to Region::purgeInputLinkBufferHeads. Since we only support delay=0 in CLA models, we no longer need `purgeInputLinkBufferHeads`, because the new Link::compute logic in nupic.core now performs direct copy from src to dest for links with delay of 0.
+* Disable flatline hack in anomaly likelihood
+
 ## 0.6.0
 
 * Touch init even if model params dir exists
@@ -587,7 +748,7 @@
 * GCE now encodes altitude using a 3D coordinate system.
 * Distributing `*.i` files from `nupic.bindings` in binary packages.
 * Updates test entry points to pure python. README instructions for running tests were updated.
-* Missing configuration files are no longer ignored. A runtime exception is raised immediately when an expected configuration file is not found. 
+* Missing configuration files are no longer ignored. A runtime exception is raised immediately when an expected configuration file is not found.
 * Updated deployment logic to account for both deployment scenarios (iterative and release).
 * Configured pypi deployment on all branches with tags.
 * Added pypi deployment configuration for binary releases.

@@ -19,14 +19,21 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
 import numpy
+
 from nupic.bindings.math import (SM32 as SparseMatrix,
                                  SM_01_32_32 as SparseBinaryMatrix,
                                  GetNTAReal,
                                  Random as NupicRandom)
+if capnp:
+  from nupic.proto.SpatialPoolerProto_capnp import SpatialPoolerProto
+
 from nupic.math import topology
-
-
+from nupic.serializable import Serializable
 
 realDType = GetNTAReal()
 uintType = "uint32"
@@ -89,7 +96,7 @@ class BinaryCorticalColumns(_SparseMatrixCorticalColumnAdapter,
 
 
 
-class SpatialPooler(object):
+class SpatialPooler(Serializable):
   """
   This class implements the spatial pooler. It is in charge of handling the
   relationships between the columns of a region and the inputs bits. The
@@ -104,18 +111,21 @@ class SpatialPooler(object):
        sp.compute(inputVector)
        ...
 
-  :param inputDimensions:
+  :param inputDimensions: (iter)
       A sequence representing the dimensions of the input vector. Format is
       (height, width, depth, ...), where each value represents the size of the
       dimension.  For a topology of one dimension with 100 inputs use 100, or
-      (100,). For a two dimensional topology of 10x5 use (10,5).
-  :param columnDimensions:
+      (100,). For a two dimensional topology of 10x5 use (10,5). 
+      Default ``(32, 32)``.
+  
+  :param columnDimensions: (iter)
       A sequence representing the dimensions of the columns in the region.
       Format is (height, width, depth, ...), where each value represents the
       size of the dimension.  For a topology of one dimension with 2000 columns
       use 2000, or (2000,). For a three dimensional topology of 32x64x16 use
-      (32, 64, 16).
-  :param potentialRadius:
+      (32, 64, 16). Default ``(64, 64)``.
+  
+  :param potentialRadius: (int)
       This parameter determines the extent of the input that each column can
       potentially be connected to.  This can be thought of as the input bits
       that are visible to each column, or a 'receptiveField' of the field of
@@ -123,28 +133,33 @@ class SpatialPooler(object):
       that each column can potentially be connected to every input bit. This
       parameter defines a square (or hyper
       square) area: a column will have a max square potential pool with sides of
-      length 2 * potentialRadius + 1.
-  :param potentialPct:
+      length 2 * potentialRadius + 1. Default ``16``.
+  
+  :param potentialPct: (float)
       The percent of the inputs, within a column's potential radius, that a
       column can be connected to.  If set to 1, the column will be connected
       to every input within its potential radius. This parameter is used to
       give each column a unique potential pool when a large potentialRadius
       causes overlap between the columns. At initialization time we choose
       ((2*potentialRadius + 1)^(# inputDimensions) * potentialPct) input bits
-      to comprise the column's potential pool.
-  :param globalInhibition:
+      to comprise the column's potential pool. Default ``0.5``.
+  
+  :param globalInhibition: (bool)
       If true, then during inhibition phase the winning columns are selected
       as the most active columns from the region as a whole. Otherwise, the
       winning columns are selected with respect to their local neighborhoods.
-      Using global inhibition boosts performance x60.
-  :param localAreaDensity:
+      Using global inhibition boosts performance x60. Default ``False``.
+
+  :param localAreaDensity: (float)
       The desired density of active columns within a local inhibition area
       (the size of which is set by the internally calculated inhibitionRadius,
       which is in turn determined from the average size of the connected
       potential pools of all columns). The inhibition logic will insure that
       at most N columns remain ON within a local inhibition area, where
-      N = localAreaDensity * (total number of columns in inhibition area).
-  :param numActiveColumnsPerInhArea:
+      N = localAreaDensity * (total number of columns in inhibition area). 
+      Default ``-1.0``.
+  
+  :param numActiveColumnsPerInhArea: (float)
       An alternate way to control the density of the active columns. If
       numActiveColumnsPerInhArea is specified then localAreaDensity must be
       less than 0, and vice versa.  When using numActiveColumnsPerInhArea, the
@@ -156,23 +171,28 @@ class SpatialPooler(object):
       effective receptive fields, the inhibitionRadius will grow, and hence the
       net density of the active columns will *decrease*. This is in contrast to
       the localAreaDensity method, which keeps the density of active columns
-      the same regardless of the size of their receptive fields.
-  :param stimulusThreshold:
+      the same regardless of the size of their receptive fields. Default ``10.0``.
+  
+  :param stimulusThreshold: (int)
       This is a number specifying the minimum number of synapses that must be
       on in order for a columns to turn ON. The purpose of this is to prevent
       noise input from activating columns. Specified as a percent of a fully
-      grown synapse.
-  :param synPermInactiveDec:
+      grown synapse. Default ``0``.
+  
+  :param synPermInactiveDec: (float)
       The amount by which an inactive synapse is decremented in each round.
-      Specified as a percent of a fully grown synapse.
-  :param synPermActiveInc:
+      Specified as a percent of a fully grown synapse. Default ``0.008``.
+  
+  :param synPermActiveInc: (float)
       The amount by which an active synapse is incremented in each round.
-      Specified as a percent of a fully grown synapse.
-  :param synPermConnected:
+      Specified as a percent of a fully grown synapse. Default ``0.05``.
+  
+  :param synPermConnected: (float)
       The default connected threshold. Any synapse whose permanence value is
       above the connected threshold is a "connected synapse", meaning it can
-      contribute to the cell's firing.
-  :param minPctOverlapDutyCycle:
+      contribute to the cell's firing. Default ``0.1``.
+  
+  :param minPctOverlapDutyCycle: (float)
       A number between 0 and 1.0, used to set a floor on how often a column
       should have at least stimulusThreshold active inputs. Periodically, each
       column looks at the overlap duty cycle of all other columns within its
@@ -183,25 +203,31 @@ class SpatialPooler(object):
       synPermActiveInc. Raising all permanences in response to a sub-par duty
       cycle before  inhibition allows a cell to search for new inputs when
       either its previously learned inputs are no longer ever active, or when
-      the vast majority of them have been "hijacked" by other columns.
-  :param dutyCyclePeriod:
+      the vast majority of them have been "hijacked" by other columns. Default 
+      ``0.001``.
+
+  :param dutyCyclePeriod: (int)
       The period used to calculate duty cycles. Higher values make it take
       longer to respond to changes in boost or synPerConnectedCell. Shorter
-      values make it more unstable and likely to oscillate.
-  :param boostStrength:
+      values make it more unstable and likely to oscillate. Default ``1000``.
+
+  :param boostStrength: (float)
       A number greater or equal than 0.0, used to control the strength of
       boosting. No boosting is applied if it is set to 0. Boosting strength
       increases as a function of boostStrength. Boosting encourages columns to
       have similar activeDutyCycles as their neighbors, which will lead to more
       efficient use of columns. However, too much boosting may also lead to
-      instability of SP outputs.
-  :param seed:
-      Seed for our own pseudo-random number generator.
-  :param spVerbosity:
-      spVerbosity level: 0, 1, 2, or 3
-  :param wrapAround:
+      instability of SP outputs. Default ``0.0``.
+
+  :param seed: (int)
+      Seed for our own pseudo-random number generator. Default ``-1``.
+
+  :param spVerbosity: (int)
+      spVerbosity level: 0, 1, 2, or 3. Default ``0``.
+
+  :param wrapAround: (bool)
       Determines if inputs at the beginning and end of an input dimension should
-      be considered neighbors when mapping columns to inputs.
+      be considered neighbors when mapping columns to inputs. Default ``True``.
 
   """
 
@@ -361,288 +387,426 @@ class SpatialPooler(object):
 
 
   def getColumnDimensions(self):
-    """Returns the dimensions of the columns in the region"""
+    """
+    :returns: (iter) the dimensions of the columns in the region
+    """
     return self._columnDimensions
 
 
   def getInputDimensions(self):
-    """Returns the dimensions of the input vector"""
+    """
+    :returns: (iter) the dimensions of the input vector
+    """
     return self._inputDimensions
 
 
   def getNumColumns(self):
-    """Returns the total number of columns"""
+    """
+    :returns: (int) the total number of columns
+    """
     return self._numColumns
 
 
   def getNumInputs(self):
-    """Returns the total number of inputs"""
+    """
+    :returns: (int) the total number of inputs.
+    """
     return self._numInputs
 
 
   def getPotentialRadius(self):
-    """Returns the potential radius"""
+    """
+    :returns: (float) the potential radius
+    """
     return self._potentialRadius
 
 
   def setPotentialRadius(self, potentialRadius):
-    """Sets the potential radius"""
+    """
+    :param potentialRadius: (float) value to set
+    """
     self._potentialRadius = potentialRadius
 
 
   def getPotentialPct(self):
-    """Returns the potential percent"""
+    """
+    :returns: (float) the potential percent
+    """
     return self._potentialPct
 
 
   def setPotentialPct(self, potentialPct):
-    """Sets the potential percent"""
+    """
+    :param potentialPct: (float) value to set
+    """
     self._potentialPct = potentialPct
 
 
   def getGlobalInhibition(self):
-    """Returns whether global inhibition is enabled"""
+    """
+    :returns: (bool) whether global inhibition is enabled.
+    """
     return self._globalInhibition
 
 
   def setGlobalInhibition(self, globalInhibition):
-    """Sets global inhibition"""
+    """
+    :param globalInhibition: (bool) value to set. 
+    """
     self._globalInhibition = globalInhibition
 
 
   def getNumActiveColumnsPerInhArea(self):
-    """Returns the number of active columns per inhibition area. Returns a
-    value less than 0 if parameter is unused"""
+    """
+    :returns: (float) the number of active columns per inhibition area. Returns 
+              a value less than 0 if parameter is unused.
+    """
     return self._numActiveColumnsPerInhArea
 
 
   def setNumActiveColumnsPerInhArea(self, numActiveColumnsPerInhArea):
-    """Sets the number of active columns per inhibition area. Invalidates the
-    'localAreaDensity' parameter"""
+    """
+    Sets the number of active columns per inhibition area. Invalidates the
+    ``localAreaDensity`` parameter
+
+    :param numActiveColumnsPerInhArea: (float) value to set 
+    """
     assert(numActiveColumnsPerInhArea > 0)
     self._numActiveColumnsPerInhArea = numActiveColumnsPerInhArea
     self._localAreaDensity = 0
 
 
   def getLocalAreaDensity(self):
-    """Returns the local area density. Returns a value less than 0 if parameter
-    is unused"""
+    """
+    :returns: (float) the local area density. Returns a value less than 0 if 
+              parameter is unused.
+    """
     return self._localAreaDensity
 
 
   def setLocalAreaDensity(self, localAreaDensity):
-    """Sets the local area density. Invalidates the 'numActiveColumnsPerInhArea'
-    parameter"""
+    """
+    Sets the local area density. Invalidates the 'numActiveColumnsPerInhArea'
+    parameter
+    
+    :param localAreaDensity: (float) value to set
+    """
     assert(localAreaDensity > 0 and localAreaDensity <= 1)
     self._localAreaDensity = localAreaDensity
     self._numActiveColumnsPerInhArea = 0
 
 
   def getStimulusThreshold(self):
-    """Returns the stimulus threshold"""
+    """
+    :returns: (int) the stimulus threshold
+    """
     return self._stimulusThreshold
 
 
   def setStimulusThreshold(self, stimulusThreshold):
-    """Sets the stimulus threshold"""
+    """
+    :param stimulusThreshold: (float) value to set. 
+    """
     self._stimulusThreshold = stimulusThreshold
 
 
   def getInhibitionRadius(self):
-    """Returns the inhibition radius"""
+    """
+    :returns: (int) the inhibition radius
+    """
     return self._inhibitionRadius
 
 
   def setInhibitionRadius(self, inhibitionRadius):
-    """Sets the inhibition radius"""
+    """
+    :param inhibitionRadius: (int) value to set 
+    """
     self._inhibitionRadius = inhibitionRadius
 
 
   def getDutyCyclePeriod(self):
-    """Returns the duty cycle period"""
+    """
+    :returns: (int) the duty cycle period
+    """
     return self._dutyCyclePeriod
 
 
   def setDutyCyclePeriod(self, dutyCyclePeriod):
-    """Sets the duty cycle period"""
+    """
+    :param dutyCyclePeriod: (int) value to set. 
+    """
     self._dutyCyclePeriod = dutyCyclePeriod
 
 
   def getBoostStrength(self):
-    """Returns the maximum boost value"""
+    """
+    :returns: (float) the maximum boost value used.
+    """
     return self._boostStrength
 
 
   def setBoostStrength(self, boostStrength):
-    """Sets the maximum boost value"""
+    """
+    Sets the maximum boost value.
+    :param boostStrength: (float) value to set
+    """
     self._boostStrength = boostStrength
 
 
   def getIterationNum(self):
-    """Returns the iteration number"""
+    """
+    :returns: the iteration number"""
     return self._iterationNum
 
 
   def setIterationNum(self, iterationNum):
-    """Sets the iteration number"""
+    """
+    :param iterationNum: (int) value to set 
+    """
     self._iterationNum = iterationNum
 
 
   def getIterationLearnNum(self):
-    """Returns the learning iteration number"""
+    """
+    :returns: (int) The number of iterations that have been learned.
+    """
     return self._iterationLearnNum
 
 
   def setIterationLearnNum(self, iterationLearnNum):
-    """Sets the learning iteration number"""
+    """
+    :param iterationLearnNum: (int) value to set 
+    """
     self._iterationLearnNum = iterationLearnNum
 
 
   def getSpVerbosity(self):
-    """Returns the verbosity level"""
+    """
+    :returns: (int) the verbosity level, larger is more verbose.
+    """
     return self._spVerbosity
 
 
   def setSpVerbosity(self, spVerbosity):
-    """Sets the verbosity level"""
+    """
+    :param spVerbosity: (int) value to set, larger is more verbose. 
+    """
     self._spVerbosity = spVerbosity
 
 
   def getUpdatePeriod(self):
-    """Returns the update period"""
+    """
+    :returns: (int) The period at which active duty cycles are updated.
+    """
     return self._updatePeriod
 
 
   def setUpdatePeriod(self, updatePeriod):
-    """Sets the update period"""
+    """
+    :param updatePeriod: (int) The period at which active duty cycles are 
+           updated. 
+    """
     self._updatePeriod = updatePeriod
 
 
   def getSynPermTrimThreshold(self):
-    """Returns the permanence trim threshold"""
+    """
+    Sparsity is enforced by trimming out all permanence values below this value.
+
+    :returns: (float) the permanence trim threshold
+    """
     return self._synPermTrimThreshold
 
 
   def setSynPermTrimThreshold(self, synPermTrimThreshold):
-    """Sets the permanence trim threshold"""
+    """
+    Sparsity is enforced by trimming out all permanence values below this value.
+
+    :param synPermTrimThreshold: (float) the permanence trim threshold
+    """
     self._synPermTrimThreshold = synPermTrimThreshold
 
 
   def getSynPermActiveInc(self):
-    """Returns the permanence increment amount for active synapses
-    inputs"""
+    """
+    :returns: (float) the permanence increment amount for active synapses inputs
+    """
     return self._synPermActiveInc
 
 
   def setSynPermActiveInc(self, synPermActiveInc):
-    """Sets the permanence increment amount for active synapses"""
+    """
+    Sets the permanence increment amount for active synapses.
+    
+    :param synPermActiveInc: (float) value to set.
+    """
     self._synPermActiveInc = synPermActiveInc
 
 
   def getSynPermInactiveDec(self):
-    """Returns the permanence decrement amount for inactive synapses"""
+    """
+    :returns: (float) the permanence decrement amount for inactive synapses.
+    """
     return self._synPermInactiveDec
 
 
   def setSynPermInactiveDec(self, synPermInactiveDec):
-    """Sets the permanence decrement amount for inactive synapses"""
+    """
+    Sets the permanence decrement amount for inactive synapses.
+    
+    :param synPermInactiveDec: (float) value to set.
+    """
     self._synPermInactiveDec = synPermInactiveDec
 
 
   def getSynPermBelowStimulusInc(self):
-    """Returns the permanence increment amount for columns that have not been
-    recently active """
+    """
+    :returns: (float) the permanence increment amount for columns that have not 
+              been recently active.
+    """
     return self._synPermBelowStimulusInc
 
 
   def setSynPermBelowStimulusInc(self, synPermBelowStimulusInc):
-    """Sets the permanence increment amount for columns that have not been
-    recently active """
+    """
+    Sets the permanence increment amount for columns that have not been
+    recently active.
+    
+    :param synPermBelowStimulusInc: (float) value to set.
+    """
     self._synPermBelowStimulusInc = synPermBelowStimulusInc
 
 
   def getSynPermConnected(self):
-    """Returns the permanence amount that qualifies a synapse as
-    being connected"""
+    """
+    :returns: (float) the permanence amount that qualifies a synapse as being 
+              connected.
+    """
     return self._synPermConnected
 
 
   def setSynPermConnected(self, synPermConnected):
-    """Sets the permanence amount that qualifies a synapse as being
-    connected"""
+    """
+    Sets the permanence amount that qualifies a synapse as being
+    connected.
+    
+    :param synPermConnected: (float) value to set.
+    """
     self._synPermConnected = synPermConnected
 
 
   def getMinPctOverlapDutyCycles(self):
-    """Returns the minimum tolerated overlaps, given as percent of
-    neighbors overlap score"""
+    """
+    :returns: (float) the minimum tolerated overlaps, given as percent of
+              neighbors overlap score
+    """
     return self._minPctOverlapDutyCycles
 
 
   def setMinPctOverlapDutyCycles(self, minPctOverlapDutyCycles):
-    """Sets the minimum tolerated activity duty cycle, given as percent of
-    neighbors' activity duty cycle"""
+    """
+    Sets the minimum tolerated activity duty cycle, given as percent of
+    neighbors' activity duty cycle.
+    
+    :param minPctOverlapDutyCycles: (float) value to set.
+    """
     self._minPctOverlapDutyCycles = minPctOverlapDutyCycles
 
 
   def getBoostFactors(self, boostFactors):
-    """Returns the boost factors for all columns. 'boostFactors' size must
-    match the number of columns"""
+    """
+    Gets the boost factors for all columns. Input list will be overwritten.
+
+    :param boostFactors: (list) size must match number of columns. 
+    """
     boostFactors[:] = self._boostFactors[:]
 
 
   def setBoostFactors(self, boostFactors):
-    """Sets the boost factors for all columns. 'boostFactors' size must match
-    the number of columns"""
+    """
+    Sets the boost factors for all columns. ``boostFactors`` size must match
+    the number of columns.
+    
+    :param boostFactors: (iter) value to set."""
     self._boostFactors[:] = boostFactors[:]
 
 
   def getOverlapDutyCycles(self, overlapDutyCycles):
-    """Returns the overlap duty cycles for all columns. 'overlapDutyCycles'
-    size must match the number of columns"""
+    """
+    Gets the overlap duty cycles for all columns. ``overlapDutyCycles``
+    size must match the number of columns.
+    
+    :param overlapDutyCycles: (list) will be overwritten. 
+    """
     overlapDutyCycles[:] = self._overlapDutyCycles[:]
 
 
   def setOverlapDutyCycles(self, overlapDutyCycles):
-    """Sets the overlap duty cycles for all columns. 'overlapDutyCycles'
-    size must match the number of columns"""
+    """
+    Sets the overlap duty cycles for all columns. ``overlapDutyCycles``
+    size must match the number of columns.
+    
+    :param overlapDutyCycles: (list) value to set.
+    """
     self._overlapDutyCycles[:] = overlapDutyCycles
 
 
   def getActiveDutyCycles(self, activeDutyCycles):
-    """Returns the activity duty cycles for all columns. 'activeDutyCycles'
-    size must match the number of columns"""
+    """
+    Gets the activity duty cycles for all columns. Input list will be 
+    overwritten.
+    
+    :param activeDutyCycles: (list) size must match number of columns. 
+    """
     activeDutyCycles[:] = self._activeDutyCycles[:]
 
 
   def setActiveDutyCycles(self, activeDutyCycles):
-    """Sets the activity duty cycles for all columns. 'activeDutyCycles'
-    size must match the number of columns"""
+    """
+    Sets the activity duty cycles for all columns. ``activeDutyCycles`` size 
+    must match the number of columns.
+    
+    :param activeDutyCycles: (list) value to set.
+    """
     self._activeDutyCycles[:] = activeDutyCycles
 
 
   def getMinOverlapDutyCycles(self, minOverlapDutyCycles):
-    """Returns the minimum overlap duty cycles for all columns.
-    '_minOverlapDutyCycles' size must match the number of columns"""
+    """
+    :returns: (list) the minimum overlap duty cycles for all columns. 
+              ``minOverlapDutyCycles`` size must match the number of columns.
+    """
     minOverlapDutyCycles[:] = self._minOverlapDutyCycles[:]
 
 
   def setMinOverlapDutyCycles(self, minOverlapDutyCycles):
-    """Sets the minimum overlap duty cycles for all columns.
-    '_minOverlapDutyCycles' size must match the number of columns"""
+    """
+    Sets the minimum overlap duty cycles for all columns. 
+    ``minOverlapDutyCycles`` size must match the number of columns.
+    
+    :param minOverlapDutyCycles: (iter) value to set.
+    """
     self._minOverlapDutyCycles[:] = minOverlapDutyCycles[:]
 
 
   def getPotential(self, columnIndex, potential):
-    """Returns the potential mapping for a given column. 'potential' size
-    must match the number of inputs"""
+    """
+    :param columnIndex: (int) column index to get potential for.
+    :param potential: (list) will be overwritten with column potentials. Must 
+           match the number of inputs.
+    """
     assert(columnIndex < self._numColumns)
     potential[:] = self._potentialPools[columnIndex]
 
 
   def setPotential(self, columnIndex, potential):
-    """Sets the potential mapping for a given column. 'potential' size
-    must match the number of inputs, and must be greater than _stimulusThreshold """
+    """
+    Sets the potential mapping for a given column. ``potential`` size must match 
+    the number of inputs, and must be greater than ``stimulusThreshold``.
+    
+    :param columnIndex: (int) column index to set potential for.
+    :param potential: (list) value to set.
+    """
     assert(columnIndex < self._numColumns)
 
     potentialSparse = numpy.where(potential > 0)[0]
@@ -655,39 +819,58 @@ class SpatialPooler(object):
 
 
   def getPermanence(self, columnIndex, permanence):
-    """Returns the permanence values for a given column. 'permanence' size
-    must match the number of inputs"""
+    """
+    Returns the permanence values for a given column. ``permanence`` size
+    must match the number of inputs.
+    
+    :param columnIndex: (int) column index to get permanence for.
+    :param permanence: (list) will be overwritten with permanences. 
+    """
     assert(columnIndex < self._numColumns)
     permanence[:] = self._permanences[columnIndex]
 
 
   def setPermanence(self, columnIndex, permanence):
-    """Sets the permanence values for a given column. 'permanence' size
-    must match the number of inputs"""
+    """
+    Sets the permanence values for a given column. ``permanence`` size must 
+    match the number of inputs.
+    
+    :param columnIndex: (int) column index to set permanence for.
+    :param permanence: (list) value to set. 
+    """
     assert(columnIndex < self._numColumns)
     self._updatePermanencesForColumn(permanence, columnIndex, raisePerm=False)
 
 
   def getConnectedSynapses(self, columnIndex, connectedSynapses):
-    """Returns the connected synapses for a given column.
-    'connectedSynapses' size must match the number of inputs"""
+    """
+    :param connectedSynapses: (list) will be overwritten
+    :returns: (iter) the connected synapses for a given column.
+              ``connectedSynapses`` size must match the number of inputs"""
     assert(columnIndex < self._numColumns)
     connectedSynapses[:] = self._connectedSynapses[columnIndex]
 
 
   def getConnectedCounts(self, connectedCounts):
-    """Returns the number of connected synapses for all columns.
-    'connectedCounts' size must match the number of columns"""
+    """
+    :param connectedCounts: (list) will be overwritten
+    :returns: (int) the number of connected synapses for all columns.
+              ``connectedCounts`` size must match the number of columns.
+    """
     connectedCounts[:] = self._connectedCounts[:]
 
 
   def getOverlaps(self):
-    """Returns the overlap score for each column."""
+    """
+    :returns: (iter) the overlap score for each column.
+    """
     return self._overlaps
 
 
   def getBoostedOverlaps(self):
-    """Returns the boosted overlap score for each column."""
+    """
+    :returns: (list) the boosted overlap score for each column. 
+    """
     return self._boostedOverlaps
 
 
@@ -752,7 +935,8 @@ class SpatialPooler(object):
 
 
   def stripUnlearnedColumns(self, activeArray):
-    """Removes the set of columns who have never been active from the set of
+    """
+    Removes the set of columns who have never been active from the set of
     active columns selected in the inhibition round. Such columns cannot
     represent learned pattern and are therefore meaningless if only inference
     is required. This should not be done when using a random, unlearned SP
@@ -1558,6 +1742,11 @@ class SpatialPooler(object):
     # update version property to current SP version
     state['_version'] = VERSION
     self.__dict__.update(state)
+
+
+  @classmethod
+  def getSchema(cls):
+    return SpatialPoolerProto
 
 
   def write(self, proto):

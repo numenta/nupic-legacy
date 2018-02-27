@@ -20,30 +20,8 @@
 # ----------------------------------------------------------------------
 
 """
-## @file
-
-nupic.math is a package containing modules related to mathematical, probabilistic
-and statistical data structures and simple algorithms.
-
-The primary sub-modules include (use help on these modules for additional
-online documentation):
-
-nupic.bindings.math
-A module containing many low-level mathematical data structures and algorithms.
-This module is a set of Python bindings for the Numenta C++ math libraries.
-Because of this, some calling conventions may more closely reflect the underlying
-C++ architecture than a typical Python module.
-All classes, functions and constants of nupic.bindings.math are pre-imported
-into nupic.math, and thus are accessible from nupic.math.
-The module contains the following important and frequently used classes:
-  SparseMatrix
-  SparseTensor
-  TensorIndex
-  Domain
-
-nupic.math.stats
-Module of statistical data structures and functions used in learning algorithms
-and for analysis of HTM network inputs and outputs.
+This package contains modules related to mathematical, probabilistic and 
+statistical data structures and simple algorithms.
 """
 
 import sys

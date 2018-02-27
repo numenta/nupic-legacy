@@ -4,9 +4,10 @@ Example Data
 The example data we want to feed into the model for the
 `Quick Start <index.html>`_ looks like this:
 
-.. literalinclude:: ../../examples/data/gymdata-example.csv
+.. literalinclude:: ../../examples/data/gymdata.csv
+   :lines: 1-20
 
-`Running Swarmings <../guide/swarming.html>`_ and using the `OPF <../guide/opf.html>`_
+`Running Swarmings <../guides/swarming/>`_ and using the `OPF <../guides/opf/index.html>`_
 requires your input data to be in a certain format, described in this document.
 
 Header Rows

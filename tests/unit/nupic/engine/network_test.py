@@ -25,7 +25,7 @@ import unittest2 as unittest
 
 from nupic import engine
 from nupic.bindings.regions.TestNode import TestNode
-from nupic.regions.SPRegion import SPRegion
+from nupic.regions.sp_region import SPRegion
 
 
 
@@ -45,8 +45,8 @@ class NetworkTest(unittest.TestCase):
 
     orig_import = __import__
     def import_mock(name, *args):
-      if name == "nupic.regions.UnimportableNode":
-        raise SyntaxError("invalid syntax (UnimportableNode.py, line 5)")
+      if name == "nupic.regions.unimportable_node":
+        raise SyntaxError("invalid syntax (unimportable_node.py, line 5)")
 
       return orig_import(name, *args)
 
@@ -55,7 +55,7 @@ class NetworkTest(unittest.TestCase):
       with self.assertRaises(Exception) as cm:
         n.addRegion('r', 'py.UnimportableNode', '')
 
-      self.assertEqual(cm.exception.message, "invalid syntax (UnimportableNode.py, line 5)")
+      self.assertEqual(cm.exception.message, "invalid syntax (unimportable_node.py, line 5)")
 
     # Test failure in the __init__() method
     with self.assertRaises(Exception) as cm:

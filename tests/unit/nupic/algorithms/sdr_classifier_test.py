@@ -130,7 +130,7 @@ class SDRClassifierTest(unittest.TestCase):
     retval = c.compute(recordNum=recordNum, patternNZ=[1, 5, 9],
               classification={"bucketIdx": 4, "actValue": 34.7},
               learn=True, infer=False)
-    self.assertIsNone(retval)
+    self.assertEquals({}, retval)
     recordNum += 1
 
     # infer only
@@ -149,7 +149,7 @@ class SDRClassifierTest(unittest.TestCase):
     retval3 = c.compute(recordNum=recordNum, patternNZ=[1, 2],
                         classification={"bucketIdx": 2, "actValue": 14.2},
                         learn=False, infer=False)
-    self.assertIsNone(retval3)
+    self.assertEquals({}, retval3)
 
 
   def testCompute1(self):
@@ -520,15 +520,17 @@ class SDRClassifierTest(unittest.TestCase):
       recordNum += 1
 
     result1 = c.compute(
-        recordNum=2, patternNZ=SDR1, classification=None,
+        recordNum=recordNum, patternNZ=SDR1, classification=None,
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result1[0][0], 0.3, places=1)
     self.assertAlmostEqual(result1[0][1], 0.3, places=1)
     self.assertAlmostEqual(result1[0][2], 0.4, places=1)
 
     result2 = c.compute(
-        recordNum=2, patternNZ=SDR2, classification=None,
+        recordNum=recordNum, patternNZ=SDR2, classification=None,
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result2[0][1], 0.5, places=1)
     self.assertAlmostEqual(result2[0][3], 0.5, places=1)
 
@@ -582,16 +584,61 @@ class SDRClassifierTest(unittest.TestCase):
       recordNum += 1
 
     result1 = c.compute(
-        recordNum=2, patternNZ=SDR1, classification=None,
+        recordNum=recordNum, patternNZ=SDR1, classification=None,
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result1[0][0], 0.3, places=1)
     self.assertAlmostEqual(result1[0][1], 0.3, places=1)
     self.assertAlmostEqual(result1[0][2], 0.4, places=1)
 
     result2 = c.compute(
-        recordNum=2, patternNZ=SDR2, classification=None,
+        recordNum=recordNum, patternNZ=SDR2, classification=None,
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result2[0][1], 0.5, places=1)
+    self.assertAlmostEqual(result2[0][3], 0.5, places=1)
+
+
+  def testPredictionMultipleCategories(self):
+    """ Test the distribution of predictions.
+
+    Here, we intend the classifier to learn the associations:
+      [1,3,5] => bucketIdx 0 & 1
+      [2,4,6] => bucketIdx 2 & 3
+
+    The classifier should get the distribution almost right given enough
+    repetitions and a small learning rate
+    """
+
+    c = self._classifier([0], 0.001, 0.1, 0)
+
+    SDR1 = [1, 3, 5]
+    SDR2 = [2, 4, 6]
+    recordNum = 0
+    random.seed(42)
+    for _ in xrange(5000):
+      c.compute(recordNum=recordNum, patternNZ=SDR1,
+                classification={"bucketIdx": [0, 1], "actValue": [0, 1]},
+                learn=True, infer=False)
+      recordNum += 1
+
+      c.compute(recordNum=recordNum, patternNZ=SDR2,
+                classification={"bucketIdx": [2, 3], "actValue": [2, 3]},
+                learn=True, infer=False)
+      recordNum += 1
+
+    result1 = c.compute(
+        recordNum=recordNum, patternNZ=SDR1, classification=None,
+        learn=False, infer=True)
+    recordNum += 1
+    self.assertAlmostEqual(result1[0][0], 0.5, places=1)
+    self.assertAlmostEqual(result1[0][1], 0.5, places=1)
+
+    result2 = c.compute(
+        recordNum=recordNum, patternNZ=SDR2, classification=None,
+        learn=False, infer=True)
+    recordNum += 1
+    self.assertAlmostEqual(result2[0][2], 0.5, places=1)
     self.assertAlmostEqual(result2[0][3], 0.5, places=1)
 
 
@@ -648,17 +695,19 @@ class SDRClassifierTest(unittest.TestCase):
       recordNum += 1
 
     result1 = c.compute(
-        recordNum=2, patternNZ=SDR1,
+        recordNum=recordNum, patternNZ=SDR1,
         classification={"bucketIdx": 0, "actValue": 0},
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result1[0][0], 0.3, places=1)
     self.assertAlmostEqual(result1[0][1], 0.3, places=1)
     self.assertAlmostEqual(result1[0][2], 0.4, places=1)
 
     result2 = c.compute(
-        recordNum=2, patternNZ=SDR2,
+        recordNum=recordNum, patternNZ=SDR2,
         classification={"bucketIdx": 0, "actValue": 0},
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result2[0][1], 0.5, places=1)
     self.assertAlmostEqual(result2[0][3], 0.5, places=1)
 
@@ -676,15 +725,17 @@ class SDRClassifierTest(unittest.TestCase):
       recordNum += 1
 
     result1new = c.compute(
-        recordNum=2, patternNZ=SDR1, classification=None,
+        recordNum=recordNum, patternNZ=SDR1, classification=None,
         learn=False, infer=True)
+    recordNum += 1
     self.assertAlmostEqual(result1new[0][0], 0.3, places=1)
     self.assertAlmostEqual(result1new[0][1], 0.3, places=1)
     self.assertAlmostEqual(result1new[0][3], 0.4, places=1)
 
     result2new = c.compute(
-        recordNum=2, patternNZ=SDR2, classification=None,
+        recordNum=recordNum, patternNZ=SDR2, classification=None,
         learn=False, infer=True)
+    recordNum += 1
     self.assertSequenceEqual(list(result2[0]), list(result2new[0]))
 
 
@@ -737,17 +788,16 @@ class SDRClassifierTest(unittest.TestCase):
     self.assertAlmostEqual(result2[0][1], 1.0, places=1)
 
 
-  @unittest.skipUnless(
-      capnp, "pycapnp is not installed, skipping serialization test.")
-  def testWriteRead(self):
+  def _doWriteReadChecks(self, computeBeforeSerializing):
     c1 = SDRClassifier([0], 0.1, 0.1, 0)
 
     # Create a vector of input bit indices
     input1 = [1, 5, 9]
-    result = c1.compute(recordNum=0,
-                        patternNZ=input1,
-                        classification={'bucketIdx': 4, 'actValue': 34.7},
-                        learn=True, infer=True)
+    if computeBeforeSerializing:
+      result = c1.compute(recordNum=0,
+                          patternNZ=input1,
+                          classification={'bucketIdx': 4, 'actValue': 34.7},
+                          learn=True, infer=True)
 
     proto1 = SdrClassifier_capnp.SdrClassifierProto.new_message()
     c1.write(proto1)
@@ -780,6 +830,10 @@ class SDRClassifierTest(unittest.TestCase):
     self.assertEqual(c1._version, c2._version)
     self.assertEqual(c1.verbosity, c2.verbosity)
 
+    # NOTE: the previous step's actual values determine the size of lists in
+    # results
+    expectedActualValuesLen = len(c1._actualValues)
+
     result1 = c1.compute(recordNum=1,
                          patternNZ=input1,
                          classification={'bucketIdx': 4, 'actValue': 34.7},
@@ -790,9 +844,25 @@ class SDRClassifierTest(unittest.TestCase):
                          learn=True, infer=True)
 
     self.assertEqual(result1.keys(), result2.keys())
+
     for key in result1.keys():
-      for i in xrange(len(c1._actualValues)):
+      self.assertEqual(len(result1[key]), len(result2[key]))
+      self.assertEqual(len(result1[key]), expectedActualValuesLen)
+
+      for i in xrange(expectedActualValuesLen):
         self.assertAlmostEqual(result1[key][i], result2[key][i], 5)
+
+
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
+  def testWriteRead(self):
+    self._doWriteReadChecks(computeBeforeSerializing=True)
+
+
+  @unittest.skipUnless(
+    capnp, "pycapnp is not installed, skipping serialization test.")
+  def testWriteReadNoComputeBeforeSerializing(self):
+    self._doWriteReadChecks(computeBeforeSerializing=False)
 
 
   def test_pFormatArray(self):

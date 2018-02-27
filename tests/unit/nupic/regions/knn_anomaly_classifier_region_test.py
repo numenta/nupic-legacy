@@ -25,6 +25,9 @@ import sys
 import copy
 from datetime import datetime
 import unittest2 as unittest
+import random
+import tempfile
+
 import numpy
 from mock import Mock, patch, ANY, call
 
@@ -32,13 +35,20 @@ from nupic.support.unittesthelpers.testcasebase import (unittest,
                                                         TestOptionParser)
 from nupic.frameworks.opf.opf_utils import InferenceType
 
-from nupic.regions.KNNAnomalyClassifierRegion import (
+from nupic.regions.knn_anomaly_classifier_region import (
     KNNAnomalyClassifierRegion,
     _CLAClassificationRecord)
 
 from nupic.frameworks.opf.opf_utils import InferenceType
 
 from nupic.frameworks.opf.exceptions import (HTMPredictionModelInvalidRangeError)
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.regions.knn_anomaly_classifier_region_capnp import \
+    KNNAnomalyClassifierRegionProto
 
 
 
@@ -83,9 +93,9 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
         params['classificationVectorType'])
 
 
-  @patch.object(KNNAnomalyClassifierRegion, 'classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_classifyState')
   @patch.object(KNNAnomalyClassifierRegion, 'getParameter')
-  @patch.object(KNNAnomalyClassifierRegion, 'constructClassificationRecord')
+  @patch.object(KNNAnomalyClassifierRegion, '_constructClassificationRecord')
   def testCompute(self, constructRecord, getParam, classifyState):
     params = {
       'trainRecords': 0
@@ -145,8 +155,8 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
 
 
   @patch.object(KNNAnomalyClassifierRegion, '_getStateAnomalyVector')
-  @patch.object(KNNAnomalyClassifierRegion, 'constructClassificationRecord')
-  @patch.object(KNNAnomalyClassifierRegion, 'classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_constructClassificationRecord')
+  @patch.object(KNNAnomalyClassifierRegion, '_classifyState')
   def testAddLabel(self, classifyState, constructVector, getVector):
     # Setup Mocks
     getVector.return_value = numpy.array([0, 0, 0, 1, 0, 0, 1])
@@ -189,8 +199,8 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     classifyState.assert_called_once_with(self.helper._recordsCache[2])
 
 
-  @patch.object(KNNAnomalyClassifierRegion, 'constructClassificationRecord')
-  @patch.object(KNNAnomalyClassifierRegion, 'classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_constructClassificationRecord')
+  @patch.object(KNNAnomalyClassifierRegion, '_classifyState')
   def testRemoveLabel(self, classifyState, constructClassificationRecord):
     knn = self.helper._knnclassifier._knn
     knn._numPatterns = 3
@@ -231,8 +241,8 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     classifyState.assert_called_once_with(self.helper._recordsCache[2])
 
 
-  @patch.object(KNNAnomalyClassifierRegion, 'constructClassificationRecord')
-  @patch.object(KNNAnomalyClassifierRegion, 'classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_constructClassificationRecord')
+  @patch.object(KNNAnomalyClassifierRegion, '_classifyState')
   def testRemoveLabelNoFilter(self, classifyState,
       constructClassificationRecord):
     knn = self.helper._knnclassifier._knn
@@ -257,7 +267,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     classifyState.assert_called_once_with(self.helper._recordsCache[2])
 
 
-  @patch.object(KNNAnomalyClassifierRegion, 'classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_classifyState')
   def testSetGetThreshold(self, classifyState):
     self.helper._recordsCache = [Mock(), Mock(), Mock()]
 
@@ -273,7 +283,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
         'anomalyThreshold', None, 'invalid')
 
 
-  @patch.object(KNNAnomalyClassifierRegion, 'classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_classifyState')
   def testSetGetWaitRecords(self, classifyState):
     self.helper._recordsCache = [
       Mock(ROWID=10, anomalyLabel=["Test"], setByUser=False),
@@ -305,7 +315,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
       'trainRecords', None, 0)
 
 
-  @patch.object(KNNAnomalyClassifierRegion, 'constructClassificationRecord')
+  @patch.object(KNNAnomalyClassifierRegion, '_constructClassificationRecord')
   def testSetGetWaitRecordsRecalculate(self, getRecord):
     """
     This test ensures that records in classifier are removed when they are no
@@ -371,7 +381,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     self.helper.anomalyThreshold = 1.1
     toLabelList.return_value = []
     state = _CLAClassificationRecord(**record)
-    self.helper.classifyState(state)
+    self.helper._classifyState(state)
     self.assertEqual(state.anomalyLabel, [])
     deleteRecord.assert_called_once_with([state])
 
@@ -381,7 +391,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     self.helper.anomalyThreshold = 0.5
     toLabelList.return_value = []
     state = _CLAClassificationRecord(**record)
-    self.helper.classifyState(state)
+    self.helper._classifyState(state)
 
     self.assertEqual(state.anomalyLabel, \
       [KNNAnomalyClassifierRegion.AUTO_THRESHOLD_CLASSIFIED_LABEL])
@@ -394,7 +404,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     self.helper.anomalyThreshold = 0.5
     toLabelList.return_value = []
     state = _CLAClassificationRecord(**record)
-    self.helper.classifyState(state)
+    self.helper._classifyState(state)
 
     self.assertEqual(state.anomalyLabel, [])
     self.assertTrue(not addRecord.called)
@@ -406,7 +416,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     self.helper.anomalyThreshold = 1.1
     toLabelList.return_value = ["Label"]
     state = _CLAClassificationRecord(**record)
-    self.helper.classifyState(state)
+    self.helper._classifyState(state)
     self.assertEqual(state.anomalyLabel, ["Label"])
     self.assertTrue(not addRecord.called)
 
@@ -418,7 +428,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     recordCopy = copy.deepcopy(record)
     recordCopy['setByUser'] = True
     state = _CLAClassificationRecord(**recordCopy)
-    self.helper.classifyState(state)
+    self.helper._classifyState(state)
     self.assertEqual(state.anomalyLabel,
       [recordCopy["anomalyLabel"][0], toLabelList.return_value[0]])
     addRecord.assert_called_once_with(state)
@@ -435,7 +445,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
        KNNAnomalyClassifierRegion.AUTO_THRESHOLD_CLASSIFIED_LABEL + \
         KNNAnomalyClassifierRegion.AUTO_TAG]
     state = _CLAClassificationRecord(**recordCopy)
-    self.helper.classifyState(state)
+    self.helper._classifyState(state)
     self.assertEqual(state.anomalyLabel, [])
 
     # Auto classified threshold
@@ -449,7 +459,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     recordCopy['anomalyLabel'] = \
       [KNNAnomalyClassifierRegion.AUTO_THRESHOLD_CLASSIFIED_LABEL]
     state = _CLAClassificationRecord(**recordCopy)
-    self.helper.classifyState(state)
+    self.helper._classifyState(state)
     self.assertEqual(state.anomalyLabel,
       [KNNAnomalyClassifierRegion.AUTO_THRESHOLD_CLASSIFIED_LABEL + \
         KNNAnomalyClassifierRegion.AUTO_TAG])
@@ -468,7 +478,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     recordCopy['anomalyLabel'] = \
       [KNNAnomalyClassifierRegion.AUTO_THRESHOLD_CLASSIFIED_LABEL]
     state = _CLAClassificationRecord(**recordCopy)
-    self.helper.classifyState(state)
+    self.helper._classifyState(state)
     self.assertEqual(state.anomalyLabel,
       [KNNAnomalyClassifierRegion.AUTO_THRESHOLD_CLASSIFIED_LABEL])
     addRecord.assert_called_once_with(state)
@@ -610,7 +620,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
 
     # Test TM Cell vector
     self.helper.classificationVectorType = 1
-    vector = self.helper.constructClassificationRecord(inputs)
+    vector = self.helper._constructClassificationRecord(inputs)
     self.assertEqual(vector.anomalyVector,
         tpVals['output']['lrnActive'].nonzero()[0].tolist())
 
@@ -618,21 +628,21 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     self.helper.classificationVectorType = 2
     self.helper._prevPredictedColumns = numpy.array(
         [1, 0, 0, 0, 1]).nonzero()[0]
-    vector = self.helper.constructClassificationRecord(inputs)
+    vector = self.helper._constructClassificationRecord(inputs)
     self.assertEqual(vector.anomalyVector, [0, 1, 4])
 
     self.helper._prevPredictedColumns = numpy.array(
         [1, 0, 1, 0, 0]).nonzero()[0]
-    vector = self.helper.constructClassificationRecord(inputs)
+    vector = self.helper._constructClassificationRecord(inputs)
     self.assertEqual(vector.anomalyVector, [0, 1, 4, 7])
 
     self.helper.classificationVectorType = 3
-    self.assertRaises(TypeError, self.helper.constructClassificationRecord,
-        inputs)
+    self.assertRaises(TypeError, self.helper._constructClassificationRecord,
+                      inputs)
 
 
-  @patch.object(KNNAnomalyClassifierRegion ,'classifyState')
-  @patch.object(KNNAnomalyClassifierRegion, 'constructClassificationRecord')
+  @patch.object(KNNAnomalyClassifierRegion ,'_classifyState')
+  @patch.object(KNNAnomalyClassifierRegion, '_constructClassificationRecord')
   def testCompute(self, createRecord, updateState):
     state = {
       "ROWID": 0,
@@ -823,6 +833,70 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
         knnClassifier.getParameter('categoryRecencyList').remove(idx)
 
 
+  @unittest.skipUnless(
+    capnp, "pycapnp is not installed, skipping serialization test.")
+  def testWriteRead(self):
+
+    self.maxDiff = None
+    records = []
+    for i in xrange(self.helper.trainRecords):
+      spBottomUpOut = numpy.zeros(1000)
+      tpTopDownOut = numpy.zeros(1000)
+      tpLrnActiveStateT = numpy.zeros(1000)
+      spBottomUpOut[random.sample(xrange(1000), 20)] = 1
+      tpTopDownOut[random.sample(xrange(1000), 20)] = 1
+      tpLrnActiveStateT[random.sample(xrange(1000), 20)] = 1
+      records.append({
+        'spBottomUpOut': spBottomUpOut,
+        'tpTopDownOut': tpTopDownOut,
+        'tpLrnActiveStateT': tpLrnActiveStateT
+      })
+
+    self.helper.setParameter('anomalyThreshold', None, 0.5)
+    for i in xrange(self.helper.trainRecords):
+      self.helper.compute(records[i], None)
+
+    for _ in xrange(10):
+      self.helper.compute(random.choice(records), None)
+
+    proto = KNNAnomalyClassifierRegionProto.new_message()
+    self.helper.writeToProto(proto)
+
+    with tempfile.TemporaryFile() as f:
+      proto.write(f)
+      f.seek(0)
+      protoDeserialized = KNNAnomalyClassifierRegionProto.read(f)
+
+    knnDeserialized = KNNAnomalyClassifierRegion.readFromProto(
+      protoDeserialized)
+
+    self.assertEquals(self.helper._maxLabelOutputs,
+                      knnDeserialized._maxLabelOutputs)
+    self.assertEquals(self.helper._activeColumnCount,
+                      knnDeserialized._activeColumnCount)
+    self.assertTrue((self.helper._prevPredictedColumns ==
+                             knnDeserialized._prevPredictedColumns).all())
+    self.assertEquals(self.helper._anomalyVectorLength,
+                      knnDeserialized._anomalyVectorLength)
+    self.assertAlmostEquals(self.helper._classificationMaxDist,
+                      knnDeserialized._classificationMaxDist)
+    self.assertEquals(self.helper._iteration, knnDeserialized._iteration)
+    self.assertEquals(self.helper.trainRecords, knnDeserialized.trainRecords)
+    self.assertEquals(self.helper.anomalyThreshold,
+                      knnDeserialized.anomalyThreshold)
+    self.assertEquals(self.helper.cacheSize, knnDeserialized.cacheSize)
+    self.assertEquals(self.helper.classificationVectorType,
+                      knnDeserialized.classificationVectorType)
+    self.assertListEqual(self.helper.getLabelResults(),
+                         knnDeserialized.getLabelResults())
+
+    for i, expected in enumerate(self.helper._recordsCache):
+      actual = knnDeserialized._recordsCache[i]
+      self.assertEquals(expected.ROWID, actual.ROWID)
+      self.assertAlmostEquals(expected.anomalyScore, actual.anomalyScore)
+      self.assertListEqual(expected.anomalyVector, actual.anomalyVector)
+      self.assertListEqual(expected.anomalyLabel, actual.anomalyLabel)
+      self.assertEquals(expected.setByUser, actual.setByUser)
 
 
 if __name__ == '__main__':

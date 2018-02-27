@@ -7,6 +7,7 @@ Base Encoder
 ^^^^^^^^^^^^
 
 .. autoclass:: nupic.encoders.base.Encoder
+   :show-inheritance:
    :members:
 
 Encoder Result
@@ -36,7 +37,7 @@ Scalar Encoders
    :members: mapBucketIndexToNonZeroBits
    :show-inheritance:
 
-.. autoclass:: nupic.encoders.scalarspace.ScalarSpaceEncoder
+.. autoclass:: nupic.encoders.scalar_space.ScalarSpaceEncoder
    :show-inheritance:
 
 .. autoclass:: nupic.encoders.delta.DeltaEncoder

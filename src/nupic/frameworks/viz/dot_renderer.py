@@ -27,6 +27,10 @@ class DotRenderer(object):
   """
   Network visualization "renderer" implementation to render a network to a
   dot-formatted document, suitable for use w/ graphviz.
+
+  :param outp: File-like obj to which rendered graph is written (defaults to
+         sys.stdout)
+  :param node_attrs: Node attributes to apply to all nodes in graph
   """
 
   # Default node attributes to apply to all nodes in graph.
@@ -34,11 +38,6 @@ class DotRenderer(object):
 
 
   def __init__(self, outp=sys.stdout, node_attrs=None):
-    """
-    :param outp: File-like obj to which rendered graph is written (defaults to
-      sys.stdout)
-    :param node_attrs: Node attributes to apply to all nodes in graph
-    """
     self.outp = outp
     self.node_attrs = node_attrs or self.defaultNodeAttrs
 

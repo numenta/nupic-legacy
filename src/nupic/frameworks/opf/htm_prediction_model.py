@@ -84,7 +84,7 @@ def requireAnomalyModel(func):
 
 class NetworkInfo(object):
   """ Data type used as return value type by
-  HTMPredictionModel.__createCLANetwork()
+  HTMPredictionModel.__createHTMNetwork()
   """
 
   def __init__(self, net, statsCollectors):
@@ -177,13 +177,23 @@ class HTMPredictionModel(Model):
       anomalyParams={},
       minLikelihoodThreshold=DEFAULT_LIKELIHOOD_THRESHOLD,
       maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP,
-      network=None):
+      network=None,
+      baseProto=None):
+    """
+    :param network: if not None, the deserialized nupic.engine.Network instance
+                    to use instead of creating a new Network
+    :param baseProto: if not None, capnp ModelProto message reader for
+                      deserializing; supersedes inferenceType
+    """
     if not inferenceType in self.__supportedInferenceKindSet:
       raise ValueError("{0} received incompatible inference type: {1}"\
                        .format(self.__class__, inferenceType))
 
     # Call super class constructor
-    super(HTMPredictionModel, self).__init__(inferenceType)
+    if baseProto is None:
+      super(HTMPredictionModel, self).__init__(inferenceType)
+    else:
+      super(HTMPredictionModel, self).__init__(proto=baseProto)
 
     # self.__restoringFromState is set to True by our __setstate__ method
     # and back to False at completion of our _deSerializeExtraData() method.
@@ -221,10 +231,11 @@ class HTMPredictionModel(Model):
 
     # -----------------------------------------------------------------------
     if network is not None:
+      # Most likely in the scope of deserialization
       self._netInfo = NetworkInfo(net=network, statsCollectors=[])
     else:
       # Create the network
-      self._netInfo = self.__createCLANetwork(
+      self._netInfo = self.__createHTMNetwork(
           sensorParams, spEnable, spParams, tmEnable, tmParams, clEnable,
           clParams, anomalyParams)
 
@@ -307,6 +318,13 @@ class HTMPredictionModel(Model):
     # we leave it blank, the multiencoder will propagate the field names to the
     # underlying encoders
     encoder.setFieldStats('',fieldStats)
+
+
+  def enableInference(self, inferenceArgs=None):
+    super(HTMPredictionModel, self).enableInference(inferenceArgs)
+    if inferenceArgs is not None and "predictedField" in inferenceArgs:
+      self._getSensorRegion().setParameter("predictedField",
+                                           str(inferenceArgs["predictedField"]))
 
 
   def enableLearning(self):
@@ -573,10 +591,10 @@ class HTMPredictionModel(Model):
                          "TM, SP, or Sensor regions")
 
     inputTSRecordIdx = rawInput.get('_timestampRecordIdx')
-    return self._handleCLAClassifierMultiStep(
-                                        patternNZ=patternNZ,
-                                        inputTSRecordIdx=inputTSRecordIdx,
-                                        rawInput=rawInput)
+    return self._handleSDRClassifierMultiStep(
+        patternNZ=patternNZ,
+        inputTSRecordIdx=inputTSRecordIdx,
+        rawInput=rawInput)
 
 
   def _classificationCompute(self):
@@ -684,7 +702,7 @@ class HTMPredictionModel(Model):
     return inferences
 
 
-  def _handleCLAClassifierMultiStep(self, patternNZ,
+  def _handleSDRClassifierMultiStep(self, patternNZ,
                                     inputTSRecordIdx,
                                     rawInput):
     """ Handle the CLA Classifier compute logic when implementing multi-step
@@ -825,7 +843,7 @@ class HTMPredictionModel(Model):
     # Plug in the predictions for each requested time step.
     for steps in predictionSteps:
       # From the clResults, compute the predicted actual value. The
-      # CLAClassifier classifies the bucket index and returns a list of
+      # SDRClassifier classifies the bucket index and returns a list of
       # relative likelihoods for each bucket. Let's find the max one
       # and then look up the actual value from that bucket index
       likelihoodsVec = clResults[steps]
@@ -1067,7 +1085,7 @@ class HTMPredictionModel(Model):
     return self._getSensorRegion().getSelf().dataSource
 
 
-  def __createCLANetwork(self, sensorParams, spEnable, spParams, tmEnable,
+  def __createHTMNetwork(self, sensorParams, spEnable, spParams, tmEnable,
                          tmParams, clEnable, clParams, anomalyParams):
     """ Create a CLA network and return it.
 
@@ -1092,7 +1110,7 @@ class HTMPredictionModel(Model):
         if classifierOnly:
           enabledEncoders.pop(name)
 
-    # Disabled encoders are encoders that are fed to CLAClassifierRegion but not
+    # Disabled encoders are encoders that are fed to SDRClassifierRegion but not
     # SP or TM Regions. This is to handle the case where the predicted field
     # is not fed through the SP/TM. We typically just have one of these now.
     disabledEncoders = copy.deepcopy(sensorParams['encoders'])
@@ -1165,6 +1183,14 @@ class HTMPredictionModel(Model):
                                                       clParams))
       n.addRegion("Classifier", "py.%s" % str(clRegionName), json.dumps(clParams))
 
+      # SDR Classifier-specific links
+      if str(clRegionName) == "SDRClassifierRegion":
+        n.link("sensor", "Classifier", "UniformLink", "", srcOutput="actValueOut",
+               destInput="actValueIn")
+        n.link("sensor", "Classifier", "UniformLink", "", srcOutput="bucketIdxOut",
+               destInput="bucketIdxIn")
+
+      # This applies to all (SDR and KNN) classifiers
       n.link("sensor", "Classifier", "UniformLink", "", srcOutput="categoryOut",
              destInput="categoryIn")
 
@@ -1288,15 +1314,15 @@ class HTMPredictionModel(Model):
 
 
   @staticmethod
-  def getProtoType():
+  def getSchema():
     return HTMPredictionModelProto
 
 
   def write(self, proto):
-    inferenceType = self.getInferenceType()
-    # lower-case first letter to be compatible with capnproto enum naming
-    inferenceType = inferenceType[:1].lower() + inferenceType[1:]
-    proto.inferenceType = inferenceType
+    """
+    :param proto: capnp HTMPredictionModelProto message builder
+    """
+    super(HTMPredictionModel, self).writeBaseToProto(proto.modelBase)
 
     proto.numRunCalls = self.__numRunCalls
     proto.minLikelihoodThreshold = self._minLikelihoodThreshold
@@ -1307,11 +1333,9 @@ class HTMPredictionModel(Model):
 
   @classmethod
   def read(cls, proto):
-    inferenceType = str(proto.inferenceType)
-    # upper-case first letter to be compatible with enum InferenceType naming
-    inferenceType = inferenceType[:1].upper() + inferenceType[1:]
-    inferenceType = InferenceType.getValue(inferenceType)
-
+    """
+    :param proto: capnp HTMPredictionModelProto message reader
+    """
     network = Network.read(proto.network)
     spEnable = ("SP" in network.regions)
     tmEnable = ("TM" in network.regions)
@@ -1320,8 +1344,8 @@ class HTMPredictionModel(Model):
     model = cls(spEnable=spEnable,
                 tmEnable=tmEnable,
                 clEnable=clEnable,
-                inferenceType=inferenceType,
-                network=network)
+                network=network,
+                baseProto=proto.modelBase)
 
     model.__numRunCalls = proto.numRunCalls
     model._minLikelihoodThreshold = proto.minLikelihoodThreshold

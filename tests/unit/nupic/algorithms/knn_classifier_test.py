@@ -20,9 +20,17 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+import tempfile
 import unittest
 
 from nupic.algorithms.knn_classifier import KNNClassifier
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.algorithms.knn_classifier_capnp import KNNClassifierProto
 
 
 
@@ -496,6 +504,48 @@ class KNNClassifierTest(unittest.TestCase):
 
     cat, _, _, _ = classifier.infer(b)
     self.assertEquals(cat, 1)
+
+
+  @unittest.skipUnless(
+      capnp, "pycapnp is not installed, skipping serialization test.")
+  def testWriteRead(self):
+    knn = KNNClassifier(distanceMethod="norm", numSVDDims=2, numSVDSamples=2,
+                        useSparseMemory=True, minSparsity=0.1,
+                        distThreshold=0.1)
+
+    dimensionality = 40
+    a = np.array([1, 3, 7, 11, 13, 17, 19, 23, 29], dtype=np.int32)
+    b = np.array([2, 4, 8, 12, 14, 18, 20, 28, 30], dtype=np.int32)
+    c = np.array([1, 2, 3, 14, 16, 19, 22, 24, 33], dtype=np.int32)
+    d = np.array([2, 4, 8, 12, 14, 19, 22, 24, 33], dtype=np.int32)
+
+    knn.learn(a, 0, isSparse=dimensionality, partitionId=None)
+    knn.learn(b, 1, isSparse=dimensionality, partitionId=None)
+    knn.learn(c, 2, isSparse=dimensionality, partitionId=211)
+    knn.learn(d, 1, isSparse=dimensionality, partitionId=405)
+    knn.finishLearning()
+
+    proto = KNNClassifierProto.new_message()
+    knn.write(proto)
+
+    with tempfile.TemporaryFile() as f:
+      proto.write(f)
+      f.seek(0)
+      protoDeserialized = KNNClassifierProto.read(f)
+
+    knnDeserialized = KNNClassifier.read(protoDeserialized)
+
+    denseA = np.zeros(dimensionality)
+    denseA[a] = 1.0
+    expected = knn.infer(denseA)
+    actual = knnDeserialized.infer(denseA)
+    self.assertEqual(expected[0], actual[0])
+    self.assertItemsEqual(expected[1], actual[1])
+    self.assertItemsEqual(expected[2], actual[2])
+    self.assertItemsEqual(expected[3], actual[3])
+
+    self.assertItemsEqual(knn.getPartitionIdList(),
+                          knnDeserialized.getPartitionIdList())
 
 
 

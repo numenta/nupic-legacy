@@ -821,7 +821,7 @@ def basicTest():
     x = numpy.array(xi, dtype="uint32")
     y = tm.infer(x)
     if i > 0:
-        p = tm.checkPrediction2([pattern.nonzero()[0] for pattern in patterns])
+        p = tm._checkPrediction([pattern.nonzero()[0] for pattern in patterns])
 
   print "basicTest ok"
 
@@ -1132,8 +1132,8 @@ def _testSequence(trainingSequences,
             acceptablePatterns = findAcceptablePatterns(tm, t, s, testSequences,
                                                         nAcceptable)
 
-        scores = tm.checkPrediction2([pattern.nonzero()[0] \
-                                     for pattern in acceptablePatterns])
+        scores = tm._checkPrediction([pattern.nonzero()[0] \
+                                      for pattern in acceptablePatterns])
 
         falsePositives, falseNegatives = scores[0], scores[1]
 

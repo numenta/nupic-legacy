@@ -30,6 +30,14 @@ from nupic.frameworks.opf import model
 from nupic.frameworks.opf import opf_utils
 from opf_utils import InferenceType
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.frameworks.opf.two_gram_model_capnp import TwoGramModelProto
+
+
 
 class TwoGramModel(model.Model):
   """
@@ -134,7 +142,71 @@ class TwoGramModel(model.Model):
   def resetSequenceStates(self):
     self._reset = True
 
+
+  @staticmethod
+  def getSchema():
+    return TwoGramModelProto
+
+
+  @classmethod
+  def read(cls, proto):
+    """
+    :param proto: capnp TwoGramModelProto message reader
+    """
+    instance = object.__new__(cls)
+    super(TwoGramModel, instance).__init__(proto=proto.modelBase)
+
+    instance._logger = opf_utils.initLogger(instance)
+
+    instance._reset = proto.reset
+    instance._hashToValueDict = {x.hash: x.value
+                                 for x in proto.hashToValueDict}
+    instance._learningEnabled = proto.learningEnabled
+    instance._encoder = encoders.MultiEncoder.read(proto.encoder)
+    instance._fieldNames = instance._encoder.getScalarNames()
+    instance._prevValues = list(proto.prevValues)
+    instance._twoGramDicts = [dict() for _ in xrange(len(proto.twoGramDicts))]
+    for idx, field in enumerate(proto.twoGramDicts):
+      for entry in field:
+        prev = None if entry.value == -1 else entry.value
+        instance._twoGramDicts[idx][prev] = collections.defaultdict(int)
+        for bucket in entry.buckets:
+          instance._twoGramDicts[idx][prev][bucket.index] = bucket.count
+
+    return instance
+
+
+  def write(self, proto):
+    """
+    :param proto: capnp TwoGramModelProto message builder
+    """
+    super(TwoGramModel, self).writeBaseToProto(proto.modelBase)
+
+    proto.reset = self._reset
+    proto.learningEnabled = self._learningEnabled
+    proto.prevValues = self._prevValues
+    self._encoder.write(proto.encoder)
+    proto.hashToValueDict = [{"hash": h, "value": v}
+                             for h, v in self._hashToValueDict.items()]
+
+    twoGramDicts = []
+    for items in self._twoGramDicts:
+      twoGramArr = []
+      for prev, values in items.iteritems():
+        buckets = [{"index": index, "count": count}
+                   for index, count in values.iteritems()]
+        if prev is None:
+          prev = -1
+        twoGramArr.append({"value": prev, "buckets": buckets})
+
+      twoGramDicts.append(twoGramArr)
+
+    proto.twoGramDicts = twoGramDicts
+
+
   def __getstate__(self):
+    # NOTE This deletion doesn't seem to make sense, as someone might want to
+    # serialize and then continue to use the model instance.
     del self._logger
     return self.__dict__
 

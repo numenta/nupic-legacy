@@ -32,9 +32,7 @@ If your installation was unsuccessful, you can find help on
 Choose Your API
 ---------------
 
-You can choose to construct an HTM several ways with NuPIC. See the
-`Network Guide <../guides/network.html>`_ and
-`Network API Docs <../api/network/>`_ for more details. Below are Quick Start
+You can choose to construct an HTM `several ways <../api>`_ with NuPIC. Below are Quick Start
 guides for each interface:
 
 .. toctree::

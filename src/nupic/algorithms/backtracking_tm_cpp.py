@@ -19,8 +19,25 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+"""
+Temporal memory implementation in C++ wrapped by a Python class.
+
+:class:`BacktrackingTMCPP` wraps the C++ algorithm execution by extending 
+:class:`~nupic.algorithms.backtracking_tm.BacktrackingTM` and overriding 
+:meth:`~nupic.algorithms.backtracking_tm.BacktrackingTM.compute`.
+"""
+
+try:
+  import capnp
+except ImportError:
+  capnp = None
+import json
 import numpy
 from numpy import *
+
+if capnp:
+  from nupic.algorithms.backtracking_tm_cpp_capnp import (
+      BacktrackingTMCppProto)
 from nupic.bindings.algorithms import Cells4
 
 import nupic.math
@@ -59,12 +76,6 @@ def _extractCallingMethodArgs():
 
 
 class BacktrackingTMCPP(BacktrackingTM):
-  """Class implementing the temporal memory algorithm as described in the
-  published Cortical Learning Algorithm documentation.  The implementation here
-  attempts to closely match the pseudocode in the documentation. This
-  implementation does contain several additional bells and whistles such as
-  a column confidence measure.
-  """
 
 
   # We use the same keyword arguments as TM()
@@ -118,6 +129,10 @@ class BacktrackingTMCPP(BacktrackingTM):
     self.makeCells4Ephemeral = True
 
     #---------------------------------------------------------------------------------
+    # Store the seed for constructing Cells4
+    self.seed = seed
+
+    #---------------------------------------------------------------------------------
     # Init the base class
     BacktrackingTM.__init__(self,
                             numberOfCols = numberOfCols,
@@ -146,6 +161,55 @@ class BacktrackingTMCPP(BacktrackingTM):
                             maxSynapsesPerSegment = maxSynapsesPerSegment,
                             outputType = outputType,
                             )
+
+
+  @classmethod
+  def getSchema(cls):
+    return BacktrackingTMCppProto
+
+
+  def write(self, proto):
+    """Populate serialization proto instance.
+
+    :param proto: (BacktrackingTMCppProto) the proto instance to populate
+    """
+    # Write base class to proto.baseTM (BacktrackingTMProto)
+    super(BacktrackingTMCPP, self).write(proto.baseTM)
+    self.cells4.write(proto.cells4)
+    proto.makeCells4Ephemeral = self.makeCells4Ephemeral
+    proto.seed = self.seed
+    proto.checkSynapseConsistency = self.checkSynapseConsistency
+    proto.initArgs = json.dumps(self._initArgsDict)
+
+
+  @classmethod
+  def read(cls, proto):
+    """Deserialize from proto instance.
+
+    :param proto: (BacktrackingTMCppProto) the proto instance to read from
+    """
+    # Use base class to create initial class from proto.baseTM
+    # (BacktrackingTMProto)
+    obj = BacktrackingTM.read(proto.baseTM)
+    obj.__class__ = cls
+
+    # Additional CPP-specific deserialization
+    newCells4 = Cells4.read(proto.cells4)
+    print newCells4
+    obj.cells4 = newCells4
+    obj.makeCells4Ephemeral = proto.makeCells4Ephemeral
+    obj.seed = proto.seed
+    obj.checkSynapseConsistency = proto.checkSynapseConsistency
+    obj._initArgsDict = json.loads(proto.initArgs)
+    # Convert unicode to str
+    obj._initArgsDict["outputType"] = str(obj._initArgsDict["outputType"])
+
+    # Initialize ephemeral attributes
+    obj.allocateStatesInCPP = False
+    obj.retrieveLearningStates = False
+    obj._setStatePointers()
+
+    return obj
 
 
   def __setstate__(self, state):
@@ -242,13 +306,14 @@ class BacktrackingTMCPP(BacktrackingTM):
 
   def saveToFile(self, filePath):
     """
-    Save Cells4 state to this file
+    Save Cells4 state to a file. File can be loaded with :meth:`loadFromFile`.
     """
     self.cells4.saveToFile(filePath)
 
+
   def loadFromFile(self, filePath):
     """
-    Load Cells4 state from this file
+    Load Cells4 state from a file saved with :meth:`saveToFile`.
     """
     self.cells4.loadFromFile(filePath)
 
@@ -276,12 +341,9 @@ class BacktrackingTMCPP(BacktrackingTM):
       raise AttributeError("'TM' object has no attribute '%s'" % name)
 
 
-  def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
-    """ Handle one compute, possibly learning.
-
-    By default, we don't compute the inference output when learning because it
-    slows things down, but you can override this by passing in True for
-    computeInfOutput
+  def compute(self, bottomUpInput, enableLearn, enableInference=None):
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.compute`.
     """
     # The C++ TM takes 32 bit floats as input. uint32 works as well since the
     # code only checks whether elements are non-zero
@@ -291,22 +353,18 @@ class BacktrackingTMCPP(BacktrackingTM):
 
     self.iterationIdx = self.iterationIdx + 1
 
-    #if self.iterationIdx >= 1000040:
-    #  self.verbosity=4                           # DEBUG
-    #  self.cells4.setVerbosity(self.verbosity)   # DEBUG
-
     # As a speed optimization for now (until we need online learning), skip
     #  computing the inference output while learning
-    if computeInfOutput is None:
+    if enableInference is None:
       if enableLearn:
-        computeInfOutput = False
+        enableInference = False
       else:
-        computeInfOutput = True
+        enableInference = True
 
     # ====================================================================
     # Run compute and retrieve selected state and member variables
     self._setStatePointers()
-    y = self.cells4.compute(bottomUpInput, computeInfOutput, enableLearn)
+    y = self.cells4.compute(bottomUpInput, enableInference, enableLearn)
     self.currentOutput = y.reshape((self.numberOfCols, self.cellsPerColumn))
     self.avgLearnedSeqLength = self.cells4.getAvgLearnedSeqLength()
     self._copyAllocatedStates()
@@ -317,7 +375,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     # Learning always includes inference
     if self.collectStats:
       activeColumns = bottomUpInput.nonzero()[0]
-      if computeInfOutput:
+      if enableInference:
         predictedState = self.infPredictedState['t-1']
       else:
         predictedState = self.lrnPredictedState['t-1']
@@ -329,7 +387,7 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
     # Finally return the TM output
-    output = self.computeOutput()
+    output = self._computeOutput()
 
     # Print diagnostic information based on the current verbosity level
     self.printComputeEnd(output, learn=enableLearn)
@@ -337,7 +395,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     self.resetCalled = False
     return output
 
-  def inferPhase2(self):
+  def _inferPhase2(self):
     """
     This calls phase 2 of inference (used in multistep prediction).
     """
@@ -393,9 +451,8 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def reset(self):
-    """ Reset the state of all cells.
-    This is normally used between sequences while training. All internal states
-    are reset to 0.
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.reset`.
     """
     if self.verbosity >= 3:
       print "TM Reset"
@@ -405,8 +462,8 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def finishLearning(self):
-    """Called when learning has been completed. This method just calls
-    trimSegments. (finishLearning is here for backward compatibility)
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.finishLearning`.
     """
     # Keep weakly formed synapses around because they contain confidence scores
     #  for paths out of learned sequenced and produce a better prediction than
@@ -415,24 +472,9 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def trimSegments(self, minPermanence=None, minNumSyns=None):
-    """This method deletes all synapses where permanence value is strictly
-    less than self.connectedPerm. It also deletes all segments where the
-    number of connected synapses is strictly less than self.activationThreshold.
-    Returns the number of segments and synapses removed. This often done
-    after formal learning has completed so that subsequence inference runs
-    faster.
-
-    Parameters:
-    --------------------------------------------------------------
-    minPermanence:      Any syn whose permamence is 0 or < minPermanence will
-                        be deleted. If None is passed in, then
-                        self.connectedPerm is used.
-    minNumSyns:         Any segment with less than minNumSyns synapses remaining
-                        in it will be deleted. If None is passed in, then
-                        self.activationThreshold is used.
-    retval:             (numSegsRemoved, numSynsRemoved)
     """
-
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.trimSegments`.
+    """
     # Fill in defaults
     if minPermanence is None:
       minPermanence = 0.0
@@ -456,8 +498,8 @@ class BacktrackingTMCPP(BacktrackingTM):
     # TODO: need to add C++ accessors to get segment details
     assert False
 
-    prevAct = self.getSegmentActivityLevel(s, 't-1')
-    currAct = self.getSegmentActivityLevel(s, 't')
+    prevAct = self._getSegmentActivityLevel(s, 't-1')
+    currAct = self._getSegmentActivityLevel(s, 't')
 
     # Sequence segment or pooling segment
     if s[0][1] == True:
@@ -468,12 +510,12 @@ class BacktrackingTMCPP(BacktrackingTM):
     # Frequency count
     print s[0][2],
 
-    if self.isSegmentActive(s, 't'):
+    if self._isSegmentActive(s, 't'):
       ss = '[' + str(currAct) + ']'
     else:
       ss = str(currAct)
     ss = ss + '/'
-    if self.isSegmentActive(s,'t-1'):
+    if self._isSegmentActive(s, 't-1'):
       ss = ss + '[' + str(prevAct) + ']'
     else:
       ss = ss + str(prevAct)
@@ -499,30 +541,33 @@ class BacktrackingTMCPP(BacktrackingTM):
       print ss,
 
     if self.verbosity > 3:
-      if self.isSegmentActive(s, 't') and \
+      if self._isSegmentActive(s, 't') and \
              prevAct < self.activationThreshold and currAct >= self.activationThreshold:
         print "reached activation",
       if prevAct < self.minThreshold and currAct >= self.minThreshold:
         print "reached min threshold",
-      if self.isSegmentActive(s, 't-1') and \
+      if self._isSegmentActive(s, 't-1') and \
              prevAct >= self.activationThreshold and currAct < self.activationThreshold:
         print "dropped below activation",
       if prevAct >= self.minThreshold and currAct < self.minThreshold:
         print "dropped below min",
-      if self.isSegmentActive(s, 't') and self.isSegmentActive(s, 't-1') and \
+      if self._isSegmentActive(s, 't') and self._isSegmentActive(s, 't-1') and \
              prevAct >= self.activationThreshold and currAct >= self.activationThreshold:
         print "maintained activation",
 
   def printSegmentUpdates(self):
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.printSegmentUpdates`.
+    """
     # TODO: need to add C++ accessors to implement this method
     assert False
-    print "=== SEGMENT UPDATES ===, Num = ",len(self.segmentUpdates)
+    print "=== SEGMENT UPDATES ===, Num = ", len(self.segmentUpdates)
     for key, updateList in self.segmentUpdates.iteritems():
       c,i = key[0],key[1]
       print c,i,updateList
 
 
-  def slowIsSegmentActive(self, seg, timeStep):
+  def _slowIsSegmentActive(self, seg, timeStep):
     """
     A segment is active if it has >= activationThreshold connected
     synapses that are active due to infActiveState.
@@ -544,7 +589,9 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def printCell(self, c, i, onlyActiveSegments=False):
-
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.printCell`.
+    """
     nSegs = self.cells4.nSegmentsOnCell(c,i)
     if nSegs > 0:
       segList = self.cells4.getNonEmptySegList(c,i)
@@ -552,7 +599,7 @@ class BacktrackingTMCPP(BacktrackingTM):
       print "Column", c, "Cell", i, "(%d)"%(gidx),":", nSegs, "segment(s)"
       for k,segIdx in enumerate(segList):
         seg = self.cells4.getSegment(c, i, segIdx)
-        isActive = self.slowIsSegmentActive(seg, 't')
+        isActive = self._slowIsSegmentActive(seg, 't')
         if onlyActiveSegments and not isActive:
           continue
         isActiveStr = "*" if isActive else " "
@@ -576,15 +623,19 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def getAvgLearnedSeqLength(self):
-    """ Return our moving average of learned sequence length.
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.getAvgLearnedSeqLength`.
     """
     return self.cells4.getAvgLearnedSeqLength()
 
 
   def getColCellIdx(self, idx):
-    """Get column and cell within column from a global cell index.
-    The global index is idx = colIdx * nCellsPerCol() + cellIdxInCol
-    This method returns (colIdx, cellIdxInCol)
+    """
+    Get column and cell within column from a global cell index.
+    The global index is ``idx = colIdx * nCellsPerCol() + cellIdxInCol``
+    
+    :param idx: (int) global cell index
+    :returns: (tuple) (colIdx, cellIdxInCol)
     """
     c = idx//self.cellsPerColumn
     i = idx - c*self.cellsPerColumn
@@ -592,14 +643,8 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def getSegmentOnCell(self, c, i, segIdx):
-    """Return segment number segIdx on cell (c,i).
-    Returns the segment as following list:
-      [  [segIdx, sequenceSegmentFlag, positive activations,
-          total activations, last active iteration],
-         [col1, idx1, perm1],
-         [col2, idx2, perm2], ...
-      ]
-
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentOnCell`.
     """
     segList = self.cells4.getNonEmptySegList(c,i)
     seg = self.cells4.getSegment(c, i, segList[segIdx])
@@ -622,41 +667,30 @@ class BacktrackingTMCPP(BacktrackingTM):
 
 
   def getNumSegments(self):
-    """ Return the total number of segments. """
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegments`.
+    """
     return self.cells4.nSegments()
 
 
   def getNumSynapses(self):
-    """ Return the total number of synapses. """
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSynapses`.
+    """
     return self.cells4.nSynapses()
 
 
   def getNumSegmentsInCell(self, c, i):
-    """ Return the total number of segments in cell (c,i)"""
+    """
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.getNumSegmentsInCell`.
+    """
     return self.cells4.nSegmentsOnCell(c,i)
 
 
   def getSegmentInfo(self, collectActiveData = False):
-    """Returns information about the distribution of segments, synapses and
-    permanence values in the current TM. If requested, also returns information
-    regarding the number of currently active segments and synapses.
-
-    The method returns the following tuple:
-
-    (
-      nSegments,        # total number of segments
-      nSynapses,        # total number of synapses
-      nActiveSegs,      # total no. of active segments
-      nActiveSynapses,  # total no. of active synapses
-      distSegSizes,     # a dict where d[n] = number of segments with n synapses
-      distNSegsPerCell, # a dict where d[n] = number of cells with n segments
-      distPermValues,   # a dict where d[p] = number of synapses with perm = p/10
-      distAges,         # a list of tuples (ageRange, numSegments)
-    )
-
-    nActiveSegs and nActiveSynapses are 0 if collectActiveData is False
     """
-
+    Overrides :meth:`nupic.algorithms.backtracking_tm.BacktrackingTM.getSegmentInfo`.
+    """
     # Requires appropriate accessors in C++ cells4 (currently unimplemented)
     assert collectActiveData == False
 
@@ -712,77 +746,43 @@ class BacktrackingTMCPP(BacktrackingTM):
             distSegSizes, distNSegsPerCell, distPermValues, distAges)
 
 
-  def getActiveSegment(self, c,i, timeStep):
-    """ For a given cell, return the segment with the strongest _connected_
-    activation, i.e. sum up the activations of the connected synapses of the
-    segments only. That is, a segment is active only if it has enough connected
-    synapses.
-    """
-
-    # TODO: add C++ accessor to implement this
-    assert False
-
-
-  def getBestMatchingCell(self, c, timeStep, learnState = False):
-    """Find weakly activated cell in column. Returns index and segment of most
-    activated segment above minThreshold.
-    """
-
-    # TODO: add C++ accessor to implement this
-    assert False
-
-
-  def getLeastAllocatedCell(self, c):
-    """For the given column, return the cell with the fewest number of
-    segments."""
-
-    # TODO: add C++ accessor to implement this or implement our own variation
-    assert False
-
   ################################################################################
   # The following methods are implemented in the base class but should never
   # be called in this implementation.
   ################################################################################
 
 
-  def isSegmentActive(self, seg, timeStep):
-    """    """
+  def _isSegmentActive(self, seg, timeStep):
     # Should never be called in this subclass
     assert False
 
 
-  def getSegmentActivityLevel(self, seg, timeStep, connectedSynapsesOnly =False,
-                              learnState = False):
-    """   """
+  def _getSegmentActivityLevel(self, seg, timeStep, connectedSynapsesOnly =False,
+                               learnState = False):
     # Should never be called in this subclass
     assert False
 
 
   def isSequenceSegment(self, s):
-    """   """
     # Should never be called in this subclass
     assert False
 
 
-  def getBestMatchingSegment(self, c, i, timeStep, learnState = False):
-    """     """
+  def _getBestMatchingSegment(self, c, i, timeStep, learnState = False):
     # Should never be called in this subclass
     assert False
 
 
-  def getSegmentActiveSynapses(self, c,i,s, timeStep, newSynapses =False):
-    """  """
+  def _getSegmentActiveSynapses(self, c, i, s, timeStep, newSynapses =False):
     # Should never be called in this subclass
     assert False
 
 
   def updateSynapse(self, segment, synapse, delta):
-    """ """
     # Should never be called in this subclass
     assert False
 
 
-  def adaptSegment(self, update, positiveReinforcement):
-    """    """
+  def _adaptSegment(self, update, positiveReinforcement):
     # Should never be called in this subclass
     assert False

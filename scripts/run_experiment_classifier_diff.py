@@ -20,14 +20,13 @@
 # ----------------------------------------------------------------------
 
 """This script is a command-line client of Online Prediction Framework (OPF).
-It executes a single experiment and diffs the results for the CLAClassifier and
-FastCLAClassifier.
+It executes a single experiment and diffs the results for the SDRClassifier.
 """
 
 import sys
 
-from nupic.algorithms.cla_classifier_diff import CLAClassifierDiff
-from nupic.algorithms.cla_classifier_factory import CLAClassifierFactory
+from nupic.algorithms.sdr_classifier_diff import SDRClassifierDiff
+from nupic.algorithms.sdr_classifier_factory import SDRClassifierFactory
 from nupic.frameworks.opf.experiment_runner import (runExperiment,
                                                     initExperimentPrng)
 from nupic.support import initLogging
@@ -41,12 +40,12 @@ def main():
   # Initialize PRNGs
   initExperimentPrng()
 
-  # Mock out the creation of the CLAClassifier.
+  # Mock out the creation of the SDRClassifier.
   @staticmethod
   def _mockCreate(*args, **kwargs):
     kwargs.pop('implementation', None)
-    return CLAClassifierDiff(*args, **kwargs)
-  CLAClassifierFactory.create = _mockCreate
+    return SDRClassifierDiff(*args, **kwargs)
+  SDRClassifierFactory.create = _mockCreate
 
   # Run it!
   runExperiment(sys.argv[1:])

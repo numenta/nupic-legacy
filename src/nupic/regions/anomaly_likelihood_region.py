@@ -24,8 +24,10 @@
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
 from nupic.bindings.regions.PyRegion import PyRegion
 
+from nupic.serializable import Serializable
 
-class AnomalyLikelihoodRegion(PyRegion):
+
+class AnomalyLikelihoodRegion(PyRegion, Serializable):
   """Region for computing the anomaly likelihoods."""
 
 

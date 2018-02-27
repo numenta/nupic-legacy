@@ -6,7 +6,14 @@ The Numenta Platform for Intelligent Computing (**NuPIC**) is a machine intellig
 
 For usage guides, quick starts, and API documentation, see <http://nupic.docs.numenta.org/>.
 
-## Installing NuPIC 0.5.5
+## This project is in Maintenance Mode
+
+We plan to do minor releases only, and limit changes in NuPIC and NuPIC Core to:
+
+- Fixing critical bugs.
+- Features needed to support ongoing research.
+
+## Installing NuPIC
 
 NuPIC binaries are available for:
 
@@ -50,11 +57,18 @@ For any other installation issues, please see our [search our forums](https://di
 
 Live Community Chat: [![Gitter](https://img.shields.io/badge/gitter-join_chat-blue.svg?style=flat)](https://gitter.im/numenta/public?utm_source=badge)
 
-### Building NuPIC From Source Code
+### Installing NuPIC From Source
 
-For details about checking out this repository and building in your local environment, see the [Installing and Building NuPIC](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC) wiki page.
+To install from local source code, run from the repository root:
+
+    pip install .
+
+Use the optional `-e` argument for a developer install.
+
+If you want to build the dependent `nupic.bindings` from source, you should build and install from [`nupic.core`](https://github.com/numenta/nupic.core) prior to installing nupic (since a PyPI release will be installed if `nupic.bindings` isn't yet installed).
 
 - Build:
 [![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
 [![AppVeyor Status](https://ci.appveyor.com/api/projects/status/4toemh0qtr21mk6b/branch/master?svg=true)](https://ci.appveyor.com/project/numenta-ci/nupic/branch/master)
+[![CircleCI](https://circleci.com/gh/numenta/nupic.svg?style=svg)](https://circleci.com/gh/numenta/nupic)
 - To cite this codebase: [![DOI](https://zenodo.org/badge/19461/numenta/nupic.svg)](https://zenodo.org/badge/latestdoi/19461/numenta/nupic)

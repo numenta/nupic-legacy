@@ -60,9 +60,7 @@ Filenames should not contain characters that could cause problems on different p
 
 C++ header files should have the suffix ".hpp". C header files should have the suffix ".h".
 
-C/C++ (`.h`, `.c`, `.hpp` and `.cpp`) and related SWIG (`.i`) file names should be **UpperCamelCase**. Initials and two-letter acronyms should be capitalized (e.g. **RegionIO.cpp**, **OSUnix.cpp**), longer acronyms treated as words (e.g. **FastClaClassifier.cpp**). A few non-code files (e.g. **README.md**, **cmake_install.cmake**) are uppercase or snake_case by standard convention.
-
-See also [Naming conventions for C++ code](https://github.com/numenta/nupic/wiki/Configuration-and-Build-System#naming-conventions-for-c-code) .
+C/C++ (`.h`, `.c`, `.hpp` and `.cpp`) and related SWIG (`.i`) file names should be **UpperCamelCase**. Initials and two-letter acronyms should be capitalized (e.g. **RegionIO.cpp**, **OSUnix.cpp**), longer acronyms treated as words (e.g. **SdrClassifier.cpp**). A few non-code files (e.g. **README.md**, **cmake_install.cmake**) are uppercase or snake_case by standard convention.
 
 ### Naming Conventions
 
@@ -121,7 +119,7 @@ The former allows more flexibility in moving files around.
 
 ### Class Definitions
 
-Class definitions should be preceded by precise comments explaining the following: purpose, responsibility, rationale, etc. of the class. This is also the place to put any "TODO" for work remaining to be done. The descriptions should be concise and meaningful. This is not the place to put random thoughts or philosophies about data structures, experiments, etc. That stuff can go on the wiki or design documents.
+Class definitions should be preceded by precise comments explaining the following: purpose, responsibility, rationale, etc. of the class. This is also the place to put any "TODO" for work remaining to be done. The descriptions should be concise and meaningful. This is not the place to put random thoughts or philosophies about data structures, experiments, etc. That stuff can go on the forum or design documents.
 
 ### Method Definitions
 

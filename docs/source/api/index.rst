@@ -31,3 +31,4 @@ together your own system with encoders and classifiers.
     algorithms/index
     data/index
     support/index
+    math

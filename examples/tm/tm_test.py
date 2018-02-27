@@ -436,9 +436,7 @@ the older sequences?).
 
 """
 
-import cPickle
 import numpy
-import pickle
 import pprint
 import random
 import sys
@@ -786,8 +784,18 @@ def basicTest():
 
   #--------------------------------------------------------------------------------
   # Save and reload
-  pickle.dump(tm, open("test_tm.pkl", "wb"))
-  tm2 = pickle.load(open("test_tm.pkl"))
+  schema = TMClass.getSchema()
+
+  with open("test_tm.bin", "w+b") as f:
+    # Save
+    proto = schema.new_message()
+    tm.write(proto)
+    proto.write(f)
+
+    # Load
+    f.seek(0)
+    proto2 = schema.read(f)
+    tm2 = TMClass.read(proto2)
 
   assert tm2.numberOfCols == numberOfCols
   assert tm2.cellsPerColumn == cellsPerColumn
@@ -823,7 +831,7 @@ def basicTest():
     x = numpy.array(xi, dtype="uint32")
     y = tm.infer(x)
     if i > 0:
-        p = tm.checkPrediction2([pattern.nonzero()[0] for pattern in patterns])
+        p = tm._checkPrediction([pattern.nonzero()[0] for pattern in patterns])
 
   print "basicTest ok"
 
@@ -1134,8 +1142,8 @@ def testSequence(trainingSequences,
             acceptablePatterns = findAcceptablePatterns(tm, t, s, testSequences,
                                                         nAcceptable)
 
-        scores = tm.checkPrediction2([pattern.nonzero()[0] \
-                                     for pattern in acceptablePatterns])
+        scores = tm._checkPrediction([pattern.nonzero()[0] \
+                                      for pattern in acceptablePatterns])
 
         falsePositives, falseNegatives = scores[0], scores[1]
 

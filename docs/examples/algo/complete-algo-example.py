@@ -37,49 +37,28 @@ def runHotgym(numRecords):
                    + scalarEncoder.getWidth())
 
   sp = SpatialPooler(
-    # How large the input encoding will be.
-    inputDimensions=(encodingWidth),
-    # How many mini-columns will be in the Spatial Pooler.
-    columnDimensions=(spParams["columnCount"]),
-    # What percent of the columns"s receptive field is available for potential
-    # synapses?
+    inputDimensions=(encodingWidth,),
+    columnDimensions=(spParams["columnCount"],),
     potentialPct=spParams["potentialPct"],
-    # This means that the input space has no topology.
+    potentialRadius=encodingWidth,
     globalInhibition=spParams["globalInhibition"],
     localAreaDensity=spParams["localAreaDensity"],
-    # Roughly 2%, giving that there is only one inhibition area because we have
-    # turned on globalInhibition (40 / 2048 = 0.0195)
     numActiveColumnsPerInhArea=spParams["numActiveColumnsPerInhArea"],
-    # How quickly synapses grow and degrade.
     synPermInactiveDec=spParams["synPermInactiveDec"],
     synPermActiveInc=spParams["synPermActiveInc"],
     synPermConnected=spParams["synPermConnected"],
-    # boostStrength controls the strength of boosting. Boosting encourages
-    # efficient usage of SP columns.
     boostStrength=spParams["boostStrength"],
-    # Random number generator seed.
     seed=spParams["seed"],
-    # TODO: is this useful?
-    # Determines if inputs at the beginning and end of an input dimension should
-    # be considered neighbors when mapping columns to inputs.
-    wrapAround=False
+    wrapAround=True
   )
 
   tm = TemporalMemory(
-    # Must be the same dimensions as the SP
     columnDimensions=(tmParams["columnCount"],),
-    # How many cells in each mini-column.
     cellsPerColumn=tmParams["cellsPerColumn"],
-    # A segment is active if it has >= activationThreshold connected synapses
-    # that are active due to infActiveState
     activationThreshold=tmParams["activationThreshold"],
     initialPermanence=tmParams["initialPerm"],
-    # TODO: This comes from the SP params, is this normal
     connectedPermanence=spParams["synPermConnected"],
-    # Minimum number of active synapses for a segment to be considered during
-    # search for the best-matching segments.
     minThreshold=tmParams["minThreshold"],
-    # The max number of synapses added to a segment during learning
     maxNewSynapseCount=tmParams["newSynapseCount"],
     permanenceIncrement=tmParams["permanenceInc"],
     permanenceDecrement=tmParams["permanenceDec"],
@@ -112,7 +91,7 @@ def runHotgym(numRecords):
       weekendBits = numpy.zeros(weekendEncoder.getWidth())
       consumptionBits = numpy.zeros(scalarEncoder.getWidth())
 
-      # Now we call the encoders create bit representations for each value.
+      # Now we call the encoders to create bit representations for each value.
       timeOfDayEncoder.encodeIntoArray(dateString, timeOfDayBits)
       weekendEncoder.encodeIntoArray(dateString, weekendBits)
       scalarEncoder.encodeIntoArray(consumption, consumptionBits)

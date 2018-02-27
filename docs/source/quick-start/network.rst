@@ -43,10 +43,10 @@ Create an HTM network with :class:`.Network`:
 
 Now we need to add several regions to this network:
 
-- Sensor Region
-- Spatial Pooler Region
-- Temporal Memory Region
-- Classifier Region
+- Sensor Region (:class:`nupic.regions.record_sensor.RecordSensor`)
+- Spatial Pooler Region (:class:`nupic.regions.sp_region.SPRegion`)
+- Temporal Memory Region (:class:`nupic.regions.tm_region.TMRegion`)
+- Classifier Region (:class:`nupic.regions.sdr_classifier_region.SDRClassifierRegion`)
 
 The regions will be linked serially. In the next sections, we'll cover how to
 create regions with the right parameters and how to link them.
@@ -185,7 +185,7 @@ identified as ``modelParams.clParams``, the ``steps`` value tells the model how
 many steps into the future to predict. In this case, we are predicting both one
 and five steps into the future as shown by the value ``1,5``.
 
-You can use the method ``getOuputData()`` to get output predictions from the
+You can use the method ``getOutputData()`` to get output predictions from the
 classifier region. In our case, we are interested in:
 
 .. code-block:: python
@@ -194,7 +194,7 @@ classifier region. In our case, we are interested in:
     probabilities = classifierRegion.getOutputData("probabilities")
 
 
-Refer to the documentation of :class:`~nupic.regions.SDRClassifierRegion.SDRClassifierRegion` for
+Refer to the documentation of :class:`~nupic.regions.sdr_classifier_region.SDRClassifierRegion` for
 more information about output values and their structure.
 
 We'll use the helper function below to extract predictions more easily from
@@ -211,4 +211,5 @@ which should look something like this:
     1-step:    45.6100006104 (96.41%)	5-step:              0.0 (0.1883%)
     1-step:    43.4000015259 (3.969%)	5-step:              0.0 (0.1883%)
     1-step:    43.4000015259 (4.125%)	5-step:              0.0 (0.1883%)
+
 **Congratulations! You've got HTM predictions for a scalar data stream!**

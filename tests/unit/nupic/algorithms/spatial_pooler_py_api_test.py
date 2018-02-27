@@ -42,8 +42,8 @@ class SpatialPoolerAPITest(unittest.TestCase):
 
   def testCompute(self):
     # Check that there are no errors in call to compute
-    inputVector = numpy.ones(5)
-    activeArray = numpy.zeros(5)
+    inputVector = numpy.ones(5, dtype=uintType)
+    activeArray = numpy.zeros(5, dtype=uintType)
     self.sp.compute(inputVector, True, activeArray)
 
 

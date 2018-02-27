@@ -19,16 +19,68 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+"""
+
+Metrics take the predicted and actual values and compute some metric (lower is 
+better) which is used in the OPF for swarming (and just generally as part of the 
+output.
+
+One non-obvious thing is that they are computed over a fixed window size, 
+typically something like 1000 records. So each output record will have a metric 
+score computed over the 1000 records prior.
+
+Example usage (hot gym example):
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Where:
+
+- ``aae``: average absolute error
+- ``altMAPE``: mean absolute percentage error but modified so you never have 
+               divide by zero
+
+.. code-block:: python
+
+  from nupic.frameworks.opf.metrics import MetricSpec
+  from nupic.frameworks.opf.prediction_metrics_manager import MetricsManager
+
+  model = createOpfModel() # assuming this is done elsewhere
+
+  metricSpecs = (
+      MetricSpec(field='kw_energy_consumption', metric='multiStep',
+                 inferenceElement='multiStepBestPredictions',
+                 params={'errorMetric': 'aae', 'window': 1000, 'steps': 1}),
+      MetricSpec(field='kw_energy_consumption', metric='trivial',
+                 inferenceElement='prediction',
+                 params={'errorMetric': 'aae', 'window': 1000, 'steps': 1}),
+      MetricSpec(field='kw_energy_consumption', metric='multiStep',
+                 inferenceElement='multiStepBestPredictions',
+                 params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': 1}),
+      MetricSpec(field='kw_energy_consumption', metric='trivial',
+                 inferenceElement='prediction',
+                 params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': 1}),
+  )
+
+  metricsManager = MetricsManager(metricSpecs, 
+                                  model.getFieldInfo(),
+                                  model.getInferenceType()
+                                  )
+  for row in inputData: # this is just pseudocode
+    result = model.run(row)
+    metrics = metricsManager.update(result)
+    # You can collect metrics here, or attach to your result object.
+    result.metrics = metrics
+
+See :meth:`getModule` for a mapping of available metric identifiers to their
+implementation classes.
+"""
 
 
 from abc import ABCMeta, abstractmethod
 
 import numbers
 import copy
-import random
 import numpy as np
 
-from nupic.data.field_meta import FieldMetaType
 import nupic.math.roc_utils as roc
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.frameworks.opf.opf_utils import InferenceType
@@ -37,7 +89,7 @@ from nupic.utils import MovingAverage
 from collections import deque
 from operator import itemgetter
 from safe_interpreter import SafeInterpreter
-from io import BytesIO, StringIO
+from io import StringIO
 from functools import partial
 
 ###############################################################################
@@ -45,27 +97,27 @@ from functools import partial
 ###############################################################################
 
 class MetricSpec(object):
-  """ This class represents a single Metrics specification in the TaskControl
-  block
+  """
+  This class represents a single Metrics specification in the TaskControl block.
+
+  :param metric: (string) A metric type name that identifies which metrics 
+         module is to be constructed by 
+         :meth:`nupic.frameworks.opf.metrics.getModule`; e.g., ``rmse``
+
+  :param inferenceElement: 
+         (:class:`~nupic.frameworks.opf.opf_utils.InferenceElement`) Some 
+         inference types (such as classification), can output more than one type 
+         of inference (i.e. the predicted class AND the predicted next step). 
+         This field specifies which of these inferences to compute the metrics 
+         on.
+
+  :param field: (string) Field name on which this metric is to be collected
+  :param params: (dict) Custom parameters for the metrics module's constructor
   """
 
   _LABEL_SEPARATOR = ":"
 
   def __init__(self, metric, inferenceElement, field=None, params=None):
-    """
-    metric:           A metric type name that identifies which metrics module is
-                      to be constructed by the metrics factory method
-                      opf.metrics.getModule(); e.g., "rmse"
-
-    inferenceElement: Some inference types (such as classification), can output
-                      more than one type of inference (i.e. the predicted class
-                      AND the predicted next step). This field specifies which
-                      of these inferences to compute the metrics on
-
-    field:            Field name on which this metric is to be collected
-    params:           Custom parameters dict for the metrics module's constructor
-    """
-
     self.metric = metric
     self.inferenceElement = inferenceElement
     self.field = field
@@ -81,14 +133,22 @@ class MetricSpec(object):
                          self.params)
 
   def getLabel(self, inferenceType=None):
-    """ Helper method that generates a unique label
-    for a MetricSpec / InferenceType pair. The label is formatted
-    as follows:
+    """ 
+    Helper method that generates a unique label for a :class:`MetricSpec` / 
+    :class:`~nupic.frameworks.opf.opf_utils.InferenceType` pair. The label is 
+    formatted as follows:
 
-      <predictionKind>:<metric type>:(paramName=value)*:field=<fieldname>
+    ::
+        
+        <predictionKind>:<metric type>:(paramName=value)*:field=<fieldname>
 
     For example:
-      classification:aae:paramA=10.2:paramB=20:window=100:field=pounds
+    
+    :: 
+    
+        classification:aae:paramA=10.2:paramB=20:window=100:field=pounds
+    
+    :returns: (string) label for inference type
     """
     result = []
     if inferenceType is not None:
@@ -118,15 +178,14 @@ class MetricSpec(object):
 
   @classmethod
   def getInferenceTypeFromLabel(cls, label):
-    """ Extracts the PredicitonKind (temporal vs. nontemporal) from the given
-    metric label
+    """ 
+    Extracts the PredictionKind (temporal vs. nontemporal) from the given
+    metric label.
 
-    Parameters:
-    -----------------------------------------------------------------------
-    label:      A label (string) for a metric spec generated by getMetricLabel
-                (above)
+    :param label: (string) for a metric spec generated by 
+           :meth:`getMetricLabel`
 
-    Returns:   An InferenceType value
+    :returns: (:class:`~nupic.frameworks.opf.opf_utils.InferenceType`)
     """
     infType, _, _= label.partition(cls._LABEL_SEPARATOR)
 
@@ -139,15 +198,32 @@ class MetricSpec(object):
 
 def getModule(metricSpec):
   """
-      factory method to return an appropriate MetricsIface-based module
-      args:
-          metricSpec - an instance of MetricSpec.
-          metricSpec.metric must be one of:
-              rmse (root-mean-square error)
-              aae (average absolute error)
-              acc (accuracy, for enumerated types)
-      return:
-          an appropriate Metric module
+  Factory method to return an appropriate :class:`MetricsIface` module.
+  
+  - ``rmse``: :class:`MetricRMSE`
+  - ``nrmse``: :class:`MetricNRMSE`
+  - ``aae``: :class:`MetricAAE`
+  - ``acc``: :class:`MetricAccuracy`
+  - ``avg_err``: :class:`MetricAveError`
+  - ``trivial``: :class:`MetricTrivial`
+  - ``two_gram``: :class:`MetricTwoGram`
+  - ``moving_mean``: :class:`MetricMovingMean`
+  - ``moving_mode``: :class:`MetricMovingMode`
+  - ``neg_auc``: :class:`MetricNegAUC`
+  - ``custom_error_metric``: :class:`CustomErrorMetric`
+  - ``multiStep``: :class:`MetricMultiStep`
+  - ``ms_aae``: :class:`MetricMultiStepAAE`
+  - ``ms_avg_err``: :class:`MetricMultiStepAveError`
+  - ``passThruPrediction``: :class:`MetricPassThruPrediction`
+  - ``altMAPE``: :class:`MetricAltMAPE`
+  - ``MAPE``: :class:`MetricMAPE`
+  - ``multi``: :class:`MetricMulti`
+  - ``negativeLogLikelihood``: :class:`MetricNegativeLogLikelihood`
+  
+  :param metricSpec: (:class:`MetricSpec`) metric to find module for. 
+         ``metricSpec.metric`` must be in the list above.
+  
+  :returns: (:class:`AggregateMetric`) an appropriate metric module
   """
 
   metricName = metricSpec.metric
@@ -205,9 +281,7 @@ class _MovingMode(object):
 
   def __init__(self, windowSize = None):
     """
-    Parameters:
-    -----------------------------------------------------------------------
-    windowSize:             The number of values that are used to compute the
+    :param windowSize:             The number of values that are used to compute the
                             moving average
     """
     self._windowSize = windowSize
@@ -245,119 +319,121 @@ def _isNumber(value):
 
 class MetricsIface(object):
   """
-  A Metrics module compares a prediction Y to corresponding ground truth X and returns a single
-  measure representing the "goodness" of the prediction. It is up to the implementation to
-  determine how this comparison is made.
+  A Metrics module compares a prediction Y to corresponding ground truth X and 
+  returns a single measure representing the "goodness" of the prediction. It is 
+  up to the implementation to determine how this comparison is made.
 
+  :param metricSpec: (:class:`MetricSpec`) spec used to created the metric
   """
 
   __metaclass__ = ABCMeta
 
   @abstractmethod
   def __init__(self, metricSpec):
-    """
-        instantiate a MetricsIface-based module.
-        args:
-            metricSpec is an instance of MetricSpec
-
-    """
+    pass
 
   @abstractmethod
   def addInstance(self, groundTruth, prediction, record = None, result = None):
-    """ add one instance consisting of ground truth and a prediction.
+    """ 
+    Add one instance consisting of ground truth and a prediction.
 
-      Parameters:
-      -----------------------------------------------------------------------
-      groundTruth:
-        The actual measured value at the current timestep
-      prediction:
-        The value predicted by the network at the current timestep
+    :param groundTruth:
+      The actual measured value at the current timestep
+    
+    :param prediction:
+      The value predicted by the network at the current timestep
 
-      groundTruthEncoding:
-        The binary encoding of the groundTruth value (as a numpy array). Right
-        now this is only used by CLA networks
-      predictionEncoding:
-        The binary encoding of the prediction value (as a numpy array). Right
-        now this is only used by CLA networks
+    :param record: the raw input record as fed to 
+           :meth:`~nupic.frameworks.opf.model.Model.run` by the user. The 
+           typical usage is to feed a record to that method and get a 
+           :class:`~nupic.frameworks.opf.opf_utils.ModelResult`. Then you pass 
+           :class:`~nupic.frameworks.opf.opf_utils.ModelResult`.rawInput into 
+           this function as the record parameter.
 
-      result:
-        An ModelResult class (see opf_utils.py)
+    :param result: (:class:`~nupic.frameworks.opf.opf_utils.ModelResult`) the
+           result of running a row of data through an OPF model
 
-        return:
-            The average error as computed over the metric's window size
+    :returns:
+        The average error as computed over the metric's window size
     """
 
   @abstractmethod
   def getMetric(self):
     """
-        return:
-            {value : <current measurement>, "stats" : {<stat> : <value> ...}}
-            metric name is defined by the MetricIface implementation. stats is expected to contain further
-                information relevant to the given metric, for example the number of timesteps represented in
-                the current measurement. all stats are implementation defined, and "stats" can be None
+    ``stats`` is expected to contain further information relevant to the given 
+    metric, for example the number of timesteps represented in the current 
+    measurement. All stats are implementation defined, and ``stats`` can be 
+    ``None``.
 
+    :returns: (dict) representing data from the metric
+       ::
+       
+           {value : <current measurement>, "stats" : {<stat> : <value> ...}}
+      
     """
 
 
 
 class AggregateMetric(MetricsIface):
   """
-      Partial implementation of Metrics Interface for metrics that
-      accumulate an error and compute an aggregate score, potentially
-      over some window of previous data. This is a convenience class that
-      can serve as the base class for a wide variety of metrics
+  Partial implementation of Metrics Interface for metrics that accumulate an 
+  error and compute an aggregate score, potentially over some window of previous 
+  data. This is a convenience class that can serve as the base class for a wide 
+  variety of metrics.
   """
   ___metaclass__ = ABCMeta
 
   #FIXME @abstractmethod - this should be marked abstract method and required to be implemented
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result):
     """
-        Updates the accumulated error given the prediction and the
-        ground truth.
+    Updates the accumulated error given the prediction and the
+    ground truth.
 
-        groundTruth: Actual value that is observed for the current timestep
+    :param groundTruth: Actual value that is observed for the current timestep
 
-        prediction: Value predicted by the network for the given timestep
+    :param prediction: Value predicted by the network for the given timestep
 
-        accumulatedError: The total accumulated score from the previous
-          predictions (possibly over some finite window)
+    :param accumulatedError: The total accumulated score from the previous
+           predictions (possibly over some finite window)
 
-        historyBuffer: A buffer of the last <self.window> ground truth values
-            that have been observed.
+    :param historyBuffer: A buffer of the last <self.window> ground truth values
+           that have been observed.
 
-            If historyBuffer = None,  it means that no history is being kept.
+           If historyBuffer = None,  it means that no history is being kept.
 
-        result: An ModelResult class (see opf_utils.py), used for advanced
-          metric calculation (e.g., MetricNegativeLogLikelihood)
+    :param result: An ModelResult class (see opf_utils.py), used for advanced
+           metric calculation (e.g., MetricNegativeLogLikelihood)
 
-          retval:
-            The new accumulated error. That is:
-            self.accumulatedError = self.accumulate(groundTruth, predictions, accumulatedError)
+    :returns: The new accumulated error. That is:
+              
+        .. code-block:: python
+              
+           self.accumulatedError = self.accumulate(
+             groundTruth, predictions, accumulatedError
+           )
 
-            historyBuffer should also be updated in this method.
-            self.spec.params["window"] indicates the maximum size of the window
+        ``historyBuffer`` should also be updated in this method.
+        ``self.spec.params["window"]`` indicates the maximum size of the window.
     """
 
   #FIXME @abstractmethod - this should be marked abstract method and required to be implemented
   def aggregate(self, accumulatedError, historyBuffer, steps):
     """
-        Updates the final aggregated score error given the prediction and the
-        ground truth.
+    Updates the final aggregated score error given the prediction and the ground 
+    truth.
 
-        accumulatedError: The total accumulated score from the previous
-          predictions (possibly over some finite window)
+    :param accumulatedError: The total accumulated score from the previous
+           predictions (possibly over some finite window)
 
-        historyBuffer: A buffer of the last <self.window> ground truth values
-            that have been observed.
+    :param historyBuffer: A buffer of the last <self.window> ground truth values
+           that have been observed. If ``historyBuffer`` = None,  it means that 
+           no history is being kept.
 
-            If historyBuffer = None,  it means that no history is being kept.
+    :param steps: (int) The total number of (groundTruth, prediction) pairs that 
+           have been passed to the metric. This does not include pairs where 
+           ``groundTruth = SENTINEL_VALUE_FOR_MISSING_DATA``
 
-        steps: The total number of (groundTruth, prediction) pairs that have
-        been passed to the metric. This does not include pairs where
-        the groundTruth = SENTINEL_VALUE_FOR_MISSING_DATA
-
-          retval:
-            The new aggregate (final) error measure.
+    :returns: The new aggregate (final) error measure.
     """
 
   def __init__(self, metricSpec):
@@ -483,7 +559,7 @@ class AggregateMetric(MetricsIface):
     return self._compute()
 
   def getMetric(self):
-    return {'value': self.aggregateError, "stats" : {"steps" : self.steps}}
+    return {"value": self.aggregateError, "stats" : {"steps" : self.steps}}
 
   def _compute(self):
     self.aggregateError = self.aggregate(self.accumulatedError, self.history,
@@ -493,13 +569,13 @@ class AggregateMetric(MetricsIface):
 
 class MetricNegativeLogLikelihood(AggregateMetric):
   """
-      computes negative log-likelihood. Likelihood is the predicted probability of
-      the true data from a model. It is more powerful than metrics that only considers
-      the single best prediction (e.g. MSE) as it considers the entire probability
-      distribution predicted by a model.
+  Computes negative log-likelihood. Likelihood is the predicted probability of
+  the true data from a model. It is more powerful than metrics that only 
+  considers the single best prediction (e.g. MSE) as it considers the entire 
+  probability distribution predicted by a model.
 
-      It is more appropriate to use likelihood as the error metric when multiple
-      predictions are possible.
+  It is more appropriate to use likelihood as the error metric when multiple
+  predictions are possible.
   """
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result):
     bucketll = result.inferences['multiStepBucketLikelihoods']
@@ -539,7 +615,7 @@ class MetricNegativeLogLikelihood(AggregateMetric):
 
 class MetricRMSE(AggregateMetric):
   """
-      computes root-mean-square error
+  Computes root-mean-square error.
   """
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result = None):
     error = (groundTruth - prediction)**2
@@ -562,7 +638,9 @@ class MetricRMSE(AggregateMetric):
 
 
 class MetricNRMSE(MetricRMSE):
-  """computes normalized root-mean-square error"""
+  """
+  Computes normalized root-mean-square error.
+  """
   def __init__(self, *args, **kwargs):
     super(MetricNRMSE, self).__init__(*args, **kwargs)
     self.groundTruths = []
@@ -587,7 +665,7 @@ class MetricNRMSE(MetricRMSE):
 
 class MetricAAE(AggregateMetric):
   """
-      computes average absolute error
+  Computes average absolute error.
   """
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result = None):
     error = abs(groundTruth - prediction)
@@ -611,7 +689,7 @@ class MetricAAE(AggregateMetric):
 
 class MetricAltMAPE(AggregateMetric):
   """
-  computes the "Alternative" Mean Absolute Percent Error.
+  Computes the "Alternative" Mean Absolute Percent Error.
 
   A generic MAPE computes the percent error for each sample, and then gets
   an average. This can suffer from samples where the actual value is very small
@@ -670,7 +748,7 @@ class MetricAltMAPE(AggregateMetric):
 
 class MetricMAPE(AggregateMetric):
   """
-  computes the "Classic" Mean Absolute Percent Error.
+  Computes the "Classic" Mean Absolute Percent Error.
 
   This computes the percent error for each sample, and then gets
   an average. Note that this can suffer from samples where the actual value is
@@ -679,7 +757,6 @@ class MetricMAPE(AggregateMetric):
 
   This metric is provided mainly as a convenience when comparing results against
   other investigations that have also used MAPE.
-
   """
 
   def __init__(self, metricSpec):
@@ -735,7 +812,8 @@ class MetricPassThruPrediction(MetricsIface):
   by a model.
 
   For example, if you wanted to see the predictions generated for the TwoGram
-  metric, you would specify 'PassThruPredictions' as the 'errorMetric' parameter.
+  metric, you would specify 'PassThruPredictions' as the 'errorMetric' 
+  parameter.
 
   This metric class simply takes the prediction and outputs that as the
   aggregateMetric value.
@@ -769,7 +847,7 @@ class MetricPassThruPrediction(MetricsIface):
 
 class MetricMovingMean(AggregateMetric):
   """
-      computes error metric based on moving mean prediction
+  Computes error metric based on moving mean prediction.
   """
   def __init__(self, metricSpec):
 
@@ -828,7 +906,7 @@ def evalCustomErrorMetric(expr, prediction, groundTruth, tools):
 
 class CustomErrorMetric(MetricsIface):
   """
-    Custom Error Metric class that handles user defined error metrics
+  Custom Error Metric class that handles user defined error metrics.
   """
   class CircularBuffer():
     """
@@ -994,8 +1072,7 @@ class CustomErrorMetric(MetricsIface):
 
 class MetricMovingMode(AggregateMetric):
   """
-      computes error metric based on moving mode prediction
-
+  Computes error metric based on moving mode prediction.
   """
 
 
@@ -1041,8 +1118,8 @@ class MetricMovingMode(AggregateMetric):
 
 class MetricTrivial(AggregateMetric):
   """
-  computes a metric against the ground truth N steps ago. The metric to
-  compute is designated by the 'errorMetric' entry in the metric params.
+  Computes a metric against the ground truth N steps ago. The metric to
+  compute is designated by the ``errorMetric`` entry in the metric params.
   """
 
   def __init__(self, metricSpec):
@@ -1083,9 +1160,8 @@ class MetricTrivial(AggregateMetric):
 
 class MetricTwoGram(AggregateMetric):
   """
-  computes error metric based on one-grams. The groundTruth passed into
+  Computes error metric based on one-grams. The groundTruth passed into
   this metric is the encoded output of the field (an array of 1's and 0's).
-
   """
 
 
@@ -1181,10 +1257,10 @@ class MetricTwoGram(AggregateMetric):
 
 class MetricAccuracy(AggregateMetric):
   """
-  computes simple accuracy for an enumerated type. all inputs are treated as
+  Computes simple accuracy for an enumerated type. all inputs are treated as
   discrete members of a set, therefore for example 0.5 is only a correct
   response if the ground truth is exactly 0.5. Inputs can be strings, integers,
-  or reals
+  or reals.
   """
 
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result = None):
@@ -1210,9 +1286,10 @@ class MetricAccuracy(AggregateMetric):
 
 
 class MetricAveError(AggregateMetric):
-  """Simply the inverse of the Accuracy metric
-        More consistent with scalar metrics because
-        they all report an error to be minimized"""
+  """
+  Simply the inverse of the Accuracy metric.  More consistent with scalar 
+  metrics because they all report an error to be minimized.
+  """
 
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result = None):
 
@@ -1236,17 +1313,19 @@ class MetricAveError(AggregateMetric):
 
 
 class MetricNegAUC(AggregateMetric):
-  """ Computes -1 * AUC (Area Under the Curve) of the ROC (Receiver Operator
-      Characteristics) curve. We compute -1 * AUC because metrics are optimized
-      to be LOWER when running hypersearch.
+  """ 
+  Computes -1 * AUC (Area Under the Curve) of the ROC (Receiver Operator
+  Characteristics) curve. We compute -1 * AUC because metrics are optimized to 
+  be LOWER when swarming.
 
-      For this, we assuming that category 1 is the "positive" category and
-      we are generating an ROC curve with the TPR (True Positive Rate) of
-      category 1 on the y-axis and the FPR (False Positive Rate) on the x-axis.
+  For this, we assuming that category 1 is the "positive" category and we are 
+  generating an ROC curve with the TPR (True Positive Rate) of category 1 on the 
+  y-axis and the FPR (False Positive Rate) on the x-axis.
   """
 
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer, result = None):
-    """ Accumulate history of groundTruth and "prediction" values.
+    """ 
+    Accumulate history of groundTruth and "prediction" values.
 
     For this metric, groundTruth is the actual category and "prediction" is a
     dict containing one top-level item with a key of 0 (meaning this is the
@@ -1335,9 +1414,9 @@ class MetricMultiStep(AggregateMetric):
   metrics to a specific step in a multi-step prediction.
 
   The specParams are expected to contain:
-      'errorMetric': name of basic metric to apply
-      'steps':       compare prediction['steps'] to the current
-                      ground truth.
+  
+  - ``errorMetric``: name of basic metric to apply
+  - ``steps``: compare prediction['steps'] to the current ground truth.
 
   Note that the metrics manager has already performed the time shifting
   for us - it passes us the prediction element from 'steps' steps ago
@@ -1413,9 +1492,10 @@ class MetricMultiStepProbability(AggregateMetric):
   metrics to a specific step in a multi-step prediction.
 
   The specParams are expected to contain:
-      'errorMetric': name of basic metric to apply
-      'steps':       compare prediction['steps'] to the current
-                      ground truth.
+  
+  - ``errorMetric``: name of basic metric to apply
+  - ``steps``: compare prediction['steps'] to the current ground truth.
+
 
   Note that the metrics manager has already performed the time shifting
   for us - it passes us the prediction element from 'steps' steps ago
@@ -1505,8 +1585,10 @@ class MetricMultiStepProbability(AggregateMetric):
 
 
 class MetricMulti(MetricsIface):
-  """Multi metric can combine multiple other (sub)metrics and
-     weight them to provide combined score."""
+  """
+  Multi metric can combine multiple other (sub)metrics and weight them to 
+  provide combined score.
+  """
 
   def __init__(self, metricSpec):
     """MetricMulti constructor using metricSpec is not allowed."""

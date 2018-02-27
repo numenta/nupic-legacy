@@ -25,6 +25,8 @@ import os
 import sys
 import unittest2 as unittest
 import numpy as np
+from numpy.testing import assert_approx_equal
+
 import random
 
 MAX_PREDICTIONS = 100
@@ -98,77 +100,69 @@ class ExamplesTest(unittest.TestCase):
     self.assertEquals(len(ExamplesTest.oneStepPredictions["opf"]),
                       len(ExamplesTest.oneStepPredictions["network"]))
 
-
-  @unittest.skip("Skip test until we figure out why we get different "
-                 "results with OPF, Network and Algorithm APIs.")
+  @unittest.expectedFailure
   def testOneStepPredictionsOpfVsAlgo(self):
     """Make sure one-step predictions are the same for OPF and Algo API."""
-    for i in range(len(ExamplesTest.oneStepPredictions["opf"])):
-      self.assertEquals(ExamplesTest.oneStepPredictions["opf"][i],
-                        ExamplesTest.oneStepPredictions["algo"][i])
+    for resultPair in zip(self.oneStepPredictions["opf"],
+                          self.oneStepPredictions["algo"]):
+      assert_approx_equal(*resultPair,
+                          err_msg="one-step 'opf' and 'algo' differ")
 
-
-  @unittest.skip("Skip test until we figure out why we get different "
-                 "results with OPF, Network and Algorithm APIs.")
+  @unittest.expectedFailure
   def testOneStepPredictionsOpfVsNetwork(self):
     """Make sure one-step predictions are the same for OPF and Network API."""
-    for i in range(len(ExamplesTest.oneStepPredictions["opf"])):
-      self.assertEquals(ExamplesTest.oneStepPredictions["opf"][i],
-                        ExamplesTest.oneStepPredictions["network"][i])
+    for resultPair in zip(self.oneStepPredictions["opf"],
+                          self.oneStepPredictions["network"]):
+      assert_approx_equal(*resultPair,
+                          err_msg="one-step 'opf' and 'network' differ")
 
-
-  @unittest.skip("Skip test until we figure out why we get different "
-                 "results with OPF, Network and Algorithm APIs.")
+  @unittest.expectedFailure
   def testOneStepPredictionsAlgoVsNetwork(self):
     """Make sure one-step predictions are the same for Algo and Network API."""
-    for i in range(len(ExamplesTest.oneStepPredictions["algo"])):
-      self.assertEquals(ExamplesTest.oneStepPredictions["algo"][i],
-                        ExamplesTest.oneStepPredictions["network"][i])
+    for resultPair in zip(self.oneStepPredictions["algo"],
+                          self.oneStepPredictions["network"]):
+      assert_approx_equal(*resultPair,
+                          err_msg="one-step 'algo' and 'network' differ")
 
-
-  @unittest.skip("Skip test until we figure out why we get different "
-                 "results with OPF, Network and Algorithm APIs.")
+  @unittest.expectedFailure
   def testFiveStepPredictionsOpfVsNetwork(self):
     """Make sure five-step predictions are the same for OPF and Network API."""
-    for i in range(len(ExamplesTest.fiveStepPredictions["opf"])):
-      self.assertEquals(ExamplesTest.fiveStepPredictions["opf"][i],
-                        ExamplesTest.fiveStepPredictions["network"][i])
+    for resultPair in zip(self.fiveStepPredictions["opf"],
+                          self.fiveStepPredictions["network"]):
+      assert_approx_equal(*resultPair,
+                          err_msg="five-step 'opf' and 'network' differ")
 
-
-  @unittest.skip("Skip test until we figure out why we get different "
-                 "results with OPF, Network and Algorithm APIs.")
+  @unittest.expectedFailure
   def testOneStepConfidencesOpfVsAlgo(self):
     """Make sure one-step confidences are the same for OPF and Algo API."""
-    for i in range(len(ExamplesTest.oneStepConfidences["opf"])):
-      self.assertEquals(ExamplesTest.oneStepConfidences["opf"][i],
-                        ExamplesTest.oneStepConfidences["algo"][i])
+    for resultPair in zip(self.oneStepConfidences["opf"],
+                          self.oneStepConfidences["algo"]):
+      assert_approx_equal(*resultPair,
+                          err_msg="one-step 'opf' and 'algo' differ")
 
-
-  @unittest.skip("Skip test until we figure out why we get different "
-                 "results with OPF, Network and Algorithm APIs.")
+  @unittest.expectedFailure
   def testOneStepConfidencesOpfVsNetwork(self):
     """Make sure one-step confidences are the same for OPF and Network API."""
-    for i in range(len(ExamplesTest.oneStepConfidences["opf"])):
-      self.assertEquals(ExamplesTest.oneStepConfidences["opf"][i],
-                        ExamplesTest.oneStepConfidences["network"][i])
+    for resultPair in zip(self.oneStepConfidences["opf"],
+                          self.oneStepConfidences["network"]):
+      assert_approx_equal(*resultPair,
+                          err_msg="one-step 'opf' and 'network' differ")
 
-
-  @unittest.skip("Skip test until we figure out why we get different "
-                 "results with OPF, Network and Algorithm APIs.")
+  @unittest.expectedFailure
   def testOneStepConfidencesAlgoVsNetwork(self):
     """Make sure one-step confidences are the same for Algo and Network API."""
-    for i in range(len(ExamplesTest.oneStepConfidences["algo"])):
-      self.assertEquals(ExamplesTest.oneStepConfidences["algo"][i],
-                        ExamplesTest.oneStepConfidences["network"][i])
+    for resultPair in zip(self.oneStepConfidences["algo"],
+                          self.oneStepConfidences["network"]):
+      assert_approx_equal(*resultPair,
+                          err_msg="one-step 'algo' and 'network' differ")
 
-
-  @unittest.skip("Skip test until we figure out why we get different "
-                 "results with OPF, Network and Algorithm APIs.")
+  @unittest.expectedFailure
   def testFiveStepConfidencesOpfVsNetwork(self):
     """Make sure five-step confidences are the same for OPF and Network API."""
-    for i in range(len(ExamplesTest.fiveStepConfidences["opf"])):
-      self.assertEquals(ExamplesTest.fiveStepConfidences["opf"][i],
-                        ExamplesTest.fiveStepConfidences["network"][i])
+    for resultPair in zip(self.fiveStepConfidences["opf"],
+                          self.fiveStepConfidences["network"]):
+      assert_approx_equal(*resultPair,
+                          err_msg="five-step 'opf' and 'network' differ")
 
 
 

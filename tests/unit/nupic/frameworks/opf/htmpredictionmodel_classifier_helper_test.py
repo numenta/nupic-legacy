@@ -145,7 +145,7 @@ records= [
 
 
 
-class CLAClassifierHelperTest(unittest.TestCase):
+class SDRClassifierHelperTest(unittest.TestCase):
   """HTMPredictionModelClassifierHelper unit tests."""
   def setUp(self):
     self.helper = HTMPredictionModelClassifierHelper(Mock(spec=HTMPredictionModel))

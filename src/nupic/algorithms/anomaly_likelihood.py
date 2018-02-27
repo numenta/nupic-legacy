@@ -119,10 +119,11 @@ import math
 import numbers
 import numpy
 
+from nupic.serializable import Serializable
 from nupic.utils import MovingAverage
 
 
-class AnomalyLikelihood(object):
+class AnomalyLikelihood(Serializable):
   """
   Helper class for running anomaly likelihood computation. To use it simply
   create an instance and then feed it successive anomaly scores:
@@ -270,26 +271,23 @@ class AnomalyLikelihood(object):
       anomalyLikelihood._historicalScores.append((i, score.value,
                                                   score.anomalyScore))
     if proto.distribution.name: # is "" when there is no distribution.
-      anomalyLikelihood._distribution = {}
-      anomalyLikelihood._distribution["name"] = proto.distribution.name
-      anomalyLikelihood._distribution["mean"] = proto.distribution.mean
-      anomalyLikelihood._distribution["variance"] = proto.distribution.variance
-      anomalyLikelihood._distribution["stdev"] = proto.distribution.stdev
+      anomalyLikelihood._distribution = dict()
+      anomalyLikelihood._distribution['distribution'] = dict()
+      anomalyLikelihood._distribution['distribution']["name"] = proto.distribution.name
+      anomalyLikelihood._distribution['distribution']["mean"] = proto.distribution.mean
+      anomalyLikelihood._distribution['distribution']["variance"] = proto.distribution.variance
+      anomalyLikelihood._distribution['distribution']["stdev"] = proto.distribution.stdev
 
       anomalyLikelihood._distribution["movingAverage"] = {}
-      anomalyLikelihood._distribution["movingAverage"]["windowSize"] =\
-        proto.distribution.movingAverage.windowSize
+      anomalyLikelihood._distribution["movingAverage"]["windowSize"] = proto.distribution.movingAverage.windowSize
       anomalyLikelihood._distribution["movingAverage"]["historicalValues"] = []
       for value in proto.distribution.movingAverage.historicalValues:
-        anomalyLikelihood._distribution["movingAverage"]["historicalValues"]\
-          .append(value)
-      anomalyLikelihood._distribution["movingAverage"]["total"] =\
-        proto.distribution.movingAverage.total
+        anomalyLikelihood._distribution["movingAverage"]["historicalValues"].append(value)
+      anomalyLikelihood._distribution["movingAverage"]["total"] = proto.distribution.movingAverage.total
 
       anomalyLikelihood._distribution["historicalLikelihoods"] = []
       for likelihood in proto.distribution.historicalLikelihoods:
-        anomalyLikelihood._distribution["historicalLikelihoods"].append(
-          likelihood)
+        anomalyLikelihood._distribution["historicalLikelihoods"].append(likelihood)
     else:
       anomalyLikelihood._distribution = None
 
@@ -307,6 +305,7 @@ class AnomalyLikelihood(object):
     :param proto: (Object) capnp proto object specified in
                           nupic.regions.AnomalyLikelihoodRegion.capnp
     """
+
     proto.iteration = self._iteration
 
     pHistScores = proto.init('historicalScores', len(self._historicalScores))
@@ -316,33 +315,27 @@ class AnomalyLikelihood(object):
       record.value = float(value)
       record.anomalyScore = float(anomalyScore)
 
-    if self._distribution:
-      proto.distribution.name = self._distribution["distributionParams"]["name"]
-      proto.distribution.mean = self._distribution["distributionParams"]["mean"]
-      proto.distribution.variance = self._distribution["distributionParams"]\
-        ["variance"]
-      proto.distribution.stdev = self._distribution["distributionParams"]\
-        ["stdev"]
+    proto.distribution.name = self._distribution["distribution"]["name"]
+    proto.distribution.mean = float(self._distribution["distribution"]["mean"])
+    proto.distribution.variance = float(self._distribution["distribution"]["variance"])
+    proto.distribution.stdev = float(self._distribution["distribution"]["stdev"])
 
-      proto.distribution.movingAverage.windowSize = self._distribution\
-        ["movingAverage"]["windowSize"]
+    proto.distribution.movingAverage.windowSize = float(self._distribution["movingAverage"]["windowSize"])
 
-      historicalValues = self._distribution["movingAverage"]["historicalValues"]
-      pHistValues = proto.distribution.movingAverage.init(
-        "historicalValues", len(historicalValues))
-      for i, value in enumerate(historicalValues):
-        pHistValues[i] = float(value)
+    historicalValues = self._distribution["movingAverage"]["historicalValues"]
+    pHistValues = proto.distribution.movingAverage.init(
+      "historicalValues", len(historicalValues))
+    for i, value in enumerate(historicalValues):
+      pHistValues[i] = float(value)
 
-      proto.distribution.movingAverage.historicalValues = self._distribution\
-        ["movingAverage"]["historicalValues"]
-      proto.distribution.movingAverage.total = self._distribution\
-        ["movingAverage"]["total"]
+    #proto.distribution.movingAverage.historicalValues = self._distribution["movingAverage"]["historicalValues"]
+    proto.distribution.movingAverage.total = float(self._distribution["movingAverage"]["total"])
 
-      historicalLikelihoods = self._distribution["historicalLikelihoods"]
-      pHistLikelihoods = proto.distribution.init("historicalLikelihoods",
-                                                 len(historicalLikelihoods))
-      for i, likelihood in enumerate(historicalLikelihoods):
-        pHistLikelihoods[i] = float(likelihood)
+    historicalLikelihoods = self._distribution["historicalLikelihoods"]
+    pHistLikelihoods = proto.distribution.init("historicalLikelihoods",
+                                               len(historicalLikelihoods))
+    for i, likelihood in enumerate(historicalLikelihoods):
+      pHistLikelihoods[i] = float(likelihood)
 
     proto.probationaryPeriod = self._probationaryPeriod
     proto.learningPeriod = self._learningPeriod

@@ -9,7 +9,7 @@ version: 1
 #
 # Example of how to aggregate the field "consumption" with the method "mean"
 # and the field "gym" with the method "first". Both field will be
-# aggregregated over a period of 1h 15m, according to their respective
+# aggregated over a period of 1h 15m, according to their respective
 # aggregation methods.
 #
 #   aggregationInfo:
@@ -108,209 +108,62 @@ modelParams:
   # Controls whether the Spatial Pooler (SP) region is enabled.
   spEnable: true
 
-  # Parameters of the SP region.
+  # Parameters of the SP region. For detailed descriptions of each
+  # parameter, see the API docs for
+  # nupic.algorithms.spatial_pooler.SpatialPooler. Note that the OPF
+  # will only create one-dimensional input and spatial pooling
+  # structures, so during SP creation `columnCount` translates to
+  # `columnDimensions=(columnCount,)` and
+  # `inputDimensions=(inputWidth,)`.
   spParams:
-    # SP diagnostic output verbosity control:
-    # - spVerbosity == 0: silent
-    # - spVerbosity in [1..6]: increasing levels of verbosity
-    spVerbosity: 0
-
-    # Spatial Pooler implementation selector.
-    # Values can be: "py" or "cpp" (speed optimized)
-    spatialImp: cpp
-
-    # If 1, then during inhibition phase the winning columns are selected
-    # as the most active columns from the region as a whole. Otherwise, the
-    # winning columns are selected with respect to their local neighborhoods.
-    # Using global inhibition boosts performance x60.
-    globalInhibition: 1
-
-    # The desired density of active columns within a local inhibition area
-    # (the size of which is set by the internally calculated inhibitionRadius,
-    # which is in turn determined from the average size of the connected
-    # potential pools of all columns). The inhibition logic will insure that
-    # at most N columns remain ON within a local inhibition area, where
-    # N = localAreaDensity * (total number of columns in inhibition area).
-    localAreaDensity: -1.0
-
-    # Number of mini-columns in the region. This values needs to be the same
-    # as "columnCount" for the TM region (see "columnCount" under "tmParams").
-    columnCount: 2048
-
-    # Input size of the SP region. Must be the same as the output size of the
-    # previous region, that feeds into the SP region.
     inputWidth: 946
-
-    # numActiveColumnsPerInhArea controls column inhibition in the SP region.
-    # It sets the maximum number of active columns in the SP region's output.
-    # If more mini-columns than "numActiveColumnsPerInhArea" are active then
-    # the weaker columns are suppressed.
-    # In the case where globalInhibition is turned on (only one inhibition area)
-    # numActiveColumnsPerInhArea should be set to 40. Because 40 means roughly
-    # 2% active mini-columns. Given that there is only one inhibition area:
-    # 40 / 2048 = 0.0195 so ~2% active mini-columns.
+    columnCount: 2048
+    spVerbosity: 0
+    spatialImp: cpp
+    globalInhibition: 1
+    localAreaDensity: -1.0
     numActiveColumnsPerInhArea: 40
-
-    # An alternate way to control the density of the active columns. If
-    # numActiveColumnsPerInhArea is specified then localAreaDensity must be
-    # less than 0, and vice versa.  When using numActiveColumnsPerInhArea, the
-    # inhibition logic will insure that at most 'numActiveColumnsPerInhArea'
-    # columns remain ON within a local inhibition area (the size of which is
-    # set by the internally calculated inhibitionRadius, which is in turn
-    # determined from the average size of the connected receptive fields of all
-    # columns). When using this method, as columns learn and grow their
-    # effective receptive fields, the inhibitionRadius will grow, and hence the
-    # net density of the active columns will *decrease*. This is in contrast to
-    # the localAreaDensity method, which keeps the density of active columns
-    # the same regardless of the size of their receptive fields.
-    numActiveColumnsPerInhArea: 40
-
-    # Random number generator seed.
-    # The seed affects the random aspects of initialization like the initial
-    # permanence values and which input bits are in the potential pool for
-    # each column. A fixed value ensures a reproducible result.
     seed: 1956
-
-    # "potentialPct" controls what percentage of the columns's receptive field
-    # is available for potential synapses.
     potentialPct: 0.85
-
-    # The default threshold for synapses. Any synapse whose permanence
-    # value is above the connected threshold is a "connected synapse", meaning
-    # it can contribute to the cell's firing. Typical value is 0.10.
     synPermConnected: 0.1
-
-    # The amount by which an active synapse is incremented in each round.
-    # For active columns, the permanences to all active input bits in the
-    # columns potential pool are incremented by this amount.
     synPermActiveInc: 0.04
-
-    # How quickly synapses grow and degrade.
-    # For active columns, the permanences to all inactive input bits in the
-    # columns potential pool are decremented by this amount.
     synPermInactiveDec: 0.005
-
-    # "boostStrength" controls the strength of boosting. It should be a
-    # a float greater or equal than 0.0. No boosting is applied if
-    # boostStrength == 0.0. Boosting encourages efficient usage of SP columns.
     boostStrength: 3.0
 
   # Controls whether the Temporal Memory (TM) region is enabled.
   tmEnable: true
 
-  # Parameters of the TM region.
+  # Parameters of the TM region. For detailed descriptions of each
+  # parameter, see the API docs for
+  # nupic.algorithms.backtracking_tm.BacktrackingTM.
   tmParams:
-    # Controls the verbosity of the TM diagnostic output:
-    # - verbosity == 0: silent
-    # - verbosity in [1..6]: increasing levels of verbosity
-    # See verbosity in nupic.algorithms.temporaly_memory for more details.
     verbosity: 0
-
-    # Number of mini-columns in the region. This values needs to be the same
-    # as "columnCount" for the SP region (see "columnCount" under "spParams").
     columnCount: 2048
-
-    # The number of cells per column.
     cellsPerColumn: 32
-
-    # Size of the TM region input. Must match the output width of the
-    # previous region.
     inputWidth: 2048
-
-    # Random number generator seed.
-    # The seed affects the random aspects of initialization like the initial
-    # permanence values and which input bits are in the potential pool for
-    # each column. A fixed value ensures a reproducible result.
     seed: 1960
-
-    # Temporal implementation of the TM region.
-    # Valid values are: 'py', 'cpp', 'tm_py', 'monitored_tm_py'
     temporalImp: cpp
-
-    # The max number of synapses added to a segment during learning
     newSynapseCount: 20
-
-    # Initial permanence for newly created synapses
     initialPerm: 0.21
-
-    # Active synapses get their permanence counts incremented by permanenceInc.
-    # All other synapses get their permanence counts decremented
-    # by permanenceDec.
     permanenceInc: 0.1
     permanenceDec: 0.1
-
-    # maxAge controls globalDecay. Global decay will only decay segments
-    # that have not been activated for maxAge iterations, and will
-    # only do the global decay loop every maxAge iterations. The
-    # default (maxAge=1) reverts to the behavior where global decay
-    # is applied every iteration to every segment. Using maxAge > 1
-    # can significantly speed up the TM when global decay is used.
     maxAge: 0
     globalDecay: 0.0
-
-    # Note that maxSegmentsPerCell and maxSynapsesPerSegment cannot be set at
-    # the same time as globalDecay and maxAge.
     maxSynapsesPerSegment: 32
     maxSegmentsPerCell: 128
-
-    # Minimum number of active synapses for a segment to be considered
-    # during search for the best-matching segments.
-    # None=use default
-    # Replaces: tpMinThreshold
     minThreshold: 12
-
-    # Segment activation threshold.
-    # A segment is active if it has >= activationThreshold connected synapses
-    # that are active. If set to null, then use default value.
     activationThreshold: 16
-
-    # Can be one of the following: 'normal', 'activeState',
-    # 'activeState1CellPerCol'.
-    # - 'normal': output the OR of the active and predicted state.
-    # - 'activeState': output only the active state.
-    # - 'activeState1CellPerCol': output only the active state, and at
-    #                             most 1 cell/column. If more than 1 cell is
-    #                             active in a column, the one with the highest
-    #                             confidence is sent up.
-    # Default value is 'normal'.
     outputType: normal
-
-    # "Pay Attention Mode" length. This tells the TM Region how many new
-    # elements to append to the end of a learned sequence at a time.
-    # Smaller values are better for datasets with short sequences,
-    # higher values are better for datasets with long sequences.
     pamLength: 1
 
+  # Classifier parameters. For detailed descriptions of each parameter, see
+  # the API docs for nupic.algorithms.sdr_classifier.SDRClassifier.
   clParams:
-    # Classifier diagnostic output verbosity control;
-    # - verbosity == 0: silent
-    # - verbosity in [1..6]: increasing levels of verbosity
     verbosity: 0
-
-    # Name of the Classifier region.
     regionName: SDRClassifierRegion
-
-    # This controls how fast the classifier learns/forgets. Higher
-    # values make it adapt faster and forget older patterns faster.
     alpha: 0.1
-
-    # This is set after the call to updateConfigFromSubConfig and is
-    # computed from the aggregationInfo and predictAheadTime.
     steps: '1,5'
-
-    # maxCategoryCount reprensents the max number of categories / bucket indices
-    # of the field being learned on.
-    # In this case, we are not learning a category field, but we are trying to
-    # predict the next value of a continous field. So maxCategoryCount is the
-    # max number of buckets used by the encoder of this field. We set
-    # maxCategoryCount to 1000, an arbitrarily large number, to accomodate the
-    # max number of buckets created by the encoder.
-    # In a case where the classifier is learning a category field with
-    # 3 categories, then maxCategoryCount should be set to 3 (higher values are
-    # also OK).
     maxCategoryCount: 1000
-
-    # Values can be: "py" or "cpp" (speed optimized)
     implementation: cpp
 
   # If set, don't create the SP network unless the user requests SP metrics.
