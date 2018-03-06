@@ -48,6 +48,9 @@ from nupic.swarming.experiment_utils import (InferenceType, InferenceElement)
 
 #############################################################################
 # Global constants
+global _metricSpecSchema
+_metricSpecSchema = {}
+_metricSpecSchema['properties'] = {}
 
 # Space characters representing one level of indent in our generated python
 # data structures
