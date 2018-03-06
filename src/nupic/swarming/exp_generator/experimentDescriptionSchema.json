@@ -113,7 +113,7 @@
       "description": "inferenceArgs -- arguments for the type of inference you want to use"
     }, 
     "prediction": {
-      "description": " [DEPRECATED] Prediction optimization options; at least one MUST be enabled. NOTE: at this time, non-temporal and temporalpredictions are mutually-exclusive (RunPermutations cannot yetoptimize for both). This is deprecated. Used inferenceType instead", 
+      "description": " [DEPRECATED] Prediction optimization options; at least one MUST be enabled. NOTE: at this time, non-temporal and temporalpredictions are mutually-exclusive (RunPermutations cannot yet optimize for both). This is deprecated. Used inferenceType instead",
       "default": {
         "temporal": {
           "optimize": true

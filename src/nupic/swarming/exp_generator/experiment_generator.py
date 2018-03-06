@@ -1859,6 +1859,8 @@ def _generateMetricSpecs(options):
 def _generateExtraMetricSpecs(options):
   """Generates the non-default metrics specified by the expGenerator params """
   global _metricSpecSchema
+  _metricSpecSchema = {}
+  _metricSpecSchema['properties'] = {}
 
   results = []
   for metric in options['metrics']:
