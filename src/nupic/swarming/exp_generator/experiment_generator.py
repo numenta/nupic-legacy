@@ -48,9 +48,6 @@ from nupic.swarming.experiment_utils import (InferenceType, InferenceElement)
 
 #############################################################################
 # Global constants
-global _metricSpecSchema
-_metricSpecSchema = {}
-_metricSpecSchema['properties'] = {}
 
 # Space characters representing one level of indent in our generated python
 # data structures
@@ -1861,7 +1858,7 @@ def _generateMetricSpecs(options):
 
 def _generateExtraMetricSpecs(options):
   """Generates the non-default metrics specified by the expGenerator params """
-  global _metricSpecSchema
+  _metricSpecSchema = {'properties': {}}
 
   results = []
   for metric in options['metrics']:
