@@ -626,10 +626,12 @@ class _HyperSearchRunner(object):
 
     self._workers = []
     for i in range(numWorkers):
-      stdout = tempfile.TemporaryFile()
-      stderr = tempfile.TemporaryFile()
+      stdout = tempfile.NamedTemporaryFile(delete=False)
+      stderr = tempfile.NamedTemporaryFile(delete=False)
       p = subprocess.Popen(cmdLine, bufsize=1, env=os.environ, shell=True,
                            stdin=None, stdout=stdout, stderr=stderr)
+      p._stderr_file = stderr
+      p._stdout_file = stdout
       self._workers.append(p)
 
 
@@ -1456,7 +1458,9 @@ class _NupicJob(object):
           status = cjdao.ClientJobsDAO.STATUS_RUNNING
         else:
           status = cjdao.ClientJobsDAO.STATUS_COMPLETED
-
+          if retCode != 0:
+            with open(worker._stderr_file.name, 'r') as err:
+              _emit(Verbosity.WARNING, "Job %d failed with error: %s" % (jobInfo.jobId, err.read()))
         jobInfo = jobInfo._replace(status=status)
 
       _emit(Verbosity.DEBUG, "JobStatus: \n%s" % pprint.pformat(jobInfo,

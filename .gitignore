@@ -72,3 +72,4 @@ nupic.egg-info/
 nupic/*py_region.*
 temp/
 docs/_build_html
+/src/nupic/support/nupic-site.xml
