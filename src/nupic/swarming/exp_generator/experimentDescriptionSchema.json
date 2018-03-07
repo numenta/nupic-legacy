@@ -54,7 +54,7 @@
         "integer",
         "null"
       ], 
-      "description": "Maximum number of models to evaluate. This replaces the older location of this specification from the job params. "
+      "description": "Maximum number of models to evaluate. This replaces the older location of this specification from the job params."
     }, 
     "spPermuteDecrement": {
       "default": true, 
@@ -113,7 +113,7 @@
       "description": "inferenceArgs -- arguments for the type of inference you want to use"
     }, 
     "prediction": {
-      "description": " [DEPRECATED] Prediction optimization options; at least one MUST be enabled. NOTE: at this time, non-temporal and temporalpredictions are mutually-exclusive (RunPermutations cannot yetoptimize for both). This is deprecated. Used inferenceType instead", 
+      "description": " [DEPRECATED] Prediction optimization options; at least one MUST be enabled. NOTE: at this time, non-temporal and temporal predictions are mutually-exclusive (RunPermutations cannot yet optimize for both). This is deprecated. Used inferenceType instead",
       "default": {
         "temporal": {
           "optimize": true
@@ -177,7 +177,7 @@
     "customErrorMetric": {
       "required": false, 
       "type": "object", 
-      "description": "Custom User definied Error metric that will be computed"
+      "description": "Custom User defined Error metric that will be computed"
     }, 
     "spCoincInputPoolPct": {
       "default": 0.8, 
@@ -216,7 +216,7 @@
       "description": "Flag to run baseline error metrics with the job for comparison"
     }, 
     "metrics": {
-      "description": "Additional metrics to be generated, along with thedefault ones for the given inferenceType. Note: The specified metric should be compatible withe the giveninference", 
+      "description": "Additional metrics to be generated, along with the default ones for the given inferenceType. Note: The specified metric should be compatible withe the given inference",
       "default": [], 
       "items": {
         "required": true, 
@@ -267,7 +267,7 @@
       "minLength": 1, 
       "required": false, 
       "type": "string", 
-      "description": "[DEPRECATED] Name of field we're trying to predict. This is deprected. Used inferenceArgs.predictedField instead"
+      "description": "[DEPRECATED] Name of field we're trying to predict. This is deprecated. Used inferenceArgs.predictedField instead"
     }, 
     "streamDef": {
       "minLength": 1, 
@@ -380,7 +380,7 @@
           "space": {
             "required": false, 
             "type": "string", 
-            "description": "A way to customize which spaces (absolute, delta) are evaluted when runDelta is True. "
+            "description": "A way to customize which spaces (absolute, delta) are evaluated when runDelta is True."
           }, 
           "maxValue": {
             "required": false, 
@@ -410,7 +410,7 @@
           "encoderType": {
             "required": false, 
             "type": "string", 
-            "description": "Encoder type, for example 'ScalarEncoder, AdaptiveScalarEncoder, etc. "
+            "description": "Encoder type, for example 'ScalarEncoder, AdaptiveScalarEncoder, etc."
           }
         }
       }, 
