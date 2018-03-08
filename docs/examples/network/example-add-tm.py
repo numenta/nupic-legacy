@@ -1,2 +1,2 @@
 tmParams = modelParams["tmParams"]
-network.addRegion("TM", "py.TPRegion", json.dumps(tmParams))
+network.addRegion("TM", "py.TMRegion", json.dumps(tmParams))
