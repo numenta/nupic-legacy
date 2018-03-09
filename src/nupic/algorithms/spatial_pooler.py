@@ -1263,40 +1263,6 @@ class SpatialPooler(Serializable):
     self._connectedCounts[columnIndex] = newConnected.size
 
 
-  def _initPermConnected(self):
-    """
-    Returns a randomly generated permanence value for a synapses that is
-    initialized in a connected state. The basic idea here is to initialize
-    permanence values very close to synPermConnected so that a small number of
-    learning steps could make it disconnected or connected.
-
-    Note: experimentation was done a long time ago on the best way to initialize
-    permanence values, but the history for this particular scheme has been lost.
-    """
-    p = self._synPermConnected + (
-        self._synPermMax - self._synPermConnected)*self._random.getReal64()
-
-    # Ensure we don't have too much unnecessary precision. A full 64 bits of
-    # precision causes numerical stability issues across platforms and across
-    # implementations
-    p = int(p*100000) / 100000.0
-    return p
-
-
-  def _initPermNonConnected(self):
-    """
-    Returns a randomly generated permanence value for a synapses that is to be
-    initialized in a non-connected state.
-    """
-    p = self._synPermConnected * self._random.getReal64()
-
-    # Ensure we don't have too much unnecessary precision. A full 64 bits of
-    # precision causes numerical stability issues across platforms and across
-    # implementations
-    p = int(p*100000) / 100000.0
-    return p
-
-
   def _initPermanence(self, potential, connectedPct):
     """
     Initializes the permanences of a column. The method
@@ -1314,26 +1280,48 @@ class SpatialPooler(Serializable):
                          permanence, that the initial permanence value will
                          be a value that is considered connected.
     """
-    # Determine which inputs bits will start out as connected
-    # to the inputs. Initially a subset of the input bits in a
-    # column's potential pool will be connected. This number is
-    # given by the parameter "connectedPct"
-    perm = numpy.zeros(self._numInputs, dtype=realDType)
-    for i in xrange(self._numInputs):
-      if (potential[i] < 1):
-        continue
+    # Variable 'synapses' stores the input indexes of all potential synapses.
+    synapses    = numpy.nonzero(potential)[0]
+    n_synapses  = len(synapses)
+    # Variable 'nz_values' stores the permanence value for each entry in synapses.
+    nz_values   = numpy.empty(n_synapses, dtype=realDType)
+    uniform     = self._random.getReal64
+    perm_min    = self._synPermMin
+    perm_max    = self._synPermMax
+    threshold   = self._synPermConnected
 
-      if (self._random.getReal64() <= connectedPct):
-        perm[i] = self._initPermConnected()
+    for idx in xrange(n_synapses):
+      # Determine which inputs bits will start out as connected
+      # to the inputs. Initially a subset of the input bits in a
+      # column's potential pool will be connected. This number is
+      # given by the parameter "connectedPct".
+      connected = uniform() <= connectedPct
+
+      # Make the permanence values.
+      value = uniform()
+      if connected:
+        # Scale connected permanences into range (thresh, max).
+        value = (perm_max - threshold) * value + threshold
       else:
-        perm[i] = self._initPermNonConnected()
+        # Scale disconnected permanences into range (min, thresh).
+        value = (threshold - perm_min) * value + perm_min
+      nz_values[idx] = value
 
     # Clip off low values. Since we use a sparse representation
     # to store the permanence values this helps reduce memory
     # requirements.
-    perm[perm < self._synPermTrimThreshold] = 0
+    nz_values[nz_values < self._synPermTrimThreshold] = 0
 
-    return perm
+    # Ensure we don't have too much unnecessary precision. A full 64 bits of
+    # precision causes numerical stability issues across platforms and across
+    # implementations.
+    nz_values *= 100000
+    numpy.floor(nz_values, out = nz_values)
+    nz_values /= 100000
+
+    permanences = numpy.zeros(self._numInputs, dtype=realDType)
+    permanences[synapses] = nz_values
+    return permanences
 
 
   def _mapColumn(self, index):
