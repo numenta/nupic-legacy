@@ -4,15 +4,15 @@ import json
 network.addRegion("sensor", "py.RecordSensor", json.dumps({"verbosity": 0}))
 
 # Make sure the SP input width matches the sensor region output width.
-model_params["spParams"]["inputWidth"] = sensorRegion.encoder.getWidth()
+modelParams["spParams"]["inputWidth"] = sensorRegion.encoder.getWidth()
 
 # Add the SP and TM regions.
-network.addRegion("SP", "py.SPRegion", json.dumps(model_params["spParams"]))
-network.addRegion("TM", "py.TPRegion", json.dumps(model_params["tmParams"]))
+network.addRegion("SP", "py.SPRegion", json.dumps(modelParams["spParams"]))
+network.addRegion("TM", "py.TMRegion", json.dumps(modelParams["tmParams"]))
 
 # Add the classifier region.
-clName = "py.%s" % model_params[]
-network.addRegion("classifier", , json.dumps(model_params["clParams"]))
+clName = "py.%s" % modelParams[]
+network.addRegion("classifier", , json.dumps(modelParams["clParams"]))
 
 
 
@@ -38,7 +38,7 @@ sensorRegion = network.regions["sensor"].getSelf()
 sensorRegion.dataSource = dataSource
 
 # Set the encoder to the sensor region
-sensorRegion.encoder = createEncoder(model_params["sensorParams"]["encoders"])
+sensorRegion.encoder = createEncoder(modelParams["sensorParams"]["encoders"])
 
 
 
