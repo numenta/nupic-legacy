@@ -308,7 +308,7 @@ class DateEncoder(Encoder):
       #  0->1 on the day before the holiday and 1->0 on the day after the holiday.
       # Currently the only holiday we know about is December 25
       # holidays is a list of holidays that occur on a fixed date every year
-      if self.holidays == []:
+      if len(self.holidays) == 0:
         holidays = [(12, 25)]
       else:
         holidays = self.holidays
