@@ -46,7 +46,7 @@ class DateEncoderTest(unittest.TestCase):
   def setUp(self):
     # 3 bits for season, 1 bit for day of week, 1 for weekend, 5 for time of
     # day
-    # use of forced is not recommended, used here for readibility, see scalar.py
+    # use of forced is not recommended, used here for readability, see scalar.py
     self._e = DateEncoder(season=3, dayOfWeek=1, weekend=1, timeOfDay=5)
     # in the middle of fall, Thursday, not a weekend, afternoon - 4th Nov,
     # 2010, 14:55
@@ -138,7 +138,7 @@ class DateEncoderTest(unittest.TestCase):
 
   def testHoliday(self):
     """look at holiday more carefully because of the smooth transition"""
-    # use of forced is not recommended, used here for readibility, see
+    # use of forced is not recommended, used here for readability, see
     # scalar.py
     e = DateEncoder(holiday=5, forced=True)
     holiday = numpy.array([0,0,0,0,0,1,1,1,1,1], dtype="uint8")
@@ -157,10 +157,29 @@ class DateEncoderTest(unittest.TestCase):
     d = datetime.datetime(2011, 12, 24, 16, 00)
     self.assertTrue(numpy.array_equal(e.encode(d), holiday2))
 
+  def testHolidayMultiple(self):
+    """look at holiday more carefully because of the smooth transition"""
+    # use of forced is not recommended, used here for readability, see
+    # scalar.py
+    e = DateEncoder(holiday=5, forced=True, holidays=[(12, 25), (2018, 4, 1), (2017, 4, 16)])
+    holiday = numpy.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1], dtype="uint8")
+    notholiday = numpy.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0], dtype="uint8")
+
+    d = datetime.datetime(2011, 12, 25, 4, 55)
+    self.assertTrue(numpy.array_equal(e.encode(d), holiday))
+
+    d = datetime.datetime(2007, 12, 2, 4, 55)
+    self.assertTrue(numpy.array_equal(e.encode(d), notholiday))
+
+    d = datetime.datetime(2018, 4, 1, 16, 10)
+    self.assertTrue(numpy.array_equal(e.encode(d), holiday))
+
+    d = datetime.datetime(2017, 4, 16, 16, 10)
+    self.assertTrue(numpy.array_equal(e.encode(d), holiday))
 
   def testWeekend(self):
     """Test weekend encoder"""
-    # use of forced is not recommended, used here for readibility, see scalar.py
+    # use of forced is not recommended, used here for readability, see scalar.py
     e = DateEncoder(customDays=(21, ["sat", "sun", "fri"]), forced=True)
     mon = DateEncoder(customDays=(21, "Monday"), forced=True)
 
