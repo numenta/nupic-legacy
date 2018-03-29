@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>API Docs &#8212; NuPIC 1.0.4.dev0
+
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.4.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Online Prediction Framework" href="opf/index.html" />
+    <link rel="prev" title="Serialization" href="../guides/serialization.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="api-docs">
+<h1>API Docs<a class="headerlink" href="#api-docs" title="Permalink to this headline">¶</a></h1>
+<p>NuPIC exposes <strong>three primary interfaces</strong>:</p>
+<p>The <a class="reference external" href="opf/">Online Prediction Framework (OPF)</a> is an easier-to-use interface,
+but compromises the flexibility to create new network structures. The OPF takes
+a typical network design and wraps it in a model class so it can be easily
+created. Many of our examples use the OPF because it is easier to set up new
+experiments. The OPF also includes <a class="reference external" href="../guides/swarming/">Swarming</a>, which
+allows users to find the best model parameters for a particular data set using a
+particle swarm optimization algorithm. This API is not always needed, however.
+You can always use existing model parameters and tweak them to your needs.</p>
+<p>The <a class="reference external" href="network/">Network API</a> allows users to create a network structure with
+each node performing a different task, making for a very flexible experiment
+framework and a future foundation for hierarchy.</p>
+<p>The <a class="reference external" href="algorithms/">core Algorithms</a> provide direct access to HTM algorithms
+like Spatial Pooling and Temporal Memory for those more comfortable with HTM
+theory. This allows you to instatiate these components manually and wire
+together your own system with encoders and classifiers.</p>
+<hr class="docutils" />
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="opf/index.html">Online Prediction Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opf/models.html">Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opf/models.html#modelfactory">ModelFactory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf/models.html#module-nupic.frameworks.opf.model">Base Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf/models.html#module-nupic.frameworks.opf.htm_prediction_model">HTMPredictionModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf/models.html#module-nupic.frameworks.opf.two_gram_model">TwoGramModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf/models.html#module-nupic.frameworks.opf.previous_value_model">PreviousValueModel</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opf/clients.html">Clients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opf/description-api.html">Description API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opf/exp-runner.html">Experiment Runner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opf/environment.html">Environments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opf/environment.html#module-nupic.frameworks.opf.opf_task_driver">OPF Task Driver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf/environment.html#module-nupic.frameworks.opf.opf_environment">OPF Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf/environment.html#module-nupic.frameworks.opf.opf_basic_environment">OPF Basic Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opf/metrics.html">Metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opf/metrics.html#module-nupic.frameworks.opf.prediction_metrics_manager">Prediction Metrics Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf/metrics.html#module-nupic.frameworks.opf.metrics">Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf/metrics.html#helpers">Helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf/metrics.html#available-metrics">Available Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opf/results.html">Model Results</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opf/results.html#modelresult">ModelResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf/results.html#inferenceshifter">InferenceShifter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opf/utils.html">Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opf/utils.html#module-nupic.frameworks.opf.common_models.cluster_params">Common Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf/utils.html#inference-utilities">Inference Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf/utils.html#input-utilities">Input Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opf/utils.html#module-nupic.frameworks.opf.helpers">Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opf/exceptions.html">Exceptions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="network/index.html">Network API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="network/network.html">Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network/regions.html">Regions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="network/regions.html#pyregion">PyRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network/regions.html#anomalyregion">AnomalyRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network/regions.html#spregion">SPRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network/regions.html#tmregion">TMRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network/regions.html#anomalylikelihoodregion">AnomalyLikelihoodRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network/regions.html#knnanomalyclassifierregion">KNNAnomalyClassifierRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network/regions.html#knnclassifierregion">KNNClassifierRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network/regions.html#sdrclassifierregion">SDRClassifierRegion</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="network/sensors.html">Sensors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="network/sensors.html#pluggableencodersensor">PluggableEncoderSensor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network/sensors.html#recordsensor">RecordSensor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="network/viz.html">Network Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms/index.html">Algorithms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="algorithms/encoders.html">Encoders</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/encoders.html#base-encoder">Base Encoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/encoders.html#encoder-result">Encoder Result</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/encoders.html#category-encoders">Category Encoders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/encoders.html#scalar-encoders">Scalar Encoders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/encoders.html#date-encoder">Date Encoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/encoders.html#coordinate-encoders">Coordinate Encoders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/encoders.html#multi-encoder">Multi Encoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/encoders.html#pass-through-encoders">Pass Through Encoders</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms/spatial-pooling.html">Spatial Pooling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms/sequence-memory.html">Sequence Memory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/sequence-memory.html#module-nupic.algorithms.temporal_memory">Temporal Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/sequence-memory.html#module-nupic.algorithms.backtracking_tm">Backtracking Temporal Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/sequence-memory.html#module-nupic.algorithms.backtracking_tm_cpp">C++ Backtracking Temporal Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/sequence-memory.html#module-nupic.algorithms.connections">Connections</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms/classifiers.html">Classifiers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/classifiers.html#module-nupic.algorithms.sdr_classifier">SDR Classifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/classifiers.html#knn-classifier">KNN Classifier</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms/anomaly-detection.html">Anomaly Detection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/anomaly-detection.html#module-nupic.algorithms.anomaly">Anomaly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="algorithms/anomaly-detection.html#module-nupic.algorithms.anomaly_likelihood">AnomalyLikelihood</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data/index.html">Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data/index.html#module-nupic.data.field_meta">Field Meta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/index.html#module-nupic.data.file_record_stream">FileRecordStream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/index.html#module-nupic.data.record_stream">RecordStream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/index.html#module-nupic.data.stream_reader">StreamReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/index.html#id1">Stream Definition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/index.html#module-nupic.data.utils">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="support/index.html">Support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="support/index.html#configuration-base">Configuration Base</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support/index.html#module-nupic.support.configuration_custom">Configuration Custom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support/index.html#module-nupic.support.console_printer">Console Printer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support/index.html#module-nupic.support.fs_helpers">File System Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support/index.html#module-nupic.support.group_by">Group By</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support/index.html#module-nupic.support.lock_attributes">Lock Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support/index.html#module-nupic.support.pymysql_helpers">PyMySQL Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support/index.html#serializable">Serializable</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="math.html#module-nupic.math.stats">Stats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html#module-nupic.math.topology">Topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html#nupic-c-math-lib">NuPIC C++ Math Lib</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/index.html">Guides</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opf/index.html">Online Prediction Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network/index.html">Network API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/index.html">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support/index.html">Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html">Math</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/api/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
