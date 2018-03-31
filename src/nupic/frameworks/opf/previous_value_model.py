@@ -144,7 +144,8 @@ class PreviousValueModel(model.Model):
 
     proto.fieldNames = self._fieldNames
     proto.fieldTypes = self._fieldTypes
-    proto.predictedField = self._predictedField
+    if self._predictedField:
+      proto.predictedField = self._predictedField
     proto.predictionSteps = self._predictionSteps
 
 
@@ -161,8 +162,10 @@ class PreviousValueModel(model.Model):
     super(PreviousValueModel, instance).__init__(proto=proto.modelBase)
 
     instance._logger = opf_utils.initLogger(instance)
-
-    instance._predictedField = proto.predictedField
+    if len(proto.predictedField):
+      instance._predictedField = proto.predictedField
+    else:
+      instance._predictedField = None
     instance._fieldNames = list(proto.fieldNames)
     instance._fieldTypes = list(proto.fieldTypes)
     instance._predictionSteps = list(proto.predictionSteps)

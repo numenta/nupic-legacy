@@ -40,6 +40,8 @@ if capnp:
 g_debugPrefix = "KNN"
 KNNCLASSIFIER_VERSION = 1
 
+EPSILON = 0.00001 # constant error threshold to check equality of floats
+EPSILON_ROUND = 5 # Used to round floats
 
 
 def _labeledInput(activeInputs, cellsPerCol=32):
@@ -182,7 +184,7 @@ class KNNClassifier(Serializable):
                      sparseThreshold=0.1,
                      relativeThreshold=False,
                      numWinners=0,
-                     numSVDSamples=None,
+                     numSVDSamples=0,
                      numSVDDims=None,
                      fractionOfMax=None,
                      verbosity=0,
@@ -206,7 +208,7 @@ class KNNClassifier(Serializable):
     self.sparseThreshold = sparseThreshold
     self.relativeThreshold = relativeThreshold
     self.numWinners = numWinners
-    self.numSVDSamples = numSVDSamples
+    self.numSVDSamples = numSVDSamples or 0
     self.numSVDDims = numSVDDims
     self.fractionOfMax = fractionOfMax
     if self.numSVDDims=="adaptive":
@@ -519,7 +521,7 @@ class KNNClassifier(Serializable):
 
       # If the input was given in sparse form, convert it to dense if necessary
       if isSparse > 0 and (self._vt is not None or self.distThreshold > 0 \
-              or self.numSVDDims is not None or self.numSVDSamples is not None \
+              or self.numSVDDims is not None or self.numSVDSamples > 0 \
               or self.numWinners > 0):
           denseInput = numpy.zeros(isSparse)
           denseInput[inputPattern] = 1.0
@@ -613,9 +615,7 @@ class KNNClassifier(Serializable):
             self._categoryRecencyList.pop(leastRecentlyUsedPattern)
             self._numPatterns -= 1
 
-
-
-    if self.numSVDDims is not None and self.numSVDSamples is not None \
+    if self.numSVDDims is not None and self.numSVDSamples > 0 \
           and self._numPatterns == self.numSVDSamples:
         self.computeSVD()
 
@@ -1035,7 +1035,7 @@ class KNNClassifier(Serializable):
       self.computeSVD()
 
 
-  def computeSVD(self, numSVDSamples=None, finalize=True):
+  def computeSVD(self, numSVDSamples=0, finalize=True):
     """
     Compute the singular value decomposition (SVD). The SVD is a factorization
     of a real or complex matrix. It factors the matrix `a` as
@@ -1062,7 +1062,7 @@ class KNNClassifier(Serializable):
     :returns: (array) The singular values for every matrix, sorted in
                descending order.
     """
-    if numSVDSamples is None:
+    if numSVDSamples == 0:
       numSVDSamples = self._numPatterns
 
     if not self.useSparseMemory:
@@ -1204,14 +1204,25 @@ class KNNClassifier(Serializable):
     knn.distanceMethod = proto.distanceMethod
     knn.distThreshold = proto.distThreshold
     knn.doBinarization = proto.doBinarization
-    knn.binarizationThreshold = proto.binarizationThreshold
+    knn.binarizationThreshold = round(proto.binarizationThreshold,
+                                      EPSILON_ROUND)
     knn.useSparseMemory = proto.useSparseMemory
-    knn.sparseThreshold = proto.sparseThreshold
+    knn.sparseThreshold = round(proto.sparseThreshold, EPSILON_ROUND)
     knn.relativeThreshold = proto.relativeThreshold
     knn.numWinners = proto.numWinners
     knn.numSVDSamples = proto.numSVDSamples
-    knn.numSVDDims = proto.numSVDDims
-    knn.fractionOfMax = proto.fractionOfMax
+    which = proto.numSVDDims.which()
+    if which == "none":
+      knn.numSVDDims = None
+    elif which == "numSVDDimsText":
+      knn.numSVDDims = proto.numSVDDims.numSVDDimsText
+    else:
+      knn.numSVDDims = proto.numSVDDims.numSVDDimsInt
+    if proto.fractionOfMax != 0:
+      knn.fractionOfMax = round(proto.fractionOfMax, EPSILON_ROUND)
+    else:
+      knn.fractionOfMax = None
+
     knn.verbosity = proto.verbosity
     knn.maxStoredPatterns = proto.maxStoredPatterns
     knn.replaceDuplicates = proto.replaceDuplicates
@@ -1225,17 +1236,18 @@ class KNNClassifier(Serializable):
 
     # Read private state
     knn.clear()
-    if proto.memory is not None:
-      which = proto.memory.which()
-      if which == "ndarray":
-        knn._Memory = numpy.array(proto.memory.ndarray, dtype=numpy.float64)
-      elif which == "nearestNeighbor":
-        knn._Memory = NearestNeighbor()
-        knn._Memory.read(proto.memory.nearestNeighbor)
+    which = proto.memory.which()
+    if which == "ndarray":
+      knn._Memory = numpy.array(proto.memory.ndarray, dtype=numpy.float64)
+    elif which == "nearestNeighbor":
+      knn._Memory = NearestNeighbor()
+      knn._Memory.read(proto.memory.nearestNeighbor)
+    else:
+      knn._Memory = None
 
     knn._numPatterns = proto.numPatterns
 
-    if proto.m is not None:
+    if len(proto.m) > 0:
       knn._M = numpy.array(proto.m, dtype=numpy.float64)
 
     if proto.categoryList is not None:
@@ -1248,13 +1260,13 @@ class KNNClassifier(Serializable):
     knn._iterationIdx = proto.iterationIdx
     knn._finishedLearning = proto.finishedLearning
 
-    if proto.s is not None:
+    if len(proto.s) > 0:
       knn._s = numpy.array(proto.s, dtype=numpy.float32)
 
-    if proto.vt is not None:
+    if len(proto.vt) > 0:
       knn._vt = numpy.array(proto.vt, dtype=numpy.float32)
 
-    if proto.mean is not None:
+    if len(proto.mean):
       knn._mean = numpy.array(proto.mean, dtype=numpy.float32)
 
     return knn
@@ -1267,13 +1279,23 @@ class KNNClassifier(Serializable):
     proto.exact = bool(self.exact)
     proto.distanceNorm = self.distanceNorm
     proto.distanceMethod = self.distanceMethod
-    proto.distThreshold = self.distThreshold
+    proto.distThreshold = round(self.distThreshold, EPSILON_ROUND)
     proto.doBinarization = bool(self.doBinarization)
-    proto.binarizationThreshold = self.binarizationThreshold
+    proto.binarizationThreshold = round(self.binarizationThreshold,
+                                        EPSILON_ROUND)
     proto.useSparseMemory = bool(self.useSparseMemory)
-    proto.sparseThreshold = self.sparseThreshold
+    proto.sparseThreshold = round(self.sparseThreshold, EPSILON_ROUND)
     proto.relativeThreshold = bool(self.relativeThreshold)
     proto.numWinners = self.numWinners
+    proto.numSVDSamples = self.numSVDSamples
+    if self.numSVDDims is None:
+      proto.numSVDDims.none = None
+    elif isinstance(self.numSVDDims, int):
+        proto.numSVDDims.numSVDDimsInt = self.numSVDDims
+    else:
+        proto.numSVDDims.numSVDDimsText = self.numSVDDims
+    if self.fractionOfMax is not None:
+      proto.fractionOfMax = round(self.fractionOfMax, EPSILON_ROUND)
     proto.verbosity = self.verbosity
     proto.maxStoredPatterns = self.maxStoredPatterns
     proto.replaceDuplicates = bool(self.replaceDuplicates)
@@ -1281,12 +1303,13 @@ class KNNClassifier(Serializable):
     proto.minSparsity = self.minSparsity
 
     # Write private state
-    if self._Memory is not None:
-      if isinstance(self._Memory, numpy.ndarray):
-        proto.memory.ndarray = self._Memory.tolist()
-      else:
-        proto.memory.init("nearestNeighbor")
-        self._Memory.write(proto.memory.nearestNeighbor)
+    if self._Memory is  None:
+      proto.memory.none = None
+    elif isinstance(self._Memory, numpy.ndarray):
+      proto.memory.ndarray = self._Memory.tolist()
+    else:
+      proto.memory.init("nearestNeighbor")
+      self._Memory.write(proto.memory.nearestNeighbor)
 
     proto.numPatterns = self._numPatterns
 

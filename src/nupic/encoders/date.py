@@ -26,6 +26,12 @@ import numpy
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.date_capnp import DateEncoderProto
 
 
 
@@ -399,6 +405,9 @@ class DateEncoder(Encoder):
   def getDescription(self):
     return self.description
 
+  @classmethod
+  def getSchema(cls):
+    return DateEncoderProto
 
   @classmethod
   def read(cls, proto):

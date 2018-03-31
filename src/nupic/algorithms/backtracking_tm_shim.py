@@ -33,7 +33,30 @@ from nupic.algorithms.temporal_memory import TemporalMemory
 
 
 class MonitoredTemporalMemory(TemporalMemoryMonitorMixin,
-                              TemporalMemory): pass
+                              TemporalMemory):
+  def __init__(self, *args, **kwargs):
+    TemporalMemoryMonitorMixin.__init__(self, *args, **kwargs)
+    TemporalMemory.__init__(self, *args, **kwargs)
+
+  @classmethod
+  def read(cls, proto):
+    """
+    Intercepts TemporalMemory deserialization request in order to initialize
+    `TemporalMemoryMonitorMixin` state
+
+    @param proto (DynamicStructBuilder) Proto object
+
+    @return (TemporalMemory) TemporalMemory shim instance
+    """
+    tm = super(TemporalMemoryMonitorMixin, cls).read(proto)
+
+    # initialize `TemporalMemoryMonitorMixin` attributes
+    tm.mmName = None
+    tm._mmTraces = None
+    tm._mmData = None
+    tm.mmClearHistory()
+    tm._mmResetActive = True
+    return tm
 
 
 
@@ -214,6 +237,20 @@ class MonitoredTMShim(MonitoredTemporalMemory):
       seed=seed)
 
     self.infActiveState = {"t": None}
+
+  @classmethod
+  def read(cls, proto):
+    """
+    Intercepts TemporalMemory deserialization request in order to initialize
+    `self.infActiveState`
+
+    @param proto (DynamicStructBuilder) Proto object
+
+    @return (TemporalMemory) TemporalMemory shim instance
+    """
+    tm = super(MonitoredTMShim, cls).read(proto)
+    tm.infActiveState = {"t": None}
+    return tm
 
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):

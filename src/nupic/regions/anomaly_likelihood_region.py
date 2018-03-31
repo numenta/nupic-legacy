@@ -126,6 +126,9 @@ class AnomalyLikelihoodRegion(PyRegion, Serializable):
   def __ne__(self, other):
     return not self == other
 
+  @classmethod
+  def getSchema(cls):
+    return AnomalyLikelihood.getSchema()
 
   @classmethod
   def read(cls, proto):

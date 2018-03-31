@@ -30,6 +30,13 @@ from nupic.algorithms.backtracking_tm import BacktrackingTM
 from nupic.algorithms.backtracking_tm_cpp import BacktrackingTMCPP
 from nupic.algorithms.connections import Connections
 from nupic.math import GetNTAReal
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.algorithms.temporal_memory_shim_capnp import (
+    TemporalMemoryShimProto)
 
 
 
@@ -94,3 +101,29 @@ class TemporalMemoryShim(TMClass):
 
     predictedState = self.getPredictedState()
     self.predictiveCells = set(numpy.flatnonzero(predictedState))
+
+
+  @classmethod
+  def getSchema(cls):
+    return TemporalMemoryShimProto
+
+
+  @classmethod
+  def read(cls, proto):
+    """Deserialize from proto instance.
+
+    :param proto: (TemporalMemoryShimProto) the proto instance to read from
+    """
+    tm = super(TemporalMemoryShim, cls).read(proto.baseTM)
+    tm.predictiveCells = set(proto.predictedState)
+    tm.connections = Connections.read(proto.conncetions)
+
+
+  def write(self, proto):
+    """Populate serialization proto instance.
+
+    :param proto: (TemporalMemoryShimProto) the proto instance to populate
+    """
+    super(TemporalMemoryShim, self).write(proto.baseTM)
+    proto.connections.write(self.connections)
+    proto.predictiveCells = self.predictiveCells

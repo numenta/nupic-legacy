@@ -27,6 +27,12 @@ from nupic.algorithms import anomaly
 from nupic.bindings.regions.PyRegion import PyRegion
 
 from nupic.serializable import Serializable
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.regions.AnomalyRegion_capnp import AnomalyRegionProto
 
 
 class AnomalyRegion(PyRegion, Serializable):
@@ -102,14 +108,19 @@ class AnomalyRegion(PyRegion, Serializable):
 
 
   @classmethod
+  def getSchema(cls):
+    return AnomalyRegionProto
+
+  @classmethod
   def read(cls, proto):
     anomalyRegion = object.__new__(cls)
-    anomalyRegion.prevPredictedColumns = numpy.array(proto.prevPredictedColumns)
+    anomalyRegion.prevPredictedColumns = numpy.array(proto.prevPredictedColumns,
+                                                     dtype=numpy.float32)
     return anomalyRegion
 
 
   def write(self, proto):
-    proto.prevPredictedColumns = self.prevPredictedColumns.tolist()
+    proto.prevPredictedColumns = self.prevPredictedColumns.ravel().tolist()
 
 
   def initialize(self):
@@ -122,6 +133,7 @@ class AnomalyRegion(PyRegion, Serializable):
     rawAnomalyScore = anomaly.computeRawAnomalyScore(
         activeColumns, self.prevPredictedColumns)
 
-    self.prevPredictedColumns = inputs["predictedColumns"].nonzero()[0]
+    self.prevPredictedColumns = numpy.array(
+      inputs["predictedColumns"].nonzero()[0], dtype=numpy.float32)
 
     outputs["rawAnomalyScore"][0] = rawAnomalyScore

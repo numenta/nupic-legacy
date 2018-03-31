@@ -298,5 +298,4 @@ class SerializableTest(unittest.TestCase):
       actual = _getAttributes(serialized)
 
       # Make sure all fields were initialized
-      self.assertEquals(len(actual), len(expected))
       self.assertEquals(actual, expected, klass.__name__)

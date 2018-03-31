@@ -470,8 +470,10 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
     proto.lrnIterationIdx = self.lrnIterationIdx
     proto.iterationIdx = self.iterationIdx
     proto.segID = self.segID
-    if self.currentOutput is not None:
-      proto.currentOutput = self.currentOutput.tolist()
+    if self.currentOutput is None:
+      proto.currentOutput.none = None
+    else:
+      proto.currentOutput.list = self.currentOutput.tolist()
     proto.pamCounter = self.pamCounter
     proto.collectSequenceStats = self.collectSequenceStats
     proto.resetCalled = self.resetCalled
@@ -595,7 +597,11 @@ class BacktrackingTM(ConsolePrinterMixin, Serializable):
     # Initialize various structures
     obj._initEphemerals()
 
-    obj.currentOutput = numpy.array(proto.currentOutput, dtype='float32')
+    if proto.currentOutput.which() == "none":
+      obj.currentOutput = None
+    else:
+      obj.currentOutput = numpy.array(proto.currentOutput.list,
+                                      dtype='float32')
 
     for pattern in proto.prevLrnPatterns:
       obj.prevLrnPatterns.append([v for v in pattern])

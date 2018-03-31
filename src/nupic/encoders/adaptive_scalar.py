@@ -26,6 +26,13 @@ from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.utils import MovingAverage
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.adaptive_scalar_capnp import AdaptiveScalarEncoderProto
+
 
 
 class AdaptiveScalarEncoder(ScalarEncoder):
@@ -210,6 +217,10 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     string += "  rangeInternal: {rangeInternal}".format(rangeInternal = self.rangeInternal)
     string += "  padding: {padding}".format(padding = self.padding)
     return string
+
+  @classmethod
+  def getSchema(cls):
+    return AdaptiveScalarEncoderProto
 
   @classmethod
   def read(cls, proto):

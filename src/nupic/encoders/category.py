@@ -26,6 +26,12 @@ from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.base import Encoder, EncoderResult
 from nupic.encoders.scalar import ScalarEncoder
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.category_capnp import CategoryEncoderProto
 
 
 UNKNOWN = "<UNKNOWN>"
@@ -223,6 +229,10 @@ class CategoryEncoder(Encoder):
 
 
   @classmethod
+  def getSchema(cls):
+    return CategoryEncoderProto
+
+  @classmethod
   def read(cls, proto):
     encoder = object.__new__(cls)
 
@@ -238,7 +248,9 @@ class CategoryEncoder(Encoder):
                                in encoder.indexToCategory.items()
                                if category != UNKNOWN}
     encoder._topDownMappingM = None
+    encoder.ncategories = len(proto.indexToCategory)
     encoder._bucketValues = None
+    encoder.encoders = None
 
     return encoder
 

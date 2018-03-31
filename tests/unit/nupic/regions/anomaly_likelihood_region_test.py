@@ -30,8 +30,8 @@ try:
 except ImportError:
   capnp = None
 if capnp:
-  from nupic.regions.AnomalyLikelihoodRegion_capnp import\
-    AnomalyLikelihoodRegionProto
+  from nupic.algorithms.anomaly_likelihood_capnp import\
+    AnomalyLikelihoodProto as AnomalyLikelihoodRegionProto
 
 from nupic.regions.anomaly_likelihood_region import AnomalyLikelihoodRegion
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood

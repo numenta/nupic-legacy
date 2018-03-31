@@ -2,6 +2,7 @@
 
 using import "/nupic/encoders/adaptive_scalar.capnp".AdaptiveScalarEncoderProto;
 
+# Next ID: 8
 struct DeltaEncoderProto {
   width @0 :UInt32;
   name @1 :Text;
@@ -10,4 +11,5 @@ struct DeltaEncoderProto {
   prevAbsolute @4 :Float32;
   prevDelta @5 :Float32;
   stateLock @6 :Bool;
+  learningEnabled @7: Bool;
 }

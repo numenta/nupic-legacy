@@ -23,6 +23,12 @@ from bisect import bisect_left
 from collections import defaultdict
 
 from nupic.serializable import Serializable
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.proto.ConnectionsProto_capnp import ConnectionsProto
 
 EPSILON = 0.00001 # constant error threshold to check equality of permanences to
                   # other floats
@@ -106,6 +112,12 @@ class CellData(object):
 
   def __init__(self):
     self._segments = []
+
+  def __eq__(self, other):
+      return self._segments == other._segments
+
+  def __ne__(self, other):
+    return not self.__eq__(other)
 
 
 
@@ -441,6 +453,11 @@ class Connections(Serializable):
         for k, synapse in enumerate(sorted(synapses, key=lambda s: s._ordinal)):
           protoSynapses[k].presynapticCell = synapse.presynapticCell
           protoSynapses[k].permanence = synapse.permanence
+
+
+  @classmethod
+  def getSchema(cls):
+    return ConnectionsProto
 
 
   @classmethod

@@ -27,6 +27,12 @@ from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.base import Encoder, EncoderResult
 from nupic.bindings.math import SM32, GetNTAReal, Random as NupicRandom
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.sdr_category_capnp import SDRCategoryEncoderProto
 
 
 class SDRCategoryEncoder(Encoder):
@@ -358,6 +364,10 @@ class SDRCategoryEncoder(Encoder):
 
 
   @classmethod
+  def getSchema(cls):
+    return SDRCategoryEncoderProto
+
+  @classmethod
   def read(cls, proto):
     encoder = object.__new__(cls)
 
@@ -375,8 +385,11 @@ class SDRCategoryEncoder(Encoder):
                                for index, category
                                in enumerate(encoder.categories)}
     encoder.ncategories = len(encoder.categories)
-    encoder._learningEnabled = False
+    encoder._learningEnabled = proto.learningEnabled
     encoder._initOverlap()
+    encoder._topDownMappingM = None
+    encoder._topDownValues = None
+    encoder.encoders = None
 
     return encoder
 
@@ -389,3 +402,4 @@ class SDRCategoryEncoder(Encoder):
     proto.name = self.name
     proto.categories = self.categories
     proto.sdrs = self.sdrs.tolist()
+    proto.learningEnabled = self._learningEnabled

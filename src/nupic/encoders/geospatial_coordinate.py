@@ -25,6 +25,13 @@ import numpy
 from pyproj import Proj, transform
 from nupic.encoders import CoordinateEncoder
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.geospatial_coordinate_capnp import GeospatialCoordinateEncoderProto
+
 
 
 # From http://spatialreference.org/ref/epsg/popular-visualisation-crs-mercator/
@@ -133,6 +140,11 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
     string += "\n  w:   {w}".format(w=self.w)
     string += "\n  n:   {n}".format(n=self.n)
     return string
+
+
+  @classmethod
+  def getSchema(cls):
+    return GeospatialCoordinateEncoderProto
 
 
   @classmethod
