@@ -31,6 +31,8 @@ from nupic.frameworks.opf.opf_utils import InferenceType
 import nupic.frameworks.opf.opf_utils as opf_utils
 from nupic.serializable import Serializable
 
+# Capnp reader traveral limit (see capnp::ReaderOptions)
+_TRAVERSAL_LIMIT_IN_WORDS = 1 << 63
 
 class Model(Serializable):
   """ This is the base class that all OPF Model implementations should
@@ -264,11 +266,12 @@ class Model(Serializable):
 
   @classmethod
   def readFromCheckpoint(cls, checkpointDir):
-    """Deerializes model from checkpointDir using capnproto"""
+    """Deserializes model from checkpointDir using capnproto"""
     checkpointPath = cls._getModelCheckpointFilePath(checkpointDir)
 
     with open(checkpointPath, 'r') as f:
-      proto = cls.getSchema().read(f)
+      proto = cls.getSchema().read(f,
+                                   traversal_limit_in_words=_TRAVERSAL_LIMIT_IN_WORDS)
 
     model = cls.read(proto)
     return model
