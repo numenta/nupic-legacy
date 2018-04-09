@@ -126,7 +126,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     # If set to False, Cells4 will *not* be treated as an ephemeral member
     # and full BacktrackingTMCPP pickling is possible. This is useful for testing
     # pickle/unpickle without saving Cells4 to an external file
-    self.makeCells4Ephemeral = True
+    self.makeCells4Ephemeral = False
 
     #---------------------------------------------------------------------------------
     # Store the seed for constructing Cells4
@@ -162,6 +162,8 @@ class BacktrackingTMCPP(BacktrackingTM):
                             outputType = outputType,
                             )
 
+    if not self.makeCells4Ephemeral:
+      self._initCells4()
 
   @classmethod
   def getSchema(cls):
@@ -211,6 +213,36 @@ class BacktrackingTMCPP(BacktrackingTM):
 
     return obj
 
+  def _initCells4(self):
+    self.cells4 = Cells4(self.numberOfCols,
+               self.cellsPerColumn,
+               self.activationThreshold,
+               self.minThreshold,
+               self.newSynapseCount,
+               self.segUpdateValidDuration,
+               self.initialPerm,
+               self.connectedPerm,
+               self.permanenceMax,
+               self.permanenceDec,
+               self.permanenceInc,
+               self.globalDecay,
+               self.doPooling,
+               self.seed,
+               self.allocateStatesInCPP,
+               self.checkSynapseConsistency)
+
+    self.cells4.setVerbosity(self.verbosity)
+    self.cells4.setPamLength(self.pamLength)
+    self.cells4.setMaxAge(self.maxAge)
+    self.cells4.setMaxInfBacktrack(self.maxInfBacktrack)
+    self.cells4.setMaxLrnBacktrack(self.maxLrnBacktrack)
+    self.cells4.setMaxSeqLength(self.maxSeqLength)
+    self.cells4.setMaxSegmentsPerCell(self.maxSegmentsPerCell)
+    self.cells4.setMaxSynapsesPerCell(self.maxSynapsesPerSegment)
+
+    # Reset internal C++ pointers to states
+    self._setStatePointers()
+
 
   def __setstate__(self, state):
     """
@@ -218,34 +250,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     """
     super(BacktrackingTMCPP, self).__setstate__(state)
     if self.makeCells4Ephemeral:
-      self.cells4 = Cells4(self.numberOfCols,
-                 self.cellsPerColumn,
-                 self.activationThreshold,
-                 self.minThreshold,
-                 self.newSynapseCount,
-                 self.segUpdateValidDuration,
-                 self.initialPerm,
-                 self.connectedPerm,
-                 self.permanenceMax,
-                 self.permanenceDec,
-                 self.permanenceInc,
-                 self.globalDecay,
-                 self.doPooling,
-                 self.seed,
-                 self.allocateStatesInCPP,
-                 self.checkSynapseConsistency)
-
-      self.cells4.setVerbosity(self.verbosity)
-      self.cells4.setPamLength(self.pamLength)
-      self.cells4.setMaxAge(self.maxAge)
-      self.cells4.setMaxInfBacktrack(self.maxInfBacktrack)
-      self.cells4.setMaxLrnBacktrack(self.maxLrnBacktrack)
-      self.cells4.setMaxSeqLength(self.maxSeqLength)
-      self.cells4.setMaxSegmentsPerCell(self.maxSegmentsPerCell)
-      self.cells4.setMaxSynapsesPerCell(self.maxSynapsesPerSegment)
-
-    # Reset internal C++ pointers to states
-    self._setStatePointers()
+      self._initCells4()
 
 
   def _getEphemeralMembers(self):
@@ -276,33 +281,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     self.retrieveLearningStates = False
 
     if self.makeCells4Ephemeral:
-      self.cells4 = Cells4(self.numberOfCols,
-                 self.cellsPerColumn,
-                 self.activationThreshold,
-                 self.minThreshold,
-                 self.newSynapseCount,
-                 self.segUpdateValidDuration,
-                 self.initialPerm,
-                 self.connectedPerm,
-                 self.permanenceMax,
-                 self.permanenceDec,
-                 self.permanenceInc,
-                 self.globalDecay,
-                 self.doPooling,
-                 self.seed,
-                 self.allocateStatesInCPP,
-                 self.checkSynapseConsistency)
-
-      self.cells4.setVerbosity(self.verbosity)
-      self.cells4.setPamLength(self.pamLength)
-      self.cells4.setMaxAge(self.maxAge)
-      self.cells4.setMaxInfBacktrack(self.maxInfBacktrack)
-      self.cells4.setMaxLrnBacktrack(self.maxLrnBacktrack)
-      self.cells4.setMaxSeqLength(self.maxSeqLength)
-      self.cells4.setMaxSegmentsPerCell(self.maxSegmentsPerCell)
-      self.cells4.setMaxSynapsesPerCell(self.maxSynapsesPerSegment)
-
-      self._setStatePointers()
+      self._initCells4()
 
   def saveToFile(self, filePath):
     """
@@ -315,6 +294,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     """
     Load Cells4 state from a file saved with :meth:`saveToFile`.
     """
+    self._setStatePointers()
     self.cells4.loadFromFile(filePath)
 
 
@@ -336,7 +316,7 @@ class BacktrackingTMCPP(BacktrackingTM):
     """
 
     try:
-      return super(BacktrackingTM, self).__getattr__(name)
+      return super(BacktrackingTMCPP, self).__getattr__(name)
     except AttributeError:
       raise AttributeError("'TM' object has no attribute '%s'" % name)
 
@@ -428,8 +408,8 @@ class BacktrackingTMCPP(BacktrackingTM):
       assert False
       (activeT, activeT1, predT, predT1, colConfidenceT, colConfidenceT1, confidenceT,
        confidenceT1) = self.cells4.getStates()
-      self.confidence['t-1'] = confidenceT1.reshape((self.numberOfCols, self.cellsPerColumn))
-      self.confidence['t'] = confidenceT.reshape((self.numberOfCols, self.cellsPerColumn))
+      self.cellConfidence['t'] = confidenceT.reshape((self.numberOfCols, self.cellsPerColumn))
+      self.cellConfidence['t-1'] = confidenceT1.reshape((self.numberOfCols, self.cellsPerColumn))
       self.colConfidence['t'] = colConfidenceT.reshape(self.numberOfCols)
       self.colConfidence['t-1'] = colConfidenceT1.reshape(self.numberOfCols)
       self.infActiveState['t-1'] = activeT1.reshape((self.numberOfCols, self.cellsPerColumn))
