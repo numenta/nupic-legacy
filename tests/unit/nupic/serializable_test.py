@@ -148,7 +148,8 @@ def _getAttributes(obj):
   testParams = SERIALIZABLE_SUBCLASSES[obj.__class__.__name__]
   if "volatile" in testParams:
     for f in testParams["volatile"]:
-      del attrs[f]
+      if f in attrs:
+        del attrs[f]
 
   return attrs
 
