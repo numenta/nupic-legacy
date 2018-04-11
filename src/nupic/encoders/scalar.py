@@ -29,6 +29,12 @@ from nupic.data.field_meta import FieldMetaType
 from nupic.bindings.math import SM32, GetNTAReal
 from nupic.encoders.base import Encoder, EncoderResult
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.scalar_capnp import ScalarEncoderProto
 
 
 DEFAULT_RADIUS = 0
@@ -718,6 +724,11 @@ class ScalarEncoder(Encoder):
     string += "  rangeInternal: {rangeInternal}".format(rangeInternal = self.rangeInternal)
     string += "  padding: {padding}".format(padding = self.padding)
     return string
+
+
+  @classmethod
+  def getSchema(cls):
+    return ScalarEncoderProto
 
 
   @classmethod

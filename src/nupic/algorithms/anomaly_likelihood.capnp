@@ -1,6 +1,6 @@
 @0x8602f38429407eb0;
 
-struct AnomalyLikelihoodRegionProto {
+struct AnomalyLikelihoodProto {
   iteration @0 :UInt64;
   historicalScores @1 :List(Score);
   distribution @2 :Distribution;

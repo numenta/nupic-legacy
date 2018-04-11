@@ -27,6 +27,13 @@ from nupic.bindings.math import Random
 from nupic.encoders.base import Encoder
 
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.coordinate_capnp import CoordinateEncoderProto
+
 
 class CoordinateEncoder(Encoder):
   """
@@ -188,6 +195,10 @@ class CoordinateEncoder(Encoder):
     string += "\n  n:   {n}".format(n=self.n)
     return string
 
+  @classmethod
+  def getSchema(cls):
+    return CoordinateEncoderProto
+
 
   @classmethod
   def read(cls, proto):
@@ -196,6 +207,7 @@ class CoordinateEncoder(Encoder):
     encoder.n = proto.n
     encoder.verbosity = proto.verbosity
     encoder.name = proto.name
+    encoder.encoders = None
     return encoder
 
 

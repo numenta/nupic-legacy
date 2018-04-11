@@ -65,6 +65,7 @@ DEFAULT_ANOMALY_TRAINRECORDS = 4000
 DEFAULT_ANOMALY_THRESHOLD = 1.1
 DEFAULT_ANOMALY_CACHESIZE = 10000
 
+EPSILON_ROUND = 7
 
 def requireAnomalyModel(func):
   """
@@ -101,6 +102,12 @@ class NetworkInfo(object):
     return "NetworkInfo(net=%r, statsCollectors=%r)" % (
               self.net, self.statsCollectors)
 
+  def __eq__(self, other):
+    return self.net == other.net and \
+           self.statsCollectors == other.statsCollectors
+
+  def __ne__(self, other):
+    return not self.__eq__(other)
 
 
 class HTMPredictionModel(Model):
@@ -1329,6 +1336,22 @@ class HTMPredictionModel(Model):
     proto.maxPredictionsPerStep = self._maxPredictionsPerStep
 
     self._netInfo.net.write(proto.network)
+    proto.spLearningEnabled = self.__spLearningEnabled
+    proto.tpLearningEnabled = self.__tpLearningEnabled
+    if self._predictedFieldIdx is None:
+      proto.predictedFieldIdx.none = None
+    else:
+      proto.predictedFieldIdx.value = self._predictedFieldIdx
+    if self._predictedFieldName is None:
+      proto.predictedFieldName.none = None
+    else:
+      proto.predictedFieldName.value = self._predictedFieldName
+    if self._numFields is None:
+      proto.numFields.none = None
+    else:
+      proto.numFields.value = self._numFields
+    proto.trainSPNetOnlyIfRequested = self.__trainSPNetOnlyIfRequested
+    proto.finishedLearning = self.__finishedLearning
 
 
   @classmethod
@@ -1336,28 +1359,55 @@ class HTMPredictionModel(Model):
     """
     :param proto: capnp HTMPredictionModelProto message reader
     """
+    obj = object.__new__(cls)
+    # model.capnp
+    super(HTMPredictionModel, obj).__init__(proto=proto.modelBase)
+
+    # HTMPredictionModelProto.capnp
+    obj._minLikelihoodThreshold = round(proto.minLikelihoodThreshold,
+                                        EPSILON_ROUND)
+    obj._maxPredictionsPerStep = proto.maxPredictionsPerStep
+
     network = Network.read(proto.network)
-    spEnable = ("SP" in network.regions)
-    tmEnable = ("TM" in network.regions)
-    clEnable = ("Classifier" in network.regions)
+    obj._hasSP = ("SP" in network.regions)
+    obj._hasTP = ("TM" in network.regions)
+    obj._hasCL = ("Classifier" in network.regions)
+    obj._netInfo = NetworkInfo(net=network, statsCollectors=[])
 
-    model = cls(spEnable=spEnable,
-                tmEnable=tmEnable,
-                clEnable=clEnable,
-                network=network,
-                baseProto=proto.modelBase)
+    obj.__spLearningEnabled = bool(proto.spLearningEnabled)
+    obj.__tpLearningEnabled = bool(proto.tpLearningEnabled)
+    obj.__numRunCalls = proto.numRunCalls
 
-    model.__numRunCalls = proto.numRunCalls
-    model._minLikelihoodThreshold = proto.minLikelihoodThreshold
-    model._maxPredictionsPerStep = proto.maxPredictionsPerStep
+    obj._classifierInputEncoder = None
+    if proto.predictedFieldIdx.which() == "none":
+      obj._predictedFieldIdx = None
+    else:
+      obj._predictedFieldIdx = proto.predictedFieldIdx.value
+    if proto.predictedFieldName.which() == "none":
+      obj._predictedFieldName = None
+    else:
+      obj._predictedFieldName = proto.predictedFieldName.value
+    obj._numFields = proto.numFields
+    if proto.numFields.which() == "none":
+      obj._numFields = None
+    else:
+      obj._numFields = proto.numFields.value
+    obj.__trainSPNetOnlyIfRequested = proto.trainSPNetOnlyIfRequested
+    obj.__finishedLearning = proto.finishedLearning
+    obj._input = None
+    sensor = network.regions['sensor'].getSelf()
+    sensor.dataSource = DataBuffer()
+    network.initialize()
 
-    model._getSensorRegion().getSelf().dataSource = DataBuffer()
-    model._netInfo.net.initialize()
+
+    obj.__logger = initLogger(obj)
+    obj.__logger.debug("Instantiating %s." % obj.__myClassName)
 
     # Mark end of restoration from state
-    model.__restoringFromState = False
+    obj.__restoringFromState = False
+    obj.__restoringFromV1 = False
 
-    return model
+    return obj
 
 
   def _serializeExtraData(self, extraDataDir):

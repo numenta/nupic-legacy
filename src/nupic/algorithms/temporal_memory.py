@@ -32,8 +32,16 @@ from nupic.algorithms.connections import Connections, binSearch
 from nupic.serializable import Serializable
 from nupic.support.group_by import groupby2
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.proto.TemporalMemoryProto_capnp import TemporalMemoryProto
+
 EPSILON = 0.00001 # constant error threshold to check equality of permanences to
                   # other floats
+EPSILON_ROUND = 5 # Used to round floats
 
 
 
@@ -1133,12 +1141,12 @@ class TemporalMemory(Serializable):
     proto.columnDimensions = list(self.columnDimensions)
     proto.cellsPerColumn = self.cellsPerColumn
     proto.activationThreshold = self.activationThreshold
-    proto.initialPermanence = self.initialPermanence
-    proto.connectedPermanence = self.connectedPermanence
+    proto.initialPermanence = round(self.initialPermanence, EPSILON_ROUND)
+    proto.connectedPermanence = round(self.connectedPermanence, EPSILON_ROUND)
     proto.minThreshold = self.minThreshold
     proto.maxNewSynapseCount = self.maxNewSynapseCount
-    proto.permanenceIncrement = self.permanenceIncrement
-    proto.permanenceDecrement = self.permanenceDecrement
+    proto.permanenceIncrement = round(self.permanenceIncrement, EPSILON_ROUND)
+    proto.permanenceDecrement = round(self.permanenceDecrement, EPSILON_ROUND)
     proto.predictedSegmentDecrement = self.predictedSegmentDecrement
 
     proto.maxSegmentsPerCell = self.maxSegmentsPerCell
@@ -1190,6 +1198,11 @@ class TemporalMemory(Serializable):
 
 
   @classmethod
+  def getSchema(cls):
+    return TemporalMemoryProto
+
+
+  @classmethod
   def read(cls, proto):
     """
     Reads deserialized data from proto object.
@@ -1206,13 +1219,14 @@ class TemporalMemory(Serializable):
     tm.columnDimensions = tuple(proto.columnDimensions)
     tm.cellsPerColumn = int(proto.cellsPerColumn)
     tm.activationThreshold = int(proto.activationThreshold)
-    tm.initialPermanence = proto.initialPermanence
-    tm.connectedPermanence = proto.connectedPermanence
+    tm.initialPermanence = round(proto.initialPermanence, EPSILON_ROUND)
+    tm.connectedPermanence = round(proto.connectedPermanence, EPSILON_ROUND)
     tm.minThreshold = int(proto.minThreshold)
     tm.maxNewSynapseCount = int(proto.maxNewSynapseCount)
-    tm.permanenceIncrement = proto.permanenceIncrement
-    tm.permanenceDecrement = proto.permanenceDecrement
-    tm.predictedSegmentDecrement = proto.predictedSegmentDecrement
+    tm.permanenceIncrement = round(proto.permanenceIncrement, EPSILON_ROUND)
+    tm.permanenceDecrement = round(proto.permanenceDecrement, EPSILON_ROUND)
+    tm.predictedSegmentDecrement = round(proto.predictedSegmentDecrement,
+                                         EPSILON_ROUND)
 
     tm.maxSegmentsPerCell = int(proto.maxSegmentsPerCell)
     tm.maxSynapsesPerSegment = int(proto.maxSynapsesPerSegment)

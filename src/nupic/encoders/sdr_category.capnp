@@ -2,7 +2,7 @@
 
 using import "/nupic/proto/RandomProto.capnp".RandomProto;
 
-# Next ID: 7
+# Next ID: 8
 struct SDRCategoryEncoderProto {
   n @0 :UInt32;
   w @1 :UInt32;
@@ -11,4 +11,5 @@ struct SDRCategoryEncoderProto {
   name @4 :Text;
   categories @5 :List(Text);
   sdrs @6 :List(List(UInt8));
+  learningEnabled @7: Bool;
 }

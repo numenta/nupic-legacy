@@ -841,7 +841,8 @@ class KNNAnomalyClassifierRegion(PyRegion):
     proto.activeColumnCount = self._activeColumnCount
     if self._prevPredictedColumns is not None:
       proto.prevPredictedColumns = self._prevPredictedColumns.tolist()
-    proto.anomalyVectorLength = self._anomalyVectorLength
+    if self._anomalyVectorLength is not None:
+      proto.anomalyVectorLength = self._anomalyVectorLength
     proto.classificationMaxDist = self._classificationMaxDist
     proto.iteration = self._iteration
     proto.trainRecords = self.trainRecords

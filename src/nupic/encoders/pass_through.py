@@ -24,6 +24,13 @@ from nupic.data.field_meta import FieldMetaType
 from nupic.encoders.base import Encoder
 
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.pass_through_capnp import PassThroughEncoderProto
+
 
 class PassThroughEncoder(Encoder):
   """
@@ -142,6 +149,10 @@ class PassThroughEncoder(Encoder):
     r = r * ratio
 
     return numpy.array([r])
+
+  @classmethod
+  def getSchema(cls):
+    return PassThroughEncoderProto
 
 
   @classmethod

@@ -26,7 +26,14 @@ from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.field_meta import FieldMetaType
 from nupic.encoders.base import Encoder, EncoderResult
 from nupic.encoders import ScalarEncoder
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.logarithm_capnp import LogEncoderProto
 
+EPSILON_ROUND = 7 # Used to round floats
 
 class LogEncoder(Encoder):
   """
@@ -283,19 +290,24 @@ class LogEncoder(Encoder):
 
 
   @classmethod
+  def getSchema(cls):
+    return LogEncoderProto
+
+  @classmethod
   def read(cls, proto):
     encoder = object.__new__(cls)
     encoder.verbosity = proto.verbosity
-    encoder.minScaledValue = proto.minScaledValue
-    encoder.maxScaledValue = proto.maxScaledValue
+    encoder.minScaledValue = round(proto.minScaledValue, EPSILON_ROUND)
+    encoder.maxScaledValue = round(proto.maxScaledValue, EPSILON_ROUND)
     encoder.clipInput = proto.clipInput
-    encoder.minval = proto.minval
-    encoder.maxval = proto.maxval
+    encoder.minval = round(proto.minval, EPSILON_ROUND)
+    encoder.maxval = round(proto.maxval, EPSILON_ROUND)
     encoder.encoder = ScalarEncoder.read(proto.encoder)
     encoder.name = proto.name
     encoder.width = encoder.encoder.getWidth()
     encoder.description = [(encoder.name, 0)]
     encoder._bucketValues = None
+    encoder.encoders = None
     return encoder
 
 

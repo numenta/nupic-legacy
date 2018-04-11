@@ -103,7 +103,7 @@ class SDRClassifier(Serializable):
 
 
   def __init__(self,
-               steps=(1,),
+               steps=[1],
                alpha=0.001,
                actValueAlpha=0.3,
                verbosity=0):

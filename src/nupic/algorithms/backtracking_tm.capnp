@@ -32,6 +32,7 @@ struct SegmentUpdateProto {
   weaklyPredicting @7 :Bool;
 }
 
+# Next ID: 61
 struct BacktrackingTMProto {
   version @0 :UInt16;
   random @1 :RandomProto;
@@ -69,7 +70,11 @@ struct BacktrackingTMProto {
   lrnIterationIdx @28 :UInt32;
   iterationIdx @29 :UInt32;
   segID @30 :UInt32;
-  currentOutput @31 :List(List(Bool));
+
+  currentOutput :union {
+    none @60 :Void;
+    list @31 :List(List(Bool));
+  }
 
   pamCounter @32 :UInt32;
   collectSequenceStats @33 :Bool;

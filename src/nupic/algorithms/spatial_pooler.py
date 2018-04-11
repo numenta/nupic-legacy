@@ -40,7 +40,7 @@ uintType = "uint32"
 
 VERSION = 3
 PERMANENCE_EPSILON = 0.000001
-
+EPSILON_ROUND = 5
 
 
 class InvalidSPParamValueError(ValueError):
@@ -1826,17 +1826,22 @@ class SpatialPooler(Serializable):
     instance._columnDimensions = numpy.array(proto.columnDimensions)
     instance._inputDimensions = numpy.array(proto.inputDimensions)
     instance._potentialRadius = proto.potentialRadius
-    instance._potentialPct = proto.potentialPct
+    instance._potentialPct = round(proto.potentialPct,
+                                   EPSILON_ROUND)
     instance._inhibitionRadius = proto.inhibitionRadius
     instance._globalInhibition = proto.globalInhibition
     instance._numActiveColumnsPerInhArea = proto.numActiveColumnsPerInhArea
     instance._localAreaDensity = proto.localAreaDensity
     instance._stimulusThreshold = proto.stimulusThreshold
-    instance._synPermInactiveDec = proto.synPermInactiveDec
-    instance._synPermActiveInc = proto.synPermActiveInc
-    instance._synPermBelowStimulusInc = proto.synPermBelowStimulusInc
-    instance._synPermConnected = proto.synPermConnected
-    instance._minPctOverlapDutyCycles = proto.minPctOverlapDutyCycles
+    instance._synPermInactiveDec = round(proto.synPermInactiveDec,
+                                         EPSILON_ROUND)
+    instance._synPermActiveInc = round(proto.synPermActiveInc, EPSILON_ROUND)
+    instance._synPermBelowStimulusInc = round(proto.synPermBelowStimulusInc,
+                                              EPSILON_ROUND)
+    instance._synPermConnected = round(proto.synPermConnected,
+                                       EPSILON_ROUND)
+    instance._minPctOverlapDutyCycles = round(proto.minPctOverlapDutyCycles,
+                                              EPSILON_ROUND)
     instance._dutyCyclePeriod = proto.dutyCyclePeriod
     instance._boostStrength = proto.boostStrength
     instance._wrapAround = proto.wrapAround
@@ -1844,7 +1849,8 @@ class SpatialPooler(Serializable):
 
     instance._synPermMin = proto.synPermMin
     instance._synPermMax = proto.synPermMax
-    instance._synPermTrimThreshold = proto.synPermTrimThreshold
+    instance._synPermTrimThreshold = round(proto.synPermTrimThreshold,
+                                           EPSILON_ROUND)
 
     # TODO: These two overlaps attributes aren't currently saved.
     instance._overlaps = numpy.zeros(numColumns, dtype=realDType)

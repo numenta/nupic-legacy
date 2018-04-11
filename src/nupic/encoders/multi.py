@@ -33,6 +33,12 @@ from nupic.encoders import (ScalarEncoder,
                             GeospatialCoordinateEncoder,
                             RandomDistributedScalarEncoder)
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.multi_capnp import MultiEncoderProto
 
 # Map class to Cap'n Proto schema union attribute
 _CLASS_ATTR_MAP = {
@@ -70,6 +76,8 @@ class MultiEncoder(Encoder):
     self.encoders = []
     self.description = []
     self.name = ''
+    self._flattenedEncoderList = None
+    self._flattenedFieldTypeList = None
     if encoderDefinitions is not None:
       self.addMultipleEncoders(encoderDefinitions)
 
@@ -91,8 +99,6 @@ class MultiEncoder(Encoder):
       self.description.append((d[0], d[1] + self.width))
     self.width += encoder.getWidth()
 
-    self._flattenedEncoderList = None
-    self._flattenedFieldTypeList = None
 
 
   def encodeIntoArray(self, obj, output):
@@ -177,11 +183,17 @@ class MultiEncoder(Encoder):
                 "that were provided are: %s" %  (encoderName, fieldParams))
           raise
 
+  @classmethod
+  def getSchema(cls):
+    return MultiEncoderProto
+
 
   @classmethod
   def read(cls, proto):
     encoder = object.__new__(cls)
 
+    encoder._flattenedEncoderList = None
+    encoder._flattenedFieldTypeList = None
     encoder.encoders = [None] * len(proto.encoders)
 
     encoder.width = 0
@@ -201,7 +213,8 @@ class MultiEncoder(Encoder):
       encoder.width += encoder.encoders[index][1].getWidth()
 
     # Derive description from encoder list
-    encoder.description = [(enc[1].name, enc[2]) for enc in encoder.encoders]
+    encoder.description = [(enc[1].name, int(enc[2]))
+                           for enc in encoder.encoders]
     encoder.name = proto.name
 
     return encoder

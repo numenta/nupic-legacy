@@ -30,6 +30,13 @@ from nupic.data.field_meta import FieldMetaType
 from nupic.encoders.base import Encoder
 from nupic.bindings.math import Random as NupicRandom
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.encoders.random_distributed_scalar_capnp import (
+    RandomDistributedScalarEncoderProto)
 
 
 INITIAL_BUCKETS = 1000
@@ -457,13 +464,20 @@ class RandomDistributedScalarEncoder(Encoder):
     return string
 
   @classmethod
+  def getSchema(cls):
+    return RandomDistributedScalarEncoderProto
+
+  @classmethod
   def read(cls, proto):
     encoder = object.__new__(cls)
     encoder.resolution = proto.resolution
     encoder.w = proto.w
     encoder.n = proto.n
     encoder.name = proto.name
-    encoder._offset = proto.offset
+    if proto.offset.which() == "none":
+      encoder._offset = None
+    else:
+      encoder._offset = proto.offset.value
     encoder.random = NupicRandom()
     encoder.random.read(proto.random)
     encoder.resolution = proto.resolution
@@ -472,6 +486,8 @@ class RandomDistributedScalarEncoder(Encoder):
     encoder.maxIndex = proto.maxIndex
     encoder.encoders = None
     encoder._maxBuckets = INITIAL_BUCKETS
+    encoder._maxOverlap = proto.maxOverlap or 0
+    encoder.numTries = proto.numTries or 0
     encoder.bucketMap = {x.key: numpy.array(x.value, dtype=numpy.uint32)
                          for x in proto.bucketMap}
 
@@ -483,10 +499,15 @@ class RandomDistributedScalarEncoder(Encoder):
     proto.w = self.w
     proto.n = self.n
     proto.name = self.name
-    proto.offset = self._offset
+    if self._offset is None:
+      proto.offset.none = None
+    else:
+      proto.offset.value = self._offset
     self.random.write(proto.random)
     proto.verbosity = self.verbosity
     proto.minIndex = self.minIndex
     proto.maxIndex = self.maxIndex
     proto.bucketMap = [{"key": key, "value": value.tolist()}
                        for key, value in self.bucketMap.items()]
+    proto.numTries = self.numTries
+    proto.maxOverlap = self._maxOverlap

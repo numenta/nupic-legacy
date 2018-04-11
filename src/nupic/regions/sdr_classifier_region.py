@@ -336,6 +336,9 @@ class SDRClassifierRegion(PyRegion):
     proto.alpha = self.alpha
     proto.verbosity = self.verbosity
     proto.maxCategoryCount = self.maxCategoryCount
+    proto.learningMode = self.learningMode
+    proto.inferenceMode = self.inferenceMode
+    proto.recordNum = self.recordNum
 
     self._sdrClassifier.write(proto.sdrClassifier)
 
@@ -351,11 +354,16 @@ class SDRClassifierRegion(PyRegion):
 
     instance.implementation = proto.implementation
     instance.steps = proto.steps
+    instance.stepsList = [int(i) for i in proto.steps.split(",")]
     instance.alpha = proto.alpha
     instance.verbosity = proto.verbosity
     instance.maxCategoryCount = proto.maxCategoryCount
 
     instance._sdrClassifier = SDRClassifierFactory.read(proto)
+
+    instance.learningMode = proto.learningMode
+    instance.inferenceMode = proto.inferenceMode
+    instance.recordNum = proto.recordNum
 
     return instance
 

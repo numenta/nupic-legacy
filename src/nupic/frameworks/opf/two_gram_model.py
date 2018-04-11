@@ -59,7 +59,7 @@ class TwoGramModel(model.Model):
     self._learningEnabled = True
     self._encoder = encoders.MultiEncoder(encoderParams)
     self._fieldNames = self._encoder.getScalarNames()
-    self._prevValues = [None] * len(self._fieldNames)
+    self._prevValues = [] * len(self._fieldNames)
     self._twoGramDicts = [dict() for _ in xrange(len(self._fieldNames))]
 
   def run(self, inputRecord):

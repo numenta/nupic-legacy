@@ -2,7 +2,7 @@
 
 using import "/nupic/proto/SparseMatrixProto.capnp".SparseMatrixProto;
 
-# Next ID: 31
+# Next ID: 34
 struct KNNClassifierProto {
     # Public fields
     version @0 :Int32;
@@ -18,7 +18,11 @@ struct KNNClassifierProto {
     relativeThreshold @10 :Bool;
     numWinners @11 :Int32;
     numSVDSamples @12 :Int32;
-    numSVDDims @13 :Text;
+    numSVDDims :union {
+        none @32 :Void;
+        numSVDDimsText @13 :Text;
+        numSVDDimsInt @31: Int32;
+    }
     fractionOfMax @14 :Float32;
     verbosity @15 :Int8;
     maxStoredPatterns @16 :Int32;
@@ -28,6 +32,7 @@ struct KNNClassifierProto {
 
     # Private State
     memory :union  {
+        none @33 :Void;
         ndarray @20 :List(List(Float64));
         # NearestNeighbor inherits from SparseMatrix and shares the same schema
         nearestNeighbor @30 :SparseMatrixProto;

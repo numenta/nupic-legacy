@@ -2,7 +2,7 @@
 
 using import "/nupic/proto/SdrClassifier.capnp".SdrClassifierProto;
 
-# Next ID: 6
+# Next ID: 9
 struct SDRClassifierRegionProto {
   implementation @0 :Text;
   sdrClassifier @1 :SdrClassifierProto;
@@ -10,4 +10,7 @@ struct SDRClassifierRegionProto {
   alpha @3 :Float32;
   verbosity @4 :UInt32;
   maxCategoryCount @5 :UInt32;
+  learningMode @6 :Bool;
+  inferenceMode @7 :Bool;
+  recordNum @8 :UInt32;
 }

@@ -284,8 +284,10 @@ class CollectionWrapper(object):
   def items(self):
     return zip(self.keys(), self.values())
 
-  def __cmp__(self, other):
+  def __eq__(self, other):
     return self.collection == other.collection
+  def __ne__(self, other):
+    return not self.__eq__(other)
 
   def __hash__(self):
     return hash(self.collection)
@@ -480,9 +482,13 @@ class Region(LockAttributesMixin):
     """Hash a region"""
     return self._region.__hash__()
 
-  def __cmp__(self, other):
+  def __eq__(self, other):
     """Compare regions"""
     return self._region == other._region
+
+  def __ne__(self, other):
+    """Compare regions"""
+    return self._region != other._region
 
   def _getParameterMethods(self, paramName):
     """Returns functions to set/get the parameter. These are
