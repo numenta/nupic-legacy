@@ -4,31 +4,21 @@
 
 * 682fd2e66c6d45912cd9c518106740143eff9fd9 :  NUP-2506: Add test to all Serializable subclasses and fix related issues  (#3826)
 * a7ab556a64e57064a8febbcf2ee341a1b1ff18ae : NUP-2506: fix traversal limit (#3823)
-* a9b9f9f1c74196bd800b3528c0ffd2e1b13ab165 : Fixed a broken link in the README.
 * 54e1ffead7a8cedd9a2dab08bb02c7e5e3536bf3 : Added holidays parameter to date encoder (#3822)
 * 9bb7705ebd428e73f6efc180e77f7f127ce67c4d : version lock 'sphinx-autobuild' dependency 'tornado' (#3815)
 * 13c02de82c6bc52afc364fd1fdce88c5fa1aa92c : Update some legacy code examples. (#3814)
 * 33052e10dbe1030929223fc7e54d2d7c8b8a1ced : Fix metric spec schema bug (#3812)
 * 40e216915a172901b5dbe34932543fae68aa3631 : Fix lack of logging in run_swarm.py (#3809)
-* 62ed01aa6be7143211ba3a87b4b207c025fed81d : Merge pull request #3799 from lscheinkman/NUP-2487
-* 85d86e7aed5c3750eb37dbc64b77d29bf59aa810 : NUP-2487: Update README
-* 419bbaa8daca4d5cb7956e8a14a812e1664bccf8 : NUP-2487: Address reviewer feedback
-* 085cdb228d1a3ffa51d91858ee0a4a0bdcfff485 : NUP-2487: Refactor code based on reviewers feedback
 * d8c740486198a6764b18c73bffe6005988435ac7 : NUP-2487: Update category prediction example
-* af7735f47d94433284e2030ec3ce7248a7f1fc1c : Merge pull request #3795 from lscheinkman/1380
-* 01a2715a9651158e0741b1cdd1fad8a563525f57 : Update requirements.txt
 * 38e40266a7ad2744fce904a02faa383676950e1e : Issue #1380: Update SP parameter validation test checking array dimensions
 * e470860e962db70a2b16c82d1647f10b3e985c42 : numenta/nupic.core#1380: Fix SP tests with correct dtype values
-* 17db9048bde692891ce568a66e455ab2733b617c : Merge pull request #3791 from scottpurdy/master
 * 38c9c7e1d7b161d9a4b2378cdae3652af704a481 : Add example for infer as well
 * 94e5f62e669dcbd55268c07b6aa30f391135ab4f : Include example to make isSparse parameter easier to understand
 * ffd1457037a52cb63a7be0cf004e886f3909f505 : Update KNN classifier documentation to make the input pattern requirements clear in both learn and infer
 * 5ecae91017c5f4f68c944a3f5b5d79d1276e2c59 : Changed distribution keyword, casted some attributes to float, removed setting list (#3784)
 * 41e5a6aefc649b08dbe948ba3e1db46f5aaaa603 : Issue #3783: Fixes test to compute pass the probation period (#3786)
-* 78e264b27facd4d772932d7fd98b11e5630cf64d : Merge pull request #3788 from rhyolight/fix-circle
 * 7e5f587ecd039520a53a4aa4608eb7ce577654f1 : Updating to XCode 8.3
 * 1aea72abde4457878a16288d6786ffb088f69164 : Update name of nyc_taxi.csv to nycTaxi.csv (#3776)
-* fefc028add0f5a7d8dca125ffe6162e3ac28dcc7 : Continue development on 1.0.4.dev0. (#3772)
 
 ## 1.0.3
 
