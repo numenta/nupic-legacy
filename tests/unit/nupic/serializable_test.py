@@ -23,8 +23,8 @@ import importlib
 import inspect
 import os
 import pkgutil
+import tempfile
 import unittest
-
 import numpy
 
 try:
@@ -67,7 +67,8 @@ SERIALIZABLE_SUBCLASSES = {
   "BacktrackingTMCPP": {},
   "TemporalMemoryShim": {},
   "MonitoredTemporalMemory": {
-    "volatile": ["mmName", "_mmTraces", "_mmData", "_mmResetActive"]
+    "volatile": ["mmName", "_mmTransitionTracesStale", "_mmTraces", "_mmData",
+                 "_mmResetActive"]
   },
   "TMShim": {},
   "MonitoredTMShim": {
@@ -168,7 +169,7 @@ def _remove(fname):
 
 @unittest.skipUnless(capnp, "Capnp not available.")
 class SerializableTest(unittest.TestCase):
-
+  # pylint: disable=R0201,W0223
   def customAssertArrayEquals(self, a1, a2, msg=None):
     """
       Function used by `addTypeEqualityFunc` comparing numpy arrays
@@ -194,9 +195,9 @@ class SerializableTest(unittest.TestCase):
     """
     self.assertIsInstance(d1, dict, 'First argument is not a dictionary')
     self.assertIsInstance(d2, dict, 'Second argument is not a dictionary')
-    self.assertEquals(len(d1), len(d2), msg)
+    self.assertEquals(len(d1), len(d2), msg + str(d1) + ' != ' + str(d2))
 
-    for k, i in d1.items():
+    for k, _ in d1.items():
       if k not in d2:
         raise AssertionError(repr(k))
       first = d1[k]
@@ -209,6 +210,7 @@ class SerializableTest(unittest.TestCase):
 
   def testABCProtocolEnforced(self):
 
+    # pylint: disable=E0110
     class Foo(Serializable):
       pass  # read(), write(), getCapnpSchema() not implemented here
 
@@ -239,12 +241,13 @@ class SerializableTest(unittest.TestCase):
       def write(self, proto):
         proto.bar = self.bar
 
-    self.addCleanup(_remove, "foo.data")
+    filename = tempfile.mktemp()
+    self.addCleanup(_remove, filename)
 
-    with open("foo.data", "wb") as outp:
+    with open(filename, "wb") as outp:
       Foo("bar").writeToFile(outp)
 
-    with open("foo.data", "rb") as inp:
+    with open(filename, "rb") as inp:
       self.assertEqual(Foo.readFromFile(inp).bar, "bar")
 
   def testAllSubClasses(self):
@@ -259,11 +262,11 @@ class SerializableTest(unittest.TestCase):
     # Import all nupic modules to find Serializable subclasses
     packages = pkgutil.walk_packages(path=nupic.__path__,
                                      prefix=nupic.__name__ + ".")
-    for importer, modname, ispkg in packages:
+    for _, modname, ispkg in packages:
       if not ispkg:
         try:
           importlib.import_module(modname)
-        except:
+        except: # pylint: disable=W0702
           pass  # Ignore deprecated modules
 
     # Check every Serializable subclass
@@ -273,8 +276,8 @@ class SerializableTest(unittest.TestCase):
 
       # Make sure all serializable classes are accounted for
       self.assertIn(klass.__name__, SERIALIZABLE_SUBCLASSES)
-      print(klass.__name__)
-      testParams = SERIALIZABLE_SUBCLASSES[klass.__name__];
+      print klass.__name__
+      testParams = SERIALIZABLE_SUBCLASSES[klass.__name__]
 
       # Skip test class
       if "skip" in testParams:
@@ -287,7 +290,7 @@ class SerializableTest(unittest.TestCase):
         original = klass()
 
       # Test read/write
-      filename = klass.__name__ + ".dat"
+      filename = tempfile.mktemp()
       self.addCleanup(_remove, filename)
       with open(filename, "wb") as outp:
         original.writeToFile(outp)
