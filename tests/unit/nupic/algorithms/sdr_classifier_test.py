@@ -24,6 +24,7 @@
 
 import cPickle as pickle
 import random
+import sys
 import tempfile
 import types
 import unittest2 as unittest
@@ -786,6 +787,16 @@ class SDRClassifierTest(unittest.TestCase):
     self.assertAlmostEqual(result1[0][1], 0.0, places=1)
     self.assertAlmostEqual(result2[0][0], 0.0, places=1)
     self.assertAlmostEqual(result2[0][1], 1.0, places=1)
+
+
+  def testSoftMaxOverflow(self):
+    """
+    Test if the softmax normalization overflows
+    """
+    c = SDRClassifier([1], 1.0, 0.1, 0)
+    weight = numpy.array([[sys.float_info.max_exp + 1]])
+    res = c.inferSingleStep([0], weight)
+    self.assertFalse(numpy.isnan(res), "SoftMax overflow")
 
 
   def _doWriteReadChecks(self, computeBeforeSerializing):

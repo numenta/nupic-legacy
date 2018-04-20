@@ -374,6 +374,7 @@ class SDRClassifier(Serializable):
     outputActivation = weightMatrix[patternNZ].sum(axis=0)
 
     # softmax normalization
+    outputActivation = outputActivation - numpy.max(outputActivation)
     expOutputActivation = numpy.exp(outputActivation)
     predictDist = expOutputActivation / numpy.sum(expOutputActivation)
     return predictDist
