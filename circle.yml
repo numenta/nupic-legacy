@@ -25,14 +25,14 @@ dependencies:
     - brew services start mysql
     - sudo pip install --upgrade pip
     - pip install --upgrade --user --ignore-installed setuptools wheel
-    - pip install --use-wheel --user -r requirements.txt  --quiet || exit
+    - pip install --user -r requirements.txt  --quiet || exit
 
 compile:
   override:
     # Remove the virtualenv before it can cause problems.  As of May 2017 the CircleCI virtualenv/path setup causes some tests to fail unnecessarily.
     - rm -r ~/virtualenvs
     - python setup.py bdist_wheel
-    - pip install --use-wheel --user --no-index --find-links=`pwd`/dist/ nupic
+    - pip install --user --no-index --find-links=`pwd`/dist/ nupic
 
 test:
   override:
