@@ -36,7 +36,7 @@ class IdentityRegion(PyRegion):
     self._dataWidth = dataWidth
 
 
-  def initialize(self, dims, splitterMaps):
+  def initialize(self):
     pass
 
 
