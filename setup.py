@@ -149,7 +149,7 @@ if __name__ == "__main__":
     extras_require = {
       # Default requirement based on system type
       ":platform_system=='Linux' or platform_system=='Darwin'":
-        ["pycapnp==0.5.12"],
+        ["pycapnp==0.6.3"],
 
       # Superseded by platform_system-conditional requirement, but keeping
       # empty extra for compatibility as recommended by setuptools doc.
