@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.5
+
+* d81e128c6 NUP-2519: Update nupic.core version
+* 3371e4ef9 NUP-2519: Upgrade pycapnp to 0.6.3
+* 11a13c018 NUP-2518: Remove obsolete region initialization parameters from custom region example
+* 67724debf "pip install --use-wheel" was deprecated. See https://pip.pypa.io/en/stable/news/#deprecations-and-removals
+* 08daff4a3 Fix softmax overflow
+
+
 ## 1.0.4
 
 * 682fd2e66c6d45912cd9c518106740143eff9fd9 :  NUP-2506: Add test to all Serializable subclasses and fix related issues  (#3826)
