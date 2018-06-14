@@ -194,28 +194,41 @@ Currently, data is always copied from the source Output into the destination Inp
 If an Input has only a single incoming Link, then there is a one-to-one mapping between an Output and Input, and the Input buffer can simply be a pointer to the linked Output buffer.
 This optimization is deferred until there is a demonstrated need.
 
-###	Link
+### Link
 
-A Link is logically a connection from one Output to one Input.
-Internally, the Link keeps track of this information in two ways.
-First, it contains strings with the names of the source and destination Regions and Input/Output.
-This information is used in serialization and de-serialization.
-Second, it contains pointers to the source Output and destination Input.
-These pointers are initialized at network initialization time, and make it possible to quickly traverse a link (get from source to destination or destination to source).
+A Link is logically a connection from a source region’s Output to a destination region’s Input. Your application is created by declaring the functional building block (the regions), giving those regions the parameters that dictate their behavior, and then connecting them up with links that determine how data (normally SDR’s) will flow between your regions.
 
-An Input or Output may have multiple links.
-An example of an Input with multiple links is shown in Figure 2.
-The input buffer is essentially a concatenation of data in the output buffers.
+Each region implementation maintains a Spec structure which, along with the parameter definitions, defines each input data flow it expects and each data output it will generate. Each Output node and each Input node are the ends of a Link and each represent a buffer of data.
 
-[Need to insert img here]
+Some destination Inputs declared in the Spec are optional. But at runtime, those nodes specified as required must have a Link generated for them before the network’s initialization() function is called. It is at initialization time that the links are analyzed to determine if everything is consistent, determines buffer sizes and type, allocates the input and output buffers, creates the linking pointers, and determines the execution phases. The phases determine the order in which the Network will execute the regions such that the data smoothly flows from source to destination along the line of execution.
 
-The link also keeps track of its offset within its destination input buffer.
-The offset is calculated at Network initialization time, when all linking is complete.
+Each time the network performs a run cycle, it will do the following:
 
-Note: in the current Region model, where a Region is a collection of nodes, a Link performs the node-level mapping between Output and Input.
-Specifically, it can generate a splitter map, or directly generate the input for a specific destination node.
-This functionality is not described here because it may be removed.
-A Link contains a `LinkPolicy`, also not described here, which is responsible for generating the splitter map.
+1. Copy one buffer full of data from the Output node on the source to the Input buffer on the destination region for each link feeding that region.
+1. Execute the region.
+1. Then repeat for the next region until all regions have been executed in the order of the phases.
+
+Declaration of Outputs and Inputs: In the Spec, each Output and Input definition has a unique name which identifies the node within the region. So a node is then uniquely identified by the Output/Input node name and the name of the region on which it resides. A Link is then created by calling `Network.link()` with the names of the source and destination regions and the names of the Output and Input nodes (along with `LinkType` and `LinkParams`). Note that the Output node or Input node names may be omitted from the call if they are the ones configured as the Default Output or Default Input respectively for their regions.
+
+Data Type: The definitions in the Spec for each Output and Input will declare the data type that is expected or generated. The data types MUST be the same on both ends of a link so they are normally set to `NTA_BasicType_Real32` which is somewhat universal. Often the data is actually an SDR which is just 1’s and 0’s but they are converted to the specified type to traverse the link.
+
+Dimensions: The dimensions feature provided in the HTM engine was a means of defining a multidimensional array structure of buffers for Links. This feature is obsolete. Most region implementations set the field `singleNodeOnly=true` at the top of the Spec. This implies a fixed dimension of [1]. This means that an output has only one buffer and it is connected to a single input buffer with one-to-one mapping.
+If a region still requires a dimension, specify a single dimension of [1].
+
+Source Output Buffer width: The buffer width for any Output of any region can be defined in the corresponding Output definition in the Spec of the source region’s implementation (the ‘count’ field). However if this is 0 (and it most often is) then check the other end of the link, check the ‘count’ field of the Spec Input definition of the destination region’s implementation. If that is also 0 (and it most often is) then the width is determined by asking the source region’s implementation what it intends to generate by calling the required function `getNodeOutputElementCount()`. If this should return a 0, then the buffer width cannot be determined and an error is generated.
+
+Destination Input Buffer width: The input buffer width is set using the
+width of the source output buffer to which it is connected.  If more than
+one link terminate on the same Input buffer, the input buffer width is set
+using the sum of the widths of all source output buffers that are connected.
+
+Normally the links are configured such that an output from the source region is fed directly into the input of a destination region. However, an Output may be connected to multiple Inputs and an Input may fed by multiple Outputs. This is determined by the Links that are created.
+
+If multiple source Outputs are fed into a single destination Input, the Input buffer is essentially a concatenation of data from all connected source output buffers, concatenated in the order that the links were created. The link keeps track of its offset where it should put its contribution within the destination input buffer. The destination region just sees this wide buffer for its input.
+
+Link Delays: Or Propagation Delay is a feature which delays sending output buffers of data over the link for a specified number of time steps (number of network run iterations). At each time step the output is pushed into the bottom of the queue and the buffer at the top of the queue is sent. The delay buffers, if any, are initially populated with 0’s. This feature is specified by setting the ‘propagationDelay’ parameter of the Spatial Pooler.
+
+`LinkType` and `LinkPolicy`: Originally the `LinkType` and `LinkPolicy` arguments to the `network::Link()` function controlled how a structure of buffers were distributed among multiple Output and multiple Input nodes over a single link between two regions. Now that each region has only one Input node and one Output node per link this no longer is used. So for all links use a link type of “UniformLink” and a link policy of “” which means just copy the source Output buffer to the destination Input buffer. Things like `TestFanIn2` link policy, Splitter Maps and Region Level vs Node Level are all obsolete.
 
 ###	Collection
 
