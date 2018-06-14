@@ -217,7 +217,10 @@ If a region still requires a dimension, specify a single dimension of [1].
 
 Source Output Buffer width: The buffer width for any Output of any region can be defined in the corresponding Output definition in the Spec of the source region’s implementation (the ‘count’ field). However if this is 0 (and it most often is) then check the other end of the link, check the ‘count’ field of the Spec Input definition of the destination region’s implementation. If that is also 0 (and it most often is) then the width is determined by asking the source region’s implementation what it intends to generate by calling the required function `getNodeOutputElementCount()`. If this should return a 0, then the buffer width cannot be determined and an error is generated.
 
-Destination Input Buffer width: The input buffer width can also be set in the destination region’s Input Spec using the ‘count’ field. If the ‘count’ is 0 (and it most often is) then it uses the width of the source output buffer to which it is connected.
+Destination Input Buffer width: The input buffer width is set using the
+width of the source output buffer to which it is connected.  If more than
+one link terminate on the same Input buffer, the input buffer width is set
+using the sum of the widths of all source output buffers that are connected.
 
 Normally the links are configured such that an output from the source region is fed directly into the input of a destination region. However, an Output may be connected to multiple Inputs and an Input may fed by multiple Outputs. This is determined by the Links that are created.
 
