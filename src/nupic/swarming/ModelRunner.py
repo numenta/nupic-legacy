@@ -420,6 +420,11 @@ class OPFModelRunner(object):
     if self._predictionLogger:
       self._predictionLogger.close()
 
+    # =========================================================================
+    # Close input stream, if necessary
+    # =========================================================================
+    if self._inputSource: 
+      self._inputSource.close()
 
   def __createModelCheckpoint(self):
     """ Create a checkpoint from the current model, and store it in a dir named
