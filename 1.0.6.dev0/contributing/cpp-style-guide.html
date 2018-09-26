@@ -1,0 +1,920 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>C++ Style Guide &#8212; NuPIC 1.0.6.dev0
+
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.6.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CMake Style Guide" href="cmake-style-guide.html" />
+    <link rel="prev" title="Python Style Guide" href="python-style-guide.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="c-style-guide">
+<span id="c-style-guide"></span><h1>C++ Style Guide<a class="headerlink" href="#c-style-guide" title="Permalink to this headline">¶</a></h1>
+<p>NuPIC programmers are expected to follow sound programming techniques. This document outlines specific software coding standards and guidelines to be used by developers. We focus on those aspects of code guidelines that are specific to NuPIC, not on all possible techniques (see references for books on general programming methodologies).</p>
+<p>The primary reasons for the guidelines are reliability, readability, and efficiency. Reliability is a major problem in large-scale systems and software developed in teams. Decisions made early in the software design can affect you in surprising ways late in the development or test cycle. We need to minimize these surprises. In general this document emphasizes the following themes: use &#8220;defensive programming&#8221; techniques, keep your code simple and clean, avoid external dependencies where possible, and avoid redundancy.</p>
+<p>This document is primarily for C++ code. See the <a class="reference external" href="python-style-guide.html">Python Style Guide</a> for Python code.</p>
+<div class="section" id="consistency-within-a-file">
+<span id="consistency-within-a-file"></span><h2>Consistency Within A File<a class="headerlink" href="#consistency-within-a-file" title="Permalink to this headline">¶</a></h2>
+<p>Maintain consistency within a file. Where details are not specified here, developers have the freedom to use their own convention. In such cases modifications of a file by other developers should maintain the conventions and overall consistency within that file.</p>
+</div>
+<div class="section" id="references">
+<span id="references"></span><h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+<li>Sutter and Alexandrescu, C++ Coding Standards</li>
+<li>Scott Meyers, Effective C++</li>
+<li>Scott Meyers, More Effective C++</li>
+</ol>
+</div>
+<div class="section" id="c-source-files">
+<span id="c-source-files"></span><h2>C++ Source Files<a class="headerlink" href="#c-source-files" title="Permalink to this headline">¶</a></h2>
+<p>This section contains general guidelines applicable to all source files, including header and implementation files.</p>
+<div class="section" id="introductory-section-and-copyright-notices">
+<span id="introductory-section-and-copyright-notices"></span><h3>Introductory Section And Copyright Notices<a class="headerlink" href="#introductory-section-and-copyright-notices" title="Permalink to this headline">¶</a></h3>
+<p>All source files, including header files, should start with the following introductory legal notice.</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cm">/* ---------------------------------------------------------------------</span>
+<span class="cm"> * Numenta Platform for Intelligent Computing (NuPIC)</span>
+<span class="cm"> * Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement</span>
+<span class="cm"> * with Numenta, Inc., for a separate license for this software code, the</span>
+<span class="cm"> * following terms and conditions apply:</span>
+<span class="cm"> *</span>
+<span class="cm"> * This program is free software: you can redistribute it and/or modify</span>
+<span class="cm"> * it under the terms of the GNU Affero Public License version 3 as</span>
+<span class="cm"> * published by the Free Software Foundation.</span>
+<span class="cm"> *</span>
+<span class="cm"> * This program is distributed in the hope that it will be useful,</span>
+<span class="cm"> * but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="cm"> * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</span>
+<span class="cm"> * See the GNU Affero Public License for more details.</span>
+<span class="cm"> *</span>
+<span class="cm"> * You should have received a copy of the GNU Affero Public License</span>
+<span class="cm"> * along with this program.  If not, see http://www.gnu.org/licenses.</span>
+<span class="cm"> *</span>
+<span class="cm"> * http://numenta.org/licenses/</span>
+<span class="cm"> * ----------------------------------------------------------------------</span>
+<span class="cm"> */</span>
+</pre></div>
+</div>
+<p>If the source code spans multiple years, the copyright notice should reflect this. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Copyright</span> <span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="mi">2006</span><span class="o">-</span><span class="mi">2007</span><span class="p">,</span> <span class="n">Numenta</span><span class="p">,</span> <span class="n">Inc</span><span class="o">.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="filenames">
+<span id="filenames"></span><h3>Filenames<a class="headerlink" href="#filenames" title="Permalink to this headline">¶</a></h3>
+<p>Filenames should not contain characters that could cause problems on different platforms or in certain scripting situations. Filenames should contain only English alphanumeric characters, underscore, and period. No spaces or funny characters are allowed. Some operating systems (such as Windows) are not case sensitive so filenames that differ only in case are not allowed. This applies across the entire codebase.</p>
+<p>C++ header files should have the suffix &#8221;.hpp&#8221;. C header files should have the suffix &#8221;.h&#8221;.</p>
+<p>C/C++ (<code class="docutils literal"><span class="pre">.h</span></code>, <code class="docutils literal"><span class="pre">.c</span></code>, <code class="docutils literal"><span class="pre">.hpp</span></code> and <code class="docutils literal"><span class="pre">.cpp</span></code>) and related SWIG (<code class="docutils literal"><span class="pre">.i</span></code>) file names should be <strong>UpperCamelCase</strong>. Initials and two-letter acronyms should be capitalized (e.g. <strong>RegionIO.cpp</strong>, <strong>OSUnix.cpp</strong>), longer acronyms treated as words (e.g. <strong>SdrClassifier.cpp</strong>). A few non-code files (e.g. <strong>README.md</strong>, <strong>cmake_install.cmake</strong>) are uppercase or snake_case by standard convention.</p>
+</div>
+<div class="section" id="naming-conventions">
+<span id="naming-conventions"></span><h3>Naming Conventions<a class="headerlink" href="#naming-conventions" title="Permalink to this headline">¶</a></h3>
+<p>All identifier names should be descriptive and readable. All NuPIC class, type, constant, etc. definitions should be placed in the global namespace &#8220;nta&#8221; to avoid name collisions. Modules within Numenta can define namespaces within <code class="docutils literal"><span class="pre">nta</span></code>, such as <code class="docutils literal"><span class="pre">nta::math</span></code>. As much as possible, use verbs to start method names (e.g. getAttribute()).</p>
+<p>We will use &#8220;CamelBack&#8221; capitalization for naming identifiers. This consists of a sequence of words where the first letter of each successive word is capitalized. No underscores are used to separate words. Generally identifiers that are global within a namespace capitalize the first letter, other identifiers start with a lower case letter. More specifically:</p>
+<ul class="simple">
+<li>Global class names will be named as in <code class="docutils literal"><span class="pre">ExampleClass</span></code></li>
+<li>Methods will be &#8216;setAttribute()&#8217;</li>
+<li>Class data members will be <code class="docutils literal"><span class="pre">exampleDataMember_</span></code> (with trailing underscore)</li>
+<li>Local variables within methods and functions will be &#8220;exampleLocalVariable&#8221; (no trailing underscore)</li>
+<li><code class="docutils literal"><span class="pre">ExampleType</span></code> used for global typedefs, <code class="docutils literal"><span class="pre">exampleType</span></code> for typedefs within a class. (Exceptions are allowed where STL requires a specific name.)</li>
+<li><code class="docutils literal"><span class="pre">ExampleType</span></code> used for global enum names, and <code class="docutils literal"><span class="pre">ValueExample</span></code> used for global enum values.</li>
+<li><code class="docutils literal"><span class="pre">exampleType</span></code> used for enum names defined within a class and <code class="docutils literal"><span class="pre">valueExample</span></code> used for enum values within a class.</li>
+</ul>
+</div>
+<div class="section" id="indentation">
+<span id="indentation"></span><h3>Indentation<a class="headerlink" href="#indentation" title="Permalink to this headline">¶</a></h3>
+<p>The indentation level should be 2 spaces. Editor settings should be set such that tabs are converted to spaces. Tab characters should not be used.</p>
+</div>
+<div class="section" id="the-header-file">
+<span id="the-header-file"></span><h3>The Header File<a class="headerlink" href="#the-header-file" title="Permalink to this headline">¶</a></h3>
+<p>All header files should be bracketed by #define&#8217;s to prevent multiple inclusion. For example, ExampleClass.hpp should be bracketed by NTA_EXAMPLE_CLASS_HPP, as in:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="cp">#ifndef NTA_EXAMPLE_CLASS_HPP</span>
+<span class="cp">#define NTA_EXAMPLE_CLASS_HPP</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;AHeader.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;AnotherHeader.hpp&gt;</span><span class="cp"></span>
+
+<span class="k">namespace</span> <span class="n">nta</span>
+<span class="p">{</span>
+
+<span class="c1">// Main content of ExampleClass.hpp header file</span>
+
+<span class="p">}</span> <span class="c1">// end namespace nta</span>
+
+<span class="cp">#endif </span><span class="c1">// NTA_EXAMPLE_CLASS_HPP</span>
+</pre></div>
+</div>
+<p>All header file inclusions should be inside the surrounding #define. This prevents infinite pre-processor loops (such as if AHeader.hpp were to include ExampleClass.hpp). In general only include what is strictly necessary to use this header file. Do not include common library header files such as stdio.h (or generally any header file), unless that functionality is required to compile that individual header file. Those header files are more appropriate for inclusion in the CPP file itself.</p>
+<p>Use:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;algorithms/header.hpp&gt;</span><span class="cp"></span>
+</pre></div>
+</div>
+<p>rather than:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;header.hpp&quot;</span><span class="cp"></span>
+</pre></div>
+</div>
+<p>The former allows more flexibility in moving files around.</p>
+</div>
+<div class="section" id="class-definitions">
+<span id="class-definitions"></span><h3>Class Definitions<a class="headerlink" href="#class-definitions" title="Permalink to this headline">¶</a></h3>
+<p>Class definitions should be preceded by precise comments explaining the following: purpose, responsibility, rationale, etc. of the class. This is also the place to put any &#8220;TODO&#8221; for work remaining to be done. The descriptions should be concise and meaningful. This is not the place to put random thoughts or philosophies about data structures, experiments, etc. That stuff can go on the forum or design documents.</p>
+</div>
+<div class="section" id="method-definitions">
+<span id="method-definitions"></span><h3>Method Definitions<a class="headerlink" href="#method-definitions" title="Permalink to this headline">¶</a></h3>
+<p>Method names should be descriptive. Definitions should contain a precise description of the method plus descriptions of the parameters and error checking.</p>
+</div>
+<div class="section" id="example-header-file">
+<span id="example-header-file"></span><h3>Example Header File<a class="headerlink" href="#example-header-file" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="cm">/*</span>
+<span class="cm"> * ----------------------------------------------------------------</span>
+<span class="cm"> * Numenta Platform for Intelligent Computing (NuPIC)</span>
+<span class="cm"> * Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from</span>
+<span class="cm"> * Numenta, Inc. a separate commercial license for this software code, the</span>
+<span class="cm"> * following terms and conditions apply:</span>
+<span class="cm"> *</span>
+<span class="cm"> * This program is free software: you can redistribute it and/or modify</span>
+<span class="cm"> * it under the terms of the GNU General Public License version 3 as</span>
+<span class="cm"> * published by the Free Software Foundation.</span>
+<span class="cm"> *</span>
+<span class="cm"> * This program is distributed in the hope that it will be useful,</span>
+<span class="cm"> * but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="cm"> * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</span>
+<span class="cm"> * See the GNU General Public License for more details.</span>
+<span class="cm"> *</span>
+<span class="cm"> * You should have received a copy of the GNU General Public License</span>
+<span class="cm"> * along with this program.  If not, see http://www.gnu.org/licenses.</span>
+<span class="cm"> *</span>
+<span class="cm"> * http://numenta.org/licenses/</span>
+<span class="cm"> * ----------------------------------------------------------------</span>
+<span class="cm"> */</span>
+
+<span class="cm">/** @file</span>
+<span class="cm"> * Description of class ClassName.</span>
+<span class="cm"> */</span>
+
+<span class="cp">#ifndef NTA_CLASS_NAME_HPP</span>
+<span class="cp">#define NTA_CLASS_NAME_HPP</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cm">/* &lt;-- Put other Numenta includes here, after standard includes */</span>
+
+<span class="k">namespace</span> <span class="n">nta</span>
+<span class="p">{</span>
+
+  <span class="cm">/** One line class description for Doxygen.</span>
+<span class="cm">   *</span>
+<span class="cm">   * @b Description</span>
+<span class="cm">   * A detailed description follows the one line description.</span>
+<span class="cm">   * Detailed description should include responsibility (what</span>
+<span class="cm">   * does this class do?).</span>
+<span class="cm">   *</span>
+<span class="cm">   * @b Rationale</span>
+<span class="cm">   * Why did we choose to have that class the way it is?)</span>
+<span class="cm">   *</span>
+<span class="cm">   * @b Resource @b Ownership</span>
+<span class="cm">   * Resource ownerships (acquired/transfered...)</span>
+<span class="cm">   *</span>
+<span class="cm">   * @note</span>
+<span class="cm">   * A useful note for users of this class</span>
+<span class="cm">   *</span>
+<span class="cm">   */</span>
+  <span class="k">class</span> <span class="nc">ClassName</span>
+  <span class="p">{</span>
+  <span class="k">public</span><span class="o">:</span>
+    <span class="cm">/* Remove virtual if no other virtual members */</span>
+    <span class="k">virtual</span> <span class="o">~</span><span class="n">ClassName</span><span class="p">()</span> <span class="p">{}</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Brief description of method for Doxygen.</span>
+<span class="cm">     *</span>
+<span class="cm">     * More detailed description includes explanation of error checking.</span>
+<span class="cm">     */</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">anExampleMethod</span><span class="p">();</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Brief description of method for Doxygen.</span>
+<span class="cm">     *</span>
+<span class="cm">     * More detailed description includes explanation of parameters</span>
+<span class="cm">     * and error checking.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @param foo Description of parameter foo including valid</span>
+<span class="cm">     * range and (any) error checking.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @retval Description of return value of this method.</span>
+<span class="cm">     */</span>
+    <span class="k">virtual</span> <span class="kt">int</span> <span class="nf">anotherMethod</span><span class="p">(</span><span class="kt">int</span> <span class="n">foo</span><span class="p">);</span>
+
+  <span class="k">protected</span><span class="o">:</span>
+
+  <span class="k">private</span><span class="o">:</span>
+    <span class="cm">/** An example private data member. */</span>
+    <span class="kt">int</span> <span class="n">anExampleDataMember_</span><span class="p">;</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Default ctor, copy ctor and assignment operator</span>
+<span class="cm">     * forbidden by default</span>
+<span class="cm">     */</span>
+    <span class="n">ClassName</span><span class="p">();</span>
+    <span class="n">ClassName</span><span class="p">(</span><span class="k">const</span> <span class="n">ClassName</span> <span class="o">&amp;</span><span class="p">);</span>
+    <span class="n">ClassName</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">ClassName</span><span class="o">&amp;</span><span class="p">);</span>
+
+  <span class="p">};</span> <span class="c1">// end class ClassName</span>
+
+<span class="p">}</span> <span class="c1">// end namespace nta</span>
+
+<span class="cp">#endif </span><span class="c1">// NTA_CLASS_NAME_HPP</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="the-cpp-file">
+<span id="the-cpp-file"></span><h2>The CPP file<a class="headerlink" href="#the-cpp-file" title="Permalink to this headline">¶</a></h2>
+<p>In a .cpp file, all include statements should be placed right after the introductory comments. It is a bad idea to put includes in the middle of source files. In general the order of include files should be: standard C++ header files first, followed by header files of third party libraries, followed by NuPIC header files.</p>
+<div class="section" id="variable-declarations">
+<span id="variable-declarations"></span><h3>Variable Declarations<a class="headerlink" href="#variable-declarations" title="Permalink to this headline">¶</a></h3>
+<p>It is good practice (though not required) to declare variables just before they are used. It is mandatory to initialize all variables. For example:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">f</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="comments-in-cpp-files">
+<span id="comments-in-cpp-files"></span><h3>Comments in CPP files<a class="headerlink" href="#comments-in-cpp-files" title="Permalink to this headline">¶</a></h3>
+<p><strong>WRITE ME</strong></p>
+</div>
+</div>
+<div class="section" id="error-handling">
+<span id="error-handling"></span><h2>Error Handling<a class="headerlink" href="#error-handling" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="logging">
+<span id="logging"></span><h3>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h3>
+<p>In general, printing using printf&#8217;s, cout, and cerr should never be used directly in the main code branch. Errors, warnings, and messages should be logged using a general logging class (which in turn can use cout when appropriate).</p>
+</div>
+<div class="section" id="use-of-assert">
+<span id="use-of-assert"></span><h3>Use of assert<a class="headerlink" href="#use-of-assert" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">NTA_ASSERT()</span></code> should be used in place of <code class="docutils literal"><span class="pre">assert()</span></code>. <code class="docutils literal"><span class="pre">NTA_ASSERT()</span></code> should be carefully used in the main code branch. It should be remembered at all times that the assert will not be present in production code. In non-performance-critical code, potential errors should be explicitly checked without assert and handled appropriately. No expressions with side effects should ever be used within an assert statement. For example:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="n">NTA_ASSERT</span><span class="p">(</span><span class="n">list</span><span class="o">-&gt;</span><span class="n">insert</span><span class="p">(</span><span class="n">node</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>The use of assert&#8217;s is strongly encouraged in error checking within performance critical code. It is also strongly encouraged to use <code class="docutils literal"><span class="pre">NTA_ASSERT</span></code> ability to log additional information, as in:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="n">NTA_ASSERT</span><span class="p">(</span><span class="n">check_preconditions</span><span class="p">())</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Incorrect preconditions in node:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">node_number</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="exceptions-and-error-codes">
+<span id="exceptions-and-error-codes"></span><h3>Exceptions and Error Codes<a class="headerlink" href="#exceptions-and-error-codes" title="Permalink to this headline">¶</a></h3>
+<p>Except in performance-critical sections, exceptions rather than error codes should be used to return errors. All non-performance critical methods should check their input parameters (and other external dependencies where appropriate), log errors, and throw appropriate exceptions. Don&#8217;t use exception specifications in the signature of a method.</p>
+<p>In performance-critical sections, error codes can be returned, asserts may be used, or eror checking may be skipped altogether. In such cases, the specifics of error checking should be explicitly noted in the method comments.</p>
+</div>
+<div class="section" id="avoid-static-cast">
+<span id="avoid-static-cast"></span><h3>Avoid static_cast<a class="headerlink" href="#avoid-static-cast" title="Permalink to this headline">¶</a></h3>
+<p>Use dynamic_cast rather than static_cast unless the code is performance critical. dynamic_cast is safer and recommended.</p>
+</div>
+</div>
+<div class="section" id="memory-and-resource-management">
+<span id="memory-and-resource-management"></span><h2>Memory and Resource Management<a class="headerlink" href="#memory-and-resource-management" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="memory-allocation">
+<span id="memory-allocation"></span><h3>Memory Allocation<a class="headerlink" href="#memory-allocation" title="Permalink to this headline">¶</a></h3>
+<p>Use the C++ &#8220;new&#8221; and &#8220;delete&#8221; rather than malloc or calloc. In all cases the memory block returned should be checked. If NULL, there is a catastrophic problem with the system and this should be logged. The memory blocks should be initialized immediately to reasonable values (except in performance-intensive situations). Never allocate memory in core inner loops.</p>
+</div>
+<div class="section" id="resource-management">
+<span id="resource-management"></span><h3>Resource Management<a class="headerlink" href="#resource-management" title="Permalink to this headline">¶</a></h3>
+<p>Resources such as memory, network connections and owned objects should be cleaned up properly. The ownership of these resources can be limited to a local scope or to whole lifetime of the object (member variables). The only way to guarantee proper cleanup in C++ is to do it in the destructor. Local resources should be placed in local variables (on the stack) such that their destructor will be called automatically.</p>
+<p>This is the famous RAII idiom (Resource Acquisition Is Initialization). See here: <a class="reference external" href="http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization">http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization</a></p>
+<p>Sometimes however you get a pointer to a dynamic object you must free before exiting the scope. Explicitly calling delete on a raw pointer is a dubious practice. If there are multiple return statements from a method/function you must remember to free the pointer before each one. If an exception is thrown you are out of luck.</p>
+<p>The solution is to place the pointer in a smart pointer that is actually a local object that is guaranteed to be destructed. It will delete the raw pointer when the control flow leaves the scope. The C++ standard library contains the auto_ptr smart pointer that can be used for this purpose, but it might subject the developer to multiple gotchas. Instead you should use <code class="docutils literal"><span class="pre">boost::scoped_ptr</span></code> for this purpose. The gory details are here:</p>
+<p><a class="reference external" href="http://www.boost.org/libs/smart_ptr/scoped_ptr.htm">http://www.boost.org/libs/smart_ptr/scoped_ptr.htm</a></p>
+</div>
+</div>
+<div class="section" id="general-principles">
+<span id="general-principles"></span><h2>General principles<a class="headerlink" href="#general-principles" title="Permalink to this headline">¶</a></h2>
+<p>Creator of a resource is by default the owner and is responsible for its cleanup. Ownership transfer should be minimized to keep the code simple. There should be no need to hunt down ownership transfers in general. Note that resource handles in different forms (pointers, references, indexes into containers, opaque handles, persistent ids, etc) should be passed around, but there should be a single owner that will typically destroy the resource when it is safe.</p>
+<div class="section" id="factories">
+<span id="factories"></span><h3>Factories<a class="headerlink" href="#factories" title="Permalink to this headline">¶</a></h3>
+<p>Factories are either objects, functions or methods whose job is to encapsulate complicated validation and initialization logic and create resources. The factory method signature typically look like:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">*</span> <span class="nf">createX</span><span class="p">(</span><span class="n">params</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>In this case even though the factory technically created the X resource it is not the owner. The caller to create X is the owner. The factory method is a well-known design patterns that further elaborate on that: <a class="reference external" href="http://en.wikipedia.org/wiki/Factory_method_pattern">http://en.wikipedia.org/wiki/Factory_method_pattern</a></p>
+<p>Typically when the caller gets the X raw pointer it should either store it in a member variable for later destruction or assign it to a boost::scoped_ptr if it is supposed to be used in this scope only.</p>
+</div>
+<div class="section" id="passing-resources-around">
+<span id="passing-resources-around"></span><h3>Passing resources around<a class="headerlink" href="#passing-resources-around" title="Permalink to this headline">¶</a></h3>
+<p>The owner should pass around resources as references or const references.This communicates the fact that the resource is owned by someone else and prevents accidental destruction of the resource by a non-owner. Note that the non-owner can still destroy the resource by explicitly taking its address and deleting it. There are ways to prevent that too, but the complication is not worth the risk. If you are interested check out: [http://www.ddj.com/article/printableArticle.jhtml?articleID=184401977 &amp;dept_url=/dept/cpp/](http://www.ddj.com/article/printableArticle.jhtml?articleID=184401977 &amp;dept_url=/dept/cpp/)</p>
+</div>
+<div class="section" id="boost-shared-ptr">
+<span id="boost-shared-ptr"></span><h3><code class="docutils literal"><span class="pre">boost::shared_ptr</span></code><a class="headerlink" href="#boost-shared-ptr" title="Permalink to this headline">¶</a></h3>
+<p>In some situations ownership may not be so clear. Suppose 3 objects use the same resource and they may or may not be destroyed at each point. Once all 3 of them were destroyed you need to destroy the shared resource. This situation may still be handled by having a separate owner that outlives all 3 objects. However, you don&#8217;t want to keep the resource around once all 3 objects were destroyed. In this case boost::shared_ptr could be the ticket.We didn&#8217;t identify use cases that require it in Anthill. In case you think you need boost::shared_ptr bring it up for discussion.</p>
+</div>
+</div>
+<div class="section" id="unit-tests">
+<span id="unit-tests"></span><h2>Unit Tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">¶</a></h2>
+<p>With few exceptions, the use of unit tests is required for all classes. The unit tests should exercise all API functions and stress test the class. The unit test routines should be self-contained and designed to return programmatically the success or failure of each of the tests. In this way, it would be easy to chain together all the unit tests and automate the basic testing of all classes. The base class &#8220;Tester&#8221; is used to define subclasses for performing unit tests.  Tests should go into a &#8220;unittests&#8221; directory that is in the same location as the code being tested and should automatically be included in the &#8220;testeverything&#8221; binary.</p>
+<p>See <a class="reference external" href="https://discourse.numenta.org/t/c-unit-tests/2144">CPP Unit Tests</a> for a more up-to-date guide.</p>
+</div>
+<div class="section" id="documentation">
+<span id="documentation"></span><h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>The use of triple slashes insures that the Doxygen tool will pick up the comment block for automatic documentation generation.</p>
+<div class="section" id="classes">
+<span id="classes"></span><h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<p>Class declarations in the header file should be documented with a comment block similar to this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="c1">/////////////////////////////////////////////////////////////////////////</span>
+<span class="c1">/// Short, one line description of class.</span>
+<span class="c1">///</span>
+<span class="c1">/// @b Responsibility</span>
+<span class="c1">/// Overall responsibility</span>
+<span class="c1">///</span>
+<span class="c1">/// @b Description</span>
+<span class="c1">/// Detailed and clear description</span>
+<span class="c1">///</span>
+<span class="c1">/// @b Resource @b Ownership</span>
+<span class="c1">///</span>
+<span class="c1">/// @note</span>
+<span class="c1">/// Optional short notes.</span>
+<span class="c1">///</span>
+<span class="c1">/// @todo</span>
+<span class="c1">/// Optional list of todo items.</span>
+<span class="c1">///</span>
+<span class="c1">////////////////////////////////////////////////////////////////////////</span>
+<span class="k">class</span> <span class="nc">ExampleClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">BaseClass</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="functions">
+<span id="functions"></span><h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<p>Functions and methods should be documented with a comment block similar to this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span></span> <span class="c1">/////////////////////////////////////////////////////////////////////////</span>
+ <span class="c1">/// Short, one line description of function</span>
+ <span class="c1">///</span>
+ <span class="c1">/// Detailed description of function goes here.</span>
+ <span class="c1">/// This description can be multiple lines</span>
+ <span class="c1">///</span>
+ <span class="c1">/// @param paramName description of this parameter</span>
+ <span class="c1">/// @param anotherParam description of this parameter</span>
+ <span class="c1">/// @retval description of return value, if any</span>
+ <span class="c1">///</span>
+ <span class="c1">/// @todo optional list of todo items can go here&amp;hellip;.</span>
+ <span class="c1">///</span>
+ <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+</pre></div>
+</div>
+<p>In general, these Doxygen style function comment blocks should only be placed in the class header file, not the source file, in order to avoid confusion as to which one doxygen will use when generating the documentation.</p>
+</div>
+</div>
+<div class="section" id="miscellaneous">
+<span id="miscellaneous"></span><h2>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="macros">
+<span id="macros"></span><h3>Macros<a class="headerlink" href="#macros" title="Permalink to this headline">¶</a></h3>
+<p>In general, macros should be avoided. Macros should not hide program control flow. List any good reasons for macros.</p>
+</div>
+<div class="section" id="use-of-text">
+<span id="use-of-text"></span><h3>Use of text<a class="headerlink" href="#use-of-text" title="Permalink to this headline">¶</a></h3>
+<p>Use of string vs wstring? <strong>WRITE ME</strong></p>
+</div>
+</div>
+<div class="section" id="use-of-external-libraries">
+<span id="use-of-external-libraries"></span><h2>Use Of External Libraries<a class="headerlink" href="#use-of-external-libraries" title="Permalink to this headline">¶</a></h2>
+<p>External libraries should be used with extreme caution in the main code branch. Although these libraries may seem enticing, they are often written with a different purpose, are written to be too general purpose, or have not been tested thoroughly. Sometimes these issues are subtle and you do not notice them until late in the cycle. For example, a library&#8217;s memory allocation scheme may not be appropriate for our situation. Or, the library may be too general purpose, and thus may contain much inefficiency.</p>
+</div>
+<div class="section" id="cross-platform-coding">
+<span id="cross-platform-coding"></span><h2>Cross Platform Coding<a class="headerlink" href="#cross-platform-coding" title="Permalink to this headline">¶</a></h2>
+<p>This section covers some issues and Numenta policies around cross-platform coding.</p>
+</div>
+<div class="section" id="operating-system-dependencies">
+<span id="operating-system-dependencies"></span><h2>Operating System Dependencies<a class="headerlink" href="#operating-system-dependencies" title="Permalink to this headline">¶</a></h2>
+<p>Make sure your code is not heavily operating system or platform dependent. Think of the operating system as an external library, and to isolate our code from OS dependencies. Any header files, function calls or definitions that are specific to an operating system should be isolated and accessed through an OS interface layer. The interface layer definition itself should be operating system independent. Different implementations of the interface layer can then be included during the build process to handle different operating systems.</p>
+<p>With very few exceptions, the main code branch should not directly use operating system specific functionality. The code should not include OS specific header files, use OS specific #define&#8217;s, or call OS specific functions. The code should instead include our OS interface header file (which will contain Numenta versions of this functionality) and access our OS layer directly.</p>
+<p>Exceptions There are some exceptions to this rule. As an example, for certain performance-critical inner loops, we may find that MMX optimizations speed things up on Intel platforms. In these cases it is desirable to have an Intel specific implementation, but we also want an alternate, platform independent implementation. The alternate version is needed for cross-platform compatibility, but also to check the platform-specific implementation!</p>
+<p>Exact implementation of platform specific code will vary depending on the situation. For example, for an optimized inner loop, you would bracket the Intel-specific code by a #define:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="cp">#ifdef NTA_USING_INTEL</span>
+<span class="o">&lt;</span><span class="n">Intel</span> <span class="n">specific</span> <span class="n">code</span><span class="o">&gt;</span>
+<span class="cp">#else</span>
+<span class="o">&lt;</span><span class="n">generic</span> <span class="n">code</span><span class="o">&gt;</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="specific-cross-platform-usage">
+<span id="specific-cross-platform-usage"></span><h2>Specific Cross Platform Usage<a class="headerlink" href="#specific-cross-platform-usage" title="Permalink to this headline">¶</a></h2>
+<p>Functionality that is not part of the C++ standard library is not cross platform. In these cases a cross-platform library (external or internal) should be used to isolate Numenta&#8217;s code from OS and platform dependencies. APR (Apache Runtime library) has an excellent collection of such libraries and should be used wherever possible.</p>
+<p>Listed below are specific functions that are not cross-platform. For these functions use APR (preferably) or another approved library.</p>
+<ul class="simple">
+<li>File path specifications, file manipulation, directory manipulation and traversals - use APR. Boost is very hard to use and &#8220;deprecated&#8221;.</li>
+<li>Threading - we shouldn&#8217;t have multi-threading in most parts of our system. If we do need it, we should use APR&#8217;s thread library.</li>
+<li>Time/Date - APR</li>
+<li>Getting/setting environment variables - APR</li>
+<li>Program options - APR. Boost is ok but deprecated.</li>
+<li>Sockets and networking routines - APR</li>
+<li>Shared memory - APR</li>
+<li>Timing - use our internal timing library, which is designed to be cross platform and provide high accuracy.</li>
+<li>Dynamic Loading - use our internal library DynamicLibrary until an appropriate external library is found.</li>
+</ul>
+</div>
+<div class="section" id="write-compiler-agnostic-code">
+<span id="write-compiler-agnostic-code"></span><h2>Write Compiler-Agnostic Code<a class="headerlink" href="#write-compiler-agnostic-code" title="Permalink to this headline">¶</a></h2>
+<p>Avoid using compiler-specific extensions since our code should compile under multiple compiler. In particular avoid using #pragma once instead of include guards under Windows and dynamic arrays under gcc.</p>
+</div>
+<div class="section" id="api-guidelines">
+<span id="api-guidelines"></span><h2>API Guidelines<a class="headerlink" href="#api-guidelines" title="Permalink to this headline">¶</a></h2>
+<p>As an open source project, NuPIC is intended for use by a wide range of people. The API should be clean, professional, and easy to use. This section contains specific guidelines for implementing these API&#8217;s.</p>
+<div class="section" id="api-design-marketing">
+<span id="api-design-marketing"></span><h3>API Design = Marketing<a class="headerlink" href="#api-design-marketing" title="Permalink to this headline">¶</a></h3>
+<p>Creating a great API is really a marketing task. You need to think about our users and try to put yourself in their mindset. The ease of learning an API is important, even for complex API&#8217;s. This section discusses some general concepts related to these issues.</p>
+<div class="section" id="missing-step">
+<span id="missing-step"></span><h4>Missing step<a class="headerlink" href="#missing-step" title="Permalink to this headline">¶</a></h4>
+<p>Here is a crucial API design step that is often missed or skipped: before even implementing the API write out the common sequence of operations. Then ask yourself: is it simple enough? How can I make it simpler?</p>
+<p>To do this, make your first set of unit tests reflect the common sequences. Write these tests as you implement the API. You should also write up some example code that illustrates the use of the API.</p>
+</div>
+<div class="section" id="layering">
+<span id="layering"></span><h4>Layering<a class="headerlink" href="#layering" title="Permalink to this headline">¶</a></h4>
+<p>In thinking through the common sequences, make sure the API is &#8220;layered&#8221;. A layered API makes easy tasks trivial, with very few function calls. At the same time it enables developers to do more complex tasks by providing additional methods and routines to control and change options/behavior.</p>
+</div>
+<div class="section" id="code-complexity">
+<span id="code-complexity"></span><h4>Code Complexity<a class="headerlink" href="#code-complexity" title="Permalink to this headline">¶</a></h4>
+<p>When in marketing, you have to be aware of your demographic. Do not assume that our customers are going to be Python or C++ coding gurus. Believe it or not, 75% of them are not going to be in the top 25%. They may still be very effective users (for example, they might be experts in statistics, or some other field). Many of them may be learning Python just to use our platform.</p>
+<p>A related point to remember is that many C++ classes, functions, or method will likely be wrapped and made available to other languages such as Python.</p>
+<p>Because of these two situations, stick to very basic constructs in the API. No enums. No templates. Should we allow const in APIs?</p>
+<p>As much as possible, method signatures should not require fancy constructs (e.g. lambda functions in Python or streams in C/C++). Try to avoid passing in other fancy C++ or Python structures.</p>
+</div>
+<div class="section" id="market-research">
+<span id="market-research"></span><h4>Market Research<a class="headerlink" href="#market-research" title="Permalink to this headline">¶</a></h4>
+<p>In marketing it is often a good idea to do some market research. The nice thing is that in a development-oriented company there are no lack of developers.</p>
+</div>
+</div>
+</div>
+<div class="section" id="naming-conventions">
+<span id="id1"></span><h2>Naming conventions<a class="headerlink" href="#naming-conventions" title="Permalink to this headline">¶</a></h2>
+<p>This section supplements the general discussion on naming conventions. The naming conventions in that section apply to API&#8217;s. Although the items discussed in this section can be applied to any source code, they are particularly relevant (and will be enforced) in our API.</p>
+<p>Names should be meaningful and specific. &#8220;Constructors&#8221; is not a good name as it is too generic. &#8220;NodeConstructors&#8221; is a good name.</p>
+<p>Use names and terminology consistently throughout the API. Use names and terms in a manner that is consistent with the rest of our usage. Before using a term, search our codebase and docs for how they are used. [Note: we should create an API glossary for the Reference Manual.]</p>
+<p>See Cocoa API coding guidelines for more discussion on these topics:</p>
+<p><a class="reference external" href="http://developer.apple.com/documentation/Cocoa/Conceptual/CodingGuidelines/CodingGuidelines.html">http://developer.apple.com/documentation/Cocoa/Conceptual/CodingGuidelines/CodingGuidelines.html</a></p>
+<div class="section" id="abbreviations">
+<span id="abbreviations"></span><h3>Abbreviations<a class="headerlink" href="#abbreviations" title="Permalink to this headline">¶</a></h3>
+<p>In general don&#8217;t abbreviate, even if you think the abbreviation is common. This is hard to do as good programmers are often lazy typists. Spell things out so they are clear. Longer names are better than abbreviated ones.</p>
+<p>For example, &#8216;maxCoinc&#8217; is not a good name. &#8216;maxCoincidence&#8217; is a much clearer name. &#8216;max_d&#8217; is not a good name. &#8216;maxDistance&#8217; is much better.</p>
+<div class="section" id="acceptable-abbreviations">
+<span id="acceptable-abbreviations"></span><h4>Acceptable abbreviations<a class="headerlink" href="#acceptable-abbreviations" title="Permalink to this headline">¶</a></h4>
+<p>In general, the abbreviations listed on <a class="reference external" href="http://developer.apple.com/documentation/Cocoa/Conceptual/CodingGuidelines/Articles/APIAbbreviations.html">http://developer.apple.com/documentation/Cocoa/Conceptual/CodingGuidelines/Articles/APIAbbreviations.html</a> are okay to use.</p>
+<p>The following HTM specific abbreviations are ok to use:</p>
+<ul class="simple">
+<li>SDR - Sparse Distributed Representation</li>
+<li>SP - Spatial Pooler</li>
+<li>TM - Temporal Memory</li>
+<li>HTM - Hierarchical Temporal Memory</li>
+<li>Net - network</li>
+<li>TAM - Temporal Adjacency Matrix</li>
+<li>TBI - Time Based Inference</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="api-documentation">
+<span id="api-documentation"></span><h2>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h2>
+<p>Documentation is clearly important for an API. Our reference guides will draw heavily from the code documentation. Document everything from the point of view of a first-time developer. Don&#8217;t assume they know about every other part of the system.</p>
+<p>The documentation conventions for API header files are stricter than for other source code. API header files should follow the example in Section 2.5.3 strictly, including spacing, commenting standard, the use of &#8220;/**&#8221; vs &#8220;//&#8221; etc. Methods with parameters should contain appropriate &#64;param lines. Return values should be marked with &#64;retval.</p>
+</div>
+<div class="section" id="error-handling">
+<span id="id2"></span><h2>Error Handling<a class="headerlink" href="#error-handling" title="Permalink to this headline">¶</a></h2>
+<p>We should not throw exceptions across language boundaries.</p>
+<p>The vast majority of developers will make errors in using an API. It is just a part of learning and development. Therefore, good error handling is crucial.</p>
+<div class="section" id="what-errors-should-you-check-for">
+<span id="what-errors-should-you-check-for"></span><h3>What errors should you check for?<a class="headerlink" href="#what-errors-should-you-check-for" title="Permalink to this headline">¶</a></h3>
+<p>Any condition that can be caused by situations outside of the control of our software should be checked. This includes user errors such as illegal parameter values, buffer overflows, and using wrong sequence of API calls.</p>
+<p>It includes environmental errors, such as failed connections, hard drive full, and data corruption.</p>
+<p>It is also helpful to provide warnings for situations where the user could get into trouble. For example, suppose you have a node in a network that is not connected to any other nodes. This is not strictly an error but it would be nice if our tools gave a warning.</p>
+<p>In general we don&#8217;t need to check for out of memory conditions.</p>
+</div>
+<div class="section" id="where-should-you-check-for-errors">
+<span id="where-should-you-check-for-errors"></span><h3>Where should you check for errors?<a class="headerlink" href="#where-should-you-check-for-errors" title="Permalink to this headline">¶</a></h3>
+<p>As much as possible, the entry points into the API should check for any errors. Error results returned from deep within the system are usually incomprehensible to the user.</p>
+</div>
+<div class="section" id="how-should-you-handle-errors">
+<span id="how-should-you-handle-errors"></span><h3>How should you handle errors?<a class="headerlink" href="#how-should-you-handle-errors" title="Permalink to this headline">¶</a></h3>
+<p>Our system must have clear error messages for everything. Error messages should be specific, such as &#8220;Parameter &#8216;maxCoincidences&#8217; to node N is out of range&#8221; rather than &#8220;illegal parameter&#8221; or &#8220;stack overflow&#8221;.</p>
+<p>Be careful about throwing exceptions in the API layer, particularly if the layer is going to be wrapped into another language.</p>
+</div>
+</div>
+<div class="section" id="miscellaneous">
+<span id="id3"></span><h2>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h2>
+<p>Header files - for C or C++ API&#8217;s, include a single header file that developers will include. It should be a container that includes other required header files. For example, &#8220;nta_plugin.hpp&#8221; should be sufficient for all C++ plugin developers.</p>
+<p>In C++ classes users will care more about the public members than private members. Thus, for C++ header files always put public members first, then private members.</p>
+</div>
+<div class="section" id="node-api-guidelines">
+<span id="node-api-guidelines"></span><h2>Node API Guidelines<a class="headerlink" href="#node-api-guidelines" title="Permalink to this headline">¶</a></h2>
+<p>Nodes are implemented as plugins in NuPIC. These nodes have a NodeSpec, containing node documentation, input and output variable names, parameters, and execute commands. The NodeSpec in essence defines the API of the node. Over time some conventions have arisen regarding names and functionality of specific NodeSpec items. Internal and third party tools, as well as customer code, now rely on some of this and we expect this reliance to grow in the future.</p>
+<p>It is therefore useful to codify some general and specific guidelines regarding NodeSpec items. This section covers these guidelines and is intended for nodes released to customers. Both PyNodes and C++ nodes have NodeSpec&#8217;s and should adhere to these guidelines.</p>
+</div>
+<div class="section" id="general-guidelines">
+<span id="general-guidelines"></span><h2>General Guidelines<a class="headerlink" href="#general-guidelines" title="Permalink to this headline">¶</a></h2>
+<p>The node name should be camelBack notation with a leading upper case, such as &#8220;Zeta1TopNode&#8221;. Inputs, outputs, parameter names, and execute commands should be camelBack notation with a leading lower case letter and no trailing underscore, such as &#8220;exampleParameter&#8221;.</p>
+<p>All nodes should fill in the general description field of NodeSpec to contain a general description of the node purpose and functionality. All inputs, outputs, parameters and execute commands should have the description field set to something useful. The type should be set to the most specific applicable type, and the constraints field should be set appropriately.</p>
+</div>
+<div class="section" id="specific-guidelines">
+<span id="specific-guidelines"></span><h2>Specific Guidelines<a class="headerlink" href="#specific-guidelines" title="Permalink to this headline">¶</a></h2>
+<p>The following table lists specific conventions that all externally released nodes should follow. These names should also be considered &#8220;reserved&#8221; for the usage specified here (for example, if a node has a parameter categoryCount, it must have the meaning specified below).</p>
+<table>
+<thead>
+<tr>
+  <th>nodeSpecItem name</th>
+  <th>Type</th>
+  <th>Node type</th>
+  <th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+  <td>dataOut</td>
+  <td>O</td>
+  <td>NL</td>
+  <td>The primary output of the node</td>
+</tr>
+<tr>
+  <td>dataIn</td>
+  <td>I</td>
+  <td>NL</td>
+  <td>The primary input to the node</td>
+</tr>
+<tr>
+  <td>bottomUpOut</td>
+  <td>O</td>
+  <td>LUnsup</td>
+  <td>Output from a learning node (intended for higher level nodes)</td>
+</tr>
+<tr>
+  <td>bottomUpIn</td>
+  <td>I</td>
+  <td>L</td>
+  <td>Input to a learning node (intended to be from lower level nodes)</td>
+</tr>
+<tr>
+  <td>topDownIn</td>
+  <td>I</td>
+  <td>L</td>
+  <td>(optional) Input to a learning node (intended for nodes that receive   input from higher level nodes)</td>
+</tr>
+<tr>
+  <td>topDownOut</td>
+  <td>O</td>
+  <td>L</td>
+  <td>(optional) Output from a learning node (intended for nodes that send   output to lower level nodes)</td>
+</tr>
+<tr>
+  <td>maxOutputVectorCount</td>
+  <td>P</td>
+  <td>S</td>
+  <td>An integer denoting the number of output vectors that can be   generated by this sensor under the current configuration. This should take   into account the loaded data as well as explorer configurations, repeat   counts, etc. The sensor should return -1 where meaningless or infinite (such   as for random sensors or when reading from live streams).</td>
+</tr>
+<tr>
+  <td>position</td>
+  <td>P</td>
+  <td>S</td>
+  <td>(optional) Refers to sensors that have a discrete number of data   items loaded. These items could be vectors, sequences, images, etc. When   implemented it should have the following meaning: if position is set to an   integer N, the next call to compute should output the first vector from the   N’th item. When retrieved, the sensor should return the item number. The   sensor should precisely define the data item that is returned.</td>
+</tr>
+<tr>
+  <td>seek</td>
+  <td>C</td>
+  <td>S</td>
+  <td>(optional) When implemented, it should have the   following meaning: “seek “; should set the sensor state to be equivalent to   re-starting the sensor in the current configuration and performing n-1   compute’s. In other words the next compute should cause it to output the n’th   output vector. When this concept is meaningless (such as for random   sensors or when reading from live streams), the command should return an   exception.</td>
+</tr>
+<tr>
+  <td>activeOutputCount</td>
+  <td></td>
+  <td>All nodes with outputs</td>
+  <td>An integer indicating the number of output elements that are actually   being used by the primary output (typically dataOut or bottomUpOut)</td>
+</tr>
+<tr>
+  <td>inferenceMode</td>
+  <td>P</td>
+  <td>L</td>
+  <td>A boolean. Return value indicates whether node is performing   inference. When the parameter is set, the node should begin inference under   the current inference configuration.</td>
+</tr>
+<tr>
+  <td>learningMode</td>
+  <td>P</td>
+  <td>L</td>
+  <td>A boolean. Return value indicates whether node is currently   performing learning. When the parameter is set, the node should begin   learning under the current learning configuration.</td>
+</tr>
+<tr>
+  <td>categoryCount</td>
+  <td>P</td>
+  <td>LSup</td>
+  <td>An integer indicating the number of categories that have been learned</td>
+</tr>
+<tr>
+  <td>categoryIn</td>
+  <td>I</td>
+  <td>LSup</td>
+  <td>An input denoting the true   category of the current input to the node. This could be a single number   denoting the category index or a   string label. Used only during training.</td>
+</tr>
+<tr>
+  <td>categoriesOut</td>
+  <td>O</td>
+  <td>LSup</td>
+  <td>A vector of reals representing, for each category index, the   likelihood that the input to the node belongs to that category. This output is meaningful only when   the node is in inference mode and should be set to all zeros otherwise</td>
+</tr>
+<tr>
+  <td>coincidenceCount</td>
+  <td>P</td>
+  <td>LSpatial</td>
+  <td>An integer representing the number of learned coincidences</td>
+</tr>
+<tr>
+  <td>spatialPoolerOutput</td>
+  <td>P</td>
+  <td>LSpatial</td>
+  <td>The output vector of the spatial pooler representing a distribution   over coincidences</td>
+</tr>
+<tr>
+  <td>sparseCoincidenceMatrix</td>
+  <td>P</td>
+  <td>LSpatial</td>
+  <td>A SparseMatrix representing all learned coincidences</td>
+</tr>
+<tr>
+  <td>spatialPoolerAlgorithm</td>
+  <td>P</td>
+  <td>LSpatial</td>
+  <td>An enum denoting the specific algorithm being used for spatial pooling</td>
+</tr>
+<tr>
+  <td>coincidenceVectorCounts</td>
+  <td>P</td>
+  <td>LTAM</td>
+  <td>An array of integers representing the frequency of each coincidence   encountered during learning</td>
+</tr>
+<tr>
+  <td>symmetricTime</td>
+  <td>P</td>
+  <td>LTAM</td>
+  <td>A boolean indicating whether the node assumes that time is symmetric</td>
+</tr>
+<tr>
+  <td>temporalPoolerAlgorithm</td>
+  <td>P</td>
+  <td>LTAM</td>
+  <td>An enum denoting the specific algorithm being used for temporal   pooling</td>
+</tr>
+<tr>
+  <td>TAM</td>
+  <td>P</td>
+  <td>LTAM</td>
+  <td>A SparseMatrix representing the full TAM</td>
+</tr>
+<tr>
+  <td>overlappingGroups</td>
+  <td>P</td>
+  <td>LTAM</td>
+  <td>Boolean indicating whether groups can be overlapped</td>
+</tr>
+<tr>
+  <td>groupCount</td>
+  <td>P</td>
+  <td>LTAM</td>
+  <td>Integer indicating the number of learned groups</td>
+</tr>
+<tr>
+  <td>groups</td>
+  <td>P</td>
+  <td>LTAM</td>
+  <td>The set of coincidences belonging to each group, returned as a list   of list of coincidence indices. The exact format should be the same as in   Zeta1Node.</td>
+</tr>
+</tbody></table><p>Note: The items here represent a best guess as to what makes sense for the types of nodes specified. Given that the core algorithms in NuPIC are changing rapidly, as is our understanding of HTM applications, there is a good chance that changes will be made to the above list. However, where it makes sense, we should follow the above conventions.</p>
+<p>&#8220;Type&#8221; and &#8220;Node type&#8221; Key:</p>
+<ul class="simple">
+<li><strong>I</strong> - Input</li>
+<li><strong>O</strong> - Output</li>
+<li><strong>P</strong> - Parameter</li>
+<li><strong>C</strong> - Execute command</li>
+<li><strong>S</strong> - sensors</li>
+<li><strong>NL</strong> - all non-learning nodes (sensors, effectors, pass through nodes, etc.)</li>
+<li><strong>L</strong> - all learning nodes</li>
+<li><strong>LSup</strong> - all supervised learning nodes</li>
+<li><strong>LUnsup</strong> - all unsupervised learning nodes</li>
+<li><strong>LSpatial</strong> - all learning nodes with a spatial pooler that learns coincidences</li>
+<li><strong>LTAM</strong> - all learning nodes using a transition matrix and computing groups from the transition matrix</li>
+</ul>
+</div>
+<div class="section" id="example-code-guidelines">
+<span id="example-code-guidelines"></span><h2>Example Code Guidelines<a class="headerlink" href="#example-code-guidelines" title="Permalink to this headline">¶</a></h2>
+<p>Example code has a tough job. It needs to educate and illuminate. It needs to work out of the box. It needs to be understandable to a developer who knows very little about our system and very little about Python or C++. Examples are the starting point for hands-on work with our system. They often serve as a framework for more complex applications.</p>
+<p>General and specific guidelines for example code are below. The Bitworm and Waves examples can be used as Example code examples.</p>
+<div class="section" id="general-guidelines">
+<span id="id4"></span><h3>General Guidelines<a class="headerlink" href="#general-guidelines" title="Permalink to this headline">¶</a></h3>
+<p>The following general guidelines should be followed when creating example code that is released as part of NuPIC:</p>
+<ul class="simple">
+<li>The target audience for simple examples: a programmer with some development experience and little or no prior exposure to Python. The developer may be coming from another discipline with little formal programming background.</li>
+<li>Keep coding style as simple and basic as possible. Avoid fancy language constructs. In Python, avoid list comprehensions, map, and other advanced constructs. Stick to simple loops, if statements, and function calls.</li>
+<li>Keep simple examples simple! Keep the number of lines of code down to less than a page. If you have non-trivial code in several lines, perhaps that should become part of the tool library itself? At the very least it can become a function in a separate utility file.</li>
+<li>Don&#8217;t throw too many options into the example code. This becomes very confusing for developers. Split them out into separate example files that can be learned in sequence.</li>
+<li>Remember that developers often start by modifying sample code. As such, the longevity of the code is far longer than just running and understanding the example.</li>
+</ul>
+</div>
+<div class="section" id="specific-guidelines">
+<span id="id5"></span><h3>Specific Guidelines<a class="headerlink" href="#specific-guidelines" title="Permalink to this headline">¶</a></h3>
+<p>The following specific guidelines should be followed in examples:</p>
+<ul class="simple">
+<li>Examples should make an effort to use the best tools API for the job. No examples should use deprecated API calls.</li>
+<li>Complex examples should contain a README.md file.</li>
+<li>No auto-generated files should be included in the source tree or in the release. Exceptions are trained network files that take a long time to generate (e.g. distorted Pictures files).</li>
+<li>There should be a &#8220;cleanup.py&#8221; script that cleans up all auto-generated files, .pyc files, Visualizer files, and directories (including bundle directories).</li>
+<li>Source files should be well commented and include the appropriate copyright header.</li>
+<li>There should be a &#8220;run_once.py&#8221; in all folders that goes through the full sequence. See below for run_once.py guidelines</li>
+<li>There should be generate_data.py, create_network.py, etc. files for each step of the examples. The naming should be kept consistent across examples.</li>
+<li>generate_report should create a file report.txt. This file should contain an English report that is very readable and conversational in tone. Should compare both training and test results and reports accuracy on both. Should show overall learning      statistics such as number of coincidences and groups for each node.</li>
+<li>The more complex examples should contain some experiments that can be run. There should be a top level RunExperiment.py that can take command line option (e.g. experiment name) and run that experiment. There should be a subdirectory called &#8220;experiments&#8221; that contains each actual experiment.</li>
+<li>There should be nightly tests for each of the official examples that check the functionality and code. These tests should be in the qa directory, NOT in the examples directory!</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/numenta-logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../index.html">NuPIC</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick-start/index.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/index.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Docs</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Contributing</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="python-style-guide.html">Python Style Guide</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">C++ Style Guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#consistency-within-a-file">Consistency Within A File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#c-source-files">C++ Source Files</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#introductory-section-and-copyright-notices">Introductory Section And Copyright Notices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#filenames">Filenames</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#naming-conventions">Naming Conventions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#indentation">Indentation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-header-file">The Header File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#class-definitions">Class Definitions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#method-definitions">Method Definitions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-header-file">Example Header File</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#the-cpp-file">The CPP file</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#variable-declarations">Variable Declarations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#comments-in-cpp-files">Comments in CPP files</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#error-handling">Error Handling</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#logging">Logging</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#use-of-assert">Use of assert</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#exceptions-and-error-codes">Exceptions and Error Codes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#avoid-static-cast">Avoid static_cast</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#memory-and-resource-management">Memory and Resource Management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#memory-allocation">Memory Allocation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#resource-management">Resource Management</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#general-principles">General principles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#factories">Factories</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#passing-resources-around">Passing resources around</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boost-shared-ptr"><code class="docutils literal"><span class="pre">boost::shared_ptr</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#unit-tests">Unit Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#documentation">Documentation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#miscellaneous">Miscellaneous</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#macros">Macros</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#use-of-text">Use of text</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#use-of-external-libraries">Use Of External Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cross-platform-coding">Cross Platform Coding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#operating-system-dependencies">Operating System Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#specific-cross-platform-usage">Specific Cross Platform Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#write-compiler-agnostic-code">Write Compiler-Agnostic Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#api-guidelines">API Guidelines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#api-design-marketing">API Design = Marketing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#naming-conventions">Naming conventions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#abbreviations">Abbreviations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#api-documentation">API Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-handling">Error Handling</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#what-errors-should-you-check-for">What errors should you check for?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#where-should-you-check-for-errors">Where should you check for errors?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#how-should-you-handle-errors">How should you handle errors?</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#node-api-guidelines">Node API Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#general-guidelines">General Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#specific-guidelines">Specific Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-code-guidelines">Example Code Guidelines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#general-guidelines">General Guidelines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#specific-guidelines">Specific Guidelines</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cmake-style-guide.html">CMake Style Guide</a></li>
+</ul>
+</li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Numenta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="../_sources/contributing/cpp-style-guide.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/numenta/nupic" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
