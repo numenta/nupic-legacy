@@ -1,0 +1,121 @@
+version: 2
+jobs:
+  validate-contributor:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Validate contributor license
+          command: ci/circle/validate-contributor.sh
+
+  build-and-test-osx:
+    macos:
+      xcode: '8.3.3'
+    working_directory: ~/numenta/nupic
+    parallelism: 1
+    environment:
+      XCODE_SCHEME: nupic
+      XCODE_WORKSPACE: nupic
+      ARCHFLAGS: "-arch x86_64"
+      PYTHONPATH: "$HOME/Library/Python/2.7/lib/python/site-packages"
+      PYBIN: "$HOME/Library/Python/2.7/bin"
+
+    steps:
+      # Machine setup
+      - run:
+          name: Make sure to use OS X in CircleCI Web UI
+          command: |
+            if [[ "$OSTYPE" != "darwin"* ]]; then
+              echo "Must set option to use OS X in CircleCI Web UI" && exit 1;
+            fi
+      - run: sudo systemsetup -settimezone 'GMT'
+      - run:
+          name: Restoring system python
+          command: |
+            brew update
+            brew uninstall python
+            curl https://bootstrap.pypa.io/get-pip.py | python - --user
+            echo 'export PATH=$HOME/Library/Python/2.7/bin:$PATH' >> $BASH_ENV
+      - checkout
+
+      # Dependencies
+      # Restore the dependency cache
+      - restore_cache:
+          keys:
+          # This branch if available
+          - v1-dep-{{ .Branch }}-
+          # Default branch if not
+          - v1-dep-master-
+          # Any branch if there are none on the default branch - this should be unnecessary if you have your default branch configured correctly
+          - v1-dep-
+
+      - run:
+          name: Install dependencies
+          command: |
+            pip install --upgrade --user --ignore-installed setuptools setuptools-scm wheel
+            pip install --no-cache-dir --user -r requirements.txt  --verbose || exit
+            brew install mysql@5.7
+            brew tap homebrew/services
+            brew tap homebrew/services
+            brew services start mysql@5.7
+
+      # Save dependency cache
+      - save_cache:
+          key: v1-dep-{{ .Branch }}-{{ epoch }}
+          paths:
+          # This is a broad list of cache paths to include many possible development environments
+          # You can probably delete some of these entries
+          - vendor/bundle
+          - ~/virtualenvs
+          - ~/.m2
+          - ~/.ivy2
+          - ~/.bundle
+          - ~/.go_workspace
+          - ~/.gradle
+          - ~/.cache/bower
+
+      # Build
+      - run:
+          name: Building wheel
+          environment:
+            VERBOSE: 1
+          command: python setup.py bdist_wheel
+
+      # Test
+      - run:
+          name: Running python tests
+          command: |
+            mkdir test_reports
+            pip install --user --no-index --find-links=`pwd`/dist/ nupic
+            python setup.py test --pytest-args="--junitxml=test_reports/py_test_report.xml --verbose --boxed --cov nupic --cov-report html unit integration"
+          environment:
+            NTA_CONF_PROP_nupic_cluster_database_host: 127.0.0.1
+
+      - store_test_results:
+          path: test_reports
+      - store_artifacts:
+          path: dist
+
+  deploy-s3:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: dist
+      - run:
+          name: Deploying to S3
+          command: ci/circle/deploy_s3-osx.sh
+
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - validate-contributor
+      - build-and-test-osx:
+          requires:
+            - validate-contributor
+      - deploy-s3:
+          requires:
+            - build-and-test-osx
+          filters:
+            branches:
+              only: master
