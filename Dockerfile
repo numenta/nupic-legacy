@@ -29,7 +29,7 @@ RUN apt-get update && \
     git-core \
     gcc \
     g++ \
-    cmake \
+    cmake3 \
     python \
     python2.7 \
     python2.7-dev \
