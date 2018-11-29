@@ -351,7 +351,7 @@ class Model(Serializable):
     with open(modelPickleFilePath, 'wb') as modelPickleFile:
       logger.debug("(%s) Pickling Model instance...", self)
 
-      pickle.dump(self, modelPickleFile)
+      pickle.dump(self, modelPickleFile, protocol=pickle.HIGHEST_PROTOCOL)
 
       logger.debug("(%s) Finished pickling Model instance", self)
 
@@ -387,7 +387,7 @@ class Model(Serializable):
     # Load the model
     modelPickleFilePath = Model._getModelPickleFilePath(savedModelDir)
 
-    with open(modelPickleFilePath, 'r') as modelPickleFile:
+    with open(modelPickleFilePath, 'rb') as modelPickleFile:
       logger.debug("Unpickling Model instance...")
 
       model = pickle.load(modelPickleFile)
