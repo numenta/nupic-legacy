@@ -157,25 +157,6 @@ plt.title("Figure 1: Column overlap of a SP with random input.")
 plt.savefig("figure_1")
 plt.close()
 
-print ""
-print "---------------------------------"
-print "Figure 1a shows the sorted overlap scores of all columns in the spatial"
-print "pooler. The top 2% of these columns with the largest overlap scores, "
-print "comprising the active columns of the output sparse representation, "
-print "are shown in orange."
-print "---------------------------------"
-print ""
-
-plt.plot(sorted(overlaps)[::-1], label="All cols")
-plt.plot(sorted(activeColsScores[0])[::-1], label="Active cols")
-plt.legend(loc="upper right")
-plt.xlabel("Columns")
-plt.ylabel("Overlap scores")
-plt.title("Figure 1a: Sorted column overlaps of an untrained SP with random"
-          "input.")
-plt.savefig("figure_1a")
-plt.close()
-
 # Part 2a:
 # -------
 # The input overlap between two binary vectors is defined as their dot product.
@@ -299,10 +280,28 @@ for _ in range(epochs):
     #Feed the examples to the SP
     sp.compute(inputVectors[i][:], True, outputColumns[i][:])
 
+print ""
+print "---------------------------------"
+print "Figure 4a shows the sorted overlap scores of all columns in a spatial"
+print "pooler with random input, before and after learning. The top 2% of "
+print "columns with the largest overlap scores, comprising the active columns "
+print "of the output sparse representation, are highlighted in green."
+print "---------------------------------"
+print ""
+
+plt.plot(sorted(overlaps)[::-1], label="Before learning")
 overlaps = sp.getOverlaps()
-activeColsScores = []
-for i in outputColumns[-1].nonzero():
-  activeColsScores.append(overlaps[i])
+plt.plot(sorted(overlaps)[::-1], label="After learning")
+plt.axvspan(0, len(activeColsScores[0]), facecolor="g", alpha=0.3,
+            label="Active columns")
+plt.legend(loc="upper right")
+plt.xlabel("Columns")
+plt.ylabel("Overlap scores")
+plt.title("Figure 4a: Sorted column overlaps of a SP with random "
+          "input.")
+plt.savefig("figure_4a")
+plt.close()
+
 
 inputVectorsCorrupted = np.zeros((numExamples, inputSize), dtype=uintType)
 outputColumnsCorrupted = np.zeros((numExamples, columnNumber), dtype=uintType)
@@ -341,25 +340,6 @@ plt.ylabel("Output overlap")
 plt.title("Figure 4: Output overlap in function of input overlap in a SP after "
           "training")
 plt.savefig("figure_4")
-plt.close()
-
-print ""
-print "---------------------------------"
-print "Figure 4a shows the sorted overlap scores of all columns in the spatial"
-print "pooler, after training. The top 2% of these columns with the largest "
-print "overlap scores, comprising the active columns of the output sparse "
-print "representation, are shown in orange."
-print "---------------------------------"
-print ""
-
-plt.plot(sorted(overlaps)[::-1], label="All cols")
-plt.plot(sorted(activeColsScores[0])[::-1], label="Active cols")
-plt.legend(loc="upper right")
-plt.xlabel("Columns")
-plt.ylabel("Overlap scores")
-plt.title("Figure 4a: Sorted column overlaps of a trained SP with random "
-          "input.")
-plt.savefig("figure_4a")
 plt.close()
 
 print ""
