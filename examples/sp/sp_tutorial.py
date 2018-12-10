@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2016, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2018, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -105,14 +105,14 @@ for i in range(inputSize):
 
 activeCols = np.zeros(columnNumber, dtype=uintType)
 sp = SP(inputDimensions,
-  columnDimensions,
-  potentialRadius = int(0.5*inputSize),
-  numActiveColumnsPerInhArea = int(0.02*columnNumber),
-  globalInhibition = True,
-  seed = 1,
-  synPermActiveInc = 0.01,
-  synPermInactiveDec = 0.008
-   )
+        columnDimensions,
+        potentialRadius = int(0.5*inputSize),
+        numActiveColumnsPerInhArea = int(0.02*columnNumber),
+        globalInhibition = True,
+        seed = 1,
+        synPermActiveInc = 0.01,
+        synPermInactiveDec = 0.008
+       )
 
 # Part 1:
 # -------
@@ -138,7 +138,7 @@ for i in activeCols.nonzero():
 
 print ""
 print "---------------------------------"
-print "Figure 1 shows an histogram of the overlap scores"
+print "Figure 1 shows a histogram of the overlap scores"
 print "from all the columns in the spatial pooler, as well as the"
 print "overlap scores of those columns that were selected to build a"
 print "sparse representation of the input (shown in green)."
@@ -148,9 +148,9 @@ print "---------------------------------"
 print ""
 
 bins = np.linspace(min(overlaps), max(overlaps), 28)
-plt.hist(overlaps, bins, alpha=0.5, label='All cols')
-plt.hist(activeColsScores, bins, alpha=0.5, label='Active cols')
-plt.legend(loc='upper right')
+plt.hist(overlaps, bins, alpha=0.5, label="All cols")
+plt.hist(activeColsScores, bins, alpha=0.5, label="Active cols")
+plt.legend(loc="upper right")
 plt.xlabel("Overlap scores")
 plt.ylabel("Frequency")
 plt.title("Figure 1: Column overlap of a SP with random input.")
@@ -159,13 +159,13 @@ plt.close()
 
 # Part 2a:
 # -------
-# The input overlap between two binary vectors is defined as their dot product. In order
-# to normalize this value we divide by the minimum number of active inputs
-# (in either vector). This means we are considering the sparser vector as reference.
-# Two identical binary vectors will have an input overlap of 1, whereas two completely
-# different vectors (one is the logical NOT of the other) will yield an overlap of 0.
-# In this section we will see how the input overlap of two binary vectors decrease as we
-# add noise to one of them.
+# The input overlap between two binary vectors is defined as their dot product.
+# In order to normalize this value we divide by the minimum number of active
+# inputs (in either vector). This means we are considering the sparser vector as
+# reference. Two identical binary vectors will have an input overlap of 1,
+# whereas two completely different vectors (one is the logical NOT of the other)
+# will yield an overlap of 0. In this section we will see how the input overlap
+# of two binary vectors decrease as we add noise to one of them.
 
 inputX1 = np.zeros(inputSize, dtype=uintType)
 inputX2 = np.zeros(inputSize, dtype=uintType)
@@ -185,20 +185,20 @@ for noiseLevel in np.arange(0, 1.1, 0.1):
 
 print ""
 print "---------------------------------"
-print "Figure 2 shows the input overlap between 2 identical binary"
-print "vectors in function of the noise applied to one of them."
+print "Figure 2 shows the input overlap between 2 identical binary vectors in"
+print "function of the noise applied to one of them."
 print "0 noise level means that the vector remains the same, whereas"
-print "1 means that the vector is the logical negation of the original"
-print "vector."
-print "The relationship between overlap and noise level is practically"
-print "linear and monotonically decreasing."
+print "1 means that the vector is the logical negation of the original vector. "
+print "The relationship between overlap and noise level is practically linear "
+print "and monotonically decreasing."
 print "---------------------------------"
 print ""
 
 plt.plot(x, y)
 plt.xlabel("Noise level")
 plt.ylabel("Input overlap")
-plt.title("Figure 2: Input overlap between 2 identical vectors in function of noiseLevel.")
+plt.title("Figure 2: Input overlap between 2 identical vectors in function of "
+          "noiseLevel.")
 plt.savefig("figure_2")
 plt.close()
 
@@ -232,35 +232,37 @@ for noiseLevel in np.arange(0, 1.1, 0.1):
 print ""
 print "---------------------------------"
 print "Figure 3 shows the output overlap between two sparse representations"
-print "in function of their input overlap. Starting from two identical binary vectors"
-print "(which yield the same active columns) we add noise two one of them"
-print "feed it to the SP, and estimate the output overlap between the two"
+print "in function of their input overlap. Starting from two identical binary "
+print "vectors (which yield the same active columns) we add noise two one of "
+print "them, feed it to the SP, and estimate the output overlap between the two"
 print "representations in terms of the common active columns between them."
-print "As expected, as the input overlap decrease, so does the output overlap."
+print "As expected, as the input overlap decreases, so does the output overlap."
 print "---------------------------------"
 print ""
 
 plt.plot(x, y)
 plt.xlabel("Input overlap")
 plt.ylabel("Output overlap")
-plt.title("Figure 3: Output overlap in function of input overlap in a SP without training")
+plt.title("Figure 3: Output overlap in function of input overlap in a SP "
+          "without training")
 plt.savefig("figure_3")
 plt.close()
 
 # Part 3:
 # -------
-# After training, a SP can become less sensitive to noise. For this purpose, we train the SP by
-# turning learning on, and by exposing it to a variety of random binary vectors.
-# We will expose the SP to a repetition of input patterns in order to make it learn and distinguish
-# them once learning is over. This will result in robustness to noise in the inputs.
-# In this section we will reproduce the plot in the last section after the SP has learned a series
-# of inputs. Here we will see how the SP exhibits increased resilience to noise after learning.
+# After training, a SP can become less sensitive to noise. For this purpose, we
+# train the SP by turning learning on, and by exposing it to a variety of random
+# binary vectors. We will expose the SP to a repetition of input patterns in
+# order to make it learn and distinguish them once learning is over. This will
+# result in robustness to noise in the inputs. In this section we will reproduce
+# the plot in the last section after the SP has learned a series of inputs. Here
+# we will see how the SP exhibits increased resilience to noise after learning.
 
 # We will present 10 random vectors to the SP, and repeat this 30 times.
-# Later you can try changing the number of times we do this to see how it changes the last plot.
-# Then, you could also modify the number of examples to see how the SP behaves.
-# Is there a relationship between the number of examples and the number of times that
-# we expose them to the SP?
+# Later you can try changing the number of times we do this to see how it
+# changes the last plot. Then, you could also modify the number of examples to
+# see how the SP behaves. Is there a relationship between the number of examples
+# and the number of times that we expose them to the SP?
 
 numExamples = 10
 inputVectors = np.zeros((numExamples, inputSize), dtype=uintType)
@@ -278,6 +280,29 @@ for _ in range(epochs):
     #Feed the examples to the SP
     sp.compute(inputVectors[i][:], True, outputColumns[i][:])
 
+print ""
+print "---------------------------------"
+print "Figure 4a shows the sorted overlap scores of all columns in a spatial"
+print "pooler with random input, before and after learning. The top 2% of "
+print "columns with the largest overlap scores, comprising the active columns "
+print "of the output sparse representation, are highlighted in green."
+print "---------------------------------"
+print ""
+
+plt.plot(sorted(overlaps)[::-1], label="Before learning")
+overlaps = sp.getOverlaps()
+plt.plot(sorted(overlaps)[::-1], label="After learning")
+plt.axvspan(0, len(activeColsScores[0]), facecolor="g", alpha=0.3,
+            label="Active columns")
+plt.legend(loc="upper right")
+plt.xlabel("Columns")
+plt.ylabel("Overlap scores")
+plt.title("Figure 4a: Sorted column overlaps of a SP with random "
+          "input.")
+plt.savefig("figure_4a")
+plt.close()
+
+
 inputVectorsCorrupted = np.zeros((numExamples, inputSize), dtype=uintType)
 outputColumnsCorrupted = np.zeros((numExamples, columnNumber), dtype=uintType)
 
@@ -292,24 +317,28 @@ for noiseLevel in np.arange(0, 1.1, 0.1):
   sp.compute(inputVectors[0][:], False, outputColumns[0][:])
   sp.compute(inputVectorsCorrupted[0][:], False, outputColumnsCorrupted[0][:])
 
-  x.append(percentOverlap(inputVectors[0][:], inputVectorsCorrupted[0][:], inputSize))
-  y.append(percentOverlap(outputColumns[0][:], outputColumnsCorrupted[0][:], columnNumber))
+  x.append(percentOverlap(inputVectors[0][:], inputVectorsCorrupted[0][:],
+                          inputSize))
+  y.append(percentOverlap(outputColumns[0][:], outputColumnsCorrupted[0][:],
+                          columnNumber))
 
 print ""
 print "---------------------------------"
 print "How robust is the SP to noise after learning?"
-print "Figure 4 shows again the output overlap between two binary vectors in function"
-print "of their input overlap. After training, the SP exhibits more robustness to noise"
-print "in its input, resulting in a -almost- sigmoid curve. This implies that even if a"
-print "previous input is presented again with a certain amount of noise its sparse"
-print "representation still resembles its original."
+print "Figure 4 shows again the output overlap between two binary vectors in "
+print "function of their input overlap. After training, the SP exhibits more "
+print "robustness to noise in its input, resulting in a -almost- sigmoid curve."
+print "This implies that even if a previous input is presented again with a "
+print "certain amount of noise its sparse representation still resembles its "
+print "original."
 print "---------------------------------"
 print ""
 
 plt.plot(x, y)
 plt.xlabel("Input overlap")
 plt.ylabel("Output overlap")
-plt.title("Figure 4: Output overlap in function of input overlap in a SP after training")
+plt.title("Figure 4: Output overlap in function of input overlap in a SP after "
+          "training")
 plt.savefig("figure_4")
 plt.close()
 
@@ -319,4 +348,3 @@ print " All images generated by this script will be saved"
 print " in your current working directory."
 print "+++++++++++++++++++++++++++++++++++++++++++++++++++"
 print ""
-
