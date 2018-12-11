@@ -101,11 +101,12 @@ jobs:
     steps:
       - attach_workspace:
           at: dist
-      - checkout
       - run:
           name: Deploying to S3
-          command: ci/circle/deploy_s3-osx.sh
-
+          command: |
+            pip install awscli --upgrade --user
+            tar -cvzf nupic-${CIRCLE_SHA1}-darwin64.tar.gz -C dist .
+            aws s3 cp nupic-${CIRCLE_SHA1}-darwin64.tar.gz s3://artifacts.numenta.org/numenta/nupic/circle/
 workflows:
   version: 2
   build-test-deploy:
