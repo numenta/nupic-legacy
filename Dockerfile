@@ -54,9 +54,16 @@ ENV USER docker
 
 # Set up nupic.core
 RUN pip install numpy pycapnp
-RUN git clone https://github.com/numenta/nupic.core /usr/local/src/nupic.core
 WORKDIR /usr/local/src/nupic.core
-RUN mkdir -p build/scripts
+
+# Extract nupic.core version from ${NUPIC}/requirements.txt
+ADD requirements.txt ${NUPIC}/requirements.txt
+RUN cat ${NUPIC}/requirements.txt|grep "^nupic\.bindings"|cut -d "="  -f 3 > VERSION
+
+# Download sources from github release
+RUN wget -qO - https://github.com/numenta/nupic.core/archive/$(cat VERSION).tar.gz | tar --strip-components=1 -xzf -
+
+# Build nupic.core and nupic.bindings
 WORKDIR /usr/local/src/nupic.core/build/scripts
 RUN cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../release -DPY_EXTENSIONS_DIR=../../bindings/py/nupic/bindings ../..
 RUN make install

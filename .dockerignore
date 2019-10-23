@@ -1,3 +1,5 @@
 coreos-vagrant
 bin
 build
+.*
+*.pyc
