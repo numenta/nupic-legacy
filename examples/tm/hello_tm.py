@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2018, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -97,7 +97,7 @@ for i in range(10):
     print("active cells " + str(tm.getActiveCells()))
     print("predictive cells " + str(tm.getPredictiveCells()))
     print("winner cells " + str(tm.getWinnerCells()))
-    print("# of active segments " + str(tm.connections.numSegments()))
+    print("# of active segments " + str(numpy.shape(tm.getActiveSegments())[0]))
 
   # The reset command tells the TM that a sequence just ended and essentially
   # zeros out all the states. It is not strictly necessary but it's a bit
@@ -127,18 +127,18 @@ for j in range(5):
   print("active cells " + str(tm.getActiveCells()))
   print("predictive cells " + str(tm.getPredictiveCells()))
   print("winner cells " + str(tm.getWinnerCells()))
-  print("# of active segments " + str(tm.connections.numSegments()))
+  print("# of active segments " + str(numpy.shape(tm.getActiveSegments())[0]))
 
-  activeColumnsIndeces = [tm.columnForCell(i) for i in tm.getActiveCells()]
-  predictedColumnIndeces = [tm.columnForCell(i) for i in tm.getPredictiveCells()]
+  activeColumnsIndices = [tm.columnForCell(i) for i in tm.getActiveCells()]
+  predictedColumnIndices = [tm.columnForCell(i) for i in tm.getPredictiveCells()]
 
 
   # Reconstructing the active and inactive columns with 1 as active and 0 as
   # inactive representation.
 
-  actColState = ['1' if i in activeColumnsIndeces else '0' for i in range(tm.numberOfColumns())]
+  actColState = ['1' if i in activeColumnsIndices else '0' for i in range(tm.numberOfColumns())]
   actColStr = ("".join(actColState))
-  predColState = ['1' if i in predictedColumnIndeces else '0' for i in range(tm.numberOfColumns())]
+  predColState = ['1' if i in predictedColumnIndices else '0' for i in range(tm.numberOfColumns())]
   predColStr = ("".join(predColState))
 
   # For convenience the cells are grouped
