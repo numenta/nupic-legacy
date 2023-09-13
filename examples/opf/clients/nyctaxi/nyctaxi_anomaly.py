@@ -38,7 +38,7 @@ import model_params
 _LOGGER = logging.getLogger(__name__)
 
 _INPUT_DATA_FILE = resource_filename(
-  "nupic.datafiles", "extra/nyctaxi/nycTaxi.csv"
+  "nupic.datafiles", "extra/nycTaxi/nycTaxi.csv"
 )
 _OUTPUT_PATH = "anomaly_scores.csv"
 
