@@ -8,7 +8,7 @@ pytest==3.0.7
 pytest-cov==2.5.0
 pytest-xdist==1.16.0
 python-dateutil==2.1
-PyYAML==3.10
+PyYAML==5.4
 unittest2==0.5.1
 validictory==0.9.1
 PyMySQL==0.6.2
