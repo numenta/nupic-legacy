@@ -631,7 +631,7 @@ def _filterLikelihoods(likelihoods,
     if v <= redThreshold:
       # Value is in the redzone
 
-      if likelihoods[i] > redThreshold:
+      if likelihoods[i-1] > redThreshold:
         # Previous value is not in redzone, so leave as-is
         filteredLikelihoods.append(v)
       else:
