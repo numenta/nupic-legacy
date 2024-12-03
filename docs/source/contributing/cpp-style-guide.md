@@ -26,24 +26,14 @@ All source files, including header files, should start with the following introd
 
 ```cpp
 /* ---------------------------------------------------------------------
- * Numenta Platform for Intelligent Computing (NuPIC)
- * Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
- * with Numenta, Inc., for a separate license for this software code, the
- * following terms and conditions apply:
+ * Copyright 2013 Numenta Inc.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero Public License version 3 as
- * published by the Free Software Foundation.
+ * Copyright may exist in Contributors' modifications
+ * and/or contributions to the work.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Affero Public License for more details.
- *
- * You should have received a copy of the GNU Affero Public License
- * along with this program.  If not, see http://www.gnu.org/licenses.
- *
- * http://numenta.org/licenses/
+ * Use of this source code is governed by the MIT
+ * license that can be found in the LICENSE file or at
+ * https://opensource.org/licenses/MIT.
  * ----------------------------------------------------------------------
  */
 ```
@@ -51,7 +41,7 @@ All source files, including header files, should start with the following introd
 If the source code spans multiple years, the copyright notice should reflect this. For example:
 
 ```
-Copyright (C) 2006-2007, Numenta, Inc.
+Copyright 2006-2007 Numenta Inc.
 ```
 
 ### Filenames
@@ -128,27 +118,16 @@ Method names should be descriptive. Definitions should contain a precise descrip
 ### Example Header File
 
 ```c++
-/*
- * ----------------------------------------------------------------
- * Numenta Platform for Intelligent Computing (NuPIC)
- * Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
- * following terms and conditions apply:
+/* ---------------------------------------------------------------------
+ * Copyright 2013 Numenta Inc.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3 as
- * published by the Free Software Foundation.
+ * Copyright may exist in Contributors' modifications
+ * and/or contributions to the work.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see http://www.gnu.org/licenses.
- *
- * http://numenta.org/licenses/
- * ----------------------------------------------------------------
+ * Use of this source code is governed by the MIT
+ * license that can be found in the LICENSE file or at
+ * https://opensource.org/licenses/MIT.
+ * ----------------------------------------------------------------------
  */
 
 /** @file
