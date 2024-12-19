@@ -380,7 +380,7 @@ class Region(LockAttributesMixin):
   #- Forwards everything else to internal region
 
   def __init__(self, region, network):
-    """Store the wraped region and hosting network
+    """Store the wrapped region and hosting network
 
     The network is the high-level Network and not the internal
     Network. This is important in case the user requests the network
