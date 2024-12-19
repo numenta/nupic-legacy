@@ -278,9 +278,9 @@ class Connections(Serializable):
     :param segment: (:class:`Segment`) representing the segment to be destroyed.
     """
     # Remove the synapses from all data structures outside this Segment.
-    for synapse in segment._synapses:
-      self._removeSynapseFromPresynapticMap(synapse)
     self._numSynapses -= len(segment._synapses)
+    for synapse in list(segment._synapses):
+      self.destroySynapse(synapse)
 
     # Remove the segment from the cell's list.
     segments = self._cells[segment.cell]._segments
